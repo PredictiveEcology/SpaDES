@@ -622,11 +622,14 @@ test_that("Plot with base is not error-free", {
   if(interactive()) {
     library(raster)
     library(ggplot2)
+    library(igraph)
 
     tmpdir <- file.path(tempdir(), "test_Plot1") %>% checkPath(create = TRUE)
+    dev(2,width=13,height=7)
     for(arr in list(NULL, c(2,3))) {
-      ras <- raster(extent(0,40, 0,20), vals = sample(1:800), res = 1)
+      ras <- raster(extent(0,40, 0,20), vals = sample(1:8,replace = T,size =800), res = 1)
       aTime <- Sys.time()
+
       clearPlot()
       if(is.null(arr)) {
         Plot(ras)
@@ -655,6 +658,14 @@ test_that("Plot with base is not error-free", {
       bTime <- Sys.time()
       print(bTime - aTime)
     }
+
+    clearPlot()
+    a <- rnorm(1e2)
+    b <- rnorm(1e2)
+    Plot(a, axes = TRUE, addTo = "first", visualSqueeze = 0.6)
+    Plot(a, b, axes = TRUE, addTo = "second")
+    Plot(1:10, axes = TRUE, addTo = "third")
+    Plot(1:10, 1:10, axes = TRUE, addTo = "fourth")
 
   }
 

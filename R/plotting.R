@@ -1028,7 +1028,7 @@ setMethod(
           diff(range(y)))
       } else {
         # for non spatial objects
-        c(xmin = 0, xmax = 2, ymin = 0, ymax = 2)
+        c(2, 2)
       }
     })
   })), 2, max)
@@ -1499,6 +1499,12 @@ setMethod(
       basePlotDots <- list()
       for(i in names(mc)[-1])
         basePlotDots[[i]] <- eval(mc[[i]])
+      plotXYArgs <- substitute(list(...))
+      xAndY <- c('x','y') %in% names(basePlotDots)
+      xAndYSum <- sum(xAndY)
+      plotArgs$axisLabels <- list(unlist(lapply(plotXYArgs[1:xAndYSum+1], deparse)))
+      #unlabelled <- unlist(lapply(names(eval(plotXYArgs, envir = objFrame))[1:xAndYSum],
+      #                            function(xx) nchar(xx)==0))
 
       if(is.null(addTo)) {
         addTo <- "basePlot1"
@@ -1687,14 +1693,15 @@ setMethod(
 
           # Check that the extents are equal.
           # If not, then x and y axes are written where necessary.
+
           if (sGrob@plotArgs$axes== "L") {
-            if (arr@extents[(whPlotFrame - 1) %% arr@columns + 1][[1]] ==
+            if (sGrob@objClass=="Raster" & (arr@extents[(whPlotFrame - 1) %% arr@columns + 1][[1]] ==
                 arr@extents[max(
                   which(
                     (1:length(arr@names) - 1) %% arr@columns + 1 ==
                     (whPlotFrame - 1) %% arr@columns + 1
                   )
-                )][[1]]) {
+                )][[1]])) {
               if (whPlotFrame > (length(arr@names) - arr@columns)) {
                 xaxis <- TRUE
               } else {
@@ -1709,9 +1716,9 @@ setMethod(
           }
 
           if (sGrob@plotArgs$axes== "L") {
-            if (arr@extents[whPlotFrame][[1]] ==
+            if (sGrob@objClass=="Raster" & (arr@extents[whPlotFrame][[1]] ==
                 arr@extents[(ceiling(whPlotFrame / arr@columns) - 1) *
-                            arr@columns + 1][[1]]) {
+                            arr@columns + 1][[1]])) {
               if ((whPlotFrame - 1) %% arr@columns == 0) {
                 yaxis <- TRUE
               } else {
@@ -1755,7 +1762,7 @@ setMethod(
           }
 
           if(sGrob@plotArgs$new) {
-            #browser()
+
             seekViewport(paste0("outer",subPlots), recording = FALSE)
             grid.rect(x = 0, width = unit(1+is(grobToPlot, "Raster")*0.20/(updated$curr@arr@columns/2), "npc"),
             #grid.rect(x = 0, width = unit(1, "npc"),
@@ -1824,7 +1831,6 @@ setMethod(
             # Because base plotting is not set up to overplot,
             # must plot a white rectangle
             par(fig = gridFIG())
-
             sGrob@plotArgs[names(grobToPlot)] <- grobToPlot
 
             # clear out all arguments that don't have meaning in plot.default
@@ -1834,16 +1840,37 @@ setMethod(
 
             } else {
               if(is(grobToPlot$x, "histogram")) {
-                #args_plot1 <- list(grobToPlot)
-                wipe = TRUE # can't overplot a histogram
-              } #else { # all other base plots
-                args_plot1 <- sGrob@plotArgs[!(names(sGrob@plotArgs) %in% c("new", "addTo", "gp", "gpAxis",
+                wipe <- TRUE # can't overplot a histogram
+              }
+
+              # plot y and x axes should use deparse(substitute(...)) names
+              if(length(sGrob@plotArgs$axisLabels)==1) {
+
+                if(yaxis) {
+                  sGrob@plotArgs$ylab <- sGrob@plotArgs$axisLabels[1]
+                }
+              } else {
+                # if(any(unlabelled))
+                #   axisLabels <- c("x","y")[xAndY][unlabelled]
+                if(xaxis) sGrob@plotArgs$xlab <- sGrob@plotArgs$axisLabels[1]
+                if(yaxis) sGrob@plotArgs$ylab <- sGrob@plotArgs$axisLabels[2]
+              }
+
+              args_plot1 <- sGrob@plotArgs[!(names(sGrob@plotArgs) %in% c("new", "addTo", "gp", "gpAxis",
                                                                             "zoomExtent", "gpText", "speedup", "size",
                                                                             "cols", "visualSqueeze", "legend", "legendRange", "legendText",
                                                                             "zero.color", "length", "arr", "na.color", "title"))]
-              #}
               args_plot1$axes <- isTRUE(sGrob@plotArgs$axes)
-              if(spadesGrobCounter==1 | wipe) {
+              makeSpaceForAxes <- as.numeric(
+                !identical(FALSE, spadesSubPlots[[subPlots]][[1]]@plotArgs$axes)
+                )
+              par(plt = c(0.13 + makeSpaceForAxes * 0.1, # left
+                          0.95,                          # right
+                          0.2 + makeSpaceForAxes * 0.1, # bottom
+                          0.87))                         # top
+
+
+              if(spadesGrobCounter==1 | wipe ) { #| isHist) {
                 suppressWarnings(par(new = TRUE))
                 suppressWarnings(do.call(plot, args = args_plot1))
               } else {
@@ -1869,7 +1896,7 @@ setMethod(
                 axesArgs <- sGrob@plotArgs
                 axesArgs$side <- 1
                 axesArgs <- axesArgs[names(axesArgs) %in% c("at", "labels", "tick", "line", "pos", "outer", "font",
-                                                            "lty", "lwd", "lwd.ticks", "col", "col.ticks", "hadj", "padj")]
+                                                            "lty", "lwd", "lwd.ticks", "col.ticks", "hadj", "padj")]
               }
 
               if (xaxis * isBaseSubPlot * isReplot |
