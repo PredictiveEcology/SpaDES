@@ -12,22 +12,21 @@ Plot(..., new = FALSE, addTo = NULL, gp = gpar(), gpText = gpar(),
   gpAxis = gpar(), axes = FALSE, speedup = 1, size = 5, cols = NULL,
   zoomExtent = NULL, visualSqueeze = NULL, legend = TRUE,
   legendRange = NULL, legendText = NULL, pch = 19, title = TRUE,
-  na.color = "#FFFFFF00", zero.color = NULL, length = NULL, arr = NULL,
-  main = NULL)
+  na.color = "#FFFFFF00", zero.color = NULL, length = NULL, arr = NULL)
 
 \S4method{Plot}{ANY}(..., new = FALSE, addTo = NULL, gp = gpar(),
   gpText = gpar(), gpAxis = gpar(), axes = FALSE, speedup = 1,
   size = 5, cols = NULL, zoomExtent = NULL, visualSqueeze = NULL,
   legend = TRUE, legendRange = NULL, legendText = NULL, pch = 19,
   title = TRUE, na.color = "#FFFFFF00", zero.color = NULL,
-  length = NULL, arr = NULL, main = NULL)
+  length = NULL, arr = NULL)
 
 \S4method{Plot}{simList}(..., new = FALSE, addTo = NULL, gp = gpar(),
   gpText = gpar(), gpAxis = gpar(), axes = FALSE, speedup = 1,
   size = 5, cols = NULL, zoomExtent = NULL, visualSqueeze = NULL,
   legend = TRUE, legendRange = NULL, legendText = NULL, pch = 19,
   title = TRUE, na.color = "#FFFFFF00", zero.color = NULL,
-  length = NULL, arr = NULL, main = NULL)
+  length = NULL, arr = NULL)
 
 rePlot(toDev = dev.cur(), fromDev = dev.cur(), ...)
 }
@@ -96,8 +95,11 @@ this is mosty useful for discrete-valued rasters.}
 
 \item{pch}{see \code{?par}.}
 
-\item{title}{Logical indicating whether the names of each plot should be
-written above plots.}
+\item{title}{Logical or character string. If logical, it
+indicates whether to print the object name as the title
+above the plot. If a character string, it will print this
+above the plot. NOTE: the object name is used with \code{addTo},
+not the title.}
 
 \item{na.color}{Character string indicating the color for \code{NA} values.
 Default transparent.}
@@ -112,14 +114,6 @@ treated as any other color. Default transparent.}
 areas indicating number of rows, number of columns.
 Default NULL, meaning
 let Plot function do it automatically.}
-
-\item{main}{A character vector of length equal to number of plot objects.
-This will give a different main title to the plot(s). Default is
-NULL which makes the title the same as the object name.
-This should be used
-with caution because it means that the title does not uniquely
-identify which plot will be plotted in the same location in future
-Plot calls.}
 
 \item{toDev}{Numeric. Which device should the new rePlot be plotted to.
 Default is current device.}
@@ -323,8 +317,11 @@ if (interactive()) {
   Plot(SpP, arr = c(1,4), new=TRUE)
 
   # example base plot
+  clearPlot()
   Plot(1:10, 1:10, addTo = "test", new=TRUE) # if there is no "test" then it will make it
   Plot(4,5, pch=22, col = "blue", addTo = "test") # if there is no "test" then it will make it
+  obj1 <- rnorm(1e2)
+  Plot(obj1, axes = "L")
 
 }
 

@@ -3,15 +3,15 @@
 \docType{methods}
 \name{.updateSpadesPlot}
 \alias{.updateSpadesPlot}
-\alias{.updateSpadesPlot,.spadesPlot,.spadesPlot-method}
 \alias{.updateSpadesPlot,.spadesPlot,ANY-method}
+\alias{.updateSpadesPlot,.spadesPlot,missing-method}
 \title{Merge two SpaDES Plot objects}
 \usage{
 .updateSpadesPlot(newSP, curr, ...)
 
-\S4method{.updateSpadesPlot}{.spadesPlot,.spadesPlot}(newSP, curr, ...)
-
 \S4method{.updateSpadesPlot}{.spadesPlot,ANY}(newSP, curr, ...)
+
+\S4method{.updateSpadesPlot}{.spadesPlot,missing}(newSP, curr, ...)
 }
 \arguments{
 \item{newSP}{The "new" \code{.spadesPlot} object.
