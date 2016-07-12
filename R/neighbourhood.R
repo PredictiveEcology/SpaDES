@@ -991,8 +991,8 @@ setMethod(
 #' rasB <- raster(Ras)
 #' rasB[] <- 0
 #' rasB[d2[d2[, "stop"] == 1,"indices"]] <- 1
-#' Plot(rasB, addTo = "rp", zero.color = "transparent", cols = "red")
 #' if (interactive()) {
+#'   Plot(rasB, addTo = "rp", zero.color = "transparent", cols = "red")
 #'   # can plot it as raster or spatial points
 #'   # Plot(rasB, addTo = "rp", zero.color = "transparent", cols = "black")
 #'   if(NROW(d2)>0) {
