@@ -19,7 +19,10 @@ device number selected.
 }
 \description{
 Switch to an existing plot device, or if not already open,
-launch a new graphics device based on operating system used.
+launch a new graphics device based on operating system used. On Windows and
+Mac, if no x is provided, then this will open or switch to the first non
+R Studio device, which is much faster than the png-based R Studio Plot device.
+Currently, this will not open anything new
 }
 \details{
 For example, \code{dev(6)} switches the active plot device to device #6.
