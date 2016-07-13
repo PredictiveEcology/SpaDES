@@ -1909,7 +1909,7 @@ setMethod(
                 sGrob@plotArgs$ylab <- ""
               }
 
-              args_plot1 <- sGrob@plotArgs[!(names(sGrob@plotArgs) %in% c("new", "addTo", "gp", "gpAxis",
+              args_plot1 <- sGrob@plotArgs[!(names(sGrob@plotArgs) %in% c("new", "addTo", "gp", "gpAxis", "axisLabels",
                                                                             "zoomExtent", "gpText", "speedup", "size",
                                                                             "cols", "visualSqueeze", "legend", "legendRange", "legendText",
                                                                             "zero.color", "length", "arr", "na.color", "title"))]
