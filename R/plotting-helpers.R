@@ -740,7 +740,7 @@ setGeneric(".convertSpatialToPlotGrob", function(grobToPlot, sGrob, takeFromPlot
 })
 
 #' @export
-#' @rdname makeLines
+#' @rdname .convertSpatialToPlotGrob
 setMethod(
   ".convertSpatialToPlotGrob",
   signature = c("spatialObjects"),
@@ -807,7 +807,7 @@ setGeneric(".xyAxes", function(sGrob, arr, whPlotFrame) {
 })
 
 #' @export
-#' @rdname makeLines
+#' @rdname .xyAxes
 setMethod(
   ".xyAxes",
   signature = c(".spadesGrob", ".arrangement"),
