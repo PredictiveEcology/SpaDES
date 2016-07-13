@@ -741,7 +741,7 @@ setMethod("openModules",
 setMethod("openModules",
           signature = c(name = "simList", path = "missing"),
           definition = function(name) {
-            mods <- unlist(modules(mySim))
+            mods <- unlist(modules(name))
             mods <- mods[-na.omit(match(mods, c("checkpoint", "save", "progress", "load")))]
             openModules(name = mods, path = modulePath(name))
           })
