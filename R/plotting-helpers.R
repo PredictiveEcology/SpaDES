@@ -731,7 +731,8 @@ setMethod("gpar",
 #'
 #' @include plotting-classes.R
 #' @docType methods
-#' @rdname .convertSpatialToPlotGrob
+#' @name .convertSpatialToPlotGrob
+#' @rdname convertSpatialToPlotGrob
 #' @author Eliot McIntire
 #'
 setGeneric(".convertSpatialToPlotGrob", function(grobToPlot, sGrob, takeFromPlotObj, arr, newArr,
@@ -740,7 +741,7 @@ setGeneric(".convertSpatialToPlotGrob", function(grobToPlot, sGrob, takeFromPlot
 })
 
 #' @export
-#' @rdname .convertSpatialToPlotGrob
+#' @rdname convertSpatialToPlotGrob
 setMethod(
   ".convertSpatialToPlotGrob",
   signature = c("spatialObjects"),
@@ -799,7 +800,8 @@ setMethod(
 #'
 #' @include plotting-classes.R
 #' @docType methods
-#' @rdname .xyAxes
+#' @rdname xyAxes
+#' @name .xyAxes
 #' @author Eliot McIntire
 #'
 setGeneric(".xyAxes", function(sGrob, arr, whPlotFrame) {
@@ -807,7 +809,7 @@ setGeneric(".xyAxes", function(sGrob, arr, whPlotFrame) {
 })
 
 #' @export
-#' @rdname .xyAxes
+#' @rdname xyAxes
 setMethod(
   ".xyAxes",
   signature = c(".spadesGrob", ".arrangement"),

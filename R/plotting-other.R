@@ -19,7 +19,7 @@
 #'              device number.
 #'
 #' @export
-#' @importFrom grDevices dev.cur
+#' @importFrom grDevices dev.cur dev.off
 #' @importFrom grid grid.newpage
 #' @docType methods
 #' @rdname clearPlot
