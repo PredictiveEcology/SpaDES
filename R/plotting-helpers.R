@@ -712,3 +712,143 @@ setMethod("gpar",
           definition = function(...) {
             return(grid::gpar(...))
 })
+
+
+################################################################################
+#' Internal function to convert a SpatialObject to a Graphical Object
+#'
+#' Not meant to be used by user.
+#'
+#' @param grobToPlot Graphical object to plot
+#' @param sGrob spadesGrob object
+#' @param takeFromPlotObj Logical indicating whether data for grobToPlot should be found in
+#'        current call to Plot or from disk
+#' @param arr An arrangement object
+#' @param newArr Logical, whether there is a new arrangement happening
+#' @param spadesGrobCounter Numeric. A counter. No meaning outside Plot function.
+#' @param subPlots Character. Name of plot area.
+#' @param cols Color vector.
+#'
+#' @include plotting-classes.R
+#' @docType methods
+#' @rdname .convertSpatialToPlotGrob
+#' @author Eliot McIntire
+#'
+setGeneric(".convertSpatialToPlotGrob", function(grobToPlot, sGrob, takeFromPlotObj, arr, newArr,
+                                                 spadesGrobCounter, subPlots, cols) {
+  standardGeneric(".convertSpatialToPlotGrob")
+})
+
+#' @export
+#' @rdname makeLines
+setMethod(
+  ".convertSpatialToPlotGrob",
+  signature = c("spatialObjects"),
+  definition = function(grobToPlot, sGrob, takeFromPlotObj, arr, newArr,
+                        spadesGrobCounter, subPlots, cols) {
+    if (is(grobToPlot, "Raster")) {
+      # Rasters may be zoomed into and subsampled and have unique legend
+      #            if(sGrob@plotArgs$new)
+      pR <- .prepareRaster(grobToPlot, sGrob@plotArgs$zoomExtent,
+                           sGrob@plotArgs$legendRange, takeFromPlotObj,
+                           arr, sGrob@plotArgs$speedup, newArr = newArr)
+      zMat <- .makeColorMatrix(grobToPlot, pR$zoom, pR$maxpixels,
+                               pR$legendRange,
+                               na.color = sGrob@plotArgs$na.color,
+                               zero.color = sGrob@plotArgs$zero.color,
+                               cols = sGrob@plotArgs$cols,
+                               skipSample = pR$skipSample)
+    } else if (is(grobToPlot, "SpatialPoints")) {
+      if (!is.null(sGrob@plotArgs$zoomExtent)) {
+        grobToPlot <- crop(grobToPlot,sGrob@plotArgs$zoomExtent)
+      }
+      # This handles SpatialPointsDataFrames with column "color"
+      if (any(grepl(pattern = "color", colnames(grobToPlot))) & is.null(cols))
+        sGrob@plotArgs$cols <- getColors(grobToPlot)
+
+      zMat <- list(z = grobToPlot, minz = 0, maxz = 0,
+                   cols = sGrob@plotArgs$cols, real = FALSE)
+    } else if (is(grobToPlot, "SpatialPolygons")) {
+      if (!is.null(sGrob@plotArgs$zoomExtent)) {
+        grobToPlot <- crop(grobToPlot,sGrob@plotArgs$zoomExtent)
+      }
+      #z <- grobToPlot
+      zMat <- list(z = grobToPlot, minz = 0, maxz = 0,
+                   cols = sGrob@plotArgs$cols, real = FALSE)
+
+    } else if (is(grobToPlot, "SpatialLines")) {
+      if (!is.null(sGrob@plotArgs$zoomExtent)) {
+        grobToPlot <- crop(grobToPlot,sGrob@plotArgs$zoomExtent)
+      }
+      #z <- grobToPlot
+      zMat <- list(z = grobToPlot, minz = 0, maxz = 0,
+                   cols = sGrob@plotArgs$cols, real = FALSE)
+    }
+    zMat
+
+  })
+
+
+################################################################################
+#' Internal function to determine which x and y axes to add to plots
+#'
+#' Not intended for normal user.
+#'
+#' @inheritParams .convertSpatialToPlotGrob
+#' @param whPlotFrame Numeric. Which plot within the spadesGrobPlots object.
+#'
+#' @include plotting-classes.R
+#' @docType methods
+#' @rdname .xyAxes
+#' @author Eliot McIntire
+#'
+setGeneric(".xyAxes", function(sGrob, arr, whPlotFrame) {
+  standardGeneric(".xyAxes")
+})
+
+#' @export
+#' @rdname makeLines
+setMethod(
+  ".xyAxes",
+  signature = c(".spadesGrob", ".arrangement"),
+  definition = function(sGrob, arr, whPlotFrame) {
+
+    if (sGrob@plotArgs$axes== "L") {
+      if (sGrob@objClass=="Raster" & (arr@extents[(whPlotFrame - 1) %% arr@columns + 1][[1]] ==
+                                      arr@extents[max(
+                                        which(
+                                          (1:length(arr@names) - 1) %% arr@columns + 1 ==
+                                          (whPlotFrame - 1) %% arr@columns + 1
+                                        )
+                                      )][[1]])) {
+        if (whPlotFrame > (length(arr@names) - arr@columns)) {
+          xaxis <- TRUE
+        } else {
+          xaxis <- FALSE
+        }
+      } else {
+        # not the same extent as the final one in the column
+        xaxis <- TRUE
+      }
+    } else {
+      xaxis <- sGrob@plotArgs$axes
+    }
+
+    if (sGrob@plotArgs$axes== "L") {
+      if (sGrob@objClass=="Raster" & (arr@extents[whPlotFrame][[1]] ==
+                                      arr@extents[(ceiling(whPlotFrame / arr@columns) - 1) *
+                                                  arr@columns + 1][[1]])) {
+        if ((whPlotFrame - 1) %% arr@columns == 0) {
+          yaxis <- TRUE
+        } else {
+          yaxis <- FALSE
+        }
+      } else {
+        yaxis <- TRUE
+      }
+    } else {
+      yaxis <- sGrob@plotArgs$axes
+    }
+
+    return(list(x=xaxis, y=yaxis))
+  })
