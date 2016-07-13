@@ -135,7 +135,7 @@ the previous cases. Most arguments that can be passed into `plot` should work he
 
 If using `addTo`, and there are both x and y arguments, it will *add* points to the previous plot.
 
-```{r base-objects, eval=TRUE, echo=TRUE, cache=TRUE, fig.height=2}
+```{r base-objects, eval=FALSE, echo=TRUE, cache=TRUE, fig.height=2}
 baseObj <- rnorm(1e3)
 baseObj2 <- baseObj * 1.2 + rnorm(1e3)
 clearPlot()
