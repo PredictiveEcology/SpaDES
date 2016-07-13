@@ -3,7 +3,9 @@ Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 version 1.2.0.9000
 ==================
 * allow default type base plots to be plotted with Plot
-* add arr and main arguments to Plot, allowing passing of arrangement, custom plot titles
+* add arr argument to Plot, allowing passing of arrangement, custom plot titles
+* change "new" arg in Plot. Now it does one plot at a time, not whole device. Use clearPlot()
+* Plot can use character passed to title as a title
 * add `RandomFieldsUtils` to Imports
 * some additional functionality for factor rasters, incl. clickValues, legends correct for wide variety of types
 * add explicit `cl` arg to parallel aware functions, for more control
