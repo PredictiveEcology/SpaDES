@@ -1454,8 +1454,11 @@ setMethod(
     # Section 1 - extract object names, and determine which ones need plotting,
     # which ones need replotting etc.
     news <- sapply(new, function(x) x)
-    if ((length(ls(.spadesEnv)) + nlayers(.spadesEnv$spadesPlot4) - 1) <= sum(news)) {
-      clearPlot(dev.cur())
+    if(sum(news)>0) {
+      if ((length(ls(.spadesEnv)) +
+           nlayers(.spadesEnv[[paste0("spadesPlot", dev.cur())]]) - 1) <= sum(news)) {
+        clearPlot(dev.cur())
+      }
     }
 
     # this covers the case where R thinks that there is nothing, but
@@ -1496,14 +1499,16 @@ setMethod(
 
     if (!is.null(dots$env)) {
       objFrame <- dots$env
+      dotObjs$env <- NULL
     } else {
       objFrame <- plotFrame
     }
 
     whichSpadesPlottables <- sapply(dotObjs, function(x) {
       is(x, ".spadesPlottables") })
+    if(all(!whichSpadesPlottables) & all(whichSpadesPlottables)) warning("Can't mix base plots with .spadesPlottables objects")
 
-    if(any(!whichSpadesPlottables) ) { ## if not a .spadesPlottables then it is a pass to plot or points
+    if(all(!whichSpadesPlottables) ) { ## if not a .spadesPlottables then it is a pass to plot or points
       if(!exists(paste0("basePlots_",dev.cur()), envir=.spadesEnv))
         .assignSpaDES(paste0("basePlots_",dev.cur()), new.env(hash = FALSE, parent = .spadesEnv))
       mc <- match.call(plot.default, call("plot.default", quote(...)))
@@ -1663,7 +1668,7 @@ setMethod(
     # Create the viewports as per the optimal layout
     if (length(newSpadesPlots@spadesGrobList) > 0) {
       vps <- .makeViewports(updated$curr, newArr = newArr)
-      if (!new & !newArr & !is.null(current.parent())) {
+      if (!all(unlist(new)) & !newArr & !is.null(current.parent())) {
         upViewport(1)
       }
       pushViewport(vps$wholeVp, recording = FALSE)
@@ -2047,6 +2052,7 @@ setMethod(
 
         } # needPlot
         updated$isNewPlot[[subPlots]][[spadesGrobCounter]] <- FALSE
+        updated$curr@spadesGrobList[[subPlots]][[spadesGrobCounter]]@plotArgs <- sGrob@plotArgs
       } # sGrob
     } # subPlots
 
@@ -2070,7 +2076,7 @@ setMethod(
     plotObjects = mget(plotList[sapply(plotList, function(x)
       is(get(x, envir = envir(sim)), ".spadesPlottables"))], envir(sim)) %>%
       append(., list(env = envir(sim)))
-    suppressWarnings(do.call(Plot, plotObjects))
+    do.call(Plot, plotObjects)
 })
 
 ################################################################################
@@ -2092,7 +2098,8 @@ rePlot <- function(toDev = dev.cur(), fromDev = dev.cur(), ...) {
   if (exists(paste0("spadesPlot", fromDev),envir = .spadesEnv)) {
     currSpadesPlots <- .getSpaDES(paste0("spadesPlot", dev.cur()))
     dev(toDev)
-    suppressWarnings(Plot(currSpadesPlots$curr, new = TRUE, ...))
+    clearPlot(toDev)
+    suppressWarnings(Plot(currSpadesPlots$curr, ...))
   } else {
     stop(
       paste(
@@ -2191,13 +2198,9 @@ setMethod(
     npixels <- ncell(crop(grobToPlot,zoom))
   }
   if (is.null(legendRange)) {
-#    if (is.null(legendRange) | ((takeFromPlotObj == FALSE) * !newArr)) {
       legendRange <- NA
-#    }
   }
 
-  # maxpixels <- min(5e5,3e4/(arr@columns*arr@rows)*prod(arr@ds))/speedup %>%
-  #   min(., npixels)
   if (speedup > 0.1) {
     maxpixels <- min(5e5, 3e4 / (arr@columns * arr@rows) * prod(arr@ds)) %>%
       `/`(., speedup) %>%

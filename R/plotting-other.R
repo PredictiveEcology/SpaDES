@@ -161,8 +161,9 @@ clickValues <- function(n = 1) {
       })
     }
   }
-  if(raster::is.factor(ras1)) {
-    coords$coords$value <- factorValues(ras1, coords$coords$value)$Name
+  if(any(raster::is.factor(ras1))) {
+    for(i in which(raster::is.factor(ras1)))
+    coords$coords$value <- factorValues(ras1[[i]], coords$coords$value)$Name
   }
   return(coords$coords)
 }
@@ -226,10 +227,10 @@ clickCoordinates <- function(n = 1) {
                "Try new = TRUE, clearPlot() or change device to",
                "one that has objects from a call to Plot()."))
   }
-  gl <- grid.layout(nrow = arr@arr@rows*3+2,
-                    ncol = arr@arr@columns*3+2,
-                    widths = arr@arr@layout$wdth,
-                    heights = arr@arr@layout$ht)
+  gl <- grid.layout(nrow = arr$curr@arr@rows*3+2,
+                    ncol = arr$curr@arr@columns*3+2,
+                    widths = arr$curr@arr@layout$wdth,
+                    heights = arr$curr@arr@layout$ht)
 
   grepNullsW <- grep("null$", gl$widths)
   grepNpcsW <- grep("npc$", gl$widths)
@@ -283,7 +284,7 @@ clickCoordinates <- function(n = 1) {
     }
     column <-  which(xInt == grepNpcsW)
     row <- which((yInt == grepNpcsH)[length(grepNpcsH):1])
-    map <- column + (row - 1) * arr@arr@columns
+    map <- column + (row - 1) * arr$curr@arr@columns
 
     maxLayX <- cumsum(widthNpcs)[xInt]
     minLayX <- cumsum(widthNpcs)[xInt - 1]
@@ -297,10 +298,10 @@ clickCoordinates <- function(n = 1) {
       as.character(gloc$y), "npc"
       )[[1]]) - minLayY) / (maxLayY - minLayY), "npc")
 
-    clickCoords[i, ] <- .clickCoord(arr@spadesGrobList[[map]][[1]]@plotName,
+    clickCoords[i, ] <- .clickCoord(arr$curr@spadesGrobList[[map]][[1]]@plotName,
                                     n = 1, gl = grobLoc)
-    mapNames[i] <- arr@spadesGrobList[[map]][[1]]@plotName
-    envs[[i]] <- arr@spadesGrobList[[map]][[1]]@envir
+    mapNames[i] <- arr$curr@spadesGrobList[[map]][[1]]@plotName
+    envs[[i]] <- arr$curr@spadesGrobList[[map]][[1]]@envir
   }
   return(list(map = mapNames, envir = envs, coords = clickCoords))
 }
