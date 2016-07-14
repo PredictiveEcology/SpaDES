@@ -897,7 +897,7 @@ setMethod("gpar",
 #'
 #' @include plotting-classes.R
 #' @docType methods
-#' @name PlotHelpers
+#' @name .convertSpatialToPlotGrob
 #' @rdname Plot-internal
 #' @aliases PlotHelpers
 #' @author Eliot McIntire
@@ -909,6 +909,7 @@ setGeneric(".convertSpatialToPlotGrob", function(grobToPlot, sGrob, takeFromPlot
 
 #' @export
 #' @rdname Plot-internal
+#' @aliases PlotHelpers
 setMethod(
   ".convertSpatialToPlotGrob",
   signature = c("spatialObjects", ".spadesGrob"),
@@ -963,6 +964,7 @@ setMethod(
 #' @include plotting-classes.R
 #' @docType methods
 #' @rdname Plot-internal
+#' @aliases PlotHelpers
 #' @name .xyAxes
 #'
 setGeneric(".xyAxes", function(sGrob, arr, whPlotFrame) {
@@ -971,6 +973,7 @@ setGeneric(".xyAxes", function(sGrob, arr, whPlotFrame) {
 
 #' @export
 #' @rdname Plot-internal
+#' @aliases PlotHelpers
 setMethod(
   ".xyAxes",
   signature = c(".spadesGrob", ".arrangement"),
@@ -1035,6 +1038,7 @@ setMethod(
 #' @include plotting-classes.R
 #' @docType methods
 #' @rdname Plot-internal
+#' @aliases PlotHelpers
 #' @name .Plot
 #'
 setGeneric(".Plot", function(sGrob, grobToPlot, subPlots, spadesSubPlots, spadesGrobCounter,
@@ -1045,6 +1049,7 @@ setGeneric(".Plot", function(sGrob, grobToPlot, subPlots, spadesSubPlots, spades
 
 #' @export
 #' @rdname Plot-internal
+#' @aliases PlotHelpers
 setMethod(
   ".Plot",
   signature = c(".spadesGrob"),
@@ -1207,6 +1212,7 @@ setMethod(
 #' @include plotting-classes.R
 #' @docType methods
 #' @rdname Plot-internal
+#' @aliases PlotHelpers
 #' @name .refreshGrob
 #'
 setGeneric(".refreshGrob", function(sGrob, subPlots, legendRange,
@@ -1216,6 +1222,7 @@ setGeneric(".refreshGrob", function(sGrob, subPlots, legendRange,
 
 #' @export
 #' @rdname Plot-internal
+#' @aliases PlotHelpers
 setMethod(
   ".refreshGrob",
   signature = c(".spadesGrob"),
@@ -1249,6 +1256,7 @@ setMethod(
 #' @include plotting-classes.R
 #' @docType methods
 #' @rdname Plot-internal
+#' @aliases PlotHelpers
 #' @name .updateGrobGPTextAxis
 #'
 setGeneric(".updateGrobGPTextAxis", function(sGrob, arr) {
@@ -1257,6 +1265,7 @@ setGeneric(".updateGrobGPTextAxis", function(sGrob, arr) {
 
 #' @export
 #' @rdname Plot-internal
+#' @aliases PlotHelpers
 setMethod(
   ".updateGrobGPTextAxis",
   signature = c(".spadesGrob"),
