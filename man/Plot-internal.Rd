@@ -98,6 +98,9 @@ and upper bounds of a legend (i.e., \code{1:10} or
 \code{c(1,10)} will give same result) that will override
 the data bounds contained within the \code{grobToPlot}.}
 
+\item{plotArgs}{list. Any arguments that the the grid package can accept for
+the specific grob types, e.g., rasterGrob, polygonGrob, etc.}
+
 \item{nColumns}{Numeric, length 1, indicating how many columns are in the device arrangement}
 
 \item{whPlotObj}{Numeric. Length 1, indicating which of the currently objects passed into

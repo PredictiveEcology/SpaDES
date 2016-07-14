@@ -1210,6 +1210,7 @@ setMethod(
 #'                  \code{Plot} is currently being plotted, i.e., a counter of sorts.
 #'
 #' @include plotting-classes.R
+#' @inheritParams .makeSpadesPlot
 #' @docType methods
 #' @rdname Plot-internal
 #' @aliases PlotHelpers
