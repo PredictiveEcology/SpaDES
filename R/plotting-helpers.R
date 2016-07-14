@@ -1380,7 +1380,7 @@ setMethod(
                            takeFromPlotObj, arr, speedup, newArr) {
 
   if (is.null(zoomExtent)) {
-    zoom <- extent(grobToPlot)#extent(0,1,0,1)
+    zoom <- NA#extent(grobToPlot)#extent(0,1,0,1)
     npixels <- ncell(grobToPlot)
   } else {
     zoom <- zoomExtent

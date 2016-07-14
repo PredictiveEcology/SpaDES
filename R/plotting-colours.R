@@ -298,7 +298,7 @@ setGeneric(".makeColorMatrix",
 setMethod(
   ".makeColorMatrix",
   #signature = c("griddedClasses", "Extent", "numeric", "ANY"),
-  signature = c("Raster", "Extent", "numeric", "ANY"),
+  #signature = c("Raster", "Extent", "numeric", "ANY"),
   definition = function(grobToPlot, zoomExtent, maxpixels, legendRange,
                         cols, na.color, zero.color, skipSample = TRUE) {
     zoom <- zoomExtent
