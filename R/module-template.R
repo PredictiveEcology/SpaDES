@@ -26,14 +26,10 @@
 #' \code{path/name.R}, as well as ancillary files for documentation, citation,
 #' license, readme, and unit tests folder.
 #'
-#' @note On Windows there is currently a bug in RStudio that it doesn't know
-#' what editor to open with \code{file.edit} is called (which is what moduleName
-#' does). This will return an error:
-#'
-#' \code{Error in editor(file = file, title = title) :}
-#' \code{argument "name" is missing, with no default}
-#'
-#' You can just browse to the file and open it manually.
+#' @note On Windows there is currently a bug in RStudio that prevents the editor
+#' from opening when \code{file.edit} is called. \code{file.edit} does work if the user
+#' types it at the command prompt. A message with the correct lines to copy and paste
+#' is provided.
 #'
 #' @export
 #' @docType methods
@@ -335,10 +331,11 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
 
     if (open) {
       # use tryCatch: Rstudio bug causes file open to fail on Windows (#209)
-      tryCatch(file.edit(filenameR), error = function(e) {
-        warning("A bug in RStudio for Windows prevented the opening of the file:\n",
-                filenameR, "\nPlease open it manually.")
-      })
+      openModules(name, nestedPath)
+      #tryCatch(file.edit(filenameR), error = function(e) {
+      #  warning("A bug in RStudio for Windows prevented the opening of the file:\n",
+      #          filenameR, "\nPlease open it manually.")
+      #})
     }
 })
 
@@ -476,10 +473,12 @@ where to download data, etc.",
 
     if (open) {
       # use tryCatch: Rstudio bug causes file open to fail on Windows (#209)
-      tryCatch(file.edit(filenameRmd), error = function(e) {
-        warning("A bug in RStudio for Windows prevented the opening of the file:\n",
-                filenameRmd, "\nPlease open it manually.")
-      })
+      openModules(basename(filenameRmd), nestedPath)
+
+      # tryCatch(file.edit(filenameRmd), error = function(e) {
+      #   warning("A bug in RStudio for Windows prevented the opening of the file:\n",
+      #           filenameRmd, "\nPlease open it manually.")
+      # })
     }
 
     return(invisible(NULL))
@@ -647,16 +646,14 @@ test_that(\"test Event1 and Event2.\", {
 #' @return Nothing is returned. All file are open via \code{file.edit}.
 #'
 #' @note On Windows there is currently a bug in RStudio that prevents the editor
-#' from opening when \code{file.edit} is called:
-#'
-#' \code{Error in editor(file = file, title = title) :}
-#' \code{argument "name" is missing, with no default}
-#'
-#' The workaround is to browse to the file and open it manually.
+#' from opening when \code{file.edit} is called. \code{file.edit} does work if the user
+#' types it at the command prompt. A message with the correct lines to copy and paste
+#' is provided.
 #'
 #' @export
 #' @docType methods
 #' @rdname openModules
+#' @importFrom raster extension
 # @importFrom utils file.edit
 #'
 #' @author Eliot McIntire
@@ -674,18 +671,44 @@ setMethod("openModules",
           signature = c(name = "character", path = "character"),
           definition = function(name, path) {
             basedir <- checkPath(path, create = FALSE)
+            fileExtension <- sub(extension(name), pattern = ".", replacement = "")
+            if(length(unique(fileExtension))>1) stop("Can only open one file type at a time")
+            ncharFileExt <- unlist(lapply(fileExtension, nchar))
             origDir <- getwd()
             setwd(basedir)
             if (any(name == "all")) {
-              Rfiles <- dir(pattern = "[\\.][rR]$", recursive = TRUE)
+              Rfiles <- dir(pattern = "[\\.][rR]$", recursive = TRUE, full.names = TRUE)
+            } else if (all(ncharFileExt > 0) & all(fileExtension != "R")) {
+              Rfiles <- dir(pattern = name, recursive = TRUE, full.names = TRUE)
+              Rfiles <- Rfiles[unlist(lapply(name, function(n) grep(pattern=n, Rfiles)))]
             } else {
-              Rfiles <- dir(pattern = "[\\.][rR]$", recursive = TRUE)
-              Rfiles <- Rfiles[pmatch(name, Rfiles)]
+              Rfiles <- dir(pattern = "[\\.][rR]$", recursive = TRUE, full.names = TRUE)
+              Rfiles <- Rfiles[unlist(lapply(name, function(n) grep(pattern=n, Rfiles)))]
             }
+            # remove tests
+            hasTests <- grep(pattern = "tests",Rfiles)
+            if(length(hasTests)>0)
+              Rfiles <- Rfiles[-hasTests]
+
+            # Open Rmd file also
+            RfileRmd <- dir(pattern = paste0(name,".[rR]md$"), recursive = TRUE, full.names = TRUE)
+
+            Rfiles <- c(Rfiles, RfileRmd)
             Rfiles <- Rfiles[grep(pattern = "[/\\\\]",Rfiles)]
             Rfiles <- Rfiles[sapply(strsplit(Rfiles,"[/\\\\\\.]"),
                                     function(x) any(duplicated(x)))]
-            lapply(Rfiles, file.edit)
+
+            loaded <- tryCatch(lapply(Rfiles, file.edit), error = function(x) FALSE)
+            if(!loaded) {
+
+              Rfiles <- gsub(Rfiles, pattern = "\\./", replacement = "")
+              message(paste0("If files do not open, run th",c("is","ese")[(length(Rfiles)>1)+1],
+                             " command",c("","s")[(length(Rfiles)>1)+1]," manually by copy and paste,\n",
+                             "noting that .R files are spades module code and .Rmd files\n",
+                             "are helper files that help use the module code:\n\n",
+                            paste("file.edit('",file.path(basedir,Rfiles),"')",collapse="\n", sep = "")))
+
+            }
             setwd(origDir)
 })
 
@@ -712,6 +735,16 @@ setMethod("openModules",
           definition = function(name) {
             openModules(name = name, path = ".")
 })
+
+#' @export
+#' @rdname openModules
+setMethod("openModules",
+          signature = c(name = "simList", path = "missing"),
+          definition = function(name) {
+            mods <- unlist(modules(name))
+            mods <- mods[-na.omit(match(mods, c("checkpoint", "save", "progress", "load")))]
+            openModules(name = mods, path = modulePath(name))
+          })
 
 ################################################################################
 #' Create a zip archive of a module subdirectory

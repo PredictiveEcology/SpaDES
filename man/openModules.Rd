@@ -7,6 +7,7 @@
 \alias{openModules,character,missing-method}
 \alias{openModules,missing,character-method}
 \alias{openModules,missing,missing-method}
+\alias{openModules,simList,missing-method}
 \title{Open all modules nested within a base directory}
 \usage{
 openModules(name, path)
@@ -18,6 +19,8 @@ openModules(name, path)
 \S4method{openModules}{missing,character}(path)
 
 \S4method{openModules}{character,missing}(name)
+
+\S4method{openModules}{simList,missing}(name)
 }
 \arguments{
 \item{name}{Character vector with names of modules to open. If missing, then
@@ -36,12 +39,9 @@ directory name identical to its filename. Thus, this must be case sensitive.
 }
 \note{
 On Windows there is currently a bug in RStudio that prevents the editor
-from opening when \code{file.edit} is called:
-
-\code{Error in editor(file = file, title = title) :}
-\code{argument "name" is missing, with no default}
-
-The workaround is to browse to the file and open it manually.
+from opening when \code{file.edit} is called. \code{file.edit} does work if the user
+types it at the command prompt. A message with the correct lines to copy and paste
+is provided.
 }
 \examples{
 \dontrun{openModules("~\\SpaDESModules")}

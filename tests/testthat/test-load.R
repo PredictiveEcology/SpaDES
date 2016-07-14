@@ -1,4 +1,5 @@
 test_that("test-load.R: loading inputs does not work correctly", {
+  library(igraph)
   tmpdir <- file.path(tempdir(), "test_load", rndstr()) %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE))
 
