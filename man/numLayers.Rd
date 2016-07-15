@@ -5,12 +5,18 @@
 \alias{numLayers}
 \alias{numLayers,.spadesPlot-method}
 \alias{numLayers,ANY-method}
+\alias{numLayers,Raster-method}
 \alias{numLayers,Spatial-method}
+\alias{numLayers,list-method}
 \title{Find the number of layers in a Spatial Object}
 \usage{
 numLayers(x)
 
+\S4method{numLayers}{list}(x)
+
 \S4method{numLayers}{.spadesPlot}(x)
+
+\S4method{numLayers}{Raster}(x)
 
 \S4method{numLayers}{Spatial}(x)
 

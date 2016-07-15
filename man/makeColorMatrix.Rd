@@ -4,7 +4,7 @@
 \name{.makeColorMatrix}
 \alias{#}
 \alias{.makeColorMatrix}
-\alias{.makeColorMatrix,Raster,Extent,numeric-method}
+\alias{.makeColorMatrix,ANY-method}
 \alias{@importClassesFrom}
 \alias{NetLogoRClasses}
 \alias{griddedClasses}
@@ -14,9 +14,9 @@
 .makeColorMatrix(grobToPlot, zoomExtent, maxpixels, legendRange, cols = NULL,
   na.color = "#FFFFFF00", zero.color = NULL, skipSample = TRUE)
 
-\S4method{.makeColorMatrix}{Raster,Extent,numeric}(grobToPlot, zoomExtent,
-  maxpixels, legendRange, cols = NULL, na.color = "#FFFFFF00",
-  zero.color = NULL, skipSample = TRUE)
+\S4method{.makeColorMatrix}{ANY}(grobToPlot, zoomExtent, maxpixels, legendRange,
+  cols = NULL, na.color = "#FFFFFF00", zero.color = NULL,
+  skipSample = TRUE)
 }
 \arguments{
 \item{grobToPlot}{A \code{SpatialObject}.}

@@ -12,7 +12,6 @@
 #' @return The number of layers in the object.
 #'
 #' @export
-#' @importFrom raster numLayers
 #' @include plotting-classes.R
 #' @author Eliot McIntire
 #' @rdname numLayers
@@ -21,6 +20,7 @@ setGeneric("numLayers", function(x) {
   standardGeneric("numLayers")
 })
 
+#' @rdname numLayers
 setMethod(
   "numLayers",
   signature = "list",
@@ -47,6 +47,8 @@ setMethod(
   }
 )
 
+#' @importFrom raster nlayers
+#' @rdname numLayers
 setMethod(
   "numLayers",
   signature = "Raster",
