@@ -38,7 +38,7 @@ If user has x and y coordinates, these can be converted with
 spreading, or probability raster driven. Default is \code{0.23}.
 If a \code{spreadProbLater} is provided, then this is
 only used for the first iteration. Also called Escape
-probability. See section on \code{Breaking out of spread events}.}
+probability. See section on "Breaking out of spread events".}
 
 \item{persistence}{A length 1 probability that an active cell will continue to burn,
 per time step.}
@@ -189,12 +189,17 @@ a change in weather.
 
 \code{asymmetry} is currently used to modify the \code{spreadProb} in the following way.
 First for each active cell, spreadProb is converted into a length 2 numeric of Low and High
-spread probabilities for that cell:
-\code{spreadProbsLH <- (spreadProb*2)/(asymmetry+1)*c(1,asymmetry)}, whose ratio is equal to
-\code{asymmetry}. Then, using \code{asymmetryAngle}, the angle between the
+spread probabilities for that
+cell: \code{spreadProbsLH <- (spreadProb*2) // (asymmetry+1)*c(1,asymmetry)},
+whose ratio is equal to
+\code{asymmetry}.
+Then, using \code{asymmetryAngle}, the angle between the
 initial starting point of the event and all potential
 cells is found. These are converted into a proportion of the angle from
-\code{-asymmetryAngle} to \code{asymmetryAngle} using:
+\code{-asymmetryAngle}
+to
+\code{asymmetryAngle}
+using:
 \code{angleQuality <- (cos(angles - rad(asymmetryAngle))+1)/2}
 
 These are then converted to multiple spreadProbs by
