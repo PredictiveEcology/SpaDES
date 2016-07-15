@@ -473,10 +473,16 @@ setMethod(
         #            (-(maxNumCols / maxz * minz) + 1))
       } else {
         # rescale so that the minimum is 1, not <1:
-        z <- (nValues - 1) /  (maxz - minz) * (z - minz) + 1
+        if(nValues>1) {
+          z <- (nValues - 1) /  (maxz - minz) * (z - minz) + 1
+        } else {
+          z <- (z - minz) + 1
+        }
+        
         if (length(whichZero)) {
           zeroValue <- (nValues - 1) / (maxz - minz) * (0 - minz) + 1
         }
+        
       }
     }
     minz <- suppressWarnings(min(z, na.rm = TRUE))
