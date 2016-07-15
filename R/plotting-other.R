@@ -163,7 +163,7 @@ clickValues <- function(n = 1) {
   }
   if(any(raster::is.factor(ras1))) {
     for(i in which(raster::is.factor(ras1)))
-    coords$coords$value <- factorValues(ras1[[i]], coords$coords$value)$Name
+    coords$coords$value <- factorValues(ras1[[i]], coords$coords$value)
   }
   return(coords$coords)
 }
