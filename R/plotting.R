@@ -363,10 +363,9 @@ setMethod(
     if (any(isDoCall)) {
       whFrame <- grep(scalls, pattern = "^do.call")
       plotFrame <- sys.frame(whFrame - 1)
-      argsFrame <- sys.frame(whFrame - 2)
       dotObjs <- get(as.character(match.call(do.call, call = sys.call(whFrame))$args),
                      envir = plotFrame)
-      plotArgs <- mget(names(formals("Plot")[-1]), argsFrame)
+      plotArgs <- mget(names(formals("Plot")[-1]), sys.frame(whFrame - 2)) # 2 up with do.call
     } else {
       whFrame <- grep(scalls, pattern = "^Plot")
       dotObjs <- dots
@@ -374,6 +373,7 @@ setMethod(
       plotArgs <- mget(names(formals("Plot")), plotFrame)[-1]
     }
 
+    # if user uses col instead of cols
     if (any(grepl(pattern = "col", names(dots)))) {
       cols <- dots$col
       plotArgs$cols <- cols
@@ -560,13 +560,13 @@ setMethod(
           isReplot <- updated$isReplot[[subPlots]][[spadesGrobCounter]]
           isBaseSubPlot <- updated$isBaseLayer[[subPlots]][[spadesGrobCounter]]
 
-          a <- try(seekViewport(subPlots, recording = FALSE))
-          if (is(a, "try-error")) {
-            stop(paste(
-                "Plot does not already exist on current device.",
-                "Try new = TRUE, clearPlot(), or change device to",
-                "one that has a plot named", addTo[whGrobNamesi])
-            )}
+          #a <- try(seekViewport(subPlots, recording = FALSE))
+          #if (is(a, "try-error")) {
+          #  stop(paste(
+          #      "Plot does not already exist on current device.",
+          #      "Try new = TRUE, clearPlot(), or change device to",
+          #      "one that has a plot named", addTo[whGrobNamesi])
+          #  )}
 
           whPlotFrame <- match(sGrob@plotName, names(spadesSubPlots))
 

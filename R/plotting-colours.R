@@ -25,10 +25,11 @@ setGeneric("getColors", function(object) {
 setMethod("getColors",
           signature = "Raster",
           definition = function(object) {
-            cols <- lapply(names(object), function(x) {
+            nams <- names(object)
+            cols <- lapply(nams, function(x) {
               as.character(object[[x]]@legend@colortable)
             })
-            names(cols) <- names(object)
+            names(cols) <- nams
             return(cols)
 })
 
@@ -206,8 +207,9 @@ setReplaceMethod(
   "setColors",
    signature("Raster", "missing", "list"),
    function(object, ..., value) {
-     i <- which(names(object) %in% names(value))
-     for (x in names(object)[i]) {
+     nams <- names(object)
+     i <- which(nams %in% names(value))
+     for (x in nams[i]) {
        setColors(object[[x]], ...) <- value[[x]]
      }
      return(object)
@@ -296,7 +298,7 @@ setGeneric(".makeColorMatrix",
 setMethod(
   ".makeColorMatrix",
   #signature = c("griddedClasses", "Extent", "numeric", "ANY"),
-  signature = c("Raster", "Extent", "numeric", "ANY"),
+  #signature = c("Raster", "Extent", "numeric", "ANY"),
   definition = function(grobToPlot, zoomExtent, maxpixels, legendRange,
                         cols, na.color, zero.color, skipSample = TRUE) {
     zoom <- zoomExtent
@@ -305,6 +307,7 @@ setMethod(
     # calculate it, but it is also often wrong... it is only metadata
     # on the raster, so it is possible that it is incorrect.
     if (!skipSample) {
+      if(is.na(zoom)) zoom <- extent(grobToPlot)
       colorTable <- getColors(grobToPlot)[[1]]
       if (!is(try(minValue(grobToPlot)), "try-error")) {
         minz <- minValue(grobToPlot)

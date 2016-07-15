@@ -237,10 +237,10 @@ setMethod(
     }
     numberLayers <- pmax(1, sapply(plotObjects, numLayers))
 
+    lNamesPlotObj <- layerNames(plotObjects)
+
     isSpadesPlot <- sapply(plotObjects, function(x) { is(x, ".spadesPlot") })
-    #isRaster <- sapply(plotObjects, function(x) { is(x, "Raster") })
     isStack <- sapply(plotObjects, function(x) { is(x, "RasterStack") })
-    #isPolygon <- sapply(plotObjects, function(x) { is(x, "SpatialPolygons") })
 
     # Stacks are like lists in that they are a single object, with many
     # layers.  Plot must treat these as any other layers, except that
@@ -261,18 +261,13 @@ setMethod(
     # If layer name is same as object name omit it, and if layer name
     # is "layer", omit it if within a RasterLayer
     lN[isStackLong] <- paste(objectNamesLong[isStackLong],
-                             layerNames(plotObjects[isStack]),
+                             lNamesPlotObj[isStack],
                              sep = "$")
     names(lN) <- rep(names(plotObjects), numberLayers)
     names(lN)[isSpadesPlotLong] <- layerNames(plotObjects)[isSpadesPlotLong]
 
     # Create long version of environments
     lEnvs <- rep(sapply(objs, function(x) { x$envs }), numberLayers)
-
-    # if (any(duplicated(paste(lN, lEnvs)))) {
-    #   stop(paste("Cannot plot two layers with same name from the same environment.",
-    #              "Check inside RasterStacks for objects."))
-    # }
 
     plotArgs <- .makeList(plotArgs, length(lN))
 
@@ -291,7 +286,7 @@ setMethod(
             names(isSpadesPlotLong)[x],
             names(plotObjects)
           )]]@spadesGrobList[[match(
-            lN[x], layerNames(plotObjects[isSpadesPlot])
+            lN[x], lNamesPlotObj[isSpadesPlot]
           )]][[1]]
       } else {
         spadesGrobList[[lN[x]]] <- new(".spadesGrob")
@@ -302,7 +297,7 @@ setMethod(
         spadesGrobList[[lN[x]]]@plotName <- lN[x]
         spadesGrobList[[lN[x]]]@objName <- objectNamesLong[x]
         spadesGrobList[[lN[x]]]@envir <- lEnvs[[x]]
-        spadesGrobList[[lN[x]]]@layerName <- layerNames(plotObjects)[x]
+        spadesGrobList[[lN[x]]]@layerName <- lNamesPlotObj[x]
         spadesGrobList[[lN[x]]]@objClass <- class(
           eval(parse(text = objectNamesLong[x]), lEnvs[[x]])
         )
@@ -743,13 +738,6 @@ setMethod(
         }
       )
 
-
-      # if the XYZ of `get(x = XYZ)` is the same as an evaluated version of XYZ
-      #       if (identical(
-      #         tmpParseTxt3,
-      #       parseTxt[[3]])) {
-      #         lastOneDone = TRUE
-      #       }
       lastOneDone <- TRUE
       parseTxt[[3]] <- tmpParseTxt3
     }
@@ -783,18 +771,17 @@ setMethod(
     i = i + 1
   }
 
-  #   envs <- append(.GlobalEnv, sys.frames())[c(TRUE, sapply(sys.frames(), function(x)
-  #     exists(deparse(parseTxt), envir = x, inherits = FALSE)))] %>%
-  #     .[[length(.)]]
-  envs <- append(.GlobalEnv, sys.frames()) %>%
-    .[c(TRUE, sapply(sys.frames(), function(x) {
-      exists(deparse(parseTxt), envir = x, inherits = FALSE)
+  deparsedTxt <- deparse(parseTxt)
+  sframes <- sys.frames()
+  envs <- append(.GlobalEnv, sframes) %>%
+    .[c(TRUE, sapply(sframes, function(x) {
+      exists(deparsedTxt, envir = x, inherits = FALSE)
     }))] %>%
     .[[length(.)]]
 
   inGlobal <- identical(envs, .GlobalEnv)
-  if (is(eval(parse(text = deparse(parseTxt)), envir = envs), "environment")) {
-    envs <- eval(parse(text = deparse(parseTxt)), envir = envs)
+  if (is(eval(parse(text = deparsedTxt), envir = envs), "environment")) {
+    envs <- eval(parse(text = deparsedTxt), envir = envs)
   } else {
     if (!lastOneDone) { elems[[i]] <- parseTxt }
   }
@@ -919,7 +906,7 @@ setMethod("gpar",
 #'
 #' @include plotting-classes.R
 #' @docType methods
-#' @name PlotHelpers
+#' @name .convertSpatialToPlotGrob
 #' @rdname Plot-internal
 #' @aliases PlotHelpers
 #' @author Eliot McIntire
@@ -931,6 +918,7 @@ setGeneric(".convertSpatialToPlotGrob", function(grobToPlot, sGrob, takeFromPlot
 
 #' @export
 #' @rdname Plot-internal
+#' @aliases PlotHelpers
 setMethod(
   ".convertSpatialToPlotGrob",
   signature = c("spatialObjects", ".spadesGrob"),
@@ -985,6 +973,7 @@ setMethod(
 #' @include plotting-classes.R
 #' @docType methods
 #' @rdname Plot-internal
+#' @aliases PlotHelpers
 #' @name .xyAxes
 #'
 setGeneric(".xyAxes", function(sGrob, arr, whPlotFrame) {
@@ -993,19 +982,20 @@ setGeneric(".xyAxes", function(sGrob, arr, whPlotFrame) {
 
 #' @export
 #' @rdname Plot-internal
+#' @aliases PlotHelpers
 setMethod(
   ".xyAxes",
   signature = c(".spadesGrob", ".arrangement"),
   definition = function(sGrob, arr, whPlotFrame) {
 
     if (sGrob@plotArgs$axes== "L") {
-      if (sGrob@objClass=="Raster" & (arr@extents[(whPlotFrame - 1) %% arr@columns + 1][[1]] ==
-                                      arr@extents[max(
-                                        which(
-                                          (1:length(arr@names) - 1) %% arr@columns + 1 ==
-                                          (whPlotFrame - 1) %% arr@columns + 1
-                                        )
-                                      )][[1]])) {
+      if (sGrob@objClass=="Raster" &
+          (arr@extents[(whPlotFrame - 1) %% arr@columns + 1][[1]] ==
+            arr@extents[max(
+              which(
+                (1:length(arr@names) - 1) %% arr@columns + 1 ==
+                  (whPlotFrame - 1) %% arr@columns + 1
+              ))][[1]])) {
         if (whPlotFrame > (length(arr@names) - arr@columns)) {
           xaxis <- TRUE
         } else {
@@ -1057,6 +1047,7 @@ setMethod(
 #' @include plotting-classes.R
 #' @docType methods
 #' @rdname Plot-internal
+#' @aliases PlotHelpers
 #' @name .Plot
 #'
 setGeneric(".Plot", function(sGrob, grobToPlot, subPlots, spadesSubPlots, spadesGrobCounter,
@@ -1067,13 +1058,14 @@ setGeneric(".Plot", function(sGrob, grobToPlot, subPlots, spadesSubPlots, spades
 
 #' @export
 #' @rdname Plot-internal
+#' @aliases PlotHelpers
 setMethod(
   ".Plot",
   signature = c(".spadesGrob"),
   definition = function(sGrob, grobToPlot, subPlots, spadesSubPlots, spadesGrobCounter,
                         isBaseSubPlot, isNewPlot, isReplot, zMat, wipe, xyAxes, legendText,
                         vps, nonPlotArgs) {
-
+    seekViewport(subPlots, recording = FALSE)
     if (is.list(grobToPlot)) {  # THis is for base plot calls... the grobToPlot is a call i.e,. a name
       # Because base plotting is not set up to overplot,
       # must plot a white rectangle
@@ -1083,7 +1075,8 @@ setMethod(
       # clear out all arguments that don't have meaning in plot.default
       if (is(grobToPlot, "gg")) {
         print(grobToPlot, vp = subPlots)
-        a <- try(seekViewport(subPlots, recording = FALSE))
+        #browser()
+        #a <- try(seekViewport(subPlots, recording = FALSE))
 
       } else {
         if(is(grobToPlot$x, "histogram")) {
@@ -1193,17 +1186,19 @@ setMethod(
         length = sGrob@plotArgs$length
       ) %>% append(., nonPlotArgs)
 
+      #seekViewport(subPlots, recording = FALSE)
       suppressWarnings(do.call(.plotGrob, args = plotGrobCall))
 
       if (any(unlist(xyAxes)) & (isBaseSubPlot & isNewPlot | wipe)) {
-        seekViewport(paste0("outer",subPlots))
+        seekViewport(paste0("outer",subPlots), recording = FALSE)
         if (xyAxes$x & (isBaseSubPlot & isNewPlot | wipe)) {
           grid.xaxis(name = "xaxis", gp = sGrob@plotArgs$gpAxis)#, vp = vps$wholeVp$children[[paste0("outer",subPlots)]])
         }
         if (xyAxes$y & (isBaseSubPlot & isNewPlot | wipe)) {
           grid.yaxis(name = "yaxis", gp = sGrob@plotArgs$gpAxis, vp = vps$wholeVp$children[[paste0("outer",subPlots)]])
         }
-        seekViewport(subPlots)
+        #browser()
+        #seekViewport(subPlots, recording = FALSE)
       }
     } #gg vs histogram vs spatialObject
 
@@ -1211,10 +1206,10 @@ setMethod(
     if (#!identical(FALSE, sGrob@plotArgs$title) & isBaseSubPlot & !isReplot |
       !identical(FALSE, sGrob@plotArgs$title) & isBaseSubPlot & isNewPlot) {
       plotName <- if(isTRUE(sGrob@plotArgs$title)) sGrob@plotName else sGrob@plotArgs$title
-      seekViewport(paste0("outer",subPlots))
+      seekViewport(paste0("outer",subPlots), recording = FALSE)
       grid.text(plotName, name = "title", y = 1.08-is.list(grobToPlot)*0.02, vjust = 0.5, # tweak... not good practice. Should find original reason why this is not same y for rasters and all others
                 gp = sGrob@plotArgs$gpText)
-      seekViewport(subPlots)
+      #seekViewport(subPlots, recording = FALSE)
     }
     return(sGrob)
 })
@@ -1227,8 +1222,10 @@ setMethod(
 #'                  \code{Plot} is currently being plotted, i.e., a counter of sorts.
 #'
 #' @include plotting-classes.R
+#' @inheritParams .makeSpadesPlot
 #' @docType methods
 #' @rdname Plot-internal
+#' @aliases PlotHelpers
 #' @name .refreshGrob
 #'
 setGeneric(".refreshGrob", function(sGrob, subPlots, legendRange,
@@ -1238,12 +1235,12 @@ setGeneric(".refreshGrob", function(sGrob, subPlots, legendRange,
 
 #' @export
 #' @rdname Plot-internal
+#' @aliases PlotHelpers
 setMethod(
   ".refreshGrob",
   signature = c(".spadesGrob"),
   definition = function(sGrob, subPlots, legendRange,
                         grobToPlot, plotArgs, nColumns, whPlotObj) {
-
     seekViewport(paste0("outer",subPlots), recording = FALSE)
     grid.rect(x = 0, width = unit(1+is(grobToPlot, "Raster")*0.20/(nColumns/2), "npc"),
               gp = gpar(fill = "white", col = "white"), just = "left")
@@ -1263,7 +1260,7 @@ setMethod(
     } else {
       legendRange
     }
-    seekViewport(subPlots, recording = FALSE)
+    #seekViewport(subPlots, recording = FALSE)
     return(sGrob)
 })
 
@@ -1271,6 +1268,7 @@ setMethod(
 #' @include plotting-classes.R
 #' @docType methods
 #' @rdname Plot-internal
+#' @aliases PlotHelpers
 #' @name .updateGrobGPTextAxis
 #'
 setGeneric(".updateGrobGPTextAxis", function(sGrob, arr) {
@@ -1279,20 +1277,34 @@ setGeneric(".updateGrobGPTextAxis", function(sGrob, arr) {
 
 #' @export
 #' @rdname Plot-internal
+#' @aliases PlotHelpers
 setMethod(
   ".updateGrobGPTextAxis",
   signature = c(".spadesGrob"),
   definition = function(sGrob, arr) {
 
-    if (!is(sGrob@plotArgs$gpText, "gpar")) {
-      sGrob@plotArgs$gpText <- as(sGrob@plotArgs$gpText, "gpar")
-    }
-    if (!is(sGrob@plotArgs$gpAxis, "gpar")) {
-      sGrob@plotArgs$gpAxis <- as(sGrob@plotArgs$gpAxis, "gpar")
-    }
-    if (!is(sGrob@plotArgs$gp, "gpar")) {
-      sGrob@plotArgs$gp <- as(sGrob@plotArgs$gp, "gpar")
-    }
+#    browser()
+    #if(length(sGrob@plotArgs$gpText[[1]])>0) {
+    #  if (!is(sGrob@plotArgs$gpText, "gpar"))
+    #    sGrob@plotArgs$gpText <- as(sGrob@plotArgs$gpText, "gpar")
+    #} else {
+      class(sGrob@plotArgs$gpText) <- "gpar"
+    #}
+
+    #if(length(sGrob@plotArgs$gpAxis[[1]])>0) {
+    #  if (!is(sGrob@plotArgs$gpAxis, "gpar"))
+    #    sGrob@plotArgs$gpAxis <- as(sGrob@plotArgs$gpAxis, "gpar")
+    #} else {
+      class(sGrob@plotArgs$gpAxis) <- "gpar"
+    #}
+
+    #if(length(sGrob@plotArgs$gp[[1]])>0) {
+    #  if (!is(sGrob@plotArgs$gp, "gpar")) {
+    #    sGrob@plotArgs$gp <- as(sGrob@plotArgs$gp, "gpar")
+    #  }
+    #} else {
+      class(sGrob@plotArgs$gp) <- "gpar"
+    #}
 
     if (is.null(sGrob@plotArgs$gpText$cex)) {
       # pipe won't work here :S
@@ -1391,7 +1403,7 @@ setMethod(
                            takeFromPlotObj, arr, speedup, newArr) {
 
   if (is.null(zoomExtent)) {
-    zoom <- extent(grobToPlot)
+    zoom <- NA#extent(grobToPlot)#extent(0,1,0,1)
     npixels <- ncell(grobToPlot)
   } else {
     zoom <- zoomExtent
@@ -1959,7 +1971,7 @@ setMethod(
       gp = gp, cl = "plotRast2"
     )
 
-    seekViewport(paste0("outer", name))
+    seekViewport(paste0("outer", name), recording = FALSE)
     grid.draw(rastGrob2)
 
     return(invisible(rastGrob))
@@ -2267,13 +2279,11 @@ setMethod(
 
   columns <- arr@columns
   rows <- arr@rows
-  topVp <- viewport(#clip = "on",
-    layout = grid.layout(
-      nrow = rows * 3 + 2,
-      ncol = columns * 3 + 2,
-      widths = arr@layout$wdth,
-      heights = arr@layout$ht
-    ),
+  gl1 <- grid.layout(
+    nrow = rows * 3 + 2, ncol = columns * 3 + 2,
+    widths = arr@layout$wdth, heights = arr@layout$ht
+  )
+  topVp <- viewport(layout = gl1,
     name = "top"
   )
   plotVps <- list()

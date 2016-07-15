@@ -271,7 +271,7 @@ clickCoordinates <- function(n = 1) {
   grobLoc <- list()
 
   for (i in 1:n) {
-    seekViewport("top")
+    seekViewport("top", recording = FALSE)
     gloc <- grid.locator(unit = "npc")
     xInt <- findInterval(as.numeric(strsplit(as.character(gloc$x), "npc")[[1]]),
                          c(0, cumsum(widthNpcs)))
@@ -318,7 +318,7 @@ clickCoordinates <- function(n = 1) {
 #' @importFrom grid seekViewport grid.locator convertX convertY
 .clickCoord <- function(X, n = 1, gl = NULL) {
   pts <- data.frame(x = NA_real_, y = NA_real_, stringsAsFactors = FALSE)
-  seekViewport(X)
+  seekViewport(X, recording = FALSE)
   for (i in 1:n) {
     if (is.null(gl)) {
       gl <- grid.locator()
