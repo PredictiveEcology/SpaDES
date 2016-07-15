@@ -298,7 +298,7 @@ setGeneric(".makeColorMatrix",
 setMethod(
   ".makeColorMatrix",
   #signature = c("griddedClasses", "Extent", "numeric", "ANY"),
-  #signature = c("Raster", "Extent", "numeric", "ANY"),
+  signature = c("Raster", "Extent", "numeric", "ANY"),
   definition = function(grobToPlot, zoomExtent, maxpixels, legendRange,
                         cols, na.color, zero.color, skipSample = TRUE) {
     zoom <- zoomExtent
@@ -307,7 +307,7 @@ setMethod(
     # calculate it, but it is also often wrong... it is only metadata
     # on the raster, so it is possible that it is incorrect.
     if (!skipSample) {
-      if(is.na(zoom)) zoom <- extent(grobToPlot)
+      #if(is.na(zoom)) zoom <- extent(grobToPlot)
       colorTable <- getColors(grobToPlot)[[1]]
       if (!is(try(minValue(grobToPlot)), "try-error")) {
         minz <- minValue(grobToPlot)
@@ -420,8 +420,8 @@ setMethod(
       if (is.character(cols) & (length(cols) == 1)) {
         if (cols %in% rownames(brewer.pal.info)) {
           suppressWarnings(cols <- brewer.pal(nValues, cols))
-        } else {
-          warning("Color not recognized. Try RColorBrewer or default R colors")
+        #} else {
+        #  warning("Color not recognized. Try RColorBrewer or default R colors")
         }
       }
       cols <- if (nValues > length(cols)) {
