@@ -346,7 +346,7 @@ setMethod(
     #  there may in fact be something.
     if(sum(news)>0) {
       if ((length(ls(.spadesEnv)) +
-           nlayers(.spadesEnv[[paste0("spadesPlot", dev.cur())]]) - 1) <= sum(news) |
+           numLayers(.spadesEnv[[paste0("spadesPlot", dev.cur())]]) - 1) <= sum(news) |
           length(ls(.spadesEnv)) == 0) {
         clearPlot(dev.cur())
     }}

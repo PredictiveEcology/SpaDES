@@ -12,17 +12,22 @@
 #' @return The number of layers in the object.
 #'
 #' @export
-#' @importFrom raster nlayers
+#' @importFrom raster numLayers
 #' @include plotting-classes.R
 #' @author Eliot McIntire
-#' @rdname nlayers
+#' @rdname numLayers
+#' @export
+setGeneric("numLayers", function(x) {
+  standardGeneric("numLayers")
+})
+
 setMethod(
-  "nlayers",
+  "numLayers",
   signature = "list",
   definition = function(x) {
     y <- sum(sapply(x, function(x) {
       if (is(x, "RasterStack")) {
-        x <- nlayers(x)
+        x <- numLayers(x)
         } else {
           x <- 1L
         }
@@ -33,18 +38,35 @@ setMethod(
 )
 
 
-#' @rdname nlayers
+#' @rdname numLayers
 setMethod(
-  "nlayers",
+  "numLayers",
   signature = ".spadesPlot",
   definition = function(x) {
     return(length(x@arr@extents))
   }
 )
 
-#' @rdname nlayers
 setMethod(
-  "nlayers",
+  "numLayers",
+  signature = "Raster",
+  definition = function(x) {
+    return(nlayers(x))
+  }
+)
+
+#' @rdname numLayers
+setMethod(
+  "numLayers",
+  signature = "Spatial",
+  definition = function(x) {
+    return(1L)
+  }
+)
+
+#' @rdname numLayers
+setMethod(
+  "numLayers",
   signature = "ANY",
   definition = function(x) {
     return(1L)
@@ -213,7 +235,7 @@ setMethod(
         names(plotObjects)[!is.na(suppliedNames)] <- suppliedNames
       }
     }
-    numLayers <- pmax(1, sapply(plotObjects, nlayers))
+    numberLayers <- pmax(1, sapply(plotObjects, numLayers))
 
     isSpadesPlot <- sapply(plotObjects, function(x) { is(x, ".spadesPlot") })
     #isRaster <- sapply(plotObjects, function(x) { is(x, "Raster") })
@@ -226,14 +248,14 @@ setMethod(
     # are the "long" versions of the layers, i.e,. a call to say
     # Plot(stack1, layerB) would have two objects, but maybe 5 layers,
     # if the stack had 4 layers in it.
-    isSpadesPlotLong <- rep(isSpadesPlot, numLayers)
-    #isRasterLong <- rep(isRaster, numLayers)
-    isStackLong <- rep(isStack, numLayers)
-    isSpatialObjects <- rep(isSpatialObjects, numLayers)
+    isSpadesPlotLong <- rep(isSpadesPlot, numberLayers)
+    #isRasterLong <- rep(isRaster, numberLayers)
+    isStackLong <- rep(isStack, numberLayers)
+    isSpatialObjects <- rep(isSpatialObjects, numberLayers)
 
-    lN <- rep(names(plotObjects), numLayers)
+    lN <- rep(names(plotObjects), numberLayers)
     lN[isSpadesPlotLong] <- layerNames(plotObjects[isSpadesPlot])
-    objectNamesLong <- rep(names(plotObjects), numLayers)
+    objectNamesLong <- rep(names(plotObjects), numberLayers)
 
     # Full layer names, including object name.
     # If layer name is same as object name omit it, and if layer name
@@ -241,11 +263,11 @@ setMethod(
     lN[isStackLong] <- paste(objectNamesLong[isStackLong],
                              layerNames(plotObjects[isStack]),
                              sep = "$")
-    names(lN) <- rep(names(plotObjects), numLayers)
+    names(lN) <- rep(names(plotObjects), numberLayers)
     names(lN)[isSpadesPlotLong] <- layerNames(plotObjects)[isSpadesPlotLong]
 
     # Create long version of environments
-    lEnvs <- rep(sapply(objs, function(x) { x$envs }), numLayers)
+    lEnvs <- rep(sapply(objs, function(x) { x$envs }), numberLayers)
 
     # if (any(duplicated(paste(lN, lEnvs)))) {
     #   stop(paste("Cannot plot two layers with same name from the same environment.",
