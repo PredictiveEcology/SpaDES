@@ -1132,13 +1132,13 @@ setMethod(
         }
 
         if (#xyAxes$x & isBaseSubPlot & isReplot |
-          xyAxes$x & isBaseSubPlot & isNewPlot | xyAxes$x & wipe) {
+          xyAxes$x & (isBaseSubPlot & isNewPlot | wipe)) {
 
           axesArgsX <- append(list(side=1), axesArgs)
           suppressWarnings(do.call(axis, args = axesArgsX))
         }
         if (#xyAxes$y & isBaseSubPlot & isReplot |
-          xyAxes$y & isBaseSubPlot & isNewPlot | xyAxes$y & wipe) {
+          xyAxes$y & (isBaseSubPlot & isNewPlot | wipe) ) {
           axesArgsY <- append(list(side=2), axesArgs)
           suppressWarnings(do.call(axis, args = axesArgsY))
         }
@@ -1180,8 +1180,8 @@ setMethod(
         vp = vps,
         legend = #sGrob@plotArgs$legend  &  isBaseSubPlot &
           #isReplot |
-          sGrob@plotArgs$legend & isBaseSubPlot &
-          isNewPlot | wipe,
+          sGrob@plotArgs$legend & (isBaseSubPlot &
+          isNewPlot | wipe),
         legendText = sGrob@plotArgs$legendTxt,
         gp = sGrob@plotArgs$gp,
         gpText = sGrob@plotArgs$gpText,
