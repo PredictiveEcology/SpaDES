@@ -22,9 +22,10 @@ if (getRversion() >= "3.1.0") {
 #' before plotting, a call to \code{\link{clearPlot}} could be helpful to resolve
 #' many errors.
 #'
-#' If \code{new = TRUE}, a new plot will be generated.
-#' This is equivalent to calling \code{clearPlot(); Plot(Object)},
-#' i.e,. directly before creating a new Plot.
+#' If \code{new = TRUE}, a new plot will be generated, but only in the named figure region.
+#' This is different than calling \code{clearPlot(); Plot(Object)},
+#' i.e,. directly before creating a new Plot. \code{clearPlot()} will clear the entire
+#' plotting device.
 #' When \code{new = FALSE}, any plot that already exists will be overplotted,
 #' while plots that have not already been plotted will be added.
 #' This function rearranges the plotting device to maximize the size of all the
@@ -281,11 +282,13 @@ if (getRversion() >= "3.1.0") {
 #' SpP = SpatialPolygons(list(Srs1, Srs2), 1:2)
 #'
 #' if (interactive()) {
-#'   Plot(ras, new = TRUE)
+#'   clearPlot()
+#'   Plot(ras)
 #'
 #'   # dev(2)
 #'
-#'   Plot(landscape, new = TRUE)
+#'   clearPlot()
+#'   Plot(landscape)
 #'
 #'   # Can overplot, using addTo
 #'   Plot(caribou, addTo = "landscape$forestAge", size = 4, axes = FALSE)
@@ -433,6 +436,7 @@ setMethod(
       objFrame <- .getSpaDES(paste0("basePlots_",dev.cur()))
 
     } else { # non base plots
+
       canPlot <- if (!is.null(names(whichSpadesPlottables))) {
         whichSpadesPlottables[names(whichSpadesPlottables) != "env"]
       } else {
@@ -562,14 +566,6 @@ setMethod(
           isNewPlot <- updated$isNewPlot[[subPlots]][[spadesGrobCounter]]
           isReplot <- updated$isReplot[[subPlots]][[spadesGrobCounter]]
           isBaseSubPlot <- updated$isBaseLayer[[subPlots]][[spadesGrobCounter]]
-
-          #a <- try(seekViewport(subPlots, recording = FALSE))
-          #if (is(a, "try-error")) {
-          #  stop(paste(
-          #      "Plot does not already exist on current device.",
-          #      "Try new = TRUE, clearPlot(), or change device to",
-          #      "one that has a plot named", addTo[whGrobNamesi])
-          #  )}
 
           whPlotFrame <- match(sGrob@plotName, names(spadesSubPlots))
 
