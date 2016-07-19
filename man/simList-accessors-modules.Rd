@@ -16,9 +16,9 @@
 \alias{simList-accessors-modules}
 \title{Simulation modules and dependencies}
 \usage{
-modules(object)
+modules(object, hidden = FALSE)
 
-\S4method{modules}{.simList}(object)
+\S4method{modules}{.simList}(object, hidden = FALSE)
 
 modules(object) <- value
 
@@ -40,6 +40,8 @@ currentModule(object)
 }
 \arguments{
 \item{object}{A \code{simList} simulation object.}
+
+\item{hidden}{Logical. If TRUE, show the 4 default, "hidden" modules}
 
 \item{value}{The object to be stored at the slot.}
 }

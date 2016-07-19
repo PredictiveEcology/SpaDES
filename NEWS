@@ -2,8 +2,10 @@ Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
 version 1.2.0.9000
 ==================
+* allow params(sim) & start(sim) & others in defineModule by changing parse order in Module Metadata
 * allow default type base plots to be plotted with Plot
-* add arr argument to Plot, allowing passing of arrangement, custom plot titles
+* add arr argument to Plot, allowing passing of arrangement,
+* allow title arg in Plot to accept character for plot title
 * change "new" arg in Plot. Now it does one plot at a time, not whole device. Use clearPlot()
 * Plot can use character passed to title as a title
 * add `RandomFieldsUtils` to Imports

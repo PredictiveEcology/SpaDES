@@ -12,21 +12,22 @@ Plot(..., new = FALSE, addTo = NULL, gp = gpar(), gpText = gpar(),
   gpAxis = gpar(), axes = FALSE, speedup = 1, size = 5, cols = NULL,
   zoomExtent = NULL, visualSqueeze = NULL, legend = TRUE,
   legendRange = NULL, legendText = NULL, pch = 19, title = TRUE,
-  na.color = "#FFFFFF00", zero.color = NULL, length = NULL, arr = NULL)
+  na.color = "#FFFFFF00", zero.color = NULL, length = NULL, arr = NULL,
+  plotFn = "plot.default")
 
 \S4method{Plot}{ANY}(..., new = FALSE, addTo = NULL, gp = gpar(),
   gpText = gpar(), gpAxis = gpar(), axes = FALSE, speedup = 1,
   size = 5, cols = NULL, zoomExtent = NULL, visualSqueeze = NULL,
   legend = TRUE, legendRange = NULL, legendText = NULL, pch = 19,
   title = TRUE, na.color = "#FFFFFF00", zero.color = NULL,
-  length = NULL, arr = NULL)
+  length = NULL, arr = NULL, plotFn = "plot.default")
 
 \S4method{Plot}{simList}(..., new = FALSE, addTo = NULL, gp = gpar(),
   gpText = gpar(), gpAxis = gpar(), axes = FALSE, speedup = 1,
   size = 5, cols = NULL, zoomExtent = NULL, visualSqueeze = NULL,
   legend = TRUE, legendRange = NULL, legendText = NULL, pch = 19,
   title = TRUE, na.color = "#FFFFFF00", zero.color = NULL,
-  length = NULL, arr = NULL)
+  length = NULL, arr = NULL, plotFn = "plot.default")
 
 rePlot(toDev = dev.cur(), fromDev = dev.cur(), ...)
 }
@@ -116,6 +117,9 @@ areas indicating number of rows, number of columns.
 Default NULL, meaning
 let Plot function do it automatically.}
 
+\item{plotFn}{An optional function name to do the plotting internally, e.g.,
+"barplot" to get a barplot() call. Default "plot.default".}
+
 \item{toDev}{Numeric. Which device should the new rePlot be plotted to.
 Default is current device.}
 
@@ -149,9 +153,10 @@ base R graphics. Also, because it does not by default wipe the plotting device
 before plotting, a call to \code{\link{clearPlot}} could be helpful to resolve
 many errors.
 
-If \code{new = TRUE}, a new plot will be generated.
-This is equivalent to calling \code{clearPlot(); Plot(Object)},
-i.e,. directly before creating a new Plot.
+If \code{new = TRUE}, a new plot will be generated, but only in the named figure region.
+This is different than calling \code{clearPlot(); Plot(Object)},
+i.e,. directly before creating a new Plot. \code{clearPlot()} will clear the entire
+plotting device.
 When \code{new = FALSE}, any plot that already exists will be overplotted,
 while plots that have not already been plotted will be added.
 This function rearranges the plotting device to maximize the size of all the
@@ -289,11 +294,13 @@ Srs2 = Polygons(list(Sr2), "s2")
 SpP = SpatialPolygons(list(Srs1, Srs2), 1:2)
 
 if (interactive()) {
-  Plot(ras, new = TRUE)
+  clearPlot()
+  Plot(ras)
 
   # dev(2)
 
-  Plot(landscape, new = TRUE)
+  clearPlot()
+  Plot(landscape)
 
   # Can overplot, using addTo
   Plot(caribou, addTo = "landscape$forestAge", size = 4, axes = FALSE)

@@ -92,7 +92,10 @@ Ras <- raster(extent(0,10,0,10), res = 1, val = 0)
 rp <- randomPolygons(Ras, numTypes = 10)
 seed <- sample(1e6,1)
 set.seed(seed)
-if (interactive()) Plot(rp, new = TRUE)
+if (interactive()) {
+  clearPlot()
+  Plot(rp)
+}
 angles <- seq(0,pi*2,length.out = 17)
 angles <- angles[-length(angles)]
 N <- 2

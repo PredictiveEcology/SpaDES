@@ -63,7 +63,8 @@ indices <- cellFromXY(dirRas,dirs1[, c("x", "y")])
 minDir <- tapply(dirs1[,"angles"], indices, function(x) min(x)) # minimum angle
 dirRas[] <- as.vector(minDir)
 if (interactive()) {
-  Plot(dirRas, new = TRUE)
+  clearPlot()
+  Plot(dirRas)
   library(sp)
   start <- SpatialPoints(coords[, c("x", "y"), drop = FALSE])
   Plot(start, addTo = "dirRas")
