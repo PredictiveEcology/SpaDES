@@ -399,6 +399,18 @@ setMethod(
     return("second")
 })
 
+#' @export
+#' @rdname minTimeunit
+setMethod(
+  "minTimeunit",
+  signature(sim = "list"),
+  definition = function(sim) {
+
+    tu <- unlist(lapply(sim, function(xtime) as.numeric(eval(parse(text = paste0("d",xtime,"(1)"))))))
+    return(sim[which.min(tu)])
+
+  })
+
 #' @rdname timeConversion
 .spadesTimes <- c("year", "month", "week", "day", "hour", "second")
 
