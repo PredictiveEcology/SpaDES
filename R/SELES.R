@@ -99,7 +99,8 @@ numAgents <- function(N, probInit) {
 #' pr <- probInit(map, p = (map/maxValue(map))^2)
 #' agents <- initiateAgents(map, 100, pr)
 #' if (interactive()) {
-#'   Plot(map, new = TRUE)
+#'   clearPlot()
+#'   Plot(map)
 #'   Plot(agents, addTo = "map")
 #' }
 #'

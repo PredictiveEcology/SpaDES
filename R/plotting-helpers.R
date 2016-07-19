@@ -602,7 +602,10 @@ setMethod(
 #' caribou2 <- SpatialPoints(cbind(x = stats::runif(10, -50, 50), y = stats::runif(10, -50, 50)))
 #'
 #' caribouTraj <- makeLines(caribou1, caribou2)
-#' if (interactive()) Plot(caribouTraj, new = TRUE, length = 0.1)
+#'   if (interactive()) {
+#'     clearPlot()
+#'     Plot(caribouTraj, length = 0.1)
+#'   }
 #'
 #' # or  to a previous Plot
 #' \dontrun{
@@ -616,8 +619,11 @@ setMethod(
 #' sim1 <- loadFiles(filelist = filelist)
 #' caribouTraj <- makeLines(caribou1, caribou2)
 #'
-#' Plot(sim1$DEM, new = TRUE)
-#' Plot(caribouTraj, addTo = "sim1$DEM", length = 0.1)
+#'   if (interactive()) {
+#'     clearPlot()
+#'     Plot(sim1$DEM)
+#'     Plot(caribouTraj, addTo = "sim1$DEM", length = 0.1)
+#'   }
 #' }
 #'
 setGeneric("makeLines", function(from, to) {
@@ -1069,6 +1075,7 @@ setMethod(
                         isBaseSubPlot, isNewPlot, isReplot, zMat, wipe, xyAxes, legendText,
                         vps, nonPlotArgs) {
     seekViewport(subPlots, recording = FALSE)
+
     if (is.list(grobToPlot)) {  # THis is for base plot calls... the grobToPlot is a call i.e,. a name
       # Because base plotting is not set up to overplot,
       # must plot a white rectangle

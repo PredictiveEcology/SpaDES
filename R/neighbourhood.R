@@ -413,7 +413,8 @@ adj <- compiler::cmpfun(adj.raw)
 #' Ras[middleCircle[, "indices"]] <- 1
 #' circlePoints <- SpatialPoints(middleCircle[,c("x", "y")])
 #' if (interactive()) {
-#'   Plot(Ras, new=TRUE)
+#'   clearPlot()
+#'   Plot(Ras)
 #'   Plot(circlePoints, addTo = "Ras")
 #' }
 #'
@@ -429,7 +430,8 @@ adj <- compiler::cmpfun(adj.raw)
 #' cirsRas[cirs[, "indices"]] <- 1
 #'
 #' if (interactive()) {
-#'   Plot(Ras, new = TRUE)
+#'   clearPlot()
+#'   Plot(Ras)
 #'   Plot(cirsRas, addTo = "Ras", cols = c("transparent", "#00000055"))
 #'   Plot(agent, addTo = "Ras")
 #'   Plot(cirsSP, addTo = "Ras")
@@ -458,7 +460,10 @@ adj <- compiler::cmpfun(adj.raw)
 #' ras2 <- raster(hab)
 #' ras2[] <- 0
 #' ras2[cirs2$indices] <- cirs2$id
-#' if (interactive()) Plot(ras1, ras2, new=TRUE)
+#' if (interactive()) {
+#'   clearPlot()
+#'   Plot(ras1, ras2)
+#' }
 #'
 #' a <- raster(extent(0,100,0,100), res = 1)
 #' hab <- gaussMap(a,speedup = 1)
@@ -467,7 +472,10 @@ adj <- compiler::cmpfun(adj.raw)
 #' ras1[] <- 0
 #' cirsOverlap <- data.table(cirs)[,list(sumIDs = sum(id)),by=indices]
 #' ras1[cirsOverlap$indices] <- cirsOverlap$sumIDs
-#' if (interactive()) Plot(ras1, new=TRUE)
+#' if (interactive()) {
+#'   clearPlot()
+#'   Plot(ras1)
+#' }
 #'
 #' # Provide a specific set of angles
 #' Ras <- raster(extent(0, 330, 0, 330), res = 1)
@@ -815,7 +823,10 @@ setMethod(
 #' ln <- rlnorm(N, 1, 0.02) # log normal step length
 #' sd <- 30 # could be specified globally in params
 #'
-#' if (interactive()) Plot(hab, zero.color = "white", new = TRUE, axes = "L")
+#' if (interactive()) {
+#'   clearPlot()
+#'   Plot(hab, zero.color = "white", axes = "L")
+#' }
 #' for(i in 1:10) {
 #'   agent <- SpaDES::crw(agent = agent,
 #'                          extent = extent(hab), stepLength = ln,
@@ -975,7 +986,10 @@ setMethod(
 #' rp <- randomPolygons(Ras, numTypes = 10)
 #' seed <- sample(1e6,1)
 #' set.seed(seed)
-#' if (interactive()) Plot(rp, new = TRUE)
+#' if (interactive()) {
+#'   clearPlot()
+#'   Plot(rp)
+#' }
 #' angles <- seq(0,pi*2,length.out = 17)
 #' angles <- angles[-length(angles)]
 #' N <- 2
