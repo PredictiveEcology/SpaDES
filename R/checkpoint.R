@@ -182,7 +182,7 @@ setMethod(
     tmpl$.FUN <- format(FUN) # This is changed to allow copying between computers
     if (length(wh) > 0) tmpl[wh] <- lapply(tmpl[wh], makeDigestible)
     if (length(whFun) > 0) tmpl[whFun] <- lapply(tmpl[whFun], format)
-    if (!is.na(tmpl$progress)) tmpl$progress <- NULL
+    if (!is.null(tmpl$progress)) if (!is.na(tmpl$progress)) tmpl$progress <- NULL
 
     outputHash <- digest::digest(tmpl)
     localTags <- showLocalRepo(cacheRepo, "tags")
