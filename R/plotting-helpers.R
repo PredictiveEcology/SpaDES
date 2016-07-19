@@ -1079,7 +1079,7 @@ setMethod(
       if (is(grobToPlot, "gg")) {
         print(grobToPlot, vp = subPlots)
         #browser()
-        #a <- try(seekViewport(subPlots, recording = FALSE))
+        a <- try(seekViewport(subPlots, recording = FALSE))
 
       } else {
         if(is(grobToPlot$x, "histogram")) {
