@@ -302,5 +302,12 @@ setMethod("moduleDiagram",
 setMethod("moduleDiagram",
           signature = c(sim = "simList", type = "missing"),
           definition = function(sim, type, ...) {
-              plot(depsGraph(sim, TRUE), ...)
+              modDia <- depsGraph(sim, TRUE)
+              dots <- list(...)
+              if("title" %in% names(dots)) {
+                Plot(modDia, ...)
+              } else {
+                Plot(modDia, title = "Module Diagram", ...)
+              }
+
 })
