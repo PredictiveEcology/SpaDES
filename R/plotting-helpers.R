@@ -569,6 +569,12 @@ setMethod(
       rep(list(p$legendRange), length.out = n)
     }
 
+    p$plotFn <- if (is.list(p$plotFn)) {
+      p$plotFn
+    } else {
+      rep(list(p$plotFn), length.out = n)
+    }
+
     return(p)
   }
 )
@@ -1120,11 +1126,14 @@ setMethod(
                     0.9))                         # top
 
 
+        # The actuall plot calls for base plotting
         if(spadesGrobCounter==1 | wipe ) { #| isHist) {
           suppressWarnings(par(new = TRUE))
-          suppressWarnings(do.call(plot, args = args_plot1))
+          suppressWarnings(do.call(args_plot1$plotFn,
+                                   args = args_plot1[-which(names(args_plot1)=="plotFn")]))
+
         } else {
-          args_plot1[c("axes", "xlab", "ylab")] <- NULL
+          args_plot1[c("axes", "xlab", "ylab", "plotFn")] <- NULL
           suppressWarnings(do.call(points, args = args_plot1))
         }
       }

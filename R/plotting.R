@@ -182,6 +182,9 @@ if (getRversion() >= "3.1.0") {
 #'            Default NULL, meaning
 #'            let Plot function do it automatically.
 #'
+#' @param plotFn An optional function name to do the plotting internally, e.g.,
+#'               "barplot" to get a barplot() call. Default "plot.default".
+#'
 #' @return Invisibly returns the \code{.spadesPlot} class object.
 #' If this is assigned to an object, say \code{obj}, then this can be plotted
 #' again with \code{Plot(obj)}.
@@ -326,7 +329,7 @@ setGeneric(
            speedup = 1, size = 5, cols = NULL, zoomExtent = NULL,
            visualSqueeze = NULL, legend = TRUE, legendRange = NULL,
            legendText = NULL, pch = 19, title = TRUE, na.color = "#FFFFFF00",
-           zero.color = NULL, length = NULL, arr = NULL) {
+           zero.color = NULL, length = NULL, arr = NULL, plotFn = "plot.default") {
     standardGeneric("Plot")
 })
 
@@ -338,7 +341,7 @@ setMethod(
   definition = function(..., new, addTo, gp, gpText, gpAxis, axes, speedup,
                         size, cols, zoomExtent, visualSqueeze, legend,
                         legendRange, legendText, pch, title, na.color,
-                        zero.color, length, arr) {
+                        zero.color, length, arr, plotFn) {
     # Section 1 - extract object names, and determine which ones need plotting,
     # which ones need replotting etc.
     news <- sapply(new, function(x) x)
@@ -394,7 +397,7 @@ setMethod(
     if(all(!whichSpadesPlottables) ) { ## if not a .spadesPlottables then it is a pass to plot or points
       if(!exists(paste0("basePlots_",dev.cur()), envir=.spadesEnv))
         .assignSpaDES(paste0("basePlots_",dev.cur()), new.env(hash = FALSE, parent = .spadesEnv))
-      mc <- match.call(plot.default, call("plot.default", quote(...)))
+      mc <- match.call(get(plotArgs$plotFn), call(plotArgs$plotFn, quote(...)))
       mcPlot <- match.call(Plot, call = sys.call(whFrame))
 
       basePlotDots <- list()
@@ -578,6 +581,13 @@ setMethod(
                                 sGrob@plotName)
           whPlotObj <- which(takeFromPlotObj)
           grobToPlot <- .identifyGrobToPlot(sGrob, plotObjs, any(takeFromPlotObj))
+          if("x" %in% names(grobToPlot)) { # means it is possibly a histogram passed to x
+            isHist <- is(grobToPlot$x, "histogram")
+            if(isHist) {
+              plotArgs$plotFn <- "plot"
+              plotArgs$new <- TRUE
+            }
+          }
 
           if(sGrob@plotArgs$new) {# draw a white rectangle to clear plot
             sGrob <- .refreshGrob(sGrob, subPlots, legendRange,
