@@ -263,7 +263,7 @@ setMethod(
     # If layer name is same as object name omit it, and if layer name
     # is "layer", omit it if within a RasterLayer
     lN[isStackLong] <- paste(objectNamesLong[isStackLong],
-                             lNamesPlotObj[isStack],
+                             lNamesPlotObj[isStackLong],
                              sep = "$")
     names(lN) <- rep(names(plotObjects), numberLayers)
     names(lN)[isSpadesPlotLong] <- layerNames(plotObjects)[isSpadesPlotLong]
@@ -1091,22 +1091,22 @@ setMethod(
       # clear out all arguments that don't have meaning in plot.default
       if (is(grobToPlot, "gg")) {
         print(grobToPlot, vp = subPlots)
-        #browser()
         a <- try(seekViewport(subPlots, recording = FALSE))
 
+      } else if(is(grobToPlot, "igraph")) {
+        suppressWarnings(par(new = TRUE))
+        plotCall <- append(list(x = grobToPlot), nonPlotArgs)
+        suppressWarnings(do.call(plot, args = plotCall))
+
       } else {
-        if(is(grobToPlot$x, "histogram")) {
-          wipe <- TRUE # can't overplot a histogram
-        }
 
         # plot y and x axes should use deparse(substitute(...)) names
         if(!identical(FALSE,sGrob@plotArgs$axes)) {
-          if(length(sGrob@plotArgs$axisLabels)==1) {
-            sGrob@plotArgs$ylab <- sGrob@plotArgs$axisLabels[1]
-          } else {
-            sGrob@plotArgs$xlab <- sGrob@plotArgs$axisLabels[1]
-            sGrob@plotArgs$ylab <- sGrob@plotArgs$axisLabels[2]
-          }
+          if(!is.na(sGrob@plotArgs$axisLabels[[1]]["x"]))
+            sGrob@plotArgs$xlab <- sGrob@plotArgs$axisLabels[[1]]["x"]
+          if(!is.na(sGrob@plotArgs$axisLabels[[1]]["y"]))
+            sGrob@plotArgs$ylab <- sGrob@plotArgs$axisLabels[[1]]["y"]
+          #}
         } else {
           sGrob@plotArgs$xlab <- ""
           sGrob@plotArgs$ylab <- ""
@@ -1116,6 +1116,12 @@ setMethod(
                                                                     "zoomExtent", "gpText", "speedup", "size",
                                                                     "cols", "visualSqueeze", "legend", "legendRange", "legendText",
                                                                     "zero.color", "length", "arr", "na.color", "title"))]
+        if(is(grobToPlot, "histogram")) {
+          args_plot1 <- append(list(grobToPlot), args_plot1)
+          args_plot1 <- args_plot1 [!(names(args_plot1) %in% c("pch", "breaks", "counts", "density", "mids",
+                                                               "xname", "equidist"))]
+
+        }
         args_plot1$axes <- isTRUE(sGrob@plotArgs$axes)
         makeSpaceForAxes <- as.numeric(
           !identical(FALSE, spadesSubPlots[[subPlots]][[1]]@plotArgs$axes)
@@ -1161,14 +1167,6 @@ setMethod(
       }
 
 
-    } else if (is(grobToPlot, "igraph")) {
-      # Because base plotting is not set up to overplot,
-      # must plot a white rectangle
-      grid.rect(gp = gpar(fill = "white", col = "white"))
-      par(fig = gridFIG())
-      suppressWarnings(par(new = TRUE))
-      plotCall <- append(list(x = grobToPlot), nonPlotArgs)
-      suppressWarnings(do.call(plot, args = plotCall))
     } else { # This is for Rasters and Sp objects only
       # Extract legend text if the raster is a factored raster
       if (is.null(legendText)) {

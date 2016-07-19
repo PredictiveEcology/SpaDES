@@ -409,10 +409,11 @@ setMethod(
       plotObjs <- list(list(basePlotDots))
       plotXYArgs <- substitute(list(...))
       xAndY <- c('x','y') %in% names(basePlotDots)
+      xAndYLab <- c('xlab','ylab') %in% names(basePlotDots)
       xAndYSum <- sum(xAndY)
       if(!is.null(basePlotDots$xlab) | !is.null(basePlotDots$ylab)) {
         plotArgs$axisLabels <- list(c(basePlotDots$xlab, basePlotDots$ylab))
-        names(plotArgs$axisLabels[[1]]) <- c('x','y')[xAndY]
+        names(plotArgs$axisLabels[[1]]) <- c('x','y')[xAndYLab]
       } else {
         plotArgs$axisLabels <- list(unlist(lapply(plotXYArgs[1:xAndYSum+1], deparse)))
       }
@@ -421,9 +422,17 @@ setMethod(
         addTo <- "basePlot1"
       }
       plotArgs$addTo <- addTo
+
       if(is.null(mcPlot$axes)) {
         plotArgs$axes <- "L"
       }
+
+      if(is.null(mcPlot$title)) {
+        plotArgs$title <- mc$main
+      }
+      plotArgs$main <- ""
+      plotObjs[[1]][[1]]$main <- plotArgs$main
+      basePlotDots$main <- plotArgs$main
 
       if(addTo %in% ls(.getSpaDES(paste0("basePlots_",dev.cur())))) {
         plotObjsName <- paste0(addTo, "_", length(ls(.getSpaDES(paste0("basePlots_",dev.cur()))))+1)
@@ -585,7 +594,13 @@ setMethod(
             }
           }
 
-          if(sGrob@plotArgs$new) {# draw a white rectangle to clear plot
+          if(sGrob@plotArgs$new | is(grobToPlot, "igraph") | plotArgs$new |
+             is(grobToPlot, "histogram") | #is(grobToPlot$x, "histogram") |
+               (sGrob@plotArgs$plotFn != "plot.default")) {# draw a white rectangle to clear plot
+
+            wipe <- TRUE # can't overplot a histogram
+
+
             sGrob <- .refreshGrob(sGrob, subPlots, legendRange,
                                   grobToPlot, plotArgs, nColumns = updated$curr@arr@columns,
                                   whPlotObj)
