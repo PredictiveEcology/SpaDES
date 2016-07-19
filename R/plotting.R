@@ -205,7 +205,7 @@ if (getRversion() >= "3.1.0") {
 #' @importFrom gridBase gridFIG
 #' @importFrom ggplot2 ggplot
 #' @importFrom raster crop is.factor
-#' @importFrom grid upViewport pushViewport seekViewport grid.text
+#' @importFrom grid upViewport pushViewport
 #' @importFrom grid grid.rect grid.xaxis grid.yaxis current.parent gpar
 #' @importFrom grDevices dev.cur dev.size
 #'
@@ -356,6 +356,9 @@ setMethod(
           length(ls(.spadesEnv)) == 0) {
         clearPlot(dev.cur())
     }}
+
+    # this covers the case where R thinks that there is a base plot... must be cleared
+    if (length(ls(.spadesEnv)) == 0) clearPlot(dev.cur())
 
     # Determine object names that were passed and layer names of each
     scalls <- sys.calls()

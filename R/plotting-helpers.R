@@ -1059,6 +1059,7 @@ setMethod(
 #'                    but are passed along with \code{.spadesPlottables}.
 #'
 #' @include plotting-classes.R
+#' @importFrom grid seekViewport grid.text
 #' @docType methods
 #' @rdname Plot-internal
 #' @aliases PlotHelpers
