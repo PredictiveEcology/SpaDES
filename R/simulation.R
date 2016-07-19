@@ -435,19 +435,12 @@ setMethod(
       if (length(.unparsed(modules(sim, hidden = TRUE))) == 0) { all_parsed <- TRUE }
     }
 
-    # timeunit has no meaning until all modules are loaded,
-    #  so this has to be after loading
-    timeunit(sim) <- if (!is.null(times$timeunit)) {
-      times$timeunit
-    } else {
-      minTimeunit(sim)
-    }
+    #timestep <- inSeconds(timeunit(sim), envir(sim))
 
-    timestep <- inSeconds(timeunit(sim), envir(sim))
-    times(sim) <- list(current = times$start * timestep,
-                       start = times$start * timestep,
-                       end = times$end * timestep,
-                       timeunit = timeunit(sim))
+    # add name to depdends
+    if(!is.null(names(depends(sim)@dependencies)))
+      names(depends(sim)@dependencies)<-
+        unlist(lapply(depends(sim)@dependencies, function(x) x@name))
 
     # load core modules
     for (c in core) {
