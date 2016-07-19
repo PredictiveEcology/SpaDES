@@ -53,8 +53,8 @@ setMethod(
       gsub("[[:space:]]*=[[:space:]]*", " = ", .)
 
     # ensure variables in params are kept as strings
-    x <- gsub("(globals\\(sim\\)\\$[^\\),]*)", "\"\\1\"", x, perl = TRUE) %>%
-      gsub("(params\\(sim\\)\\$[^,]*)", "\"\\1\"", ., perl = TRUE)
+    x <- gsub("(globals\\(sim\\)\\$[^\\),]*)", "\"\\1\"", x, perl = TRUE)
+    x <- gsub( "(params\\(sim\\)\\$[^\\),]*)", "\"\\1\"", x, perl = TRUE)
 
     # check input types
     x <- gsub("extent\\(rep\\(NA, 4\\)\\)", "extent\\(rep\\(NA_real_, 4\\)\\)", x) %>%
