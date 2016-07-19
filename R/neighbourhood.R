@@ -677,7 +677,6 @@ setMethod(
   }
   rm(id, indices, rads, x, y)
 
-  #browser()
   if (includeBehavior == "excludePixels" | returnDistances | closest) { # only need to calculate distances
                                                             #   for these two cases
     maxRad <- maxRadius[NROW(maxRadius)]

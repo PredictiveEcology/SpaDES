@@ -39,7 +39,8 @@ setMethod(
     ord <- match(unlist(modules(object)), names(timeunits(object))) %>% na.omit
     out[[9]] <- capture.output(print(
       cbind(Name = modules(object),
-            Timeunit = c(rep(NA_character_, 4), unname(timeunits(object))[ord])),
+            #Timeunit = c(rep(NA_character_, 4), unname(timeunits(object))[ord])),
+            Timeunit = unname(timeunits(object))[ord]),
       quote = FALSE, row.names = FALSE))
     out[[10]] <- capture.output(cat("\n"))
 
@@ -394,18 +395,25 @@ setReplaceMethod("$", signature(x = "simList", value = "ANY"),
 #' @docType methods
 #' @aliases simList-accessors-modules
 #' @rdname simList-accessors-modules
+#' @param hidden Logical. If TRUE, show the 4 default, "hidden" modules
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("modules", function(object) {
+setGeneric("modules", function(object, hidden = FALSE) {
   standardGeneric("modules")
 })
 
 #' @rdname simList-accessors-modules
 setMethod("modules",
           signature = ".simList",
-          definition = function(object) {
-            return(object@modules)
+          definition = function(object, hidden) {
+            if(hidden) {
+              mods <- object@modules
+            } else {
+              hiddenMods <- unlist(object@modules) %in% c("checkpoint", "save", "progress", "load")
+              mods <- object@modules[!hiddenMods]
+            }
+            return(mods)
 })
 
 #' @export
@@ -2678,7 +2686,7 @@ setMethod(
       lapply(x$childModules, function(y) {
         if (file.exists(file.path(modulePath(sim), y))) {
           z <- y %>% lapply(., `attributes<-`, list(type = "child"))
-          modules(sim) <- append_attr(modules(sim), z)
+          modules(sim) <- append_attr(modules(sim, hidden = TRUE), z)
         } else {
           stop("Module ", y, "(a child module of ", x$name, ") not found in modulePath.")
         }

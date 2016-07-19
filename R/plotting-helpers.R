@@ -1200,7 +1200,6 @@ setMethod(
         if (xyAxes$y & (isBaseSubPlot & isNewPlot | wipe)) {
           grid.yaxis(name = "yaxis", gp = sGrob@plotArgs$gpAxis, vp = vps$wholeVp$children[[paste0("outer",subPlots)]])
         }
-        #browser()
         #seekViewport(subPlots, recording = FALSE)
       }
     } #gg vs histogram vs spatialObject
@@ -1286,7 +1285,6 @@ setMethod(
   signature = c(".spadesGrob"),
   definition = function(sGrob, arr) {
 
-#    browser()
     #if(length(sGrob@plotArgs$gpText[[1]])>0) {
     #  if (!is(sGrob@plotArgs$gpText, "gpar"))
     #    sGrob@plotArgs$gpText <- as(sGrob@plotArgs$gpText, "gpar")

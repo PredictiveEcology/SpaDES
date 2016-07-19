@@ -425,14 +425,14 @@ setMethod(
     }
 
     # source module metadata and code files, checking version info
-    lapply(modules(sim), function(m) {
+    lapply(modules(sim, hidden = TRUE), function(m) {
       mVersion <- moduleMetadata(m, modulePath(sim))$version
       versionWarning(m, mVersion)
     })
     all_parsed <- FALSE
     while (!all_parsed) {
-      sim <- .parseModule(sim, modules(sim))
-      if (length(.unparsed(modules(sim))) == 0) { all_parsed <- TRUE }
+      sim <- .parseModule(sim, modules(sim, hidden = TRUE))
+      if (length(.unparsed(modules(sim, hidden = TRUE))) == 0) { all_parsed <- TRUE }
     }
 
     # timeunit has no meaning until all modules are loaded,
@@ -473,8 +473,8 @@ setMethod(
 
     # check user-supplied load order
     if (!all( length(loadOrder),
-              all(modules(sim) %in% loadOrder),
-              all(loadOrder %in% modules(sim)) )) {
+              all(modules(sim, hidden = TRUE) %in% loadOrder),
+              all(loadOrder %in% modules(sim, hidden = TRUE)) )) {
       loadOrder <- depsGraph(sim, plot = FALSE) %>% .depsLoadOrder(sim, .)
     }
 
@@ -723,7 +723,7 @@ setMethod(
         moduleCall <- paste("doEvent", cur$moduleName, sep = ".")
 
         # check the module call for validity
-        if (cur$moduleName %in% modules(sim)) {
+        if (cur$moduleName %in% modules(sim, hidden = TRUE)) {
           if (cur$moduleName %in% core) {
               sim <- get(moduleCall)(sim, cur$eventTime,
                                      cur$eventType, debug)
