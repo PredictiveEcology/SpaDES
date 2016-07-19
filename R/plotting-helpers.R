@@ -1353,24 +1353,21 @@ setMethod(
 #' @param toPlot list containing the objects to plot, made as a call to the
 #'               \code{Plot} function
 #'
-#' @param takeFromPlotObj logical. If \code{TRUE}, then take from the call to
-#'                        \code{Plot}; if \code{FALSE} takes from global envir.
-#'
 #' @author Eliot McIntire
 #' @include plotting-classes.R
 #' @rdname identifyGrobToPlot
-setGeneric(".identifyGrobToPlot", function(grobNamesi, toPlot, takeFromPlotObj) {
+setGeneric(".identifyGrobToPlot", function(grobNamesi, toPlot) {
   standardGeneric(".identifyGrobToPlot")
 })
 
 #' @rdname identifyGrobToPlot
 setMethod(
   ".identifyGrobToPlot",
-  signature = c(".spadesGrob", "list", "logical"),
-  function(grobNamesi, toPlot, takeFromPlotObj) {
+  signature = c(".spadesGrob", "list"),
+  function(grobNamesi, toPlot) {
     # get the object name associated with this grob
-    if (length(toPlot) == 0)
-      takeFromPlotObj <- FALSE
+    #if (length(toPlot) == 0)
+    #  takeFromPlotObj <- FALSE
 
     #if(takeFromPlotObj) {
     #  grobToPlot <- toPlot[[1]]
@@ -1378,22 +1375,27 @@ setMethod(
     # Does it already exist on the plot device or not
     if (nchar(grobNamesi@layerName) > 0) {
       # means it is in a raster
-      grobToPlot <- eval(parse(text = grobNamesi@objName),
+      #if(takeFromPlotObj) {
+      #  grobToPlot <- unlist(toPlot[[1]], recursive = FALSE)[[grobNamesi@layerName]]
+      #} else {
+        grobToPlot <- eval(parse(text = grobNamesi@objName),
                          grobNamesi@envir)[[grobNamesi@layerName]]
+      #}
     } else {
-      grobToPlot <- eval(parse(text = grobNamesi@objName), grobNamesi@envir)
+      #if(takeFromPlotObj) {
+      #  if(!is(toPlot[[1]], "gg")) {
+      #    grobToPlot <- unlist(toPlot[[1]], recursive = FALSE)
+      #  } else {
+      #    grobToPlot <- toPlot[[1]]
+      #  }
+      #} else {
+        grobToPlot <- eval(parse(text = grobNamesi@objName), grobNamesi@envir)
+      #}
     }
     #}
     return(grobToPlot)
   })
 
-#' @rdname identifyGrobToPlot
-setMethod(
-  ".identifyGrobToPlot",
-  signature = c(".spadesGrob", "missing", "logical"),
-  function(grobNamesi, toPlot, takeFromPlotObj) {
-    .identifyGrobToPlot(grobNamesi, list(), FALSE)
-  })
 
 ################################################################################
 #' Prepare raster for plotting

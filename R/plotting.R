@@ -585,7 +585,8 @@ setMethod(
           takeFromPlotObj <- (names(newSpadesPlots@spadesGrobList) %in%
                                 sGrob@plotName)
           whPlotObj <- which(takeFromPlotObj)
-          grobToPlot <- .identifyGrobToPlot(sGrob, plotObjs, any(takeFromPlotObj))
+          grobToPlot <- .identifyGrobToPlot(sGrob, plotObjs)#, any(takeFromPlotObj))
+
           if("x" %in% names(grobToPlot)) { # means it is possibly a histogram passed to x
             isHist <- is(grobToPlot$x, "histogram")
             if(isHist) {
