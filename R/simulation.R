@@ -35,6 +35,47 @@ setMethod(
 })
 
 ################################################################################
+#' @return .parseTimeunit just returns the time units of each module
+#'
+#' @include module-dependencies-class.R
+#' @include simList-class.R
+#' @include environment.R
+#' @export
+#' @docType methods
+#' @rdname parseModule
+#'
+#' @author Alex Chubaty
+#'
+setGeneric(
+  ".parseTimeunit",
+  function(sim, modules) {
+    standardGeneric(".parseTimeunit")
+  })
+
+#' @rdname parseModule
+setMethod(
+  ".parseTimeunit",
+  signature(sim = "simList", modules = "list"),
+  definition = function(sim, modules) {
+    timeunits <- list()
+    for (j in .unparsed(modules)) {
+      m <- modules[[j]][1]
+      filename <- paste(modulePath(sim), "/", m, "/", m, ".R", sep = "")
+      parsedFile <- parse(filename)
+      defineModuleItem <- grepl(pattern = "defineModule", parsedFile)
+      pf <- parsedFile[defineModuleItem]
+
+      # evaluate all but inputObjects and outputObjects part of 'defineModule'
+      #  This allow user to use params(sim) in their inputObjects
+      namesParsedList <- names(parsedFile[defineModuleItem][[1]][[3]])
+
+      timeunitObj <- (namesParsedList=="timeunit")
+      timeunits[[m]] <- pf[[1]][[3]][timeunitObj][[1]]
+    }
+    timeunits
+  }
+)
+################################################################################
 #' Parse and initialize a module
 #'
 #' Internal function, used during \code{\link{simInit}}.
@@ -352,6 +393,25 @@ setMethod(
     modules(sim) <- modules
     paths(sim) <- paths
 
+    # timeunit is needed before all parsing of modules. It could be used
+    # within modules within defineParameter statements
+
+    timeunits <- .parseTimeunit(sim, modules(sim))
+    if(length(timeunits)==0) timeunits <- list("second")
+
+    # Get correct time unit now that modules are loaded
+    timeunit(sim) <- if (!is.null(times$timeunit)) {
+      times$timeunit
+    } else {
+      minTimeunit(timeunits)
+    }
+
+    timestep <- inSeconds(timeunit(sim), envir(sim))
+    times(sim) <- list(current = times$start * timestep,
+                       start = times$start * timestep,
+                       end = times$end * timestep,
+                       timeunit = timeunit(sim))
+
     # for now, assign only some core & global params
     globals(sim) <- params$.globals
 
@@ -521,17 +581,7 @@ setMethod(
     # find the simInit call that was responsible for this, get the objects
     #   in the environment of the parents of that call, and pass them to new
     #   environment.
-    # scalls <- sys.calls()
-    # grep1 <- grep(as.character(scalls), pattern = "simInit")
-    # grep1 <- pmax(min(grep1[sapply(scalls[grep1], function(x) {
-    #   tryCatch(
-    #     is(parse(text = x), "expression"),
-    #     error = function(y) { NA })
-    # })], na.rm = TRUE)-1, 1)
-    # # Convert character strings to their objects
-    # li$objects <- lapply(objects, function(x) get(x, envir = sys.frames()[[grep1]]))
     li$objects <- .findObjects(objects)
-    #li$objects <- lapply(objects, dynGet)
     names(li$objects) <- objects
     sim <- do.call("simInit", args = li)
 
