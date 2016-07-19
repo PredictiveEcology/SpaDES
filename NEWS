@@ -2,6 +2,7 @@ Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
 version 1.2.0.9000
 ==================
+* add p as a namespaced shortcut for params: p(sim) replaces params(sim)$moduleName
 * allow params(sim) & start(sim) & others in defineModule by changing parse order in Module Metadata
 * allow any arbitrary function to be used internally to Plot (e.g., barplot, plot, etc.)
 * add arr argument to Plot, allowing passing of arrangement,
