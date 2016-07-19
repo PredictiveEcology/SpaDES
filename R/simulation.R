@@ -74,8 +74,14 @@ setMethod(
       parsedFile <- parse(filename)
       defineModuleItem <- grepl(pattern = "defineModule", parsedFile)
 
-      # evaluate only the 'defineModule' function of parsedFile
-      sim <- eval(parsedFile[defineModuleItem])
+      # evaluate all but inputObjects and outputObjects part of 'defineModule'
+      #  This allow user to use params(sim) in their inputObjects
+      namesParsedList <- names(parsedFile[defineModuleItem][[1]][[3]])
+      inObjs <- (namesParsedList=="inputObjects")
+      outObjs <- (namesParsedList=="outputObjects")
+      pf <- parsedFile[defineModuleItem]
+      pf[[1]][[3]] <- pf[[1]][[3]][!(inObjs | outObjs)]
+      sim <- suppressWarnings(eval(pf))
 
       # check that modulename == filename
       fname <- unlist(strsplit(basename(filename), "[.][r|R]$"))
@@ -92,8 +98,20 @@ setMethod(
         eval(parse(text = tt), envir = environment())
       })
 
+      # do inputObjects and outputObjects
+      pf <- parsedFile[defineModuleItem]
+      depends(sim)@dependencies[[i]]@inputObjects <- eval(pf[[1]][[3]][inObjs][[1]])
+      depends(sim)@dependencies[[i]]@outputObjects <- eval(pf[[1]][[3]][outObjs][[1]])
+
       # evaluate the rest of the parsed file
       eval(parsedFile[!defineModuleItem], envir = envir(sim))
+
+      # now do final eval of inputs and outputs
+      #pf <- parsedFile[defineModuleItem]
+      #inOutObjs[1] <- TRUE
+      #pf[[1]][[3]] <- pf[[1]][[3]][inOutObjs]
+      #depends(sim)@dependencies <- suppressWarnings(eval(pf))
+      #sim <- eval(parsedFile[defineModuleItem])
 
       # update parse status of the module
       attributes(modules[[j]]) <- list(parsed = TRUE)
