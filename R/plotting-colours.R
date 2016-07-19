@@ -320,7 +320,7 @@ setMethod(
   definition = function(grobToPlot, zoomExtent, maxpixels, legendRange,
                         cols, na.color, zero.color, skipSample = TRUE) {
     zoom <- zoomExtent
-    isFac <- (raster::is.factor(grobToPlot))
+    isFac <- any(raster::is.factor(grobToPlot))
     # It is 5x faster to access the min and max from the Raster than to
     # calculate it, but it is also often wrong... it is only metadata
     # on the raster, so it is possible that it is incorrect.

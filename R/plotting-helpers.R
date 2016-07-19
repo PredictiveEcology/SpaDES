@@ -1164,7 +1164,7 @@ setMethod(
       # Extract legend text if the raster is a factored raster
       if (is.null(legendText)) {
         if (is.null(sGrob@plotArgs$legendTxt)) {
-          if (raster::is.factor(grobToPlot)) {
+          if (any(raster::is.factor(grobToPlot))) {
             sGrob@plotArgs$legendTxt <- raster::levels(grobToPlot)[[1]]
           }
         }
