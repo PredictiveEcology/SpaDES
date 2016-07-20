@@ -136,7 +136,7 @@ test_that("Plot 1 is not error-free", {
 
   # Should work with col as well as cols
   clearPlot()
-  expect_silent(Plot(DEM87654, cols = c("blue", "red")))
+  expect_silent(Plot(DEM87654, col = c("blue", "red")))
 
   # test visualSqueeze
   clearPlot()

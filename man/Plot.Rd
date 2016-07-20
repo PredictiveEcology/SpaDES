@@ -13,21 +13,21 @@ Plot(..., new = FALSE, addTo = NULL, gp = gpar(), gpText = gpar(),
   zoomExtent = NULL, visualSqueeze = NULL, legend = TRUE,
   legendRange = NULL, legendText = NULL, pch = 19, title = TRUE,
   na.color = "#FFFFFF00", zero.color = NULL, length = NULL, arr = NULL,
-  plotFn = "plot.default")
+  plotFn = "plot")
 
 \S4method{Plot}{ANY}(..., new = FALSE, addTo = NULL, gp = gpar(),
   gpText = gpar(), gpAxis = gpar(), axes = FALSE, speedup = 1,
   size = 5, cols = NULL, zoomExtent = NULL, visualSqueeze = NULL,
   legend = TRUE, legendRange = NULL, legendText = NULL, pch = 19,
   title = TRUE, na.color = "#FFFFFF00", zero.color = NULL,
-  length = NULL, arr = NULL, plotFn = "plot.default")
+  length = NULL, arr = NULL, plotFn = "plot")
 
 \S4method{Plot}{simList}(..., new = FALSE, addTo = NULL, gp = gpar(),
   gpText = gpar(), gpAxis = gpar(), axes = FALSE, speedup = 1,
   size = 5, cols = NULL, zoomExtent = NULL, visualSqueeze = NULL,
   legend = TRUE, legendRange = NULL, legendText = NULL, pch = 19,
   title = TRUE, na.color = "#FFFFFF00", zero.color = NULL,
-  length = NULL, arr = NULL, plotFn = "plot.default")
+  length = NULL, arr = NULL, plotFn = "plot")
 
 rePlot(toDev = dev.cur(), fromDev = dev.cur(), ...)
 }
@@ -118,7 +118,7 @@ Default NULL, meaning
 let Plot function do it automatically.}
 
 \item{plotFn}{An optional function name to do the plotting internally, e.g.,
-"barplot" to get a barplot() call. Default "plot.default".}
+"barplot" to get a barplot() call. Default "plot".}
 
 \item{toDev}{Numeric. Which device should the new rePlot be plotted to.
 Default is current device.}

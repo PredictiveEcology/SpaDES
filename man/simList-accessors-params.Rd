@@ -14,6 +14,8 @@
 \alias{globals,.simList-method}
 \alias{globals<-}
 \alias{globals<-,.simList-method}
+\alias{p}
+\alias{p,.simList-method}
 \alias{params}
 \alias{params,.simList-method}
 \alias{params<-}
@@ -36,6 +38,10 @@ params(object)
 params(object) <- value
 
 \S4method{params}{.simList}(object) <- value
+
+p(object, module)
+
+\S4method{p}{.simList}(object, module)
 
 globals(object)
 
@@ -81,6 +87,8 @@ progressType(object) <- value
 \item{object}{A \code{simList} simulation object.}
 
 \item{value}{The object to be stored at the slot.}
+
+\item{module}{Optional character string indicating which module params should come from.}
 }
 \value{
 Returns or sets the value of the slot from the \code{simList} object.
@@ -105,6 +113,10 @@ Advanced use
 }
 \details{
 Currently, only get and set methods are defined. Subset methods are not.
+
+\code{p} is a concise way to access parameters within a module. It works more like 
+a namespaced function in the sense that the module from which it is called is the
+default place it will look for the parameter.
 
 Progress Bar:
 Progress type can be "text", "graphical" or "shiny".

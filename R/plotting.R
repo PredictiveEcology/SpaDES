@@ -184,7 +184,7 @@ if (getRversion() >= "3.1.0") {
 #'            let Plot function do it automatically.
 #'
 #' @param plotFn An optional function name to do the plotting internally, e.g.,
-#'               "barplot" to get a barplot() call. Default "plot.default".
+#'               "barplot" to get a barplot() call. Default "plot".
 #'
 #' @return Invisibly returns the \code{.spadesPlot} class object.
 #' If this is assigned to an object, say \code{obj}, then this can be plotted
@@ -332,7 +332,7 @@ setGeneric(
            speedup = 1, size = 5, cols = NULL, zoomExtent = NULL,
            visualSqueeze = NULL, legend = TRUE, legendRange = NULL,
            legendText = NULL, pch = 19, title = TRUE, na.color = "#FFFFFF00",
-           zero.color = NULL, length = NULL, arr = NULL, plotFn = "plot.default") {
+           zero.color = NULL, length = NULL, arr = NULL, plotFn = "plot") {
     standardGeneric("Plot")
 })
 
@@ -409,6 +409,7 @@ setMethod(
         .assignSpaDES(paste0("basePlots_",dev.cur()), new.env(hash = FALSE, parent = .spadesEnv))
       mc <- match.call(get(plotArgs$plotFn), call(plotArgs$plotFn, quote(...)))
       mcPlot <- match.call(Plot, call = sys.call(whFrame))
+      plotArgs$userProvidedPlotFn <- ("plotFn" %in% names(mcPlot))
 
       basePlotDots <- list()
       for(i in names(mc)[-1])
@@ -595,21 +596,31 @@ setMethod(
           grobToPlot <- .identifyGrobToPlot(sGrob, plotObjs)#, any(takeFromPlotObj))
 
           #browser()
-          if("x" %in% names(grobToPlot)) { # means it is possibly a histogram passed to x
-            isHist <- is(grobToPlot$x, "histogram")
-            if(isHist) {
-              sGrob@plotArgs$plotFn <- "plot"
-              #plotArgs$plotFn <- "plot"
-              sGrob@plotArgs$new <- TRUE
-              #plotArgs$new <- TRUE
-            }
-          }
+          # if("x" %in% names(grobToPlot)) { # means it is possibly a histogram passed to x
+          #   isHist <- is(grobToPlot$x, "histogram")
+          #   if(isHist) {
+          #     sGrob@plotArgs$plotFn <- "plot"
+          #     #plotArgs$plotFn <- "plot"
+          #     sGrob@plotArgs$new <- TRUE
+          #     #plotArgs$new <- TRUE
+          #   }
+          # }
+
+          #browser()
+          isPlotFnAddable <- if(!is(grobToPlot, ".spadesPlotObjects"))
+                                if(sGrob@plotArgs$userProvidedPlotFn & !isTRUE(grobToPlot[["add"]])) {
+                                  TRUE
+                                } else {
+                                  FALSE
+                              } else {
+                                FALSE
+                              }
 
           if(sGrob@plotArgs$new | is(grobToPlot, "igraph") | #plotArgs$new |
              is(grobToPlot, "histogram") | #is(grobToPlot$x, "histogram") |
-               (sGrob@plotArgs$plotFn != "plot.default")) {# draw a white rectangle to clear plot
+               isPlotFnAddable) {# draw a white rectangle to clear plot
 
-            if(sGrob@plotArgs$new)
+            #if(sGrob@plotArgs$new)
               sGrob <- .refreshGrob(sGrob, subPlots, legendRange,
                                   grobToPlot, plotArgs = sGrob@plotArgs,
                                   nColumns = updated$curr@arr@columns,
