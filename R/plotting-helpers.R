@@ -1098,26 +1098,45 @@ setMethod(
 
         # plot y and x axes should use deparse(substitute(...)) names
         if(!identical(FALSE,sGrob@plotArgs$axes)) {
-          if(!is.na(sGrob@plotArgs$axisLabels[[1]]["x"]))
-            sGrob@plotArgs$xlab <- sGrob@plotArgs$axisLabels[[1]]["x"]
-          if(!is.na(sGrob@plotArgs$axisLabels[[1]]["y"]))
-            sGrob@plotArgs$ylab <- sGrob@plotArgs$axisLabels[[1]]["y"]
-          #}
+          if(!is.na(sGrob@plotArgs$axisLabels["x"])) {
+            sGrob@plotArgs$xlab <- sGrob@plotArgs$axisLabels["x"]
+          } else {
+            if(!is.na(sGrob@plotArgs$axisLabels[1]))
+              sGrob@plotArgs$xlab <- sGrob@plotArgs$axisLabels[1]
+            else
+              sGrob@plotArgs$xlab <- NULL
+          }
+          if(!is.na(sGrob@plotArgs$axisLabels["y"])) {
+            sGrob@plotArgs$ylab <- sGrob@plotArgs$axisLabels["y"]
+          } else {
+            if(!is.na(sGrob@plotArgs$axisLabels[2]))
+              sGrob@plotArgs$ylab <- sGrob@plotArgs$axisLabels[2]
+            else
+              sGrob@plotArgs$ylab <- NULL
+          }
         } else {
           sGrob@plotArgs$xlab <- ""
           sGrob@plotArgs$ylab <- ""
         }
 
+        isHist <- FALSE
+        if(!is.null(grobToPlot$x)) {
+          if(is(grobToPlot$x, "histogram")) {
+            isHist <- TRUE
+            sGrob@plotArgs$ylab <- if(is.null(sGrob@plotArgs$ylab)) "Frequency"
+          } else if(is(grobToPlot$x, "numeric")) {
+            if(length(sGrob@plotArgs$axisLabels)==1) {
+              sGrob@plotArgs$ylab <- sGrob@plotArgs$xlab
+              sGrob@plotArgs$xlab <- "Index"
+            }
+          }
+        }
+
         args_plot1 <- sGrob@plotArgs[!(names(sGrob@plotArgs) %in% c("new", "addTo", "gp", "gpAxis", "axisLabels",
                                                                     "zoomExtent", "gpText", "speedup", "size",
                                                                     "cols", "visualSqueeze", "legend", "legendRange", "legendText",
-                                                                    "zero.color", "length", "arr", "na.color", "title"))]
-        if(is(grobToPlot, "histogram")) {
-          args_plot1 <- append(list(grobToPlot), args_plot1)
-          args_plot1 <- args_plot1 [!(names(args_plot1) %in% c("pch", "breaks", "counts", "density", "mids",
-                                                               "xname", "equidist"))]
-
-        }
+                                                                    "zero.color", "length", "arr", "na.color", "title",
+                                                                    "userProvidedPlotFn"))]
         args_plot1$axes <- isTRUE(sGrob@plotArgs$axes)
         makeSpaceForAxes <- as.numeric(
           !identical(FALSE, spadesSubPlots[[subPlots]][[1]]@plotArgs$axes)
@@ -1141,14 +1160,15 @@ setMethod(
           plotCall <- list(x = grobToPlot)
           suppressWarnings(do.call(plot, args = plotCall))
 
-        } else if(spadesGrobCounter==1 | wipe ) { #| isHist) {
+        } else if(spadesGrobCounter==1 | wipe | isHist) {
           suppressWarnings(par(new = TRUE))
           suppressWarnings(do.call(args_plot1$plotFn,
                                    args = args_plot1[-which(names(args_plot1)=="plotFn")]))
 
         } else {
+          tmpPlotFn <- if(args_plot1$plotFn=="plot") "points" else args_plot1$plotFn
           args_plot1[c("axes", "xlab", "ylab", "plotFn")] <- NULL
-          suppressWarnings(do.call(points, args = args_plot1))
+          suppressWarnings(do.call(tmpPlotFn, args = args_plot1))
         }
       }
 
