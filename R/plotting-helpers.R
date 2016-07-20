@@ -1094,11 +1094,6 @@ setMethod(
         print(grobToPlot, vp = subPlots)
         a <- try(seekViewport(subPlots, recording = FALSE))
 
-      } else if(is(grobToPlot, "igraph")) {
-        suppressWarnings(par(new = TRUE))
-        plotCall <- append(list(x = grobToPlot), nonPlotArgs)
-        suppressWarnings(do.call(plot, args = plotCall))
-
       } else {
 
         # plot y and x axes should use deparse(substitute(...)) names
@@ -1134,7 +1129,19 @@ setMethod(
 
 
         # The actuall plot calls for base plotting
-        if(spadesGrobCounter==1 | wipe ) { #| isHist) {
+        if(is(grobToPlot, "igraph")) {
+          # this next is a work around that I can't understand
+          if(names(dev.cur())=="null device") {
+            plot(1, type = "n", axes = FALSE, xlab = "", ylab = "")
+            clearPlot()
+          }
+          #a <- try(seekViewport(subPlots, recording = FALSE))
+          suppressWarnings(par(new = TRUE))
+          #plotCall <- append(list(x = grobToPlot), nonPlotArgs)
+          plotCall <- list(x = grobToPlot)
+          suppressWarnings(do.call(plot, args = plotCall))
+
+        } else if(spadesGrobCounter==1 | wipe ) { #| isHist) {
           suppressWarnings(par(new = TRUE))
           suppressWarnings(do.call(args_plot1$plotFn,
                                    args = args_plot1[-which(names(args_plot1)=="plotFn")]))
@@ -1204,7 +1211,7 @@ setMethod(
         length = sGrob@plotArgs$length
       ) %>% append(., nonPlotArgs)
 
-      #seekViewport(subPlots, recording = FALSE)
+      seekViewport(subPlots, recording = FALSE)
       suppressWarnings(do.call(.plotGrob, args = plotGrobCall))
 
       if (any(unlist(xyAxes)) & (isBaseSubPlot & isNewPlot | wipe)) {
@@ -1217,17 +1224,18 @@ setMethod(
         }
         #seekViewport(subPlots, recording = FALSE)
       }
-    } #gg vs histogram vs spatialObject
 
+    } #gg vs histogram vs spatialObject
     # print Title on plot
     if (#!identical(FALSE, sGrob@plotArgs$title) & isBaseSubPlot & !isReplot |
       !identical(FALSE, sGrob@plotArgs$title) & isBaseSubPlot & isNewPlot) {
       plotName <- if(isTRUE(sGrob@plotArgs$title)) sGrob@plotName else sGrob@plotArgs$title
-      seekViewport(paste0("outer",subPlots), recording = FALSE)
-      grid.text(plotName, name = "title", y = 1.08-is.list(grobToPlot)*0.02, vjust = 0.5, # tweak... not good practice. Should find original reason why this is not same y for rasters and all others
-                gp = sGrob@plotArgs$gpText)
-      #seekViewport(subPlots, recording = FALSE)
+      a <- try(seekViewport(paste0("outer",subPlots), recording = FALSE))
+      suppressWarnings(grid.text(plotName, name = "title", y = 1.08-is.list(grobToPlot)*0.02, vjust = 0.5, # tweak... not good practice. Should find original reason why this is not same y for rasters and all others
+                                 gp = sGrob@plotArgs$gpText))#, vp = vps$wholeVp$children[[paste0("outer",subPlots)]]))
+      a <- try(seekViewport(subPlots, recording = FALSE))
     }
+
     return(sGrob)
 })
 
@@ -1277,7 +1285,7 @@ setMethod(
     } else {
       legendRange
     }
-    #seekViewport(subPlots, recording = FALSE)
+    seekViewport(subPlots, recording = FALSE)
     return(sGrob)
 })
 
