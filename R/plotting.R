@@ -594,11 +594,14 @@ setMethod(
           whPlotObj <- which(takeFromPlotObj)
           grobToPlot <- .identifyGrobToPlot(sGrob, plotObjs)#, any(takeFromPlotObj))
 
+          #browser()
           if("x" %in% names(grobToPlot)) { # means it is possibly a histogram passed to x
             isHist <- is(grobToPlot$x, "histogram")
             if(isHist) {
               sGrob@plotArgs$plotFn <- "plot"
+              #plotArgs$plotFn <- "plot"
               sGrob@plotArgs$new <- TRUE
+              #plotArgs$new <- TRUE
             }
           }
 
@@ -608,7 +611,8 @@ setMethod(
 
             if(sGrob@plotArgs$new)
               sGrob <- .refreshGrob(sGrob, subPlots, legendRange,
-                                  grobToPlot, plotArgs, nColumns = updated$curr@arr@columns,
+                                  grobToPlot, plotArgs = sGrob@plotArgs,
+                                  nColumns = updated$curr@arr@columns,
                                   whPlotObj)
             wipe <- TRUE # can't overplot a histogram
 

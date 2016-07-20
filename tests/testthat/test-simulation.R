@@ -115,7 +115,7 @@ test_that("spades calls with different signatures don't work", {
     a <- simInit()
     paths(a)$cachePath <- file.path(tempdir(), "cache") %>% checkPath(create = TRUE)
     assign(paste0("st", i), system.time(spades(a, cache = TRUE)))
+    expect_gt(st1[1], st2[1])
   }
-  expect_gt(st1[1], st2[1])
   file.remove(dir(paths(a)$cachePath, full.names = TRUE, recursive = TRUE))
 })
