@@ -357,8 +357,12 @@ setMethod(
         clearPlot(dev.cur())
     }}
 
+    if (length(ls(.spadesEnv)) == 0 ) {
+      clearPlot()
+    }
+
     # this covers the case where R thinks that there is a base plot... must be cleared
-    if (length(ls(.spadesEnv)) == 0) clearPlot(dev.cur())
+    #if(names(dev.cur()) %in% "null device") dev.new()
 
     # Determine object names that were passed and layer names of each
     scalls <- sys.calls()
@@ -593,22 +597,21 @@ setMethod(
           if("x" %in% names(grobToPlot)) { # means it is possibly a histogram passed to x
             isHist <- is(grobToPlot$x, "histogram")
             if(isHist) {
-              plotArgs$plotFn <- "plot"
-              plotArgs$new <- TRUE
+              sGrob@plotArgs$plotFn <- "plot"
+              sGrob@plotArgs$new <- TRUE
             }
           }
 
-          if(sGrob@plotArgs$new | is(grobToPlot, "igraph") | plotArgs$new |
+          if(sGrob@plotArgs$new | is(grobToPlot, "igraph") | #plotArgs$new |
              is(grobToPlot, "histogram") | #is(grobToPlot$x, "histogram") |
                (sGrob@plotArgs$plotFn != "plot.default")) {# draw a white rectangle to clear plot
 
-            wipe <- TRUE # can't overplot a histogram
-
-
-            sGrob <- .refreshGrob(sGrob, subPlots, legendRange,
+            if(sGrob@plotArgs$new)
+              sGrob <- .refreshGrob(sGrob, subPlots, legendRange,
                                   grobToPlot, plotArgs, nColumns = updated$curr@arr@columns,
                                   whPlotObj)
-            wipe <- TRUE
+            wipe <- TRUE # can't overplot a histogram
+
           } else {
             wipe <- FALSE
           }
