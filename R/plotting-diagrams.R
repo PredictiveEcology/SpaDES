@@ -305,9 +305,9 @@ setMethod("moduleDiagram",
               modDia <- depsGraph(sim, TRUE)
               dots <- list(...)
               if("title" %in% names(dots)) {
-                Plot(modDia, ...)
+                Plot(modDia, plotFn = "plot", ...)
               } else {
-                Plot(modDia, title = "Module Diagram", ...)
+                Plot(modDia, plotFn = "plot", title = "Module Diagram", ...)
               }
 
 })
