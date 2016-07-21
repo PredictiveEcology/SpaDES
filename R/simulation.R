@@ -77,12 +77,17 @@ setMethod(
 )
 
 ################################################################################
-#' @return .parseModulePartial just returns the time units of each module
+#' @return \code{.parseModulePartial} extracts just the individual element
+#' requested from the module. This can be useful if parsing the whole module
+#' would cause an error.#'
 #'
 #' @include module-dependencies-class.R
 #' @include simList-class.R
 #' @include environment.R
 #' @export
+#' @param filename The filename of the module to be parsed.
+#' @param defineModuleElement Character string indicating which of the list
+#'                            elements in defineModule should be extracted
 #' @docType methods
 #' @rdname parseModule
 #'

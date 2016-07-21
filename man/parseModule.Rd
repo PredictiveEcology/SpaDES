@@ -27,11 +27,18 @@
 \item{sim}{A \code{simList} simulation object.}
 
 \item{modules}{A list of modules with a logical attribute "parsed".}
+
+\item{filename}{The filename of the module to be parsed.}
+
+\item{defineModuleElement}{Character string indicating which of the list
+elements in defineModule should be extracted}
 }
 \value{
 .parseTimeunit just returns the time units of each module
 
-.parseModulePartial just returns the time units of each module
+\code{.parseModulePartial} extracts just the individual element
+requested from the module. This can be useful if parsing the whole module
+would cause an error.#'
 
 A \code{simList} simulation object.
 }
