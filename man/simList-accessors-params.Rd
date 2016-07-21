@@ -114,7 +114,7 @@ Advanced use
 \details{
 Currently, only get and set methods are defined. Subset methods are not.
 
-\code{p} is a concise way to access parameters within a module. It works more like 
+\code{p} is a concise way to access parameters within a module. It works more like
 a namespaced function in the sense that the module from which it is called is the
 default place it will look for the parameter.
 

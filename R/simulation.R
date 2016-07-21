@@ -75,6 +75,44 @@ setMethod(
     timeunits
   }
 )
+
+################################################################################
+#' @return .parseModulePartial just returns the time units of each module
+#'
+#' @include module-dependencies-class.R
+#' @include simList-class.R
+#' @include environment.R
+#' @export
+#' @docType methods
+#' @rdname parseModule
+#'
+#' @author Eliot McIntire
+#'
+setGeneric(
+  ".parseModulePartial",
+  function(filename, defineModuleElement) {
+    standardGeneric(".parseModulePartial")
+  })
+
+#' @rdname parseModule
+setMethod(
+  ".parseModulePartial",
+  signature(filename = "character", defineModuleElement = "character"),
+  definition = function(filename, defineModuleElement) {
+
+      parsedFile <- parse(filename)
+      defineModuleItem <- grepl(pattern = "defineModule", parsedFile)
+      pf <- parsedFile[defineModuleItem]
+
+      namesParsedList <- names(parsedFile[defineModuleItem][[1]][[3]])
+
+      element <- (namesParsedList==defineModuleElement)
+      eval(pf[[1]][[3]][element][[1]])
+
+}
+)
+
+
 ################################################################################
 #' Parse and initialize a module
 #'

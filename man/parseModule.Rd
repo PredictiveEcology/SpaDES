@@ -4,6 +4,8 @@
 \name{.parseTimeunit}
 \alias{.parseModule}
 \alias{.parseModule,simList,list-method}
+\alias{.parseModulePartial}
+\alias{.parseModulePartial,character,character-method}
 \alias{.parseTimeunit}
 \alias{.parseTimeunit,simList,list-method}
 \title{Parse and initialize a module}
@@ -11,6 +13,11 @@
 .parseTimeunit(sim, modules)
 
 \S4method{.parseTimeunit}{simList,list}(sim, modules)
+
+.parseModulePartial(filename, defineModuleElement)
+
+\S4method{.parseModulePartial}{character,character}(filename,
+  defineModuleElement)
 
 .parseModule(sim, modules)
 
@@ -24,13 +31,17 @@
 \value{
 .parseTimeunit just returns the time units of each module
 
+.parseModulePartial just returns the time units of each module
+
 A \code{simList} simulation object.
 }
 \description{
 Internal function, used during \code{\link{simInit}}.
 }
 \author{
-Alex Chubaty
+Eliot McIntire
+
+Eliot McIntire
 
 Alex Chubaty
 }
