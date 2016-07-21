@@ -614,11 +614,11 @@ setReplaceMethod("params",
                    return(object)
 })
 
-#' @details 
-#' \code{p} is a concise way to access parameters within a module. It works more like 
+#' @details
+#' \code{p} is a concise way to access parameters within a module. It works more like
 #' a namespaced function in the sense that the module from which it is called is the
-#' default place it will look for the parameter. 
-#' 
+#' default place it will look for the parameter.
+#'
 #' @export
 #' @include simList-class.R
 #' @docType methods
@@ -643,7 +643,7 @@ setMethod("p",
               if(mod %in% c("checkpoint", "progress")) mod <- paste0(".",mod)
               return(object@params[[mod]])
             }
-            
+
           })
 
 ################################################################################

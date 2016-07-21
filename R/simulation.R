@@ -44,7 +44,7 @@ setMethod(
 #' @docType methods
 #' @rdname parseModule
 #'
-#' @author Alex Chubaty
+#' @author Eliot McIntire
 #'
 setGeneric(
   ".parseTimeunit",
