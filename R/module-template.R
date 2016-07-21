@@ -326,6 +326,15 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
   return(invisible(sim))
 }
 
+.init = function(sim) {
+  # Any code written here will be run during the simInit and subsequently deleted
+  # This is useful if there is something required before simulation, such as data downloading, e.g.,
+  # downloadData(\"LCC2005\", modulePath(sim))
+  # ! ----- EDIT BELOW ----- ! #
+
+  # ! ----- STOP EDITING ----- ! #
+  return(invisible(sim))
+}
 ### add additional events as needed by copy/pasting from above\n",
     file = filenameR, fill = FALSE, sep = "")
 

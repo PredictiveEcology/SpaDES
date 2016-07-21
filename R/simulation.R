@@ -166,6 +166,15 @@ setMethod(
       if (length(children)) {
         parent_ids <- c(parent_ids, j)
       }
+
+      # run .init file from each module, one at a time, and remove it so next module
+      #  won't rerun it
+      if(!is.null(sim@.envir$.init)) {
+        sim <- sim@.envir$.init(sim)
+        rm(".init", envir = envir(sim))
+      }
+
+
     }
 
     modules(sim) <- if (length(parent_ids)) {
@@ -552,7 +561,6 @@ setMethod(
 
     # check the parameters supplied by the user
     checkParams(sim, core, dotParams, modulePath(sim))
-
 
     # keep session info for debugging & checkpointing
     sim$.sessionInfo <- sessionInfo()
