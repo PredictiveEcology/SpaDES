@@ -10,24 +10,24 @@
 \usage{
 Plot(..., new = FALSE, addTo = NULL, gp = gpar(), gpText = gpar(),
   gpAxis = gpar(), axes = FALSE, speedup = 1, size = 5, cols = NULL,
-  zoomExtent = NULL, visualSqueeze = NULL, legend = TRUE,
+  col = NULL, zoomExtent = NULL, visualSqueeze = NULL, legend = TRUE,
   legendRange = NULL, legendText = NULL, pch = 19, title = TRUE,
   na.color = "#FFFFFF00", zero.color = NULL, length = NULL, arr = NULL,
   plotFn = "plot")
 
 \S4method{Plot}{ANY}(..., new = FALSE, addTo = NULL, gp = gpar(),
   gpText = gpar(), gpAxis = gpar(), axes = FALSE, speedup = 1,
-  size = 5, cols = NULL, zoomExtent = NULL, visualSqueeze = NULL,
-  legend = TRUE, legendRange = NULL, legendText = NULL, pch = 19,
-  title = TRUE, na.color = "#FFFFFF00", zero.color = NULL,
-  length = NULL, arr = NULL, plotFn = "plot")
+  size = 5, cols = NULL, col = NULL, zoomExtent = NULL,
+  visualSqueeze = NULL, legend = TRUE, legendRange = NULL,
+  legendText = NULL, pch = 19, title = TRUE, na.color = "#FFFFFF00",
+  zero.color = NULL, length = NULL, arr = NULL, plotFn = "plot")
 
 \S4method{Plot}{simList}(..., new = FALSE, addTo = NULL, gp = gpar(),
   gpText = gpar(), gpAxis = gpar(), axes = FALSE, speedup = 1,
-  size = 5, cols = NULL, zoomExtent = NULL, visualSqueeze = NULL,
-  legend = TRUE, legendRange = NULL, legendText = NULL, pch = 19,
-  title = TRUE, na.color = "#FFFFFF00", zero.color = NULL,
-  length = NULL, arr = NULL, plotFn = "plot")
+  size = 5, cols = NULL, col = NULL, zoomExtent = NULL,
+  visualSqueeze = NULL, legend = TRUE, legendRange = NULL,
+  legendText = NULL, pch = 19, title = TRUE, na.color = "#FFFFFF00",
+  zero.color = NULL, length = NULL, arr = NULL, plotFn = "plot")
 
 rePlot(toDev = dev.cur(), fromDev = dev.cur(), ...)
 }
@@ -68,6 +68,9 @@ by to plot rasters. See Details.}
 if using a scalable symbol.}
 
 \item{cols}{(also \code{col}) Character vector or list of character vectors of colours. See details.}
+
+\item{col}{(also \code{cols}) Alternative to \code{cols} to be consistent with \code{plot}.
+\code{cols} takes precedence, if both are provided.}
 
 \item{zoomExtent}{An \code{Extent} object. Supplying a single extent that is
 smaller than the rasters will call a crop statement before

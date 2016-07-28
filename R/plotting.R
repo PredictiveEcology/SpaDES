@@ -135,6 +135,9 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @param cols (also \code{col}) Character vector or list of character vectors of colours. See details.
 #'
+#' @param col (also \code{cols}) Alternative to \code{cols} to be consistent with \code{plot}.
+#'            \code{cols} takes precedence, if both are provided.
+#'
 #' @param zoomExtent An \code{Extent} object. Supplying a single extent that is
 #'                   smaller than the rasters will call a crop statement before
 #'                   plotting. Defaults to \code{NULL}.
@@ -329,7 +332,7 @@ setGeneric(
   signature = "...",
   function(..., new = FALSE, addTo = NULL,
            gp = gpar(), gpText = gpar(), gpAxis = gpar(), axes = FALSE,
-           speedup = 1, size = 5, cols = NULL, zoomExtent = NULL,
+           speedup = 1, size = 5, cols = NULL, col = NULL, zoomExtent = NULL,
            visualSqueeze = NULL, legend = TRUE, legendRange = NULL,
            legendText = NULL, pch = 19, title = TRUE, na.color = "#FFFFFF00",
            zero.color = NULL, length = NULL, arr = NULL, plotFn = "plot") {
@@ -342,7 +345,7 @@ setMethod(
   "Plot",
   signature("ANY"),
   definition = function(..., new, addTo, gp, gpText, gpAxis, axes, speedup,
-                        size, cols, zoomExtent, visualSqueeze, legend,
+                        size, cols, col, zoomExtent, visualSqueeze, legend,
                         legendRange, legendText, pch, title, na.color,
                         zero.color, length, arr, plotFn) {
     # Section 1 - extract object names, and determine which ones need plotting,
@@ -387,9 +390,15 @@ setMethod(
     }
 
     # if user uses col instead of cols
-    if (any(grepl(pattern = "col", names(dots)))) {
-      cols <- dots$col
-      plotArgs$cols <- cols
+    if (is.null(cols)) {
+      if(!is.null(col)) {
+        cols <- col
+        plotArgs$cols <- cols
+      }
+    } else {
+      if(!is.null(col)) {
+        message("cols and col both supplied. Using cols")
+      }
     }
 
     if (!is.null(dots$env)) {

@@ -2,6 +2,7 @@ Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
 version 1.2.0.9000
 ==================
+* add `col` arg to `Plot` (mimicks `cols`). Was lost from version 1.1.2.
 * add .init functionality -- function that runs during simInit
 * add p as a namespaced shortcut for params: p(sim) replaces params(sim)$moduleName
 * allow params(sim) & start(sim) & others in defineModule by changing parse order in Module Metadata
