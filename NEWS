@@ -8,7 +8,7 @@ version 1.2.0.9000
 * allow any arbitrary function to be used internally to Plot (e.g., barplot, plot, etc.)
 * add arr argument to Plot, allowing passing of arrangement,
 * allow title arg in Plot to accept character for plot title
-* change "new" arg in Plot. Now it does one plot at a time, not whole device. Use clearPlot()
+* change "new" arg in Plot. Now it does one plot at a time, not whole device. Use clearPlot() to wipe whole device
 * Plot can use character passed to title as a title
 * add `RandomFieldsUtils` to Imports
 * some additional functionality for factor rasters, incl. clickValues, legends correct for wide variety of types

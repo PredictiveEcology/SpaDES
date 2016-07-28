@@ -451,6 +451,13 @@ setMethod(
     timeunits <- .parseTimeunit(sim, modules(sim))
     if(length(timeunits)==0) timeunits <- list("second")
 
+    if(!is.null(times$unit)) {
+      message(paste0("times contains \'unit\', rather than \'timeunit\'. ",
+                                    "Using \"", times$unit, "\" as timeunit"))
+      times$timeunit <- times$unit
+      times$unit <- NULL
+    }
+
     # Get correct time unit now that modules are loaded
     timeunit(sim) <- if (!is.null(times$timeunit)) {
       times$timeunit
