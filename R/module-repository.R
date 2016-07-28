@@ -266,7 +266,8 @@ setMethod(
   definition = function(module, path, quiet) {
     cwd <- getwd()
     path <- checkPath(path, create = FALSE)
-    urls <- moduleMetadata(module, path)$inputObjects$sourceURL
+    urls <-.parseModulePartial(file.path(path, module, paste0(module,".R")), "inputObjects")$sourceURL
+    #urls <- moduleMetadata(module, path)$inputObjects$sourceURL
     ids <- which( urls == "" | is.na(urls) )
     to.dl <- if (length(ids)) { urls[-ids] } else { urls }
     chksums <- checksums(module, path) %>%
@@ -310,7 +311,8 @@ setMethod(
     }
 
     # after download, check for childModules that also require downloading
-    children <- moduleMetadata(module, path)$childModules
+    children <-.parseModulePartial(file.path(path, module, paste0(module,".R")), "childModules")
+    #children <- moduleMetadata(module, path)$childModules
     if (!is.null(children)) {
       if ( all( nzchar(children) & !is.na(children) ) ) {
         chksums2 <- lapply(children, downloadData, path = path, quiet = quiet) %>%

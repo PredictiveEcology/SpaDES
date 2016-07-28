@@ -34,58 +34,18 @@ setMethod(
     return(ids)
 })
 
-################################################################################
-#' @return .parseTimeunit just returns the time units of each module
-#'
-#' @include module-dependencies-class.R
-#' @include simList-class.R
-#' @include environment.R
-#' @export
-#' @docType methods
-#' @rdname parseModule
-#'
-#' @author Eliot McIntire
-#'
-setGeneric(
-  ".parseTimeunit",
-  function(sim, modules) {
-    standardGeneric(".parseTimeunit")
-  })
-
-#' @rdname parseModule
-setMethod(
-  ".parseTimeunit",
-  signature(sim = "simList", modules = "list"),
-  definition = function(sim, modules) {
-    timeunits <- list()
-    for (j in .unparsed(modules)) {
-      m <- modules[[j]][1]
-      filename <- paste(modulePath(sim), "/", m, "/", m, ".R", sep = "")
-      parsedFile <- parse(filename)
-      defineModuleItem <- grepl(pattern = "defineModule", parsedFile)
-      pf <- parsedFile[defineModuleItem]
-
-      # evaluate all but inputObjects and outputObjects part of 'defineModule'
-      #  This allow user to use params(sim) in their inputObjects
-      namesParsedList <- names(parsedFile[defineModuleItem][[1]][[3]])
-
-      timeunitObj <- (namesParsedList=="timeunit")
-      timeunits[[m]] <- pf[[1]][[3]][timeunitObj][[1]]
-    }
-    timeunits
-  }
-)
 
 ################################################################################
 #' @return \code{.parseModulePartial} extracts just the individual element
 #' requested from the module. This can be useful if parsing the whole module
-#' would cause an error.#'
+#' would cause an error.
 #'
 #' @include module-dependencies-class.R
 #' @include simList-class.R
 #' @include environment.R
 #' @export
 #' @param filename The filename of the module to be parsed.
+#' @inheritParams spades
 #' @param defineModuleElement Character string indicating which of the list
 #'                            elements in defineModule should be extracted
 #' @docType methods
@@ -95,14 +55,15 @@ setMethod(
 #'
 setGeneric(
   ".parseModulePartial",
-  function(filename, defineModuleElement) {
+  function(sim, modules, filename, defineModuleElement) {
     standardGeneric(".parseModulePartial")
   })
 
 #' @rdname parseModule
 setMethod(
   ".parseModulePartial",
-  signature(filename = "character", defineModuleElement = "character"),
+  signature(sim = "missing", modules = "missing",
+            filename = "character", defineModuleElement = "character"),
   definition = function(filename, defineModuleElement) {
 
       parsedFile <- parse(filename)
@@ -117,6 +78,23 @@ setMethod(
 }
 )
 
+#' @rdname parseModule
+setMethod(
+  ".parseModulePartial",
+  signature(sim = "simList", modules = "list",
+            filename = "missing", defineModuleElement = "character"),
+  definition = function(sim, modules, defineModuleElement) {
+
+    out <- list()
+    for (j in .unparsed(modules)) {
+      m <- modules[[j]][1]
+      filename <- paste(modulePath(sim), "/", m, "/", m, ".R", sep = "")
+      out[[m]] <- .parseModulePartial(filename = filename, defineModuleElement = defineModuleElement)
+    }
+    out
+
+  }
+)
 
 ################################################################################
 #' Parse and initialize a module
@@ -448,7 +426,8 @@ setMethod(
     # timeunit is needed before all parsing of modules. It could be used
     # within modules within defineParameter statements
 
-    timeunits <- .parseTimeunit(sim, modules(sim))
+    #timeunits <- .parseTimeunit(sim, modules(sim))
+    timeunits <- .parseModulePartial(sim, modules(sim), defineModuleElement = "timeunit")
     if(length(timeunits)==0) timeunits <- list("second")
 
     if(!is.null(times$unit)) {
