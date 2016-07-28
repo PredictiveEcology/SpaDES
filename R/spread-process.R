@@ -1456,7 +1456,7 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
               if (xDist) distFnArgs[["dist"]] <- out[, "dists"]
             }
 
-            names(distFnArgs) <- forms
+            #names(distFnArgs) <- forms
             # call inner cumulative function
             if(length(indices)<ncell(landscape)) {
               cumVal <- do.call(cumulativeFn, args =
