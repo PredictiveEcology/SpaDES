@@ -1113,15 +1113,16 @@ setMethod(
     if (allowOverlap | returnDistances) {
       if (returnDistances & !allowOverlap) {
         spre[spreads[,"indices"]] <- spreads[,"dists"]
-      } else if (returnDistances & allowOverlap) {
-        spreadsDT <- data.table(spreads);
-        pixVal <- spreadsDT[,min(dists),by=indices]
-        spre[pixVal$indices] <- pixVal$V1;
-        message("returnDistances is TRUE, allowOverlap is TRUE, but returnIndices is FALSE; returning minimum distance raster")
       } else {
         spreadsDT <- data.table(spreads);
-        pixVal <- spreadsDT[,sum(id),by=indices]
+        if (returnDistances & allowOverlap) {
+           pixVal <- spreadsDT[,min(dists),by=indices]
+           message("returnDistances is TRUE, allowOverlap is TRUE, but returnIndices is FALSE; returning minimum distance raster")
+        } else {
+           pixVal <- spreadsDT[,sum(id),by=indices]
+        }
         spre[pixVal$indices] <- pixVal$V1;
+
       }
     } else {
       spre[wh] <- spreads[wh]
