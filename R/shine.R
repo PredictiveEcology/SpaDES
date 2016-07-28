@@ -3,8 +3,7 @@
 #' Currently, this is quite simple. It creates a side bar with the simulation
 #' times, plus a set of tabs, one for each module, with numeric sliders.
 #' Currently, this does not treat NAs correctly. Also, it is slow (shiny is not
-#' built to be fast out of the box). Currently, it does not show plotting
-#' updates; it only shows the final output of a spades call. There are two
+#' built to be fast out of the box). There are two
 #' buttons, one to run the entire spades call, the other to do just one time
 #' step at a time. It can be repeatedly pressed.
 #'

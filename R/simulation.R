@@ -603,6 +603,15 @@ setMethod(
               moduleName == "load" &
               eventType == "inputs"),]
       }
+      if(any(events(sim, "second")$eventTime < start(sim, "second"))) {
+        warning(paste0("One or more objects in the inputs filelist was ",
+                       "scheduled to load before start(sim). ",
+                       "It is being be removed and not loaded. To ensure loading, loadTime ",
+                       "must be start(sim) or later. See examples using ",
+                       "loadTime in ?simInit"))
+        events(sim) <- events(sim, "seconds")[eventTime>=start(sim, "seconds")]
+      }
+
     }
 
     if (length(outputs)) {
@@ -747,7 +756,7 @@ setMethod(
     # core modules
     core <- list("checkpoint", "save", "progress", "load")
 
-    cur <- current(sim)
+    cur <- current(sim, "second")
     if ( NROW(cur) == 0 || any(is.na(cur)) ) {
       evnts <- events(sim, "second")
       # get next event from the queue and remove it from the queue
