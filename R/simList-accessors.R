@@ -478,15 +478,20 @@ setGeneric(".callingModuleName", function(object) {
 #' @export
 #' @docType methods
 #' @importFrom stringr str_detect
-#' @rdname simList-accessors-modules
+#' @rdname namespacing
 setMethod(
   ".callingModuleName",
   signature = c(".simList"),
   definition = function(object) {
     # Only return module name if inside a spades call,
     #  because this only makes sense if there is an "active" module
-    #if (any(str_detect(as.character(sys.call(1)), pattern = "spades"))) {
-    st <- str_detect(as.character(sys.calls()), pattern = "moduleCall")
+    #browser()
+    sc <- sys.calls()
+    #scc <- as.character(sc)
+    st <- grepl(sc, pattern = "moduleCall")
+    #stgrepl1 <- grepl(sc, pattern = "moduleCall")
+    #st <- str_detect(scc, pattern = "moduleCall")
+    #if(!identical(stgrepl1, st)) stop("now")
     if (any(st)) {
       mod <- strsplit(
         eval(parse(text = "moduleCall"), envir = sys.frame(which(st)[1]-1)),
@@ -494,9 +499,6 @@ setMethod(
     } else {
       mod <- NULL
     }
-    #} else {
-    #  mod <- NULL
-    #}
     return(mod)
 })
 
@@ -505,43 +507,31 @@ setMethod(
 #' @include simList-class.R
 #' @export
 #' @docType methods
-#' @rdname simList-accessors-modules
+#' @rdname namespacing
 #' @author Eliot McIntire
 setGeneric("currentModule", function(object) {
   standardGeneric("currentModule")
 })
 
-#' @rdname simList-accessors-events
+#' @rdname namespacing
 #' @export
 setMethod(
   "currentModule",
   signature = c(".simList"),
   definition = function(object) {
-    object@current$module
+    ret <- object@current$moduleName
+    if(length(ret))
+      return(ret)
+    else
+      return(NULL)
 })
 
 
 ################################################################################
 #' Get and set simulation parameters.
 #'
-#' Accessor functions for the \code{params} slot of a \code{simList} object
-#' and its elements.
-#' Additonal methods are provided to access core module and global parameters:
-#' Commonly used
-#' \tabular{ll}{
-#'    \code{globals} \tab List of global simulation parameters.\cr
-#'    \code{params} \tab Nested list of all simulation parameters.\cr
-#' }
-#' Advanced use
-#' \tabular{lll}{
-#'    Accessor method \tab Module \tab Description \cr
-#'    \code{checkpointFile} \tab \code{.checkpoint} \tab Name of the checkpoint file. (advanced)\cr
-#'    \code{checkpointInterval} \tab \code{.checkpoint} \tab The simulation checkpoint interval. (advanced)\cr
-#'    \code{progressType} \tab \code{.progress} \tab Type of graphical progress bar used. (advanced)\cr
-#'    \code{progressInterval} \tab \code{.progress} \tab Interval for the progress bar. (advanced)\cr
-#' }
-#'
-#' Currently, only get and set methods are defined. Subset methods are not.
+#' \code{params} and \code{p} access the parameter slot in the \code{simList}.
+#' \code{params} has a replace method, so can be used to update a parameter value.
 #'
 #' @param object A \code{simList} simulation object.
 #'
