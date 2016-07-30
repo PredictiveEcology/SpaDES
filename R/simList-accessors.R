@@ -628,35 +628,6 @@ setMethod("p",
 
           })
 
-#' \code{o} is a stub. It may be used in a future release as part of namespacing of objects in a module.
-#'
-#' @rdname objs
-setGeneric("o", function(object, name = NULL, module = NULL) {
-  standardGeneric("o")
-})
-
-#' @export
-#' @rdname objs
-setMethod("o",
-          signature = ".simList",
-          definition = function(object, name, module) {
-            if(is.null(module)) {
-              module <- currentModule(object)
-            }
-            if(length(module)) {
-              #if(module %in% c("checkpoint", "progress")) module <- paste0(".",module)
-              if(is.null(name)) {
-                #return(object@.envir[[module]])
-                return(object@.envir)
-              } else {
-                #return(object@.envir[[module]][[name]])
-                return(object@.envir[[name]])
-              }
-            } else {
-              return(object@name)
-            }
-
-          })
 
 
 ################################################################################
