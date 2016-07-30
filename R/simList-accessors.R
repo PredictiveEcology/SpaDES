@@ -2031,7 +2031,7 @@ setMethod(
   signature = c(".simList"),
   definition = function(x) {
     mod <- currentModule(x)
-    out <- if (!is.null(mod)) {
+    out <- if (!is.na(mod)) {
       timeunits(x)[[mod]]
     } else {
       timeunit(x)

@@ -793,6 +793,10 @@ setMethod(
       } else {
         # update current simulated time and event
         time(sim) <- end(sim, "seconds") + 1
+        if (NROW(evnts)) {
+          current(sim) <- .emptyEventListNA
+          events(sim) <- rbind(evnts[1L,], events(sim))
+        }
       }
     }
     return(invisible(sim))
