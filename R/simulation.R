@@ -88,7 +88,16 @@ setMethod(
     out <- list()
     for (j in .unparsed(modules)) {
       m <- modules[[j]][1]
-      filename <- paste(modulePath(sim), "/", m, "/", m, ".R", sep = "")
+      filename <- file.path(modulePath(sim), m, paste0(m, ".R"))
+      if(!file.exists(filename)) {
+        dir.path <- suppressWarnings(tryCatch(find.package(m), error = function(x)
+          file.path(modulePath(sim), m)))
+        if(!any(dirname(dir.path)==.libPaths())) {
+          filename <- file.path(dir.path, "inst", paste0(m, ".R"), sep = "")
+        } else {
+          filename <- file.path(dir.path, paste0(m, ".R"), sep = "")
+        }
+      }
       out[[m]] <- .parseModulePartial(filename = filename, defineModuleElement = defineModuleElement)
     }
     out
@@ -110,6 +119,7 @@ setMethod(
 #' @include module-dependencies-class.R
 #' @include simList-class.R
 #' @include environment.R
+#' @importFrom devtools load_all
 #' @export
 #' @docType methods
 #' @rdname parseModule
@@ -132,7 +142,26 @@ setMethod(
     parent_ids <- integer()
     for (j in .unparsed(modules)) {
       m <- modules[[j]][1]
-      filename <- paste(modulePath(sim), "/", m, "/", m, ".R", sep = "")
+      filename <- file.path(modulePath(sim), m, paste0(m, ".R"))
+      if(!file.exists(filename)) {
+        dir.path <- suppressWarnings(tryCatch(find.package(m), error = function(x)
+          file.path(modulePath(sim), m)))
+
+        # If the user is using source code, i.e., not in installed library location, use load_all
+        if(!any(dirname(dir.path)==.libPaths())) {
+          filename <- file.path(dir.path, "inst", paste0(m, ".R"), sep = "")
+          load_all(dir.path)
+        } else { # if it is from the library
+          filename <- file.path(dir.path, paste0(m, ".R"), sep = "")
+          library(m, character.only = TRUE)
+        }
+
+        isPackage <- TRUE
+      } else {
+        isPackage <- FALSE
+      }
+
+      #filename <- paste(modulePath(sim), "/", m, "/", m, ".R", sep = "")
       parsedFile <- parse(filename)
       defineModuleItem <- grepl(pattern = "defineModule", parsedFile)
 
@@ -166,7 +195,8 @@ setMethod(
       depends(sim)@dependencies[[i]]@outputObjects <- eval(pf[[1]][[3]][outObjs][[1]])
 
       # evaluate the rest of the parsed file
-      eval(parsedFile[!defineModuleItem], envir = envir(sim))
+      if(!isPackage)
+        eval(parsedFile[!defineModuleItem], envir = envir(sim))
 
       # now do final eval of inputs and outputs
       #pf <- parsedFile[defineModuleItem]
@@ -190,9 +220,13 @@ setMethod(
 
       # run .init file from each module, one at a time, and remove it so next module
       #  won't rerun it
-      if(!is.null(sim@.envir$.init)) {
-        sim <- sim@.envir$.init(sim)
-        rm(".init", envir = envir(sim))
+      if(!isPackage) {
+        if(!is.null(sim@.envir$.init)) {
+          sim <- sim@.envir$.init(sim)
+          rm(".init", envir = envir(sim))
+        }
+      } else {
+        getFromNamespace(".init", m)(sim)
       }
 
 
@@ -464,7 +498,8 @@ setMethod(
 
     # source module metadata and code files, checking version info
     lapply(modules(sim, hidden = TRUE), function(m) {
-      mVersion <- moduleMetadata(m, modulePath(sim))$version
+      mVersion <- .parseModulePartial(sim, modules(sim), defineModuleElement = "version")[[m]]
+      #mVersion <- moduleMetadata(m, modulePath(sim))$version
       versionWarning(m, mVersion)
     })
     all_parsed <- FALSE
@@ -793,6 +828,11 @@ setMethod(
       } else {
         # update current simulated time and event
         time(sim) <- end(sim, "seconds") + 1
+        # Need to remove the current event that was scheduled, and put it back on the queue
+        if (NROW(evnts)) {
+          current(sim) <- .emptyEventListNA
+          events(sim) <- rbind(evnts[1L,], events(sim, "second"))
+        }
       }
     }
     return(invisible(sim))
