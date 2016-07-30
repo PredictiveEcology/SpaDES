@@ -19,9 +19,9 @@ params(object) <- value
 
 \S4method{params}{.simList}(object) <- value
 
-p(object, module)
+p(object, module = NULL, param = NULL)
 
-\S4method{p}{.simList}(object, module)
+\S4method{p}{.simList}(object, module = NULL, param = NULL)
 }
 \arguments{
 \item{object}{A \code{simList} simulation object.}
@@ -29,6 +29,8 @@ p(object, module)
 \item{value}{The object to be stored at the slot.}
 
 \item{module}{Optional character string indicating which module params should come from.}
+
+\item{param}{Optional character string indicating which parameter to choose.}
 }
 \value{
 Returns or sets the value of the slot from the \code{simList} object.
@@ -43,33 +45,16 @@ default place it will look for the parameter. To access a parameter from within
 a module, you can use \code{p(sim)$paramName} instead of
 \code{params(sim)$moduleName$paramName}
 }
-\details{
-Additonal methods are provided to access core module and global parameters:
-Commonly used
-\tabular{ll}{
-   \code{globals} \tab List of global simulation parameters.\cr
-   \code{params} \tab Nested list of all simulation parameters.\cr
-}
-Advanced use
-\tabular{lll}{
-   Accessor method \tab Module \tab Description \cr
-   \code{checkpointFile} \tab \code{.checkpoint} \tab Name of the checkpoint file. (advanced)\cr
-   \code{checkpointInterval} \tab \code{.checkpoint} \tab The simulation checkpoint interval. (advanced)\cr
-   \code{progressType} \tab \code{.progress} \tab Type of graphical progress bar used. (advanced)\cr
-   \code{progressInterval} \tab \code{.progress} \tab Interval for the progress bar. (advanced)\cr
-}
-
-Currently, only get and set methods are defined. Subset methods are not.
+\note{
+The differences between p, params and being explicit with passing arguments
+are mostly a question of speed and code compactness.
+The computationally fastest way to get a parameter is to specify moduleName and parameter name, as in:
+\code{p(sim, "moduleName", "paramName")} (replacing moduleName and paramName with your
+specific module and parameter names), but it is more verbose than p(sim)$paramName. Note: the important
+part for speed (e.g., 2-4x faster) is specifying the moduleName.
+Specifying the parameter name is <5% faster.
 }
 \seealso{
-\code{\link{SpaDES}}, specifically the section 1.2 on \code{simList} methods.
-         \code{\link{simList-class}},
-         \code{\link{simList-accessors-envir}},
-         \code{\link{simList-accessors-events}},
-         \code{\link{simList-accessors-inout}},
-         \code{\link{simList-accessors-modules}},
-         \code{\link{simList-accessors-objects}},
-         \code{\link{simList-accessors-paths}},
-         \code{\link{simList-accessors-times}}.
+\code{\link{SpaDES}}, specifically the section 1.2.1 on Simulation parameters.
 }
 

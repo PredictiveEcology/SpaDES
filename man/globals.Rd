@@ -25,6 +25,6 @@ globals(object) <- value
 \code{globals} accesses or sets the "globals" slot in the \code{simList}.
 }
 \seealso{
-\code{\link{SpaDES}}, section 1.2.1
+\code{\link{SpaDES}}, specifically the section 1.2.1 on Simulation Parameters.
 }
 
