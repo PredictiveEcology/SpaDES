@@ -19,6 +19,7 @@ test_that("simulation runs with simInit and spades", {
   expect_equivalent(time(mySim), 10.0)
   expect_equivalent(start(mySim), 0.0)
   expect_equivalent(end(mySim), 10.0)
+  #
 
   # sim results
   burnedLast <- c(1680, 1485, 607, 1079, 1041, 605, 871, 1097, 495, 1253)
