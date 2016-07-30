@@ -523,7 +523,7 @@ setMethod(
     if(length(ret))
       return(ret)
     else
-      return(NULL)
+      return(NA)
 })
 
 
