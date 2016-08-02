@@ -45,8 +45,10 @@ mySim <- simInit(times=list(start=0.0, end=5.0),
 if (require(archivist)) {
   # Call cache function directly
   archivist::createLocalRepo(paths(mySim)$cachePath)
-  system.time(outSim <- cache(paths(mySim)$cachePath, spades, sim = copy(mySim), .plotInitialTime = NA, notOlderThan = Sys.time()))
-  system.time(outSim <- cache(paths(mySim)$cachePath, spades, sim = copy(mySim), .plotInitialTime = NA))
+  system.time(outSim <- cache(paths(mySim)$cachePath,
+              spades, sim = copy(mySim), .plotInitialTime = NA, notOlderThan = Sys.time()))
+  system.time(outSim <- cache(paths(mySim)$cachePath,
+              spades, sim = copy(mySim), .plotInitialTime = NA))
 
   # This functionality can be achieved within a spades call
   # compare caching ... run once to create cache
