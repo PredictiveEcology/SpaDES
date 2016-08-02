@@ -410,7 +410,8 @@ setMethod(
 
     whichSpadesPlottables <- sapply(dotObjs, function(x) {
       is(x, ".spadesPlottables") })
-    if(all(!whichSpadesPlottables) & all(whichSpadesPlottables)) warning("Can't mix base plots with .spadesPlottables objects")
+    if(all(!whichSpadesPlottables) & all(whichSpadesPlottables))
+      warning("Can't mix base plots with .spadesPlottables objects")
 
     # Create plotObjs object, which is a cleaned up version of the objects passed into Plot
     if(all(!whichSpadesPlottables) ) { ## if not a .spadesPlottables then it is a pass to plot or points

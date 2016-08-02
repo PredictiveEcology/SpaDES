@@ -39,9 +39,9 @@
 \S4method{.refreshGrob}{.spadesGrob}(sGrob, subPlots, legendRange, grobToPlot,
   plotArgs, nColumns, whPlotObj)
 
-.updateGrobGPTextAxis(sGrob, arr)
+.updateGrobGPTextAxis(sGrob, arr, newArr)
 
-\S4method{.updateGrobGPTextAxis}{.spadesGrob}(sGrob, arr)
+\S4method{.updateGrobGPTextAxis}{.spadesGrob}(sGrob, arr, newArr)
 }
 \arguments{
 \item{grobToPlot}{Graphical object to plot}

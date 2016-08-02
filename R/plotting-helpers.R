@@ -1316,7 +1316,7 @@ setMethod(
 #' @aliases PlotHelpers
 #' @name .updateGrobGPTextAxis
 #'
-setGeneric(".updateGrobGPTextAxis", function(sGrob, arr) {
+setGeneric(".updateGrobGPTextAxis", function(sGrob, arr, newArr) {
   standardGeneric(".updateGrobGPTextAxis")
 })
 
@@ -1326,7 +1326,7 @@ setGeneric(".updateGrobGPTextAxis", function(sGrob, arr) {
 setMethod(
   ".updateGrobGPTextAxis",
   signature = c(".spadesGrob"),
-  definition = function(sGrob, arr) {
+  definition = function(sGrob, arr, newArr) {
 
     #if(length(sGrob@plotArgs$gpText[[1]])>0) {
     #  if (!is(sGrob@plotArgs$gpText, "gpar"))
@@ -1350,14 +1350,14 @@ setMethod(
       class(sGrob@plotArgs$gp) <- "gpar"
     #}
 
-    if (is.null(sGrob@plotArgs$gpText$cex)) {
+    if (is.null(sGrob@plotArgs$gpText$cex) | newArr) {
       # pipe won't work here :S
       sGrob@plotArgs$gpText$cex <- max(
         0.6,
         min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3)
       )
     }
-    if (is.null(sGrob@plotArgs$gpAxis$cex)) {
+    if (is.null(sGrob@plotArgs$gpAxis$cex) | newArr) {
       # pipe won't work here :S
       sGrob@plotArgs$gpAxis$cex <- max(
         0.6,
