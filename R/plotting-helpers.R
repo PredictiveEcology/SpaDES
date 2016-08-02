@@ -1213,8 +1213,7 @@ setMethod(
         sGrob@plotArgs$legendTxt <- NULL
       }
 
-      plotGrobCall <- list(
-        zMat$z, col = zMat$cols,
+      plotGrobCall <- list(grobToPlot = zMat$z, col = zMat$cols,
         size = unit(sGrob@plotArgs$size, "points"),
         real = zMat$real,
         minv = zMat$minz, maxv = zMat$maxz,
@@ -1328,27 +1327,30 @@ setMethod(
   signature = c(".spadesGrob"),
   definition = function(sGrob, arr, newArr) {
 
-    #if(length(sGrob@plotArgs$gpText[[1]])>0) {
-    #  if (!is(sGrob@plotArgs$gpText, "gpar"))
-    #    sGrob@plotArgs$gpText <- as(sGrob@plotArgs$gpText, "gpar")
-    #} else {
+#    if(length(sGrob@plotArgs$gpText[[1]])>0) {
+#      if (!is(sGrob@plotArgs$gpText, "gpar"))
+#        sGrob@plotArgs$gpText <- as(sGrob@plotArgs$gpText, "gpar")
+#    } else {
+      sGrob@plotArgs$gpText <- unlist(sGrob@plotArgs$gpText, recursive = FALSE)
       class(sGrob@plotArgs$gpText) <- "gpar"
-    #}
+#    }
 
-    #if(length(sGrob@plotArgs$gpAxis[[1]])>0) {
-    #  if (!is(sGrob@plotArgs$gpAxis, "gpar"))
-    #    sGrob@plotArgs$gpAxis <- as(sGrob@plotArgs$gpAxis, "gpar")
-    #} else {
+#    if(length(sGrob@plotArgs$gpAxis[[1]])>0) {
+#      if (!is(sGrob@plotArgs$gpAxis, "gpar"))
+#        sGrob@plotArgs$gpAxis <- as(sGrob@plotArgs$gpAxis, "gpar")
+#    } else {
+      sGrob@plotArgs$gpAxis <- unlist(sGrob@plotArgs$gpAxis, recursive = FALSE)
       class(sGrob@plotArgs$gpAxis) <- "gpar"
-    #}
+#    }
 
-    #if(length(sGrob@plotArgs$gp[[1]])>0) {
-    #  if (!is(sGrob@plotArgs$gp, "gpar")) {
-    #    sGrob@plotArgs$gp <- as(sGrob@plotArgs$gp, "gpar")
-    #  }
-    #} else {
+#    if(length(sGrob@plotArgs$gp[[1]])>0) {
+#      if (!is(sGrob@plotArgs$gp, "gpar")) {
+#        sGrob@plotArgs$gp <- as(sGrob@plotArgs$gp, "gpar")
+#      }
+#    } else {
+      sGrob@plotArgs$gp <- unlist(sGrob@plotArgs$gp, recursive = FALSE)
       class(sGrob@plotArgs$gp) <- "gpar"
-    #}
+#    }
 
     if (is.null(sGrob@plotArgs$gpText$cex) | newArr) {
       # pipe won't work here :S
@@ -2031,6 +2033,7 @@ setMethod(
   signature = c("SpatialPolygons"),
   definition = function(grobToPlot, col, size,
                         legend, gp = gpar(), pch, speedup, name, vp, ...) {
+
     speedupScale = if (grepl(proj4string(grobToPlot), pattern = "longlat")) {
       pointDistance(
         p1 = c(xmax(extent(grobToPlot)), ymax(extent(grobToPlot))),
