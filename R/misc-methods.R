@@ -83,9 +83,8 @@ setMethod("updateList",
               if (length(x)==0) return(y)
               stop("All elements in lists x,y must be named.")
             } else {
-              i <- which(names(x) %in% names(y))
-              z <- append(x[-i], y)
-              return(z[order(names(z))])
+              x[names(y)] <- y
+              return(x[order(names(x))])
             }
 })
 
