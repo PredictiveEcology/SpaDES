@@ -1327,30 +1327,15 @@ setMethod(
   signature = c(".spadesGrob"),
   definition = function(sGrob, arr, newArr) {
 
-#    if(length(sGrob@plotArgs$gpText[[1]])>0) {
-#      if (!is(sGrob@plotArgs$gpText, "gpar"))
-#        sGrob@plotArgs$gpText <- as(sGrob@plotArgs$gpText, "gpar")
-#    } else {
-      sGrob@plotArgs$gpText <- unlist(sGrob@plotArgs$gpText, recursive = FALSE)
-      class(sGrob@plotArgs$gpText) <- "gpar"
-#    }
-
-#    if(length(sGrob@plotArgs$gpAxis[[1]])>0) {
-#      if (!is(sGrob@plotArgs$gpAxis, "gpar"))
-#        sGrob@plotArgs$gpAxis <- as(sGrob@plotArgs$gpAxis, "gpar")
-#    } else {
-      sGrob@plotArgs$gpAxis <- unlist(sGrob@plotArgs$gpAxis, recursive = FALSE)
-      class(sGrob@plotArgs$gpAxis) <- "gpar"
-#    }
-
-#    if(length(sGrob@plotArgs$gp[[1]])>0) {
-#      if (!is(sGrob@plotArgs$gp, "gpar")) {
-#        sGrob@plotArgs$gp <- as(sGrob@plotArgs$gp, "gpar")
-#      }
-#    } else {
-      sGrob@plotArgs$gp <- unlist(sGrob@plotArgs$gp, recursive = FALSE)
-      class(sGrob@plotArgs$gp) <- "gpar"
-#    }
+    if (!is(sGrob@plotArgs$gpText, "gpar")) {
+      sGrob@plotArgs$gpText <- as(sGrob@plotArgs$gpText, "gpar")
+    }
+    if (!is(sGrob@plotArgs$gpAxis, "gpar")) {
+      sGrob@plotArgs$gpAxis <- as(sGrob@plotArgs$gpAxis, "gpar")
+    }
+    if (!is(sGrob@plotArgs$gp, "gpar")) {
+      sGrob@plotArgs$gp <- as(sGrob@plotArgs$gp, "gpar")
+    }
 
     if (is.null(sGrob@plotArgs$gpText$cex) | newArr) {
       # pipe won't work here :S
@@ -1914,6 +1899,7 @@ setMethod(
   signature = c("matrix"),
   definition = function(grobToPlot, col, real, size, minv, maxv,
                         legend, legendText, gp, gpText, pch, name, vp, ...) {
+
     pr <- if (real) {
       pretty(range(minv, maxv))
     } else {
