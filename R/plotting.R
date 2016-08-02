@@ -629,7 +629,7 @@ setMethod(
             wipe <- FALSE
           }
 
-          sGrob <- .updateGrobGPTextAxis(sGrob, arr=updated$curr@arr)
+          sGrob <- .updateGrobGPTextAxis(sGrob, arr=updated$curr@arr, newArr=newArr)
 
           if(is(grobToPlot, "spatialObjects")) {
             zMat <- .convertSpatialToPlotGrob(grobToPlot, sGrob, takeFromPlotObj, arr=updated$curr@arr,
