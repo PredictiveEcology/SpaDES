@@ -96,7 +96,10 @@ dists1 <- distanceFromEachPoint(coords, landscape = distRas)
 indices <- cellFromXY(distRas,dists1[,c("x","y")])
 invDist <- tapply(dists1[,"dists"], indices, function(x) sum(1/(1+x))) # idw function
 distRas[] <- as.vector(invDist)
-if (interactive()) Plot(distRas, new = TRUE)
+if (interactive()) {
+  clearPlot()
+  Plot(distRas)
+}
 
 # With iterative summing via cumulativeFn to keep memory use low, with same result
 dists1 <- distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE],
@@ -115,17 +118,17 @@ N <- 15
 cells <- sample(ncell(ras), N)
 coords <- xyFromCell(ras, cells)
 distFn <- function(landscape, fromCell, dist) landscape[fromCell] / (1 + dist)
-b <- Sys.time()
+
 # beginCluster(3) # can do parallel
 dists1 <- distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE],
                landscape = rp, distFn = distFn, cumulativeFn = `+`)
-a <- Sys.time()
-print(a-b)
-# endCluster() # can do parallel
+
+# endCluster() # if beginCluster was run
 idwRaster <- raster(ras)
 idwRaster[] <- dists1[,"val"]
 if (interactive()) {
-  Plot(rp, idwRaster, new=TRUE)
+  clearPlot()
+  Plot(rp, idwRaster)
   sp1 <- SpatialPoints(coords)
   Plot(sp1, addTo="rp")
   Plot(sp1, addTo="idwRaster")

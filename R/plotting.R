@@ -22,9 +22,10 @@ if (getRversion() >= "3.1.0") {
 #' before plotting, a call to \code{\link{clearPlot}} could be helpful to resolve
 #' many errors.
 #'
-#' If \code{new = TRUE}, a new plot will be generated.
-#' This is equivalent to calling \code{clearPlot(); Plot(Object)},
-#' i.e,. directly before creating a new Plot.
+#' If \code{new = TRUE}, a new plot will be generated, but only in the named figure region.
+#' This is different than calling \code{clearPlot(); Plot(Object)},
+#' i.e,. directly before creating a new Plot. \code{clearPlot()} will clear the entire
+#' plotting device.
 #' When \code{new = FALSE}, any plot that already exists will be overplotted,
 #' while plots that have not already been plotted will be added.
 #' This function rearranges the plotting device to maximize the size of all the
@@ -134,6 +135,9 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @param cols (also \code{col}) Character vector or list of character vectors of colours. See details.
 #'
+#' @param col (also \code{cols}) Alternative to \code{cols} to be consistent with \code{plot}.
+#'            \code{cols} takes precedence, if both are provided.
+#'
 #' @param zoomExtent An \code{Extent} object. Supplying a single extent that is
 #'                   smaller than the rasters will call a crop statement before
 #'                   plotting. Defaults to \code{NULL}.
@@ -182,6 +186,9 @@ if (getRversion() >= "3.1.0") {
 #'            Default NULL, meaning
 #'            let Plot function do it automatically.
 #'
+#' @param plotFn An optional function name to do the plotting internally, e.g.,
+#'               "barplot" to get a barplot() call. Default "plot".
+#'
 #' @return Invisibly returns the \code{.spadesPlot} class object.
 #' If this is assigned to an object, say \code{obj}, then this can be plotted
 #' again with \code{Plot(obj)}.
@@ -201,7 +208,7 @@ if (getRversion() >= "3.1.0") {
 #' @importFrom gridBase gridFIG
 #' @importFrom ggplot2 ggplot
 #' @importFrom raster crop is.factor
-#' @importFrom grid upViewport pushViewport seekViewport grid.text
+#' @importFrom grid upViewport pushViewport
 #' @importFrom grid grid.rect grid.xaxis grid.yaxis current.parent gpar
 #' @importFrom grDevices dev.cur dev.size
 #'
@@ -278,11 +285,13 @@ if (getRversion() >= "3.1.0") {
 #' SpP = SpatialPolygons(list(Srs1, Srs2), 1:2)
 #'
 #' if (interactive()) {
-#'   Plot(ras, new = TRUE)
+#'   clearPlot()
+#'   Plot(ras)
 #'
 #'   # dev(2)
 #'
-#'   Plot(landscape, new = TRUE)
+#'   clearPlot()
+#'   Plot(landscape)
 #'
 #'   # Can overplot, using addTo
 #'   Plot(caribou, addTo = "landscape$forestAge", size = 4, axes = FALSE)
@@ -323,10 +332,10 @@ setGeneric(
   signature = "...",
   function(..., new = FALSE, addTo = NULL,
            gp = gpar(), gpText = gpar(), gpAxis = gpar(), axes = FALSE,
-           speedup = 1, size = 5, cols = NULL, zoomExtent = NULL,
+           speedup = 1, size = 5, cols = NULL, col = NULL, zoomExtent = NULL,
            visualSqueeze = NULL, legend = TRUE, legendRange = NULL,
            legendText = NULL, pch = 19, title = TRUE, na.color = "#FFFFFF00",
-           zero.color = NULL, length = NULL, arr = NULL) {
+           zero.color = NULL, length = NULL, arr = NULL, plotFn = "plot") {
     standardGeneric("Plot")
 })
 
@@ -336,9 +345,9 @@ setMethod(
   "Plot",
   signature("ANY"),
   definition = function(..., new, addTo, gp, gpText, gpAxis, axes, speedup,
-                        size, cols, zoomExtent, visualSqueeze, legend,
+                        size, cols, col, zoomExtent, visualSqueeze, legend,
                         legendRange, legendText, pch, title, na.color,
-                        zero.color, length, arr) {
+                        zero.color, length, arr, plotFn) {
     # Section 1 - extract object names, and determine which ones need plotting,
     # which ones need replotting etc.
     news <- sapply(new, function(x) x)
@@ -350,6 +359,13 @@ setMethod(
           length(ls(.spadesEnv)) == 0) {
         clearPlot(dev.cur())
     }}
+
+    if (length(ls(.spadesEnv)) == 0 ) {
+      clearPlot()
+    }
+
+    # this covers the case where R thinks that there is a base plot... must be cleared
+    #if(names(dev.cur()) %in% "null device") dev.new()
 
     # Determine object names that were passed and layer names of each
     scalls <- sys.calls()
@@ -374,9 +390,15 @@ setMethod(
     }
 
     # if user uses col instead of cols
-    if (any(grepl(pattern = "col", names(dots)))) {
-      cols <- dots$col
-      plotArgs$cols <- cols
+    if (is.null(cols)) {
+      if(!is.null(col)) {
+        cols <- col
+        plotArgs$cols <- cols
+      }
+    } else {
+      if(!is.null(col)) {
+        message("cols and col both supplied. Using cols")
+      }
     }
 
     if (!is.null(dots$env)) {
@@ -394,8 +416,9 @@ setMethod(
     if(all(!whichSpadesPlottables) ) { ## if not a .spadesPlottables then it is a pass to plot or points
       if(!exists(paste0("basePlots_",dev.cur()), envir=.spadesEnv))
         .assignSpaDES(paste0("basePlots_",dev.cur()), new.env(hash = FALSE, parent = .spadesEnv))
-      mc <- match.call(plot.default, call("plot.default", quote(...)))
+      mc <- match.call(get(plotArgs$plotFn), call(plotArgs$plotFn, quote(...)))
       mcPlot <- match.call(Plot, call = sys.call(whFrame))
+      plotArgs$userProvidedPlotFn <- ("plotFn" %in% names(mcPlot))
 
       basePlotDots <- list()
       for(i in names(mc)[-1])
@@ -403,10 +426,11 @@ setMethod(
       plotObjs <- list(list(basePlotDots))
       plotXYArgs <- substitute(list(...))
       xAndY <- c('x','y') %in% names(basePlotDots)
+      xAndYLab <- c('xlab','ylab') %in% names(basePlotDots)
       xAndYSum <- sum(xAndY)
       if(!is.null(basePlotDots$xlab) | !is.null(basePlotDots$ylab)) {
         plotArgs$axisLabels <- list(c(basePlotDots$xlab, basePlotDots$ylab))
-        names(plotArgs$axisLabels[[1]]) <- c('x','y')[xAndY]
+        names(plotArgs$axisLabels[[1]]) <- c('x','y')[xAndYLab]
       } else {
         plotArgs$axisLabels <- list(unlist(lapply(plotXYArgs[1:xAndYSum+1], deparse)))
       }
@@ -415,9 +439,17 @@ setMethod(
         addTo <- "basePlot1"
       }
       plotArgs$addTo <- addTo
+
       if(is.null(mcPlot$axes)) {
         plotArgs$axes <- "L"
       }
+
+      if(is.null(mcPlot$title)) {
+        plotArgs$title <- mc$main
+      }
+      plotArgs$main <- ""
+      plotObjs[[1]][[1]]$main <- plotArgs$main
+      basePlotDots$main <- plotArgs$main
 
       if(addTo %in% ls(.getSpaDES(paste0("basePlots_",dev.cur())))) {
         plotObjsName <- paste0(addTo, "_", length(ls(.getSpaDES(paste0("basePlots_",dev.cur()))))+1)
@@ -430,6 +462,7 @@ setMethod(
       objFrame <- .getSpaDES(paste0("basePlots_",dev.cur()))
 
     } else { # non base plots
+
       canPlot <- if (!is.null(names(whichSpadesPlottables))) {
         whichSpadesPlottables[names(whichSpadesPlottables) != "env"]
       } else {
@@ -560,14 +593,6 @@ setMethod(
           isReplot <- updated$isReplot[[subPlots]][[spadesGrobCounter]]
           isBaseSubPlot <- updated$isBaseLayer[[subPlots]][[spadesGrobCounter]]
 
-          #a <- try(seekViewport(subPlots, recording = FALSE))
-          #if (is(a, "try-error")) {
-          #  stop(paste(
-          #      "Plot does not already exist on current device.",
-          #      "Try new = TRUE, clearPlot(), or change device to",
-          #      "one that has a plot named", addTo[whGrobNamesi])
-          #  )}
-
           whPlotFrame <- match(sGrob@plotName, names(spadesSubPlots))
 
           # Check that the extents are equal.
@@ -577,13 +602,28 @@ setMethod(
           takeFromPlotObj <- (names(newSpadesPlots@spadesGrobList) %in%
                                 sGrob@plotName)
           whPlotObj <- which(takeFromPlotObj)
-          grobToPlot <- .identifyGrobToPlot(sGrob, plotObjs, any(takeFromPlotObj))
+          grobToPlot <- .identifyGrobToPlot(sGrob, plotObjs)#, any(takeFromPlotObj))
 
-          if(sGrob@plotArgs$new) {# draw a white rectangle to clear plot
-            sGrob <- .refreshGrob(sGrob, subPlots, legendRange,
-                                  grobToPlot, plotArgs, nColumns = updated$curr@arr@columns,
+          isPlotFnAddable <- if(!is(grobToPlot, ".spadesPlotObjects"))
+                                if(sGrob@plotArgs$userProvidedPlotFn & !isTRUE(grobToPlot[["add"]])) {
+                                  TRUE
+                                } else {
+                                  FALSE
+                              } else {
+                                FALSE
+                              }
+
+          if(sGrob@plotArgs$new | is(grobToPlot, "igraph") | #plotArgs$new |
+             is(grobToPlot, "histogram") | #is(grobToPlot$x, "histogram") |
+               isPlotFnAddable) {# draw a white rectangle to clear plot
+
+            #if(sGrob@plotArgs$new)
+              sGrob <- .refreshGrob(sGrob, subPlots, legendRange,
+                                  grobToPlot, plotArgs = sGrob@plotArgs,
+                                  nColumns = updated$curr@arr@columns,
                                   whPlotObj)
-            wipe <- TRUE
+            wipe <- TRUE # can't overplot a histogram
+
           } else {
             wipe <- FALSE
           }

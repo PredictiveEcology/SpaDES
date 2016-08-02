@@ -199,7 +199,8 @@ clickExtent <- function(devNum = NULL, plot.it = TRUE) {
       Plot(eval(parse(text = objNames), envir = corners$envir[[1]])[[layNames]],
            zoomExtent = zoom, new = TRUE)
     } else {
-      Plot(get(objNames, envir = corners$envir[[1]]), zoomExtent = zoom, new = TRUE)
+      clearPlot()
+      Plot(get(objNames, envir = corners$envir[[1]]), zoomExtent = zoom)
     }
 
     dev(devActive)
@@ -224,7 +225,7 @@ clickCoordinates <- function(n = 1) {
   arr <- try(.getSpaDES(paste0("spadesPlot", dc)))
   if (is(arr, "try-error")) {
     stop(paste("Plot does not already exist on current device.",
-               "Try new = TRUE, clearPlot() or change device to",
+               "clearPlot() or change device to",
                "one that has objects from a call to Plot()."))
   }
   gl <- grid.layout(nrow = arr$curr@arr@rows*3+2,

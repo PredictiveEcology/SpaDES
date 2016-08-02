@@ -122,7 +122,10 @@ gaussMap <- function(x, scale = 10, var = 1, speedup = 10, inMemory = FALSE, ...
 #'
 #' @examples
 #' Ras <- randomPolygons(numTypes = 5)
-#' if (interactive()) Plot(Ras, cols = c("yellow", "dark green", "blue", "dark red"), new = TRUE)
+#' if (interactive()) {
+#'   clearPlot()
+#'   Plot(Ras, cols = c("yellow", "dark green", "blue", "dark red"))
+#' }
 #'
 #' library(raster)
 #' # more complex patterning, with a range of patch sizes
@@ -130,7 +133,10 @@ gaussMap <- function(x, scale = 10, var = 1, speedup = 10, inMemory = FALSE, ...
 #' a[a<320] <- 0
 #' a[a>=320] <- 1
 #' aHist <- hist(table(getValues(clump(a, directions = 4))), plot = FALSE)
-#' if (interactive()) Plot(a, aHist, new = TRUE)
+#' if (interactive()) {
+#'   clearPlot()
+#'   Plot(a, aHist)
+#' }
 #'
 randomPolygons <- function(ras = raster(extent(0,15,0,15), res = 1), #p = 0.1,
                            numTypes = 2, ...) {
@@ -223,7 +229,10 @@ randomPolygons <- function(ras = raster(extent(0,15,0,15), res = 1), #p = 0.1,
 #' library(data.table)
 #' Ntypes <- 4
 #' ras <- randomPolygons(numTypes = Ntypes)
-#' #Plot(ras, new = TRUE)
+#' if(interactive()) {
+#'   clearPlot()
+#'   Plot(ras)
+#' }
 #'
 #' # Use numPerPatchTable
 #' patchDT <- data.table(pops = 1:Ntypes, num.in.pop = c(1, 3, 5, 7))
@@ -238,10 +247,16 @@ randomPolygons <- function(ras = raster(extent(0,15,0,15), res = 1), #p = 0.1,
 #' for (i in 1:Ntypes) {
 #'   rasPatches[rasPatches==i] <- patchDT$num.in.pop[i]
 #' }
-#' #Plot(ras, rasPatches, new = TRUE)
+#' if(interactive()) {
+#'   clearPlot()
+#'   Plot(ras, rasPatches)
+#' }
 #' rasAgents <- specificNumPerPatch(ras, numPerPatchMap = rasPatches)
 #' rasAgents[is.na(rasAgents)] <- 0
-#' #Plot(rasAgents)
+#' if(interactive()) {
+#'   clearPlot()
+#'   Plot(rasAgents)
+#' }
 specificNumPerPatch <- function(patches, numPerPatchTable = NULL, numPerPatchMap = NULL) {
   patchids <- as.numeric(na.omit(getValues(patches)))
   wh <- Which(patches, cells = TRUE)

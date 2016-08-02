@@ -59,7 +59,8 @@ map <- gaussMap(map, scale = 1, var = 4, speedup = 1)
 pr <- probInit(map, p = (map/maxValue(map))^2)
 agents <- initiateAgents(map, 100, pr)
 if (interactive()) {
-  Plot(map, new = TRUE)
+  clearPlot()
+  Plot(map)
   Plot(agents, addTo = "map")
 }
 

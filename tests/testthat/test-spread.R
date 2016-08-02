@@ -358,7 +358,6 @@ test_that("asymmetry doesn't work properly", {
     #dirs <- .matchedPointDirection(a, initialLociXY)
     dirs <- directionFromEachPoint(from = initialLociXY, to = a)
     dirs[, "angles"] <- CircStats::deg(dirs[, "angles"])
-    #browser()
     avgAngles[asymAng] <- tapply(dirs[, "angles"], dirs[, "id"], meanAngle) %% 360
     lenAngles[asymAng] <- tapply(dirs[, "angles"], dirs[, "id"], length)
   }
@@ -627,7 +626,6 @@ test_that("rings and cir", {
                                           y = round(stats::runif(N, xmin(hab), xmax(hab))) + 0.5))
 
   loci <- cellFromXY(hab, coordinates(caribou))
-  #browser()
   dists1 <- rings(hab, loci, minRadius = 0, maxRadius = ncol(hab), returnDistances = TRUE,
                   includeBehavior = "includeRing")
   dists2 <- distanceFromPoints(hab, coordinates(caribou))

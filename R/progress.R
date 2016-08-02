@@ -3,7 +3,7 @@ doEvent.progress = function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
     if (interactive()) {
       tu <- timeunit(sim)
-      defaults <- list(type = "text", interval = (end(sim)-start(sim))/(end(sim,tu)-start(sim,tu)))
+      defaults <- list(type = "text", interval = (end(sim, "second")-start(sim, "second"))/(end(sim,tu)-start(sim,tu)))
 
       # Check whether a .progress is specified in the simList
       if ( is.null(params(sim)$.progress$type) &&

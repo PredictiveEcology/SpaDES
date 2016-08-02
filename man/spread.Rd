@@ -306,7 +306,8 @@ directions <- 8
 setColors(hab) <- paste(c("transparent", brewer.pal(8, "Greys")))
 
 if (interactive()) {
-  Plot(hab, new = TRUE, speedup = 3) # note speedup is equivalent to making pyramids,
+  clearPlot()
+  Plot(hab, speedup = 3) # note speedup is equivalent to making pyramids,
                                      # so, some details are lost
 }
 
@@ -321,7 +322,8 @@ if (interactive()) {
   Plot(fires,addTo = "hab")
 
   #alternatively, set colors using cols= in the Plot function
-  Plot(hab, new = TRUE)
+  clearPlot()
+  Plot(hab)
   Plot(fires) # default color range makes zero transparent.
   # Instead, to give a color to the zero values, use \\code{zero.color=}
   Plot(fires, addTo = "hab",
@@ -364,7 +366,10 @@ fullRas <- raster(hab)
 fullRas[] <- 1:ncell(hab)
 burned <- fires[active == FALSE]
 burnedMap <- rasterizeReduced(burned, fullRas, "id", "indices")
-if (interactive()) Plot(burnedMap, new = TRUE)
+if (interactive()) {
+  clearPlot()
+  Plot(burnedMap)
+}
 
 ####################
 ## stopRule examples
@@ -389,7 +394,10 @@ stopRuleB <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)), 1, 0,
 set.seed(1234)
 stopRuleB_NotExact <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)), 1, 0,
                 NULL, maxSize = 1e6, 8, 1e6, id = TRUE, circle = TRUE, stopRule = stopRule2)
-if (interactive()) Plot(stopRuleA, stopRuleB, stopRuleB_NotExact, new = TRUE)
+if (interactive()) {
+  clearPlot()
+  Plot(stopRuleA, stopRuleB, stopRuleB_NotExact)
+}
 
 # Test that the stopRules work
 # stopRuleA was not exact, so each value will "overshoot" the stopRule, here it was hab>50
@@ -411,7 +419,10 @@ tapply(foo[,"vals"], foo[,"id"], sum) # Correct ... all are above 50
 #    stopRule in place, spreadProb = 1
 diamonds <- spread(hab>0, spreadProb = 1, directions = 4,
    id = TRUE, stopRule = stopRule2)
-if (interactive()) Plot(diamonds, new = TRUE)
+if (interactive()) {
+  clearPlot()
+  Plot(diamonds)
+}
 
 # Squares - can make them with: a boolean raster, directions = 8,
 #    stopRule in place, spreadProb = 1
@@ -424,7 +435,10 @@ if (interactive()) Plot(squares)
 stopRule2 <- function(landscape) sum(landscape)>200
 squashedDiamonds <- spread(hab>0, spreadProb = 1, loci = (ncell(hab)-ncol(hab))/2 + c(4, -4),
    directions = 4, id = TRUE, stopRule = stopRule2)
-if (interactive()) Plot(squashedDiamonds, new = TRUE)
+if (interactive()) {
+  clearPlot()
+  Plot(squashedDiamonds)
+}
 
 # Circles with spreadProb < 1 will give "more" circular shapes, but definitely not circles
 stopRule2 <- function(landscape) sum(landscape)>200
@@ -435,8 +449,10 @@ circlish <- spread(hab>0, spreadProb = 0.23, loci = (ncell(hab)-ncol(hab))/2 + c
 set.seed(seed)
 regularCA <- spread(hab>0, spreadProb = 0.23, loci = (ncell(hab)-ncol(hab))/2 + c(4, -4),
    directions = 8, id = TRUE)#, stopRule = stopRule2)
-if (interactive())
-  Plot(circlish, regularCA, new = TRUE)
+if (interactive()) {
+  clearPlot()
+  Plot(circlish, regularCA)
+}
 
 
 ####################
@@ -459,8 +475,10 @@ TwoCirclesDiffSize <- spread(hab, spreadProb = 1, loci = initialLoci, circle = T
 #    directions = 8, id = TRUE, stopRule = stopRule3,
 #    vars = list(endSizes = endSizes), stopRuleBehavior = "excludePixel")
 
-if (interactive())
-  Plot(TwoCirclesDiffSize, new = TRUE)
+if (interactive()) {
+  clearPlot()
+  Plot(TwoCirclesDiffSize)
+}
 cirs <- getValues(TwoCirclesDiffSize)
 vals <- tapply(hab[TwoCirclesDiffSize], cirs[cirs>0], sum)
 
@@ -491,7 +509,10 @@ TwoCirclesDiffSize <- spread(hab, spreadProb = 1, loci = initialLoci, circle = T
  overlapEvents[] <- 0
  toMap <- circs[,sum(id),by=indices]
  overlapEvents[toMap$indices] <- toMap$V1
- if (interactive()) Plot(overlapEvents, new = TRUE)
+if (interactive()) {
+  clearPlot()
+  Plot(overlapEvents)
+}
 
 
 }

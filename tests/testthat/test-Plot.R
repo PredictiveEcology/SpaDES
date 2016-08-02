@@ -136,7 +136,7 @@ test_that("Plot 1 is not error-free", {
 
   # Should work with col as well as cols
   clearPlot()
-  expect_silent(Plot(DEM87654, cols = c("blue", "red")))
+  expect_silent(Plot(DEM87654, col = c("blue", "red")))
 
   # test visualSqueeze
   clearPlot()
@@ -158,7 +158,7 @@ test_that("Plot 1 is not error-free", {
   clearPlot()
   ggplot87654 <- ggplot2::qplot(stats::rnorm(1e3), binwidth = 0.3,
                                 geom = "histogram")
-  expect_silent(Plot(ggplot87654, new = TRUE))
+  expect_silent(Plot(ggplot87654))
 
   # test rearrangements
   expect_silent(Plot(caribou87654, new = TRUE))

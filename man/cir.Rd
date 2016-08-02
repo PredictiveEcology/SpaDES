@@ -124,7 +124,8 @@ middleCircle <- cir(Ras)
 Ras[middleCircle[, "indices"]] <- 1
 circlePoints <- SpatialPoints(middleCircle[,c("x", "y")])
 if (interactive()) {
-  Plot(Ras, new=TRUE)
+  clearPlot()
+  Plot(Ras)
   Plot(circlePoints, addTo = "Ras")
 }
 
@@ -140,7 +141,8 @@ cirsRas[] <- 0
 cirsRas[cirs[, "indices"]] <- 1
 
 if (interactive()) {
-  Plot(Ras, new = TRUE)
+  clearPlot()
+  Plot(Ras)
   Plot(cirsRas, addTo = "Ras", cols = c("transparent", "#00000055"))
   Plot(agent, addTo = "Ras")
   Plot(cirsSP, addTo = "Ras")
@@ -169,7 +171,10 @@ ras1[cirs[, "indices"]] <- cirs[, "id"]
 ras2 <- raster(hab)
 ras2[] <- 0
 ras2[cirs2$indices] <- cirs2$id
-if (interactive()) Plot(ras1, ras2, new=TRUE)
+if (interactive()) {
+  clearPlot()
+  Plot(ras1, ras2)
+}
 
 a <- raster(extent(0,100,0,100), res = 1)
 hab <- gaussMap(a,speedup = 1)
@@ -178,7 +183,10 @@ ras1 <- raster(hab)
 ras1[] <- 0
 cirsOverlap <- data.table(cirs)[,list(sumIDs = sum(id)),by=indices]
 ras1[cirsOverlap$indices] <- cirsOverlap$sumIDs
-if (interactive()) Plot(ras1, new=TRUE)
+if (interactive()) {
+  clearPlot()
+  Plot(ras1)
+}
 
 # Provide a specific set of angles
 Ras <- raster(extent(0, 330, 0, 330), res = 1)

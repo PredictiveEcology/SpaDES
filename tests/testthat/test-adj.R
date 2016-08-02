@@ -250,7 +250,6 @@ test_that("adj.R results not identical to adjacent", {
                                                                   ", prs=",prs))
                           #numTests <<- numTests+1
                         } else {
-                          #browser()
                           expect_equivalent(unique(sort(adjDT[,"to"])), sort(adj2))
                           #numTests <<- numTests+1
                         }

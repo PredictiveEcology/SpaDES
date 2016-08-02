@@ -263,7 +263,7 @@ setMethod(
     # If layer name is same as object name omit it, and if layer name
     # is "layer", omit it if within a RasterLayer
     lN[isStackLong] <- paste(objectNamesLong[isStackLong],
-                             lNamesPlotObj[isStack],
+                             lNamesPlotObj[isStackLong],
                              sep = "$")
     names(lN) <- rep(names(plotObjects), numberLayers)
     names(lN)[isSpadesPlotLong] <- layerNames(plotObjects)[isSpadesPlotLong]
@@ -569,6 +569,12 @@ setMethod(
       rep(list(p$legendRange), length.out = n)
     }
 
+    p$plotFn <- if (is.list(p$plotFn)) {
+      p$plotFn
+    } else {
+      rep(list(p$plotFn), length.out = n)
+    }
+
     return(p)
   }
 )
@@ -602,7 +608,10 @@ setMethod(
 #' caribou2 <- SpatialPoints(cbind(x = stats::runif(10, -50, 50), y = stats::runif(10, -50, 50)))
 #'
 #' caribouTraj <- makeLines(caribou1, caribou2)
-#' if (interactive()) Plot(caribouTraj, new = TRUE, length = 0.1)
+#'   if (interactive()) {
+#'     clearPlot()
+#'     Plot(caribouTraj, length = 0.1)
+#'   }
 #'
 #' # or  to a previous Plot
 #' \dontrun{
@@ -616,8 +625,11 @@ setMethod(
 #' sim1 <- loadFiles(filelist = filelist)
 #' caribouTraj <- makeLines(caribou1, caribou2)
 #'
-#' Plot(sim1$DEM, new = TRUE)
-#' Plot(caribouTraj, addTo = "sim1$DEM", length = 0.1)
+#'   if (interactive()) {
+#'     clearPlot()
+#'     Plot(sim1$DEM)
+#'     Plot(caribouTraj, addTo = "sim1$DEM", length = 0.1)
+#'   }
 #' }
 #'
 setGeneric("makeLines", function(from, to) {
@@ -1047,6 +1059,7 @@ setMethod(
 #'                    but are passed along with \code{.spadesPlottables}.
 #'
 #' @include plotting-classes.R
+#' @importFrom grid seekViewport grid.text
 #' @docType methods
 #' @rdname Plot-internal
 #' @aliases PlotHelpers
@@ -1069,6 +1082,7 @@ setMethod(
                         isBaseSubPlot, isNewPlot, isReplot, zMat, wipe, xyAxes, legendText,
                         vps, nonPlotArgs) {
     seekViewport(subPlots, recording = FALSE)
+
     if (is.list(grobToPlot)) {  # THis is for base plot calls... the grobToPlot is a call i.e,. a name
       # Because base plotting is not set up to overplot,
       # must plot a white rectangle
@@ -1078,31 +1092,51 @@ setMethod(
       # clear out all arguments that don't have meaning in plot.default
       if (is(grobToPlot, "gg")) {
         print(grobToPlot, vp = subPlots)
-        #browser()
-        #a <- try(seekViewport(subPlots, recording = FALSE))
+        a <- try(seekViewport(subPlots, recording = FALSE))
 
       } else {
-        if(is(grobToPlot$x, "histogram")) {
-          wipe <- TRUE # can't overplot a histogram
-        }
 
         # plot y and x axes should use deparse(substitute(...)) names
         if(!identical(FALSE,sGrob@plotArgs$axes)) {
-          if(length(sGrob@plotArgs$axisLabels)==1) {
-            sGrob@plotArgs$ylab <- sGrob@plotArgs$axisLabels[1]
+          if(!is.na(sGrob@plotArgs$axisLabels["x"])) {
+            sGrob@plotArgs$xlab <- sGrob@plotArgs$axisLabels["x"]
           } else {
-            sGrob@plotArgs$xlab <- sGrob@plotArgs$axisLabels[1]
-            sGrob@plotArgs$ylab <- sGrob@plotArgs$axisLabels[2]
+            if(!is.na(sGrob@plotArgs$axisLabels[1]))
+              sGrob@plotArgs$xlab <- sGrob@plotArgs$axisLabels[1]
+            else
+              sGrob@plotArgs$xlab <- NULL
+          }
+          if(!is.na(sGrob@plotArgs$axisLabels["y"])) {
+            sGrob@plotArgs$ylab <- sGrob@plotArgs$axisLabels["y"]
+          } else {
+            if(!is.na(sGrob@plotArgs$axisLabels[2]))
+              sGrob@plotArgs$ylab <- sGrob@plotArgs$axisLabels[2]
+            else
+              sGrob@plotArgs$ylab <- NULL
           }
         } else {
           sGrob@plotArgs$xlab <- ""
           sGrob@plotArgs$ylab <- ""
         }
 
+        isHist <- FALSE
+        if(!is.null(grobToPlot$x)) {
+          if(is(grobToPlot$x, "histogram")) {
+            isHist <- TRUE
+            sGrob@plotArgs$ylab <- if(is.null(sGrob@plotArgs$ylab)) "Frequency"
+          } else if(is(grobToPlot$x, "numeric")) {
+            if(length(sGrob@plotArgs$axisLabels)==1) {
+              sGrob@plotArgs$ylab <- sGrob@plotArgs$xlab
+              sGrob@plotArgs$xlab <- "Index"
+            }
+          }
+        }
+
         args_plot1 <- sGrob@plotArgs[!(names(sGrob@plotArgs) %in% c("new", "addTo", "gp", "gpAxis", "axisLabels",
                                                                     "zoomExtent", "gpText", "speedup", "size",
                                                                     "cols", "visualSqueeze", "legend", "legendRange", "legendText",
-                                                                    "zero.color", "length", "arr", "na.color", "title"))]
+                                                                    "zero.color", "length", "arr", "na.color", "title",
+                                                                    "userProvidedPlotFn"))]
         args_plot1$axes <- isTRUE(sGrob@plotArgs$axes)
         makeSpaceForAxes <- as.numeric(
           !identical(FALSE, spadesSubPlots[[subPlots]][[1]]@plotArgs$axes)
@@ -1113,12 +1147,28 @@ setMethod(
                     0.9))                         # top
 
 
-        if(spadesGrobCounter==1 | wipe ) { #| isHist) {
+        # The actuall plot calls for base plotting
+        if(is(grobToPlot, "igraph")) {
+          # this next is a work around that I can't understand
+          if(names(dev.cur())=="null device") {
+            plot(1, type = "n", axes = FALSE, xlab = "", ylab = "")
+            clearPlot()
+          }
+          #a <- try(seekViewport(subPlots, recording = FALSE))
           suppressWarnings(par(new = TRUE))
-          suppressWarnings(do.call(plot, args = args_plot1))
+          #plotCall <- append(list(x = grobToPlot), nonPlotArgs)
+          plotCall <- list(x = grobToPlot)
+          suppressWarnings(do.call(plot, args = plotCall))
+
+        } else if(spadesGrobCounter==1 | wipe | isHist) {
+          suppressWarnings(par(new = TRUE))
+          suppressWarnings(do.call(args_plot1$plotFn,
+                                   args = args_plot1[-which(names(args_plot1)=="plotFn")]))
+
         } else {
-          args_plot1[c("axes", "xlab", "ylab")] <- NULL
-          suppressWarnings(do.call(points, args = args_plot1))
+          tmpPlotFn <- if(args_plot1$plotFn=="plot") "points" else args_plot1$plotFn
+          args_plot1[c("axes", "xlab", "ylab", "plotFn")] <- NULL
+          suppressWarnings(do.call(tmpPlotFn, args = args_plot1))
         }
       }
 
@@ -1132,32 +1182,24 @@ setMethod(
         }
 
         if (#xyAxes$x & isBaseSubPlot & isReplot |
-          xyAxes$x & isBaseSubPlot & isNewPlot | xyAxes$x & wipe) {
+          xyAxes$x & (isBaseSubPlot & isNewPlot | wipe)) {
 
           axesArgsX <- append(list(side=1), axesArgs)
           suppressWarnings(do.call(axis, args = axesArgsX))
         }
         if (#xyAxes$y & isBaseSubPlot & isReplot |
-          xyAxes$y & isBaseSubPlot & isNewPlot | xyAxes$y & wipe) {
+          xyAxes$y & (isBaseSubPlot & isNewPlot | wipe) ) {
           axesArgsY <- append(list(side=2), axesArgs)
           suppressWarnings(do.call(axis, args = axesArgsY))
         }
       }
 
 
-    } else if (is(grobToPlot, "igraph")) {
-      # Because base plotting is not set up to overplot,
-      # must plot a white rectangle
-      grid.rect(gp = gpar(fill = "white", col = "white"))
-      par(fig = gridFIG())
-      suppressWarnings(par(new = TRUE))
-      plotCall <- append(list(x = grobToPlot), nonPlotArgs)
-      suppressWarnings(do.call(plot, args = plotCall))
     } else { # This is for Rasters and Sp objects only
       # Extract legend text if the raster is a factored raster
       if (is.null(legendText)) {
         if (is.null(sGrob@plotArgs$legendTxt)) {
-          if (raster::is.factor(grobToPlot)) {
+          if (any(raster::is.factor(grobToPlot))) {
             sGrob@plotArgs$legendTxt <- raster::levels(grobToPlot)[[1]]
           }
         }
@@ -1180,8 +1222,8 @@ setMethod(
         vp = vps,
         legend = #sGrob@plotArgs$legend  &  isBaseSubPlot &
           #isReplot |
-          sGrob@plotArgs$legend & isBaseSubPlot &
-          isNewPlot | wipe,
+          sGrob@plotArgs$legend & (isBaseSubPlot &
+          isNewPlot | wipe),
         legendText = sGrob@plotArgs$legendTxt,
         gp = sGrob@plotArgs$gp,
         gpText = sGrob@plotArgs$gpText,
@@ -1189,7 +1231,7 @@ setMethod(
         length = sGrob@plotArgs$length
       ) %>% append(., nonPlotArgs)
 
-      #seekViewport(subPlots, recording = FALSE)
+      seekViewport(subPlots, recording = FALSE)
       suppressWarnings(do.call(.plotGrob, args = plotGrobCall))
 
       if (any(unlist(xyAxes)) & (isBaseSubPlot & isNewPlot | wipe)) {
@@ -1200,20 +1242,20 @@ setMethod(
         if (xyAxes$y & (isBaseSubPlot & isNewPlot | wipe)) {
           grid.yaxis(name = "yaxis", gp = sGrob@plotArgs$gpAxis, vp = vps$wholeVp$children[[paste0("outer",subPlots)]])
         }
-        #browser()
         #seekViewport(subPlots, recording = FALSE)
       }
-    } #gg vs histogram vs spatialObject
 
+    } #gg vs histogram vs spatialObject
     # print Title on plot
     if (#!identical(FALSE, sGrob@plotArgs$title) & isBaseSubPlot & !isReplot |
       !identical(FALSE, sGrob@plotArgs$title) & isBaseSubPlot & isNewPlot) {
       plotName <- if(isTRUE(sGrob@plotArgs$title)) sGrob@plotName else sGrob@plotArgs$title
-      seekViewport(paste0("outer",subPlots), recording = FALSE)
-      grid.text(plotName, name = "title", y = 1.08-is.list(grobToPlot)*0.02, vjust = 0.5, # tweak... not good practice. Should find original reason why this is not same y for rasters and all others
-                gp = sGrob@plotArgs$gpText)
-      #seekViewport(subPlots, recording = FALSE)
+      a <- try(seekViewport(paste0("outer",subPlots), recording = FALSE))
+      suppressWarnings(grid.text(plotName, name = "title", y = 1.08-is.list(grobToPlot)*0.02, vjust = 0.5, # tweak... not good practice. Should find original reason why this is not same y for rasters and all others
+                                 gp = sGrob@plotArgs$gpText))#, vp = vps$wholeVp$children[[paste0("outer",subPlots)]]))
+      a <- try(seekViewport(subPlots, recording = FALSE))
     }
+
     return(sGrob)
 })
 
@@ -1263,7 +1305,7 @@ setMethod(
     } else {
       legendRange
     }
-    #seekViewport(subPlots, recording = FALSE)
+    seekViewport(subPlots, recording = FALSE)
     return(sGrob)
 })
 
@@ -1286,7 +1328,6 @@ setMethod(
   signature = c(".spadesGrob"),
   definition = function(sGrob, arr) {
 
-#    browser()
     #if(length(sGrob@plotArgs$gpText[[1]])>0) {
     #  if (!is(sGrob@plotArgs$gpText, "gpar"))
     #    sGrob@plotArgs$gpText <- as(sGrob@plotArgs$gpText, "gpar")
@@ -1341,24 +1382,21 @@ setMethod(
 #' @param toPlot list containing the objects to plot, made as a call to the
 #'               \code{Plot} function
 #'
-#' @param takeFromPlotObj logical. If \code{TRUE}, then take from the call to
-#'                        \code{Plot}; if \code{FALSE} takes from global envir.
-#'
 #' @author Eliot McIntire
 #' @include plotting-classes.R
 #' @rdname identifyGrobToPlot
-setGeneric(".identifyGrobToPlot", function(grobNamesi, toPlot, takeFromPlotObj) {
+setGeneric(".identifyGrobToPlot", function(grobNamesi, toPlot) {
   standardGeneric(".identifyGrobToPlot")
 })
 
 #' @rdname identifyGrobToPlot
 setMethod(
   ".identifyGrobToPlot",
-  signature = c(".spadesGrob", "list", "logical"),
-  function(grobNamesi, toPlot, takeFromPlotObj) {
+  signature = c(".spadesGrob", "list"),
+  function(grobNamesi, toPlot) {
     # get the object name associated with this grob
-    if (length(toPlot) == 0)
-      takeFromPlotObj <- FALSE
+    #if (length(toPlot) == 0)
+    #  takeFromPlotObj <- FALSE
 
     #if(takeFromPlotObj) {
     #  grobToPlot <- toPlot[[1]]
@@ -1366,22 +1404,27 @@ setMethod(
     # Does it already exist on the plot device or not
     if (nchar(grobNamesi@layerName) > 0) {
       # means it is in a raster
-      grobToPlot <- eval(parse(text = grobNamesi@objName),
+      #if(takeFromPlotObj) {
+      #  grobToPlot <- unlist(toPlot[[1]], recursive = FALSE)[[grobNamesi@layerName]]
+      #} else {
+        grobToPlot <- eval(parse(text = grobNamesi@objName),
                          grobNamesi@envir)[[grobNamesi@layerName]]
+      #}
     } else {
-      grobToPlot <- eval(parse(text = grobNamesi@objName), grobNamesi@envir)
+      #if(takeFromPlotObj) {
+      #  if(!is(toPlot[[1]], "gg")) {
+      #    grobToPlot <- unlist(toPlot[[1]], recursive = FALSE)
+      #  } else {
+      #    grobToPlot <- toPlot[[1]]
+      #  }
+      #} else {
+        grobToPlot <- eval(parse(text = grobNamesi@objName), grobNamesi@envir)
+      #}
     }
     #}
     return(grobToPlot)
   })
 
-#' @rdname identifyGrobToPlot
-setMethod(
-  ".identifyGrobToPlot",
-  signature = c(".spadesGrob", "missing", "logical"),
-  function(grobNamesi, toPlot, takeFromPlotObj) {
-    .identifyGrobToPlot(grobNamesi, list(), FALSE)
-  })
 
 ################################################################################
 #' Prepare raster for plotting

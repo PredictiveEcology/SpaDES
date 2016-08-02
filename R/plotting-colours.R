@@ -97,33 +97,51 @@ setMethod("getColors",
 #'
 #'   # Use replacement method
 #'   setColors(ras, n=3) <- c("red", "blue", "green")
-#'   if (interactive()) Plot(ras, new = TRUE)
+#'   if (interactive()) {
+#'     clearPlot()
+#'     Plot(ras)
+#'   }
 #'
 #'   # Use function method
 #'   ras <- setColors(ras, n=3, c("red", "blue", "yellow"))
-#'   if (interactive()) Plot(ras, new = TRUE)
+#'   if (interactive()) {
+#'     clearPlot()
+#'     Plot(ras)
+#'   }
 #'
 #'   # Using the wrong number of colors, e.g., here 2 provided,
 #'   # for a raster with 3 values... causes interpolation, which may be surprising
 #'   ras <- setColors(ras, c("red", "blue"))
-#'   if (interactive()) Plot(ras, new = TRUE)
+#'   if (interactive()) {
+#'     clearPlot()
+#'     Plot(ras)
+#'   }
 #'
 #'   # Real number rasters - interpolation is used
 #'   ras <- raster(matrix(runif(9), ncol=3, nrow=3)) %>%
 #'     setColors(c("red", "yellow")) # interpolates when real numbers, gives warning
-#'   if (interactive()) Plot(ras, new = TRUE)
+#'   if (interactive()) {
+#'     clearPlot()
+#'     Plot(ras)
+#'   }
 #'
 #'   # Factor rasters, can be contiguous (numerically) or not, in this case not:
 #'   ras <- raster(matrix(sample(c(1,3,6), size=9, replace=TRUE), ncol=3, nrow=3))
 #'   levels(ras) <- data.frame(ID=c(1,3,6), Names=c("red", "purple", "yellow"))
 #'   ras <- setColors(ras, n=3, c("red", "purple", "yellow"))
-#'   if (interactive()) Plot(ras, new = TRUE)
+#'   if (interactive()) {
+#'     clearPlot()
+#'     Plot(ras)
+#'   }
 #'
 #'   # if a factor rastere, and not enough labels are provided, then a warning
 #'   #   will be given, and colors will be interpolated
 #'   #   The level called purple is not purple, but interpolated betwen red and yellow
 #'   ras <- setColors(ras, c("red", "yellow"))
-#'   if (interactive()) Plot(ras, new = TRUE)
+#'   if (interactive()) {
+#'     clearPlot()
+#'     Plot(ras)
+#'   }
 setGeneric("setColors<-",
            function(object, ..., n, value) {
              standardGeneric("setColors<-")
@@ -302,7 +320,7 @@ setMethod(
   definition = function(grobToPlot, zoomExtent, maxpixels, legendRange,
                         cols, na.color, zero.color, skipSample = TRUE) {
     zoom <- zoomExtent
-    isFac <- (raster::is.factor(grobToPlot))
+    isFac <- any(raster::is.factor(grobToPlot))
     # It is 5x faster to access the min and max from the Raster than to
     # calculate it, but it is also often wrong... it is only metadata
     # on the raster, so it is possible that it is incorrect.
@@ -478,11 +496,11 @@ setMethod(
         } else {
           z <- (z - minz) + 1
         }
-        
+
         if (length(whichZero)) {
           zeroValue <- (nValues - 1) / (maxz - minz) * (0 - minz) + 1
         }
-        
+
       }
     }
     minz <- suppressWarnings(min(z, na.rm = TRUE))

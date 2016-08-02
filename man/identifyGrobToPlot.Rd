@@ -3,26 +3,18 @@
 \docType{methods}
 \name{.identifyGrobToPlot}
 \alias{.identifyGrobToPlot}
-\alias{.identifyGrobToPlot,.spadesGrob,list,logical-method}
-\alias{.identifyGrobToPlot,.spadesGrob,missing,logical-method}
+\alias{.identifyGrobToPlot,.spadesGrob,list-method}
 \title{Identify where to get the grob from}
 \usage{
-.identifyGrobToPlot(grobNamesi, toPlot, takeFromPlotObj)
+.identifyGrobToPlot(grobNamesi, toPlot)
 
-\S4method{.identifyGrobToPlot}{.spadesGrob,list,logical}(grobNamesi, toPlot,
-  takeFromPlotObj)
-
-\S4method{.identifyGrobToPlot}{.spadesGrob,missing,logical}(grobNamesi, toPlot,
-  takeFromPlotObj)
+\S4method{.identifyGrobToPlot}{.spadesGrob,list}(grobNamesi, toPlot)
 }
 \arguments{
 \item{grobNamesi}{name of the object to plot}
 
 \item{toPlot}{list containing the objects to plot, made as a call to the
 \code{Plot} function}
-
-\item{takeFromPlotObj}{logical. If \code{TRUE}, then take from the call to
-\code{Plot}; if \code{FALSE} takes from global envir.}
 }
 \description{
 Internal function.

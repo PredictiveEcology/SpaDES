@@ -314,7 +314,8 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #' setColors(hab) <- paste(c("transparent", brewer.pal(8, "Greys")))
 #'
 #' if (interactive()) {
-#'   Plot(hab, new = TRUE, speedup = 3) # note speedup is equivalent to making pyramids,
+#'   clearPlot()
+#'   Plot(hab, speedup = 3) # note speedup is equivalent to making pyramids,
 #'                                      # so, some details are lost
 #' }
 #'
@@ -329,7 +330,8 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #'   Plot(fires,addTo = "hab")
 #'
 #'   #alternatively, set colors using cols= in the Plot function
-#'   Plot(hab, new = TRUE)
+#'   clearPlot()
+#'   Plot(hab)
 #'   Plot(fires) # default color range makes zero transparent.
 #'   # Instead, to give a color to the zero values, use \code{zero.color=}
 #'   Plot(fires, addTo = "hab",
@@ -372,7 +374,10 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #' fullRas[] <- 1:ncell(hab)
 #' burned <- fires[active == FALSE]
 #' burnedMap <- rasterizeReduced(burned, fullRas, "id", "indices")
-#' if (interactive()) Plot(burnedMap, new = TRUE)
+#' if (interactive()) {
+#'   clearPlot()
+#'   Plot(burnedMap)
+#' }
 #'
 #' ####################
 #' ## stopRule examples
@@ -397,7 +402,10 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #' set.seed(1234)
 #' stopRuleB_NotExact <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)), 1, 0,
 #'                 NULL, maxSize = 1e6, 8, 1e6, id = TRUE, circle = TRUE, stopRule = stopRule2)
-#' if (interactive()) Plot(stopRuleA, stopRuleB, stopRuleB_NotExact, new = TRUE)
+#' if (interactive()) {
+#'   clearPlot()
+#'   Plot(stopRuleA, stopRuleB, stopRuleB_NotExact)
+#' }
 #'
 #' # Test that the stopRules work
 #' # stopRuleA was not exact, so each value will "overshoot" the stopRule, here it was hab>50
@@ -419,7 +427,10 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #' #    stopRule in place, spreadProb = 1
 #' diamonds <- spread(hab>0, spreadProb = 1, directions = 4,
 #'    id = TRUE, stopRule = stopRule2)
-#' if (interactive()) Plot(diamonds, new = TRUE)
+#' if (interactive()) {
+#'   clearPlot()
+#'   Plot(diamonds)
+#' }
 #'
 #' # Squares - can make them with: a boolean raster, directions = 8,
 #' #    stopRule in place, spreadProb = 1
@@ -432,7 +443,10 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #' stopRule2 <- function(landscape) sum(landscape)>200
 #' squashedDiamonds <- spread(hab>0, spreadProb = 1, loci = (ncell(hab)-ncol(hab))/2 + c(4, -4),
 #'    directions = 4, id = TRUE, stopRule = stopRule2)
-#' if (interactive()) Plot(squashedDiamonds, new = TRUE)
+#' if (interactive()) {
+#'   clearPlot()
+#'   Plot(squashedDiamonds)
+#' }
 #'
 #' # Circles with spreadProb < 1 will give "more" circular shapes, but definitely not circles
 #' stopRule2 <- function(landscape) sum(landscape)>200
@@ -443,8 +457,10 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #' set.seed(seed)
 #' regularCA <- spread(hab>0, spreadProb = 0.23, loci = (ncell(hab)-ncol(hab))/2 + c(4, -4),
 #'    directions = 8, id = TRUE)#, stopRule = stopRule2)
-#' if (interactive())
-#'   Plot(circlish, regularCA, new = TRUE)
+#' if (interactive()) {
+#'   clearPlot()
+#'   Plot(circlish, regularCA)
+#' }
 #'
 #'
 #' ####################
@@ -467,8 +483,10 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #' #    directions = 8, id = TRUE, stopRule = stopRule3,
 #' #    vars = list(endSizes = endSizes), stopRuleBehavior = "excludePixel")
 #'
-#' if (interactive())
-#'   Plot(TwoCirclesDiffSize, new = TRUE)
+#' if (interactive()) {
+#'   clearPlot()
+#'   Plot(TwoCirclesDiffSize)
+#' }
 #' cirs <- getValues(TwoCirclesDiffSize)
 #' vals <- tapply(hab[TwoCirclesDiffSize], cirs[cirs>0], sum)
 #'
@@ -499,7 +517,10 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #'  overlapEvents[] <- 0
 #'  toMap <- circs[,sum(id),by=indices]
 #'  overlapEvents[toMap$indices] <- toMap$V1
-#'  if (interactive()) Plot(overlapEvents, new = TRUE)
+#' if (interactive()) {
+#'   clearPlot()
+#'   Plot(overlapEvents)
+#' }
 #'
 #'
 setMethod(
@@ -1092,15 +1113,16 @@ setMethod(
     if (allowOverlap | returnDistances) {
       if (returnDistances & !allowOverlap) {
         spre[spreads[,"indices"]] <- spreads[,"dists"]
-      } else if (returnDistances & allowOverlap) {
-        spreadsDT <- data.table(spreads);
-        pixVal <- spreadsDT[,min(dists),by=indices]
-        spre[pixVal$indices] <- pixVal$V1;
-        message("returnDistances is TRUE, allowOverlap is TRUE, but returnIndices is FALSE; returning minimum distance raster")
       } else {
         spreadsDT <- data.table(spreads);
-        pixVal <- spreadsDT[,sum(id),by=indices]
+        if (returnDistances & allowOverlap) {
+           pixVal <- spreadsDT[,min(dists),by=indices]
+           message("returnDistances is TRUE, allowOverlap is TRUE, but returnIndices is FALSE; returning minimum distance raster")
+        } else {
+           pixVal <- spreadsDT[,sum(id),by=indices]
+        }
         spre[pixVal$indices] <- pixVal$V1;
+
       }
     } else {
       spre[wh] <- spreads[wh]
@@ -1161,23 +1183,29 @@ setMethod(
 #' # Make a raster that adds together all id in a cell
 #' wOverlap <- Rings[,list(sumEventID=sum(id)),by="indices"]
 #' emptyRas[wOverlap$indices] <- wOverlap$sumEventID
-#' if (interactive())
-#'   Plot(emptyRas, new = TRUE)
+#' if (interactive()) {
+#'   clearPlot()
+#'   Plot(emptyRas)
+#' }
 #'
 #' # No overlap is default, occurs randomly
 #' emptyRas[] <- 0
 #' Rings <- rings(emptyRas, loci = loci, minRadius = 7, maxRadius = 9, returnIndices = TRUE)
 #' emptyRas[Rings$indices] <- Rings$id
-#' if (interactive())
-#'   Plot(emptyRas, new = TRUE)
+#' if (interactive()) {
+#'   clearPlot()
+#'   Plot(emptyRas)
+#' }
 #'
 #' # Variable ring widths, including centre cell for smaller one
 #' emptyRas[] <- 0
 #' Rings <- rings(emptyRas, loci = loci, minRadius = c(0,7), maxRadius = c(8, 18),
 #'                returnIndices = TRUE)
 #' emptyRas[Rings$indices] <- Rings$id
-#' if (interactive())
-#'   Plot(emptyRas, new = TRUE)
+#' if (interactive()) {
+#'   clearPlot()
+#'   Plot(emptyRas)
+#' }
 setGeneric("rings", function(landscape, loci = NA_real_,
                              id = FALSE,
                              minRadius = 2, maxRadius = 5,
@@ -1335,7 +1363,10 @@ setMethod(
 #' indices <- cellFromXY(distRas,dists1[,c("x","y")])
 #' invDist <- tapply(dists1[,"dists"], indices, function(x) sum(1/(1+x))) # idw function
 #' distRas[] <- as.vector(invDist)
-#' if (interactive()) Plot(distRas, new = TRUE)
+#' if (interactive()) {
+#'   clearPlot()
+#'   Plot(distRas)
+#' }
 #'
 #' # With iterative summing via cumulativeFn to keep memory use low, with same result
 #' dists1 <- distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE],
@@ -1354,17 +1385,17 @@ setMethod(
 #' cells <- sample(ncell(ras), N)
 #' coords <- xyFromCell(ras, cells)
 #' distFn <- function(landscape, fromCell, dist) landscape[fromCell] / (1 + dist)
-#' b <- Sys.time()
+#'
 #' # beginCluster(3) # can do parallel
 #' dists1 <- distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE],
 #'                landscape = rp, distFn = distFn, cumulativeFn = `+`)
-#' a <- Sys.time()
-#' print(a-b)
-#' # endCluster() # can do parallel
+#'
+#' # endCluster() # if beginCluster was run
 #' idwRaster <- raster(ras)
 #' idwRaster[] <- dists1[,"val"]
 #' if (interactive()) {
-#'   Plot(rp, idwRaster, new=TRUE)
+#'   clearPlot()
+#'   Plot(rp, idwRaster)
 #'   sp1 <- SpatialPoints(coords)
 #'   Plot(sp1, addTo="rp")
 #'   Plot(sp1, addTo="idwRaster")
@@ -1426,7 +1457,7 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
               if (xDist) distFnArgs[["dist"]] <- out[, "dists"]
             }
 
-            names(distFnArgs) <- forms
+            #names(distFnArgs) <- forms
             # call inner cumulative function
             if(length(indices)<ncell(landscape)) {
               cumVal <- do.call(cumulativeFn, args =
@@ -1617,7 +1648,8 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
 #' minDir <- tapply(dirs1[,"angles"], indices, function(x) min(x)) # minimum angle
 #' dirRas[] <- as.vector(minDir)
 #' if (interactive()) {
-#'   Plot(dirRas, new = TRUE)
+#'   clearPlot()
+#'   Plot(dirRas)
 #'   library(sp)
 #'   start <- SpatialPoints(coords[, c("x", "y"), drop = FALSE])
 #'   Plot(start, addTo = "dirRas")
