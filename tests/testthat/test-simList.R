@@ -14,7 +14,7 @@ test_that("simList object initializes correctly", {
   w <- getOption("width")
   options(width = 100L)
   out <- utils::capture.output(show(mySim))
-  expect_equal(length(out), 78)
+  expect_equal(length(out), 74)
   options(width = w); rm(w)
 
   ### SLOT .envir
@@ -56,7 +56,8 @@ test_that("simList object initializes correctly", {
 
   ### SLOT modules
   expect_is(modules(mySim), "list")
-  expect_equal(modules(mySim), as.list(c(defaults, modules)))
+  expect_equal(modules(mySim, hidden = TRUE), as.list(c(defaults, modules)))
+  expect_equal(modules(mySim), as.list(modules))
 
   ### SLOT params
   expect_is(params(mySim), "list")
@@ -92,7 +93,7 @@ test_that("simList object initializes correctly", {
 
   ### SLOT events
   expect_is(events(mySim), "data.table")
-  expect_equal(nrow(events(mySim)), length(modules(mySim)))
+  expect_equal(nrow(events(mySim)), length(modules(mySim, hidden = TRUE)))
 
   ### SLOT current
   expect_is(current(mySim), "data.table")

@@ -1,11 +1,11 @@
 test_that("experiment does not work correctly", {
   library(raster)
-  library(magrittr)
+  library(igraph)
   library(dplyr)
   tmpdir <- file.path(tempdir(), "testParallel") %>% checkPath(create = TRUE)
   on.exit({
     detach("package:raster")
-    detach("package:magrittr")
+    detach("package:igraph")
     detach("package:dplyr")
     unlink(tmpdir, recursive = TRUE)
   })

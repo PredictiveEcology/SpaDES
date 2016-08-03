@@ -190,8 +190,6 @@ setMethod(
               names(objList) <- filelist$objectName[y]
             } else {
               objList2 <- .findObjects(filelist$objectName[y])
-              #objList <- lapply(filelist$objectName[y], dynGet)
-              #browser(expr=!isTRUE(all.equal(objList, objList2)))
               names(objList) <- filelist$objectName[y]
             }
             if (length(objList) > 0) {

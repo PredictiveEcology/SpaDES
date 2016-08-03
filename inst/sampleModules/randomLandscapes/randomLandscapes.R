@@ -48,9 +48,9 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug = FALSE) {
     sim <- sim$randomLandscapesInit(sim)
 
     # schedule the next events
-    sim <- scheduleEvent(sim, params(sim)$randomLandscapes$.plotInitialTime,
+    sim <- scheduleEvent(sim, p(sim)$.plotInitialTime,
                          "randomLandscapes", "plot", .last())
-    sim <- scheduleEvent(sim, params(sim)$randomLandscapes$.saveInitialTime,
+    sim <- scheduleEvent(sim, p(sim)$.saveInitialTime,
                          "randomLandscapes", "save", .last()+1)
 
   } else if (eventType == "plot") {
@@ -62,7 +62,7 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug = FALSE) {
     sim <- saveFiles(sim)
 
     # schedule the next event
-    sim <- scheduleEvent(sim, time(sim) + params(sim)$randomLandscapes$.saveInterval,
+    sim <- scheduleEvent(sim, time(sim) + p(sim)$.saveInterval,
                          "randomLandscapes", "save", .last()+1)
 
   } else {
@@ -76,14 +76,14 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug = FALSE) {
 
 ## event functions
 randomLandscapesInit <- function(sim) {
-  if (is.null(params(sim)$randomLandscapes$inRAM)) {
+  if (is.null(p(sim)$inRAM)) {
     inMemory <- FALSE
   } else {
-    inMemory <- params(sim)$randomLandscapes$inRAM
+    inMemory <- p(sim)$inRAM
   }
   # Give dimensions of dummy raster
-  nx <- params(sim)$randomLandscapes$nx
-  ny <- params(sim)$randomLandscapes$ny
+  nx <- p(sim)$nx
+  ny <- p(sim)$ny
   template <- raster(nrows = ny, ncols = nx, xmn = -nx/2, xmx = nx/2, ymn = -ny/2, ymx = ny/2)
   speedup <- max(1, nx/5e2)
 

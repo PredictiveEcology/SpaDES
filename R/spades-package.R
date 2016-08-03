@@ -36,7 +36,8 @@
 #'
 #' @section 1.1 Simulations:
 #'
-#' There are two workhorse functions that initialize and run a simulation:
+#' There are two workhorse functions that initialize and run a simulation, and third
+#' function for doing multiple spades runs:
 #'
 #' \tabular{ll}{
 #'   \code{\link{simInit}} \tab Initialize a new simulation\cr
@@ -53,6 +54,8 @@
 #'   \code{removeEvent} \tab Remove an event from the simulation queue (not yet implemented)\cr
 #' }
 #'
+#' ##########################################################################
+#'
 #' @section 1.2 \code{simList} methods:
 #'
 #' Collections of commonly used functions to retrieve or set slots (and their elements)
@@ -60,29 +63,40 @@
 #'
 #' @section 1.2.1 Simulation parameters:
 #'
-#' Accessor functions for the \code{params} slot and its elements.
-#'
-#' Commonly used:
 #' \tabular{ll}{
 #'    \code{\link{globals}} \tab List of global simulation parameters.\cr
-#'    \code{\link{objs}} \tab List of objects referenced by the simulation environment.\cr
 #'    \code{\link{params}} \tab Nested list of all simulation parameter.\cr
+#'    \code{\link{p}} \tab Namespaced version of \code{\link{params}}
+#'                         (i.e., do not have to specify module name).\cr
 #' }
 #'
-#' Advanced use:
+#' @section 1.2.2 loading from disk, saving to disk:
+#'
+#' \tabular{ll}{
+#'    \code{\link{inputs}} \tab List of loaded objects used in simulation. (advanced)\cr
+#'    \code{\link{outputs}} \tab List of objects to save during simulation. (advanced)\cr
+#' }
+#'
+#' @section 1.2.3 objects in simList:
+#'
+#' \tabular{ll}{
+#'    \code{\link{ls}}, \code{\link{objects}} \tab Names of objects referenced by the simulation environment.\cr
+#'    \code{\link{ls.str}} \tab List the structure of the simList objects.\cr
+#'    \code{\link{objs}} \tab List of objects referenced by the simulation environment.\cr
+#' }
+#'
+#' @section 1.2.4 Simulation paths:
+#'
+#' Accessor functions for the \code{paths} slot and its elements.
 #' \tabular{lll}{
-#'    Accessor method \tab Module \tab Description\cr
-#'    \code{\link{checkpointFile}} \tab \code{.checkpoint} \tab Name of the checkpoint file. (advanced)\cr
-#'    \code{\link{checkpointInterval}} \tab \code{.checkpoint} \tab The simulation checkpoint interval. (advanced)\cr
-#'    \code{\link{outputPath}} \tab \code{NA} \tab Global simulation output path. (advanced)\cr
-#'    \code{\link{inputPath}} \tab \code{NA} \tab Global simulation input path. (advanced)\cr
-#'    \code{\link{modulePath}} \tab \code{NA} \tab Global module path. (advanced)\cr
-#'    \code{\link{paths}} \tab \code{NA} \tab Show all paths (input, output, module). (advanced)\cr
-#'    \code{\link{progressType}} \tab \code{.progress} \tab Type of graphical progress bar used. (advanced)\cr
-#'    \code{\link{progressInterval}} \tab \code{.progress} \tab Interval for the progress bar. (advanced)\cr
+#'    \code{\link{cachePath}} \tab Global simulation cache path.\cr
+#'    \code{\link{modulePath}} \tab Global simulation module path.\cr
+#'    \code{\link{inputPath}} \tab Global simulation input path.\cr
+#'    \code{\link{outputPath}} \tab Global simulation output path.\cr
+#'    \code{\link{paths}} \tab Global simulation paths (cache, modules, inputs, outputs).\cr
 #' }
 #'
-#' @section 1.2.2 Simulation times:
+#' @section 1.2.5 Simulation times:
 #'
 #' Accessor functions for the \code{simtimes} slot and its elements.
 #'
@@ -93,7 +107,7 @@
 #'    \code{\link{times}} \tab List of all simulation times (current, start, end), in units of longest module..\cr
 #' }
 #'
-#' @section 1.2.3 Simulation event queues:
+#' @section 1.2.6 Simulation event queues:
 #'
 #' Accessor functions for the \code{events} and \code{completed} slots.
 #' By default, the event lists are shown when the \code{simList} object is printed,
@@ -105,7 +119,7 @@
 #'    \code{\link{completed}} \tab Completed simulation events. (advanced)\cr
 #' }
 #'
-#' @section 1.2.4 Modules and dependencies:
+#' @section 1.2.7 Modules and dependencies:
 #'
 #' Accessor functions for the \code{depends}, \code{modules},
 #' and \code{.loadOrder} slots.
@@ -114,22 +128,39 @@
 #' \tabular{ll}{
 #'    \code{\link{depends}} \tab List of simulation module dependencies. (advanced)\cr
 #'    \code{\link{modules}} \tab List of simulation modules to be loaded. (advanced)\cr
-#'    \code{\link{inputs}} \tab List of loaded objects used in simulation. (advanced)\cr
-#'    \code{\link{outputs}} \tab List of objects to save during simulation. (advanced)\cr
 #' }
 #'
-#' @section 1.2.5 Copy simList:
+#' @section 1.2.8 simList environment:
 #'
-#' The \code{\link{simList}} has a slot with all objects, called ".envir". This is an
-#' environment. In R, environments use pass-by-reference semantics, which means that
+#' The \code{\link{simList}} has a slot called \code{.envir} which is an environment.
+#' All objects in the simList are actually in this environment, i.e., the simList is
+#' not entirely just a list. In R, environments use pass-by-reference semantics, which means that
 #' copying an simList object using normal R assignment operation, e.g., sim2 <- sim1,
 #' will not copy the objects contained within the .envir slot. The two objects sim1 and
 #' sim2 will shared identical objects within that slot. Sometimes, this not desired, and
 #' a true copy is required.
 #'
 #' \tabular{ll}{
+#'    \code{\link{envir}} \tab Access the environment of the simList directly (advanced)\cr
 #'    \code{\link{copy}} \tab Deep copy of a simList. (advanced)\cr
 #' }
+#'
+#' @section 1.2.9 Checkpointing:
+#'
+#' \tabular{lll}{
+#'    Accessor method \tab Module \tab Description\cr
+#'    \code{\link{checkpointFile}} \tab \code{.checkpoint} \tab Name of the checkpoint file. (advanced)\cr
+#'    \code{\link{checkpointInterval}} \tab \code{.checkpoint} \tab The simulation checkpoint interval. (advanced)\cr
+#'  }
+#'
+#' @section 1.2.10 Progress Bar:
+#'
+#' \tabular{lll}{
+#'    \code{\link{progressType}} \tab \code{.progress} \tab Type of graphical progress bar used. (advanced)\cr
+#'    \code{\link{progressInterval}} \tab \code{.progress} \tab Interval for the progress bar. (advanced)\cr
+#' }
+#'
+#' ##########################################################################
 #'
 #' @section 1.3 Module operations:
 #'
@@ -164,6 +195,20 @@
 #' \tabular{ll}{
 #'   \code{\link{simList}} \tab The 'simList' class\cr
 #' }
+#'
+#' @section 1.6 Cacheing:
+#'
+#' Cacheing can be done in a variety of ways, most of which are up to the module developer. However,
+#' the one most common usage would be to cache a simulation run. This might be useful if a simulation
+#' is very long, has been run once, and the goal is just to retrieve final results. This would be
+#' an alternative to manually saving the outputs.
+#'
+#' See example in \code{link{spades}}, achieved by using \code{cache = TRUE} argument.
+#'
+#' A module developer can build caching into their module by creating cached versions of their
+#' functions,
+#'
+#'
 #'
 #' ------------------------------------------------------------------------------------------
 #' @section 2 Module functions:
@@ -277,7 +322,7 @@
 #'   \code{\link{inRange}} \tab Test whether a number lies within range [a,b]\cr
 #'   \code{\link{layerNames}} \tab Get layer names for numerous object classes\cr
 #'   \code{\link{loadPackages}} \tab Simple wrapper for loading packages\cr
-#'   \code{\link{nlayers}} \tab Return number of layers\cr
+#'   \code{\link{numLayers}} \tab Return number of layers\cr
 #'   \code{\link{paddedFloatToChar}} \tab Wrapper for padding (e.g., zeros) floating numbers to character\cr
 #'   \code{\link{updateList}} \tab Update values in a named list\cr
 #' }

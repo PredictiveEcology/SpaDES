@@ -83,23 +83,8 @@ There are four file paths: \code{cachePath}, \code{modulePath},
 Each has a function to get or set the value in a \code{simList} object.
 When not otherwise specified, the default is to set the path values to the
 current working directory.
-
-\tabular{lll}{
-   \code{cachePath} \tab \code{NA} \tab Global simulation cache path.\cr
-   \code{modulePath} \tab \code{NA} \tab Global simulation module path.\cr
-   \code{inputPath} \tab \code{NA} \tab Global simulation input path.\cr
-   \code{outputPath} \tab \code{NA} \tab Global simulation output path.\cr
-   \code{paths} \tab \code{NA} \tab Global simulation paths (cache, modules, inputs, outputs).\cr
-}
 }
 \seealso{
-\code{\link{simList-class}},
-         \code{\link{simList-accessors-envir}},
-         \code{\link{simList-accessors-events}},
-         \code{\link{simList-accessors-inout}},
-         \code{\link{simList-accessors-modules}},
-         \code{\link{simList-accessors-objects}},
-         \code{\link{simList-accessors-params}},
-         \code{\link{simList-accessors-times}}.
+\code{\link{SpaDES}}, specifically the section 1.2.4 on Simulation Paths.
 }
 

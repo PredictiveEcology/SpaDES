@@ -154,7 +154,7 @@ setMethod(
   definition=function(sim, coreModules, coreParams, path, ...) {
 
     params <- params(sim)
-    modules <- modules(sim)
+    modules <- modules(sim, hidden = TRUE)
     userModules <- modules[-which(coreModules %in% modules)]
     globalParams <- globals(sim)
     allFound <- TRUE

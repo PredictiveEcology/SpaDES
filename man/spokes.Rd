@@ -92,7 +92,10 @@ Ras <- raster(extent(0,10,0,10), res = 1, val = 0)
 rp <- randomPolygons(Ras, numTypes = 10)
 seed <- sample(1e6,1)
 set.seed(seed)
-if (interactive()) Plot(rp, new = TRUE)
+if (interactive()) {
+  clearPlot()
+  Plot(rp)
+}
 angles <- seq(0,pi*2,length.out = 17)
 angles <- angles[-length(angles)]
 N <- 2
@@ -107,8 +110,8 @@ d2 <- spokes(rp, coords = coords, stopRule = stopRule,
 rasB <- raster(Ras)
 rasB[] <- 0
 rasB[d2[d2[, "stop"] == 1,"indices"]] <- 1
-Plot(rasB, addTo = "rp", zero.color = "transparent", cols = "red")
 if (interactive()) {
+  Plot(rasB, addTo = "rp", zero.color = "transparent", cols = "red")
   # can plot it as raster or spatial points
   # Plot(rasB, addTo = "rp", zero.color = "transparent", cols = "black")
   if(NROW(d2)>0) {

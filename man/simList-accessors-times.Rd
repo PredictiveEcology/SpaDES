@@ -2,9 +2,6 @@
 % Please edit documentation in R/simList-accessors.R
 \docType{methods}
 \name{times}
-\alias{.callingFrameTimeunit}
-\alias{.callingFrameTimeunit,.simList-method}
-\alias{.callingFrameTimeunit,NULL-method}
 \alias{end}
 \alias{end,.simList,character-method}
 \alias{end,.simList,missing-method}
@@ -70,12 +67,6 @@ start(x, unit, ...)
 start(x) <- value
 
 \S4method{start}{.simList}(x) <- value
-
-.callingFrameTimeunit(x)
-
-\S4method{.callingFrameTimeunit}{.simList}(x)
-
-\S4method{.callingFrameTimeunit}{`NULL`}(x)
 
 timeunit(x)
 
@@ -162,13 +153,6 @@ Alex Chubaty and Eliot McIntire
 Eliot McIntire
 }
 \seealso{
-\code{\link{simList-class}},
-         \code{\link{simList-accessors-envir}},
-         \code{\link{simList-accessors-events}},
-         \code{\link{simList-accessors-inout}},
-         \code{\link{simList-accessors-modules}},
-         \code{\link{simList-accessors-objects}},
-         \code{\link{simList-accessors-params}},
-         \code{\link{simList-accessors-paths}}.
+\code{\link{SpaDES}}, specifically the section 1.2.5 on Simulation times.
 }
 

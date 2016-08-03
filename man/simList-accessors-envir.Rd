@@ -36,13 +36,6 @@ Currently, only get and set methods are defined. Subset methods are not.
 Alex Chubaty
 }
 \seealso{
-\code{\link{simList-class}},
-         \code{\link{simList-accessors-events}},
-         \code{\link{simList-accessors-inout}},
-         \code{\link{simList-accessors-modules}},
-         \code{\link{simList-accessors-objects}},
-         \code{\link{simList-accessors-params}},
-         \code{\link{simList-accessors-paths}},
-         \code{\link{simList-accessors-times}}.
+\code{\link{SpaDES}}, specifically the section 1.2.8 on simList environment.
 }
 

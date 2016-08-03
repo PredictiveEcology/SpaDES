@@ -297,13 +297,6 @@ if (require(rgdal)) {
 unlink(tmpdir, recursive = TRUE)
 }
 \seealso{
-\code{\link{simList-class}},
-         \code{\link{simList-accessors-modules}},
-         \code{\link{simList-accessors-envir}},
-         \code{\link{simList-accessors-events}},
-         \code{\link{simList-accessors-objects}},
-         \code{\link{simList-accessors-params}},
-         \code{\link{simList-accessors-paths}},
-         \code{\link{simList-accessors-times}}.
+\code{\link{SpaDES}}, specifically the section 1.2.2 on loading and saving.
 }
 

@@ -136,9 +136,10 @@ test_that("Plot 1 is not error-free", {
 
   # Should work with col as well as cols
   clearPlot()
-  expect_silent(Plot(DEM87654, cols = c("blue", "red")))
+  expect_silent(Plot(DEM87654, col = c("blue", "red")))
 
   # test visualSqueeze
+  clearPlot()
   expect_silent(Plot(DEM87654, visualSqueeze = 0.2, new = TRUE))
   # test speedup
   caribou87 <- sp::SpatialPoints(
@@ -150,13 +151,14 @@ test_that("Plot 1 is not error-free", {
   # test ggplot2 and hist -- don't work unless invoke global environment
   clearPlot()
   hist87654 <- hist(stats::rnorm(1e3), plot = FALSE)
-  expect_silent(Plot(hist87654, new = TRUE))
+  clearPlot()
+  expect_silent(Plot(hist87654))
 
   # test ggplot2 and hist -- don't work unless invoke global environment
   clearPlot()
   ggplot87654 <- ggplot2::qplot(stats::rnorm(1e3), binwidth = 0.3,
                                 geom = "histogram")
-  expect_silent(Plot(ggplot87654, new = TRUE))
+  expect_silent(Plot(ggplot87654))
 
   # test rearrangements
   expect_silent(Plot(caribou87654, new = TRUE))
@@ -451,40 +453,48 @@ test_that("Plot 2 is not error-free", {
 
   r <- raster(system.file("external/test.grd", package = "raster"))
   message("These two plots should look similar")
+  clearPlot()
   plot(r)
 
   dev()
+  clearPlot()
 
   # 128 < vals < 1806
-  Plot(r, new = TRUE) # Expect rainbow colors, lots of peach, little green
+  Plot(r) # Expect rainbow colors, lots of peach, little green
 
   # -71 < vals < 1606
   r1 <- r - 200
-  Plot(r1, new = TRUE) # Expect legend from below 0 to just above 1500
+  clearPlot()
+  Plot(r1) # Expect legend from below 0 to just above 1500
 
   # 0 < vals <= 1
   r1 <- r / max(getValues(r), na.rm = TRUE)
+  clearPlot()
   Plot(r1, new = TRUE) # Expect legend from below 0.2 to exactly 1
 
   # 0 <= vals < 1
   r1 <- (r - min(getValues(r), na.rm = TRUE)) / max(getValues(r), na.rm = TRUE)
+  clearPlot()
   Plot(r1, new = TRUE)# Expect legend from exactly 0 to above 0.8
 
   # 0 <= vals <= 1
   r1 <- r - min(getValues(r), na.rm = TRUE)
   r1 <- r1/max(getValues(r1), na.rm = TRUE)
+  clearPlot()
   Plot(r1, new = TRUE)# Expect legend from exactly 0 to exactly 1
 
   # 0, 1, 2, 3
   r1 <- raster(ncol = 3, nrow = 3)
   set.seed(234)
   r1[] <- sample(0:3, replace = TRUE, size = 9)
+  clearPlot()
   Plot(r1, new = TRUE) # integers - 0, 1, 2 and 3 should line up with centre of
                       # each color, even though there is no peach in plot
 
   # 0, 1 #
   r1 <- raster(ncol = 3, nrow = 3)
   r1[] <- sample(0:1, replace = TRUE, size = 9)
+  clearPlot()
   Plot(r1, new = TRUE) # Expect 0 and 1 lined up to middle of green and light grey
                        #  only Green and light grey
   Plot(r1, new = TRUE, zero.color = "black") # black zeros
@@ -527,13 +537,15 @@ test_that("Plot 2 is not error-free", {
                           res = c(100, 100), val = 1)
   pixelGroupMap[1] <- -1
   pixelGroupMap[2:6] <- 2
+  clearPlot()
   Plot(pixelGroupMap, new = TRUE)
 
-  # Should have all colors
+  # legend Should have all colors
   Plot(pixelGroupMap, new = TRUE, cols = c("red", "yellow", "green", "blue"))
 
   ### Test legend that is pre-set, even with various types of rasters
   # should be mostly empty raster, legend from 0 to 200
+  clearPlot()
   Plot(r, legendRange = c(0, 200), new = TRUE, cols = c("red", "green"))
 
   # should be mostly red raster, a bit of green, legend below 0 to 2000
@@ -541,16 +553,19 @@ test_that("Plot 2 is not error-free", {
 
   # zero.color on Real numbers doesn't do anything - expect NO BLACK
   r1 <- r - 200
+  clearPlot()
   Plot(r1, new = TRUE, zero.color = "black") # NO BLACK
 
   # zero.color on Integer numbers should work - expect BLACK both in legend and in a few cells
   r1 <- r - 1000
   r1 <- round(r1/300, 0)
+  clearPlot()
   Plot(r1, new = TRUE, zero.color = "black")
 
   Plot(pixelGroupMap, zero.color = "red")
   Plot(r)
 
+  clearPlot()
   Plot(pixelGroupMap, cols = "Blues", new = TRUE, legendRange = c(-3, 4))
   Plot(r)
   pixelGroupMap[] <- pixelGroupMap[] + 5
@@ -615,4 +630,65 @@ test_that("setColors is not error-free", {
       ras3 = c("#FFA500FF", "#FFBB00FF", "#FFD200FF", "#FFE800FF", "#FFFF00FF")),
       .Names = c("ras1", "ras2", "ras3"))
   ))
+})
+
+
+test_that("Plot with base is not error-free", {
+  if(interactive()) {
+    library(raster)
+    library(ggplot2)
+    library(igraph)
+
+    tmpdir <- file.path(tempdir(), "test_Plot1") %>% checkPath(create = TRUE)
+    dev(2,width=13,height=7)
+    for(arr in list(NULL, c(2,3))) {
+      ras <- raster(extent(0,40, 0,20), vals = sample(1:8,replace = T,size =800), res = 1)
+      aTime <- Sys.time()
+
+      clearPlot()
+      if(is.null(arr)) {
+        Plot(ras)
+      } else {
+        Plot(ras, arr = arr)
+      }
+      Plot(rnorm(10), ylab = "hist")
+      Plot(rnorm(10), addTo = "hist", ylab = "test")
+      a <- hist(rnorm(10), plot = FALSE)
+      Plot(a, addTo = "histogram", axes = "L", col = "#33EEAA33", xlim = c(-3,3))
+      a <- hist(rnorm(100), plot = FALSE)
+      Plot(a, addTo = "histogram", axes = FALSE, col = paste0("#1133FF","33"), xlim = c(-3,3), xlab = "", ylab = "")
+      ras2 <- raster(ras)
+      ras2[] <- sample(1:8)
+      Plot(ras2)
+      gg1 <- qplot(1:10)
+      Plot(gg1)
+      Plot(rnorm(10), ylab = "hist", new=TRUE)
+      Plot(ras2)
+      Plot(rnorm(10), ylab = "hist")
+      ras <- ras^2
+      Plot(ras, new = TRUE, cols = "Reds")
+      Plot(rnorm(10), ylab = "hist", new=TRUE, addTo = "hist")
+      Plot(ras, new = TRUE, cols = "Reds", addTo = "ras2")
+      Plot(ras, cols = "Reds", addTo = "ras2")
+      bTime <- Sys.time()
+      print(bTime - aTime)
+    }
+
+    clearPlot()
+    a <- rnorm(1e2)
+    b <- rnorm(1e2)
+    Plot(a, axes = TRUE, addTo = "first", visualSqueeze = 0.6)
+    Plot(a, b, axes = TRUE, addTo = "second", visualSqueeze = 0.6)
+    Plot(1:10, axes = TRUE, addTo = "third", visualSqueeze = 0.6)
+    Plot(1:10, 1:10, axes = TRUE, addTo = "fourth", visualSqueeze = 0.6,
+         main = "test4", title = FALSE)
+    Plot(ras)
+
+    clearPlot()
+    Plot(ras,  title = "test", new=TRUE)
+    Plot(ras2,  addTo = "ras", cols = "Reds")
+    Plot(ras,  addTo = "ras", cols = "Blues")
+
+  }
+
 })

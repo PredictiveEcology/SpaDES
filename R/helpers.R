@@ -48,7 +48,6 @@ setMethod(
   definition = function(eventTime, moduleName, eventType, eventPriority) {
     # This is faster than direct call to new data.table
     eeldt <- data.table::copy(.singleEventListDT)
-    #browser()
     data.table::set(eeldt, , "eventTime", eventTime)
     data.table::set(eeldt, , "moduleName", moduleName)
     data.table::set(eeldt, , "eventType", eventType)
@@ -65,7 +64,6 @@ setMethod(
   signature(eventTime = "missing", moduleName = "missing",
             eventType = "missing", eventPriority = "missing"),
   definition = function() {
-    #browser()
     data.table::copy(.emptyEventListDT)
     #data.table(eventTime = numeric(0L), moduleName = character(0L),
     #           eventType = character(0L), eventPriority = numeric(0L))

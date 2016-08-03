@@ -72,7 +72,10 @@ agent <- SpatialPointsDataFrame(coords = starts, data = data.frame(x1, y1))
 ln <- rlnorm(N, 1, 0.02) # log normal step length
 sd <- 30 # could be specified globally in params
 
-if (interactive()) Plot(hab, zero.color = "white", new = TRUE, axes = "L")
+if (interactive()) {
+  clearPlot()
+  Plot(hab, zero.color = "white", axes = "L")
+}
 for(i in 1:10) {
   agent <- SpaDES::crw(agent = agent,
                          extent = extent(hab), stepLength = ln,

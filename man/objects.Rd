@@ -65,15 +65,6 @@ allowing, e.g. \code{all.names=TRUE}
 the simulation envirment.
 }
 \seealso{
-\code{\link[SpaDES]{ls-method}},
-         \code{\link[SpaDES]{ls_str-method}},
-         \code{\link{simList-class}},
-         \code{\link{simList-accessors-envir}},
-         \code{\link{simList-accessors-events}},
-         \code{\link{simList-accessors-inout}},
-         \code{\link{simList-accessors-modules}},
-         \code{\link{simList-accessors-params}},
-         \code{\link{simList-accessors-paths}},
-         \code{\link{simList-accessors-times}}.
+\code{\link{SpaDES}}, specifically the section 1.2.1 on Simulation Parameters.
 }
 

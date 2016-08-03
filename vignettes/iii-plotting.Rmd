@@ -105,8 +105,9 @@ Plot(Sl, gp = gpar(col = c("red", "blue"), lwd = 2), addTo = "landscape$DEM")
 Any combination of `RasterStack`, `RasterLayer`, `SpatialPoints*`, and `SpatialPolygons*` objects can be plotted from a single invocation of `Plot`:
 
 ```{r mixing_layer_types, eval=TRUE, echo=TRUE, fig.height=5}
-Plot(landscape, caribou, mySim$DEM, SpP, new = TRUE, axes = TRUE,
-     gp = gpar(cex = 0.5), visualSqueeze = 0.7)
+clearPlot()
+Plot(landscape, caribou, mySim$DEM, SpP, axes = TRUE,
+     gp = gpar(cex = 0.5), visualSqueeze = 0.65)
 ```
 
 ## Other object types
@@ -119,9 +120,32 @@ These can be combined with spatial objects as well.
 ```{r ggplot, eval=TRUE, echo=TRUE, cache=TRUE, fig.height=2}
 library(ggplot2)
 ggObj <- qplot(stats::rnorm(1e3), binwidth = 0.1)
-
-Plot(caribou, ggObj, new = TRUE) 
+clearPlot()
+Plot(caribou, axes = "L", new=TRUE) 
+Plot(ggObj) 
 ```
+
+
+### `base` plotting
+
+`Plot` can is also a wrapper around `plot.default`. The advantage of using `Plot` is 
+that you can place individual plots by named area, or have the `Plot` function do 
+that automatically. The Plot function can only handle one of these at a time, unlike
+the previous cases. Most arguments that can be passed into `plot` should work here. Note, as with other objects passed to `Plot`, there must be a way for R to refind the data in order to replot it if a rearranged windows occurs. To do this, the user can provide a name for the plot, via `addTo` argument. If there is not yet an object with that name, then it will create it. If no `addTo` is passed in, then it will give the default, `basePlot1`, name.
+
+If using `addTo`, and there are both x and y arguments, it will *add* points to the previous plot.
+
+```{r base-objects, eval=FALSE, echo=TRUE, cache=TRUE, fig.height=2}
+baseObj <- rnorm(1e3)
+baseObj2 <- baseObj * 1.2 + rnorm(1e3)
+clearPlot()
+Plot(baseObj, axes = "L", ylab = "Something meaningful") 
+Plot(baseObj, baseObj2, addTo = "scatterplot", axes = TRUE) 
+newPoints <- rnorm(10)
+newPoints2 <- newPoints * 1.2 + rnorm(10)
+Plot(newPoints, newPoints2, addTo="scatterplot", col = "red")
+```
+
 
 ### `simList` objects
 
@@ -129,7 +153,8 @@ Plot(caribou, ggObj, new = TRUE)
 A call to Plot will search for all plottable object types in the `simList` environment and plot them.
 
 ```{r simList, eval=TRUE, echo=TRUE, cache=TRUE, fig.height=2}
-Plot(mySim, new = TRUE) 
+clearPlot()
+Plot(mySim)
 ```
 
 ## Colours
@@ -156,7 +181,8 @@ See text about `na.color` below after raster values have changed.
 library(RColorBrewer)
 
 # can change colour palette
-Plot(landscape, new = TRUE) # original
+clearPlot()
+Plot(landscape) # original
 
 mapColours <- list(
   DEM = topo.colors(50),
@@ -164,7 +190,7 @@ mapColours <- list(
   habitatQuality = brewer.pal(9, "Spectral")
 )
 setColors(landscape, n = 50) <- mapColours
-Plot(landscape, new = TRUE) # oh, how pretty!
+Plot(landscape, new=TRUE) # oh, how pretty!
 ```
 
 ## `Plot` arguments
@@ -177,9 +203,11 @@ These parameters will specify plot parameters that are available with `gpar()`.
 Multiple entries can be used, but they must be passed as list elements and they will be matched to the `...` items to plot.
 
 ```{r gp_gpAxis_gpText, eval=TRUE, echo=TRUE, fig.height=2}
-Plot(caribou, new = TRUE, gpAxis = gpar(cex = 0.4), size = 1)
+clearPlot()
+Plot(caribou, gpAxis = gpar(cex = 0.4), size = 1)
 Plot(mySim$DEM, gpText = gpar(cex = 0.4))
-Plot(mySim$DEM, caribou, gpText = list(gpar(cex = 2), gpar(cex = 0.1)), new = TRUE)
+clearPlot()
+Plot(mySim$DEM, caribou, gpText = list(gpar(cex = 2), gpar(cex = 0.1)), new=TRUE)
 ```
 
 ### `visualSqueeze`
@@ -193,8 +221,10 @@ If the plots need to be slightly smaller, this could be set to 0.6; if they can 
 
 ```{r visualSqueeze, eval=TRUE, echo=TRUE, fig.height=2}
 # x axis gets cut off in pdf and html
-Plot(mySim$DEM, new = TRUE)
-Plot(mySim$DEM, visualSqueeze = 0.6, new = TRUE)
+clearPlot()
+Plot(mySim$DEM)
+clearPlot()
+Plot(mySim$DEM, visualSqueeze = 0.6, new=TRUE)
 ```
  
 A key reason why the legends or axes are cut off sometimes is because there is a minimum threshold for font size for readability.
@@ -209,7 +239,8 @@ Since the default is to automatically scale the legend to the values contained i
 Adding `legendRange = 0:20`, where `0:20` covers the expected range of all stages of that raster, will work.
 
 ```{r legendRange, eval=TRUE, echo=TRUE, fig.height=2}
-Plot(mySim$DEM, legendRange = c(0, 500), new = TRUE)
+clearPlot()
+Plot(mySim$DEM, legendRange = c(0, 500), new=TRUE)
 ```
 
 ### `zoomExtent`
@@ -228,7 +259,8 @@ Plot(mySim$DEM, zoomExtent = extent(c(-1, 10, -1, 20)), new = TRUE)
 
 For `SpatialLines*` objects, length will give arrow head length, in inches, meaning that the lines will be arrows.
 ```{r arrows, eval=TRUE, echo=TRUE, fig.height=2}
-Plot(mySim$DEM, new = TRUE)
+clearPlot()
+Plot(mySim$DEM)
 Plot(Sl, addTo = "mySim$DEM", length = 0.2)
 ```
 
@@ -245,25 +277,39 @@ That engine was not designed for large numbers of plots to be added to a region;
 
 ## The `new` argument
 
-There are essentially 3 types of adding that are addressed by this argument: 1) adding a new plot with enough empty space to accommodate the new plot; 2) without this empty space; and 3) where the device already has a pre-existing plot of the same name.
+The `new` argument wipes the individual plots that are being added to (via `addTo` explicitly or implicitly because it is the same object name as a current plot), and plots the new object or base plot in the stead of the old one. This can be used for changing any `Plot` argument, legend etc. The title, however, remains.
 
-### A new name to a device with enough space
+This argument can be passed in as a list if there are several objects being replotted. This list version is somewhat experimental so may not work as desired.
+
+```{r new-as-list}
+clearPlot()
+Plot(landscape)
+Plot(landscape, new = list(TRUE, FALSE, TRUE), axes = "L")
+```
+
+## Calling Plot again and again
+
+Plot is meant to be modular, so, making a Plot call does not wipe clear any previous plots. Rather, it adds the new objects or base plots. This may require a re-arrangement of the device. When `Plot` is called and a new plot is being added to an existing plot, the behaviour depends on how much blank space is currently available.
+
+### If there is a blank spot for a new plot
 
 The `Plot` function simply adds the new plot in the available empty space.
 
 ```{r simple_add, eval=TRUE, echo=TRUE, fig.height=3}
-Plot(landscape, new = TRUE)
+clearPlot()
+Plot(landscape)
 # can add a new plot to the plotting window
 Plot(caribou, new = FALSE, axes = FALSE)
 ```
 
-### A new name to a device without enough space
+### If there is *not* a blank spot for a new plot
 
 The `Plot` function creates a new arrangement, keeping the pre-exising order of plots, and adding the new plots afterwards.
 The plots will all be a little bit smaller (assuming the device has not changed size), and they will be in different locations on the device.
 
 ```{r add_with_rearrangement, eval=TRUE, echo=TRUE, fig.height=2}
-Plot(landscape, new = TRUE)
+clearPlot()
+Plot(landscape)
 # can add a new plot to the plotting window
 Plot(caribou, new = FALSE, axes = FALSE)
 ```
@@ -272,16 +318,17 @@ Plot(caribou, new = FALSE, axes = FALSE)
 
 The `Plot` function will overplot the new layer in the location as the layer with the same name.
 If colours in the layer are not transparent, then this will effectively block the previous plot.
-*This will automatically set legend, title and axes to FALSE*.
+The legend will remain as per the original legend, unless `new = TRUE` is used.
 
 ```{r add_with_same_name, eval=TRUE, echo=TRUE, fig.height=2}
-Plot(landscape, new = TRUE)
+clearPlot()
+Plot(landscape)
 landscape$forestCover[] = ((landscape$forestCover[] +10) %% 30)
 # can add a new plot to the plotting window
 Plot(landscape, new = FALSE)
 # note: zeros are treated as no colour by default.
-# if this is not the correct behavior, use `zero.color=NULL`
-Plot(landscape, new = FALSE, zero.color = NULL)
+# if this is not the correct behavior, can use `zero.color`
+Plot(landscape, new = FALSE, zero.color = "blue")
 ```
 
 # Plotting Speed
@@ -324,16 +371,15 @@ The argument `addTo` will allow plotting of a `RasterLayer` or `SpatialPoints*` 
 This can be useful to see where agents are on a `RasterLayer`, or if there is transparency on a second `RasterLayer`, it could be plotted on top of a first `RasterLayer`.
 
 ```{r add, eval=TRUE, echo=TRUE, fig.height=2}
-Plot(landscape, new = TRUE)
-Plot(caribou, addTo = "landscape$DEM", size = 2, axes = FALSE)
+clearPlot()
+Plot(landscape)
+Plot(caribou, addTo = "landscape$DEM", size = 2)
 ```
 
 # Clearing Plot
 
-A device and all the meta-data associated with that device can be cleared with the `new=TRUE` argument within the call to `Plot`.
-However, sometimes this is not easy enough because the `Plot` call may be embedded deep within a module.
-Sometimes, the metadata will prevent correct plotting because it comes from a previous plot that must be removed.
-This function can be used to clear the device and all the associated metadata manually.
+A device and all the meta-data associated with that device can be cleared with `clearPlot` function.
+Sometimes, the plot state can be "illegal" because it was interrupted during a previous plotting attempt. This function can be used to clear the device and all the associated metadata manually. Use "force = TRUE" to close the device, and reopen it, which is a sure-fire way to clear everything.
 
 ```{r clearPlot, eval=TRUE, echo=TRUE, fig.height=2}
 clearPlot()
@@ -361,7 +407,8 @@ As a result, the edges of pixels may not perfectly line up with the coordinates 
 *Do not rely on exact values when zoomed it*
 
 ```{r clickValues, eval=FALSE, echo=TRUE}
-Plot(landscape, new = TRUE)
+clearPlot()
+Plot(landscape)
 clickValues(3) # click at three locations on the Plot device
 ```
 
@@ -371,7 +418,8 @@ This can be used like `zoom` for base package plot window.
 Click two corners of a Plot.
 
 ```{r clickExtent, eval=FALSE, echo=TRUE}
-Plot(landscape, new = TRUE)
+clearPlot()
+Plot(landscape)
 clickExtent() # click at two locations on the Plot device
 ```
 
@@ -387,6 +435,7 @@ Further functionality like this will likely be in a future update.K
 rePlot()
 rePlot(4)
 rePlot(visualSqueeze = 1, axes = FALSE)
+rePlot(visualSqueeze = 0.7, axes = FALSE, cols = "Reds", new=TRUE)
 ```
 
 # Assigning `Plot()` to object

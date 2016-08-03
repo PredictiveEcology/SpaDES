@@ -136,7 +136,7 @@ setMethod(
 
     lapply(x, function(obj) {
        tryCatch(
-         assign(obj, envir = toEnv, value = get(obj, envir = fromEnv)),
+         assign(obj, envir = toEnv, value = eval(parse(text = obj), envir = fromEnv)),
          error = function(x) {
            warning(paste("object", obj, "not found and not copied"))
        })

@@ -3,8 +3,7 @@
 #' Currently, this is quite simple. It creates a side bar with the simulation
 #' times, plus a set of tabs, one for each module, with numeric sliders.
 #' Currently, this does not treat NAs correctly. Also, it is slow (shiny is not
-#' built to be fast out of the box). Currently, it does not show plotting
-#' updates; it only shows the final output of a spades call. There are two
+#' built to be fast out of the box). There are two
 #' buttons, one to run the entire spades call, the other to do just one time
 #' step at a time. It can be repeatedly pressed.
 #'
@@ -113,7 +112,7 @@ setMethod(
 
     # Left side module tabs
     output$moduleTabs <- renderUI({
-      mods <- unlist(modules(sim))[-(1:4)]
+      mods <- unlist(modules(sim))
       nTabs <- length(mods)
       myTabs <- lapply(mods, function(x) {
         tabPanel(x, h4("Parameters"), uiOutput(outputId = x))
@@ -122,7 +121,7 @@ setMethod(
     })
 
     # Sliders in module tabs
-    for (k in unlist(modules(sim))[-(1:4)]) {
+    for (k in unlist(modules(sim))) {
       local({ # local is needed because it must force evaluation, avoid lazy evaluation
         kLocal <- k
         output[[kLocal]] <- renderUI({
@@ -163,7 +162,7 @@ setMethod(
 
     spadesCallFull <- function() {#eventReactive(input$fullSpaDESButton, {
       # Update simInit with values obtained from UI
-      mods <- unlist(modules(sim))[-(1:4)]
+      mods <- unlist(modules(sim))
       for (m in mods) {
         for (i in names(params(sim)[[m]])) {
           if (!is.null(input[[paste0(m, "$", i)]])) # only if it is not null
@@ -179,7 +178,7 @@ setMethod(
     # Needs cleaning up - This should just be a subset of above
     spadesCall <- eventReactive(input$oneTimestepSpaDESButton, {
       # Update simInit with values obtained from UI
-      mods <- unlist(modules(sim))[-(1:4)]
+      mods <- unlist(modules(sim))
       for (m in mods) {
         for (i in names(params(sim)[[m]])) {
           if (!is.null(input[[paste0(m, "$", i)]])) {# only if it is not null
@@ -256,7 +255,7 @@ setMethod(
 
     output$moduleDiagramUI <- renderUI({
       plotOutput("moduleDiagram",
-                 height = max(600, (length(modules(sim)) - 4)*100))
+                 height = max(600, (length(modules(sim)) )*100))
     })
 
     output$objectDiagram <- renderDiagrammeR({
