@@ -196,6 +196,7 @@ setMethod(
       output$sterr <- try(sqrt(abs(diag(solve(out1$hessian)))))
 
     }
+    return(output)
 
   })
 

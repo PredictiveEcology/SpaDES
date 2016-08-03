@@ -6,11 +6,11 @@
 \alias{POM,simList,character-method}
 \title{Use Pattern Oriented Modeling to fit unknown parameters}
 \usage{
-POM(sim, params, objects, objFn, cl, optimizer = "DEoptim", ...,
+POM(sim, params, objects, objFn, cl, optimizer = "optim", sterr, ...,
   objFnCompare = "MAD")
 
 \S4method{POM}{simList,character}(sim, params, objects, objFn, cl,
-  optimizer = "DEoptim", ..., objFnCompare = "MAD")
+  optimizer = "optim", sterr, ..., objFnCompare = "MAD")
 }
 \arguments{
 \item{sim}{A \code{simList} simulation object, generally produced by \code{simInit}.}
@@ -24,7 +24,10 @@ of beginCluster(), to use parallelism for this function, allowing for
 more control over cluster use.}
 
 \item{optimizer}{The function to use to optimize. Default is
-DEoptim}
+optim. Can also to DEoptim.}
+
+\item{sterr}{Logical. If using optim, the hessian can be calculated,
+and standard errors can be estimated, assuming normality.}
 
 \item{...}{All objects needed in objFn}
 
@@ -57,16 +60,21 @@ Use Pattern Oriented Modeling to fit unknown parameters
  fireData <- out$landscape$Fires
  Plot(fireData, new=TRUE)
 
- cl <- makeCluster(6)
- POM(mySim, "spreadprob", list(fireData = "landscape$Fires"),
-     cl = cl)
+ #cl <- makeCluster(6)
+ out <- POM(mySim, "spreadprob", list(fireData = "landscape$Fires"),
+            hessian = TRUE) # using optim, can get Hessian
+ #    cl = cl)
 
  N <- length(out$caribou)
- POM(mySim, c("spreadprob", "N"),
+ out2 <- POM(mySim, c("spreadprob", "N"),
     list(fireData = "landscape$Fires",
-         N = function(caribou) length(caribou)),
-     cl = cl)
- stopCluster(cl)
+         N = function(caribou) length(caribou)), optimizer = "DEoptim")#,
+     #cl = cl)
+ out3 <- POM(mySim, c("spreadprob", "N"),
+    list(fireData = "landscape$Fires",
+         N = function(caribou) length(caribou)), hessian = TRUE)#,
+     #cl = cl)
+ #stopCluster(cl)
 
  )
  }
