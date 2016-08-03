@@ -7,7 +7,9 @@
 #' @param objFn An objective function to be passed into
 #'              \code{optimizer}
 #' @param optimizer The function to use to optimize. Default is
-#'                  DEoptim
+#'                  optim. Can also to DEoptim.
+#' @param sterr Logical. If using optim, the hessian can be calculated,
+#'              and standard errors can be estimated, assuming normality.
 #' @param ... All objects needed in objFn
 #'
 #' @param objFnCompare Character string. Either, "MAD" or "RMSE" indicating that inside the objective
@@ -52,22 +54,28 @@
 #'  fireData <- out$landscape$Fires
 #'  Plot(fireData, new=TRUE)
 #'
-#'  cl <- makeCluster(6)
-#'  POM(mySim, "spreadprob", list(fireData = "landscape$Fires"),
-#'      cl = cl)
+#'  #cl <- makeCluster(6)
+#'  out <- POM(mySim, "spreadprob", list(fireData = "landscape$Fires"),
+#'             hessian = TRUE) # using optim, can get Hessian
+#'  #    cl = cl)
 #'
 #'  N <- length(out$caribou)
-#'  POM(mySim, c("spreadprob", "N"),
+#'  out2 <- POM(mySim, c("spreadprob", "N"),
 #'     list(fireData = "landscape$Fires",
-#'          N = function(caribou) length(caribou)),
-#'      cl = cl)
-#'  stopCluster(cl)
+#'          N = function(caribou) length(caribou)), optimizer = "DEoptim")#,
+#'      #cl = cl)
+#'  out3 <- POM(mySim, c("spreadprob", "N"),
+#'     list(fireData = "landscape$Fires",
+#'          N = function(caribou) length(caribou)), hessian = TRUE)#,
+#'      #cl = cl)
+#'  #stopCluster(cl)
 #'
 #'  )
 #'  }
 setGeneric(
   "POM",
-  function(sim, params, objects, objFn, cl, optimizer = "DEoptim", ..., objFnCompare = "MAD") {
+  function(sim, params, objects, objFn, cl, optimizer = "optim",
+           sterr, ..., objFnCompare = "MAD") {
     standardGeneric("POM")
   })
 
@@ -75,8 +83,8 @@ setGeneric(
 setMethod(
   "POM",
   signature(sim = "simList", params = "character", objects = "ANY"),
-  definition = function(sim, params, objects, objFn, cl, optimizer, ..., objFnCompare) {
-
+  definition = function(sim, params, objects, objFn, cl, optimizer,
+                        sterr, ..., objFnCompare) {
 
     if (missing(cl)) {
       cl <- tryCatch(getCluster(), error = function(x) NULL)
@@ -95,13 +103,13 @@ setMethod(
     range01 <- function(x, ...){(x - min(x, ...)) / (max(x, ...) - min(x, ...))}
 
     if(missing(objFn)) {
-      objFn <- function(p, objects, simList, whModules, whParams, whParamsByMod) {
-        browser()
+      objFn <- function(par, objects, simList, whModules, whParams, whParamsByMod) {
+        #browser()
         whP <- 0
         for(wh in seq_along(whParamsByMod)) {
           whP <- whP + 1
           params(simList)[[names(whParamsByMod)[wh]]][[whParamsByMod[wh]]] <-
-            p[whP]
+            par[whP]
         }
 
         out <- spades(SpaDES::copy(simList), .plotInitialTime = NA)
@@ -118,15 +126,18 @@ setMethod(
         objectiveRes <- unlist(lapply(seq_along(outputObjects), function(x) {
           if(is(outputObjects[[x]], "Raster")) {
             outObj <- getValues(outputObjects[[x]])
-            dataObj <- getValues(get(names(outputObjects)[[x]]))
+            dataObj <- getValues(get(names(outputObjects)[x]))
           } else {
             outObj <- outputObjects[[x]]
             dataObj <- get(names(outputObjects)[[x]])
           }
 
-          browser()
           if(objFnCompare=="MAD") {
-            mean(abs(range01(outObj - dataObj)))
+            if(length(outObj)==1) {
+              mean(abs(x - lowerRange[x])/(upperRange[x] - lowerRange[x]))
+            } else {
+              mean(abs(range01(outObj - dataObj)))
+            }
           } else if(objFnCompare=="RMSE"){
             sqrt(mean((outObj - dataObj)^2))
           } else {
@@ -146,21 +157,45 @@ setMethod(
       })
     }
 
-
-    lowerRange <- c(0.1, 50)
-    upperRange <- c(0.26, 200)
+    deps <- depends(sim)@dependencies
+    whP <- 0
+    par <- numeric(length(whParamsByMod))
+    lowerRange <- numeric(length(whParamsByMod))
+    upperRange <- numeric(length(whParamsByMod))
+    for(wh in seq_along(whParamsByMod)) {
+      whP <- whP + 1
+      modName <- names(whParamsByMod)[whP]
+      par[whP] <- unlist(deps[[modName]]@parameters$default[deps[[modName]]@parameters$paramName==names(p(sim, modName)[whParamsByMod[whP]])])
+      upperRange[whP] <- unlist(deps[[modName]]@parameters$max[deps[[modName]]@parameters$paramName==names(p(sim, modName)[whParamsByMod[whP]])])
+      lowerRange[whP] <- unlist(deps[[modName]]@parameters$min[deps[[modName]]@parameters$paramName==names(p(sim, modName)[whParamsByMod[whP]])])
+    }
     deoptimArgs <- list(fn = objFn, lower = lowerRange, upper = upperRange,
                           simList = sim, objects = objects,
                           whModules = whModules, whParams = whParams,
                           whParamsByMod = whParamsByMod)
-    if(!is.null(cl)) {
-      #do.call(DEoptim.control, list(parallelType=3))
+    if(optimizer=="DEoptim") {
+      if(!is.null(cl)) {
+        #do.call(DEoptim.control, list(parallelType=3))
+        deoptimArgs <- append(deoptimArgs,
+                              list(control = DEoptim.control(parallelType=3),
+                                                  cl = cl))
+      }
+      output <- do.call(DEoptim, deoptimArgs)
+    } else {
       deoptimArgs <- append(deoptimArgs,
-                            list(control = DEoptim.control(parallelType=3),
-                                                cl = cl))
+                            list(par = par, method = "L-BFGS-B",
+                                 control = list(trace = 3, REPORT = 3)))
+      if(!is.null(list(...)$hessian) | sterr)
+        deoptimArgs <- append(deoptimArgs,
+                              list(hessian = TRUE))
+
+      output <- do.call(optim, deoptimArgs)
     }
-    output <- do.call(DEoptim, deoptimArgs)
-    if(!clProvided) stopCluster(cl)
+    #if(!clProvided) stopCluster(cl)
+    if(sterr) {
+      output$sterr <- try(sqrt(abs(diag(solve(out1$hessian)))))
+
+    }
 
   })
 
