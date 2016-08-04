@@ -615,7 +615,7 @@ setMethod("p",
             if(is.null(module)) {
               module <- currentModule(object)
             }
-            if(length(module)) {
+            if(!is.na(module)) {
               #if(module %in% c("checkpoint", "progress")) module <- paste0(".",module)
               if(is.null(param)) {
                 return(object@params[[module]])
