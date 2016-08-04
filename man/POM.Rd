@@ -6,14 +6,24 @@
 \alias{POM,simList,character-method}
 \title{Use Pattern Oriented Modeling to fit unknown parameters}
 \usage{
-POM(sim, params, objects, objFn, cl, optimizer = "optim", sterr, ...,
-  objFnCompare = "MAD")
+POM(sim, params, objects, objFn, cl, optimizer = "optim", sterr = FALSE,
+  ..., objFnCompare = "MAD", optimControl = NULL)
 
 \S4method{POM}{simList,character}(sim, params, objects, objFn, cl,
-  optimizer = "optim", sterr, ..., objFnCompare = "MAD")
+  optimizer = "optim", sterr = FALSE, ..., objFnCompare = "MAD",
+  optimControl = NULL)
 }
 \arguments{
 \item{sim}{A \code{simList} simulation object, generally produced by \code{simInit}.}
+
+\item{params}{Character vector of parameter names that can be changed by the optimizer. These
+must be accessible with params(sim) internally.}
+
+\item{objects}{A named list. The names of each list element must correspond to an object in the
+.GlobalEnv and the list elements must be objects that can be accessed in the
+envir(sim). Each of these pairs will be assessed against one another using
+the \code{objFnCompare}. Each pair will be standardized from 0 to 1. This can
+also be a function of objects found in envir(sim). See examples.}
 
 \item{objFn}{An objective function to be passed into
 \code{optimizer}}
@@ -24,56 +34,86 @@ of beginCluster(), to use parallelism for this function, allowing for
 more control over cluster use.}
 
 \item{optimizer}{The function to use to optimize. Default is
-optim. Can also to DEoptim.}
+"DEoptim". Currently it can also be "optim" or "rgenoud", which
+use stats::optim or rgenoud::genoud, respectively.}
 
-\item{sterr}{Logical. If using optim, the hessian can be calculated,
-and standard errors can be estimated, assuming normality.}
+\item{sterr}{Logical. If using \code{optimizer = "optim"}, the hessian can be calculated.
+If this is TRUE, then the standard errors can be estimated using
+that hessian, assuming normality.}
 
 \item{...}{All objects needed in objFn}
 
 \item{objFnCompare}{Character string. Either, "MAD" or "RMSE" indicating that inside the objective
 function, data and prediction will be compared by Mean Absolute Deviation or
 Root Mean Squared Error. Default is "MAD".}
+
+\item{optimControl}{List of control arguments passed into the control of each
+optimization routine. Currently, only passed to
+\code{\link{DEoptim.control}} when \code{optimizer} is \code{"DEoptim"}}
 }
 \value{
 The values for parameters used in objFn that minimize
 the objFn.
 }
 \description{
-Use Pattern Oriented Modeling to fit unknown parameters
+This is very much in alpha condition. It has been tested on simple problems,
+as shown in the examples, with
+up to 2 parameters. It appears that DEoptim is the superior package for these
+stochastic problems. This should be used with caution as with all optimization
+routines.
 }
 \examples{
 \dontrun{
- set.seed(52461)
+ set.seed(89462)
  library(parallel)
  mySim <- simInit(
    times = list(start = 0.0, end = 2.0, timeunit = "year"),
    params = list(
      .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
-     fireSpread = list(nFires = 1),
-     randomLandscapes = list(nx = 200, ny = 200)
+     fireSpread = list(nFires = 5),
+     randomLandscapes = list(nx = 300, ny = 300)
    ),
    modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
  )
  out <- spades(copy(mySim), .plotInitialTime = NA)
- fireData <- out$landscape$Fires
- Plot(fireData, new=TRUE)
+ fireData <- sum(getValues(out$landscape$Fires))/ncell(out$landscape$Fires)
+ clearPlot()
+ Plot(out$landscape$Fires)
 
- #cl <- makeCluster(6)
- out <- POM(mySim, "spreadprob", list(fireData = "landscape$Fires"),
+ #cl <- makeCluster(8)
+ fireFn <- function(landscape) {
+              sum(getValues(landscape$Fires))/ncell(landscape$Fires)
+            }
+ out <- POM(mySim, "spreadprob",
+            list(fireData = fireFn),
             hessian = TRUE) # using optim, can get Hessian
  #    cl = cl)
+ out <- POM(mySim, "spreadprob", list(fireData = fireFn),
+            optimizer = "DEoptim")#, cl = cl)
 
- N <- length(out$caribou)
+ # Two parameters
+ N <- length(out$caribou)/1000
+ caribouFn <- function(caribou) length(caribou)/1000
+ aTime <- Sys.time()
  out2 <- POM(mySim, c("spreadprob", "N"),
-    list(fireData = "landscape$Fires",
-         N = function(caribou) length(caribou)), optimizer = "DEoptim")#,
-     #cl = cl)
+    list(fireData = fireFn,
+         N = caribouFn), optimizer = "DEoptim",
+     cl = cl)
+ bTime <- Sys.time()
  out3 <- POM(mySim, c("spreadprob", "N"),
-    list(fireData = "landscape$Fires",
-         N = function(caribou) length(caribou)), hessian = TRUE)#,
+    list(fireData = fireFn,
+         N = caribouFn), hessian = TRUE)#,
      #cl = cl)
+ cTime <- Sys.time()
+ out4 <- POM(mySim, c("spreadprob", "N"),
+    list(fireData = fireFn,
+         N = caribouFn), optimizer = "genoud",
+     cl = cl3)
+ dTime <- Sys.time()
+ print(paste("DEoptim", format(bTime - aTime)))
+ print(paste("optim", format(cTime - bTime)))
+ print(paste("genoud", format(dTime - cTime)))
  #stopCluster(cl)
 
  )
