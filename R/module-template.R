@@ -707,8 +707,8 @@ setMethod("openModules",
             Rfiles <- Rfiles[sapply(strsplit(Rfiles,"[/\\\\\\.]"),
                                     function(x) any(duplicated(x)))]
 
-            loaded <- tryCatch(lapply(Rfiles, file.edit), error = function(x) FALSE)
-            if(!loaded) {
+            loadFailed <- tryCatch(lapply(Rfiles, file.edit), error = function(x) TRUE)
+            if(isTRUE(loadFailed)) {
 
               Rfiles <- gsub(Rfiles, pattern = "\\./", replacement = "")
               message(paste0("If files do not open, run th",c("is","ese")[(length(Rfiles)>1)+1],
