@@ -152,13 +152,22 @@ setMethod(
       }
 
       # assign default param values
-      apply(depends(sim)@dependencies[[i]]@parameters, 1, function(x) {
-        capture.output(
-          tt <- paste0("params(sim)$", m, "$", x$paramName, " <<- ",
-                     dput(deparse(x$default)))
-          )
-        eval(parse(text = tt), envir = environment())
-      })
+      # apply(depends(sim)@dependencies[[i]]@parameters, 1, function(x) {
+      #   capture.output(
+      #     tt <- paste0("params(sim)$", m, "$", x$paramName, " <<- ",
+      #                dput(deparse(x$default)))
+      #     )
+      #   browser()
+      #   eval(parse(text = tt), envir = environment())
+      # })
+      # browser()
+
+      deps <- depends(sim)@dependencies[[i]]@parameters
+      params(sim)[[m]] <- list()
+      for(x in 1:NROW(deps))
+        params(sim)[[m]][[deps$paramName[x]]] <- deps$default[[x]]
+
+      #names(params(sim)[[m]])
 
       # do inputObjects and outputObjects
       pf <- parsedFile[defineModuleItem]
