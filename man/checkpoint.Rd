@@ -61,9 +61,6 @@ Returns the modified \code{simList} object.
 Save and reload the current state of the simulation,
 including the state of the random number generator,
 by scheduling checkpoint events.
-
-\code{checkpointFile} and \code{checkpointInterval} set or get
-values relevant to checkpointing in the simList.
 }
 \details{
 \code{\link{checkpointLoad}} and \code{\link{.checkpointSave}} code based on:

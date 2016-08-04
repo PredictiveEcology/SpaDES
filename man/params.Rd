@@ -4,6 +4,8 @@
 \name{params}
 \alias{p}
 \alias{p,.simList-method}
+\alias{parameters}
+\alias{parameters,.simList-method}
 \alias{params}
 \alias{params,.simList-method}
 \alias{params<-}
@@ -22,6 +24,10 @@ params(object) <- value
 p(object, module = NULL, param = NULL)
 
 \S4method{p}{.simList}(object, module = NULL, param = NULL)
+
+parameters(object, asDF = FALSE)
+
+\S4method{parameters}{.simList}(object, asDF = FALSE)
 }
 \arguments{
 \item{object}{A \code{simList} simulation object.}
@@ -31,6 +37,11 @@ p(object, module = NULL, param = NULL)
 \item{module}{Optional character string indicating which module params should come from.}
 
 \item{param}{Optional character string indicating which parameter to choose.}
+
+\item{asDF}{Logical. For \code{parameters}, if TRUE, this will produce a single
+data.frame of all model parameters. If FALSE, then it will return
+a data.frame with 1 row for each parameter within nested lists,
+with the same structure as \code{params}.}
 }
 \value{
 Returns or sets the value of the slot from the \code{simList} object.
@@ -53,6 +64,14 @@ The computationally fastest way to get a parameter is to specify moduleName and 
 specific module and parameter names), but it is more verbose than p(sim)$paramName. Note: the important
 part for speed (e.g., 2-4x faster) is specifying the moduleName.
 Specifying the parameter name is <5% faster.
+}
+\examples{
+modules = list("randomLandscapes")
+paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
+mySim <- simInit(modules = modules, paths = paths,
+                 params = list(.globals = list(stackName = "landscape")))
+parameters(mySim)
+
 }
 \seealso{
 \code{\link{SpaDES}}, specifically the section 1.2.1 on Simulation parameters.
