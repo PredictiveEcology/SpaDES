@@ -34,22 +34,14 @@
 #' @importFrom DT renderDataTable dataTableOutput
 #' @examples
 #' \dontrun{
-#' times <- list(start = 0.0, end = 20.0)
-#' parameters <- list(
-#'   .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
-#'   .progress = list(NA),
-#'   randomLandscapes = list(nx = 100L, ny = 100L, inRAM = TRUE),
-#'   fireSpread = list(nFires = 10L, spreadprob = 0.225, its = 1e6, persistprob = 0,
-#'                     returnInterval = 10, startTime = 0,
-#'                     .plotInitialTime = 0.0, .plotInterval = 10),
-#'   caribouMovement = list(N = 100L, moveInterval = 1,
-#'                          .plotInitialTime = 1, .plotInterval = 1)
-#' )
-#' modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
-#' path <- list(modulePath = system.file("sampleModules", package = "SpaDES"),
-#'              outputPath = file.path(tempdir(), "simOutputs"))
-#'
-#' mySim <- simInit(times = times, params = parameters, modules = modules, path = path)
+#'  mySim <- simInit(
+#'    times <- list(start = 0.0, end = 20.0),
+#'    params = list(
+#'      .globals = list(stackName = "landscape", burnStats = "nPixelsBurned")
+#'    ),
+#'    modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
+#'    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
+#'  )
 #'
 #' shine(mySim)
 #'
