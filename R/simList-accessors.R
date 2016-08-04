@@ -674,9 +674,6 @@ setReplaceMethod("globals",
 })
 
 ################################################################################
-#' \code{checkpointFile} and \code{checkpointInterval} set or get
-#' values relevant to checkpointing in the simList.
-#'
 #' @inheritParams params
 #' @param asDF Logical. For \code{parameters}, if TRUE, this will produce a single
 #'                 data.frame of all model parameters. If FALSE, then it will return
@@ -686,11 +683,12 @@ setReplaceMethod("globals",
 #' @include simList-class.R
 #' @export
 #' @docType methods
-#' @rdname simList-accessors-params
+#' @rdname params
 #' @examples
 #' modules = list("randomLandscapes")
 #' paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
-#' mySim <- simInit(modules = modules, paths = paths)
+#' mySim <- simInit(modules = modules, paths = paths,
+#'                  params = list(.globals = list(stackName = "landscape")))
 #' parameters(mySim)
 #'
 setGeneric("parameters", function(object, asDF = FALSE) {
@@ -698,7 +696,7 @@ setGeneric("parameters", function(object, asDF = FALSE) {
 })
 
 #' @export
-#' @rdname simList-accessors-params
+#' @rdname params
 setMethod("parameters",
           signature = ".simList",
           definition = function(object, asDF) {
