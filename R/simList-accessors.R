@@ -598,6 +598,13 @@ setReplaceMethod("params",
 #' \code{params(sim)$moduleName$paramName}
 #'
 #' @export
+#' @note \code{p} is a function in \code{shiny} and html packages.
+#' This can produce namespace clashes that are difficult to detect,
+#' as the errors are not meaningful. The name of this function may
+#' be changed in the future to remove this potential conflict. In the
+#' mean time, use SpaDES::p(sim) if you are concerned with the potential
+#' conflicts with a shiny app.
+#'
 #' @include simList-class.R
 #' @docType methods
 #' @aliases simList-accessors-params

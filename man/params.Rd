@@ -64,6 +64,13 @@ The computationally fastest way to get a parameter is to specify moduleName and 
 specific module and parameter names), but it is more verbose than p(sim)$paramName. Note: the important
 part for speed (e.g., 2-4x faster) is specifying the moduleName.
 Specifying the parameter name is <5% faster.
+
+\code{p} is a function in \code{shiny} and html packages.
+This can produce namespace clashes that are difficult to detect,
+as the errors are not meaningful. The name of this function may
+be changed in the future to remove this potential conflict. In the
+mean time, use SpaDES::p(sim) if you are concerned with the potential
+conflicts with a shiny app.
 }
 \examples{
 modules = list("randomLandscapes")
