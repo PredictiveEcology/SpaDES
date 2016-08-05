@@ -21,6 +21,8 @@
 #' @param title character string. The title of the shiny page.
 #' @param debug Logical. If TRUE, then will show spades event debugger in
 #'   console.
+#' @param filesOnly Logical. If TRUE, then the server.R, ui.R files will be written
+#'                  to a temp location, with a message indicating where they are.
 #' @param ... additional arguments. Currently not used
 #' @export
 #' @importFrom shiny fluidPage titlePanel sidebarPanel sidebarLayout
@@ -43,12 +45,12 @@
 #'    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
 #'  )
 #'
-#' shine(mySim)
+#' shine(mySim, filesOnly = TRUE)
 #'
 #' # if the user wants to see the events go by, which can help with debugging:
 #' shine(mySim, debug=TRUE)
 #' }
-setGeneric("shine", function(sim, title = "SpaDES App", debug = FALSE, ...) {
+setGeneric("shine", function(sim, title = "SpaDES App", debug = FALSE, filesOnly, ...) {
   standardGeneric("shine")
 })
 
@@ -57,7 +59,7 @@ setGeneric("shine", function(sim, title = "SpaDES App", debug = FALSE, ...) {
 setMethod(
   "shine",
   signature = signature(sim = "simList"),
-  definition = function(sim, title, debug, ...) {
+  definition = function(sim, title, debug, filesOnly, ...) {
 
   # Keep a copy of input simList so Reset button works
   simOrig_ <- as(sim, "simList_") # convert objects first
@@ -66,7 +68,7 @@ setMethod(
   #i = 1
   endTime <- end(sim)
   startTime <- start(sim)
-  ui <- fluidPage(
+  fluidPageArgs <-     list(
     titlePanel(title),
     sidebarLayout(
       sidebarPanel(
@@ -97,7 +99,11 @@ setMethod(
   server <- function(input, output, session) {
     # Some cases there may be an error due to a previous plot still existing - this should clear
     curDev <- dev.cur()
-    alreadyPlotted <- grepl(ls(.spadesEnv), pattern = paste0("spadesPlot", curDev))
+    if(exists(".spadesEnv"))
+      alreadyPlotted <- grepl(ls(.spadesEnv), pattern = paste0("spadesPlot", curDev))
+    else
+      alreadyPlotted <- FALSE
+
     if (any(alreadyPlotted)) {
       clearPlot() # Don't want to use this, but it seems that renderPlot will not allow overplotting
     }
@@ -220,7 +226,11 @@ setMethod(
     # Main plot
     output$spadesPlot <- renderPlot({
       curDev <- dev.cur()
-      alreadyPlotted <- grepl(ls(.spadesEnv), pattern = paste0("spadesPlot", curDev))
+      if(exists(".spadesEnv"))
+        alreadyPlotted <- grepl(ls(.spadesEnv), pattern = paste0("spadesPlot", curDev))
+      else
+        alreadyPlotted <- FALSE
+
       if (any(alreadyPlotted)) {
         rePlot()
       } else {
@@ -330,8 +340,48 @@ setMethod(
     )
   }
 
-  runApp(list(ui = ui, server = server),
-                launch.browser = getOption("viewer", browseURL),
-                quiet = TRUE
-  )
+  if(filesOnly) {
+    shinyAppDir <- file.path(tempdir() , "shinyApp")
+    checkPath(shinyAppDir, create = TRUE)
+    globalFile <- file.path(shinyAppDir,"global.R", fsep = "/")
+    saveRDS(sim, file = file.path(shinyAppDir, "sim.Rdata"))
+    con <- file(globalFile, open = "w+b");
+    writeLines(paste("debug <-",debug), con = con)
+    writeLines("library(DiagrammeR)", con = con)
+    #writeLines("library(igraph)", con = con)
+    writeLines("library(DT)", con = con)
+    writeLines("library(SpaDES)", con = con)
+    writeLines("sim <- readRDS(file=\"sim.Rdata\")", con = con)
+    writeLines("simOrig_ <- as(sim, \"simList_\")", con = con) # convert objects first
+    writeLines("simOrig <- sim", con = con) # Not enough because objects are in an environment, so they both change
+
+    writeLines("endTime <- end(sim)", con = con)
+    writeLines("startTime <- start(sim)", con = con)
+
+    close(con)
+
+    serverFile <- file.path(shinyAppDir,"server.R", fsep = "/")
+    con <- file(serverFile, open = "w+b");
+    writeLines("shinyServer(", con= con);
+    writeLines(deparse(dput(server)), con = con, sep= "\n");
+    writeLines(")", con= con);
+    close(con)
+    serverFile <- gsub(x = serverFile, pattern = "\\\\", "/")
+
+    uiFile <- file.path(shinyAppDir,"ui.R", fsep = "/")
+    con <- file(uiFile, open = "w+b");
+    writeLines("fluidPage(", con= con);
+    writeLines(deparse(dput(fluidPageArgs)), con = con, sep= "\n");
+    writeLines(")", con= con);
+    close(con)
+
+    message("server.R file is saved. Type: file.edit(\"", serverFile,"\")",
+            " to edit the file, or runApp(\"", serverFile,"\") to run it.")
+
+  } else {
+    runApp(list(ui = fluidPage(fluidPageArgs), server = server),
+           launch.browser = getOption("viewer", browseURL),
+           quiet = TRUE
+    )
+  }
 })
