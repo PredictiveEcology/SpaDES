@@ -376,7 +376,7 @@ setMethod(
     close(con)
 
     message("server.R file is saved. Type: file.edit(\"", serverFile,"\")",
-            " to edit the file, or runApp(\"", serverFile,"\") to run it.")
+            " to edit the file, or runApp(\"", dirname(serverFile),"\") to run it.")
 
   } else {
     runApp(list(ui = fluidPage(fluidPageArgs), server = server),
