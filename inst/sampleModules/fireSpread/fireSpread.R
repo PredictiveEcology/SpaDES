@@ -70,11 +70,11 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug = FALSE) {
     sim <- sim$fireSpreadInit(sim)
 
     # schedule the next events
-    sim <- scheduleEvent(sim, p(sim)$startTime,
+    sim <- scheduleEvent(sim, SpaDES::p(sim)$startTime,
                          "fireSpread", "burn")
-    sim <- scheduleEvent(sim, p(sim)$.saveInterval,
+    sim <- scheduleEvent(sim, SpaDES::p(sim)$.saveInterval,
                          "fireSpread", "save", .last())
-    sim <- scheduleEvent(sim, p(sim)$.plotInitialTime,
+    sim <- scheduleEvent(sim, SpaDES::p(sim)$.plotInitialTime,
                          "fireSpread", "plot.init", .last())
 
   } else if (eventType == "burn") {
@@ -83,7 +83,7 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug = FALSE) {
 
     # schedule the next events
     sim <- scheduleEvent(sim, time(sim), "fireSpread", "stats") # do stats immediately following burn
-    sim <- scheduleEvent(sim, time(sim) + p(sim)$returnInterval,
+    sim <- scheduleEvent(sim, time(sim) + SpaDES::p(sim)$returnInterval,
                          "fireSpread", "burn")
   } else if (eventType == "stats") {
     # do stuff for this event
@@ -107,21 +107,21 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug = FALSE) {
          legendRange = list(0:maxValue(sim[[globals(sim)$stackName]]$DEM), 0:100, c(0,1), 0:100, 0:10))
 
     # schedule the next event
-    sim <- scheduleEvent(sim, time(sim) + p(sim)$.plotInterval,
+    sim <- scheduleEvent(sim, time(sim) + SpaDES::p(sim)$.plotInterval,
                          "fireSpread", "plot", .last())
   } else if (eventType == "plot") {
     # do stuff for this event
     Plot(sim[[globals(sim)$stackName]]$Fires, new = FALSE)
 
     # schedule the next event
-    sim <- scheduleEvent(sim, time(sim) + p(sim)$.plotInterval,
+    sim <- scheduleEvent(sim, time(sim) + SpaDES::p(sim)$.plotInterval,
                          "fireSpread", "plot", .last())
   } else if (eventType == "save") {
     # do stuff for this event
     sim <- saveFiles(sim)
 
     # schedule the next event
-    sim <- scheduleEvent(sim, time(sim) + p(sim)$.saveInterval,
+    sim <- scheduleEvent(sim, time(sim) + SpaDES::p(sim)$.saveInterval,
                          "fireSpread", "save", .last()+1)
   } else {
     warning(paste(
@@ -156,13 +156,13 @@ fireSpreadBurn <- function(sim) {
   landscapes <- sim[[globals(sim)$stackName]]
 
   Fires <- spread(landscapes[[1]],
-                  loci = as.integer(sample(1:ncell(landscapes), p(sim)$nFires)),
-                  spreadProb = p(sim)$spreadprob,
-                  persistance = p(sim)$persistprob,
+                  loci = as.integer(sample(1:ncell(landscapes), SpaDES::p(sim)$nFires)),
+                  spreadProb = SpaDES::p(sim)$spreadprob,
+                  persistance = SpaDES::p(sim)$persistprob,
                   mask = NULL,
                   maxSize = 1e8,
                   directions = 8,
-                  iterations = p(sim)$its,
+                  iterations = SpaDES::p(sim)$its,
                   plot.it = FALSE,
                   id = TRUE)
   names(Fires) <- "Fires"

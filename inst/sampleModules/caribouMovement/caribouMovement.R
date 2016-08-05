@@ -53,13 +53,13 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug = FALSE) {
     sim <- sim$caribouMovementInit(sim)
 
     # schedule the next event
-    sim <- scheduleEvent(sim, p(sim)$moveInitialTime,
+    sim <- scheduleEvent(sim, SpaDES::p(sim)$moveInitialTime,
                          "caribouMovement", "move")
-    #sim <- scheduleEvent(sim, p(sim)$moveInitialTime,
+    #sim <- scheduleEvent(sim, SpaDES::p(sim)$moveInitialTime,
     #                     "caribouMovement", "move")
-    sim <- scheduleEvent(sim, p(sim)$.plotInitialTime,
+    sim <- scheduleEvent(sim, SpaDES::p(sim)$.plotInitialTime,
                          "caribouMovement", "plot.init", .last())
-    sim <- scheduleEvent(sim, p(sim)$.saveInitialTime,
+    sim <- scheduleEvent(sim, SpaDES::p(sim)$.saveInitialTime,
                          "caribouMovement", "save", .last()+1)
   } else if (eventType == "move") {
     # do stuff for this event
@@ -67,7 +67,7 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug = FALSE) {
 
     # schedule the next event
     sim <- scheduleEvent(sim, time(sim) +
-                           p(sim)$moveInterval,
+                           SpaDES::p(sim)$moveInterval,
                          "caribouMovement", "move")
   } else if (eventType == "plot.init") {
     # do stuff for this event
@@ -77,7 +77,7 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug = FALSE) {
 
     # schedule the next event
     sim <- scheduleEvent(sim, time(sim) +
-                           p(sim)$.plotInterval,
+                           SpaDES::p(sim)$.plotInterval,
                          "caribouMovement", "plot", .last())
   } else if (eventType == "plot") {
     # do stuff for this event
@@ -88,7 +88,7 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug = FALSE) {
 
     # schedule the next event
     sim <- scheduleEvent(sim, time(sim) +
-                           p(sim)$.plotInterval,
+                           SpaDES::p(sim)$.plotInterval,
                          "caribouMovement", "plot", .last())
   } else if (eventType == "save") {
     # do stuff for this event
@@ -96,7 +96,7 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug = FALSE) {
 
     # schedule the next event
     sim <- scheduleEvent(sim, time(sim) +
-                           p(sim)$.saveInterval,
+                           SpaDES::p(sim)$.saveInterval,
                          "caribouMovement", "save", .last()+1)
 
   } else {
@@ -116,7 +116,7 @@ caribouMovementInit <- function(sim) {
               xmax(sim[[globals(sim)$stackName]]))
 
   # initialize caribou agents
-  N <- p(sim)$N
+  N <- SpaDES::p(sim)$N
   IDs <- as.character(1:N)
   sex <- sample(c("female", "male"), N, replace=TRUE)
   age <- round(rnorm(N, mean=8, sd=3))
@@ -150,7 +150,7 @@ caribouMovementMove <- function(sim) {
   sim$caribou <- move("crw", agent = sim$caribou,
                       extent = extent(sim[[globals(sim)$stackName]]),
                       stepLength = ln, stddev = sd, lonlat = FALSE,
-                      torus = p(sim)$torus)
+                      torus = SpaDES::p(sim)$torus)
 
   return(invisible(sim))
 }
