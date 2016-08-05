@@ -23,6 +23,8 @@
 #'   console.
 #' @param filesOnly Logical. If TRUE, then the server.R, ui.R files will be written
 #'                  to a temp location, with a message indicating where they are.
+#'                  Publishing this to shinyapps.io is currently very buggy,
+#'                  and will likely not work as desired.
 #' @param ... additional arguments. Currently not used
 #' @export
 #' @importFrom shiny fluidPage titlePanel sidebarPanel sidebarLayout
