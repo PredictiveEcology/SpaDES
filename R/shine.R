@@ -47,6 +47,9 @@
 #'    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
 #'  )
 #'
+#' shine(mySim)
+#'
+#' # To publish to shinyapps.io, need files. THis is not reliable yet.
 #' shine(mySim, filesOnly = TRUE)
 #'
 #' # if the user wants to see the events go by, which can help with debugging:
@@ -382,7 +385,8 @@ setMethod(
     close(con)
 
     message("server.R file is saved. Type: file.edit(\"", serverFile,"\")",
-            " to edit the file, or runApp(\"", dirname(serverFile),"\") to run it.")
+            " to edit the file, or runApp(\"", dirname(serverFile),"\") to run it,",
+            " or, rsconnect::deployApp(\"",dirname(serverFile), "\")")
 
   } else {
     runApp(list(ui = fluidPage(fluidPageArgs), server = server),
