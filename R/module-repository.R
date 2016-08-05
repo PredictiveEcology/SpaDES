@@ -268,6 +268,10 @@ setMethod(
     path <- checkPath(path, create = FALSE)
     urls <-.parseModulePartial(filename = file.path(path, module, paste0(module,".R")),
                                defineModuleElement = "inputObjects")$sourceURL
+    if(is.call(urls)) # This is the case where it can't evaluate the .parseModulePartial because of a reference
+                      #  to the sim object that isn't available. Because sourceURL is unlikely to use 
+                      #  a call to sim object, then try to evaluate again here, just the one column
+      urls <- eval(urls)
     #urls <- moduleMetadata(module, path)$inputObjects$sourceURL
     ids <- which( urls == "" | is.na(urls) )
     to.dl <- if (length(ids)) { urls[-ids] } else { urls }

@@ -73,7 +73,8 @@ setMethod(
       namesParsedList <- names(parsedFile[defineModuleItem][[1]][[3]])
 
       element <- (namesParsedList==defineModuleElement)
-      eval(pf[[1]][[3]][element][[1]])
+      out <- pf[[1]][[3]][element][[1]]
+      out <- tryCatch(eval(out), error = function(x) out)
 
 }
 )
@@ -557,6 +558,9 @@ setMethod(
       stop("There was a problem loading some modules.")
     }
 
+    # END OF MODULE PARSING AND LOADING
+
+    # START OF simInit overrides for inputs, then objects
     if (NROW(inputs)) {
       inputs <- .fillInputRows(inputs, startTime = start(sim))
     }
