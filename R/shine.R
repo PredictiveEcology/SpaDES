@@ -351,6 +351,10 @@ setMethod(
     #writeLines("library(igraph)", con = con)
     writeLines("library(DT)", con = con)
     writeLines("library(SpaDES)", con = con)
+    writeLines(paste0("library(c(\"",paste0(
+      unique(unlist(lapply(sim@depends@dependencies,
+                           function(x) x@reqdPkgs))), collapse = "\",\""),
+      "\"))"))
     writeLines("sim <- readRDS(file=\"sim.Rdata\")", con = con)
     writeLines("simOrig_ <- as(sim, \"simList_\")", con = con) # convert objects first
     writeLines("simOrig <- sim", con = con) # Not enough because objects are in an environment, so they both change
