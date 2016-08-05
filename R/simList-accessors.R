@@ -598,6 +598,13 @@ setReplaceMethod("params",
 #' \code{params(sim)$moduleName$paramName}
 #'
 #' @export
+#' @note \code{p} is a function in \code{shiny} and html packages.
+#' This can produce namespace clashes that are difficult to detect,
+#' as the errors are not meaningful. The name of this function may
+#' be changed in the future to remove this potential conflict. In the
+#' mean time, use SpaDES::p(sim) if you are concerned with the potential
+#' conflicts with a shiny app.
+#'
 #' @include simList-class.R
 #' @docType methods
 #' @aliases simList-accessors-params
@@ -615,7 +622,7 @@ setMethod("p",
             if(is.null(module)) {
               module <- currentModule(object)
             }
-            if(length(module)) {
+            if(!is.na(module)) {
               #if(module %in% c("checkpoint", "progress")) module <- paste0(".",module)
               if(is.null(param)) {
                 return(object@params[[module]])
@@ -674,9 +681,56 @@ setReplaceMethod("globals",
 })
 
 ################################################################################
-#' \code{checkpointFile} and \code{checkpointInterval} set or get
-#' values relevant to checkpointing in the simList.
+#' @inheritParams params
+#' @param asDF Logical. For \code{parameters}, if TRUE, this will produce a single
+#'                 data.frame of all model parameters. If FALSE, then it will return
+#'                 a data.frame with 1 row for each parameter within nested lists,
+#'                 with the same structure as \code{params}.
 #'
+#' @include simList-class.R
+#' @export
+#' @docType methods
+#' @rdname params
+#' @examples
+#' modules = list("randomLandscapes")
+#' paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
+#' mySim <- simInit(modules = modules, paths = paths,
+#'                  params = list(.globals = list(stackName = "landscape")))
+#' parameters(mySim)
+#'
+setGeneric("parameters", function(object, asDF = FALSE) {
+  standardGeneric("parameters")
+})
+
+#' @export
+#' @rdname params
+setMethod("parameters",
+          signature = ".simList",
+          definition = function(object, asDF) {
+            if(any(!unlist(lapply(depends(object)@dependencies, is.null)))) {
+              if(asDF) {
+                tmp <- lapply(depends(object)@dependencies,
+                              function(x) {
+                                out <- x@parameters})
+                tmp <- do.call(rbind, tmp)
+              } else {
+                tmp <- lapply(depends(object)@dependencies,
+                              function(x) {
+                                out <- lapply(seq_len(NROW(x@parameters)),
+                                              function(y) x@parameters[y,-1])
+                                names(out) <- x@parameters$paramName
+                                out})
+              }
+            } else {
+              tmp <- NULL
+            }
+            return(tmp)
+          })
+
+
+
+
+################################################################################
 #' @inheritParams params
 #' @export
 #' @include simList-class.R

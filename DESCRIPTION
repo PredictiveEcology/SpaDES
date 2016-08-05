@@ -35,6 +35,7 @@ Suggests:
     Matrix,
     png,
     rgdal,
+    rgenoud,
     rmarkdown,
     snow,
     tcltk,
@@ -45,6 +46,7 @@ Imports:
     chron,
     CircStats,
     data.table,
+    DEoptim,
     DiagrammeR (>= 0.8.2),
     digest,
     dplyr,
@@ -74,23 +76,23 @@ Imports:
     stringi,
     stringr,
     utils
-Remotes:
-    s-u/fastshp,
+Remotes: s-u/fastshp,
     MangoTheCat/visualTest
 License: GPL-3
 VignetteBuilder: knitr, rmarkdown
 BugReports: https://github.com/PredictiveEcology/SpaDES/issues
 ByteCompile: yes
 Collate:
-    'agent.R'
-    'SELES.R'
+    'priority.R'
+    'environment.R'
     'misc-methods.R'
     'module-dependencies-class.R'
     'helpers.R'
     'simList-class.R'
+    'POM.R'
+    'agent.R'
+    'SELES.R'
     'check.R'
-    'priority.R'
-    'environment.R'
     'checkpoint.R'
     'copy.R'
     'experiment.R'
