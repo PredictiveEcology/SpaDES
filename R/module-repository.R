@@ -414,7 +414,7 @@ setMethod(
     files <- list.files(path, full.names = TRUE) %>%
       grep("CHECKSUMS.txt", ., value = TRUE, invert = TRUE)
 
-    checksums <- digest(files) # uses SpaDES:::digest()
+    checksums <- digest(files, length = 3e7) # uses SpaDES:::digest()
 
     out <- data.frame(file = basename(files), checksum = checksums,
                       stringsAsFactors = FALSE)
