@@ -424,8 +424,9 @@ setMethod(
     if (write) {
       # TODO needs to intelligently merge, not just append. i.e., keep only
       #   two rows max per file (UNIX and Windows)
+      colNames <- !file.exists(checksumFile)
       write.table(out, checksumFile, eol = "\n",
-                  col.names = TRUE, row.names = FALSE, append = TRUE)
+                  col.names = colNames, row.names = FALSE, append = TRUE)
       return(out)
     } else {
       txt <- if (file.info(checksumFile)$size > 0) {
