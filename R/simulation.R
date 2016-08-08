@@ -106,6 +106,11 @@ setMethod(
 #'
 #' @param modules A list of modules with a logical attribute "parsed".
 #'
+#' @param userSuppliedObjNames Character string (or NULL, the default) indicating the names of
+#'                             objects that user has passed into simInit via objects or inputs.
+#'                             If all module inputObject dependencies are provided by user, then
+#'                             the .inputObjects code will be skipped.
+#'
 #' @return A \code{simList} simulation object.
 #'
 #' @include module-dependencies-class.R
@@ -119,7 +124,7 @@ setMethod(
 #'
 setGeneric(
   ".parseModule",
-  function(sim, modules) {
+  function(sim, modules, userSuppliedObjNames = NULL) {
     standardGeneric(".parseModule")
 })
 
@@ -127,7 +132,7 @@ setGeneric(
 setMethod(
   ".parseModule",
   signature(sim = "simList", modules = "list"),
-  definition = function(sim, modules) {
+  definition = function(sim, modules, userSuppliedObjNames) {
     all_children <- list()
     children <- list()
     parent_ids <- integer()
@@ -200,17 +205,23 @@ setMethod(
 
       # run .init file from each module, one at a time, and remove it so next module
       #  won't rerun it
-      if(!is.null(sim@.envir$.init)) {
-        message("Your module includes a function, \".init\". This will be removed in",
-                " a future version of SpaDES. Please use \".inputObjects\"")
-        sim <- sim@.envir$.init(sim)
-        rm(".init", envir = envir(sim))
-      }
 
-      # This is here to grandfather in the .init approach
-      if(!is.null(sim@.envir$.inputObjects)) {
-        sim <- sim@.envir$.inputObjects(sim)
-        rm(".inputObjects", envir = envir(sim))
+      if(!is.null(userSuppliedObjNames)) { # if user supplies the needed objects, then test whether all
+                # are supplied. If they are all supplied, then skip the .inputObjects code
+        if(!all(depends(sim)@dependencies[[i]]@inputObjects$objectName %in% userSuppliedObjNames)) {
+          if(!is.null(sim@.envir$.init)) {
+            message("Your module includes a function, \".init\". This will be removed in",
+                    " a future version of SpaDES. Please use \".inputObjects\"")
+            sim <- sim@.envir$.init(sim)
+            rm(".init", envir = envir(sim))
+          }
+
+          # This is here to grandfather in the .init approach
+          if(!is.null(sim@.envir$.inputObjects)) {
+            sim <- sim@.envir$.inputObjects(sim)
+            rm(".inputObjects", envir = envir(sim))
+          }
+        }
       }
 
     }
@@ -420,7 +431,8 @@ setMethod(
     paths <- lapply(paths, checkPath, create = TRUE)
     modulesLoaded <- list()
 
-    if (length(names(objects)) != length(objects)) {
+    objNames <- names(objects)
+    if (length(objNames) != length(objects)) {
       stop("Please pass a named list or character vector of object names whose values",
            "can be found in the parent frame of the simInit call")
     }
@@ -469,6 +481,13 @@ setMethod(
                        end = times$end * timestep,
                        timeunit = timeunit(sim))
 
+    # START OF simInit overrides for inputs, then objects
+    if (NROW(inputs)) {
+      inputs <- .fillInputRows(inputs, startTime = start(sim))
+    }
+    userSuppliedObjNames <- c(objNames, inputs$objectName) # used to prevent .inputObjects from loading if
+                                          # object is passed in by user.
+
     # for now, assign only some core & global params
     globals(sim) <- params$.globals
 
@@ -488,7 +507,7 @@ setMethod(
     })
     all_parsed <- FALSE
     while (!all_parsed) {
-      sim <- .parseModule(sim, modules(sim, hidden = TRUE))
+      sim <- .parseModule(sim, modules(sim, hidden = TRUE), userSuppliedObjNames = userSuppliedObjNames)
       if (length(.unparsed(modules(sim, hidden = TRUE))) == 0) { all_parsed <- TRUE }
     }
 
@@ -566,15 +585,9 @@ setMethod(
     }
 
     # END OF MODULE PARSING AND LOADING
-
-    # START OF simInit overrides for inputs, then objects
-    if (NROW(inputs)) {
-      inputs <- .fillInputRows(inputs, startTime = start(sim))
-    }
-
     if (length(objects)) {
       if (is.list(objects)) {
-        if (length(names(objects)) == length(objects)) {
+        if (length(objNames) == length(objects)) {
           objs(sim) <- objects
         } else {
           stop(paste("objects must be a character vector of object names",
@@ -583,7 +596,7 @@ setMethod(
         }
       } else {
         newInputs <- data.frame(
-          objectName = names(objects),
+          objectName = objNames,
           loadTime = as.numeric(time(sim, "seconds")),
           stringsAsFactors = FALSE) %>%
           .fillInputRows(startTime = start(sim))

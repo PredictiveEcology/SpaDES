@@ -5,7 +5,7 @@ version 1.2.0.9000
 * Add filesOnly arg to shine. This can be in preparation for publishing to shinyapps.io or other pages. Currently still alpha.
 * Add POM: Pattern Oriented Modeling. A simple interface to a simList object, allowing fitting parameters to data.
 * add `col` arg to `Plot` (mimicks `cols`). Was lost from version 1.1.2.
-* add .init functionality -- function that runs during simInit
+* add .inputObjects functionality -- function that runs during simInit to go get default inputObjects
 * add p as a namespaced shortcut for params: p(sim) replaces params(sim)$moduleName
 * allow params(sim) & start(sim) & others in defineModule by changing parse order in Module Metadata
 * allow any arbitrary function to be used internally to Plot (e.g., barplot, plot, etc.)
