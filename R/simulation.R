@@ -201,10 +201,17 @@ setMethod(
       # run .init file from each module, one at a time, and remove it so next module
       #  won't rerun it
       if(!is.null(sim@.envir$.init)) {
+        message("Your module includes a function, \".init\". This will be removed in",
+                " a future version of SpaDES. Please use \".inputObjects\"")
         sim <- sim@.envir$.init(sim)
         rm(".init", envir = envir(sim))
       }
 
+      # This is here to grandfather in the .init approach
+      if(!is.null(sim@.envir$.inputObjects)) {
+        sim <- sim@.envir$.inputObjects(sim)
+        rm(".inputObjects", envir = envir(sim))
+      }
 
     }
 
