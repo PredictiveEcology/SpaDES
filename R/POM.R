@@ -1,15 +1,14 @@
 ################################################################################
 #' Use Pattern Oriented Modeling to fit unknown parameters
 #'
-#'
 #' This is very much in alpha condition. It has been tested on simple problems,
-#' as shown in the examples, with
-#' up to 2 parameters. It appears that DEoptim is the superior package for these
-#' stochastic problems. This should be used with caution as with all optimization
-#' routines.
+#' as shown in the examples, with up to 2 parameters.
+#' It appears that DEoptim is the superior package for these stochastic problems.
+#' This should be used with caution as with all optimization routines.
 #'
 #' @inheritParams spades
 #' @inheritParams splitRaster
+#'
 #' @param params Character vector of parameter names that can be changed by the optimizer. These
 #'               must be accessible with params(sim) internally.
 #' @param objects A named list. The names of each list element must correspond to an object in the
@@ -17,25 +16,28 @@
 #'                envir(sim). Each of these pairs will be assessed against one another using
 #'                the \code{objFnCompare}. Each pair will be standardized from 0 to 1. This can
 #'                also be a function of objects found in envir(sim). See examples.
-#' @param objFn An objective function to be passed into
-#'              \code{optimizer}
+#'
+#' @param objFn An objective function to be passed into \code{optimizer}
+#'
 #' @param optimizer The function to use to optimize. Default is
 #'                  "DEoptim". Currently it can also be "optim" or "rgenoud", which
 #'                  use stats::optim or rgenoud::genoud, respectively.
+#'
 #' @param sterr Logical. If using \code{optimizer = "optim"}, the hessian can be calculated.
 #'              If this is TRUE, then the standard errors can be estimated using
 #'              that hessian, assuming normality.
+#'
 #' @param optimControl List of control arguments passed into the control of each
 #'                     optimization routine. Currently, only passed to
 #'                     \code{\link{DEoptim.control}} when \code{optimizer} is \code{"DEoptim"}
+#'
 #' @param ... All objects needed in objFn
 #'
 #' @param objFnCompare Character string. Either, "MAD" or "RMSE" indicating that inside the objective
 #'                     function, data and prediction will be compared by Mean Absolute Deviation or
 #'                     Root Mean Squared Error. Default is "MAD".
 #'
-#' @return The values for parameters used in objFn that minimize
-#' the objFn.
+#' @return The values for parameters used in objFn that minimize the objFn.
 #'
 #' @seealso \code{\link{spades}}, \code{\link[parallel]{makeCluster}},
 #' \code{\link{simInit}}
@@ -54,8 +56,6 @@
 #' @rdname POM
 #'
 #' @author Eliot McIntire
-#'
-#' @references Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{https://www.nostarch.com/artofr.htm}
 #'
 #' @examples
 #' \dontrun{
@@ -118,7 +118,7 @@ setGeneric(
   function(sim, params, objects, objFn, cl, optimizer = "optim",
            sterr = FALSE, ..., objFnCompare = "MAD", optimControl = NULL) {
     standardGeneric("POM")
-  })
+})
 
 #' @rdname POM
 setMethod(
@@ -144,10 +144,10 @@ setMethod(
 
     range01 <- function(x, ...){(x - min(x, ...)) / (max(x, ...) - min(x, ...))}
 
-    if(missing(objFn)) {
+    if (missing(objFn)) {
       objFn <- function(par, objects, simList, whModules, whParams, whParamsByMod) {
         whP <- 0
-        for(wh in seq_along(whParamsByMod)) {
+        for (wh in seq_along(whParamsByMod)) {
           whP <- whP + 1
           params(simList)[[names(whParamsByMod)[wh]]][[whParamsByMod[wh]]] <-
             par[whP]
@@ -156,7 +156,7 @@ setMethod(
         out <- spades(SpaDES::copy(simList), .plotInitialTime = NA)
 
         outputObjects <- lapply(objects, function(objs) {
-          if(is.function(objs)) {
+          if (is.function(objs)) {
             dat <- mget(names(formals(objs)), envir = envir(out))
             do.call(objs, dat)
           } else {
@@ -165,7 +165,7 @@ setMethod(
         })
 
         objectiveRes <- unlist(lapply(seq_along(outputObjects), function(x) {
-          if(is(outputObjects[[x]], "Raster")) {
+          if (is(outputObjects[[x]], "Raster")) {
             outObj <- getValues(outputObjects[[x]])
             dataObj <- getValues(get(names(outputObjects)[x]))
           } else {
@@ -173,13 +173,13 @@ setMethod(
             dataObj <- get(names(outputObjects)[[x]])
           }
 
-          if(objFnCompare=="MAD") {
-            if(length(outObj)==1) {
+          if (objFnCompare == "MAD") {
+            if (length(outObj) == 1) {
               mean(abs((outObj - dataObj)))
             } else {
               mean(abs(range01(outObj - dataObj)))
             }
-          } else if(objFnCompare=="RMSE"){
+          } else if (objFnCompare == "RMSE") {
             sqrt(mean((outObj - dataObj)^2))
           } else {
             stop("objFnCompare must be either MAD or RMSE, see help")
@@ -187,10 +187,9 @@ setMethod(
 
         }))
         sum(objectiveRes)
+    }}
 
-      } }
-
-    if(!is.null(cl)) {
+    if (!is.null(cl)) {
       clusterExport(cl, c("sim", names(objects)), envir = sys.frame(1))
       clusterEvalQ(cl, {
         library(SpaDES)
@@ -204,12 +203,12 @@ setMethod(
     par <- numeric(length(whParamsByMod))
     lowerRange <- numeric(length(whParamsByMod))
     upperRange <- numeric(length(whParamsByMod))
-    for(wh in seq_along(whParamsByMod)) {
+    for (wh in seq_along(whParamsByMod)) {
       whP <- whP + 1
       modName <- names(whParamsByMod)[whP]
-      par[whP] <- unlist(deps[[modName]]@parameters$default[deps[[modName]]@parameters$paramName==names(p(sim, modName)[whParamsByMod[whP]])])
-      upperRange[whP] <- unlist(deps[[modName]]@parameters$max[deps[[modName]]@parameters$paramName==names(p(sim, modName)[whParamsByMod[whP]])])
-      lowerRange[whP] <- unlist(deps[[modName]]@parameters$min[deps[[modName]]@parameters$paramName==names(p(sim, modName)[whParamsByMod[whP]])])
+      par[whP] <- unlist(deps[[modName]]@parameters$default[deps[[modName]]@parameters$paramName == names(p(sim, modName)[whParamsByMod[whP]])])
+      upperRange[whP] <- unlist(deps[[modName]]@parameters$max[deps[[modName]]@parameters$paramName == names(p(sim, modName)[whParamsByMod[whP]])])
+      lowerRange[whP] <- unlist(deps[[modName]]@parameters$min[deps[[modName]]@parameters$paramName == names(p(sim, modName)[whParamsByMod[whP]])])
     }
     deoptimArgs <- list(fn = objFn, lower = lowerRange, upper = upperRange,
                           simList = sim, objects = objects,
@@ -217,35 +216,29 @@ setMethod(
                           whParamsByMod = whParamsByMod)
 
 
-    if(optimizer=="DEoptim") {
-      if(!is.null(cl)) {
+    if (optimizer == "DEoptim") {
+      if (!is.null(cl)) {
         deoptimArgs <- append(deoptimArgs,
-                              list(control = DEoptim.control(parallelType=3),
+                              list(control = DEoptim.control(parallelType = 3),
                                    cl = cl))
       }
       deoptimArgs <- append(deoptimArgs,
                             list(control = DEoptim.control(NP = 20*length(lowerRange),
                                                            itermax = 20)))
-      if(!is.null(optimControl)) {
+      if (!is.null(optimControl)) {
         deoptimArgs$control[names(optimControl)] <- optimControl
       }
-      if(requireNamespace("DEoptim")) {
-        output <- do.call("DEoptim", deoptimArgs)
-      } else {
-        stop("DEoptim package is not installed. Please install, install.packages(\"DEoptim\")")
-      }
-
-
+      output <- do.call("DEoptim", deoptimArgs)
     } else {
-      if(!is.null(list(...)$hessian) | sterr)
+      if (!is.null(list(...)$hessian) | sterr)
         deoptimArgs <- append(deoptimArgs,
                               list(hessian = TRUE))
 
-      if(optimizer=="genoud") {
-        if(!is.null(cl)) {
+      if (optimizer == "genoud") {
+        if (!is.null(cl)) {
           #do.call(DEoptim.control, list(parallelType=3))
           deoptimArgs <- append(deoptimArgs,
-                                list(control = DEoptim.control(parallelType=3),
+                                list(control = DEoptim.control(parallelType = 3),
                                      cl = cl))
         }
         deoptimArgs <- append(deoptimArgs,
@@ -254,12 +247,11 @@ setMethod(
         deoptimArgs$boundary.enforcement <- 2
         deoptimArgs$lower <- NULL
         deoptimArgs$upper <- NULL
-        if(requireNamespace("rgenoud")) {
+        if (requireNamespace("rgenoud")) {
           output <- do.call("genoud", deoptimArgs)
         } else {
           stop("rgenoud package is not installed. Please install, install.packages(\"rgenoud\")")
         }
-
       } else {
         deoptimArgs <- append(deoptimArgs,
                               list(par = par, method = "L-BFGS-B",
@@ -272,12 +264,9 @@ setMethod(
       }
     }
     #if(!clProvided) stopCluster(cl)
-    if(sterr) {
+    if (sterr) {
       output$sterr <- try(sqrt(abs(diag(solve(output$hessian)))))
-
     }
     output$args <- deoptimArgs
     return(output)
-
-  })
-
+})
