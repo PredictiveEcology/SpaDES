@@ -25,8 +25,7 @@ envir(sim). Each of these pairs will be assessed against one another using
 the \code{objFnCompare}. Each pair will be standardized from 0 to 1. This can
 also be a function of objects found in envir(sim). See examples.}
 
-\item{objFn}{An objective function to be passed into
-\code{optimizer}}
+\item{objFn}{An objective function to be passed into \code{optimizer}}
 
 \item{cl}{A cluster object. Optional. This would generally be created using
 parallel::makeCluster or equivalent. This is an alternative way, instead
@@ -52,15 +51,13 @@ optimization routine. Currently, only passed to
 \code{\link{DEoptim.control}} when \code{optimizer} is \code{"DEoptim"}}
 }
 \value{
-The values for parameters used in objFn that minimize
-the objFn.
+The values for parameters used in objFn that minimize the objFn.
 }
 \description{
 This is very much in alpha condition. It has been tested on simple problems,
-as shown in the examples, with
-up to 2 parameters. It appears that DEoptim is the superior package for these
-stochastic problems. This should be used with caution as with all optimization
-routines.
+as shown in the examples, with up to 2 parameters.
+It appears that DEoptim is the superior package for these stochastic problems.
+This should be used with caution as with all optimization routines.
 }
 \examples{
 \dontrun{
@@ -121,9 +118,6 @@ routines.
 }
 \author{
 Eliot McIntire
-}
-\references{
-Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{https://www.nostarch.com/artofr.htm}
 }
 \seealso{
 \code{\link{spades}}, \code{\link[parallel]{makeCluster}},
