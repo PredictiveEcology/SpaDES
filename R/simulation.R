@@ -206,23 +206,24 @@ setMethod(
       # run .init file from each module, one at a time, and remove it so next module
       #  won't rerun it
 
-      if(!is.null(userSuppliedObjNames)) { # if user supplies the needed objects, then test whether all
-                # are supplied. If they are all supplied, then skip the .inputObjects code
-        if(!all(depends(sim)@dependencies[[i]]@inputObjects$objectName %in% userSuppliedObjNames)) {
-          if(!is.null(sim@.envir$.init)) {
-            message("Your module includes a function, \".init\". This will be removed in",
-                    " a future version of SpaDES. Please use \".inputObjects\"")
-            sim <- sim@.envir$.init(sim)
-            rm(".init", envir = envir(sim))
-          }
+      #if(is.null(userSuppliedObjNames)) {
+      # if user supplies the needed objects, then test whether all
+      # are supplied. If they are all supplied, then skip the .inputObjects code
+      if(!all(depends(sim)@dependencies[[i]]@inputObjects$objectName %in% userSuppliedObjNames)) {
+        if(!is.null(sim@.envir$.init)) {
+          message("Your module includes a function, \".init\". This will be removed in",
+                  " a future version of SpaDES. Please use \".inputObjects\"")
+          sim <- sim@.envir$.init(sim)
+          rm(".init", envir = envir(sim))
+        }
 
-          # This is here to grandfather in the .init approach
-          if(!is.null(sim@.envir$.inputObjects)) {
-            sim <- sim@.envir$.inputObjects(sim)
-            rm(".inputObjects", envir = envir(sim))
-          }
+        # This is here to grandfather in the .init approach
+        if(!is.null(sim@.envir$.inputObjects)) {
+          sim <- sim@.envir$.inputObjects(sim)
+          rm(".inputObjects", envir = envir(sim))
         }
       }
+      #}
 
     }
 
@@ -428,6 +429,7 @@ setMethod(
             loadOrder = "character"),
   definition = function(times, params, modules, objects, paths, inputs, outputs,
                         loadOrder) {
+
     paths <- lapply(paths, checkPath, create = TRUE)
     modulesLoaded <- list()
 
@@ -506,7 +508,8 @@ setMethod(
       versionWarning(m, mVersion)
     })
     all_parsed <- FALSE
-    while (!all_parsed) {
+    while (!all_parsed) { # this does a 2 pass if there are parent modules,
+                          #   first for parents, then for children
       sim <- .parseModule(sim, modules(sim, hidden = TRUE), userSuppliedObjNames = userSuppliedObjNames)
       if (length(.unparsed(modules(sim, hidden = TRUE))) == 0) { all_parsed <- TRUE }
     }

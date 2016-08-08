@@ -17,9 +17,10 @@
 \S4method{.parseModulePartial}{simList,list,missing,character}(sim, modules,
   defineModuleElement)
 
-.parseModule(sim, modules)
+.parseModule(sim, modules, userSuppliedObjNames = NULL)
 
-\S4method{.parseModule}{simList,list}(sim, modules)
+\S4method{.parseModule}{simList,list}(sim, modules,
+  userSuppliedObjNames = NULL)
 }
 \arguments{
 \item{sim}{A \code{simList} simulation object.}
@@ -30,6 +31,11 @@
 
 \item{defineModuleElement}{Character string indicating which of the list
 elements in defineModule should be extracted}
+
+\item{userSuppliedObjNames}{Character string (or NULL, the default) indicating the names of
+objects that user has passed into simInit via objects or inputs.
+If all module inputObject dependencies are provided by user, then
+the .inputObjects code will be skipped.}
 }
 \value{
 \code{.parseModulePartial} extracts just the individual element
