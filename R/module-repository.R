@@ -193,6 +193,8 @@ setMethod(
     } else {
       dataList <- checksums(module = name, path = path)
     }
+    message("Download complete for module ", module, ".")
+
     return(list(c(files, files2), bind_rows(dataList, dataList2)))
 })
 
@@ -269,7 +271,7 @@ setMethod(
     urls <-.parseModulePartial(filename = file.path(path, module, paste0(module,".R")),
                                defineModuleElement = "inputObjects")$sourceURL
     if(is.call(urls)) # This is the case where it can't evaluate the .parseModulePartial because of a reference
-                      #  to the sim object that isn't available. Because sourceURL is unlikely to use 
+                      #  to the sim object that isn't available. Because sourceURL is unlikely to use
                       #  a call to sim object, then try to evaluate again here, just the one column
       urls <- eval(urls)
     #urls <- moduleMetadata(module, path)$inputObjects$sourceURL
@@ -298,6 +300,10 @@ setMethod(
 
       chksums <- checksums(module, path) %>%
         mutate(renamed = NA, module = module)
+    } else if(NROW(chksums)>0) {
+      message("  Download data step skipped for module ", module, ". Local copy exists.")
+    } else {
+      message("  No data to download for module ", module)
     }
 
     wh <- match(chksums$actualFile, chksums$expectedFile) %>% is.na() %>% which()
@@ -325,7 +331,7 @@ setMethod(
           bind_rows()
       }
     }
-    message("Download complete for module ", module, ".")
+
     return(bind_rows(chksums, chksums2))
 })
 
