@@ -176,7 +176,9 @@ setMethod(
 
     # after download, check for childModules that also require downloading
     files2 <- list()
-    children <- moduleMetadata(name, path)$childModules
+    children <-.parseModulePartial(filename = file.path(path, module, paste0(module,".R")),
+                                   defineModuleElement = "childModules")
+    #children <- moduleMetadata(name, path)$childModules
     dataList2 <- data.frame(result = character(0), expectedFile = character(0),
                             actualFile = character(0), checksum = character(0),
                             stringsAsFactors = FALSE)

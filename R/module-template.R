@@ -813,7 +813,9 @@ setMethod("zipModule",
 setMethod("zipModule",
           signature = c(name = "character", path = "missing", version = "missing"),
           definition = function(name, ...) {
-            vers <- moduleMetadata(name, ".")$version %>% as.character
+            vers <- .parseModulePartial(filename = file.path(path, name, paste0(name,".R")),
+                                        defineModuleElement = "version") %>% as.character
+            #vers <- moduleMetadata(name, ".")$version %>% as.character
             zipModule(name = name, path = ".", version = vers, ...)
 })
 
