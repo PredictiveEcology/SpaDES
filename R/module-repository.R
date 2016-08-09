@@ -35,7 +35,9 @@ setMethod(
       name = name[1]
     }
     moduleFiles <- checkModule(name, repo)
-    zipFiles <- grep("[.]zip$", moduleFiles, value = TRUE)
+    zipFiles <- grep(paste0(name,"_+.+.zip"), moduleFiles, value = TRUE) # moduleName_....zip only
+    zipFiles <- grep(file.path(name,"data"), zipFiles, invert = TRUE, value = TRUE) # remove any zip in data folder 
+    # all zip files is not correct behaviour, only
     versions <- strsplit(zipFiles, "_") %>%
       unlist() %>%
       grep("[.]zip$", ., value = TRUE) %>%
@@ -193,7 +195,7 @@ setMethod(
     } else {
       dataList <- checksums(module = name, path = path)
     }
-    message("Download complete for module ", module, ".")
+    message("Download complete for module ", name, ".")
 
     return(list(c(files, files2), bind_rows(dataList, dataList2)))
 })
