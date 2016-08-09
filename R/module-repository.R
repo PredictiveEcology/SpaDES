@@ -36,7 +36,7 @@ setMethod(
     }
     moduleFiles <- checkModule(name, repo)
     zipFiles <- grep(paste0(name,"_+.+.zip"), moduleFiles, value = TRUE) # moduleName_....zip only
-    zipFiles <- grep(file.path(name,"data"), zipFiles, invert = TRUE, value = TRUE) # remove any zip in data folder 
+    zipFiles <- grep(file.path(name,"data"), zipFiles, invert = TRUE, value = TRUE) # remove any zip in data folder
     # all zip files is not correct behaviour, only
     versions <- strsplit(zipFiles, "_") %>%
       unlist() %>%
