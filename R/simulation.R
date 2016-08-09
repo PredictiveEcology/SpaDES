@@ -504,7 +504,8 @@ setMethod(
 
     # source module metadata and code files, checking version info
     lapply(modules(sim, hidden = TRUE), function(m) {
-      mVersion <- moduleMetadata(m, modulePath(sim))$version
+      mVersion <- .parseModulePartial(sim = sim, modules = list(m), defineModuleElement = "version")[[m]]
+      #mVersion <- moduleMetadata(m, modulePath(sim))$version
       versionWarning(m, mVersion)
     })
     all_parsed <- FALSE
