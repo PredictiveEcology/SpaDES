@@ -3,7 +3,7 @@ doEvent.progress = function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
     if (interactive()) {
       tu <- timeunit(sim)
-      defaults <- list(type = "text", interval = (end(sim, "second")-start(sim, "second"))/(end(sim,tu)-start(sim,tu)))
+      defaults <- list(type = "text", interval = (end(sim, tu)-start(sim, tu))/(end(sim,tu)-start(sim,tu)))
 
       # Check whether a .progress is specified in the simList
       if ( is.null(p(sim, ".progress")$type) &&
@@ -21,8 +21,8 @@ doEvent.progress = function(sim, eventTime, eventType, debug = FALSE) {
     # if NA then don't use progress bar
     if (any(!is.na(p(sim, ".progress")))) {
       newProgressBar(sim)
-      sim <- scheduleEvent(sim, start(sim, "seconds"), "progress", "set", .last())
-      sim <- scheduleEvent(sim, end(sim, "seconds"), "progress", "set", .last())
+      sim <- scheduleEvent(sim, start(sim, tu), "progress", "set", .last())
+      sim <- scheduleEvent(sim, end(sim, tu), "progress", "set", .last())
     }
   } else if (eventType == "set") {
       # update progress bar

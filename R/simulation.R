@@ -1132,11 +1132,12 @@ setMethod(
     }
 
     if (!is.na(progress)) {
+      tu <- timeunit(sim)
       if (isTRUE(progress)) {
         progress <- "graphical"
       }
       if (is.numeric(progress)) {
-        params(sim)$.progress$interval <- (end(sim, "second") - start(sim, "second"))/progress
+        params(sim)$.progress$interval <- (end(sim, tu) - start(sim, tu))/progress
         progress <- "graphical"
       }
 
