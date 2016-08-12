@@ -6,7 +6,7 @@
   options(spades.tolerance = .Machine$double.eps^0.5)
 }
 
-.onUnload <- function(libname, pkgname) {
+.onUnload <- function(libpath) {
   options(spades.lowMemory = NULL)
   options(spades.modulesRepo = NULL)
   options(spades.nCompleted = NULL)
