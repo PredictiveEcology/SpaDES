@@ -280,27 +280,27 @@ setGeneric("objs<-",
 #' @aliases objs<-,simList-method
 #' @rdname objects
 #' @export
-setReplaceMethod("objs",
-                 signature = "simList",
-                 function(x, value) {
-                   if (is.list(value)) {
+setReplaceMethod(
+  "objs",
+  signature = "simList",
+  function(x, value) {
+    if (is.list(value)) {
+     list2env(value, envir = envir(x))
+     newInputs <- data.frame(
+       objectName = names(value),
+       loadTime = as.numeric(time(x, "seconds")),
+       loaded = TRUE,
+       stringsAsFactors = FALSE) %>% .fillInputRows(startTime = start(x))
+     inputs(x) <- rbind(inputs(x), newInputs)
 
-                     list2env(value, envir = envir(x))
-                     newInputs <- data.frame(
-                       objectName = names(value),
-                       loadTime = as.numeric(time(x, "seconds")),
-                       loaded = TRUE,
-                       stringsAsFactors = FALSE) %>% .fillInputRows(startTime = start(x))
-                     inputs(x) <- rbind(inputs(x), newInputs)
-
-                    # lapply(names(value), function(z) {
-                    #   x@.envir[[z]] <- value[[z]]
-                    # })
-                   } else {
-                     stop("must provide a named list.")
-                   }
-                   validObject(x)
-                   return(x)
+    # lapply(names(value), function(z) {
+    #   x@.envir[[z]] <- value[[z]]
+    # })
+    } else {
+     stop("must provide a named list.")
+    }
+    validObject(x)
+    return(x)
 })
 
 ################################################################################
