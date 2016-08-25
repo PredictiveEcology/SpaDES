@@ -296,9 +296,11 @@ setMethod(
 #' \file{caribou.R}, located at the specified \code{modulePath(simList)} (see below).
 #'
 #' @param objects (optional) A vector of object names (naming objects
-#'                that are in the \code{.GlobalEnv}), or
+#'                that are in the \code{.GlobalEnv} -- NOTE: this will
+#'                fail if object name is in a package dependency), or
 #'                a named list of data objects to be
-#'                passed into the simList. These objects will be accessible
+#'                passed into the simList (more reliable).
+#'                These objects will be accessible
 #'                from the simList as a normal list, e.g,. \code{mySim$obj}.
 #'
 #' @param paths  An optional named list with up to 4 named elements,
