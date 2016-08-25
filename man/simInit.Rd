@@ -38,7 +38,10 @@ Example: a module named "caribou" will be sourced form the file
 \file{caribou.R}, located at the specified \code{modulePath(simList)} (see below).}
 
 \item{objects}{(optional) A vector of object names (naming objects
-that are in the \code{.GlobalEnv} -- NOTE: this will
+that are in the calling environment of
+the \code{simInit}, which is often the
+\code{.GlobalEnv} unless used programmatically
+-- NOTE: this mechanism will
 fail if object name is in a package dependency), or
 a named list of data objects to be
 passed into the simList (more reliable).
