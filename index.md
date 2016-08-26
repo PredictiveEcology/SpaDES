@@ -45,6 +45,10 @@ Included are numerous tools to rapidly visualize raster and other maps.
 
 **Example Model for R-savvy users** [LandCoverChange](https://raw.githubusercontent.com/PredictiveEcology/SpaDES-modules/master/modules/LCC2005/LCC2005.Rmd). Copy the linked `.Rmd` file to your computer. Open it with a text editor (such as Rstudio), run all chunks in R. It is not intended to be knitted; knitting will only output the script. 
 
+## Workshops
+
+We will be giving workshops about SpaDES. See [here for intro workshops in the fall of 2016](http://predictiveecology.org/2016/08/09/SpaDES-workshops.html). We will be adding more over time.
+
 ## Installation
 
 Building packages from source requires the appropriate development libraries for your operating system (*e.g.*, Windows users should install [Rtools](http://cran.r-project.org/bin/windows/Rtools/)).
