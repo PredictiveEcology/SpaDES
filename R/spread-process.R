@@ -916,9 +916,11 @@ setMethod(
                   tmp3 <- tmp2[tmp2[,"id"] == id,]
                   newOnes <- tmp3[,"prev"] == 0
                   ord <- seq_along(newOnes)
-                  ord[newOnes] <- sample(ord[newOnes])
-                  if (circle) ord[newOnes] <- ord[newOnes][order(tmp3[ord[newOnes], "dist"])]
-                  tmp3 <- tmp3[ord,]
+                  if(sum(newOnes)>1) { # because of undesired behaviour of sample when length(x)==1
+                    ord[newOnes] <- sample(ord[newOnes])
+                    if (circle) ord[newOnes] <- ord[newOnes][order(tmp3[ord[newOnes], "dist"])]
+                    tmp3 <- tmp3[ord,]
+                  }
                   startLen <- sum(!newOnes)
                   addIncr <- 1
                   done <- FALSE
