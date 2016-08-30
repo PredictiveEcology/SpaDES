@@ -300,7 +300,7 @@ test_that("spread stopRule does not work correctly", {
     expect_true(all(a2[-wh] >= sumLandscapeRule))
     expect_true(all(a3[-wh] >= meanHabitatRule))
     expect_true(all(a3[wh] < meanHabitatRule))
-    if (interactive()) Plot(ras)
+    if (interactive()) {clearPlot(); Plot(ras)}
   }
 })
 
@@ -576,7 +576,7 @@ test_that("rings and cir", {
   ras1[] <- 0
   cirsOverlap <- data.table(cirsEx)[,list(sumIDs = sum(id)), by = indices]
   ras1[cirsOverlap$indices] <- cirsOverlap$sumIDs
-  if (interactive()) Plot(ras1, new = TRUE)
+  if (interactive()) {clearPlot(); Plot(ras1)}
 
   ras3 <- raster(hab)
   ras3[] <- 0

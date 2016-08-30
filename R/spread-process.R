@@ -571,15 +571,17 @@ setMethod(
       if (!inRange(spreadProbLater)) stop("spreadProbLater is not a probability")
     }
 
+    ncells <- ncell(landscape)
+
     if (allowOverlap | returnDistances) {
       spreads <- cbind(initialLocus = initialLoci, indices = initialLoci,
                        id = 1:length(loci), active = 1)
     } else {
       if (lowMemory) { # create vector of 0s called spreads, which corresponds to the
         #   indices of the landscape raster
-        spreads <- ff(vmode = "short", 0, length = ncell(landscape))
+        spreads <- ff(vmode = "short", 0, length = ncells)
       } else {
-        spreads <- vector("integer", ncell(landscape))
+        spreads <- vector("integer", ncells)
       }
     }
 
@@ -614,7 +616,7 @@ setMethod(
         stop(paste("Arguments in stopRule not valid. The function definition",
              "must be a function of built-in options, ",
              "(id, landscape, or cells) or user supplied variables.",
-             "If user supplied the variables",
+             "If user supplied, the variables",
              "must be passed as named vectors, or lists or data.frames.",
              " See examples."))
       }
@@ -689,7 +691,7 @@ setMethod(
     }
 
 
-    if (any(loci > ncell(landscape))) stop("loci indices are not on landscape")
+    if (any(loci > ncells)) stop("loci indices are not on landscape")
 
     ## Recycling maxSize as needed
     if (any(!is.na(maxSize))) {
@@ -703,9 +705,11 @@ setMethod(
         size <- rep_len(1L, length(loci))
       }
     } else {
-      maxSize <- ncell(landscape)
+      maxSize <- ncells
       size <- length(loci)
     }
+
+    noMaxSize <- all(maxSize>=ncells) # will be used to omit testing for maxSize
 
     # while there are active cells
     while (length(loci) & (n <= iterations) ) {
@@ -828,16 +832,19 @@ setMethod(
         events <- potentials[, 2L]
 
         # Implement maxSize
-        if (length(maxSize) == 1L) {
-          len <- length(events)
-          if ((size + len) > maxSize) {
-            keep <- len - ((size + len) - maxSize)
-            samples <- sample(len, keep)
-            events <- events[samples]
-            potentials <- potentials[samples, , drop = FALSE]
-          }
-          size <- size + length(events)
-        } else {
+        #browser()
+        # if (length(maxSize) == 1L) { # It can't be length 1 because of earlier
+        #                    # in function
+        #   len <- length(events)
+        #   if ((size + len) > maxSize) {
+        #     keep <- len - ((size + len) - maxSize)
+        #     samples <- sample(len, keep)
+        #     events <- events[samples]
+        #     potentials <- potentials[samples, , drop = FALSE]
+        #   }
+        #   size <- size + length(events)
+        # } else {
+        if(!noMaxSize) {
           if (allowOverlap | returnDistances) {
             len <- tabulate(potentials[, 3L], length(maxSize))
           } else {
