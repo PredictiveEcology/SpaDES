@@ -1348,7 +1348,7 @@ setReplaceMethod(
   "outputs",
   signature = ".simList",
   function(object, value) {
-    if (length(value)) {
+    if (NROW(value)) {
        if (!is.data.frame(value)) {
          if (!is.list(value)) {
            stop("outputs must be a list or data.frame")
