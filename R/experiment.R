@@ -555,7 +555,7 @@ setMethod(
 
         if ("modules" %in% names(factorialExp)) {
           if (!identical(sort(unlist(modules[factorialExp[ind, "modules"]])),
-                         sort(unlist(SpaDES::modules(sim, hidden = TRUE))))) { # test if modules are different from sim,
+                         sort(unlist(SpaDES::modules(sim, hidden = FALSE))))) { # test if modules are different from sim,
             #  if yes, rerun simInit
             sim_ <- simInit(params = params(sim_),
                             modules = as.list(unlist(modules[factorialExp[ind, "modules"]])),
