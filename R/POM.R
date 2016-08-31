@@ -3,25 +3,50 @@
 #'
 #' This is very much in alpha condition. It has been tested on simple problems,
 #' as shown in the examples, with up to 2 parameters.
-#' It appears that DEoptim is the superior package for these stochastic problems.
+#' It appears that DEoptim is the superior package for the stochastic problems.
 #' This should be used with caution as with all optimization routines.
+#'
+#' There are two ways to use this function, via 1) \code{objFn} or 2) \code{objects}.
+#' 1) The user can pass the entire
+#' objective function to the \code{objFn} argument that will be passed directly
+#' to the \code{optimizer}. For this, the user will likely need to pass named
+#' objects as part of the \code{...}. 2) The slightly simpler approach is to pass a list of
+#' 'actual data--simulated data' pairs as a named list in \code{objects} and
+#' specify how these objects should be compared via \code{objFnCompare} (whose default is
+#' Mean Absolute Deviation or "MAD"). Option 1 offers more control to the
+#' user, but may require more knowledge. Option 1 should likely contain
+#' a call to \code{simInit(copy(simList))} and \code{spades} internally.  See examples
+#' that show simple examples of each type, option 1 and option 2. In both cases,
+#' \code{params} is required to indicate which parameters can be varied in
+#' order to achieve the fit.
 #'
 #' @inheritParams spades
 #' @inheritParams splitRaster
 #'
 #' @param params Character vector of parameter names that can be changed by the optimizer. These
-#'               must be accessible with params(sim) internally.
-#' @param objects A named list. The names of each list element must correspond to an object in the
-#'                .GlobalEnv and the list elements must be objects that can be accessed in the
-#'                envir(sim). Each of these pairs will be assessed against one another using
-#'                the \code{objFnCompare}. Each pair will be standardized from 0 to 1. This can
-#'                also be a function of objects found in envir(sim). See examples.
+#'               must be accessible with \code{params(sim)} internally.
 #'
-#' @param objFn An objective function to be passed into \code{optimizer}
+#' @param objects A optional named list.
+#'                The names of each list element must correspond to an object in the
+#'                \code{.GlobalEnv} and the list elements must be objects that can be accessed in
+#'                the ls(sim) internally.
+#'                Each of these pairs will be assessed against one another using
+#'                the \code{objFnCompare}. The function will attempt to standardize
+#'                so that the comparison will be on a scale from 0 to 1. However, it is
+#'                not always clear what the minimum and maximum are. Therefore,
+#'                it is likely more reliable for the user to do the
+#'                standardization manually. See examples.
+#'
+#' @param objFn An optional objective function to be passed into \code{optimizer}.
+#'              If missing, then \code{POM} will use \code{objFnCompare} and
+#'              \code{objects} instead. If using \code{POM} with a SpaDES
+#'              simulation, this objFn must contain a spades call internally,
+#'              followed by a derivation of a value that can be minimized
+#'              but the \code{optimizer}.
 #'
 #' @param optimizer The function to use to optimize. Default is
 #'                  "DEoptim". Currently it can also be "optim" or "rgenoud", which
-#'                  use stats::optim or rgenoud::genoud, respectively.
+#'                  use \code{stats::optim} or \code{rgenoud::genoud}, respectively.
 #'
 #' @param sterr Logical. If using \code{optimizer = "optim"}, the hessian can be calculated.
 #'              If this is TRUE, then the standard errors can be estimated using
@@ -71,39 +96,69 @@
 #'    modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
 #'    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
 #'  )
+#'
+#'  # Since this is a made up example, we don't have real data
+#'  #  to run POM against. Instead, we will run the model once,
+#'  #  take the values at the end of the simulation as if they
+#'  #  are real data, then rerun the POM function next,
+#'  #  comparing these "data" with the simulated values
+#'  #  using Mean Absolute Deviation
 #'  out <- spades(copy(mySim), .plotInitialTime = NA)
-#'  fireData <- sum(getValues(out$landscape$Fires))/ncell(out$landscape$Fires)
+#'
+#'  # Extract the "true" data, in this case, the "proportion of cells burned"
+#'  # Function defined that will use landscape$Fires map from simList,
+#'  #  i.e., sim$landscape$Fires
+#'  #  the return value being compared via MAD with propCellBurnedData
+#'  propCellBurnedFn <- function(landscape) {
+#'               sum(getValues(landscape$Fires))/ncell(landscape$Fires)
+#'             }
+#'  propCellBurnedData <- propCellBurnedFn(out$landscape)
+#'  # visualize the burned maps of true "data"
 #'  clearPlot()
 #'  Plot(out$landscape$Fires)
 #'
+#'# Example 1 - 1 parameter
+#'  # Run POM... can use cluster if computer is multi-threaded
 #'  #cl <- makeCluster(8)
-#'  fireFn <- function(landscape) {
-#'               sum(getValues(landscape$Fires))/ncell(landscape$Fires)
-#'             }
-#'  out <- POM(mySim, "spreadprob",
-#'             list(fireData = fireFn),
+#'  # In words, this says, "find the best value of spreadprob such that
+#'  #  the proportion of the area burned in the simulation
+#'  #  is as close as possible to the proportion area burned in
+#'  #  the "data", using \code{optim()}. In general, optim will
+#'  #  not work well for stochastic models, but it works fine here
+#'  #  because this is a simple problem
+#'  out <- POM(mySim, "spreadprob", optimizer = "optim",
+#'             list(propCellBurnedData = propCellBurnedFn),
 #'             hessian = TRUE) # using optim, can get Hessian
-#'  #    cl = cl)
-#'  out <- POM(mySim, "spreadprob", list(fireData = fireFn),
+#'  #    cl = cl) # need this if using a cluster
+#'
+#'  # Try same fit using DEoptim
+#'  out <- POM(mySim, "spreadprob", list(propCellBurnedData = propCellBurnedFn),
 #'             optimizer = "DEoptim")#, cl = cl)
 #'
-#'  # Two parameters
-#'  N <- length(out$caribou)/1000
+#'# Example 2 - 2 parameters
+#'  # Function defined that will use caribou from sim$caribou, with
+#'  #  the return value being compared via MAD with N1000
 #'  caribouFn <- function(caribou) length(caribou)/1000
+#'
+#'  # Extract "data" from simList object (normally, this would be actual data)
+#'  N1000 <- caribouFn(out$caribou)
+#'
+#'  # This next block of 3 POM calls can take a long time (many hours for
+#'  #  genoud)
 #'  aTime <- Sys.time()
 #'  out2 <- POM(mySim, c("spreadprob", "N"),
-#'     list(fireData = fireFn,
-#'          N = caribouFn), optimizer = "DEoptim",
+#'     list(propCellBurnedData = propCellBurnedFn,
+#'          N1000 = caribouFn), optimizer = "DEoptim",
 #'      cl = cl)
 #'  bTime <- Sys.time()
 #'  out3 <- POM(mySim, c("spreadprob", "N"),
-#'     list(fireData = fireFn,
-#'          N = caribouFn), hessian = TRUE)#,
+#'     list(propCellBurnedData = propCellBurnedFn,
+#'          N1000 = caribouFn), hessian = TRUE)#,
 #'      #cl = cl)
 #'  cTime <- Sys.time()
 #'  out4 <- POM(mySim, c("spreadprob", "N"),
-#'     list(fireData = fireFn,
-#'          N = caribouFn), optimizer = "genoud",
+#'     list(propCellBurnedData = propCellBurnedFn,
+#'          N1000 = caribouFn), optimizer = "genoud",
 #'      cl = cl3)
 #'  dTime <- Sys.time()
 #'  print(paste("DEoptim", format(bTime - aTime)))
@@ -111,11 +166,34 @@
 #'  print(paste("genoud", format(dTime - cTime)))
 #'  #stopCluster(cl)
 #'
-#'  )
+#'# Example 3 - using objFn instead of objects
+#'
+#'  # must create a more complex objective function
+#'  objFnEx <- function(sim, N1000, propCellsBurned, caribouFn,
+#'                      propCellBurnedFn) {
+#'
+#'    out <- spades(SpaDES::copy(sim), .plotInitialTime = NA)
+#'    propCellBurnedOut <- propCellBurnedFn(out$landscape)
+#'    N1000_Out <- caribouFn(out$caribou)
+#'
+#'    minimizeFn <- abs(N1000_Out - N1000) +
+#'                  abs(propCellBurnedOut - propCellBurnedData)
+#'    return(minimizeFn)
+#'  }
+#'
+#'  # Run DEoptim with custom objFn, identifying 2 parameters to allow
+#'  #  to vary, and pass all necessary objects required for the
+#'  #  objFn
+#'  out5 <- POM(mySim, params = c("spreadprob", "N"),
+#'              objFn = objFnEx,
+#'              N1000 = N1000,
+#'              propCellBurnedData = propCellBurnedData,
+#'              caribouFn = caribouFn,
+#'              propCellBurnedFn = propCellBurnedFn)
 #'  }
 setGeneric(
   "POM",
-  function(sim, params, objects, objFn, cl, optimizer = "optim",
+  function(sim, params, objects, objFn, cl, optimizer = "DEoptim",
            sterr = FALSE, ..., objFnCompare = "MAD", optimControl = NULL) {
     standardGeneric("POM")
 })
@@ -123,7 +201,8 @@ setGeneric(
 #' @rdname POM
 setMethod(
   "POM",
-  signature(sim = "simList", params = "character", objects = "ANY"),
+  signature(sim = "simList", params = "character", objects = "ANY",
+            objFn = "ANY"),
   definition = function(sim, params, objects, objFn, cl, optimizer,
                         sterr, ..., objFnCompare, optimControl) {
 
@@ -142,18 +221,22 @@ setMethod(
     whParamsByMod <- unlist(lapply(whParams, na.omit))
     #whParamsList1 <- match(params, unlist(lapply(SpaDES::params(sim), names)))
 
+    if(missing(objects)) {
+      objects <- NULL
+    }
+
     range01 <- function(x, ...){(x - min(x, ...)) / (max(x, ...) - min(x, ...))}
 
     if (missing(objFn)) {
-      objFn <- function(par, objects, simList, whModules, whParams, whParamsByMod) {
+      objFn <- function(par, objects, sim, whModules, whParams, whParamsByMod) {
         whP <- 0
         for (wh in seq_along(whParamsByMod)) {
           whP <- whP + 1
-          params(simList)[[names(whParamsByMod)[wh]]][[whParamsByMod[wh]]] <-
+          params(sim)[[names(whParamsByMod)[wh]]][[whParamsByMod[wh]]] <-
             par[whP]
         }
 
-        out <- spades(SpaDES::copy(simList), .plotInitialTime = NA)
+        out <- spades(SpaDES::copy(sim), .plotInitialTime = NA)
 
         outputObjects <- lapply(objects, function(objs) {
           if (is.function(objs)) {
@@ -211,7 +294,7 @@ setMethod(
       lowerRange[whP] <- unlist(deps[[modName]]@parameters$min[deps[[modName]]@parameters$paramName == names(p(sim, modName)[whParamsByMod[whP]])])
     }
     deoptimArgs <- list(fn = objFn, lower = lowerRange, upper = upperRange,
-                          simList = sim, objects = objects,
+                          sim = sim, objects = objects,
                           whModules = whModules, whParams = whParams,
                           whParamsByMod = whParamsByMod)
 
@@ -228,6 +311,17 @@ setMethod(
       if (!is.null(optimControl)) {
         deoptimArgs$control[names(optimControl)] <- optimControl
       }
+
+      if(!is.null(objFn)) {
+        dots <- list(...)
+        de1 <- deoptimArgs[na.omit(match(names(formals(DEoptim)), names(deoptimArgs)))]
+        de2 <- dots[na.omit(match(names(formals(objFn)), names(dots)))]
+        deoptimArgs <- list()
+        deoptimArgs[names(de1)] <- de1
+        deoptimArgs[names(de2)] <- de2
+        deoptimArgs$sim <- sim
+      }
+
       output <- do.call("DEoptim", deoptimArgs)
     } else {
       if (!is.null(list(...)$hessian) | sterr)
