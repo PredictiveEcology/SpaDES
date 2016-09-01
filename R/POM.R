@@ -297,7 +297,6 @@ setMethod(
     }
 
     if (!is.null(cl)) {
-      browser()
       if(userSuppliedObjFn) {
         clusterExport(cl, c("sim", names(dots)), envir = sys.frame(1))
       } else {
