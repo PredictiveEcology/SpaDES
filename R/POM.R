@@ -29,6 +29,16 @@
 #' and lower limits; the module metadata should be changed if there needs
 #' to be different parameter limits for optimization.
 #'
+#' There are many options that can be passed to \code{\link[DEoptim]{DEoptim}},
+#' (the details of which are in the help), using \code{optimControl}. The defaults
+#' sent from \code{POM} to \code{DEoptim} are: NP = 2 * length(params) and itermax =
+#' 20. These and others may need to be adjusted to obtain good values. NOTE:
+#' DEoptim does not provide a direct estimate of confidence intervals. Also,
+#' convergence is unreliable, and often only occurs because maxiter is reached. Even
+#' when convergence is indicated, the estimates are not guaranteed to be global
+#' optima. This is different than other optimizers that will normally indicate
+#' if convergence was not achieved at termination of the optimization.
+#'
 #' @inheritParams spades
 #' @inheritParams splitRaster
 #'
@@ -328,6 +338,7 @@ setMethod(
 
 
     if (optimizer == "DEoptim") {
+      deoptimArgs$control <- DEoptim.control()
       if (!is.null(cl)) {
         deoptimArgs$control$parallelType <- 3
         deoptimArgs$cl <- cl
