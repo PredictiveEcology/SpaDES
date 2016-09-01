@@ -20,6 +20,8 @@
 #' \code{params} is required to indicate which parameters can be varied in
 #' order to achieve the fit.
 #'
+#' Currently, option 1) only exists when optimizer is "DEoptim", the default.
+#'
 #' @inheritParams spades
 #' @inheritParams splitRaster
 #'
@@ -118,14 +120,15 @@
 #'  Plot(out$landscape$Fires)
 #'
 #'# Example 1 - 1 parameter
-#'  # Run POM... can use cluster if computer is multi-threaded
-#'  #cl <- makeCluster(8)
 #'  # In words, this says, "find the best value of spreadprob such that
 #'  #  the proportion of the area burned in the simulation
 #'  #  is as close as possible to the proportion area burned in
 #'  #  the "data", using \code{optim()}. In general, optim will
 #'  #  not work well for stochastic models, but it works fine here
 #'  #  because this is a simple problem
+#'
+#'  # can use cluster if computer is multi-threaded
+#'  #cl <- makeCluster(8) # uncomment, and change argument for your computer
 #'  out <- POM(mySim, "spreadprob", optimizer = "optim",
 #'             list(propCellBurnedData = propCellBurnedFn),
 #'             hessian = TRUE) # using optim, can get Hessian
@@ -133,7 +136,8 @@
 #'
 #'  # Try same fit using DEoptim
 #'  out <- POM(mySim, "spreadprob", list(propCellBurnedData = propCellBurnedFn),
-#'             optimizer = "DEoptim")#, cl = cl)
+#'             optimizer = "DEoptim")#, # uncomment for cluster
+#'             #cl = cl) # uncomment for cluster
 #'
 #'# Example 2 - 2 parameters
 #'  # Function defined that will use caribou from sim$caribou, with
@@ -147,9 +151,10 @@
 #'  #  genoud)
 #'  aTime <- Sys.time()
 #'  out2 <- POM(mySim, c("spreadprob", "N"),
-#'     list(propCellBurnedData = propCellBurnedFn,
-#'          N1000 = caribouFn), optimizer = "DEoptim",
-#'      cl = cl)
+#'             list(propCellBurnedData = propCellBurnedFn,
+#'                  N1000 = caribouFn),
+#'             optimizer = "DEoptim",
+#'             cl = cl)
 #'  bTime <- Sys.time()
 #'  out3 <- POM(mySim, c("spreadprob", "N"),
 #'     list(propCellBurnedData = propCellBurnedFn,
@@ -184,12 +189,17 @@
 #'  # Run DEoptim with custom objFn, identifying 2 parameters to allow
 #'  #  to vary, and pass all necessary objects required for the
 #'  #  objFn
+#'
+#'  # list all the parameters in the simList
+#'  p(mySim)
+#'  # choose 2 of them to vary
 #'  out5 <- POM(mySim, params = c("spreadprob", "N"),
 #'              objFn = objFnEx,
 #'              N1000 = N1000,
 #'              propCellBurnedData = propCellBurnedData,
 #'              caribouFn = caribouFn,
-#'              propCellBurnedFn = propCellBurnedFn)
+#'              propCellBurnedFn = propCellBurnedFn)#, # uncomment for cluster
+#'              #cl = cl)# uncomment for cluster
 #'  }
 setGeneric(
   "POM",
@@ -270,9 +280,14 @@ setMethod(
 
         }))
         sum(objectiveRes)
-    }}
+      }
+      userSuppliedObjFn <- FALSE
+    } else {
+      userSuppliedObjFn <- TRUE
+    }
 
     if (!is.null(cl)) {
+      browser()
       clusterExport(cl, c("sim", names(objects)), envir = sys.frame(1))
       clusterEvalQ(cl, {
         library(SpaDES)
@@ -301,18 +316,16 @@ setMethod(
 
     if (optimizer == "DEoptim") {
       if (!is.null(cl)) {
-        deoptimArgs <- append(deoptimArgs,
-                              list(control = DEoptim.control(parallelType = 3),
-                                   cl = cl))
+        deoptimArgs$control$parallelType <- 3
+        deoptimArgs$cl <- cl
       }
-      deoptimArgs <- append(deoptimArgs,
-                            list(control = DEoptim.control(NP = 20*length(lowerRange),
-                                                           itermax = 20)))
+      deoptimArgs$control$NP <- 20*length(lowerRange)
+      deoptimArgs$control$itermax <- 20
       if (!is.null(optimControl)) {
         deoptimArgs$control[names(optimControl)] <- optimControl
       }
 
-      if(!is.null(objFn)) {
+      if(userSuppliedObjFn) {
         dots <- list(...)
         de1 <- deoptimArgs[na.omit(match(names(formals(DEoptim)), names(deoptimArgs)))]
         de2 <- dots[na.omit(match(names(formals(objFn)), names(dots)))]

@@ -83,6 +83,8 @@ a call to \code{simInit(copy(simList))} and \code{spades} internally.  See examp
 that show simple examples of each type, option 1 and option 2. In both cases,
 \code{params} is required to indicate which parameters can be varied in
 order to achieve the fit.
+
+Currently, option 1) only exists when optimizer is "DEoptim", the default.
 }
 \examples{
 \dontrun{
@@ -120,14 +122,15 @@ order to achieve the fit.
  Plot(out$landscape$Fires)
 
 # Example 1 - 1 parameter
- # Run POM... can use cluster if computer is multi-threaded
- #cl <- makeCluster(8)
  # In words, this says, "find the best value of spreadprob such that
  #  the proportion of the area burned in the simulation
  #  is as close as possible to the proportion area burned in
  #  the "data", using \\code{optim()}. In general, optim will
  #  not work well for stochastic models, but it works fine here
  #  because this is a simple problem
+
+ # can use cluster if computer is multi-threaded
+ #cl <- makeCluster(8) # uncomment, and change argument for your computer
  out <- POM(mySim, "spreadprob", optimizer = "optim",
             list(propCellBurnedData = propCellBurnedFn),
             hessian = TRUE) # using optim, can get Hessian
@@ -135,7 +138,8 @@ order to achieve the fit.
 
  # Try same fit using DEoptim
  out <- POM(mySim, "spreadprob", list(propCellBurnedData = propCellBurnedFn),
-            optimizer = "DEoptim")#, cl = cl)
+            optimizer = "DEoptim")#, # uncomment for cluster
+            #cl = cl) # uncomment for cluster
 
 # Example 2 - 2 parameters
  # Function defined that will use caribou from sim$caribou, with
@@ -149,9 +153,10 @@ order to achieve the fit.
  #  genoud)
  aTime <- Sys.time()
  out2 <- POM(mySim, c("spreadprob", "N"),
-    list(propCellBurnedData = propCellBurnedFn,
-         N1000 = caribouFn), optimizer = "DEoptim",
-     cl = cl)
+            list(propCellBurnedData = propCellBurnedFn,
+                 N1000 = caribouFn),
+            optimizer = "DEoptim",
+            cl = cl)
  bTime <- Sys.time()
  out3 <- POM(mySim, c("spreadprob", "N"),
     list(propCellBurnedData = propCellBurnedFn,
@@ -168,7 +173,7 @@ order to achieve the fit.
  print(paste("genoud", format(dTime - cTime)))
  #stopCluster(cl)
 
-# Example 3 - using objFn instead of objects and objFnCompare
+# Example 3 - using objFn instead of objects
 
  # must create a more complex objective function
  objFnEx <- function(sim, N1000, propCellsBurned, caribouFn,
@@ -186,11 +191,17 @@ order to achieve the fit.
  # Run DEoptim with custom objFn, identifying 2 parameters to allow
  #  to vary, and pass all necessary objects required for the
  #  objFn
+
+ # list all the parameters in the simList
+ p(mySim)
+ # choose 2 of them to vary
  out5 <- POM(mySim, params = c("spreadprob", "N"),
-             objFn = objFnEx, N1000 = N1000,
+             objFn = objFnEx,
+             N1000 = N1000,
              propCellBurnedData = propCellBurnedData,
              caribouFn = caribouFn,
-             propCellBurnedFn = propCellBurnedFn)
+             propCellBurnedFn = propCellBurnedFn)#, # uncomment for cluster
+             #cl = cl)# uncomment for cluster
  }
 }
 \author{
