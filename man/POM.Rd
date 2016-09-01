@@ -85,6 +85,13 @@ that show simple examples of each type, option 1 and option 2. In both cases,
 order to achieve the fit.
 
 Currently, option 1) only exists when optimizer is "DEoptim", the default.
+
+The upper and lower limits for parameter values are taken from the
+metadata in the module. Thus, if the module metadata does not define the
+upper and lower limits, or these are very wide, then the optimization
+may have troubles. Currently, there is no way to override these upper
+and lower limits; the module metadata should be changed if there needs
+to be different parameter limits for optimization.
 }
 \examples{
 \dontrun{
@@ -144,6 +151,7 @@ Currently, option 1) only exists when optimizer is "DEoptim", the default.
 # Example 2 - 2 parameters
  # Function defined that will use caribou from sim$caribou, with
  #  the return value being compared via MAD with N1000
+ # Here, divide by 1000 so the numbers are in the range of 0 to 1
  caribouFn <- function(caribou) length(caribou)/1000
 
  # Extract "data" from simList object (normally, this would be actual data)
@@ -175,7 +183,8 @@ Currently, option 1) only exists when optimizer is "DEoptim", the default.
 
 # Example 3 - using objFn instead of objects
 
- # must create a more complex objective function
+ # Objective Function Example:
+ #   must create a relatively complex objective function
  objFnEx <- function(sim, N1000, propCellsBurned, caribouFn,
                      propCellBurnedFn) {
 
@@ -200,8 +209,8 @@ Currently, option 1) only exists when optimizer is "DEoptim", the default.
              N1000 = N1000,
              propCellBurnedData = propCellBurnedData,
              caribouFn = caribouFn,
-             propCellBurnedFn = propCellBurnedFn)#, # uncomment for cluster
-             #cl = cl)# uncomment for cluster
+             propCellBurnedFn = propCellBurnedFn, # uncomment for cluster
+             cl = cl)# uncomment for cluster
  }
 }
 \author{
