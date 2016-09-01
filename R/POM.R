@@ -198,8 +198,8 @@
 #'              N1000 = N1000,
 #'              propCellBurnedData = propCellBurnedData,
 #'              caribouFn = caribouFn,
-#'              propCellBurnedFn = propCellBurnedFn)#, # uncomment for cluster
-#'              #cl = cl)# uncomment for cluster
+#'              propCellBurnedFn = propCellBurnedFn, # uncomment for cluster
+#'              cl = cl)# uncomment for cluster
 #'  }
 setGeneric(
   "POM",
@@ -284,11 +284,16 @@ setMethod(
       userSuppliedObjFn <- FALSE
     } else {
       userSuppliedObjFn <- TRUE
+      dots <- list(...)
     }
 
     if (!is.null(cl)) {
       browser()
-      clusterExport(cl, c("sim", names(objects)), envir = sys.frame(1))
+      if(userSuppliedObjFn) {
+        clusterExport(cl, c("sim", names(dots)), envir = sys.frame(1))
+      } else {
+        clusterExport(cl, c("sim", names(objects)), envir = sys.frame(1))
+      }
       clusterEvalQ(cl, {
         library(SpaDES)
         library(RColorBrewer)
