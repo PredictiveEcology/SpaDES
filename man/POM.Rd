@@ -256,8 +256,7 @@ if convergence was not achieved at termination of the optimization.
              propCellBurnedFn = propCellBurnedFn,
              cl = cl, # uncomment for cluster
              # see ?DEoptim.control for explanation of these options
-             optimControl = list(steptol = 3,
-                                 initialpop = matrix(c(runif(40, 0.2, 0.24),
+             optimControl = list(initialpop = matrix(c(runif(40, 0.2, 0.24),
                                                        runif(40, 80, 120)),
                                                      ncol = 2)
                                  )
