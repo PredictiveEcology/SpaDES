@@ -34,7 +34,7 @@
 #' sent from \code{POM} to \code{DEoptim} are: NP = 2 * length(params) and itermax =
 #' 20. These and others may need to be adjusted to obtain good values. NOTE:
 #' DEoptim does not provide a direct estimate of confidence intervals. Also,
-#' convergence is unreliable, and often only occurs because maxiter is reached. Even
+#' convergence is unreliable, and often only occurs because \code{itermax} is reached. Even
 #' when convergence is indicated, the estimates are not guaranteed to be global
 #' optima. This is different than other optimizers that will normally indicate
 #' if convergence was not achieved at termination of the optimization.
@@ -252,7 +252,7 @@
 #'              propCellBurnedData = propCellBurnedData,
 #'              caribouFn = caribouFn,
 #'              propCellBurnedFn = propCellBurnedFn,
-#'              #cl = cl, # uncomment for cluster
+#'              cl = cl, # uncomment for cluster
 #'              # see ?DEoptim.control for explanation of these options
 #'              optimControl = list(steptol = 3,
 #'                                  initialpop = matrix(c(runif(40, 0.2, 0.24),
