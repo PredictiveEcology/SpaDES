@@ -61,7 +61,8 @@
 #'              \code{objects} instead. If using \code{POM} with a SpaDES
 #'              simulation, this objFn must contain a spades call internally,
 #'              followed by a derivation of a value that can be minimized
-#'              but the \code{optimizer}.
+#'              but the \code{optimizer}. It must have, as first argument, the
+#'              values for the parameters. See example.
 #'
 #' @param optimizer The function to use to optimize. Default is
 #'                  "DEoptim". Currently it can also be "optim" or "rgenoud", which
@@ -191,17 +192,42 @@
 #'
 #'# Example 3 - using objFn instead of objects
 #'
-#'  # Objective Function Example:
-#'  #   must create a relatively complex objective function
-#'  objFnEx <- function(sim, N1000, propCellsBurned, caribouFn,
-#'                      propCellBurnedFn) {
+#'  # list all the parameters in the simList, from these, we select to vary
+#'  p(mySim)
 #'
-#'    out <- spades(SpaDES::copy(sim), .plotInitialTime = NA)
+#'  # Objective Function Example:
+#'  #   objective function must have several elements
+#'  #   - first argument must be parameter vector, passed to and used by DEoptim
+#'  #   - likely needs to take sim object, likely needs a copy
+#'  #      because of pass-by-reference semantics of sim objects
+#'  #   - pass data that will be used internally for objective function
+#'  objFnEx <- function(pars, # param values
+#'                      sim, # simList object
+#'                      N1000, propCellsBurned, caribouFn, propCellBurnedFn) { # data
+#'
+#'    # make a copy of simList because it will possibly be altered by spades call
+#'    sim1 <- SpaDES::copy(sim)
+#'
+#'    # take the parameters and assign them to simList
+#'    params(sim1)$fireSpread$spreadprob <- pars[1]
+#'    params(sim1)$caribouMovement$N <- pars[2]
+#'
+#'    # run spades, without plotting
+#'    out <- spades(sim1, .plotInitialTime = NA)
+#'
+#'    # calculate outputs
 #'    propCellBurnedOut <- propCellBurnedFn(out$landscape)
 #'    N1000_Out <- caribouFn(out$caribou)
 #'
 #'    minimizeFn <- abs(N1000_Out - N1000) +
 #'                  abs(propCellBurnedOut - propCellBurnedData)
+#'
+#'    # have more info reported to console, if desired
+#'    # cat(minimizeFn)
+#'    # cat(" ")
+#'    # cat(pars)
+#'    # cat("\n")
+#'
 #'    return(minimizeFn)
 #'  }
 #'
@@ -209,16 +235,31 @@
 #'  #  to vary, and pass all necessary objects required for the
 #'  #  objFn
 #'
-#'  # list all the parameters in the simList
-#'  p(mySim)
-#'  # choose 2 of them to vary
+#'
+#'  # choose 2 of them to vary. Need to identify them in params & inside objFn
 #'  out5 <- POM(mySim, params = c("spreadprob", "N"),
 #'              objFn = objFnEx,
 #'              N1000 = N1000,
 #'              propCellBurnedData = propCellBurnedData,
 #'              caribouFn = caribouFn,
-#'              propCellBurnedFn = propCellBurnedFn, # uncomment for cluster
-#'              cl = cl)# uncomment for cluster
+#'              propCellBurnedFn = propCellBurnedFn)#, # uncomment for cluster
+#'              #cl = cl)# uncomment for cluster
+#'
+#'  # Change optimization parameters to alter how convergence is achieved
+#'  out6 <- POM(mySim, params = c("spreadprob", "N"),
+#'              objFn = objFnEx,
+#'              N1000 = N1000,
+#'              propCellBurnedData = propCellBurnedData,
+#'              caribouFn = caribouFn,
+#'              propCellBurnedFn = propCellBurnedFn,
+#'              #cl = cl, # uncomment for cluster
+#'              # see ?DEoptim.control for explanation of these options
+#'              optimControl = list(steptol = 3,
+#'                                  initialpop = matrix(c(runif(40, 0.2, 0.24),
+#'                                                        runif(40, 80, 120)),
+#'                                                      ncol = 2)
+#'                                  )
+#'              )
 #'  }
 setGeneric(
   "POM",
