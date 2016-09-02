@@ -402,7 +402,7 @@ setMethod(
         deoptimArgs$cl <- cl
       }
       deoptimArgs$control$NP <- 20*length(lowerRange)
-      deoptimArgs$control$itermax <- 20
+      #deoptimArgs$control$itermax <- 20
       if (!is.null(optimControl)) {
         deoptimArgs$control[names(optimControl)] <- optimControl
       }
@@ -417,12 +417,7 @@ setMethod(
         deoptimArgs$sim <- sim
       }
 
-      # deoptimArgs$control <- DEoptim.control(steptol = 3,
-      #                                        parallelType = 3,
-      #                                        initialpop = matrix(c(runif(40, 0.2, 0.24),
-      #                                                              runif(40, 80, 120)),
-      #                                                            ncol = 2)
-      #                                      )
+      deoptimArgs$control <- do.call(DEoptim.control, deoptimArgs$control)
       output <- do.call("DEoptim", deoptimArgs)
     } else {
       if (!is.null(list(...)$hessian) | sterr)
