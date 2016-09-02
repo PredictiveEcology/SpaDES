@@ -417,15 +417,13 @@ setMethod(
         deoptimArgs$sim <- sim
       }
 
-      browser()
-      deoptimArgs$control <- DEoptim.control(steptol = 3,
-                                             parallelType = 3,
-                                             initialpop = matrix(c(runif(40, 0.2, 0.24),
-                                                                   runif(40, 80, 120)),
-                                                                 ncol = 2)
-                                           )
+      # deoptimArgs$control <- DEoptim.control(steptol = 3,
+      #                                        parallelType = 3,
+      #                                        initialpop = matrix(c(runif(40, 0.2, 0.24),
+      #                                                              runif(40, 80, 120)),
+      #                                                            ncol = 2)
+      #                                      )
       output <- do.call("DEoptim", deoptimArgs)
-      browser()
     } else {
       if (!is.null(list(...)$hessian) | sterr)
         deoptimArgs <- append(deoptimArgs,
