@@ -205,7 +205,7 @@ if convergence was not achieved at termination of the optimization.
  #   - pass data that will be used internally for objective function
  objFnEx <- function(pars, # param values
                      sim, # simList object
-                     N1000, propCellsBurned, caribouFn, propCellBurnedFn) { # data
+                     N1000, propCellBurnedData, caribouFn, propCellBurnedFn) { # data
 
    # make a copy of simList because it will possibly be altered by spades call
    sim1 <- SpaDES::copy(sim)
@@ -244,10 +244,11 @@ if convergence was not achieved at termination of the optimization.
              N1000 = N1000,
              propCellBurnedData = propCellBurnedData,
              caribouFn = caribouFn,
-             propCellBurnedFn = propCellBurnedFn)#, # uncomment for cluster
-             #cl = cl)# uncomment for cluster
+             propCellBurnedFn = propCellBurnedFn, # uncomment for cluster
+             cl = cl)# uncomment for cluster
 
  # Change optimization parameters to alter how convergence is achieved
+
  out6 <- POM(mySim, params = c("spreadprob", "N"),
              objFn = objFnEx,
              N1000 = N1000,
@@ -256,11 +257,28 @@ if convergence was not achieved at termination of the optimization.
              propCellBurnedFn = propCellBurnedFn,
              cl = cl, # uncomment for cluster
              # see ?DEoptim.control for explanation of these options
-             optimControl = list(initialpop = matrix(c(runif(40, 0.2, 0.24),
+             optimControl = list(steptol = 3, # start assessing convergence after 3 iterations
+                                 initialpop = matrix(c(runif(40, 0.2, 0.24),
                                                        runif(40, 80, 120)),
                                                      ncol = 2)
                                  )
              )
+
+out7 <- DEoptim(fn = objFnEx,
+                sim = mySim,
+                N1000 = N1000,
+                propCellBurnedData = propCellBurnedData,
+                caribouFn = caribouFn,
+                propCellBurnedFn = propCellBurnedFn,
+                cl = cl, # uncomment for cluster
+                # see ?DEoptim.control for explanation of these options
+                control = DEoptim.control(steptol = 3, parallelType = 3,
+                                          initialpop = matrix(c(runif(40, 0.2, 0.24),
+                                                                runif(40, 80, 120)),
+                                                              ncol = 2)
+                ),
+                lower = c(0.2, 80), upper = c(0.24, 120))
+
  }
 }
 \author{
