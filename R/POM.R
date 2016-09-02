@@ -32,7 +32,7 @@
 #' There are many options that can be passed to \code{\link[DEoptim]{DEoptim}},
 #' (the details of which are in the help), using \code{optimControl}. The defaults
 #' sent from \code{POM} to \code{DEoptim} are: NP = 2 * length(params) and itermax =
-#' 20 (meaning it won't go past 20 iterations). These and others may need to be adjusted to obtain good values. NOTE:
+#' 200 (meaning it won't go past 200 iterations). These and others may need to be adjusted to obtain good values. NOTE:
 #' DEoptim does not provide a direct estimate of confidence intervals. Also,
 #' convergence is unreliable, and often only occurs because \code{itermax} is reached. Even
 #' when convergence is indicated, the estimates are not guaranteed to be global
@@ -283,7 +283,7 @@ setGeneric(
   function(sim, params, objects, objFn, cl, optimizer = "DEoptim",
            sterr = FALSE, ..., objFnCompare = "MAD", optimControl = NULL) {
     standardGeneric("POM")
-})
+  })
 
 #' @rdname POM
 setMethod(
@@ -390,9 +390,9 @@ setMethod(
       lowerRange[whP] <- unlist(deps[[modName]]@parameters$min[deps[[modName]]@parameters$paramName == names(p(sim, modName)[whParamsByMod[whP]])])
     }
     deoptimArgs <- list(fn = objFn, lower = lowerRange, upper = upperRange,
-                          sim = sim, objects = objects,
-                          whModules = whModules, whParams = whParams,
-                          whParamsByMod = whParamsByMod)
+                        sim = sim, objects = objects,
+                        whModules = whModules, whParams = whParams,
+                        whParamsByMod = whParamsByMod)
 
 
     if (optimizer == "DEoptim") {
@@ -418,7 +418,9 @@ setMethod(
       }
 
       deoptimArgs$control <- do.call(DEoptim.control, deoptimArgs$control)
+
       output <- do.call("DEoptim", deoptimArgs)
+
     } else {
       if (!is.null(list(...)$hessian) | sterr)
         deoptimArgs <- append(deoptimArgs,
@@ -459,4 +461,4 @@ setMethod(
     }
     output$args <- deoptimArgs
     return(output)
-})
+  })

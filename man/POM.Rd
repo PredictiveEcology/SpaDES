@@ -97,7 +97,7 @@ to be different parameter limits for optimization.
 There are many options that can be passed to \code{\link[DEoptim]{DEoptim}},
 (the details of which are in the help), using \code{optimControl}. The defaults
 sent from \code{POM} to \code{DEoptim} are: NP = 2 * length(params) and itermax =
-20 (meaning it won't go past 20 iterations). These and others may need to be adjusted to obtain good values. NOTE:
+200 (meaning it won't go past 200 iterations). These and others may need to be adjusted to obtain good values. NOTE:
 DEoptim does not provide a direct estimate of confidence intervals. Also,
 convergence is unreliable, and often only occurs because \code{itermax} is reached. Even
 when convergence is indicated, the estimates are not guaranteed to be global
