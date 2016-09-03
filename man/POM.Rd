@@ -19,16 +19,10 @@ POM(sim, params, objects, objFn, cl, optimizer = "DEoptim", sterr = FALSE,
 \item{params}{Character vector of parameter names that can be changed by the optimizer. These
 must be accessible with \code{params(sim)} internally.}
 
-\item{objects}{A optional named list.
+\item{objects}{A optional named list (must be specified if objFn is not).
 The names of each list element must correspond to an object in the
 \code{.GlobalEnv} and the list elements must be objects that can be accessed in
-the ls(sim) internally.
-Each of these pairs will be assessed against one another using
-the \code{objFnCompare}. The function will attempt to standardize
-so that the comparison will be on a scale from 0 to 1. However, it is
-not always clear what the minimum and maximum are. Therefore,
-it is likely more reliable for the user to do the
-standardization manually. See examples.}
+the ls(sim) internally. See details and examples.}
 
 \item{objFn}{An optional objective function to be passed into \code{optimizer}.
 If missing, then \code{POM} will use \code{objFnCompare} and
@@ -45,7 +39,9 @@ more control over cluster use.}
 
 \item{optimizer}{The function to use to optimize. Default is
 "DEoptim". Currently it can also be "optim" or "rgenoud", which
-use \code{stats::optim} or \code{rgenoud::genoud}, respectively.}
+use \code{stats::optim} or \code{rgenoud::genoud}, respectively.
+The latter two do not seem optimal for stochastic problems and have
+not been widely tested.}
 
 \item{sterr}{Logical. If using \code{optimizer = "optim"}, the hessian can be calculated.
 If this is TRUE, then the standard errors can be estimated using
@@ -62,13 +58,20 @@ optimization routine. Currently, only passed to
 \code{\link{DEoptim.control}} when \code{optimizer} is \code{"DEoptim"}}
 }
 \value{
-The values for parameters used in objFn that minimize the objFn.
+A list with at least 2 elements. The first (or first several) will
+be the returned object from the optimizer. The second (or last if there are
+more than 2), named \code{args} is the set of arguments that were passed
+into the control of the optimizer.
 }
 \description{
 This is very much in alpha condition. It has been tested on simple problems,
 as shown in the examples, with up to 2 parameters.
 It appears that DEoptim is the superior package for the stochastic problems.
-This should be used with caution as with all optimization routines.
+This should be used with caution as with all optimization routines. This function
+can nevertheless take optim or genoud as optimizers, using
+\code{stats::optim} or \code{rgenoud::genoud}, respectively. These latter
+do not seem appropriate for stochastic problems however, and have not
+been widely tested.
 }
 \details{
 There are two ways to use this function, via 1) \code{objFn} or 2) \code{objects}.
@@ -94,9 +97,22 @@ may have troubles. Currently, there is no way to override these upper
 and lower limits; the module metadata should be changed if there needs
 to be different parameter limits for optimization.
 
+\code{objects} is a named list of data--pattern pairs.
+Each of these pairs will be assessed against one another using
+the \code{objFnCompare}. if there is more than one data--pattern
+pair, then they will simply be added together in the objective
+function. This gives equal weight to each pair. Thus, if there is
+more than one data--pattern pair,
+the user may wish to standarize the pairs (say between 0 and 1) so that
+they are all on or about the same scale. Alternatively, the user
+may wish to weight them differently, in which case, their relative
+scales can be adjusted.
+
 There are many options that can be passed to \code{\link[DEoptim]{DEoptim}},
 (the details of which are in the help), using \code{optimControl}. The defaults
-sent from \code{POM} to \code{DEoptim} are: NP = 2 * length(params) and itermax =
+sent from \code{POM} to \code{DEoptim} are: steptol = 3 (meaning it will start
+assessing convergence after 3 iterations, \code{NP = 2 * length(params)}
+(meaning the population size is 20 x the number of parameters) and itermax =
 200 (meaning it won't go past 200 iterations). These and others may need to be adjusted to obtain good values. NOTE:
 DEoptim does not provide a direct estimate of confidence intervals. Also,
 convergence is unreliable, and often only occurs because \code{itermax} is reached. Even
@@ -147,49 +163,39 @@ if convergence was not achieved at termination of the optimization.
  #  not work well for stochastic models, but it works fine here
  #  because this is a simple problem
 
- # can use cluster if computer is multi-threaded
- #cl <- makeCluster(8) # uncomment, and change argument for your computer
+ # often not reliable for stochastic problems
  out <- POM(mySim, "spreadprob", optimizer = "optim",
             list(propCellBurnedData = propCellBurnedFn),
             hessian = TRUE) # using optim, can get Hessian
- #    cl = cl) # need this if using a cluster
 
- # Try same fit using DEoptim
- out <- POM(mySim, "spreadprob", list(propCellBurnedData = propCellBurnedFn),
-            optimizer = "DEoptim")#, # uncomment for cluster
-            #cl = cl) # uncomment for cluster
+ # Try same fit using DEoptim, the default
+ # can use cluster if computer is multi-threaded
+ cl <- makeCluster(detectCores() - 1) # comment out if no cluster desired
+ out1 <- POM(mySim, "spreadprob",
+            list(propCellBurnedData = propCellBurnedFn), # data = pattern pair
+            cl = cl) # comment out if no cluster
 
 # Example 2 - 2 parameters
  # Function defined that will use caribou from sim$caribou, with
  #  the return value being compared via MAD with N1000
  # Here, divide by 1000 so the numbers are in the range of 0 to 1
+ #  (because the possible range of values in the metadata for caribouMovement
+ #  module, parameter N, is from 10 to 1000)
  caribouFn <- function(caribou) length(caribou)/1000
 
  # Extract "data" from simList object (normally, this would be actual data)
  N1000 <- caribouFn(out$caribou)
 
- # This next block of 3 POM calls can take a long time (many hours for
- #  genoud)
  aTime <- Sys.time()
  out2 <- POM(mySim, c("spreadprob", "N"),
             list(propCellBurnedData = propCellBurnedFn,
                  N1000 = caribouFn),
-            optimizer = "DEoptim",
             cl = cl)
  bTime <- Sys.time()
- out3 <- POM(mySim, c("spreadprob", "N"),
-    list(propCellBurnedData = propCellBurnedFn,
-         N1000 = caribouFn), hessian = TRUE)#,
-     #cl = cl)
- cTime <- Sys.time()
- out4 <- POM(mySim, c("spreadprob", "N"),
-    list(propCellBurnedData = propCellBurnedFn,
-         N1000 = caribouFn), optimizer = "genoud",
-     cl = cl3)
- dTime <- Sys.time()
+ # check that population overlaps known values (0.225 and 100)
+ apply(out2$member$pop, 2, quantile, c(0.025, 0.975))
+
  print(paste("DEoptim", format(bTime - aTime)))
- print(paste("optim", format(cTime - bTime)))
- print(paste("genoud", format(dTime - cTime)))
  #stopCluster(cl)
 
 # Example 3 - using objFn instead of objects
@@ -239,17 +245,8 @@ if convergence was not achieved at termination of the optimization.
 
 
  # choose 2 of them to vary. Need to identify them in params & inside objFn
- out5 <- POM(mySim, params = c("spreadprob", "N"),
-             objFn = objFnEx,
-             N1000 = N1000,
-             propCellBurnedData = propCellBurnedData,
-             caribouFn = caribouFn,
-             propCellBurnedFn = propCellBurnedFn, # uncomment for cluster
-             cl = cl)# uncomment for cluster
-
  # Change optimization parameters to alter how convergence is achieved
-
- out6 <- POM(mySim, params = c("spreadprob", "N"),
+ out5 <- POM(mySim, params = c("spreadprob", "N"),
              objFn = objFnEx,
              N1000 = N1000,
              propCellBurnedData = propCellBurnedData,
@@ -257,13 +254,16 @@ if convergence was not achieved at termination of the optimization.
              propCellBurnedFn = propCellBurnedFn,
              cl = cl, # uncomment for cluster
              # see ?DEoptim.control for explanation of these options
-             optimControl = list(steptol = 3, # start assessing convergence after 3 iterations
+             optimControl = list(NP = 100, # run 100 populations, allowing quantiles to be calculated
                                  initialpop = matrix(c(runif(40, 0.2, 0.24),
                                                        runif(40, 80, 120)),
                                                      ncol = 2)
                                  )
              )
 
+# Can also use an optimizer directly -- miss automatic parameter bounds,
+#  and automatic objective function using option 2
+require(DEoptim)
 out7 <- DEoptim(fn = objFnEx,
                 sim = mySim,
                 N1000 = N1000,
@@ -275,8 +275,7 @@ out7 <- DEoptim(fn = objFnEx,
                 control = DEoptim.control(steptol = 3, parallelType = 3,
                                           initialpop = matrix(c(runif(40, 0.2, 0.24),
                                                                 runif(40, 80, 120)),
-                                                              ncol = 2)
-                ),
+                                                              ncol = 2)),
                 lower = c(0.2, 80), upper = c(0.24, 120))
 
  }
