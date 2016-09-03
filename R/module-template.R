@@ -703,6 +703,11 @@ setMethod("openModules",
             if(length(hasTests)>0)
               Rfiles <- Rfiles[-hasTests]
 
+            onlyModuleRFile <- grep(pattern = file.path(name,name),Rfiles)
+            if(length(onlyModuleRFile)>0)
+              Rfiles <- Rfiles[onlyModuleRFile]
+
+
             # Open Rmd file also
             RfileRmd <- dir(pattern = paste0(name,".[rR]md$"), recursive = TRUE, full.names = TRUE)
 
