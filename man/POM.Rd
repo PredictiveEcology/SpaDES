@@ -141,7 +141,7 @@ if convergence was not achieved at termination of the optimization.
  #  are real data, then rerun the POM function next,
  #  comparing these "data" with the simulated values
  #  using Mean Absolute Deviation
- out <- spades(copy(mySim), .plotInitialTime = NA)
+ outData <- spades(copy(mySim), .plotInitialTime = NA)
 
  # Extract the "true" data, in this case, the "proportion of cells burned"
  # Function defined that will use landscape$Fires map from simList,
@@ -150,10 +150,10 @@ if convergence was not achieved at termination of the optimization.
  propCellBurnedFn <- function(landscape) {
               sum(getValues(landscape$Fires))/ncell(landscape$Fires)
             }
- propCellBurnedData <- propCellBurnedFn(out$landscape)
+ propCellBurnedData <- propCellBurnedFn(outData$landscape)
  # visualize the burned maps of true "data"
  clearPlot()
- Plot(out$landscape$Fires)
+ Plot(outData$landscape$Fires)
 
 # Example 1 - 1 parameter
  # In words, this says, "find the best value of spreadprob such that
@@ -184,7 +184,7 @@ if convergence was not achieved at termination of the optimization.
  caribouFn <- function(caribou) length(caribou)/1000
 
  # Extract "data" from simList object (normally, this would be actual data)
- N1000 <- caribouFn(out$caribou)
+ N1000 <- caribouFn(outData$caribou)
 
  aTime <- Sys.time()
  out2 <- POM(mySim, c("spreadprob", "N"),
@@ -255,8 +255,8 @@ if convergence was not achieved at termination of the optimization.
              cl = cl, # uncomment for cluster
              # see ?DEoptim.control for explanation of these options
              optimControl = list(NP = 100, # run 100 populations, allowing quantiles to be calculated
-                                 initialpop = matrix(c(runif(40, 0.2, 0.24),
-                                                       runif(40, 80, 120)),
+                                 initialpop = matrix(c(runif(100, 0.2, 0.24),
+                                                       runif(100, 80, 120)),
                                                      ncol = 2)
                                  )
              )
