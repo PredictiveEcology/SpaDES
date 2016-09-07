@@ -21,10 +21,11 @@ This will be overridden by \code{p}, \code{A} or
 A map of extent \code{ext} with random polygons.
 }
 \description{
-Produces a raster of with random polygons. These are built with the
-\code{\link{spread}} function internally.
+Produces a raster of random polygons.
+These are built with the \code{\link{spread}} function internally.
 }
 \examples{
+set.seed(1234)
 Ras <- randomPolygons(numTypes = 5)
 if (interactive()) {
   clearPlot()
@@ -33,7 +34,7 @@ if (interactive()) {
 
 library(raster)
 # more complex patterning, with a range of patch sizes
-a = randomPolygons(numTypes = 400, raster(extent(0, 50, 0, 50), res = 1))
+a <- randomPolygons(numTypes = 400, raster(extent(0, 50, 0, 50), res = 1))
 a[a<320] <- 0
 a[a>=320] <- 1
 aHist <- hist(table(getValues(clump(a, directions = 4))), plot = FALSE)
