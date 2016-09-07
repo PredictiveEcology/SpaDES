@@ -252,12 +252,11 @@
 #'              propCellBurnedFn = propCellBurnedFn,
 #'              cl = cl, # uncomment for cluster
 #'              # see ?DEoptim.control for explanation of these options
-#'              optimControl = list(NP = 100, # run 100 populations, allowing quantiles to be calculated
-#'                                  initialpop = matrix(c(runif(100, 0.2, 0.24),
-#'                                                        runif(100, 80, 120)),
-#'                                                      ncol = 2)
-#'                                  )
+#'              optimControl = list(
+#'                NP = 100, # run 100 populations, allowing quantiles to be calculated
+#'                initialpop = matrix(c(runif(100, 0.2, 0.24), runif(100, 80, 120)), ncol = 2)
 #'              )
+#'            )
 #'
 #' # Can also use an optimizer directly -- miss automatic parameter bounds,
 #' #  and automatic objective function using option 2
@@ -307,7 +306,7 @@ setMethod(
     whParamsByMod <- unlist(lapply(whParams, na.omit))
     #whParamsList1 <- match(params, unlist(lapply(SpaDES::params(sim), names)))
 
-    if(missing(objects)) {
+    if (missing(objects)) {
       objects <- NULL
     }
 
@@ -365,7 +364,7 @@ setMethod(
     }
 
     if (!is.null(cl)) {
-      if(userSuppliedObjFn) {
+      if (userSuppliedObjFn) {
         clusterExport(cl, c("sim", names(dots)), envir = sys.frame(1))
       } else {
         clusterExport(cl, c("sim", names(objects)), envir = sys.frame(1))
@@ -408,7 +407,7 @@ setMethod(
         deoptimArgs$control[names(optimControl)] <- optimControl
       }
 
-      if(userSuppliedObjFn) {
+      if (userSuppliedObjFn) {
         dots <- list(...)
         de1 <- deoptimArgs[na.omit(match(names(formals(DEoptim)), names(deoptimArgs)))]
         de2 <- dots[na.omit(match(names(formals(objFn)), names(dots)))]
@@ -486,14 +485,15 @@ setMethod(
 #' @include environment.R
 #' @include priority.R
 #' @importFrom DEoptim DEoptim.control
-#' @importFrom parallel clusterCall clusterExport parApply detectCores
+#' @importFrom foreach '%dopar%' foreach getDoParRegistered registerDoSEQ
+#' @importFrom iterators iter
+#' @importFrom parallel clusterCall clusterExport detectCores parApply
 #' @docType methods
 #' @rdname DEoptim2
 #'
 #' @author DEoptim authors with Eliot McIntire modification
-DEoptim2 <- function (fn, lower, upper, control = DEoptim.control(), ...,
-          cl, fnMap = NULL)
-{
+DEoptim2 <- function(fn, lower, upper, control = DEoptim.control(), ...,
+                     cl, fnMap = NULL) {
   if (length(lower) != length(upper))
     stop("'lower' and 'upper' are not of same length")
   if (!is.vector(lower))

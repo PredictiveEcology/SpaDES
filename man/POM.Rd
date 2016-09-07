@@ -254,12 +254,11 @@ if convergence was not achieved at termination of the optimization.
              propCellBurnedFn = propCellBurnedFn,
              cl = cl, # uncomment for cluster
              # see ?DEoptim.control for explanation of these options
-             optimControl = list(NP = 100, # run 100 populations, allowing quantiles to be calculated
-                                 initialpop = matrix(c(runif(100, 0.2, 0.24),
-                                                       runif(100, 80, 120)),
-                                                     ncol = 2)
-                                 )
+             optimControl = list(
+               NP = 100, # run 100 populations, allowing quantiles to be calculated
+               initialpop = matrix(c(runif(100, 0.2, 0.24), runif(100, 80, 120)), ncol = 2)
              )
+           )
 
 # Can also use an optimizer directly -- miss automatic parameter bounds,
 #  and automatic objective function using option 2
