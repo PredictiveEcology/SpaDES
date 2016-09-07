@@ -111,14 +111,21 @@ scales can be adjusted.
 There are many options that can be passed to \code{\link[DEoptim]{DEoptim}},
 (the details of which are in the help), using \code{optimControl}. The defaults
 sent from \code{POM} to \code{DEoptim} are: steptol = 3 (meaning it will start
-assessing convergence after 3 iterations, \code{NP = 2 * length(params)}
+assessing convergence after 3 iterations (WHICH MAY NOT BE SUFFICIENT FOR YOUR PROBLEM),
+\code{NP = 2 * length(params)}
 (meaning the population size is 20 x the number of parameters) and itermax =
-200 (meaning it won't go past 200 iterations). These and others may need to be adjusted to obtain good values. NOTE:
+200 (meaning it won't go past 200 iterations). These and others may need to be adjusted to
+obtain good values. NOTE:
 DEoptim does not provide a direct estimate of confidence intervals. Also,
-convergence is unreliable, and often only occurs because \code{itermax} is reached. Even
+convergence may be unreliable, and may occur because \code{itermax} is reached. Even
 when convergence is indicated, the estimates are not guaranteed to be global
 optima. This is different than other optimizers that will normally indicate
 if convergence was not achieved at termination of the optimization.
+
+Using this function with a parallel cluster currently requires that you pass
+\code{optimControl(list(parallelType = 1))} (and does not yet accept the \code{cl} argument).
+This setting will use all available threads on your computer. Future versions of this will allow
+passing of a custom cluster object via \code{cl} argument.
 }
 \examples{
 \dontrun{
@@ -169,11 +176,19 @@ if convergence was not achieved at termination of the optimization.
             hessian = TRUE) # using optim, can get Hessian
 
  # Try same fit using DEoptim, the default
- # can use cluster if computer is multi-threaded
- cl <- makeCluster(detectCores() - 1) # comment out if no cluster desired
+ # Can use cluster if computer is multi-threaded (but not yet via cl arg, which is not
+ #                                                implemented yet in DEoptim)
+ # This example uses parallelType = 1 in DEoptim. For this, you must manually
+ #  pass all packages and variables as character strings.
+ # cl <- makeCluster(detectCores() - 1) # not implemented yet in DEoptim
  out1 <- POM(mySim, "spreadprob",
-            list(propCellBurnedData = propCellBurnedFn), # data = pattern pair
-            cl = cl) # comment out if no cluster
+             list(propCellBurnedData = propCellBurnedFn), # data = pattern pair
+             #cl = cl) # comment out if no cluster # not implemented, waiting for DEoptim pkg
+             propCellBurnedData = propCellBurnedData,
+             optimControl = list(
+               parallelType = 1,
+               packages = c("raster", "SpaDES", "RColorBrewer"),
+               parVar = list("propCellBurnedData", "mySim", "propCellBurnedFn")))
 
 # Example 2 - 2 parameters
  # Function defined that will use caribou from sim$caribou, with
@@ -190,13 +205,19 @@ if convergence was not achieved at termination of the optimization.
  out2 <- POM(mySim, c("spreadprob", "N"),
             list(propCellBurnedData = propCellBurnedFn,
                  N1000 = caribouFn),
-            cl = cl)
+             optimControl = list(
+               parallelType = 1,
+               packages = c("raster", "SpaDES", "RColorBrewer"),
+               parVar = list("propCellBurnedData", "mySim",
+                             "propCellBurnedFn", "N1000", "caribouFn")))
+                 #,
+            #cl = cl) # not yet implemented, waiting for DEoptim
  bTime <- Sys.time()
  # check that population overlaps known values (0.225 and 100)
  apply(out2$member$pop, 2, quantile, c(0.025, 0.975))
 
  print(paste("DEoptim", format(bTime - aTime)))
- #stopCluster(cl)
+ #stopCluster(cl) # not yet implemented, waiting for DEoptim
 
 # Example 3 - using objFn instead of objects
 
@@ -252,11 +273,14 @@ if convergence was not achieved at termination of the optimization.
              propCellBurnedData = propCellBurnedData,
              caribouFn = caribouFn,
              propCellBurnedFn = propCellBurnedFn,
-             cl = cl, # uncomment for cluster
+             #cl = cl, # uncomment for cluster # not yet implemented, waiting for DEoptim
              # see ?DEoptim.control for explanation of these options
              optimControl = list(
                NP = 100, # run 100 populations, allowing quantiles to be calculated
-               initialpop = matrix(c(runif(100, 0.2, 0.24), runif(100, 80, 120)), ncol = 2)
+               initialpop = matrix(c(runif(100, 0.2, 0.24), runif(100, 80, 120)), ncol = 2),
+               parallelType = 1,
+               packages = list("raster", "SpaDES", "RColorBrewer"),
+               parVar = list("objFnEx")
              )
            )
 
@@ -269,9 +293,12 @@ out7 <- DEoptim(fn = objFnEx,
                 propCellBurnedData = propCellBurnedData,
                 caribouFn = caribouFn,
                 propCellBurnedFn = propCellBurnedFn,
-                cl = cl, # uncomment for cluster
+                # cl = cl, # uncomment for cluster
                 # see ?DEoptim.control for explanation of these options
-                control = DEoptim.control(steptol = 3, parallelType = 3,
+                control = DEoptim.control(steptol = 3, # parallelType = 3,
+                                          parallelType = 1,
+                                          packages = list("raster", "SpaDES", "RColorBrewer"),
+                                          parVar = list("objFnEx")),
                                           initialpop = matrix(c(runif(40, 0.2, 0.24),
                                                                 runif(40, 80, 120)),
                                                               ncol = 2)),
