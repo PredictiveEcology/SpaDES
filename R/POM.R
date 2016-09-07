@@ -473,7 +473,7 @@ setMethod(
 #' \code{parallelType == 3}, and a new argument, \code{cl}, allowing a custom
 #' cluster object to be provided.
 #'
-#' @inheritParams DEoptim
+#' @inheritParams DEoptim::DEoptim
 #' @inheritParams splitRaster
 #'
 #' @return See \code{\link[DEoptim]{DEoptim}}.
@@ -486,6 +486,7 @@ setMethod(
 #' @include environment.R
 #' @include priority.R
 #' @importFrom DEoptim DEoptim.control
+#' @importFrom parallel clusterCall clusterExport parApply detectCores
 #' @docType methods
 #' @rdname DEoptim2
 #'

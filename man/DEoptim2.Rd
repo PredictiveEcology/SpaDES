@@ -9,10 +9,27 @@ DEoptim2(fn, lower, upper, control = DEoptim.control(), ..., cl,
   fnMap = NULL)
 }
 \arguments{
+\item{fn}{the function to be optimized (minimized). The function should have as its first 
+    argument the vector of real-valued parameters to optimize, and return a scalar real result. \code{NA} 
+    and \code{NaN} values are not allowed.}
+
+\item{lower}{two vectors specifying scalar real lower and upper
+    bounds on each parameter to be optimized, so that the i-th element 
+    of \code{lower} and \code{upper} applies to the i-th parameter. The implementation searches
+    between \code{lower} and \code{upper} for the global optimum (minimum) of \code{fn}.}
+
+\item{control}{a list of control parameters; see \code{\link{DEoptim.control}}.}
+
+\item{...}{further arguments to be passed to \code{fn}.}
+
 \item{cl}{A cluster object. Optional. This would generally be created using
 parallel::makeCluster or equivalent. This is an alternative way, instead
 of beginCluster(), to use parallelism for this function, allowing for
 more control over cluster use.}
+
+\item{fnMap}{an optional function that will be run after each population is
+    created, but before the population is passed to the objective function. This
+    allows the user to impose integer/cardinality constriants.}
 }
 \value{
 See \code{\link[DEoptim]{DEoptim}}.
