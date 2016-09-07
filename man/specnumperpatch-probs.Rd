@@ -29,6 +29,7 @@ linked by a column in that table called \code{pops}.
 \examples{
 library(raster)
 library(data.table)
+set.seed(1234)
 Ntypes <- 4
 ras <- randomPolygons(numTypes = Ntypes)
 if(interactive()) {
@@ -41,6 +42,7 @@ patchDT <- data.table(pops = 1:Ntypes, num.in.pop = c(1, 3, 5, 7))
 rasAgents <- specificNumPerPatch(ras, patchDT)
 rasAgents[is.na(rasAgents)] <- 0
 #Plot(rasAgents)
+
 library(testthat)
 expect_true(all(unname(table(ras[rasAgents])) == patchDT$num.in.pop))
 
@@ -49,7 +51,7 @@ rasPatches <- ras
 for (i in 1:Ntypes) {
   rasPatches[rasPatches==i] <- patchDT$num.in.pop[i]
 }
-if(interactive()) {
+if (interactive()) {
   clearPlot()
   Plot(ras, rasPatches)
 }

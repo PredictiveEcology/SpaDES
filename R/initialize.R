@@ -182,6 +182,7 @@ randomPolygons <- function(ras = raster(extent(0,15,0,15), res = 1),
 #' @examples
 #' library(raster)
 #' library(data.table)
+#' set.seed(1234)
 #' Ntypes <- 4
 #' ras <- randomPolygons(numTypes = Ntypes)
 #' if(interactive()) {
@@ -194,6 +195,7 @@ randomPolygons <- function(ras = raster(extent(0,15,0,15), res = 1),
 #' rasAgents <- specificNumPerPatch(ras, patchDT)
 #' rasAgents[is.na(rasAgents)] <- 0
 #' #Plot(rasAgents)
+#'
 #' library(testthat)
 #' expect_true(all(unname(table(ras[rasAgents])) == patchDT$num.in.pop))
 #'
@@ -230,8 +232,8 @@ specificNumPerPatch <- function(patches, numPerPatchTable = NULL, numPerPatchMap
     stop("need numPerPatchMap or numPerPatchTable")
   }
 
-  resample <- function(x, ...) x[sample.int(length(x), ...)]
-  dt3 <- dt2[, list(cells = resample(wh, unique(num.in.pop))), by = "pops"]
+  resample2 <- function(x, ...) x[sample.int(length(x), ...)]
+  dt3 <- dt2[, list(cells = resample2(wh, unique(num.in.pop))), by = "pops"]
   dt3$ids <- rownames(dt3)
 
   al <- raster(patches)
