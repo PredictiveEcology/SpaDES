@@ -203,21 +203,17 @@ setMethod(
         parent_ids <- c(parent_ids, j)
       }
 
-      # run .init file from each module, one at a time, and remove it so next module
-      #  won't rerun it
+      # run .inputObjects function from each module, one at a time, and remove it
+      # from the simList so next module
+      #  won't rerun it (because all modules would have the same function '.inputObjects',
+      #  which would override each other)
 
       #if(is.null(userSuppliedObjNames)) {
       # if user supplies the needed objects, then test whether all
       # are supplied. If they are all supplied, then skip the .inputObjects code
       if(!all(depends(sim)@dependencies[[i]]@inputObjects$objectName %in% userSuppliedObjNames)) {
-        if(!is.null(sim@.envir$.init)) {
-          message("Your module includes a function, \".init\". This will be removed in",
-                  " a future version of SpaDES. Please use \".inputObjects\"")
-          sim <- sim@.envir$.init(sim)
-          rm(".init", envir = envir(sim))
-        }
 
-        # This is here to grandfather in the .init approach
+        # This is here to grandfather in the .inputObjects approach
         if(!is.null(sim@.envir$.inputObjects)) {
           sim <- sim@.envir$.inputObjects(sim)
           rm(".inputObjects", envir = envir(sim))
