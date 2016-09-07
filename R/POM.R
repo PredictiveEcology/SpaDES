@@ -393,7 +393,6 @@ setMethod(
                         whModules = whModules, whParams = whParams,
                         whParamsByMod = whParamsByMod)
 
-
     if (optimizer == "DEoptim") {
       deoptimArgs$control <- DEoptim.control()
       if (!is.null(cl)) {
@@ -462,6 +461,3 @@ setMethod(
     output$args <- deoptimArgs
     return(output)
   })
-
-
-
