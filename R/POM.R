@@ -252,12 +252,11 @@
 #'              propCellBurnedFn = propCellBurnedFn,
 #'              cl = cl, # uncomment for cluster
 #'              # see ?DEoptim.control for explanation of these options
-#'              optimControl = list(NP = 100, # run 100 populations, allowing quantiles to be calculated
-#'                                  initialpop = matrix(c(runif(100, 0.2, 0.24),
-#'                                                        runif(100, 80, 120)),
-#'                                                      ncol = 2)
-#'                                  )
+#'              optimControl = list(
+#'                NP = 100, # run 100 populations, allowing quantiles to be calculated
+#'                initialpop = matrix(c(runif(100, 0.2, 0.24), runif(100, 80, 120)), ncol = 2)
 #'              )
+#'            )
 #'
 #' # Can also use an optimizer directly -- miss automatic parameter bounds,
 #' #  and automatic objective function using option 2
@@ -307,7 +306,7 @@ setMethod(
     whParamsByMod <- unlist(lapply(whParams, na.omit))
     #whParamsList1 <- match(params, unlist(lapply(SpaDES::params(sim), names)))
 
-    if(missing(objects)) {
+    if (missing(objects)) {
       objects <- NULL
     }
 
@@ -365,7 +364,7 @@ setMethod(
     }
 
     if (!is.null(cl)) {
-      if(userSuppliedObjFn) {
+      if (userSuppliedObjFn) {
         clusterExport(cl, c("sim", names(dots)), envir = sys.frame(1))
       } else {
         clusterExport(cl, c("sim", names(objects)), envir = sys.frame(1))
@@ -408,7 +407,7 @@ setMethod(
         deoptimArgs$control[names(optimControl)] <- optimControl
       }
 
-      if(userSuppliedObjFn) {
+      if (userSuppliedObjFn) {
         dots <- list(...)
         de1 <- deoptimArgs[na.omit(match(names(formals(DEoptim)), names(deoptimArgs)))]
         de2 <- dots[na.omit(match(names(formals(objFn)), names(dots)))]
