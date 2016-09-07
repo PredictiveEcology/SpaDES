@@ -703,7 +703,8 @@ setMethod("openModules",
             if(length(hasTests)>0)
               Rfiles <- Rfiles[-hasTests]
 
-            onlyModuleRFile <- grep(pattern = file.path(name,name),Rfiles)
+            onlyModuleRFile <- unlist(lapply(file.path(name,name),
+                                             function(n) grep(pattern = n, Rfiles)))
             if(length(onlyModuleRFile)>0)
               Rfiles <- Rfiles[onlyModuleRFile]
 
