@@ -123,7 +123,8 @@ optima. This is different than other optimizers that will normally indicate
 if convergence was not achieved at termination of the optimization.
 
 Using this function with a parallel cluster currently requires that you pass
-\code{optimControl(list(parallelType = 1))} (and does not yet accept the \code{cl} argument).
+\code{optimControl = list(parallelType = 1)}, and possibly package and variable names
+ (and does not yet accept the \code{cl} argument). See examples.
 This setting will use all available threads on your computer. Future versions of this will allow
 passing of a custom cluster object via \code{cl} argument.
 }

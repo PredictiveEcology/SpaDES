@@ -75,6 +75,7 @@ setMethod(
       element <- (namesParsedList==defineModuleElement)
       out <- pf[[1]][[3]][element][[1]]
       out <- tryCatch(eval(out), error = function(x) out)
+      return(out)
 
 }
 )
@@ -438,9 +439,26 @@ setMethod(
 
     #timeunits <- .parseTimeunit(sim, modules(sim))
     timeunits <- .parseModulePartial(sim, modules(sim), defineModuleElement = "timeunit")
-    if (length(timeunits) == 0) timeunits <- list("second")
 
-    if (!is.null(times$unit)) {
+    childrenNames <- .parseModulePartial(sim, modules(sim), defineModuleElement = "childModules")
+    isParentModule <- any(lapply(childrenNames,length)>1)
+    if(isParentModule) {
+      timeunits <- lapply(unlist(childrenNames), function(mod) {
+        .parseModulePartial(filename = file.path(
+          modulePath(sim), mod, paste0(mod,".R")),
+          defineModuleElement = "timeunit")
+        })
+      names(timeunits) <- unlist(childrenNames)
+    }
+
+
+    modulesHaveTimeunit <- TRUE
+    if(length(timeunits)==0) {
+      modulesHaveTimeunit <- FALSE
+      timeunits <- list("year")
+    }
+
+    if(!is.null(times$unit)) {
       message(paste0("times contains \'unit\', rather than \'timeunit\'. ",
                                     "Using \"", times$unit, "\" as timeunit"))
       times$timeunit <- times$unit
@@ -491,8 +509,6 @@ setMethod(
       sim <- .parseModule(sim, modules(sim, hidden = TRUE), userSuppliedObjNames = userSuppliedObjNames)
       if (length(.unparsed(modules(sim, hidden = TRUE))) == 0) { all_parsed <- TRUE }
     }
-
-    #timestep <- inSeconds(timeunit(sim), envir(sim))
 
     # add name to depdends
     if (!is.null(names(depends(sim)@dependencies)))

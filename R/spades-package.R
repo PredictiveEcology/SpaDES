@@ -179,7 +179,18 @@
 #'   \code{\link{zipModule}} \tab Zip a module and its associated files\cr
 #' }
 #'
-#' @section 1.4 Module dependencies:
+#' @section 1.4 Module metadata:
+#'
+#' Each module requires several items to be defined.
+#' These comprise the metadata for that module (including default parmater specifications),
+#' and are currently written at the top of the module's \code{.R} file.
+#'
+#' \tabular{ll}{
+#'   \code{\link{defineModule}} \tab Define the module metadata\cr
+#'   \code{\link{defineParameter}} \tab Specify a parameter's name, value and set a default\cr
+#' }
+#'
+#' @section 1.5 Module dependencies:
 #'
 #' Once a set of modules have been chosen, the dependency information is automatically
 #' calculated once simInit is run. There are several functions to assist with dependency
@@ -190,13 +201,13 @@
 #'   \code{\link{depsGraph}} \tab Build a module dependency graph using \code{igraph}\cr
 #' }
 #'
-#' @section 1.5 Exported \code{SpaDES} object classes:
+#' @section 1.6 Exported \code{SpaDES} object classes:
 #'
 #' \tabular{ll}{
 #'   \code{\link{simList}} \tab The 'simList' class\cr
 #' }
 #'
-#' @section 1.6 Cacheing:
+#' @section 1.7 Cacheing:
 #'
 #' Cacheing can be done in a variety of ways, most of which are up to the module developer. However,
 #' the one most common usage would be to cache a simulation run. This might be useful if a simulation
@@ -215,18 +226,7 @@
 #'
 #' A collection of functions that help with making modules, in addition to all the other R packages and code.
 #'
-#' @section 2.1 Module metadata:
-#'
-#' Each module requires several items to be defined.
-#' These comprise the metadata for that module (including default parmater specifications),
-#' and are currently written at the top of the module's \code{.R} file.
-#'
-#' \tabular{ll}{
-#'   \code{\link{defineModule}} \tab Define the module metadata\cr
-#'   \code{\link{defineParameter}} \tab Specify a parameter's name, value and set a default\cr
-#' }
-#'
-#' @section 2.2 Spatial spreading/distances methods:
+#' @section 2.1 Spatial spreading/distances methods:
 #'
 #' Spatial contagion is a key phenomenon for spatially explicit simulation models. Contagion can
 #' be modelled using discrete approaches or continuous approaches. Several \code{SpaDES} functions assist
@@ -241,7 +241,7 @@
 #' }
 #'
 #'
-#' @section 2.3 Spatial agent methods:
+#' @section 2.2 Spatial agent methods:
 #'
 #' Agents have several methods and functions specific to them:
 #'
@@ -253,7 +253,7 @@
 #'   \code{\link{specificNumPerPatch}} \tab Initiate a specific number of agents per patch\cr
 #' }
 #'
-#' @section 2.4 GIS operations:
+#' @section 2.3 GIS operations:
 #'
 #' In addition to the vast amount of GIS operations available in R (mostly from
 #' contributed packages such as \code{sp}, \code{raster}, \code{maps}, \code{maptools}
@@ -262,7 +262,7 @@
 #'   \code{\link{equalExtent}} \tab Assess whether a list of extents are all equal\cr
 #' }
 #'
-#' @section 2.5 Map-reduce - type operations:
+#' @section 2.4 Map-reduce - type operations:
 #'
 #' These functions convert between reduced and mapped representations of the same data.
 #' This allows compact representation of, e.g., rasters that have many individual pixels
@@ -272,7 +272,7 @@
 #'   \code{\link{rasterizeReduced}} \tab Convert reduced representation to full raster\cr
 #' }
 #'
-#' @section 2.6 Colors in Raster* objects:
+#' @section 2.5 Colors in Raster* objects:
 #'
 #' We likely will not want the default colours for every map.
 #' Here are several helper functions to add to, set and get colors of \code{Raster*} objects:
@@ -282,7 +282,7 @@
 #'   \code{\link{getColors}} \tab Get colours in a \code{Raster*} objects\cr
 #' }
 #'
-#' @section 2.7 Random Map Generation:
+#' @section 2.6 Random Map Generation:
 #'
 #' It is often useful to build dummy maps with which to build simulation models before all data are available.
 #' These dummy maps can later be replaced with actual data maps.
@@ -292,7 +292,7 @@
 #'   \code{\link{randomPolygons}} \tab Creates a random polygon with specified number of classes\cr
 #' }
 #'
-#' @section 2.8 Checking for the existence of objects:
+#' @section 2.7 Checking for the existence of objects:
 #'
 #' \code{SpaDES} modules will often require the existence of objects in the \code{simList}.
 #' These are helpers for assessing this:
@@ -302,7 +302,7 @@
 #'   \code{\link{checkPath}} \tab Checks the specified filepath for formatting consistencies\cr
 #' }
 #'
-#' @section 2.9 SELES-type approach to simulation:
+#' @section 2.8 SELES-type approach to simulation:
 #'
 #' These functions are essentially skeletons and are not fully implemented.
 #' They are intended to make translations from \href{http://www.gowlland.ca/}{SELES}.
@@ -315,7 +315,7 @@
 #'   \code{\link{transitions}} \tab Transition probability\cr
 #' }
 #'
-#' @section 2.10 Miscellaneous:
+#' @section 2.9 Miscellaneous:
 #'
 #' Functions that may be useful within a \code{SpaDES} context
 #' \tabular{ll}{

@@ -328,7 +328,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
 
 .inputObjects = function(sim) {
   # Any code written here will be run during the simInit for the purpose of creating
-  # and objects required by this module and identified in the .inputObjects element of defineModule,
+  # and objects required by this module and identified in the inputObjects element of defineModule,
   # This is useful if there is something required before simulation to produce the module
   # object dependencies, including such things as downloading default datasets, e.g.,
   # downloadData(\"LCC2005\", modulePath(sim)).
