@@ -17,7 +17,7 @@ Module groups make loading multiple modules easier: only the name of the module 
 library(SpaDES)
 
 outputDir <- file.path(tempdir(), "simOutputs")
-times <- list(start=0.0, end=20.0, timeunit = "year")
+times <- list(start=0.0, end=20.0)
 parameters <- list(.globals=list(stackName="landscape", burnStats="nPixelsBurned"),
                    .progress=list(NA),
                    randomLandscapes=list(nx=100L, ny=100L, inRAM=TRUE),
@@ -35,6 +35,12 @@ mySim <- simInit(times=times, params=parameters, modules=modules,
                  objects=objects, paths=paths)
 
 modules(mySim) # note the child modules are initialized
+
+times(mySim) # See timeunits for each module and overall model timeunit
+
+## Run model
+dev() # to open a new plot device for faster plotting
+spades(mySim)
 ```
 
 Module groups can also be used to simplify the download of multiple modules:
