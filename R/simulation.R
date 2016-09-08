@@ -475,12 +475,7 @@ setMethod(
       names(timeunits) <- unlist(childrenNames)
     }
 
-
-    modulesHaveTimeunit <- TRUE
-    if(length(timeunits)==0) {
-      modulesHaveTimeunit <- FALSE
-      timeunits <- list("year")
-    }
+    if(length(timeunits)==0) timeunits <- list("second") # no modules at all
 
     if(!is.null(times$unit)) {
       message(paste0("times contains \'unit\', rather than \'timeunit\'. ",
