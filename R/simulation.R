@@ -107,10 +107,11 @@ setMethod(
 #'
 #' @param modules A list of modules with a logical attribute "parsed".
 #'
-#' @param userSuppliedObjNames Character string (or NULL, the default) indicating the names of
-#'                             objects that user has passed into simInit via objects or inputs.
-#'                             If all module inputObject dependencies are provided by user, then
-#'                             the .inputObjects code will be skipped.
+#' @param userSuppliedObjNames Character string (or \code{NULL}, the default)
+#'                             indicating the names of objects that user has passed
+#'                             into simInit via objects or inputs.
+#'                             If all module inputObject dependencies are provided by user,
+#'                             then the \code{.inputObjects} code will be skipped.
 #'
 #' @return A \code{simList} simulation object.
 #'
@@ -146,8 +147,8 @@ setMethod(
       # evaluate all but inputObjects and outputObjects part of 'defineModule'
       #  This allow user to use params(sim) in their inputObjects
       namesParsedList <- names(parsedFile[defineModuleItem][[1]][[3]])
-      inObjs <- (namesParsedList=="inputObjects")
-      outObjs <- (namesParsedList=="outputObjects")
+      inObjs <- (namesParsedList == "inputObjects")
+      outObjs <- (namesParsedList == "outputObjects")
       pf <- parsedFile[defineModuleItem]
       pf[[1]][[3]] <- pf[[1]][[3]][!(inObjs | outObjs)]
       sim <- suppressWarnings(eval(pf))
@@ -159,22 +160,11 @@ setMethod(
       }
 
       # assign default param values
-      # apply(depends(sim)@dependencies[[i]]@parameters, 1, function(x) {
-      #   capture.output(
-      #     tt <- paste0("params(sim)$", m, "$", x$paramName, " <<- ",
-      #                dput(deparse(x$default)))
-      #     )
-      #   browser()
-      #   eval(parse(text = tt), envir = environment())
-      # })
-      # browser()
-
       deps <- depends(sim)@dependencies[[i]]@parameters
       params(sim)[[m]] <- list()
-      for(x in 1:NROW(deps))
+      for (x in 1:NROW(deps)) {
         params(sim)[[m]][[deps$paramName[x]]] <- deps$default[[x]]
-
-      #names(params(sim)[[m]])
+      }
 
       # do inputObjects and outputObjects
       pf <- parsedFile[defineModuleItem]
@@ -183,13 +173,6 @@ setMethod(
 
       # evaluate the rest of the parsed file
       eval(parsedFile[!defineModuleItem], envir = envir(sim))
-
-      # now do final eval of inputs and outputs
-      #pf <- parsedFile[defineModuleItem]
-      #inOutObjs[1] <- TRUE
-      #pf[[1]][[3]] <- pf[[1]][[3]][inOutObjs]
-      #depends(sim)@dependencies <- suppressWarnings(eval(pf))
-      #sim <- eval(parsedFile[defineModuleItem])
 
       # update parse status of the module
       attributes(modules[[j]]) <- list(parsed = TRUE)
@@ -204,24 +187,17 @@ setMethod(
         parent_ids <- c(parent_ids, j)
       }
 
-      # run .inputObjects function from each module, one at a time, and remove it
-      # from the simList so next module
-      #  won't rerun it (because all modules would have the same function '.inputObjects',
-      #  which would override each other)
+      ## run .inputObjects() from each module file from each module, one at a time,
+      ## and remove it from the simList so next module won't rerun it.
 
-      #if(is.null(userSuppliedObjNames)) {
-      # if user supplies the needed objects, then test whether all
-      # are supplied. If they are all supplied, then skip the .inputObjects code
-      if(!all(depends(sim)@dependencies[[i]]@inputObjects$objectName %in% userSuppliedObjNames)) {
-
-        # This is here to grandfather in the .inputObjects approach
-        if(!is.null(sim@.envir$.inputObjects)) {
+      # If user supplies the needed objects, then test whether all are supplied.
+      # If they are all supplied, then skip the .inputObjects code
+      if (!all(depends(sim)@dependencies[[i]]@inputObjects$objectName %in% userSuppliedObjNames)) {
+        if (!is.null(sim@.envir$.inputObjects)) {
           sim <- sim@.envir$.inputObjects(sim)
           rm(".inputObjects", envir = envir(sim))
         }
       }
-      #}
-
     }
 
     names(depends(sim)@dependencies) <- unlist(modules)
@@ -231,7 +207,7 @@ setMethod(
       } else {
         append_attr(modules, all_children)
       } %>%
-      unique
+      unique()
 
     return(sim)
   }
@@ -465,8 +441,8 @@ setMethod(
     timeunits <- .parseModulePartial(sim, modules(sim), defineModuleElement = "timeunit")
 
     childrenNames <- .parseModulePartial(sim, modules(sim), defineModuleElement = "childModules")
-    isParentModule <- any(lapply(childrenNames,length)>1)
-    if(isParentModule) {
+    isParentModule <- any(lapply(childrenNames,length) > 1)
+    if (isParentModule) {
       timeunits <- lapply(unlist(childrenNames), function(mod) {
         .parseModulePartial(filename = file.path(
           modulePath(sim), mod, paste0(mod,".R")),
@@ -530,14 +506,14 @@ setMethod(
     }
 
     # add name to depdends
-    if(!is.null(names(depends(sim)@dependencies)))
-      names(depends(sim)@dependencies)<-
+    if (!is.null(names(depends(sim)@dependencies)))
+      names(depends(sim)@dependencies) <-
         unlist(lapply(depends(sim)@dependencies, function(x) x@name))
 
     # load core modules
     for (c in core) {
       # schedule each module's init event:
-      sim <- scheduleEvent(sim, start(sim, unit=timeunit(sim)),
+      sim <- scheduleEvent(sim, start(sim, unit = timeunit(sim)),
                            c, "init", .normal())
     }
 
@@ -578,7 +554,7 @@ setMethod(
       }
 
       # add the necessary values to the sublist
-      for(x in dotParamsReal) {
+      for (x in dotParamsReal) {
         if (is.null(params(sim)[[m]][[x]])) {
           params(sim)[[m]][[x]] <- NA_real_
         } else if (is.na(params(sim)[[m]][[x]])) {
@@ -633,13 +609,13 @@ setMethod(
               moduleName == "load" &
               eventType == "inputs"),]
       }
-      if(any(events(sim, "second")$eventTime < start(sim, "second"))) {
+      if (any(events(sim, "second")$eventTime < start(sim, "second"))) {
         warning(paste0("One or more objects in the inputs filelist was ",
                        "scheduled to load before start(sim). ",
                        "It is being be removed and not loaded. To ensure loading, loadTime ",
                        "must be start(sim) or later. See examples using ",
                        "loadTime in ?simInit"))
-        events(sim) <- events(sim, "seconds")[eventTime>=start(sim, "seconds")]
+        events(sim) <- events(sim, "seconds")[eventTime >= start(sim, "seconds")]
       }
 
     }
@@ -666,7 +642,7 @@ setMethod(
             inputs = "ANY", outputs = "ANY", loadOrder = "ANY"),
   definition = function(times, params, modules, objects, paths, inputs, outputs, loadOrder) {
 
-    li <- lapply(names(match.call()[-1]), function(x) eval(parse(text=x)))
+    li <- lapply(names(match.call()[-1]), function(x) eval(parse(text = x)))
     names(li) <- names(match.call())[-1]
     # find the simInit call that was responsible for this, get the objects
     #   in the environment of the parents of that call, and pass them to new
