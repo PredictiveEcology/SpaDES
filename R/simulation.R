@@ -72,7 +72,7 @@ setMethod(
 
       namesParsedList <- names(parsedFile[defineModuleItem][[1]][[3]])
 
-      element <- (namesParsedList==defineModuleElement)
+      element <- (namesParsedList == defineModuleElement)
       out <- pf[[1]][[3]][element][[1]]
       out <- tryCatch(eval(out), error = function(x) out)
       return(out)
@@ -451,7 +451,7 @@ setMethod(
       names(timeunits) <- unlist(childrenNames)
     }
 
-    if(length(timeunits)==0) timeunits <- list("second") # no modules at all
+    if(length(timeunits) == 0) timeunits <- list("second") # no modules at all
 
     if(!is.null(times$unit)) {
       message(paste0("times contains \'unit\', rather than \'timeunit\'. ",
