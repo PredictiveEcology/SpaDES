@@ -441,8 +441,8 @@ setMethod(
     timeunits <- .parseModulePartial(sim, modules(sim), defineModuleElement = "timeunit")
 
     childrenNames <- .parseModulePartial(sim, modules(sim), defineModuleElement = "childModules")
-    isParentModule <- any(lapply(childrenNames,length)>1)
-    if(isParentModule) {
+    isParentModule <- any(lapply(childrenNames,length) > 1)
+    if (isParentModule) {
       timeunits <- lapply(unlist(childrenNames), function(mod) {
         .parseModulePartial(filename = file.path(
           modulePath(sim), mod, paste0(mod,".R")),
@@ -453,12 +453,12 @@ setMethod(
 
 
     modulesHaveTimeunit <- TRUE
-    if(length(timeunits)==0) {
+    if (length(timeunits) == 0) {
       modulesHaveTimeunit <- FALSE
       timeunits <- list("year")
     }
 
-    if(!is.null(times$unit)) {
+    if (!is.null(times$unit)) {
       message(paste0("times contains \'unit\', rather than \'timeunit\'. ",
                                     "Using \"", times$unit, "\" as timeunit"))
       times$timeunit <- times$unit
