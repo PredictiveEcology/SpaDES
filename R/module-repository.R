@@ -299,6 +299,8 @@ setMethod(
           download.file(x, destfile = tmpFile, mode = "wb", quiet = quiet)
           copied <- file.copy(from = tmpFile, to = destfile, overwrite = TRUE)
           destfile
+        } else {
+          message("  Download data step skipped for module ", module, ". Local copy exists.")
         }
       })
 
@@ -320,10 +322,15 @@ setMethod(
       })
     }
 
-    if (any(!chksums$renamed %>% na.omit())) {
-      warning("Unable to automatically give proper name to downloaded files.",
-              " Manual file rename is required.")
-    }
+    # if (any(!chksums$renamed %>% na.omit())) {
+    #   browser()
+    #   message("Unable to automatically give proper name to downloaded files. ",
+    #           "Check for existence of \n", 
+    #           paste(file.path(path, module, "data", 
+    #                     chksums$expectedFile[!chksums$renamed] %>% na.omit()), 
+    #                           collapse = "\n"),
+    #           "\nfollowing downloads.")
+    # }
 
     # after download, check for childModules that also require downloading
     children <-.parseModulePartial(filename = file.path(path, module, paste0(module,".R")),
