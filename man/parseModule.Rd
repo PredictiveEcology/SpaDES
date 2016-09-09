@@ -32,10 +32,11 @@
 \item{defineModuleElement}{Character string indicating which of the list
 elements in defineModule should be extracted}
 
-\item{userSuppliedObjNames}{Character string (or NULL, the default) indicating the names of
-objects that user has passed into simInit via objects or inputs.
-If all module inputObject dependencies are provided by user, then
-the .inputObjects code will be skipped.}
+\item{userSuppliedObjNames}{Character string (or \code{NULL}, the default)
+indicating the names of objects that user has passed
+into simInit via objects or inputs.
+If all module inputObject dependencies are provided by user,
+then the \code{.inputObjects} code will be skipped.}
 }
 \value{
 \code{.parseModulePartial} extracts just the individual element
