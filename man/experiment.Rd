@@ -267,7 +267,7 @@ the sqlite database can only be written to one at a time, so there may be collis
 # Example 4 - manipulate manipulate directory names -
   #  "simNum" is special value for dirPrefix, it is converted to 1, 2, ...
   sims <- experiment(mySim, params = experimentParams, dirPrefix = c("expt", "simNum"))
-  attr(sims, "experiment")$expVals # shows 10 alternative experiment levels, 26 unique
+  attr(sims, "experiment")$expVals # shows 8 alternative experiment levels, 24 unique
                                    #   parameter values
 
 # Example 5 - doing replicate runs -
