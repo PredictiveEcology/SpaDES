@@ -10,17 +10,24 @@
 #' All files will be created within a subfolder named \code{name} within the
 #' \code{path}.
 #'
-#' @param name  Character string. Your module's name.
+#' @param name  Character string specfiying the name of the new module.
 #'
 #' @param path  Character string. Subdirectory in which to place the new module code file.
 #'              The default is the current working directory.
 #'
-#' @param open  Logical. Should the new module file be opened after creation?
-#'              Default \code{TRUE}.
+#' @param ...   Additonal arguments. Currently, only the following are supported:\cr\cr
 #'
-#' @param unitTests Logical. Should the new module include unit test files?
-#'                  Default \code{TRUE}.
-#'                  Unit testing relies on the \code{testthat} package.
+#'              \code{open}. Logical. Should the new module file be opened after creation?
+#'              Default \code{TRUE}.\cr\cr
+#'
+#'              \code{unitTests}. Logical. Should the new module include unit test files?
+#'              Default \code{TRUE}. Unit testing relies on the \code{testthat} package.\cr\cr
+#'
+#'              \code{type}. Character string specifying one of \code{"child"} (default),
+#'              or \code{"parent"}.\cr\cr
+#'
+#'              \code{children}. Required when \code{type = "parent"}. A character vector
+#'              specifying the names of child modules.
 #'
 #' @return Nothing is returned. The new module file is created at
 #' \code{path/name.R}, as well as ancillary files for documentation, citation,
@@ -37,12 +44,19 @@
 # @importFrom utils file.edit
 #' @author Alex Chubaty and Eliot McIntire
 #'
+#' @seealso \code{\link{newModuleCode}}, \code{\link{newModuleDocumentation}},
+#'          \code{\link{newModuleTests}}
+#'
 #' @examples
 #' \dontrun{
 #'   ## create a "myModule" module in the "modules" subdirectory.
 #'   newModule("myModule", "modules")
+#'
+#'   ## create a new parent module in the "modules" subdirectory.
+#'   newModule("myParentModule", "modules", type = "parent", children = c("child1", "child2"))
 #' }
-setGeneric("newModule", function(name, path, open, unitTests) {
+#'
+setGeneric("newModule", function(name, path, ...) {
   standardGeneric("newModule")
 })
 
@@ -50,9 +64,31 @@ setGeneric("newModule", function(name, path, open, unitTests) {
 #' @rdname newModule
 setMethod(
   "newModule",
-  signature = c(name = "character", path = "character", open = "logical",
-                unitTests = "logical"),
-  definition = function(name, path, open, unitTests) {
+  signature = c(name = "character", path = "character"),
+  definition = function(name, path, ...) {
+    args <- list(...)
+
+    stopifnot((names(args) %in% c('open', 'unitTests', 'type', "children")))
+
+    open <- args$open
+    unitTests <- args$unitTests
+    type <- args$type
+    children <- args$children
+
+    # define defaults for ... args
+    if (is.null(open)) open <- TRUE
+    if (is.null(unitTests)) unitTests <- TRUE
+    if (is.null(type)) type <- "child"
+    if (is.null(children)) children <- NA_character_
+
+    stopifnot(
+      is(open, "logical"),
+      is(unitTests, "logical"),
+      is(type, "character"),
+      is(children, "character"),
+      type %in% c("child", "parent")
+    )
+
     path <- checkPath(path, create = TRUE)
     nestedPath <- file.path(path, name) %>% checkPath(create = TRUE)
     dataPath <- file.path(nestedPath, "data") %>% checkPath(create = TRUE)
@@ -61,104 +97,72 @@ setMethod(
     cat("", file = file.path(dataPath, "CHECKSUMS.txt"))
 
     # module code file
-    newModuleCode(name = name, path = path, open = open)
+    newModuleCode(name = name, path = path, open = open, type = type, children = children)
 
-    if (unitTests) { newModuleTests(name = name, path = path, open = open) }
+    if (type == "child" && unitTests) {
+      newModuleTests(name = name, path = path, open = open)
+    }
 
     ### Make Rmarkdown file for module documentation
-    newModuleDocumentation(name = name, path = path, open = open)
+    newModuleDocumentation(name = name, path = path, open = open, type = type, children = children)
 })
 
 #' @export
 #' @rdname newModule
 setMethod(
   "newModule",
-  signature = c(name = "character", path = "missing", open = "logical",
-                unitTests = "logical"),
-  definition = function(name, open, unitTests) {
-    newModule(name = name, path = ".", open = open, unitTests = unitTests)
-})
-
-#' @export
-#' @rdname newModule
-setMethod(
-  "newModule",
-  signature = c(name = "character", path = "character", open = "missing",
-                unitTests = "logical"),
-  definition = function(name, path, unitTests) {
-    newModule(name = name, path = path, open = TRUE, unitTests = unitTests)
-})
-
-#' @export
-#' @rdname newModule
-setMethod(
-  "newModule",
-  signature = c(name = "character", path = "missing", open = "missing",
-                unitTests = "logical"),
-  definition = function(name, unitTests) {
-    newModule(name = name, path = ".", open = TRUE, unitTests = unitTests)
-})
-
-#' @export
-#' @rdname newModule
-setMethod(
-  "newModule",
-  signature = c(name = "character", path = "character", open = "logical",
-                unitTests = "missing"),
-  definition = function(name, path, open) {
-    newModule(name = name, path = path, open = open, unitTests = TRUE)
-})
-
-#' @export
-#' @rdname newModule
-setMethod(
-  "newModule",
-  signature = c(name = "character", path = "missing", open = "logical",
-                unitTests = "missing"),
-  definition = function(name, open) {
-    newModule(name = name, path = ".", open = open, unitTests = TRUE)
-})
-
-#' @export
-#' @rdname newModule
-setMethod(
-  "newModule",
-  signature = c(name = "character", path = "character", open = "missing",
-                unitTests = "missing"),
-  definition = function(name, path) {
-    newModule(name = name, path = path, open = TRUE, unitTests = TRUE)
-})
-
-#' @export
-#' @rdname newModule
-setMethod(
-  "newModule",
-  signature = c(name = "character", path = "missing", open = "missing",
-                unitTests = "missing"),
-  definition = function(name) {
-    newModule(name = name, path = ".", open = TRUE, unitTests = TRUE)
+  signature = c(name = "character", path = "missing"),
+  definition = function(name, ...) {
+    newModule(name = name, path = ".", ...)
 })
 
 ################################################################################
+#' Create new module code file
+#'
+#' @param name  Character string specifying the name of the new module.
+#'
+#' @param path  Character string. Subdirectory in which to place the new module code file.
+#'              The default is the current working directory.
+#'
+#' @param open  Logical. Should the new module file be opened after creation?
+#'              Default \code{TRUE}.
+#'
+#' @param type  Character string specifying one of \code{"child"} (default),
+#'              or \code{"parent"}.
+#'
+#' @param children   Required when \code{type = "parent"}. A character vector
+#'                   specifying the names of child modules.
+#'
 #' @export
 #' @docType methods
-#' @rdname newModule
+#' @rdname newModuleCode
 # @importFrom utils file.edit
 #' @author Eliot McIntire and Alex Chubaty
 #'
-setGeneric("newModuleCode", function(name, path, open) {
+setGeneric("newModuleCode", function(name, path, open, type, children) {
   standardGeneric("newModuleCode")
 })
 
 #' @export
-#' @rdname newModule
+#' @rdname newModuleCode
+#' @seealso \code{\link{newModule}}, \code{\link{newModuleDocumentation}}
 setMethod(
   "newModuleCode",
-  signature = c(name = "character", path = "character", open = "logical"),
-  definition = function(name, path, open) {
+  signature = c(name = "character", path = "character", open = "logical",
+                type = "character", children = "character"),
+  definition = function(name, path, open, type, children) {
+    stopifnot(type %in% c("child", "parent"))
+
     path <- checkPath(path, create = TRUE)
     nestedPath <- file.path(path, name) %>% checkPath(create = TRUE)
     filenameR <- file.path(nestedPath, paste0(name, ".R"))
+
+    children_char <- if (is.na(children) || length(children) == 0L) {
+      "character(0)"
+    } else {
+      paste0("c(\"", paste(dput(children), collapse = ", "), "\")")
+    }
+
     cat("
 # Everything in this file gets sourced during simInit, and all functions and objects
 # are put into the simList. To use objects and functions, use sim$xxx.
@@ -167,7 +171,7 @@ defineModule(sim, list(
   description = \"insert module description here\",
   keywords = c(\"insert key words here\"),
   authors = c(person(c(\"First\", \"Middle\"), \"Last\", email=\"email@example.com\", role=c(\"aut\", \"cre\"))),
-  childModules = character(),
+  childModules = ", children_char, ",
   version = numeric_version(\"", as.character(packageVersion("SpaDES")), "\"),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
   timeframe = as.POSIXlt(c(NA, NA)),
@@ -195,8 +199,11 @@ defineModule(sim, list(
     other = NA_character_,
     stringsAsFactors = FALSE
   )
-))
+))\n",
+      file = filenameR, fill = FALSE, sep = "")
 
+    if (type == "child") {
+      cat("
 ## event types
 #   - type `init` is required for initialiazation
 
@@ -340,35 +347,36 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
   return(invisible(sim))
 }
 ### add additional events as needed by copy/pasting from above\n",
-    file = filenameR, fill = FALSE, sep = "")
-
-    if (open) {
-      # use tryCatch: Rstudio bug causes file open to fail on Windows (#209)
-      openModules(name, nestedPath)
-      #tryCatch(file.edit(filenameR), error = function(e) {
-      #  warning("A bug in RStudio for Windows prevented the opening of the file:\n",
-      #          filenameR, "\nPlease open it manually.")
-      #})
+        file = filenameR, fill = FALSE, sep = "", append = TRUE)
     }
+
+    if (open) openModules(name, nestedPath)
 })
 
 ################################################################################
+#' Create new module documentation
+#'
+#' @inheritParams newModuleCode
+#'
 #' @export
 #' @docType methods
-#' @rdname newModule
+#' @rdname newModuleDocumentation
 # @importFrom utils file.edit
-#' @author Eliot McIntire
 #'
-setGeneric("newModuleDocumentation", function(name, path, open) {
+#' @author Eliot McIntire and Alex Chubaty
+#' @seealso \code{\link{newModule}}, \code{\link{newModuleCode}}, \code{\link{newModuleTests}}
+#'
+setGeneric("newModuleDocumentation", function(name, path, open, type, children) {
   standardGeneric("newModuleDocumentation")
 })
 
 #' @export
-#' @rdname newModule
+#' @rdname newModuleDocumentation
 setMethod(
   "newModuleDocumentation",
-  signature = c(name = "character", path = "character", open = "logical"),
-  definition = function(name, path, open) {
+  signature = c(name = "character", path = "character", open = "logical",
+                type = "character", children = "character"),
+  definition = function(name, path, open, type, children) {
     path <- checkPath(path, create = TRUE)
     nestedPath <- file.path(path, name) %>% checkPath(create = TRUE)
     filenameRmd <- file.path(nestedPath, paste0(name, ".Rmd"))
@@ -498,7 +506,7 @@ where to download data, etc.",
 })
 
 #' @export
-#' @rdname newModule
+#' @rdname newModuleDocumentation
 setMethod("newModuleDocumentation",
           signature = c(name = "character", path = "missing", open = "logical"),
           definition = function(name, open) {
@@ -506,7 +514,7 @@ setMethod("newModuleDocumentation",
 })
 
 #' @export
-#' @rdname newModule
+#' @rdname newModuleDocumentation
 setMethod("newModuleDocumentation",
           signature = c(name = "character", path = "character", open = "missing"),
           definition = function(name, path) {
@@ -514,18 +522,31 @@ setMethod("newModuleDocumentation",
 })
 
 #' @export
-#' @rdname newModule
+#' @rdname newModuleDocumentation
 setMethod("newModuleDocumentation",
           signature = c(name = "character", path = "missing", open = "missing"),
           definition = function(name) {
             newModuleDocumentation(name = name, path = ".", open = TRUE)
 })
 
-################################################################################
+#' Create template testing structures for new modules
+#'
+#' @param name  Character string specifying the name of the new module.
+#'
+#' @param path  Character string. Subdirectory in which to place the new module code file.
+#'              The default is the current working directory.
+#'
+#' @param open  Logical. Should the new module file be opened after creation?
+#'              Default \code{TRUE}.
+#'
 #' @export
 #' @docType methods
-#' @rdname newModule
+#' @rdname newModuleTests
 # @importFrom utils file.edit
+#'
+#' @seealso \code{\link{newModuleCode}}, \code{\link{newModuleDocumentation}},
+#'          \code{\link{newModuleTests}}
+#'
 #' @author Eliot McIntire and Alex Chubaty
 #'
 setGeneric("newModuleTests", function(name, path, open) {
@@ -533,7 +554,7 @@ setGeneric("newModuleTests", function(name, path, open) {
 })
 
 #' @export
-#' @rdname newModule
+#' @rdname newModuleTests
 setMethod(
   "newModuleTests",
   signature = c(name = "character", path = "character", open = "logical"),

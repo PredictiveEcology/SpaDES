@@ -3,74 +3,35 @@
 \docType{methods}
 \name{newModule}
 \alias{newModule}
-\alias{newModule,character,character,logical,logical-method}
-\alias{newModule,character,character,logical,missing-method}
-\alias{newModule,character,character,missing,logical-method}
-\alias{newModule,character,character,missing,missing-method}
-\alias{newModule,character,missing,logical,logical-method}
-\alias{newModule,character,missing,logical,missing-method}
-\alias{newModule,character,missing,missing,logical-method}
-\alias{newModule,character,missing,missing,missing-method}
-\alias{newModuleCode}
-\alias{newModuleCode,character,character,logical-method}
-\alias{newModuleDocumentation}
-\alias{newModuleDocumentation,character,character,logical-method}
-\alias{newModuleDocumentation,character,character,missing-method}
-\alias{newModuleDocumentation,character,missing,logical-method}
-\alias{newModuleDocumentation,character,missing,missing-method}
-\alias{newModuleTests}
-\alias{newModuleTests,character,character,logical-method}
+\alias{newModule,character,character-method}
+\alias{newModule,character,missing-method}
 \title{Create new module from template.}
 \usage{
-newModule(name, path, open, unitTests)
+newModule(name, path, ...)
 
-\S4method{newModule}{character,character,logical,logical}(name, path, open,
-  unitTests)
+\S4method{newModule}{character,character}(name, path, ...)
 
-\S4method{newModule}{character,missing,logical,logical}(name, open, unitTests)
-
-\S4method{newModule}{character,character,missing,logical}(name, path, unitTests)
-
-\S4method{newModule}{character,missing,missing,logical}(name, unitTests)
-
-\S4method{newModule}{character,character,logical,missing}(name, path, open)
-
-\S4method{newModule}{character,missing,logical,missing}(name, open)
-
-\S4method{newModule}{character,character,missing,missing}(name, path)
-
-\S4method{newModule}{character,missing,missing,missing}(name)
-
-newModuleCode(name, path, open)
-
-\S4method{newModuleCode}{character,character,logical}(name, path, open)
-
-newModuleDocumentation(name, path, open)
-
-\S4method{newModuleDocumentation}{character,character,logical}(name, path, open)
-
-\S4method{newModuleDocumentation}{character,missing,logical}(name, open)
-
-\S4method{newModuleDocumentation}{character,character,missing}(name, path)
-
-\S4method{newModuleDocumentation}{character,missing,missing}(name)
-
-newModuleTests(name, path, open)
-
-\S4method{newModuleTests}{character,character,logical}(name, path, open)
+\S4method{newModule}{character,missing}(name, path, ...)
 }
 \arguments{
-\item{name}{Character string. Your module's name.}
+\item{name}{Character string specfiying the name of the new module.}
 
 \item{path}{Character string. Subdirectory in which to place the new module code file.
 The default is the current working directory.}
 
-\item{open}{Logical. Should the new module file be opened after creation?
-Default \code{TRUE}.}
+\item{...}{Additonal arguments. Currently, only the following are supported:\cr\cr
 
-\item{unitTests}{Logical. Should the new module include unit test files?
-Default \code{TRUE}.
-Unit testing relies on the \code{testthat} package.}
+             \code{open}. Logical. Should the new module file be opened after creation?
+             Default \code{TRUE}.\cr\cr
+
+             \code{unitTests}. Logical. Should the new module include unit test files?
+             Default \code{TRUE}. Unit testing relies on the \code{testthat} package.\cr\cr
+
+             \code{type}. Character string specifying one of \code{"child"} (default),
+             or \code{"parent"}.\cr\cr
+
+             \code{children}. Required when \code{type = "parent"}. A character vector
+             specifying the names of child modules.}
 }
 \value{
 Nothing is returned. The new module file is created at
@@ -98,15 +59,17 @@ is provided.
 \dontrun{
   ## create a "myModule" module in the "modules" subdirectory.
   newModule("myModule", "modules")
+
+  ## create a new parent module in the "modules" subdirectory.
+  newModule("myParentModule", "modules", type = "parent", children = c("child1", "child2"))
 }
+
 }
 \author{
 Alex Chubaty and Eliot McIntire
-
-Eliot McIntire and Alex Chubaty
-
-Eliot McIntire
-
-Eliot McIntire and Alex Chubaty
+}
+\seealso{
+\code{\link{newModuleCode}}, \code{\link{newModuleDocumentation}},
+         \code{\link{newModuleTests}}
 }
 
