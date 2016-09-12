@@ -167,16 +167,8 @@ passing of a custom cluster object via \code{cl} argument.
  # In words, this says, "find the best value of spreadprob such that
  #  the proportion of the area burned in the simulation
  #  is as close as possible to the proportion area burned in
- #  the "data", using \\code{optim()}. In general, optim will
- #  not work well for stochastic models, but it works fine here
- #  because this is a simple problem
+ #  the "data", using \\code{DEoptim()}.
 
- # often not reliable for stochastic problems
- out <- POM(mySim, "spreadprob", optimizer = "optim",
-            list(propCellBurnedData = propCellBurnedFn),
-            hessian = TRUE) # using optim, can get Hessian
-
- # Try same fit using DEoptim, the default
  # Can use cluster if computer is multi-threaded (but not yet via cl arg, which is not
  #                                                implemented yet in DEoptim)
  # This example uses parallelType = 1 in DEoptim. For this, you must manually
