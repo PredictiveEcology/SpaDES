@@ -194,23 +194,18 @@ setMethod(
 
     outputHash <- digest::digest(tmpl)
     localTags <- showLocalRepo(cacheRepo, "tags")
-    isInRepo <- localTags[localTags$tag ==
-                            paste0("cacheId:", outputHash), , drop = FALSE]
+    isInRepo <- localTags[localTags$tag == paste0("cacheId:", outputHash), , drop = FALSE]
     if (nrow(isInRepo) > 0) {
       lastEntry <- max(isInRepo$createdDate)
       lastOne <- order(isInRepo$createdDate, decreasing = TRUE)[1]
       if (is.null(notOlderThan) || (notOlderThan < lastEntry)) {
-        #if(!is.null(tmpl$replicate))
-        #  warning(paste("replicate",tmpl$replicate,"was cached previously; returning cached value"))
         out <- loadFromLocalRepo(isInRepo$artifact[lastOne],
                                  repoDir = cacheRepo, value = TRUE)
-        #out <- as(out, "simList")
         return(out)
       }
       if ((notOlderThan >= lastEntry)) { # flush it if notOlderThan is violated
         rmFromLocalRepo(isInRepo$artifact[lastOne], repoDir = cacheRepo)
       }
-
     }
     output <- do.call(FUN, list(...))
     attr(output, "tags") <- paste0("cacheId:", outputHash)

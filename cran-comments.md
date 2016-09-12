@@ -1,6 +1,6 @@
 ## Updated release
 
-This is a maintenance release to fix a bug associated with the forthcoming `dplyr` update.
+This is a maintenance release to deal with changes associated with the forthcoming `RandomFields` update.
 We have also made several other improvements and bug fixes (see NEWS).
 
 ## Test environments
@@ -11,15 +11,15 @@ We have also made several other improvements and bug fixes (see NEWS).
 
 ### Current R versions
 * OS X El Capitan         (local), R 3.3.0
-* Ubuntu 12.04        (travis-ci), R 3.3.0
-* Ubuntu 16.04            (local), R 3.3.0
-* Windows              (appveyor), R 3.3.0
+* Ubuntu 12.04        (travis-ci), R 3.3.1
+* Ubuntu 16.04            (local), R 3.3.1
+* Windows              (appveyor), R 3.3.1
 * Windows           (win-builder), R 3.3.1
 * Windows 7               (local), R 3.3.0, 3.3.1
 
 ### Development R version
 * Debian:testing (rocker/r-devel), R 3.4.0 (2016-05-31 r70688)
-* Windows              (appveyor), R 3.4.0 (2016-06-22 r70818)
+* Windows              (appveyor), R 3.4.0 (2016-09-06 r71220)
 * Windows           (win-builder), R 3.4.0 (2016-06-22 r70818)
 
 ## R CMD check results

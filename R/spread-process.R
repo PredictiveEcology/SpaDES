@@ -301,7 +301,7 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #'
 #' # Make random forest cover map
 #' emptyRas <- raster(extent(0,1e2,0,1e2), res = 1)
-#' hab <- gaussMap(emptyRas,speedup = 1) # if raster is large (>1e6 cells), use speedup>1
+#' hab <- randomPolygons(emptyRas, numTypes = 40)
 #' names(hab) = "hab"
 #' mask <- raster(emptyRas)
 #' mask <- setValues(mask, 0)

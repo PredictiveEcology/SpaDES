@@ -176,8 +176,8 @@ setMethod(
 
     # after download, check for childModules that also require downloading
     files2 <- list()
-    children <-.parseModulePartial(filename = file.path(path, name, paste0(name,".R")),
-                                   defineModuleElement = "childModules")
+    children <- .parseModulePartial(filename = file.path(path, name, paste0(name, ".R")),
+                                    defineModuleElement = "childModules")
     #children <- moduleMetadata(name, path)$childModules
     dataList2 <- data.frame(result = character(0), expectedFile = character(0),
                             actualFile = character(0), checksum = character(0),
@@ -272,13 +272,16 @@ setMethod(
   definition = function(module, path, quiet) {
     cwd <- getwd()
     path <- checkPath(path, create = FALSE)
-    urls <-.parseModulePartial(filename = file.path(path, module, paste0(module,".R")),
-                               defineModuleElement = "inputObjects")$sourceURL
-    if(is.call(urls)) # This is the case where it can't evaluate the .parseModulePartial because of a reference
-                      #  to the sim object that isn't available. Because sourceURL is unlikely to use
-                      #  a call to sim object, then try to evaluate again here, just the one column
+    urls <- .parseModulePartial(filename = file.path(path, module, paste0(module,".R")),
+                                defineModuleElement = "inputObjects")$sourceURL
+    if (is.call(urls)) {
+      # This is the case where it can't evaluate the .parseModulePartial because of a reference
+      #  to the sim object that isn't available. Because sourceURL is unlikely to use
+      #  a call to sim object, then try to evaluate again here, just the one column
       urls <- eval(urls)
-    #urls <- moduleMetadata(module, path)$inputObjects$sourceURL
+      #urls <- moduleMetadata(module, path)$inputObjects$sourceURL
+    }
+
     ids <- which( urls == "" | is.na(urls) )
     to.dl <- if (length(ids)) { urls[-ids] } else { urls }
     chksums <- checksums(module, path) %>%
@@ -306,7 +309,7 @@ setMethod(
 
       chksums <- checksums(module, path) %>%
         mutate(renamed = NA, module = module)
-    } else if(NROW(chksums)>0) {
+    } else if (NROW(chksums) > 0) {
       message("  Download data step skipped for module ", module, ". Local copy exists.")
     } else {
       message("  No data to download for module ", module)
@@ -323,17 +326,16 @@ setMethod(
     }
 
     # if (any(!chksums$renamed %>% na.omit())) {
-    #   browser()
     #   message("Unable to automatically give proper name to downloaded files. ",
-    #           "Check for existence of \n", 
-    #           paste(file.path(path, module, "data", 
-    #                     chksums$expectedFile[!chksums$renamed] %>% na.omit()), 
+    #           "Check for existence of \n",
+    #           paste(file.path(path, module, "data",
+    #                     chksums$expectedFile[!chksums$renamed] %>% na.omit()),
     #                           collapse = "\n"),
     #           "\nfollowing downloads.")
     # }
 
     # after download, check for childModules that also require downloading
-    children <-.parseModulePartial(filename = file.path(path, module, paste0(module,".R")),
+    children <- .parseModulePartial(filename = file.path(path, module, paste0(module, ".R")),
                                    defineModuleElement = "childModules")
     #children <- moduleMetadata(module, path)$childModules
     if (!is.null(children)) {

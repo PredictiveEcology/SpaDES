@@ -120,7 +120,6 @@ default is NA or no interval, i.e, load the file only once as described in
 will pass the argument "native = TRUE" to raster.  If there is only one list,
 then it is assumed to apply to all files and will be recycled as per normal R
 rules of recycling for each \code{fun}.\cr
-
 }
 
 Currently, only \code{file} is required. All others will be filled with defaults

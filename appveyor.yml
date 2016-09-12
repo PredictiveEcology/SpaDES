@@ -43,7 +43,7 @@ clone_depth: 5
 
 build_script:
   - travis-tool.sh install_deps
-  - travis-tool.sh r_binary_install archivist chron CircStats data.table DiagrammeR digest dplyr DT ff ffbase fpCompare ggplot2 grid gridBase httr igraph knitr lazyeval lubridate R.utils RandomFields RandomFieldsUtils raster RColorBrewer shiny sp stringi stringr
+  - travis-tool.sh r_binary_install archivist chron CircStats data.table DEoptim DiagrammeR digest dplyr DT ff ffbase fpCompare ggplot2 gridBase httr igraph knitr lazyeval lubridate R.utils RandomFields RandomFieldsUtils raster RColorBrewer shiny sp stringi stringr
 
 test_script:
   - travis-tool.sh run_tests
