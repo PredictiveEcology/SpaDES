@@ -502,7 +502,6 @@ setMethod(
     return(mod)
 })
 
-
 #' @inheritParams modules
 #' @include simList-class.R
 #' @export
@@ -525,7 +524,6 @@ setMethod(
     else
       return(NA)
 })
-
 
 ################################################################################
 #' Get and set simulation parameters.
@@ -619,12 +617,11 @@ setGeneric("p", function(object, module = NULL, param = NULL) {
 setMethod("p",
           signature = ".simList",
           definition = function(object, module, param) {
-            if(is.null(module)) {
+            if (is.null(module)) {
               module <- currentModule(object)
             }
-            if(!is.na(module)) {
-              #if(module %in% c("checkpoint", "progress")) module <- paste0(".",module)
-              if(is.null(param)) {
+            if (!is.na(module)) {
+              if (is.null(param)) {
                 return(object@params[[module]])
               } else {
                 return(object@params[[module]][[param]])
@@ -632,10 +629,7 @@ setMethod("p",
             } else {
               return(object@params)
             }
-
-          })
-
-
+})
 
 ################################################################################
 #' Get and set simulation globals.
@@ -707,8 +701,8 @@ setGeneric("parameters", function(object, asDF = FALSE) {
 setMethod("parameters",
           signature = ".simList",
           definition = function(object, asDF) {
-            if(any(!unlist(lapply(depends(object)@dependencies, is.null)))) {
-              if(asDF) {
+            if (any(!unlist(lapply(depends(object)@dependencies, is.null)))) {
+              if (asDF) {
                 tmp <- lapply(depends(object)@dependencies,
                               function(x) {
                                 out <- x@parameters})
@@ -725,10 +719,7 @@ setMethod("parameters",
               tmp <- NULL
             }
             return(tmp)
-          })
-
-
-
+})
 
 ################################################################################
 #' @inheritParams params
@@ -916,7 +907,6 @@ setReplaceMethod("progressType",
                    return(object)
 })
 
-
 ################################################################################
 #' Inputs and outputs
 #'
@@ -966,7 +956,6 @@ setReplaceMethod("progressType",
 #' will pass the argument "native = TRUE" to raster.  If there is only one list,
 #' then it is assumed to apply to all files and will be recycled as per normal R
 #' rules of recycling for each \code{fun}.\cr
-#'
 #' }
 #'
 #' Currently, only \code{file} is required. All others will be filled with defaults
@@ -1149,7 +1138,7 @@ setReplaceMethod(
        if (!all(is.na(object@inputs[, "loadTime"]))) {
          newTime <- object@inputs[is.na(object@inputs$loaded), "loadTime"]
          attributes(newTime)$unit <- timeunit(object)
-         for (nT in newTime){
+         for (nT in newTime) {
            attributes(nT)$unit <- timeunit(object)
            object <- scheduleEvent(object, nT, "load", "inputs", .first())
          }
@@ -1926,8 +1915,9 @@ setReplaceMethod(
      x@simtimes$current <- convertTimeunit(value, "second", envir(x))
 
      if (!is.numeric(x@simtimes$current)) stop("time must be a numeric")
-     if (!any(pmatch(.spadesTimes,attr(x@simtimes$current, "unit")))) stop("time must be one of",
-                                                                   paste(.spadesTimes, collapse=", "))
+     if (!any(pmatch(.spadesTimes, attr(x@simtimes$current, "unit")))) {
+       stop("time must be one of", paste(.spadesTimes, collapse = ", "))
+     }
      return(x)
 })
 
@@ -2906,7 +2896,7 @@ setMethod(
 #'
 #' @rdname fillOutputRows
 .fillOutputRows <- function(outputDF, endTime) {
-  needRenameArgs <- grepl(names(outputDF), pattern="arg[s]?$")
+  needRenameArgs <- grepl(names(outputDF), pattern = "arg[s]?$")
   if (any(needRenameArgs)) {
     colnames(outputDF)[needRenameArgs] <-
       .fileTableOutCols[pmatch("arg", .fileTableOutCols)]
@@ -2938,8 +2928,8 @@ setMethod(
     .fileExts <- .saveFileExtensions()
     fl <- outputDF$file
     exts <- fileExt(fl)
-    if (any(is.na(fl)) | any(nchar(exts)==0)) {
-      outputDF$fun[is.na(fl) | nchar(exts)==0] <- .fileExts$fun[1]
+    if (any(is.na(fl)) | any(nchar(exts) == 0)) {
+      outputDF$fun[is.na(fl) | nchar(exts) == 0] <- .fileExts$fun[1]
     }
     if (any(is.na(outputDF[, "fun"]))) {
       exts <- na.omit(match(exts, .fileExts[, "exts"]) )
@@ -2951,14 +2941,13 @@ setMethod(
     .fileExts <- .saveFileExtensions()
     fl <- outputDF$file
     exts <- fileExt(fl)
-    if (any(is.na(fl)) | any(nchar(exts)==0)) {
-      outputDF$package[is.na(fl) | nchar(exts)==0] <- .fileExts$package[1]
+    if (any(is.na(fl)) | any(nchar(exts) == 0)) {
+      outputDF$package[is.na(fl) | nchar(exts) == 0] <- .fileExts$package[1]
     }
     if (any(is.na(outputDF[, "package"]))) {
       exts <- na.omit(match(fileExt(fl), .fileExts[, "exts"]) )
       outputDF$package[is.na(outputDF$package)] <- .fileExts[exts, "package"]
     }
   }
-  outputDF
+  return(outputDF)
 }
-
