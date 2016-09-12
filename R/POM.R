@@ -332,6 +332,9 @@ setMethod(
     whModules <- unlist(lapply(whParams, function(mod) any(!is.na(mod))))
 
     whParamsByMod <- unlist(lapply(whParams, na.omit))
+    names(whParamsByMod) <- unlist(lapply(names(whModules), function(nam) {
+      rep(nam, sum(grepl(pattern = nam, names(whParamsByMod))))
+    }))
     #whParamsList1 <- match(params, unlist(lapply(SpaDES::params(sim), names)))
 
     if (missing(objects)) {
