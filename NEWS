@@ -16,7 +16,8 @@ version 1.2.0.9000
 * add `RandomFieldsUtils` to Imports
 * some additional functionality for factor rasters, incl. `clickValues`, legends correct for wide variety of types
 * add explicit `cl` arg to parallel aware functions, for more control
-* `newModule` gains new arguments `type = c("child", "parent")` and `children = c()`. See `?newModule`.
+* `newModule` gains new arguments `type = c("child", "parent")` and `children = c()`. See `?newModule` (#300).
+* `checksums` updated to use faster hashing algorithm (`xxhash64`) and now only requires a single hash value per file (#295)
 
 version 1.2.0
 =============
