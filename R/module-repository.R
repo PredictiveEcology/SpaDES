@@ -381,7 +381,7 @@ setMethod(
   signature = c(file = "character"),
   definition = function(file, ...) {
     sapply(file, function(f) {
-      digest::digest(object = f, file = TRUE, algo = "md5", ...) # use sha1?
+      digest::digest(object = f, file = TRUE, algo = "xxhash64", ...)
     }) %>% unname() %>% as.character() # need as.character for empty case
 })
 
@@ -433,28 +433,24 @@ setMethod(
     files <- list.files(path, full.names = TRUE) %>%
       grep("CHECKSUMS.txt", ., value = TRUE, invert = TRUE)
 
-    checksums <- digest(files, length = 3e7) # uses SpaDES:::digest()
+    checksums <- digest(files) # uses SpaDES:::digest()
 
     out <- data.frame(file = basename(files), checksum = checksums,
                       stringsAsFactors = FALSE)
 
     checksumFile <- file.path(path, "CHECKSUMS.txt")
 
+    txt <- if (file.info(checksumFile)$size > 0) {
+      read.table(checksumFile, header = TRUE, stringsAsFactors = FALSE)
+    } else {
+      data.frame(file = character(0), checksum = character(0),
+                 stringsAsFactors = FALSE)
+    }
+
     if (write) {
-      # TODO needs to intelligently merge, not just append. i.e., keep only
-      #   two rows max per file (UNIX and Windows)
-      colNames <- !file.exists(checksumFile)
-      write.table(out, checksumFile, eol = "\n",
-                  col.names = colNames, row.names = FALSE, append = TRUE)
+      write.table(out, checksumFile, eol = "\n", col.names = TRUE, row.names = FALSE)
       return(out)
     } else {
-      txt <- if (file.info(checksumFile)$size > 0) {
-        read.table(checksumFile, header = TRUE, stringsAsFactors = FALSE)
-      } else {
-        data.frame(file = character(0), checksum = character(0),
-                   stringsAsFactors = FALSE)
-      }
-
       results.df <- out %>%
         rename_(actualFile = "file") %>%
         left_join(txt, ., by = "checksum") %>%
