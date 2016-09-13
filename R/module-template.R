@@ -136,7 +136,7 @@ setMethod(
 #' @export
 #' @docType methods
 #' @rdname newModuleCode
-# @importFrom utils file.edit
+# @importFrom utils capture.output file.edit
 #' @author Eliot McIntire and Alex Chubaty
 #'
 setGeneric("newModuleCode", function(name, path, open, type, children) {
@@ -160,7 +160,7 @@ setMethod(
     children_char <- if (is.na(children) || length(children) == 0L) {
       "character(0)"
     } else {
-      paste0("c(\"", paste(dput(children), collapse = ", "), "\")")
+      capture.output(dput(children))
     }
 
     cat("
