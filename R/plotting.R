@@ -200,11 +200,10 @@ if (getRversion() >= "3.1.0") {
 #' \code{\link{par}}, \code{\link{SpatialPolygons}}, \code{\link{grid.polyline}},
 #' \code{\link{ggplot}}, \code{\link{dev}}
 #'
-#' # @importClassesFrom NetLogoRClasses griddedClasses
-#'
 #' @rdname Plot
 #' @export
 #'
+# @importClassesFrom NetLogoRClasses griddedClasses
 #' @importFrom gridBase gridFIG
 #' @importFrom ggplot2 ggplot
 #' @importFrom raster crop is.factor
