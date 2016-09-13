@@ -204,7 +204,7 @@ mySim <- simInit(times = times, params = parameters, modules = modules,
 ### Event types
 
 Each module may contain an arbitrary number of event types.
-Each of these event types are defined within the `doEvent.moduleName` call, and are wrapped in a simple `if`/`else` stanza that matches the called event type (NOTE: when several event types are defined, `switch`/case can faster than `if`/`else`).
+Each of these event types are defined within the `doEvent.moduleName` call, and are wrapped in a simple `if`/`else` stanza that matches the called event type (NOTE: when several event types are defined, `switch`/`case` can faster than `if`/`else`).
 To keep the `doEvent.moduleName` code block as clear and readable as possible, keep the definitions of each event type minimal, using functions (defined outside of the block) for the details of what is happening for each event.
 
 ```{r event-types, echo=TRUE, eval=FALSE}
