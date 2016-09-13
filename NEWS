@@ -18,6 +18,7 @@ version 1.2.0.9000
 * add explicit `cl` arg to parallel aware functions, for more control
 * `newModule` gains new arguments `type = c("child", "parent")` and `children = c()`. See `?newModule` (#300).
 * `checksums` updated to use faster hashing algorithm (`xxhash64`) and now only requires a single hash value per file (#295)
+* new Rstudio addin for 'newModule' (#298); requires Import of `shiny (>= 0.13)`, `miniUI (>= 0.1.1)`, and `rstudioapi (>= 0.5)`
 
 version 1.2.0
 =============
