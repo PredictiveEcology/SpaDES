@@ -242,10 +242,14 @@ the one most common usage would be to cache a simulation run. This might be usef
 is very long, has been run once, and the goal is just to retrieve final results. This would be
 an alternative to manually saving the outputs.
 
-See example in \code{link{spades}}, achieved by using \code{cache = TRUE} argument.
+See example in \code{\link{spades}}, achieved by using \code{cache = TRUE} argument.
+
+\tabular{ll}{
+  \code{\link{cache}} \tab Caches a spades call, but often used as arg in \code{\link{spades}}\cr
+}
 
 A module developer can build caching into their module by creating cached versions of their
-functions,
+functions.
 
 
 
