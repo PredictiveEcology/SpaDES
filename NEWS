@@ -3,7 +3,7 @@ Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 version 1.2.0.9000
 ==================
 * Add `filesOnly` arg to `shine()`. This can be in preparation for publishing to www.shinyapps.io or other pages. Currently still alpha.
-* Add POM: Pattern Oriented Modeling. A simple interface to a simList object, allowing fitting parameters to data.
+* Add POM: Pattern Oriented Modeling (#269). A simple interface to a simList object, allowing fitting parameters to data.
 * add `col` arg to `Plot` (mimicks `cols`). Was lost from version 1.1.2.
 * add `.inputObjects` functionality -- function that runs during `simInit()` to create default `inputObjects`
 * add `p` as a namespaced shortcut for params: `p(sim)` would replace `params(sim)$moduleName`
