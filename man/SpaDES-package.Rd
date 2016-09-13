@@ -21,7 +21,7 @@ Module repository: \url{https://github.com/PredictiveEcology/SpaDES-modules}
 
 Wiki: \url{https://github.com/PredictiveEcology/SpaDES/wiki}
 }
-\section{1. Spatial discrete event simulation (\code{SpaDES})}{
+\section{1 Spatial discrete event simulation (\code{SpaDES})}{
 
 
 A collection of top-level functions for doing spatial discrete event simulation.
