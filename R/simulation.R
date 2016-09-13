@@ -162,14 +162,18 @@ setMethod(
       # assign default param values
       deps <- depends(sim)@dependencies[[i]]@parameters
       params(sim)[[m]] <- list()
-      for (x in 1:NROW(deps)) {
-        params(sim)[[m]][[deps$paramName[x]]] <- deps$default[[x]]
+      if(NROW(deps)>0) {
+        for (x in 1:NROW(deps)) {
+          params(sim)[[m]][[deps$paramName[x]]] <- deps$default[[x]]
+        }
       }
 
       # do inputObjects and outputObjects
       pf <- parsedFile[defineModuleItem]
-      depends(sim)@dependencies[[i]]@inputObjects <- eval(pf[[1]][[3]][inObjs][[1]])
-      depends(sim)@dependencies[[i]]@outputObjects <- eval(pf[[1]][[3]][outObjs][[1]])
+      if(any(inObjs)) {
+        depends(sim)@dependencies[[i]]@inputObjects <- eval(pf[[1]][[3]][inObjs][[1]])
+        depends(sim)@dependencies[[i]]@outputObjects <- eval(pf[[1]][[3]][outObjs][[1]])
+      }
 
       # evaluate the rest of the parsed file
       eval(parsedFile[!defineModuleItem], envir = envir(sim))
