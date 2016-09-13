@@ -149,8 +149,6 @@ write out the longer one, minimizing the looking up that R must do.
 }
 \author{
 Alex Chubaty and Eliot McIntire
-
-Eliot McIntire
 }
 \seealso{
 \code{\link{SpaDES}}, specifically the section 1.2.5 on Simulation times.

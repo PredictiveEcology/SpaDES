@@ -2121,7 +2121,6 @@ setMethod(
 #' @export
 #' @docType methods
 #' @rdname simList-accessors-times
-#' @author Eliot McIntire
 #'
 setGeneric("timeunit", function(x) {
   standardGeneric("timeunit")
