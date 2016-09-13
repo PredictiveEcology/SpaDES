@@ -172,19 +172,20 @@ defineModule(sim, list(
   keywords = c(\"insert key words here\"),
   authors = c(person(c(\"First\", \"Middle\"), \"Last\", email=\"email@example.com\", role=c(\"aut\", \"cre\"))),
   childModules = ", children_char, ",
-  version = numeric_version(\"", as.character(packageVersion("SpaDES")), "\"),
-  spatialExtent = raster::extent(rep(NA_real_, 4)),
-  timeframe = as.POSIXlt(c(NA, NA)),
-  timeunit = NA_character_, # e.g., \"year\",
+  version = numeric_version(\"", as.character(packageVersion("SpaDES")), "\"),",
+  if(type=="child") "spatialExtent = raster::extent(rep(NA_real_, 4)),
+  timeframe = as.POSIXlt(c(NA, NA)),","
+  timeunit = NA_character_, # e.g., \"year\",","
   citation = list(\"citation.bib\"),
-  documentation = list(\"README.txt\", \"", name, ".Rmd\"),
+  documentation = list(\"README.txt\", \"", name, ".Rmd\")",
+  if(type=="child") ",
   reqdPkgs = list(),
   parameters = rbind(
     #defineParameter(\"paramName\", \"paramClass\", value, min, max, \"parameter description\")),
     defineParameter(\".plotInitialTime\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first plot event should occur\"),
-    defineParameter(\".plotInterval\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first plot event should occur\"),
+    defineParameter(\".plotInterval\", \"numeric\", NA, NA, NA, \"This describes the simulation time interval between plot events\"),
     defineParameter(\".saveInitialTime\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first save event should occur\"),
-    defineParameter(\".saveInterval\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first save event should occur\")
+    defineParameter(\".saveInterval\", \"numeric\", NA, NA, NA, \"This describes the simulation time interval between save events\")
   ),
   inputObjects = data.frame(
     objectName = NA_character_,
@@ -198,7 +199,7 @@ defineModule(sim, list(
     objectClass = NA_character_,
     other = NA_character_,
     stringsAsFactors = FALSE
-  )
+  )","
 ))\n",
       file = filenameR, fill = FALSE, sep = "")
 
