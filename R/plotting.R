@@ -698,7 +698,6 @@ setMethod(
 #' @include plotting-classes.R
 #' @importFrom grDevices dev.cur
 #' @rdname Plot
-#' @author Eliot McIntire
 #'
 rePlot <- function(toDev = dev.cur(), fromDev = dev.cur(), ...) {
   if (exists(paste0("spadesPlot", fromDev),envir = .spadesEnv)) {

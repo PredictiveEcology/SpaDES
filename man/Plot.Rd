@@ -341,8 +341,6 @@ if (interactive()) {
 }
 \author{
 Eliot McIntire
-
-Eliot McIntire
 }
 \seealso{
 \code{\link{clearPlot}}, \code{\link{gpar}}, \code{\link{raster}},
