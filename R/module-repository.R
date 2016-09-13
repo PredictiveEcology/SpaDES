@@ -403,7 +403,7 @@ setMethod(
 #' @note In version 1.2.0 and earlier, two checksums per file were required
 #' because of differences in the checksum hash values on Windows and Unix-like
 #' platforms. Recent versions use a different (faster) algorithm and only require
-#' on checksum value per file.
+#' one checksum value per file.
 #' To update your \file{CHECKSUMS.txt} files using the new algorithm, see
 #' \url{https://github.com/PredictiveEcology/SpaDES/issues/295#issuecomment-246513405}.
 #'
