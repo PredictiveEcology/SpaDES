@@ -5,12 +5,12 @@
 #' documentation file, a citation file, a license file, a README.txt file, and a
 #' folder that contains unit tests information.
 #' The \code{newModuleDocumentation} will not generate the module file, but will
-#' create the other 4 files.
+#' create the other files.
 #'
 #' All files will be created within a subfolder named \code{name} within the
 #' \code{path}.
 #'
-#' @param name  Character string specfiying the name of the new module.
+#' @param name  Character string specfying the name of the new module.
 #'
 #' @param path  Character string. Subdirectory in which to place the new module code file.
 #'              The default is the current working directory.
@@ -173,12 +173,12 @@ defineModule(sim, list(
   authors = c(person(c(\"First\", \"Middle\"), \"Last\", email=\"email@example.com\", role=c(\"aut\", \"cre\"))),
   childModules = ", children_char, ",
   version = numeric_version(\"", as.character(packageVersion("SpaDES")), "\"),",
-  if(type=="child") "spatialExtent = raster::extent(rep(NA_real_, 4)),
+  if (type == "child") "spatialExtent = raster::extent(rep(NA_real_, 4)),
   timeframe = as.POSIXlt(c(NA, NA)),","
   timeunit = NA_character_, # e.g., \"year\",","
   citation = list(\"citation.bib\"),
   documentation = list(\"README.txt\", \"", name, ".Rmd\")",
-  if(type=="child") ",
+  if (type == "child") ",
   reqdPkgs = list(),
   parameters = rbind(
     #defineParameter(\"paramName\", \"paramClass\", value, min, max, \"parameter description\")),
@@ -217,8 +217,8 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
     sim <- sim$", name, "Init(sim)
 
     # schedule future event(s)
-    sim <- scheduleEvent(sim, p(sim)$.plotInitialTime, \"", name, "\", \"plot\")
-    sim <- scheduleEvent(sim, p(sim)$.saveInitialTime, \"", name, "\", \"save\")
+    sim <- scheduleEvent(sim, SpaDES::p(sim)$.plotInitialTime, \"", name, "\", \"plot\")
+    sim <- scheduleEvent(sim, SpaDES::p(sim)$.saveInitialTime, \"", name, "\", \"save\")
   } else if (eventType == \"plot\") {
     # ! ----- EDIT BELOW ----- ! #
     # do stuff for this event
@@ -227,7 +227,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
     # schedule future event(s)
 
     # e.g.,
-    #sim <- scheduleEvent(sim, p(sim)$.plotInitialTime, \"", name, "\", \"plot\")
+    #sim <- scheduleEvent(sim, SpaDES::p(sim)$.plotInitialTime, \"", name, "\", \"plot\")
 
     # ! ----- STOP EDITING ----- ! #
   } else if (eventType == \"save\") {
@@ -707,7 +707,7 @@ setMethod("openModules",
           definition = function(name, path) {
             basedir <- checkPath(path, create = FALSE)
             fileExtension <- sub(extension(name), pattern = ".", replacement = "")
-            if(length(unique(fileExtension))>1) stop("Can only open one file type at a time")
+            if (length(unique(fileExtension)) > 1) stop("Can only open one file type at a time.")
             ncharFileExt <- unlist(lapply(fileExtension, nchar))
             origDir <- getwd()
             setwd(basedir)
@@ -715,20 +715,18 @@ setMethod("openModules",
               Rfiles <- dir(pattern = "[\\.][rR]$", recursive = TRUE, full.names = TRUE)
             } else if (all(ncharFileExt > 0) & all(fileExtension != "R")) {
               Rfiles <- dir(pattern = name, recursive = TRUE, full.names = TRUE)
-              Rfiles <- Rfiles[unlist(lapply(name, function(n) grep(pattern=n, Rfiles)))]
+              Rfiles <- Rfiles[unlist(lapply(name, function(n) grep(pattern = n, Rfiles)))]
             } else {
               Rfiles <- dir(pattern = "[\\.][rR]$", recursive = TRUE, full.names = TRUE)
-              Rfiles <- Rfiles[unlist(lapply(name, function(n) grep(pattern=n, Rfiles)))]
+              Rfiles <- Rfiles[unlist(lapply(name, function(n) grep(pattern = n, Rfiles)))]
             }
             # remove tests
-            hasTests <- grep(pattern = "tests",Rfiles)
-            if(length(hasTests)>0)
-              Rfiles <- Rfiles[-hasTests]
+            hasTests <- grep(pattern = "tests", Rfiles)
+            if (length(hasTests) > 0) Rfiles <- Rfiles[-hasTests]
 
-            onlyModuleRFile <- unlist(lapply(file.path(name,name),
+            onlyModuleRFile <- unlist(lapply(file.path(name, name),
                                              function(n) grep(pattern = n, Rfiles)))
-            if(length(onlyModuleRFile)>0)
-              Rfiles <- Rfiles[onlyModuleRFile]
+            if (length(onlyModuleRFile) > 0) Rfiles <- Rfiles[onlyModuleRFile]
 
 
             # Open Rmd file also
@@ -740,15 +738,18 @@ setMethod("openModules",
                                     function(x) any(duplicated(x)))]
 
             loadFailed <- tryCatch(lapply(Rfiles, file.edit), error = function(x) TRUE)
-            if(isTRUE(loadFailed)) {
-
+            if (isTRUE(loadFailed)) {
               Rfiles <- gsub(Rfiles, pattern = "\\./", replacement = "")
-              message(paste0("If files do not open, run th",c("is","ese")[(length(Rfiles)>1)+1],
-                             " command",c("","s")[(length(Rfiles)>1)+1]," manually by copy and paste,\n",
-                             "noting that .R files are spades module code and .Rmd files\n",
-                             "are helper files that help use the module code:\n\n",
-                            paste("file.edit('",file.path(basedir,Rfiles),"')",collapse="\n", sep = "")))
-
+              message(paste0(
+                "If files do not open, run th",
+                c("is", "ese")[(length(Rfiles) > 1) + 1],
+                " command",
+                c("", "s")[(length(Rfiles) > 1) + 1],
+                " manually by copy and paste,\n",
+                "noting that .R files are spades module code and .Rmd files\n",
+                "are helper files that help use the module code:\n\n",
+                paste("file.edit('", file.path(basedir, Rfiles), "')", collapse = "\n", sep = "")
+              ))
             }
             setwd(origDir)
 })
@@ -825,7 +826,7 @@ setMethod(
     print(paste("Zipping module into zip file:", zipFileName))
 
     allFiles <- dir(path = file.path(name), recursive = TRUE, full.names = TRUE)
-    allFiles <- grep(paste0(name,"_+.+.zip"), allFiles, value = TRUE, invert = TRUE) # moduleName_....zip only
+    allFiles <- grep(paste0(name, "_+.+.zip"), allFiles, value = TRUE, invert = TRUE) # moduleName_....zip only
 
     zip(zipFileName, files = allFiles)#, extras = c("-x"), ...)
     file.copy(zipFileName, to = paste0(name, "/", zipFileName), overwrite = TRUE)
