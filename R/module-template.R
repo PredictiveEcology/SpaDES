@@ -217,8 +217,8 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
     sim <- sim$", name, "Init(sim)
 
     # schedule future event(s)
-    sim <- scheduleEvent(sim, p(sim)$.plotInitialTime, \"", name, "\", \"plot\")
-    sim <- scheduleEvent(sim, p(sim)$.saveInitialTime, \"", name, "\", \"save\")
+    sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, \"", name, "\", \"plot\")
+    sim <- scheduleEvent(sim, P(sim)$.saveInitialTime, \"", name, "\", \"save\")
   } else if (eventType == \"plot\") {
     # ! ----- EDIT BELOW ----- ! #
     # do stuff for this event
@@ -227,7 +227,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
     # schedule future event(s)
 
     # e.g.,
-    #sim <- scheduleEvent(sim, p(sim)$.plotInitialTime, \"", name, "\", \"plot\")
+    #sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, \"", name, "\", \"plot\")
 
     # ! ----- STOP EDITING ----- ! #
   } else if (eventType == \"save\") {

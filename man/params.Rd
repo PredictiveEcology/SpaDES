@@ -2,8 +2,9 @@
 % Please edit documentation in R/simList-accessors.R
 \docType{methods}
 \name{params}
+\alias{P}
+\alias{P,.simList-method}
 \alias{p}
-\alias{p,.simList-method}
 \alias{parameters}
 \alias{parameters,.simList-method}
 \alias{params}
@@ -21,13 +22,15 @@ params(object) <- value
 
 \S4method{params}{.simList}(object) <- value
 
-p(object, module = NULL, param = NULL)
+P(object, module = NULL, param = NULL)
 
-\S4method{p}{.simList}(object, module = NULL, param = NULL)
+\S4method{P}{.simList}(object, module = NULL, param = NULL)
 
 parameters(object, asDF = FALSE)
 
 \S4method{parameters}{.simList}(object, asDF = FALSE)
+
+p(object, module = NULL, param = NULL)
 }
 \arguments{
 \item{object}{A \code{simList} simulation object.}
@@ -47,29 +50,29 @@ with the same structure as \code{params}.}
 Returns or sets the value of the slot from the \code{simList} object.
 }
 \description{
-\code{params} and \code{p} access the parameter slot in the \code{simList}.
+\code{params} and \code{P} access the parameter slot in the \code{simList}.
 \code{params} has a replace method, so can be used to update a parameter value.
 
-\code{p} is a concise way to access parameters within a module. It works more like
+\code{P} is a concise way to access parameters within a module. It works more like
 a namespaced function in the sense that the module from which it is called is the
 default place it will look for the parameter. To access a parameter from within
-a module, you can use \code{p(sim)$paramName} instead of
+a module, you can use \code{P(sim)$paramName} instead of
 \code{params(sim)$moduleName$paramName}
 }
 \note{
-The differences between p, params and being explicit with passing arguments
+The differences between P, params and being explicit with passing arguments
 are mostly a question of speed and code compactness.
 The computationally fastest way to get a parameter is to specify moduleName and parameter name, as in:
-\code{p(sim, "moduleName", "paramName")} (replacing moduleName and paramName with your
-specific module and parameter names), but it is more verbose than p(sim)$paramName. Note: the important
+\code{P(sim, "moduleName", "paramName")} (replacing moduleName and paramName with your
+specific module and parameter names), but it is more verbose than P(sim)$paramName. Note: the important
 part for speed (e.g., 2-4x faster) is specifying the moduleName.
 Specifying the parameter name is <5% faster.
 
-\code{p} is a function in \code{shiny} and html packages.
+\code{P} is a function in \code{shiny} and html packages.
 This can produce namespace clashes that are difficult to detect,
 as the errors are not meaningful. The name of this function may
 be changed in the future to remove this potential conflict. In the
-mean time, use SpaDES::p(sim) if you are concerned with the potential
+mean time, use SpaDES::P(sim) if you are concerned with the potential
 conflicts with a shiny app.
 }
 \examples{

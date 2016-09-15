@@ -213,7 +213,7 @@
 #'# Example 3 - using objFn instead of objects
 #'
 #'  # list all the parameters in the simList, from these, we select to vary
-#'  p(mySim)
+#'  params(mySim)
 #'
 #'  # Objective Function Example:
 #'  #   objective function must have several elements

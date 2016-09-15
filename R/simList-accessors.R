@@ -528,7 +528,7 @@ setMethod(
 ################################################################################
 #' Get and set simulation parameters.
 #'
-#' \code{params} and \code{p} access the parameter slot in the \code{simList}.
+#' \code{params} and \code{P} access the parameter slot in the \code{simList}.
 #' \code{params} has a replace method, so can be used to update a parameter value.
 #'
 #' @param object A \code{simList} simulation object.
@@ -541,11 +541,11 @@ setMethod(
 #'
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
-#' @note The differences between p, params and being explicit with passing arguments
+#' @note The differences between P, params and being explicit with passing arguments
 #' are mostly a question of speed and code compactness.
 #' The computationally fastest way to get a parameter is to specify moduleName and parameter name, as in:
-#' \code{p(sim, "moduleName", "paramName")} (replacing moduleName and paramName with your
-#' specific module and parameter names), but it is more verbose than p(sim)$paramName. Note: the important
+#' \code{P(sim, "moduleName", "paramName")} (replacing moduleName and paramName with your
+#' specific module and parameter names), but it is more verbose than P(sim)$paramName. Note: the important
 #' part for speed (e.g., 2-4x faster) is specifying the moduleName.
 #' Specifying the parameter name is <5% faster.
 #'
@@ -589,32 +589,32 @@ setReplaceMethod("params",
                    return(object)
 })
 
-#' \code{p} is a concise way to access parameters within a module. It works more like
+#' \code{P} is a concise way to access parameters within a module. It works more like
 #' a namespaced function in the sense that the module from which it is called is the
 #' default place it will look for the parameter. To access a parameter from within
-#' a module, you can use \code{p(sim)$paramName} instead of
+#' a module, you can use \code{P(sim)$paramName} instead of
 #' \code{params(sim)$moduleName$paramName}
 #'
 #' @export
-#' @note \code{p} is a function in \code{shiny} and html packages.
+#' @note \code{P} is a function in \code{shiny} and html packages.
 #' This can produce namespace clashes that are difficult to detect,
 #' as the errors are not meaningful. The name of this function may
 #' be changed in the future to remove this potential conflict. In the
-#' mean time, use SpaDES::p(sim) if you are concerned with the potential
+#' mean time, use SpaDES::P(sim) if you are concerned with the potential
 #' conflicts with a shiny app.
 #'
 #' @include simList-class.R
-#' @docType methods
+#' @docType methodsp
 #' @aliases simList-accessors-params
 #' @rdname params
 #'
-setGeneric("p", function(object, module = NULL, param = NULL) {
-  standardGeneric("p")
+setGeneric("P", function(object, module = NULL, param = NULL) {
+  standardGeneric("P")
 })
 
 #' @export
 #' @rdname params
-setMethod("p",
+setMethod("P",
           signature = ".simList",
           definition = function(object, module, param) {
             if (is.null(module)) {
@@ -2878,7 +2878,7 @@ setMethod(
 #' @examples
 #' parameters = rbind(
 #'   defineParameter("lambda", "numeric", 1.23, desc = "intrinsic rate of increase"),
-#'   defineParameter("p", "numeric", 0.2, 0, 1, "probability of attack")
+#'   defineParameter("P", "numeric", 0.2, 0, 1, "probability of attack")
 #' )
 #'
 setGeneric("defineParameter", function(name, class, default, min, max, desc) {
@@ -3068,3 +3068,13 @@ setMethod(
   }
   return(outputDF)
 }
+
+#' @rdname params
+#' @export
+#' @inheritParams P
+p <- function(object, module = NULL, param = NULL) {
+  .Deprecated("P", old = "p")
+  P(object = object, module = module, param = param)
+}
+
+
