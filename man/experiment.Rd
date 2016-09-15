@@ -123,7 +123,6 @@ and \code{inputs} should be structured.
                    stringsAsFactors = FALSE)
   )}
 
-
 Output directories are changed using this function: this is one of the dominant
 side effects of this function. If there are only replications, then a set of
 subdirectories will be created, one for each replicate.
