@@ -227,7 +227,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
     # schedule future event(s)
 
     # e.g.,
-    #sim <- scheduleEvent(sim, SpaDES::p(sim)$.plotInitialTime, \"", name, "\", \"plot\")
+    #sim <- scheduleEvent(sim, time(sim) + SpaDES::p(sim)$.plotInInterval, \"", name, "\", \"plot\")
 
     # ! ----- STOP EDITING ----- ! #
   } else if (eventType == \"save\") {
@@ -413,11 +413,11 @@ For help writing in RMarkdown, see http://rmarkdown.rstudio.com/.
 library(SpaDES)
 library(magrittr)
 
-inputDir <- file.path(tempdir(), \"inputs\") %>% checkPath(create = TRUE)
-outputDir <- file.path(tempdir(), \"outputs\")
+moduleDir <- file.path(", path, ")
+inputDir <- file.path(moduleDir, \"inputs\") %>% checkPath(create = TRUE)
+outputDir <- file.path(moduleDir, \"outputs\")
 times <- list(start = 0, end = 10)
 parameters <- list(
-  .globals = list(burnStats = \"nPixelsBurned\"),
   #.progress = list(type = \"text\", interval = 1), # for a progress bar
   ## If there are further modules, each can have its own set of parameters:
   #module1 = list(param1 = value1, param2 = value2),
@@ -427,7 +427,7 @@ modules <- list(\"", name, "\")
 objects <- list()
 paths <- list(
   cachePath = file.path(outputDir, \"cache\"),
-  modulePath = file.path(\"..\"),
+  modulePath = moduleDir,
   inputPath = inputDir,
   outputPath = outputDir
 )
