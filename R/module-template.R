@@ -172,13 +172,13 @@ defineModule(sim, list(
   keywords = c(\"insert key words here\"),
   authors = c(person(c(\"First\", \"Middle\"), \"Last\", email=\"email@example.com\", role=c(\"aut\", \"cre\"))),
   childModules = ", children_char, ",
-  version = numeric_version(\"", as.character(packageVersion("SpaDES")), "\"),",
-  if (type == "child") "spatialExtent = raster::extent(rep(NA_real_, 4)),
+  version = numeric_version(\"", as.character(packageVersion("SpaDES")), "\"),
+  ", if (type == "child") "spatialExtent = raster::extent(rep(NA_real_, 4)),
   timeframe = as.POSIXlt(c(NA, NA)),","
-  timeunit = NA_character_, # e.g., \"year\",","
+  timeunit = \"year\",","
   citation = list(\"citation.bib\"),
-  documentation = list(\"README.txt\", \"", name, ".Rmd\")",
-  if (type == "child") ",
+  documentation = list(\"README.txt\", \"", name, ".Rmd\")
+  ", if (type == "child") ",
   reqdPkgs = list(),
   parameters = rbind(
     #defineParameter(\"paramName\", \"paramClass\", value, min, max, \"parameter description\")),
@@ -413,7 +413,7 @@ For help writing in RMarkdown, see http://rmarkdown.rstudio.com/.
 library(SpaDES)
 library(magrittr)
 
-moduleDir <- file.path(", path, ")
+moduleDir <- file.path(\"", path, "\")
 inputDir <- file.path(moduleDir, \"inputs\") %>% checkPath(create = TRUE)
 outputDir <- file.path(moduleDir, \"outputs\")
 times <- list(start = 0, end = 10)
