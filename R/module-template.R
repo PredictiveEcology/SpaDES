@@ -177,8 +177,8 @@ defineModule(sim, list(
   timeframe = as.POSIXlt(c(NA, NA)),","
   timeunit = \"year\",","
   citation = list(\"citation.bib\"),
-  documentation = list(\"README.txt\", \"", name, ".Rmd\")
-  ", if (type == "child") ",
+  documentation = list(\"README.txt\", \"", name, ".Rmd\")",
+  if (type == "child") ",
   reqdPkgs = list(),
   parameters = rbind(
     #defineParameter(\"paramName\", \"paramClass\", value, min, max, \"parameter description\")),
