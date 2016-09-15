@@ -14,7 +14,7 @@ newModule(name, path, ...)
 \S4method{newModule}{character,missing}(name, path, ...)
 }
 \arguments{
-\item{name}{Character string specfiying the name of the new module.}
+\item{name}{Character string specfying the name of the new module.}
 
 \item{path}{Character string. Subdirectory in which to place the new module code file.
 The default is the current working directory.}
@@ -43,7 +43,7 @@ Autogenerate a skeleton for a new SpaDES module, a template for a
 documentation file, a citation file, a license file, a README.txt file, and a
 folder that contains unit tests information.
 The \code{newModuleDocumentation} will not generate the module file, but will
-create the other 4 files.
+create the other files.
 }
 \details{
 All files will be created within a subfolder named \code{name} within the

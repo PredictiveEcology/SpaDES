@@ -34,7 +34,7 @@ This packages makes heavy use of the `raster` [@raster:2015] and `sp` [@sp:2005;
 The suggested package `fastshp` can be installed with:
 
 ```{r install-fastshp, echo=TRUE, eval=FALSE}
-install.packages("fastshp", repos="http://rforge.net", type="source")
+install.packages("fastshp", repos = "http://rforge.net", type = "source")
 ```
 
 Plotting features within `SpaDES` are built using the `grid` package, though it is not required to use these.

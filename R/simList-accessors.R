@@ -1382,8 +1382,7 @@ setReplaceMethod(
        object@outputs[wh, "file"] <- paste0(object@outputs[wh, "file"], ".", fe[wh])
 
        # If the file name already has a time unit on it,
-       # i.e., passed explicitly by user,
-       # then don't postpend again
+       # i.e., passed explicitly by user, then don't postpend again
        txtTimeA <- paste0(attr(object@outputs[, "saveTime"], "unit"))
        txtTimeB <- paddedFloatToChar(
          object@outputs[, "saveTime"],

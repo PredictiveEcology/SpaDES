@@ -41,7 +41,7 @@ install.packages("SpaDES")
 ```r
 #install.packages("devtools")
 library("devtools")
-install_github("PredictiveEcology/SpaDES") # stable
+install_github("PredictiveEcology/SpaDES", dependencies = TRUE) # stable
 ```
 
 ### Development version (unstable)
@@ -55,14 +55,14 @@ install_github("PredictiveEcology/SpaDES") # stable
 ```r
 #install.packages("devtools")
 library("devtools")
-install_github("PredictiveEcology/SpaDES", ref = "development") # unstable
+install_github("PredictiveEcology/SpaDES", ref = "development", dependencies = TRUE) # unstable
 ```
 
 ## Getting started
 
 **Vignettes:**
 
-Available via our [wiki](https://github.com/PredictiveEcology/SpaDES/wiki/Help-Vignettes) or via `browseVignettes(package="SpaDES")`.
+Available via our [wiki](https://github.com/PredictiveEcology/SpaDES/wiki/Help-Vignettes) or via `browseVignettes(package = "SpaDES")`.
 
 **Wiki:**
 
