@@ -323,7 +323,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
 }
 
 ### template for your event2
-", name, "Event2 = function(sim) {
+", name, "Event2 <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # THE NEXT TWO LINES ARE FOR DUMMY UNIT TESTS; CHANGE OR DELETE THEM.
   sim$event2Test1 <- \" this is test for event 2. \" # for dummy unit test
@@ -389,7 +389,7 @@ setMethod(
     cat(
 "---
 title: \"", name, "\"
-author: \"Module Author\"
+author: \"", Sys.getenv('USER'), "\"
 date: \"", format(Sys.Date(), "%d %B %Y"), "\"
 output: pdf_document
 ---
