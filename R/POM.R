@@ -407,9 +407,9 @@ setMethod(
     for (wh in seq_along(whParamsByMod)) {
       whP <- whP + 1
       modName <- names(whParamsByMod)[whP]
-      par[whP] <- unlist(deps[[modName]]@parameters$default[deps[[modName]]@parameters$paramName == names(p(sim, modName)[whParamsByMod[whP]])])
-      upperRange[whP] <- unlist(deps[[modName]]@parameters$max[deps[[modName]]@parameters$paramName == names(p(sim, modName)[whParamsByMod[whP]])])
-      lowerRange[whP] <- unlist(deps[[modName]]@parameters$min[deps[[modName]]@parameters$paramName == names(p(sim, modName)[whParamsByMod[whP]])])
+      par[whP] <- unlist(deps[[modName]]@parameters$default[deps[[modName]]@parameters$paramName == names(P(sim, modName)[whParamsByMod[whP]])])
+      upperRange[whP] <- unlist(deps[[modName]]@parameters$max[deps[[modName]]@parameters$paramName == names(P(sim, modName)[whParamsByMod[whP]])])
+      lowerRange[whP] <- unlist(deps[[modName]]@parameters$min[deps[[modName]]@parameters$paramName == names(P(sim, modName)[whParamsByMod[whP]])])
     }
     deoptimArgs <- list(fn = objFn, lower = lowerRange, upper = upperRange,
                         sim = sim, objects = objects,
