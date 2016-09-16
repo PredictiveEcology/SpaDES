@@ -55,7 +55,7 @@
 #' # if the user wants to see the events go by, which can help with debugging:
 #' shine(mySim, debug=TRUE)
 #' }
-setGeneric("shine", function(sim, title = "SpaDES App", debug = FALSE, filesOnly, ...) {
+setGeneric("shine", function(sim, title = "SpaDES App", debug = FALSE, filesOnly = FALSE, ...) {
   standardGeneric("shine")
 })
 
