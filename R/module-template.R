@@ -1,16 +1,44 @@
 ################################################################################
+#' Open a file for editing
+#'
+#' Rstudio's \code{file.edit} behaves differently than \code{utils::file.edit}.
+#' The workaround is to have the user manually open the file if they are using
+#' Rstudio, as suggested in the Rstudio support ticket at
+#' \url{https://support.rstudio.com/hc/en-us/community/posts/206011308-file-edit-vs-utils-file-edit}.
+#'
+#' @param file  Character string giving the file path to open.
+#'
+#' @return  Invoked for its side effect of opening a file for editing.
+#'
+#  @importFrom utils file.edit
+#'
+#' @rdname fileEdit
+#' @author Alex Chubaty
+#'
+.fileEdit <- function(file) {
+  if (Sys.getenv("RSTUDIO") == "1") {
+    file <- gsub(file, pattern = "\\./", replacement = "")
+    message("Using RStudio, open file manually with:\n",
+            paste0("file.edit('", file, "')")
+    )
+  } else {
+    file.edit(file)
+  }
+}
+
+################################################################################
 #' Create new module from template.
 #'
 #' Autogenerate a skeleton for a new SpaDES module, a template for a
 #' documentation file, a citation file, a license file, a README.txt file, and a
 #' folder that contains unit tests information.
 #' The \code{newModuleDocumentation} will not generate the module file, but will
-#' create the other 4 files.
+#' create the other files.
 #'
 #' All files will be created within a subfolder named \code{name} within the
 #' \code{path}.
 #'
-#' @param name  Character string specfiying the name of the new module.
+#' @param name  Character string specfying the name of the new module.
 #'
 #' @param path  Character string. Subdirectory in which to place the new module code file.
 #'              The default is the current working directory.
@@ -172,13 +200,13 @@ defineModule(sim, list(
   keywords = c(\"insert key words here\"),
   authors = c(person(c(\"First\", \"Middle\"), \"Last\", email=\"email@example.com\", role=c(\"aut\", \"cre\"))),
   childModules = ", children_char, ",
-  version = numeric_version(\"", as.character(packageVersion("SpaDES")), "\"),",
-  if(type=="child") "spatialExtent = raster::extent(rep(NA_real_, 4)),
+  version = numeric_version(\"", as.character(packageVersion("SpaDES")), "\"),
+  ", if (type == "child") "spatialExtent = raster::extent(rep(NA_real_, 4)),
   timeframe = as.POSIXlt(c(NA, NA)),","
-  timeunit = NA_character_, # e.g., \"year\",","
+  timeunit = \"year\",","
   citation = list(\"citation.bib\"),
   documentation = list(\"README.txt\", \"", name, ".Rmd\")",
-  if(type=="child") ",
+  if (type == "child") ",
   reqdPkgs = list(),
   parameters = rbind(
     #defineParameter(\"paramName\", \"paramClass\", value, min, max, \"parameter description\")),
@@ -217,8 +245,8 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
     sim <- sim$", name, "Init(sim)
 
     # schedule future event(s)
-    sim <- scheduleEvent(sim, p(sim)$.plotInitialTime, \"", name, "\", \"plot\")
-    sim <- scheduleEvent(sim, p(sim)$.saveInitialTime, \"", name, "\", \"save\")
+    sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, \"", name, "\", \"plot\")
+    sim <- scheduleEvent(sim, P(sim)$.saveInitialTime, \"", name, "\", \"save\")
   } else if (eventType == \"plot\") {
     # ! ----- EDIT BELOW ----- ! #
     # do stuff for this event
@@ -227,7 +255,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
     # schedule future event(s)
 
     # e.g.,
-    #sim <- scheduleEvent(sim, p(sim)$.plotInitialTime, \"", name, "\", \"plot\")
+    #sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, \"", name, "\", \"plot\")
 
     # ! ----- STOP EDITING ----- ! #
   } else if (eventType == \"save\") {
@@ -323,7 +351,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
 }
 
 ### template for your event2
-", name, "Event2 = function(sim) {
+", name, "Event2 <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # THE NEXT TWO LINES ARE FOR DUMMY UNIT TESTS; CHANGE OR DELETE THEM.
   sim$event2Test1 <- \" this is test for event 2. \" # for dummy unit test
@@ -389,7 +417,7 @@ setMethod(
     cat(
 "---
 title: \"", name, "\"
-author: \"Module Author\"
+author: \"", Sys.getenv('USER'), "\"
 date: \"", format(Sys.Date(), "%d %B %Y"), "\"
 output: pdf_document
 ---
@@ -413,11 +441,11 @@ For help writing in RMarkdown, see http://rmarkdown.rstudio.com/.
 library(SpaDES)
 library(magrittr)
 
-inputDir <- file.path(tempdir(), \"inputs\") %>% checkPath(create = TRUE)
-outputDir <- file.path(tempdir(), \"outputs\")
+moduleDir <- file.path(\"", path, "\")
+inputDir <- file.path(moduleDir, \"inputs\") %>% checkPath(create = TRUE)
+outputDir <- file.path(moduleDir, \"outputs\")
 times <- list(start = 0, end = 10)
 parameters <- list(
-  .globals = list(burnStats = \"nPixelsBurned\"),
   #.progress = list(type = \"text\", interval = 1), # for a progress bar
   ## If there are further modules, each can have its own set of parameters:
   #module1 = list(param1 = value1, param2 = value2),
@@ -427,7 +455,7 @@ modules <- list(\"", name, "\")
 objects <- list()
 paths <- list(
   cachePath = file.path(outputDir, \"cache\"),
-  modulePath = file.path(\"..\"),
+  modulePath = moduleDir,
   inputPath = inputDir,
   outputPath = outputDir
 )
@@ -689,8 +717,6 @@ test_that(\"test Event1 and Event2.\", {
 #' @docType methods
 #' @rdname openModules
 #' @importFrom raster extension
-# @importFrom utils file.edit
-#'
 #' @author Eliot McIntire
 #'
 #' @examples
@@ -707,7 +733,7 @@ setMethod("openModules",
           definition = function(name, path) {
             basedir <- checkPath(path, create = FALSE)
             fileExtension <- sub(extension(name), pattern = ".", replacement = "")
-            if(length(unique(fileExtension))>1) stop("Can only open one file type at a time")
+            if (length(unique(fileExtension)) > 1) stop("Can only open one file type at a time.")
             ncharFileExt <- unlist(lapply(fileExtension, nchar))
             origDir <- getwd()
             setwd(basedir)
@@ -715,41 +741,28 @@ setMethod("openModules",
               Rfiles <- dir(pattern = "[\\.][rR]$", recursive = TRUE, full.names = TRUE)
             } else if (all(ncharFileExt > 0) & all(fileExtension != "R")) {
               Rfiles <- dir(pattern = name, recursive = TRUE, full.names = TRUE)
-              Rfiles <- Rfiles[unlist(lapply(name, function(n) grep(pattern=n, Rfiles)))]
+              Rfiles <- Rfiles[unlist(lapply(name, function(n) grep(pattern = n, Rfiles)))]
             } else {
               Rfiles <- dir(pattern = "[\\.][rR]$", recursive = TRUE, full.names = TRUE)
-              Rfiles <- Rfiles[unlist(lapply(name, function(n) grep(pattern=n, Rfiles)))]
+              Rfiles <- Rfiles[unlist(lapply(name, function(n) grep(pattern = n, Rfiles)))]
             }
             # remove tests
-            hasTests <- grep(pattern = "tests",Rfiles)
-            if(length(hasTests)>0)
-              Rfiles <- Rfiles[-hasTests]
+            hasTests <- grep(pattern = "tests", Rfiles)
+            if (length(hasTests) > 0) Rfiles <- Rfiles[-hasTests]
 
-            onlyModuleRFile <- unlist(lapply(file.path(name,name),
+            onlyModuleRFile <- unlist(lapply(file.path(name, name),
                                              function(n) grep(pattern = n, Rfiles)))
-            if(length(onlyModuleRFile)>0)
-              Rfiles <- Rfiles[onlyModuleRFile]
-
+            if (length(onlyModuleRFile) > 0) Rfiles <- Rfiles[onlyModuleRFile]
 
             # Open Rmd file also
-            RfileRmd <- dir(pattern = paste0(name,".[rR]md$"), recursive = TRUE, full.names = TRUE)
+            RfileRmd <- dir(pattern = paste0(name, ".[rR]md$"), recursive = TRUE, full.names = TRUE)
 
             Rfiles <- c(Rfiles, RfileRmd)
-            Rfiles <- Rfiles[grep(pattern = "[/\\\\]",Rfiles)]
+            Rfiles <- Rfiles[grep(pattern = "[/\\\\]", Rfiles)]
             Rfiles <- Rfiles[sapply(strsplit(Rfiles,"[/\\\\\\.]"),
                                     function(x) any(duplicated(x)))]
 
-            loadFailed <- tryCatch(lapply(Rfiles, file.edit), error = function(x) TRUE)
-            if(isTRUE(loadFailed)) {
-
-              Rfiles <- gsub(Rfiles, pattern = "\\./", replacement = "")
-              message(paste0("If files do not open, run th",c("is","ese")[(length(Rfiles)>1)+1],
-                             " command",c("","s")[(length(Rfiles)>1)+1]," manually by copy and paste,\n",
-                             "noting that .R files are spades module code and .Rmd files\n",
-                             "are helper files that help use the module code:\n\n",
-                            paste("file.edit('",file.path(basedir,Rfiles),"')",collapse="\n", sep = "")))
-
-            }
+            lapply(file.path(basedir, Rfiles), .fileEdit)
             setwd(origDir)
 })
 
@@ -825,7 +838,7 @@ setMethod(
     print(paste("Zipping module into zip file:", zipFileName))
 
     allFiles <- dir(path = file.path(name), recursive = TRUE, full.names = TRUE)
-    allFiles <- grep(paste0(name,"_+.+.zip"), allFiles, value = TRUE, invert = TRUE) # moduleName_....zip only
+    allFiles <- grep(paste0(name, "_+.+.zip"), allFiles, value = TRUE, invert = TRUE) # moduleName_....zip only
 
     zip(zipFileName, files = allFiles)#, extras = c("-x"), ...)
     file.copy(zipFileName, to = paste0(name, "/", zipFileName), overwrite = TRUE)

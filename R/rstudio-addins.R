@@ -11,7 +11,7 @@ addin_newModule <- function() {
     gadgetTitleBar("Create a new module"),
     miniContentPanel(
       textInput('moduleName', 'Module name:', width = '100%'),
-      textInput('filePath', 'Module directory path:', placeholder = getwd(), width = '100%'),
+      textInput('filePath', 'Module directory path:', value = getwd(), width = '100%'),
       selectInput('moduleType', 'Module type:', list('child', 'parent'), 'child'),
       conditionalPanel(
         condition = "input.moduleType == 'parent'",

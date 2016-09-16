@@ -441,23 +441,22 @@ setMethod(
     # timeunit is needed before all parsing of modules. It could be used
     # within modules within defineParameter statements
 
-    #timeunits <- .parseTimeunit(sim, modules(sim))
     timeunits <- .parseModulePartial(sim, modules(sim), defineModuleElement = "timeunit")
 
     childrenNames <- .parseModulePartial(sim, modules(sim), defineModuleElement = "childModules")
-    isParentModule <- any(lapply(childrenNames,length) > 1)
+    isParentModule <- any(lapply(childrenNames, length) > 1)
     if (isParentModule) {
       timeunits <- lapply(unlist(childrenNames), function(mod) {
         .parseModulePartial(filename = file.path(
-          modulePath(sim), mod, paste0(mod,".R")),
+          modulePath(sim), mod, paste0(mod, ".R")),
           defineModuleElement = "timeunit")
         })
       names(timeunits) <- unlist(childrenNames)
     }
 
-    if(length(timeunits) == 0) timeunits <- list("second") # no modules at all
+    if (length(timeunits) == 0) timeunits <- list("second") # no modules at all
 
-    if(!is.null(times$unit)) {
+    if (!is.null(times$unit)) {
       message(paste0("times contains \'unit\', rather than \'timeunit\'. ",
                                     "Using \"", times$unit, "\" as timeunit"))
       times$timeunit <- times$unit
@@ -498,8 +497,8 @@ setMethod(
 
     # source module metadata and code files, checking version info
     lapply(modules(sim, hidden = TRUE), function(m) {
-      mVersion <- .parseModulePartial(sim = sim, modules = list(m), defineModuleElement = "version")[[m]]
-      #mVersion <- moduleMetadata(m, modulePath(sim))$version
+      mVersion <- .parseModulePartial(sim = sim, modules = list(m),
+                                      defineModuleElement = "version")[[m]]
       versionWarning(m, mVersion)
     })
     all_parsed <- FALSE
@@ -825,8 +824,8 @@ setMethod(
         # update current simulated time and event
         time(sim) <- end(sim, "seconds") + 1
         if (NROW(evnts)) {
+          events(sim) <- rbind(current(sim), events(sim))
           current(sim) <- .emptyEventListNA
-          events(sim) <- rbind(evnts[1L,], events(sim))
         }
       }
     }

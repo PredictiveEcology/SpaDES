@@ -168,7 +168,7 @@ setMethod(
           for (i in 1:length(globalParams)) {
             gP <- names(globalParams[i])
             result <- grep(gP, readLines(paste(path, "/", uM, "/", uM, ".R",
-                                               sep = "")), value=FALSE)
+                                               sep = "")), value = FALSE)
             if (length(result) > 0) {
               globalsFound <- append(globalsFound, gP)
             }
@@ -181,7 +181,7 @@ setMethod(
           for (i in 1:length(userParams)) {
             uP <- names(userParams[i])
             result <- grep(uP, readLines(paste(path, "/", uM, "/", uM, ".R",
-                                               sep = "")), value=FALSE)
+                                               sep = "")), value = FALSE)
             if (length(result) <= 0) {
               allFound <- FALSE
               message(paste("Parameter", uP, "is not used in module", uM))
@@ -203,8 +203,7 @@ setMethod(
       for (uM in userModules) {
         # read in and cleanup/isolate the global params in the module's .R file
         moduleParams <- grep("globals\\(sim\\)\\$",
-                             readLines(paste(path, "/", uM, "/", uM, ".R",
-                                             sep = "")),
+                             readLines(paste(path, "/", uM, "/", uM, ".R", sep = "")),
                              value = TRUE) %>%
           strsplit(., " ") %>%
           unlist(lapply(., function(x) { x[nchar(x) > 0] } )) %>%

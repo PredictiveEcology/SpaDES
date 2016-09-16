@@ -170,6 +170,7 @@
 #' \href{https://github.com/PredictiveEcology/SpaDES-modules}{SpaDES-modules repository on GitHub}.
 #'
 #' \tabular{ll}{
+#'   \code{\link{checksums}} \tab Verify (and optionally write) checksums for a module's data files. \cr
 #'   \code{\link{downloadModule}} \tab Open all modules nested within a base directory\cr
 #'   \code{\link{getModuleVersion}} \tab Get the latest module version # from module repository\cr
 #'   \code{\link{newModule}} \tab Create new module from template\cr
@@ -182,7 +183,7 @@
 #' @section 1.4 Module metadata:
 #'
 #' Each module requires several items to be defined.
-#' These comprise the metadata for that module (including default parmater specifications),
+#' These comprise the metadata for that module (including default parameter specifications),
 #' and are currently written at the top of the module's \code{.R} file.
 #'
 #' \tabular{ll}{
@@ -207,9 +208,9 @@
 #'   \code{\link{simList}} \tab The 'simList' class\cr
 #' }
 #'
-#' @section 1.7 Cacheing:
+#' @section 1.7 Caching:
 #'
-#' Cacheing can be done in a variety of ways, most of which are up to the module developer. However,
+#' Caching can be done in a variety of ways, most of which are up to the module developer. However,
 #' the one most common usage would be to cache a simulation run. This might be useful if a simulation
 #' is very long, has been run once, and the goal is just to retrieve final results. This would be
 #' an alternative to manually saving the outputs.
