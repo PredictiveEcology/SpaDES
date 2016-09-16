@@ -173,7 +173,7 @@ setMethod(
       dots$height <- if (any(grepl(pattern = "height", names(dots)))) {
         as.numeric(dots$height)
       } else {
-        sapply(ll, NROW) %>% sum %>% `*`(., 26L)
+        sapply(ll, NROW) %>% sum() %>% `*`(., 26L)
       }
 
       diagram <- paste0(
@@ -314,7 +314,7 @@ setMethod("moduleDiagram",
           definition = function(sim, type, ...) {
               modDia <- depsGraph(sim, TRUE)
               dots <- list(...)
-              if("title" %in% names(dots)) {
+              if ("title" %in% names(dots)) {
                 Plot(modDia, plotFn = "plot", ...)
               } else {
                 Plot(modDia, plotFn = "plot", title = "Module Diagram", ...)
