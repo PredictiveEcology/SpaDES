@@ -62,6 +62,7 @@ setMethod(
 
     p <- mapply(
       function(x, y) {
+        if(length(names(y))>0)
         data.frame(Module = x, Parameter = names(y), Value = I(as.list(y)),
                    stringsAsFactors = FALSE, row.names = NULL)
       },
