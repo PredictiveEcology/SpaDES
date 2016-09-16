@@ -1,4 +1,32 @@
 ################################################################################
+#' Open a file for editing
+#'
+#' Rstudio's \code{file.edit} behaves differently than \code{utils::file.edit}.
+#' The workaround is to have the user manually open the file if they are using
+#' Rstudio, as suggested in the Rstudio support ticket at
+#' \url{https://support.rstudio.com/hc/en-us/community/posts/206011308-file-edit-vs-utils-file-edit}.
+#'
+#' @param file  Character string giving the file path to open.
+#'
+#' @return  Invoked for its side effect of opening a file for editing.
+#'
+#  @importFrom utils file.edit
+#'
+#' @rdname fileEdit
+#' @author Alex Chubaty
+#'
+.fileEdit <- function(file) {
+  if (Sys.getenv("RSTUDIO") == "1") {
+    file <- gsub(file, pattern = "\\./", replacement = "")
+    message("Using RStudio, open file manually with:\n",
+            paste0("file.edit('", file, "')")
+    )
+  } else {
+    file.edit(file)
+  }
+}
+
+################################################################################
 #' Create new module from template.
 #'
 #' Autogenerate a skeleton for a new SpaDES module, a template for a
@@ -689,8 +717,6 @@ test_that(\"test Event1 and Event2.\", {
 #' @docType methods
 #' @rdname openModules
 #' @importFrom raster extension
-# @importFrom utils file.edit
-#'
 #' @author Eliot McIntire
 #'
 #' @examples
@@ -728,29 +754,15 @@ setMethod("openModules",
                                              function(n) grep(pattern = n, Rfiles)))
             if (length(onlyModuleRFile) > 0) Rfiles <- Rfiles[onlyModuleRFile]
 
-
             # Open Rmd file also
-            RfileRmd <- dir(pattern = paste0(name,".[rR]md$"), recursive = TRUE, full.names = TRUE)
+            RfileRmd <- dir(pattern = paste0(name, ".[rR]md$"), recursive = TRUE, full.names = TRUE)
 
             Rfiles <- c(Rfiles, RfileRmd)
-            Rfiles <- Rfiles[grep(pattern = "[/\\\\]",Rfiles)]
+            Rfiles <- Rfiles[grep(pattern = "[/\\\\]", Rfiles)]
             Rfiles <- Rfiles[sapply(strsplit(Rfiles,"[/\\\\\\.]"),
                                     function(x) any(duplicated(x)))]
 
-            loadFailed <- tryCatch(lapply(Rfiles, file.edit), error = function(x) TRUE)
-            if (isTRUE(loadFailed)) {
-              Rfiles <- gsub(Rfiles, pattern = "\\./", replacement = "")
-              message(paste0(
-                "If files do not open, run th",
-                c("is", "ese")[(length(Rfiles) > 1) + 1],
-                " command",
-                c("", "s")[(length(Rfiles) > 1) + 1],
-                " manually by copy and paste,\n",
-                "noting that .R files are spades module code and .Rmd files\n",
-                "are helper files that help use the module code:\n\n",
-                paste("file.edit('", file.path(basedir, Rfiles), "')", collapse = "\n", sep = "")
-              ))
-            }
+            lapply(file.path(basedir, Rfiles), .fileEdit)
             setwd(origDir)
 })
 
