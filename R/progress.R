@@ -3,7 +3,7 @@ doEvent.progress = function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
     if (interactive()) {
       tu <- timeunit(sim)
-      defaults <- list(type = "text", interval = (end(sim, tu)-start(sim, tu))/(end(sim,tu)-start(sim,tu)))
+      defaults <- list(type = "text", interval = (end(sim, tu) - start(sim, tu))/(end(sim, tu)-start(sim,tu)))
 
       # Check whether a .progress is specified in the simList
       if ( is.null(p(sim, ".progress")$type) &&
@@ -79,7 +79,7 @@ newProgressBar <- function(sim) {
   } else if (p(sim, ".progress")$type == "shiny"){
     ## see http://shiny.rstudio.com/articles/progress.html
     stop("shiny progress bar not yet implemented")
-  }else  if (p(sim, ".progress")$type == "text") {
+  } else  if (p(sim, ".progress")$type == "text") {
     pb <- txtProgressBar(min = start(sim, tu),
                          max = end(sim, tu),
                          initial = start(sim, tu),
