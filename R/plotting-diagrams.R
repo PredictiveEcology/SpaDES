@@ -204,6 +204,16 @@ setMethod(
     eventDiagram(sim = sim, n = NROW(completed(sim)), startDate = startDate, ...)
 })
 
+#' @export
+#' @rdname eventDiagram
+setMethod(
+  "eventDiagram",
+  signature(sim = "simList", n = "missing", startDate = "missing"),
+  definition = function(sim, startDate, ...) {
+    d <- as.Date(start(sim), format(Sys.time(), "%Y-%m-%d")) %>% as.character()
+    eventDiagram(sim = sim, n = NROW(completed(sim)), startDate = d, ...)
+})
+
 ################################################################################
 #' Simulation object dependency diagram
 #'

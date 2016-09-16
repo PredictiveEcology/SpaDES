@@ -4,6 +4,7 @@
 \name{eventDiagram}
 \alias{eventDiagram}
 \alias{eventDiagram,simList,missing,character-method}
+\alias{eventDiagram,simList,missing,missing-method}
 \alias{eventDiagram,simList,numeric,character-method}
 \title{Simulation event diagram}
 \usage{
@@ -12,6 +13,8 @@ eventDiagram(sim, n, startDate, ...)
 \S4method{eventDiagram}{simList,numeric,character}(sim, n, startDate, ...)
 
 \S4method{eventDiagram}{simList,missing,character}(sim, n, startDate, ...)
+
+\S4method{eventDiagram}{simList,missing,missing}(sim, n, startDate, ...)
 }
 \arguments{
 \item{sim}{A \code{simList} object (typically corresponding to a
