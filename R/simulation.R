@@ -458,7 +458,7 @@ setMethod(
 
     if (!is.null(times$unit)) {
       message(paste0("times contains \'unit\', rather than \'timeunit\'. ",
-                                    "Using \"", times$unit, "\" as timeunit"))
+                     "Using \"", times$unit, "\" as timeunit"))
       times$timeunit <- times$unit
       times$unit <- NULL
     }
