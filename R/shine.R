@@ -83,7 +83,7 @@ setMethod(
         numericInput("Steps", "Step size", 1, width = "100px"),
         actionButton("resetSimInit", "Reset"),
         downloadButton('downloadData', 'Download'),
-        sliderInput("simTimes", paste0("Simuated ", timeunit(sim)), sep = "",
+        sliderInput("simTimes", paste0("Simulated ", timeunit(sim)), sep = "",
                     start(sim) , end(sim), start(sim)),
         h3("Modules"),
         uiOutput("moduleTabs")
