@@ -88,7 +88,7 @@ setMethod(
   definition = function(sim, modules, defineModuleElement) {
 
     out <- list()
-    for (j in .unparsed(modules)) {
+    for (j in seq_along(modules)) {
       m <- modules[[j]][1]
       filename <- paste(modulePath(sim), "/", m, "/", m, ".R", sep = "")
       out[[m]] <- .parseModulePartial(filename = filename, defineModuleElement = defineModuleElement)
@@ -443,16 +443,33 @@ setMethod(
 
     timeunits <- .parseModulePartial(sim, modules(sim), defineModuleElement = "timeunit")
 
-    childrenNames <- .parseModulePartial(sim, modules(sim), defineModuleElement = "childModules")
-    isParentModule <- any(lapply(childrenNames, length) > 1)
-    if (isParentModule) {
-      timeunits <- lapply(unlist(childrenNames), function(mod) {
-        .parseModulePartial(filename = file.path(
-          modulePath(sim), mod, paste0(mod, ".R")),
-          defineModuleElement = "timeunit")
-        })
-      names(timeunits) <- unlist(childrenNames)
+    allTimeUnits <- FALSE
+
+    # childrenNames <- lapply(.parseModulePartial(sim, modules(sim),
+    #                                        defineModuleElement = "childModules"),
+    #                           as.list)
+
+    fun1 <- function(mods) {
+      out <- lapply(.parseModulePartial(sim, mods,
+                                       defineModuleElement = "childModules"),
+                    as.list)
+      tu <- .parseModulePartial(sim, mods, defineModuleElement = "timeunit")
+      isParent <- lapply(out, length)>0
+      hasTU <- !is.na(tu)
+      out[hasTU] <- tu[hasTU]
+      if(!all(hasTU)) {
+        out[!isParent] <- tu[!isParent]
+        while(any(isParent  & !hasTU)) {
+          for(i in which(isParent & !hasTU)) {
+            out[[i]] <- fun1(as.list(unlist(out[i])))
+            isParent[i] <- FALSE
+          }
+        }
+      }
+      minTimeunit(as.list(unlist(out)))
     }
+
+    timeunits <- fun1(modules(sim))
 
     if (length(timeunits) == 0) timeunits <- list("second") # no modules at all
 
