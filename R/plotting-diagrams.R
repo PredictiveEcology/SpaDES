@@ -173,7 +173,7 @@ setMethod(
       dots$height <- if (any(grepl(pattern = "height", names(dots)))) {
         as.numeric(dots$height)
       } else {
-        sapply(ll, NROW) %>% sum %>% `*`(., 26L)
+        sapply(ll, NROW) %>% sum() %>% `*`(., 26L)
       }
 
       diagram <- paste0(
@@ -202,6 +202,16 @@ setMethod(
   signature(sim = "simList", n = "missing", startDate = "character"),
   definition = function(sim, startDate, ...) {
     eventDiagram(sim = sim, n = NROW(completed(sim)), startDate = startDate, ...)
+})
+
+#' @export
+#' @rdname eventDiagram
+setMethod(
+  "eventDiagram",
+  signature(sim = "simList", n = "missing", startDate = "missing"),
+  definition = function(sim, startDate, ...) {
+    d <- as.Date(start(sim), format(Sys.time(), "%Y-%m-%d")) %>% as.character()
+    eventDiagram(sim = sim, n = NROW(completed(sim)), startDate = d, ...)
 })
 
 ################################################################################
@@ -304,7 +314,7 @@ setMethod("moduleDiagram",
           definition = function(sim, type, ...) {
               modDia <- depsGraph(sim, TRUE)
               dots <- list(...)
-              if("title" %in% names(dots)) {
+              if ("title" %in% names(dots)) {
                 Plot(modDia, plotFn = "plot", ...)
               } else {
                 Plot(modDia, plotFn = "plot", title = "Module Diagram", ...)
