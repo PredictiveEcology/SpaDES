@@ -406,8 +406,14 @@ setMethod(
   signature(sim = "list"),
   definition = function(sim) {
 
-    tu <- unlist(lapply(sim, function(xtime) as.numeric(eval(parse(text = paste0("d",xtime,"(1)"))))))
-    return(sim[which.min(tu)])
+    keep <- sapply(sim, function(x) !is.na(x))
+    if(all(!keep)) {
+      keep <- rep(TRUE, length(keep))
+    }
+    tu <- unlist(lapply(sim[keep], function(xtime)
+      as.numeric(eval(parse(text = paste0("d",xtime,"(1)"))))))
+
+    return(sim[keep][which.min(tu)])
 
   })
 
