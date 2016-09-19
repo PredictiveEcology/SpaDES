@@ -446,17 +446,16 @@ setMethod(
     #                           as.list)
 
     fun1 <- function(mods) {
-      out <- lapply(.parseModulePartial(sim, mods,
-                                       defineModuleElement = "childModules"),
+      out <- lapply(.parseModulePartial(sim, mods, defineModuleElement = "childModules"),
                     as.list)
       tu <- .parseModulePartial(sim, mods, defineModuleElement = "timeunit")
-      isParent <- lapply(out, length)>0
+      isParent <- lapply(out, length) > 0
       hasTU <- !is.na(tu)
       out[hasTU] <- tu[hasTU]
-      if(!all(hasTU)) {
+      if (!all(hasTU)) {
         out[!isParent] <- tu[!isParent]
-        while(any(isParent  & !hasTU)) {
-          for(i in which(isParent & !hasTU)) {
+        while (any(isParent  & !hasTU)) {
+          for (i in which(isParent & !hasTU)) {
             out[[i]] <- fun1(as.list(unlist(out[i])))
             isParent[i] <- FALSE
           }
