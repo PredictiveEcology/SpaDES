@@ -76,9 +76,7 @@ setMethod(
       out <- pf[[1]][[3]][element][[1]]
       out <- tryCatch(eval(out), error = function(x) out)
       return(out)
-
-}
-)
+})
 
 #' @rdname parseModule
 setMethod(
@@ -86,17 +84,15 @@ setMethod(
   signature(sim = "simList", modules = "list",
             filename = "missing", defineModuleElement = "character"),
   definition = function(sim, modules, defineModuleElement) {
-
     out <- list()
     for (j in .unparsed(modules)) {
       m <- modules[[j]][1]
       filename <- paste(modulePath(sim), "/", m, "/", m, ".R", sep = "")
-      out[[m]] <- .parseModulePartial(filename = filename, defineModuleElement = defineModuleElement)
+      out[[m]] <- .parseModulePartial(filename = filename,
+                                      defineModuleElement = defineModuleElement)
     }
-    out
-
-  }
-)
+    return(out)
+})
 
 ################################################################################
 #' Parse and initialize a module
@@ -162,7 +158,7 @@ setMethod(
       # assign default param values
       deps <- depends(sim)@dependencies[[i]]@parameters
       params(sim)[[m]] <- list()
-      if(NROW(deps)>0) {
+      if (NROW(deps) > 0) {
         for (x in 1:NROW(deps)) {
           params(sim)[[m]][[deps$paramName[x]]] <- deps$default[[x]]
         }
@@ -170,7 +166,7 @@ setMethod(
 
       # do inputObjects and outputObjects
       pf <- parsedFile[defineModuleItem]
-      if(any(inObjs)) {
+      if (any(inObjs)) {
         depends(sim)@dependencies[[i]]@inputObjects <- eval(pf[[1]][[3]][inObjs][[1]])
         depends(sim)@dependencies[[i]]@outputObjects <- eval(pf[[1]][[3]][outObjs][[1]])
       }
@@ -214,8 +210,7 @@ setMethod(
       unique()
 
     return(sim)
-  }
-)
+})
 
 ################################################################################
 #' Initialize a new simulation
@@ -418,8 +413,9 @@ setMethod(
     objNames <- names(objects)
     if (length(objNames) != length(objects)) {
       stop("Please pass a named list or character vector of object names whose values",
-           "can be found in the parent frame of the simInit call")
+           "can be found in the parent frame of the simInit() call")
     }
+
     # user modules
     modules <- modules[!sapply(modules, is.null)] %>%
       lapply(., `attributes<-`, list(parsed = FALSE))
@@ -438,8 +434,8 @@ setMethod(
     modules(sim) <- modules
     paths(sim) <- paths
 
-    # timeunit is needed before all parsing of modules. It could be used
-    # within modules within defineParameter statements
+    # timeunit is needed before all parsing of modules.
+    # It could be used within modules within defineParameter statements.
 
     timeunits <- .parseModulePartial(sim, modules(sim), defineModuleElement = "timeunit")
 
@@ -450,7 +446,7 @@ setMethod(
         .parseModulePartial(filename = file.path(
           modulePath(sim), mod, paste0(mod, ".R")),
           defineModuleElement = "timeunit")
-        })
+      })
       names(timeunits) <- unlist(childrenNames)
     }
 
@@ -480,8 +476,9 @@ setMethod(
     if (NROW(inputs)) {
       inputs <- .fillInputRows(inputs, startTime = start(sim))
     }
-    userSuppliedObjNames <- c(objNames, inputs$objectName) # used to prevent .inputObjects from loading if
-                                          # object is passed in by user.
+
+    # used to prevent .inputObjects from loading if object is passed in by user.
+    userSuppliedObjNames <- c(objNames, inputs$objectName)
 
     # for now, assign only some core & global params
     globals(sim) <- params$.globals
@@ -504,8 +501,11 @@ setMethod(
     all_parsed <- FALSE
     while (!all_parsed) { # this does a 2 pass if there are parent modules,
                           #   first for parents, then for children
-      sim <- .parseModule(sim, modules(sim, hidden = TRUE), userSuppliedObjNames = userSuppliedObjNames)
-      if (length(.unparsed(modules(sim, hidden = TRUE))) == 0) { all_parsed <- TRUE }
+      sim <- .parseModule(sim, modules(sim, hidden = TRUE),
+                          userSuppliedObjNames = userSuppliedObjNames)
+      if (length(.unparsed(modules(sim, hidden = TRUE))) == 0) {
+        all_parsed <- TRUE
+      }
     }
 
     # add name to depdends
@@ -620,7 +620,6 @@ setMethod(
                        "loadTime in ?simInit"))
         events(sim) <- events(sim, "seconds")[eventTime >= start(sim, "seconds")]
       }
-
     }
 
     if (length(outputs)) {
@@ -665,7 +664,6 @@ setMethod(
             objects = "ANY", paths = "ANY",
             inputs = "ANY", outputs = "ANY", loadOrder = "ANY"),
   definition = function(times, params, modules, objects, paths, inputs, outputs, loadOrder) {
-
     li <- lapply(names(match.call()[-1]), function(x) eval(parse(text = x)))
     names(li) <- names(match.call())[-1]
     li$modules <- as.list(modules)
@@ -802,8 +800,7 @@ setMethod(
                                              cur$eventType, debug)
            }
         } else {
-          stop(paste("Invalid module call. The module `",
-                     cur$moduleName,
+          stop(paste("Invalid module call. The module `", cur$moduleName,
                      "` wasn't specified to be loaded."))
         }
 
