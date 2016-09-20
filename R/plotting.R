@@ -448,6 +448,9 @@ setMethod(
       if(is.null(mcPlot$title)) {
         plotArgs$title <- mc$main
       }
+      if(is.null(mcPlot$col)) {
+        plotArgs$col <- "black"
+      }
       plotArgs$main <- ""
       plotObjs[[1]][[1]]$main <- plotArgs$main
       basePlotDots$main <- plotArgs$main
@@ -485,7 +488,7 @@ setMethod(
 
     nonPlotArgs <- dotObjs[!whichSpadesPlottables]
     if (any(grepl(pattern = "col", names(nonPlotArgs)))) {
-      nonPlotArgs$col <- NULL
+      nonPlotArgs$col <- "black"
     }
 
     # intercept cases that don't make sense, and give meaningful error
