@@ -105,3 +105,91 @@ test_that("timeunit works correctly", {
 
   expect_equal(as.numeric(dweek(1)), 60*60*24*365.25/52)
 })
+
+
+test_that("timeunits with child and parent modules work correctly", {
+  tmpdir <- file.path(tempdir(), "test_Plot1") %>% checkPath(create = TRUE)
+  cwd <- getwd()
+  setwd(tmpdir)
+
+  on.exit({
+    setwd(cwd)
+    unlink(tmpdir, recursive = TRUE)
+  })
+
+  newModule("grandpar1", ".", type = "parent", children = c("child1", "child2", "par1"))
+  newModule("par1", ".", type = "parent", children = c("child4", "child3"))
+  newModule("child1", ".")
+  newModule("child3", ".")
+  newModule("child4", ".")
+  newModule("child5", ".")
+
+  newModule("child2", ".")
+  fileName <- 'child2/child2.R'
+  xxx <- readLines(fileName)
+  xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = "day"')
+  cat(xxx1, file = fileName, sep = "\n")
+
+  fileName <- 'child3/child3.R'
+  xxx <- readLines(fileName)
+  xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = "week"')
+  cat(xxx1, file = fileName, sep = "\n")
+
+  fileName <- 'child5/child5.R'
+  xxx <- readLines(fileName)
+  xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = "second"')
+  cat(xxx1, file = fileName, sep = "\n")
+
+  fileName <- 'par1/par1.R'
+  xxx <- readLines(fileName)
+  xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = "month"')
+  cat(xxx1, file = fileName, sep = "\n")
+
+  mySim <- simInit(modules = list("grandpar1","par1"))
+  expect_equal(timeunit(mySim), "month")
+
+  # If only listing the one module and it is a parent, then use it regardless of whether
+  #  it is shortest or longest
+  mySim <- simInit(modules = list("grandpar1"))
+  expect_equal(timeunit(mySim), "year")
+
+  fileName <- 'grandpar1/grandpar1.R'
+  xxx <- readLines(fileName)
+  xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = "hour"')
+  cat(xxx1, file = fileName, sep = "\n")
+
+  # If only listing the one module and it is a parent, then use it regardless of whether
+  #  it is shortest or longest
+  mySim <- simInit(modules = list("grandpar1"))
+  expect_equal(timeunit(mySim), "hour")
+
+  mySim <- simInit(modules = list("grandpar1", "child5"))
+  expect_equal(timeunit(mySim), "second")
+
+  newModule("grandpar1", ".", type = "parent", children = c("child1", "child2", "par1"))
+  fileName <- 'grandpar1/grandpar1.R'
+  xxx <- readLines(fileName)
+  xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = NA')
+  cat(xxx1, file = fileName, sep = "\n")
+
+  # If parent has NA for timeunit, then take smallest of children
+  mySim <- simInit(modules = list("grandpar1"))
+  expect_equal(timeunit(mySim), "day")
+
+  newModule("grandpar1", ".", type = "parent", children = c("child1", "child2", "par1"))
+  fileName <- 'grandpar1/grandpar1.R'
+  xxx <- readLines(fileName)
+  xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = NA')
+  cat(xxx1, file = fileName, sep = "\n")
+
+  newModule("child2", ".")
+  fileName <- 'child2/child2.R'
+  xxx <- readLines(fileName)
+  xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = NA')
+  cat(xxx1, file = fileName, sep = "\n")
+
+  # If parent has NA for timeunit, then take smallest of children
+  mySim <- simInit(modules = list("grandpar1"))
+  expect_equal(timeunit(mySim), "month") # because par1 is month, grandpar1 is NA
+
+})
