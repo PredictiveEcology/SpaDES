@@ -441,11 +441,7 @@ setMethod(
 
     allTimeUnits <- FALSE
 
-    # childrenNames <- lapply(.parseModulePartial(sim, modules(sim),
-    #                                        defineModuleElement = "childModules"),
-    #                           as.list)
-
-    fun1 <- function(mods) {
+    findSmallestTU <- function(mods) {
       out <- lapply(.parseModulePartial(sim, mods, defineModuleElement = "childModules"),
                     as.list)
       tu <- .parseModulePartial(sim, mods, defineModuleElement = "timeunit")
@@ -464,7 +460,7 @@ setMethod(
       minTimeunit(as.list(unlist(out)))
     }
 
-    timeunits <- fun1(modules(sim))
+    timeunits <- findSmallestTU(modules(sim))
 
     if (length(timeunits) == 0) timeunits <- list("second") # no modules at all
 
