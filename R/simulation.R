@@ -745,8 +745,11 @@ setMethod(
 #'
 #' @param sim Character string for the \code{simList} simulation object.
 #'
-#' @param debug Optional logical flag determines whether sim debug info
-#'              will be printed (default is \code{debug=FALSE}).
+#' @param debug Optional. Either Logical or character. If logical, entire \code{simList}
+#'              will be printed at each event. If a character string, then it must
+#'              be one of the many simList accessors, such as \code{events}, \code{params}.
+#'              If \code{"events"} is used, then it will be a compact list of the events
+#'              as they go by.
 #'
 #' @return Returns the modified \code{simList} object.
 #'
@@ -1156,15 +1159,40 @@ setMethod(
         params(sim)$.progress$interval <- NULL
       }
     }
-    while (time(sim, "second") <= end(sim, "second")) {
 
-      sim <- doEvent(sim, debug)  # process the next event
+    while (time(sim, "second") <= end(sim, "second")) {
 
       # print debugging info: this can, and should, be more sophisticated;
       #  i.e., don't simply print the entire object
-      if (debug) {
+      if (!(debug == FALSE)) {
+        if (debug == "current") {
+
+          evnts1 <- data.table::copy(events(sim)[1L])
+          widths <- unlist(lapply(events(sim), function(x) max(nchar(x))))
+          widths <- pmax(widths, nchar(names(events(sim))))
+          evnts1$eventTime <- encodeString(evnts1$eventTime, width = widths[1], justify="r")
+          evnts1$moduleName <- encodeString(evnts1$moduleName, width = widths[2], justify="r")
+          evnts1$eventType <- encodeString(evnts1$eventType, width = widths[3], justify="r")
+          evnts1$eventPriority <- encodeString(evnts1$eventPriority, width = widths[4], justify="r")
+          evnts1 <- data.frame(evnts1)
+          if(time(sim)==start(sim) & events(sim)[1L]$moduleName=="checkpoint") {
+            print(evnts1)
+          } else {
+            colnames(evnts1) <- NULL
+            write.table(evnts1, quote = FALSE)
+          }
+        } else if(isTRUE(debug)) {
           print(sim)
+        } else {
+          print(do.call(debug, list(sim)))
+          print(time(sim))
+          print("-------------")
+        }
+
       }
+
+      sim <- doEvent(sim, !(debug==FALSE))  # process the next event
+
     }
     time(sim) <- end(sim, "second")
     return(invisible(sim))

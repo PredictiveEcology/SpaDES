@@ -16,8 +16,11 @@ doEvent(sim, debug)
 \arguments{
 \item{sim}{Character string for the \code{simList} simulation object.}
 
-\item{debug}{Optional logical flag determines whether sim debug info
-will be printed (default is \code{debug=FALSE}).}
+\item{debug}{Optional. Either Logical or character. If logical, entire \code{simList}
+will be printed at each event. If a character string, then it must
+be one of the many simList accessors, such as \code{events}, \code{params}.
+If \code{"events"} is used, then it will be a compact list of the events
+as they go by.}
 }
 \value{
 Returns the modified \code{simList} object.
