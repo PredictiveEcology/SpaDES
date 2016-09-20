@@ -177,9 +177,9 @@ test_that("Plot 1 is not error-free", {
 })
 
 test_that("Unit tests for image content is not error-free", {
-  if (Sys.info()["sysname"] == "Windows") skip("Not working on Windows yet")
+  #if (Sys.info()["sysname"] == "Windows") skip("Not working on Windows yet")
   skip_if_not_installed("visualTest")
-  skip("Not reliable yet")
+  #skip("Not reliable yet")
 
   library(raster)
   library(visualTest)
@@ -205,6 +205,8 @@ test_that("Unit tests for image content is not error-free", {
   ras <- raster(matrix(sample(1:nLevels, size = N, replace = TRUE),
                        ncol = ncol, nrow = nrow))
   levels(ras) <- data.frame(ID = 1:nLevels, Class = paste0("Level", 1:nLevels))
+
+  ################################
   png(file = "test.png", width = 400, height = 300)
   clearPlot()
   Plot(ras, new = TRUE)
@@ -213,11 +215,12 @@ test_that("Unit tests for image content is not error-free", {
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(
     Sys.info()["sysname"],
-    Darwin = "BB1FC0E03E1E3B30",
-    Linux = "BB1EC4E03E1E3B30",
-    Windows = "E49B649B8A64DB64"
+    Darwin = "",
+    Linux = "",
+    Windows = "BB1FC0E03E1E3B30"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
+  ################################
 
   # Test legend with a factor raster
   set.seed(24334)
@@ -231,10 +234,12 @@ test_that("Unit tests for image content is not error-free", {
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
     Darwin = "BB1FC0E03E1E3B30",
-    Linux = "BB1EC4E03E1E3B30",
-    Windows = "A6997E268926D966"
+    Linux = "",
+    Windows = "BB1FC0E03E1E3B30"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
+
+  #################
 
   # test non contiguous factor raster
   nLevels <- 6
@@ -255,15 +260,15 @@ test_that("Unit tests for image content is not error-free", {
   orig <- switch(Sys.info()["sysname"],
     Darwin = "EEC0913E4AE16E2E",
     Linux = "EEC0913E4AE16E2E",
-    Windows = "A49B659B8A64DB64"
+    Windows = "EEC0911E4AE16E6E"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
 })
 
 test_that("Unit tests for plotting colors", {
-  if (Sys.info()["sysname"] == "Windows") skip("Not working on Windows yet")
+  #if (Sys.info()["sysname"] == "Windows") skip("Not working on Windows yet")
   skip_if_not_installed("visualTest")
-  skip("Not reliable yet")
+  #skip("Not reliable yet")
 
   library(raster)
   library(visualTest)
@@ -279,9 +284,11 @@ test_that("Unit tests for plotting colors", {
     unlink(tmpdir, recursive = TRUE)
   })
 
+
   ras <- raster(matrix(c(1, 0, 1, 2), ncol = 2))
   setColors(ras, n = 3) <- c("red", "blue", "green")
 
+  ###################################
   png(file = "test.png", width = 400, height = 300)
   clearPlot()
   Plot(ras, new = TRUE)
@@ -291,10 +298,10 @@ test_that("Unit tests for plotting colors", {
   orig <- switch(Sys.info()["sysname"],
     Darwin = "BF6AC491C0663B66",
     Linux = "BF6AC491C0663B36",
-    Windows = "A0937D7C8224DF6C"
+    Windows = "BF4AC091C0663B77"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.002))
-  unlink("test.png")
+  ###################################
 
   ras2 <- raster(matrix(c(3, 1, 1, 2), ncol = 2))
   rasStack <- raster::stack(ras, ras2)
@@ -309,10 +316,12 @@ test_that("Unit tests for plotting colors", {
   orig <- switch(Sys.info()["sysname"],
     Darwin = "B93964CAC2C6939B",
     Linux = "B938649AC6C6939B",
-    Windows = "9F1F33C0E0C0339F"
+    Windows = "B9386C9AC6C6939A"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
-  unlink("test.png")
+  #unlink("test.png")
+
+  ######################################
 
   # Test setColors
   ras <- setColors(ras, c("red", "purple", "orange"), n = 3)
@@ -325,10 +334,10 @@ test_that("Unit tests for plotting colors", {
   orig <- switch(Sys.info()["sysname"],
     Darwin = "BF6AC491C0663B66",
     Linux = "BF6AC491C06E3B26",
-    Windows = "A0937D7C8224DF6C"
+    Windows = "BF6AC091C06E3B65"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
-  unlink("test.png")
+  ###########################################
 
   ras <- setColors(ras, c("yellow", "orange"))
   png(file = "test.png", width = 400, height = 300)
@@ -340,16 +349,16 @@ test_that("Unit tests for plotting colors", {
   orig <- switch(Sys.info()["sysname"],
     Darwin = "AB95D06E84916F71",
     Linux = "BB95D06EC4916F30",
-    Windows = "A0937D7C8224DF6C"
+    Windows = "AB95D06EC4916F31"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 8))
   unlink("test.png")
 })
 
 test_that("Unit tests for internal functions in Plot", {
-  if (Sys.info()["sysname"] == "Windows") skip("Not working on Windows yet")
+  #if (Sys.info()["sysname"] == "Windows") skip("Not working on Windows yet")
   skip_if_not_installed("visualTest")
-  skip("Not reliable yet")
+  #skip("Not reliable yet")
 
   library(raster)
   library(visualTest)
@@ -365,6 +374,7 @@ test_that("Unit tests for internal functions in Plot", {
     unlink(tmpdir, recursive = TRUE)
   })
 
+  #######################################
   # Test .makeColorMatrix for subsampled rasters
   # (i.e., where speedup is high compared to ncells)
   set.seed(1234)
@@ -380,10 +390,11 @@ test_that("Unit tests for internal functions in Plot", {
   orig <- switch(Sys.info()["sysname"],
     Darwin = "A0CB77708A30DF74",
     Linux = "A0CF75708A30DF74",
-    Windows = "8000FFFE0000FFFF"
+    Windows = "AFCFD074C0302F74"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
 
+  #######################################
   # Test that NA rasters plot correctly, i.e., with na.color only
   ras <- raster(matrix(NA, ncol = 3, nrow = 3))
   setColors(ras, n = 3) <- c("red", "blue", "green")
@@ -397,10 +408,11 @@ test_that("Unit tests for internal functions in Plot", {
   orig <- switch(Sys.info()["sysname"],
     Darwin = "A0CB77708A30DF74",
     Linux = "A0CF75708A30DF74",
-    Windows = "A288FF760022DD77"
+    Windows = "A0CF75708A30DF74"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
 
+  #######################################
   # Test that NA rasters plot correctly, i.e., with na.color only, not default
   ras <- raster(matrix(NA, ncol = 3, nrow = 3))
   setColors(ras, n = 3) <- c("red", "blue", "green")
@@ -414,9 +426,10 @@ test_that("Unit tests for internal functions in Plot", {
   orig <- switch(Sys.info()["sysname"],
     Darwin = "AF8FD0F080303F75",
     Linux = "AF8FD0F0C0302F75",
-    Windows = "A288FF760022DD77"
+    Windows = "AFCFD070D0302F74"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
+  #######################################
 
   # Test legendRange in Plot
   set.seed(1234)
@@ -432,29 +445,52 @@ test_that("Unit tests for internal functions in Plot", {
   orig <- switch(Sys.info()["sysname"],
     Darwin = "AF99D0E4C0653F64",
     Linux = "AF9BD0E4C1253F60",
-    Windows = "A49B7E648964DB64"
+    Windows = "AF99D066C1273F60"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
-  unlink("test.png")
 })
 
 test_that("Plot 2 is not error-free", {
-  skip("This is a visual only test - see verbal expectations")
+  skip_if_not_installed("visualTest")
+
   tmpdir <- file.path(tempdir(), "test_Plot2") %>% checkPath(create = TRUE)
   cwd <- getwd()
   setwd(tmpdir)
   library(raster)
   library(SpaDES)
+  library(visualTest)
 
   on.exit({
     setwd(cwd)
     unlink(tmpdir, recursive = TRUE)
   })
 
-  r <- raster(system.file("external/test.grd", package = "raster"))
-  message("These two plots should look similar")
+  set.seed(123)
+  r <- raster(matrix(sample(1:3, size = 100, replace = TRUE), ncol = 10))
+
+
+  png(file = "test.png", width = 400, height = 300)
   clearPlot()
-  plot(r)
+  spplot(r, colorkey = FALSE, interpolate = FALSE,
+         col.regions=colorRampPalette(c('black', 'red'))(30))
+  dev.off()
+
+  png(file = "test.png", width = 400, height = 300)
+  clearPlot()
+  Plot(r, visualSqueeze = 0.88, title = FALSE,
+       legend = FALSE, cols = colorRampPalette(c("black", "red"))(3)
+  )
+  dev.off()
+
+  #dput(getFingerprint(file = "test.png"))
+  orig <- switch(Sys.info()["sysname"],
+                 Darwin = "AF99D0E4C0653F64",
+                 Linux = "AF9BD0E4C1253F60",
+                 Windows = "AA68D51695C3D89D"
+  )
+  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 4))
+
+  skip("Remainder are visual tests ... difficult to assess - see verbal expectations")
 
   dev()
   clearPlot()
@@ -634,47 +670,143 @@ test_that("setColors is not error-free", {
 
 
 test_that("Plot with base is not error-free", {
-  if(interactive()) {
+  #if(interactive()) {
+  skip_if_not_installed("visualTest")
+  library(visualTest)
+
     library(raster)
     library(ggplot2)
     library(igraph)
 
     tmpdir <- file.path(tempdir(), "test_Plot1") %>% checkPath(create = TRUE)
     dev(2,width=13,height=7)
-    for(arr in list(NULL, c(2,3))) {
-      ras <- raster(extent(0,40, 0,20), vals = sample(1:8,replace = T,size =800), res = 1)
-      aTime <- Sys.time()
+    #for(arr in list(NULL, c(2,3))) {
+    set.seed(123)
+    rasOrig <- raster(extent(0,40, 0,20), vals = sample(1:8,replace = T,size =800), res = 1)
+    ras <- rasOrig
+    aTime <- Sys.time()
 
-      clearPlot()
-      if(is.null(arr)) {
-        Plot(ras)
-      } else {
-        Plot(ras, arr = arr)
-      }
-      Plot(rnorm(10), ylab = "hist")
-      Plot(rnorm(10), addTo = "hist", ylab = "test")
-      a <- hist(rnorm(10), plot = FALSE)
-      Plot(a, addTo = "histogram", axes = "L", col = "#33EEAA33", xlim = c(-3,3))
-      a <- hist(rnorm(100), plot = FALSE)
-      Plot(a, addTo = "histogram", axes = FALSE, col = paste0("#1133FF","33"), xlim = c(-3,3), xlab = "", ylab = "")
-      ras2 <- raster(ras)
-      ras2[] <- sample(1:8)
-      Plot(ras2)
-      gg1 <- qplot(1:10)
-      Plot(gg1)
-      Plot(rnorm(10), ylab = "hist", new=TRUE)
-      Plot(ras2)
-      Plot(rnorm(10), ylab = "hist")
-      ras <- ras^2
-      Plot(ras, new = TRUE, cols = "Reds")
-      Plot(rnorm(10), ylab = "hist", new=TRUE, addTo = "hist")
-      Plot(ras, new = TRUE, cols = "Reds", addTo = "ras2")
-      Plot(ras, cols = "Reds", addTo = "ras2")
-      bTime <- Sys.time()
-      print(bTime - aTime)
-    }
-
+    ##########
     clearPlot()
+    png(file = "test.png", width = 400, height = 300)
+    clearPlot()
+    Plot(ras)
+    dev.off()
+
+    #dput(getFingerprint(file = "test.png"))
+    orig <- switch(Sys.info()["sysname"],
+                   Darwin = "",
+                   Linux = "",
+                   Windows = "B0CCC39893D3CE36"
+    )
+    expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
+
+    ##################################################
+    set.seed(123)
+    png(file = "test.png", width = 400, height = 300)
+    clearPlot()
+    ras[] <- sort(ras[])
+    Plot(ras)
+    ras[] <- sample(ras[])
+    Plot(ras)
+    Plot(rasOrig)
+    dev.off()
+
+    #dput(getFingerprint(file = "test.png"))
+    orig <- switch(Sys.info()["sysname"],
+                   Darwin = "",
+                   Linux = "",
+                   Windows = "AED2D121E21F7A0E"
+    )
+    expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
+    #################################
+
+    # Test overplotting, replotting
+    set.seed(123)
+    png(file = "test.png", width = 400, height = 300)
+    clearPlot()
+    ras[] <- sort(ras[])
+    Plot(ras, cols = "Reds")
+    ras[] <- sample(ras[])
+    Plot(ras)
+    Plot(rasOrig)
+    dev.off()
+
+    #dput(getFingerprint(file = "test.png"))
+    orig <- switch(Sys.info()["sysname"],
+                   Darwin = "",
+                   Linux = "",
+                   Windows = "BED2C131E01F3A4E"
+    )
+    expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
+    #################################
+
+    png(file = "test.png")
+    clearPlot()
+    Plot(1:10, ylab = "hist")
+    dev.off()
+    #dput(getFingerprint(file = "test.png"))
+    orig <- switch(Sys.info()["sysname"],
+                   Darwin = "",
+                   Linux = "",
+                   Windows = "EB27BD52D28CC948"
+    )
+    expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
+    #############################
+
+    # Mixing base and grid
+    png(file = "test.png")
+    clearPlot()
+    Plot(ras)
+    Plot(1:10, ylab = "hist")
+    dev.off()
+    #dput(getFingerprint(file = "test.png"))
+    orig <- switch(Sys.info()["sysname"],
+                   Darwin = "",
+                   Linux = "",
+                   Windows = "9FA5E441C2FAE01E"
+    )
+    expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
+    #############################
+
+
+    png(file = "test.png", width = 500, height = 400)
+    ras <- rasOrig
+    set.seed(123)
+    clearPlot()
+    Plot(rnorm(10), addTo = "hist", ylab = "test")
+    a <- hist(rnorm(10), plot = FALSE)
+    Plot(a, addTo = "histogram", axes = "L", col = "#33EEAA33", xlim = c(-3,3))
+    a <- hist(rnorm(100), plot = FALSE)
+    Plot(a, addTo = "histogram", axes = FALSE, col = paste0("#1133FF","33"), xlim = c(-3,3), xlab = "", ylab = "")
+    ras2 <- raster(ras)
+    ras2[] <- sample(1:8)
+    Plot(ras2)
+    gg1 <- qplot(1:10)
+    Plot(gg1)
+    Plot(rnorm(10), ylab = "hist", new=TRUE)
+    Plot(ras2)
+    Plot(rnorm(10), ylab = "hist")
+    ras <- ras^2
+    Plot(ras, new = TRUE, cols = "Reds")
+    Plot(rnorm(10), ylab = "hist", new=TRUE, addTo = "hist")
+    Plot(ras, new = TRUE, cols = "Reds", addTo = "ras2")
+    Plot(ras, cols = "Reds", addTo = "ras2")
+    dev.off()
+    #dput(getFingerprint(file = "test.png"))
+    orig <- switch(Sys.info()["sysname"],
+                   Darwin = "",
+                   Linux = "",
+                   Windows = "F3B42E4B8C0FF0C8"
+    )
+    expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
+    #############################
+
+
+    png(file = "test.png", width = 500, height = 400)
+    ras <- rasOrig
+    clearPlot()
+    set.seed(3123)
     a <- rnorm(1e2)
     b <- rnorm(1e2)
     Plot(a, axes = TRUE, addTo = "first", visualSqueeze = 0.6)
@@ -682,13 +814,81 @@ test_that("Plot with base is not error-free", {
     Plot(1:10, axes = TRUE, addTo = "third", visualSqueeze = 0.6)
     Plot(1:10, 1:10, axes = TRUE, addTo = "fourth", visualSqueeze = 0.6,
          main = "test4", title = FALSE)
+    Plot(1:10, 1:10, axes = TRUE, addTo = "fourth", visualSqueeze = 0.6,
+         main = "test4", title = "test5")
+    Plot(1:10, 1:10, axes = TRUE, addTo = "fifth", visualSqueeze = 0.6,
+         main = "test4", title = "test5")
     Plot(ras)
+    dev.off()
+    #dput(getFingerprint(file = "test.png"))
+    orig <- switch(Sys.info()["sysname"],
+                   Darwin = "",
+                   Linux = "",
+                   Windows = "BD96C3CE94E1C168"
+    )
+    expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
+    #############################
 
+    png(file = "test.png", width = 400, height = 300)
+    set.seed(123)
+    ras <- rasOrig
+    ras2 <- ras
+    ras2[] <- sample(ras[])
     clearPlot()
     Plot(ras,  title = "test", new=TRUE)
     Plot(ras2,  addTo = "ras", cols = "Reds")
     Plot(ras,  addTo = "ras", cols = "Blues")
+    dev.off()
+    #dput(getFingerprint(file = "test.png"))
+    orig <- switch(Sys.info()["sysname"],
+                   Darwin = "",
+                   Linux = "",
+                   Windows = "A44CC39A93B3CE96"
+    )
+    expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
 
-  }
+#  }
+
+})
+
+test_that("Plot messages and warnings and errors", {
+  rasOrig <- raster(extent(0,40, 0,20), vals = sample(1:8,replace = T,size =800), res = 1)
+  ras <- rasOrig
+  expect_error(Plot(ras, rnorm(10)), "Can't mix base plots with .spadesPlottables")
+
+})
+
+test_that("rePlot doesn't work", {
+
+  tmpdir <- file.path(tempdir(), "test_Plot1") %>% checkPath(create = TRUE)
+  cwd <- getwd()
+  setwd(tmpdir)
+  skip_if_not_installed("visualTest")
+
+  library(visualTest)
+  on.exit({
+    setwd(cwd)
+    unlink(tmpdir, recursive = TRUE)
+  })
+
+  png(file = "test1.png", width = 400, height = 300)
+    a <- dev.cur()
+    set.seed(123)
+    rasOrig <- raster(extent(0,40, 0,20), vals = sample(1:8,replace = T,size =800), res = 1)
+    ras <- rasOrig
+    clearPlot()
+    ras <- ras+1
+    Plot(ras)
+    Plot(rnorm(10), ylab = "hist")
+  dev.off(a)
+
+  png(file = "test2.png", width = 400, height = 300)
+    b <- dev.cur()
+    rePlot(a, b)
+  dev.off(b)
+
+  orig <- getFingerprint(file = "test1.png")
+  expect_true(isSimilar(file = "test2.png", fingerprint = orig, threshold = 0.3))
+
 
 })
