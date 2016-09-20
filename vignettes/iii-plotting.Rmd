@@ -446,7 +446,8 @@ Any data changes made to the objects contained within the plot, if they are in t
 This provides the same behavior as a call to `rePlot()`.
 
 ```{r Plot a .spadesPlot object, eval=FALSE, echo=TRUE, cache=TRUE}
-plots <- Plot(landscape, new = TRUE)
+clearPlot()
+plots <- Plot(landscape)
 
 # change values
 landscape$forestCover[landscape$habitatQuality > 0.9] <- 0
@@ -456,6 +457,6 @@ Plot(plots)
 rePlot()
 
 # but can be combined with other objects
-Plot(caribou, plots, new = TRUE)
+Plot(caribou, plots)
 Plot(caribou, plots, Sl)
 ```
