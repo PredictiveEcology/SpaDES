@@ -212,6 +212,7 @@ setMethod(
   ".makeSpadesPlot",
   signature = c(plotObjects = "list", plotArgs = "list"),
   definition = function(plotObjects, plotArgs, whichSpadesPlottables, ...) {
+
     isSpatialObjects <- sapply(plotObjects, function(x) {
       is(x, "spatialObjects")
     })
@@ -288,7 +289,7 @@ setMethod(
             names(isSpadesPlotLong)[x],
             names(plotObjects)
           )]]@spadesGrobList[[match(
-            lN[x], lNamesPlotObj[isSpadesPlot]
+            lN[x], lNamesPlotObj[isSpadesPlotLong]
           )]][[1]]
       } else {
         spadesGrobList[[lN[x]]] <- new(".spadesGrob")
@@ -1222,7 +1223,7 @@ setMethod(
         legend = #sGrob@plotArgs$legend  &  isBaseSubPlot &
           #isReplot |
           sGrob@plotArgs$legend & (isBaseSubPlot &
-          isNewPlot | wipe),
+          (isNewPlot | wipe | isReplot)),
         legendText = sGrob@plotArgs$legendTxt,
         gp = sGrob@plotArgs$gp,
         gpText = sGrob@plotArgs$gpText,
@@ -1241,13 +1242,12 @@ setMethod(
         if (xyAxes$y & (isBaseSubPlot & isNewPlot | wipe)) {
           grid.yaxis(name = "yaxis", gp = sGrob@plotArgs$gpAxis, vp = vps$wholeVp$children[[paste0("outer",subPlots)]])
         }
-        #seekViewport(subPlots, recording = FALSE)
+        seekViewport(subPlots, recording = FALSE)
       }
 
     } #gg vs histogram vs spatialObject
     # print Title on plot
-    if (#!identical(FALSE, sGrob@plotArgs$title) & isBaseSubPlot & !isReplot |
-      !identical(FALSE, sGrob@plotArgs$title) & isBaseSubPlot & isNewPlot) {
+    if (!identical(FALSE, sGrob@plotArgs$title) & (isBaseSubPlot & (isNewPlot | isReplot))) {
       plotName <- if(isTRUE(sGrob@plotArgs$title)) sGrob@plotName else sGrob@plotArgs$title
       a <- try(seekViewport(paste0("outer",subPlots), recording = FALSE))
       suppressWarnings(grid.text(plotName, name = "title", y = 1.08-is.list(grobToPlot)*0.02, vjust = 0.5, # tweak... not good practice. Should find original reason why this is not same y for rasters and all others
@@ -1369,10 +1369,14 @@ setMethod(
 #' @param toPlot list containing the objects to plot, made as a call to the
 #'               \code{Plot} function
 #'
+#' @param takeFromPlotObj Logical. Should the data come from the argument passed
+#'                        into Plot (\code{TRUE}), or from the (\code{.spadesEnv})
+#'                        (\code{FALSE}).
+#'
 #' @author Eliot McIntire
 #' @include plotting-classes.R
 #' @rdname identifyGrobToPlot
-setGeneric(".identifyGrobToPlot", function(grobNamesi, toPlot) {
+setGeneric(".identifyGrobToPlot", function(grobNamesi, toPlot, takeFromPlotObj) {
   standardGeneric(".identifyGrobToPlot")
 })
 
@@ -1380,33 +1384,38 @@ setGeneric(".identifyGrobToPlot", function(grobNamesi, toPlot) {
 setMethod(
   ".identifyGrobToPlot",
   signature = c(".spadesGrob", "list"),
-  function(grobNamesi, toPlot) {
+  function(grobNamesi, toPlot, takeFromPlotObj) {
     # get the object name associated with this grob
-    #if (length(toPlot) == 0)
-    #  takeFromPlotObj <- FALSE
 
-    #if(takeFromPlotObj) {
-    #  grobToPlot <- toPlot[[1]]
-    #} else {
+    if (length(toPlot) == 0)
+      takeFromPlotObj <- FALSE
+
+#    if(any(takeFromPlotObj)) {
+#      if(length(takeFromPlotObj)>1) {
+#        grobToPlot <- toPlot[takeFromPlotObj][[1]]
+#      } else {
+#        grobToPlot <- toPlot[[1]]
+#      }
+
+#    } else {
     # Does it already exist on the plot device or not
-    if (nchar(grobNamesi@layerName) > 0) {
-      # means it is in a raster
-      #if(takeFromPlotObj) {
-      #  grobToPlot <- unlist(toPlot[[1]], recursive = FALSE)[[grobNamesi@layerName]]
-      #} else {
+    if (nchar(grobNamesi@layerName) > 0) {# means it is in a raster
+      if(takeFromPlotObj) {
+        grobToPlot <- unlist(toPlot[[1]], recursive = FALSE)[[grobNamesi@layerName]]
+      } else {
         grobToPlot <- eval(parse(text = grobNamesi@objName),
                          grobNamesi@envir)[[grobNamesi@layerName]]
-      #}
+      }
     } else {
-      #if(takeFromPlotObj) {
-      #  if(!is(toPlot[[1]], "gg")) {
-      #    grobToPlot <- unlist(toPlot[[1]], recursive = FALSE)
-      #  } else {
-      #    grobToPlot <- toPlot[[1]]
-      #  }
-      #} else {
+      if(takeFromPlotObj) {
+        if(!is(toPlot[[1]], "gg")) {
+          grobToPlot <- unlist(toPlot[[1]], recursive = FALSE)
+        } else {
+          grobToPlot <- toPlot[[1]]
+        }
+      } else {
         grobToPlot <- eval(parse(text = grobNamesi@objName), grobNamesi@envir)
-      #}
+      }
     }
     #}
     return(grobToPlot)
@@ -1561,8 +1570,8 @@ setMethod(
         newSP@spadesGrobList[[plots]][[1]]@plotArgs[names(whichParamsChanged[[plots]])[whichParamsChanged[[plots]]]]
 
       needPlotting[[plots]][[plots]] <- TRUE
-      isReplot[[plots]][[plots]] <- TRUE
-      isBaseLayer[[plots]][[plots]] <- FALSE
+      isReplot[[plots]][[plots]] <- FALSE
+      #isBaseLayer[[plots]][[plots]] <- isBaseLayer[[plots]][[plots]]
       isNewPlot[[plots]][[plots]] <- FALSE
     }
 
@@ -2404,10 +2413,10 @@ setMethod(
     #}
   }
 
-  if (newArr) {
+  #if (newArr) {
     wholeVp <- vpTree(topVp, do.call(vpList, plotVps))
-  } else {
-    wholeVp <- do.call(vpList, plotVps)
-  }
+  #} #else {
+    #wholeVp <- do.call(vpList, plotVps)
+  #}
   return(list(wholeVp = wholeVp, extents = extents))
 }

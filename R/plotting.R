@@ -409,8 +409,9 @@ setMethod(
 
     whichSpadesPlottables <- sapply(dotObjs, function(x) {
       is(x, ".spadesPlottables") })
-    if(all(!whichSpadesPlottables) & all(whichSpadesPlottables))
-      warning("Can't mix base plots with .spadesPlottables objects")
+    if(!(all(!whichSpadesPlottables) | all(whichSpadesPlottables)))
+      stop("Can't mix base plots with .spadesPlottables objects in one function call. ",
+              "Please call Plot for base plots separately.")
 
     # Create plotObjs object, which is a cleaned up version of the objects passed into Plot
     if(all(!whichSpadesPlottables) ) { ## if not a .spadesPlottables then it is a pass to plot or points
@@ -500,9 +501,15 @@ setMethod(
 
     # Create a .spadesPlot object from the plotObjs and plotArgs
     isSpadesPlot <- sapply(plotObjs, function(x) { is(x, ".spadesPlot") })
+    isSpadesPlotLong <- rep(isSpadesPlot, unlist(lapply(plotObjs, numLayers)))
 
     newSpadesPlots <- .makeSpadesPlot(
       plotObjs, plotArgs, whichSpadesPlottables, env = objFrame)
+    #names(plotObjs) <- unlist(unique(lapply(newSpadesPlots@spadesGrobList,
+    #                                        function(x) {
+#                                             x[[1]]@objName
+    #                                        }
+    #                                        )))
 
     if (exists(paste0("spadesPlot", dev.cur()), envir = .spadesEnv)) {
       currSpadesPlots <- .getSpaDES(paste0("spadesPlot", dev.cur()))
@@ -528,9 +535,9 @@ setMethod(
         updated$isReplot <- lapply(updated$isReplot, function(x) {
           sapply(x, function(y) { TRUE })
         })
-        updated$isNewPlot <- lapply(updated$isNewPlot, function(x) {
-            sapply(x, function(y) { TRUE })
-        })
+        # updated$isNewPlot <- lapply(updated$isNewPlot, function(x) {
+        #     sapply(x, function(y) { TRUE })
+        # })
         clearPlot(removeData = FALSE)
       }
 
@@ -569,11 +576,16 @@ setMethod(
     # Create the viewports as per the optimal layout
     if (length(newSpadesPlots@spadesGrobList) > 0) {
       vps <- .makeViewports(updated$curr, newArr = newArr)
-      if (!all(unlist(new)) & !newArr & !is.null(current.parent())) {
-        upViewport(1)
-      }
+      #if (!all(unlist(new)) & !newArr & !is.null(current.parent())) {
+      #if (!all(unlist(new)) & !newArr & !is.null(current.parent())) {
+      #    upViewport(1)
+      #}
+      #if(newArr) {
+      upViewport(0)
       pushViewport(vps$wholeVp, recording = FALSE)
       upViewport(0)
+
+      #}
     }
     updated$curr@arr@extents <- vps$extents
     updated$curr@arr@names <- names(updated$curr@spadesGrobList)
@@ -599,19 +611,35 @@ setMethod(
           # If not, then x and y axes are written where necessary.
           xyAxes <- .xyAxes(sGrob, arr=updated$curr@arr, whPlotFrame)
 
-          takeFromPlotObj <- (names(newSpadesPlots@spadesGrobList) %in%
-                                sGrob@plotName)
-          whPlotObj <- which(takeFromPlotObj)
-          grobToPlot <- .identifyGrobToPlot(sGrob, plotObjs)#, any(takeFromPlotObj))
+          layerFromPlotObj <- (names(newSpadesPlots@spadesGrobList) %in%
+                                  sGrob@plotName)
+          whLayerFromPO <- which(layerFromPlotObj)
 
-          isPlotFnAddable <- if(!is(grobToPlot, ".spadesPlotObjects"))
-                                if(sGrob@plotArgs$userProvidedPlotFn & !isTRUE(grobToPlot[["add"]])) {
+          objNames <- unique(unname(unlist(lapply(newSpadesPlots@spadesGrobList, function(x) x[[1]]@objName))))
+          whPlotObj <- which(objNames %in% sGrob@objName)
+
+
+          layerFromPlotObj <- if(length(whLayerFromPO)==0) { FALSE
+          } else if(isSpadesPlotLong[whLayerFromPO]) {
+              FALSE
+          } else {
+            layerFromPlotObj[whLayerFromPO]
+          }
+          grobToPlot <- .identifyGrobToPlot(sGrob, plotObjs[whPlotObj],
+                                            layerFromPlotObj)
+
+          isPlotFnAddable <- if(!is(grobToPlot, ".spadesPlotObjects")) {
+                                if(is(grobToPlot, ".spadesPlot")) {
+                                  FALSE
+                                } else if(sGrob@plotArgs$userProvidedPlotFn & !isTRUE(grobToPlot[["add"]])) {
                                   TRUE
                                 } else {
                                   FALSE
+                                }
                               } else {
                                 FALSE
                               }
+
 
           if(sGrob@plotArgs$new | is(grobToPlot, "igraph") | #plotArgs$new |
              is(grobToPlot, "histogram") | #is(grobToPlot$x, "histogram") |
@@ -621,7 +649,7 @@ setMethod(
               sGrob <- .refreshGrob(sGrob, subPlots, legendRange,
                                   grobToPlot, plotArgs = sGrob@plotArgs,
                                   nColumns = updated$curr@arr@columns,
-                                  whPlotObj)
+                                  whLayerFromPO)
             wipe <- TRUE # can't overplot a histogram
 
           } else {
@@ -631,7 +659,7 @@ setMethod(
           sGrob <- .updateGrobGPTextAxis(sGrob, arr=updated$curr@arr, newArr=newArr)
 
           if(is(grobToPlot, "spatialObjects")) {
-            zMat <- .convertSpatialToPlotGrob(grobToPlot, sGrob, takeFromPlotObj, arr=updated$curr@arr,
+            zMat <- .convertSpatialToPlotGrob(grobToPlot, sGrob, layerFromPlotObj, arr=updated$curr@arr,
                                               newArr, spadesGrobCounter, subPlots, cols)
           } else {
             zMat <- NULL
@@ -651,6 +679,7 @@ setMethod(
           }}
 
           # Plot any grobToPlot to device, given all the parameters
+
           sGrob <- .Plot(sGrob, grobToPlot, subPlots, spadesSubPlots, spadesGrobCounter,
                 isBaseSubPlot, isNewPlot, isReplot, zMat, wipe, xyAxes, legendText,
                 vps, nonPlotArgs)

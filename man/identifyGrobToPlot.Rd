@@ -6,15 +6,20 @@
 \alias{.identifyGrobToPlot,.spadesGrob,list-method}
 \title{Identify where to get the grob from}
 \usage{
-.identifyGrobToPlot(grobNamesi, toPlot)
+.identifyGrobToPlot(grobNamesi, toPlot, takeFromPlotObj)
 
-\S4method{.identifyGrobToPlot}{.spadesGrob,list}(grobNamesi, toPlot)
+\S4method{.identifyGrobToPlot}{.spadesGrob,list}(grobNamesi, toPlot,
+  takeFromPlotObj)
 }
 \arguments{
 \item{grobNamesi}{name of the object to plot}
 
 \item{toPlot}{list containing the objects to plot, made as a call to the
 \code{Plot} function}
+
+\item{takeFromPlotObj}{Logical. Should the data come from the argument passed
+into Plot (\code{TRUE}), or from the (\code{.spadesEnv})
+(\code{FALSE}).}
 }
 \description{
 Internal function.
