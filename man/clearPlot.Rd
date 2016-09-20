@@ -27,9 +27,10 @@ clearPlot(dev = dev.cur(), removeData = TRUE, force = FALSE)
 \item{removeData}{Logical indicating whether any data that was stored in the
 \code{.spadesEnv} should also be removed; i.e., not just the plot window wiped.}
 
-\item{force}{Logical. Sometimes the graphics state cannot be fixed by a simple
+\item{force}{Logical or "all". Sometimes the graphics state cannot be fixed by a simple
 clearPlot(). If TRUE, this will close the device and reopen the same
-device number.}
+device number. If "all", then all spades related data from all devices
+will be cleared, in addition to device closing and reopening.}
 }
 \description{
 Under some conditions, a device and its metadata need to be cleared manually.
