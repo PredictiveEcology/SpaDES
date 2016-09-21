@@ -452,7 +452,7 @@ setMethod(
         out[!isParent] <- tu[!isParent]
         while (any(isParent  & !hasTU)) {
           for (i in which(isParent & !hasTU)) {
-            out[[i]] <- fun1(as.list(unlist(out[i])))
+            out[[i]] <- findSmallestTU(as.list(unlist(out[i])))
             isParent[i] <- FALSE
           }
         }
