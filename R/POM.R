@@ -419,12 +419,12 @@ setMethod(
     if (optimizer == "DEoptim") {
       deoptimArgs$control <- DEoptim.control()
       if (!is.null(cl)) {
-        warning(paste("cl argument not yet implemented; using parallelType = 1. ",
-                      "You may have to pass packages and objects using optimControl. ",
-                      "See other examples"))
-        #deoptimArgs$control$parallelType <- 3
-        #deoptimArgs$cl <- cl
-        deoptimArgs$control$parallelType <- 1
+        message(paste("cl argument not yet implemented in DEoptim and likely won't work. ",
+                      "Until DEoptim package has parallelType = 3 implemented, use ",
+                      "parallelType = 1. See examples"))
+        deoptimArgs$control$parallelType <- 3
+        deoptimArgs$cl <- cl
+        #deoptimArgs$control$parallelType <- 1
       }
       deoptimArgs$control$NP <- 20*length(lowerRange)
       #deoptimArgs$control$itermax <- 20
