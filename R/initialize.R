@@ -137,7 +137,8 @@ gaussMap <- function(x, scale = 10, var = 1, speedup = 10, inMemory = FALSE, ...
 #' aHist <- hist(table(getValues(clump(a, directions = 4))), plot = FALSE)
 #' if (interactive()) {
 #'   clearPlot()
-#'   Plot(a, aHist)
+#'   Plot(a)
+#'   Plot(aHist)
 #' }
 #'
 randomPolygons <- function(ras = raster(extent(0,15,0,15), res = 1),

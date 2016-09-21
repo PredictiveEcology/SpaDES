@@ -40,7 +40,8 @@ a[a>=320] <- 1
 aHist <- hist(table(getValues(clump(a, directions = 4))), plot = FALSE)
 if (interactive()) {
   clearPlot()
-  Plot(a, aHist)
+  Plot(a)
+  Plot(aHist)
 }
 
 }
