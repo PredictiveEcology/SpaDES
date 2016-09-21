@@ -2,6 +2,8 @@ Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
 version 1.2.0.9000
 ==================
+* timeunits - when there are parent and grandparent modules, if timeunit is defined, it overrides the "smallest unit" rule. Thus, a parent module can force a timeunit
+* Plot - more robust base plotting and many visual tests on Windows
 * Add `filesOnly` arg to `shine()`. This can be in preparation for publishing to www.shinyapps.io or other pages. Currently still alpha.
 * Add POM: Pattern Oriented Modeling (#269). A simple interface to a simList object, allowing fitting parameters to data.
 * add `col` arg to `Plot` (mimicks `cols`). Was lost from version 1.1.2.
