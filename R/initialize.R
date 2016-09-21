@@ -131,17 +131,18 @@ gaussMap <- function(x, scale = 10, var = 1, speedup = 10, inMemory = FALSE, ...
 #'
 #' library(raster)
 #' # more complex patterning, with a range of patch sizes
-#' a <- randomPolygons(numTypes = 400, raster(extent(0, 50, 0, 50), res = 1))
+#' a <- randomPolygons(numTypes = 400, raster(extent(0, 50, 0, 50), res = 1, vals = 0))
 #' a[a<320] <- 0
 #' a[a>=320] <- 1
-#' aHist <- hist(table(getValues(clump(a, directions = 4))), plot = FALSE)
+#' suppressWarnings(clumped <- clump(a)) # (warning sometimes occurs, but not important)
+#' aHist <- hist(table(getValues(clumped)), plot = FALSE)
 #' if (interactive()) {
 #'   clearPlot()
 #'   Plot(a)
 #'   Plot(aHist)
 #' }
 #'
-randomPolygons <- function(ras = raster(extent(0,15,0,15), res = 1),
+randomPolygons <- function(ras = raster(extent(0,15,0,15), res = 1, vals = 0),
                            numTypes = 2, ...) {
   args <- list(...)
   if (any(c("p", "A", "speedup", "minpatch") %in% names(args))) {
@@ -237,7 +238,7 @@ specificNumPerPatch <- function(patches, numPerPatchTable = NULL, numPerPatchMap
   dt3 <- dt2[, list(cells = resample2(wh, unique(num.in.pop))), by = "pops"]
   dt3$ids <- rownames(dt3)
 
-  al <- raster(patches)
+  al <- raster(extent(patches), res = res(patches), vals = 0)
   al[dt3$cells] <- 1
 
   return(al)

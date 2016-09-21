@@ -396,12 +396,13 @@ test_that("Unit tests for internal functions in Plot", {
 
   #######################################
   # Test that NA rasters plot correctly, i.e., with na.color only
-  ras <- raster(matrix(NA, ncol = 3, nrow = 3))
+  ras <- matrix(NA_real_, ncol = 3, nrow = 3)
+  ras <- suppressWarnings(raster(ras)) # There is a min and max warning on NA rasters
   setColors(ras, n = 3) <- c("red", "blue", "green")
 
   png(file = "test.png", width = 400, height = 300)
   clearPlot()
-  Plot(ras, new = TRUE, speedup = 2e5)
+  suppressWarnings(Plot(ras, new = TRUE, speedup = 2e5))
   dev.off()
 
   #dput(getFingerprint(file = "test.png"))
@@ -412,23 +413,6 @@ test_that("Unit tests for internal functions in Plot", {
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
 
-  #######################################
-  # Test that NA rasters plot correctly, i.e., with na.color only, not default
-  ras <- raster(matrix(NA, ncol = 3, nrow = 3))
-  setColors(ras, n = 3) <- c("red", "blue", "green")
-
-  png(file = "test.png", width = 400, height = 300)
-  clearPlot()
-  Plot(ras, new = TRUE, speedup = 2e5, na.color = "black")
-  dev.off()
-
-  #dput(getFingerprint(file = "test.png"))
-  orig <- switch(Sys.info()["sysname"],
-    Darwin = "AF8FD0F080303F75",
-    Linux = "AF8FD0F0C0302F75",
-    Windows = "AFCFD070D0302F74"
-  )
-  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
   #######################################
 
   # Test legendRange in Plot
@@ -671,6 +655,15 @@ test_that("setColors is not error-free", {
 
 test_that("Plot with base is not error-free", {
   #if(interactive()) {
+  tmpdir <- file.path(tempdir(), "test_Plot1") %>% checkPath(create = TRUE)
+  cwd <- getwd()
+  setwd(tmpdir)
+
+  on.exit({
+    setwd(cwd)
+    unlink(tmpdir, recursive = TRUE)
+  })
+
   skip_if_not_installed("visualTest")
   library(visualTest)
 

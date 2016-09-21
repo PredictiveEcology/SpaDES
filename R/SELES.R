@@ -168,7 +168,7 @@ setMethod(
         return(xyFromCell(map, indices, spatial = asSpatialPoints))
       }
     } else {
-      tmp <- raster(map)
+      tmp <- raster(extent(map), res = res(map), vals = 0)
       tmp[indices] <- 1
       return(tmp)
     }
