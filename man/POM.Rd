@@ -112,8 +112,8 @@ There are many options that can be passed to \code{\link[DEoptim]{DEoptim}},
 (the details of which are in the help), using \code{optimControl}. The defaults
 sent from \code{POM} to \code{DEoptim} are: steptol = 3 (meaning it will start
 assessing convergence after 3 iterations (WHICH MAY NOT BE SUFFICIENT FOR YOUR PROBLEM),
-\code{NP = 2 * length(params)}
-(meaning the population size is 20 x the number of parameters) and itermax =
+\code{NP = 10 * length(params)}
+(meaning the population size is 10 x the number of parameters) and itermax =
 200 (meaning it won't go past 200 iterations). These and others may need to be adjusted to
 obtain good values. NOTE:
 DEoptim does not provide a direct estimate of confidence intervals. Also,
@@ -125,8 +125,12 @@ if convergence was not achieved at termination of the optimization.
 Using this function with a parallel cluster currently requires that you pass
 \code{optimControl = list(parallelType = 1)}, and possibly package and variable names
  (and does not yet accept the \code{cl} argument). See examples.
-This setting will use all available threads on your computer. Future versions of this will allow
-passing of a custom cluster object via \code{cl} argument.
+This setting will use all available threads on your computer. Future versions of this
+will allow
+passing of a custom cluster object via \code{cl} argument. \code{POM} will automatically
+determine packages to load in the spawned cluster (via \code{SpaDES::packages}) and it
+will load all objects in the cluster that are necessary, by sending \code{names(objects)}
+to \code{parVar} in \code{DEoptim.control}.
 }
 \examples{
 \dontrun{
@@ -176,12 +180,11 @@ passing of a custom cluster object via \code{cl} argument.
  # cl <- makeCluster(detectCores() - 1) # not implemented yet in DEoptim
  out1 <- POM(mySim, "spreadprob",
              list(propCellBurnedData = propCellBurnedFn), # data = pattern pair
-             #cl = cl) # comment out if no cluster # not implemented, waiting for DEoptim pkg
-             propCellBurnedData = propCellBurnedData,
-             optimControl = list(
-               parallelType = 1,
-               packages = c("raster", "SpaDES", "RColorBrewer"),
-               parVar = list("propCellBurnedData", "mySim", "propCellBurnedFn")))
+             optimControl = list(parallelType = 1))
+
+ # Once cl arg is available from DEoptim, this will work:
+ out1 <- POM(mySim, "spreadprob", cl = cl,
+             list(propCellBurnedData = propCellBurnedFn)) # data = pattern pair
 
 # Example 2 - 2 parameters
  # Function defined that will use caribou from sim$caribou, with
@@ -195,19 +198,19 @@ passing of a custom cluster object via \code{cl} argument.
  N1000 <- caribouFn(outData$caribou)
 
  aTime <- Sys.time()
- out2 <- POM(mySim, c("spreadprob", "N"),
+ parsToVary <- c("spreadprob", "N")
+ out2 <- POM(mySim, parsToVary,
             list(propCellBurnedData = propCellBurnedFn,
                  N1000 = caribouFn),
-             optimControl = list(
-               parallelType = 1,
-               packages = c("raster", "SpaDES", "RColorBrewer"),
-               parVar = list("propCellBurnedData", "mySim",
-                             "propCellBurnedFn", "N1000", "caribouFn")))
-                 #,
+             optimControl = list(parallelType = 1))
             #cl = cl) # not yet implemented, waiting for DEoptim
  bTime <- Sys.time()
  # check that population overlaps known values (0.225 and 100)
  apply(out2$member$pop, 2, quantile, c(0.025, 0.975))
+ hists <- apply(out2$member$pop, 2, hist, plot = FALSE)
+ clearPlot()
+ for(i in seq_along(hists)) Plot(hists[[i]], addTo = parsToVary[i],
+                                 title = parsToVary[i])
 
  print(paste("DEoptim", format(bTime - aTime)))
  #stopCluster(cl) # not yet implemented, waiting for DEoptim
