@@ -179,6 +179,7 @@ test_that("Plot 1 is not error-free", {
 test_that("Unit tests for image content is not error-free", {
   #if (Sys.info()["sysname"] == "Windows") skip("Not working on Windows yet")
   skip_if_not_installed("visualTest")
+  skip_on_travis()
   #skip("Not reliable yet")
 
   library(raster)
@@ -268,6 +269,7 @@ test_that("Unit tests for image content is not error-free", {
 test_that("Unit tests for plotting colors", {
   #if (Sys.info()["sysname"] == "Windows") skip("Not working on Windows yet")
   skip_if_not_installed("visualTest")
+  skip_on_travis()
   #skip("Not reliable yet")
 
   library(raster)
@@ -358,6 +360,7 @@ test_that("Unit tests for plotting colors", {
 test_that("Unit tests for internal functions in Plot", {
   #if (Sys.info()["sysname"] == "Windows") skip("Not working on Windows yet")
   skip_if_not_installed("visualTest")
+  skip_on_travis()
   #skip("Not reliable yet")
 
   library(raster)
@@ -436,7 +439,7 @@ test_that("Unit tests for internal functions in Plot", {
 
 test_that("Plot 2 is not error-free", {
   skip_if_not_installed("visualTest")
-
+  skip_on_travis()
   tmpdir <- file.path(tempdir(), "test_Plot2") %>% checkPath(create = TRUE)
   cwd <- getwd()
   setwd(tmpdir)
@@ -598,6 +601,7 @@ test_that("Plot 2 is not error-free", {
 
 test_that("setColors is not error-free", {
   skip("Apparently color palettes are not universal")
+  skip_on_travis()
   tmpdir <- file.path(tempdir(), "test_setColors") %>% checkPath(create = TRUE)
   cwd <- getwd()
   setwd(tmpdir)
@@ -655,6 +659,7 @@ test_that("setColors is not error-free", {
 
 test_that("Plot with base is not error-free", {
   #if(interactive()) {
+  skip_on_travis()
   tmpdir <- file.path(tempdir(), "test_Plot1") %>% checkPath(create = TRUE)
   cwd <- getwd()
   setwd(tmpdir)
@@ -845,6 +850,7 @@ test_that("Plot with base is not error-free", {
 })
 
 test_that("Plot messages and warnings and errors", {
+  skip_on_travis()
   rasOrig <- raster(extent(0,40, 0,20), vals = sample(1:8,replace = T,size =800), res = 1)
   ras <- rasOrig
   expect_error(Plot(ras, rnorm(10)), "Can't mix base plots with .spadesPlottables")
@@ -852,7 +858,7 @@ test_that("Plot messages and warnings and errors", {
 })
 
 test_that("rePlot doesn't work", {
-
+  skip_on_travis()
   tmpdir <- file.path(tempdir(), "test_Plot1") %>% checkPath(create = TRUE)
   cwd <- getwd()
   setwd(tmpdir)
