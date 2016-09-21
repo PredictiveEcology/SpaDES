@@ -208,7 +208,7 @@
 #'  hists <- apply(out2$member$pop, 2, hist, plot = FALSE)
 #'  clearPlot()
 #'  for(i in seq_along(hists)) Plot(hists[[i]], addTo = parsToVary[i],
-#'                                  title = parsToVary[i])
+#'                                  title = parsToVary[i], axes = TRUE)
 #'
 #'  print(paste("DEoptim", format(bTime - aTime)))
 #'  #stopCluster(cl) # not yet implemented, waiting for DEoptim
@@ -272,9 +272,7 @@
 #'              optimControl = list(
 #'                NP = 100, # run 100 populations, allowing quantiles to be calculated
 #'                initialpop = matrix(c(runif(100, 0.2, 0.24), runif(100, 80, 120)), ncol = 2),
-#'                parallelType = 1,
-#'                packages = list("raster", "SpaDES", "RColorBrewer"),
-#'                parVar = list("objFnEx")
+#'                parallelType = 1
 #'              )
 #'            )
 #'
@@ -443,7 +441,7 @@ setMethod(
         })
       } else if(deoptimArgs$control$parallelType==1) {
         deoptimArgs$control$parVar <- as.list(names(objects))
-        deoptimArgs$control$packages <- SpaDES::packages(mySim)
+        deoptimArgs$control$packages <- SpaDES::packages(sim)
       }
 
       deoptimArgs$control <- do.call(DEoptim.control, deoptimArgs$control)
