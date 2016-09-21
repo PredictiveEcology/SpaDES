@@ -390,7 +390,7 @@ setMethod(
       if (userSuppliedObjFn) {
         clusterExport(cl, c("sim", names(dots)), envir = sys.frame(1))
       } else {
-        clusterExport(cl, c("sim", names(objects)), envir = sys.frame(1))
+        clusterExport(cl, c("sim", names(objects)), envir = sys.frame(-1))
       }
       clusterEvalQ(cl, {
         library(SpaDES)
