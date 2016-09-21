@@ -62,7 +62,6 @@ r_binary_packages:
 
 after_success:
   - ./_push_vignettes.sh
-  - Rscript -e 'library(covr); coveralls(coverage = print(package_coverage(quiet = FALSE))); devtools::session_info()'
 
 notifications:
   email:
