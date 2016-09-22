@@ -123,7 +123,7 @@
 #' @importFrom DEoptim DEoptim DEoptim.control
 #' @importFrom stats optim
 #' @importFrom raster getCluster returnCluster
-#' @importFrom parallel clusterExport
+#' @importFrom parallel clusterEvalQ clusterExport
 #' @export
 #' @docType methods
 #' @rdname POM
