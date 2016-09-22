@@ -327,7 +327,7 @@ setMethod(
 #'    modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
 #'    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
 #'  )
-#'  spades(mySim)
+#'  spades(mySim, .plotInitialTime = NA)
 #'
 #'  # Change more parameters, removing plotting
 #'  wantPlotting <- FALSE
@@ -490,7 +490,7 @@ setMethod(
     }
 
     # used to prevent .inputObjects from loading if object is passed in by user.
-    userSuppliedObjNames <- c(objNames, inputs$objectName)
+    sim$.userSuppliedObjNames <- c(objNames, inputs$objectName)
 
     # for now, assign only some core & global params
     globals(sim) <- params$.globals
@@ -514,7 +514,7 @@ setMethod(
     while (!all_parsed) { # this does a 2 pass if there are parent modules,
                           #   first for parents, then for children
       sim <- .parseModule(sim, modules(sim, hidden = TRUE),
-                          userSuppliedObjNames = userSuppliedObjNames)
+                          userSuppliedObjNames = sim$.userSuppliedObjNames)
       if (length(.unparsed(modules(sim, hidden = TRUE))) == 0) {
         all_parsed <- TRUE
       }
