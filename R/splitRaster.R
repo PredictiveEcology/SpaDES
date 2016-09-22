@@ -27,7 +27,7 @@
 #'                based on the raster's name (i.e., using \code{names(x)}).
 #' @param cl      A cluster object. Optional. This would generally be created using
 #'                parallel::makeCluster or equivalent. This is an alternative way, instead
-#'                of beginCluster(), to use parallelism for this function, allowing for
+#'                of \code{beginCluster()}, to use parallelism for this function, allowing for
 #'                more control over cluster use.
 #'
 #' @return A list (length \code{nx*ny}) of cropped raster tiles.
