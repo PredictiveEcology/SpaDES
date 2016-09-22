@@ -180,9 +180,9 @@
 #'              list(propCellBurnedData = propCellBurnedFn), # data = pattern pair
 #'              optimControl = list(parallelType = 1))
 #'
-#'  # Once cl arg is available from DEoptim, this will work:
-#'  out1 <- POM(mySim, "spreadprob", cl = cl,
-#'              list(propCellBurnedData = propCellBurnedFn)) # data = pattern pair
+#'  ## Once cl arg is available from DEoptim, this will work:
+#'  # out1 <- POM(mySim, "spreadprob", cl = cl,
+#'  #            list(propCellBurnedData = propCellBurnedFn)) # data = pattern pair
 #'
 #'# Example 2 - 2 parameters
 #'  # Function defined that will use caribou from sim$caribou, with
@@ -488,4 +488,4 @@ setMethod(
     }
     output$args <- deoptimArgs
     return(output)
-  })
+})
