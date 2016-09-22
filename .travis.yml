@@ -26,6 +26,7 @@ r_check_args: "--as-cran"
 warnings_are_errors: true
 
 r_binary_packages:
+  - addins
   - chron
   - circstats
   - colorspace
@@ -33,6 +34,7 @@ r_binary_packages:
   - dichromat
   - digest
   - dplyr
+  - DEoptim
   - ggplot2
   - gtable
   - httr
@@ -42,7 +44,9 @@ r_binary_packages:
   - latticeextra
   - lubridate
   - magrittr
+  - miniUI
   - munsell
+  - parallel
   - proto
   - randomfields
   - raster
@@ -62,6 +66,7 @@ r_binary_packages:
 
 after_success:
   - ./_push_vignettes.sh
+  - Rscript -e 'library(covr); coveralls(coverage = print(package_coverage(quiet = FALSE))); devtools::session_info()'
 
 notifications:
   email:
