@@ -152,6 +152,10 @@ test_that("experiment does not work correctly", {
 })
 
 test_that("parallel does not work with experiment function", {
+  skip_on_cran()
+  skip_on_travis()
+  skip_on_appveyor()
+
   if (interactive()) {
     #skip("Can't automatically test parallel processing - Run Manually")
     library(raster)
@@ -181,7 +185,6 @@ test_that("parallel does not work with experiment function", {
       # Save final state of landscape and caribou
       outputs = data.frame(objectName = c("landscape", "caribou"), stringsAsFactors = FALSE)
     )
-
 
     # Create an experiment - here, 2 x 2 x 2 (2 levels of 2 params in fireSpread,
     #    and 2 levels of 1 param in caribouMovement)
