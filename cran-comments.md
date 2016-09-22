@@ -1,26 +1,28 @@
 ## Updated release
 
-This is a maintenance release to deal with changes associated with the forthcoming `RandomFields` update.
+This is a maintenance release to deal with changes associated with the recent `RandomFields` update.
 We have also made several other improvements and bug fixes (see NEWS).
 
 ## Test environments
 
 ### Previous R versions
+* Ubuntu 12.04        (travis-ci), R 3.2.5
 * Windows              (appveyor), R 3.2.2, 3.2.5
 * Windows 7               (local), R 3.2.2, 3.2.3, 3.2.4, 3.2.5
 
 ### Current R versions
 * OS X El Capitan         (local), R 3.3.0
-* Ubuntu 12.04        (travis-ci), R 3.3.1
+* OS X El Capitan     (travis-ci), R 3.3.1
+* Ubuntu 14.04        (travis-ci), R 3.3.1
 * Ubuntu 16.04            (local), R 3.3.1
 * Windows              (appveyor), R 3.3.1
 * Windows           (win-builder), R 3.3.1
 * Windows 7               (local), R 3.3.0, 3.3.1
 
 ### Development R version
-* Debian:testing (rocker/r-devel), R 3.4.0 (2016-05-31 r70688)
-* Windows              (appveyor), R 3.4.0 (2016-09-06 r71220)
-* Windows           (win-builder), R 3.4.0 (2016-06-22 r70818)
+* Debian:testing (rocker/r-devel), R 3.4.0 (2016-07-31 r71015)
+* Windows              (appveyor), R 3.4.0 (2016-09-21 r71333)
+* Windows           (win-builder), R 3.4.0 ()
 
 ## R CMD check results
 
