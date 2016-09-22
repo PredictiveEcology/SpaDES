@@ -858,7 +858,6 @@ test_that("Plot messages and warnings and errors", {
 })
 
 test_that("rePlot doesn't work", {
-  skip_on_travis()
   tmpdir <- file.path(tempdir(), "test_Plot1") %>% checkPath(create = TRUE)
   cwd <- getwd()
   setwd(tmpdir)
@@ -888,6 +887,30 @@ test_that("rePlot doesn't work", {
 
   orig <- getFingerprint(file = "test1.png")
   expect_true(isSimilar(file = "test2.png", fingerprint = orig, threshold = 0.3))
+
+
+})
+
+test_that("rePlot doesn't work", {
+  tmpdir <- file.path(tempdir(), "test_Plot1") %>% checkPath(create = TRUE)
+  cwd <- getwd()
+  setwd(tmpdir)
+  skip_if_not_installed("visualTest")
+
+  library(visualTest)
+  on.exit({
+    setwd(cwd)
+    unlink(tmpdir, recursive = TRUE)
+  })
+
+  a <- dev.cur()
+  set.seed(123)
+  rasOrig <- raster(extent(0,40, 0,20), vals = sample(1:8,replace = T,size =800), res = 1)
+  ras <- rasOrig
+  expect_silent(Plot(ras, new = TRUE))
+  clearPlot()
+
+  #do.call(Plot, list(ras))
 
 
 })
