@@ -58,7 +58,7 @@ then, it will force a recache. Ignored if \code{cache} is FALSE.}
 
 \item{cl}{A cluster object. Optional. This would generally be created using
 parallel::makeCluster or equivalent. This is an alternative way, instead
-of beginCluster(), to use parallelism for this function, allowing for
+of \code{beginCluster()}, to use parallelism for this function, allowing for
 more control over cluster use.}
 
 \item{...}{Passed to \code{spades}. Specifically, \code{debug}, \code{.plotInitialTime},

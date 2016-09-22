@@ -124,8 +124,11 @@ If it is set within a \code{simInit}, e.g.,
 \code{times=list(start=0, end=52, timeunit = "week")}, it will set the
 units for that simulation.
 By default, a \code{simInit} call will use the smallest unit contained within
-the metadata for the modules being used.
-If \code{NA}, \code{timeunit} defaults to none.
+the metadata for the modules being used. If there are parent modules, then the
+parent module timeunit will be used even if one of its children is a smaller timeunit.
+If all modules, including parents, are set to \code{NA}, \code{timeunit} defaults to seconds.
+If parents are set to \code{NA}, then the set of modules defined by that parent module
+will be given the smallest units of the children.
 
 Currently, available units are "second", "hours", day", "week", "month", and
 "year" can be used in the metadata of a module.

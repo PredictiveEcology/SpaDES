@@ -124,7 +124,7 @@ are all needed for initialization.
    modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
  )
- spades(mySim)
+ spades(mySim, .plotInitialTime = NA)
 
  # Change more parameters, removing plotting
  wantPlotting <- FALSE

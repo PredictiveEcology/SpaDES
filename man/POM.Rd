@@ -34,7 +34,7 @@ values for the parameters. See example.}
 
 \item{cl}{A cluster object. Optional. This would generally be created using
 parallel::makeCluster or equivalent. This is an alternative way, instead
-of beginCluster(), to use parallelism for this function, allowing for
+of \code{beginCluster()}, to use parallelism for this function, allowing for
 more control over cluster use.}
 
 \item{optimizer}{The function to use to optimize. Default is
