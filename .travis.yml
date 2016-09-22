@@ -40,8 +40,10 @@ matrix:
     osx_image: xcode8
     brew_packages: gdal
     cran: https://cran.rstudio.com/
+    latex: false
+    r_build_args: '--no-build-vignettes'
+    r_check_args: '--as-cran --ignore-vignettes --no-examples'
     before_install:
-    - tlmgr install xcolor
     - echo "options(repos = c(CRAN='https://cran.rstudio.com'))" >> ~/.Rprofile
 
 r_build_args: " "
