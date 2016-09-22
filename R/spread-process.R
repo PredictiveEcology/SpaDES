@@ -1410,10 +1410,9 @@ setMethod(
 #'   Plot(sp1, addTo="idwRaster")
 #' }
 #'
-#'
 distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
                                   maxDistance = NA_real_, cumulativeFn = NULL,
-                                  distFn = function(dist) 1/(1+dist), cl, ...) {
+                                  distFn = function(dist) 1/(1 + dist), cl, ...) {
   matched <- FALSE
   if ("id" %in% colnames(from)) {
     ids <- unique(from[,"id"])
@@ -1466,20 +1465,17 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
               if (xDist) distFnArgs[["dist"]] <- out[, "dists"]
             }
 
-            #names(distFnArgs) <- forms
             # call inner cumulative function
-            if(length(indices)<ncell(landscape)) {
-              cumVal <- do.call(cumulativeFn, args =
-                                           list(cumVal,
-                                                do.call(distFn, args = distFnArgs)
-                                           ))
-
+            if (length(indices) < ncell(landscape)) {
+              cumVal <- do.call(
+                cumulativeFn, args = list(cumVal, do.call(distFn, args = distFnArgs))
+              )
             } else {
-
-            cumVal[indices] <- do.call(cumulativeFn, args =
-                                         list(cumVal[indices],
-                                              do.call(distFn, args = distFnArgs)
-                                         ))
+              cumVal[indices] <- do.call(
+                cumulativeFn, args = list(
+                  cumVal[indices], do.call(distFn, args = distFnArgs)
+                )
+              )
             }
           }
           return(cumVal)
@@ -1526,14 +1522,14 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
         cumVal <- do.call(get(parFun), args = parFunArgs)
 
         # must cumulativeFn the separate cluster results
-        while(length(cumVal) > 1) {
+        while (length(cumVal) > 1) {
             cumVal[[2]] <- do.call(cumulativeFn, cumVal[1:2])
             cumVal[[1]] <- NULL
         }
 
         cumVal <- cumVal[[1]]
 
-        if(is.null(to)) {
+        if (is.null(to)) {
           out <- cbind(to, val = cumVal)
         } else {
           out <- cbind(to, val = cumVal[!is.na(cumVal)])
@@ -1564,17 +1560,17 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
   }
 
   # It is about 2x faster to use the compiled C routine from raster package
-    m1 <- to[,c("x","y"), drop = FALSE]
-    m2 <- from[,c("x","y"), drop = FALSE]
-    dists <- sqrt((m1[,"x"] - m2[,"x"])^2 + (m1[,"y"] - m2[,"y"])^2)
+    m1 <- to[, c("x", "y"), drop = FALSE]
+    m2 <- from[, c("x", "y"), drop = FALSE]
+    dists <- sqrt((m1[, "x"] - m2[, "x"])^2 + (m1[, "y"] - m2[, "y"])^2)
     if (!is.na(angles)) {
       angls <- .pointDirection(m1, m2)
       dists <- cbind(dists = dists, angles = angls)
     }
 
   # C call from raster
-   # m1 <- to[,c("x", "y"), drop = FALSE]
-   # m2 <- from[,c("x", "y"), drop = FALSE]
+   # m1 <- to[, c("x", "y"), drop = FALSE]
+   # m2 <- from[, c("x", "y"), drop = FALSE]
    #
    # dists <- .Call("distanceToNearestPoint",
    #       m1, m2, as.integer(0), PACKAGE = "raster")

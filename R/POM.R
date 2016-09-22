@@ -302,7 +302,7 @@ setGeneric(
   function(sim, params, objects, objFn, cl, optimizer = "DEoptim",
            sterr = FALSE, ..., objFnCompare = "MAD", optimControl = NULL) {
     standardGeneric("POM")
-  })
+})
 
 #' @rdname POM
 setMethod(
@@ -342,8 +342,7 @@ setMethod(
         whP <- 0
         for (wh in seq_along(whParamsByMod)) {
           whP <- whP + 1
-          params(sim_)[[names(whParamsByMod)[wh]]][[whParamsByMod[wh]]] <-
-            par[whP]
+          params(sim_)[[names(whParamsByMod)[wh]]][[whParamsByMod[wh]]] <- par[whP]
         }
 
         out <- spades(sim_, .plotInitialTime = NA)
@@ -409,7 +408,7 @@ setMethod(
       if (!is.null(cl)) {
         message(paste("cl argument not yet implemented in DEoptim and likely won't work. ",
                       "Until DEoptim package has parallelType = 3 implemented, use ",
-                      "parallelType = 1. See examples"))
+                      "parallelType = 1. See examples."))
         deoptimArgs$control$parallelType <- 3
         deoptimArgs$cl <- cl
         #deoptimArgs$control$parallelType <- 1
@@ -439,7 +438,7 @@ setMethod(
         clusterEvalQ(cl, {
           lapply(SpaDES::packages(sim), library, character.only = TRUE)
         })
-      } else if(deoptimArgs$control$parallelType==1) {
+      } else if (deoptimArgs$control$parallelType == 1) {
         deoptimArgs$control$parVar <- as.list(names(objects))
         deoptimArgs$control$packages <- SpaDES::packages(sim)
       }
@@ -469,7 +468,8 @@ setMethod(
         if (requireNamespace("rgenoud")) {
           output <- do.call("genoud", deoptimArgs)
         } else {
-          stop("rgenoud package is not installed. Please install, install.packages(\"rgenoud\")")
+          stop("rgenoud package is not installed. Please install using:\n",
+               "  install.packages(\"rgenoud\")")
         }
       } else {
         deoptimArgs <- append(deoptimArgs,

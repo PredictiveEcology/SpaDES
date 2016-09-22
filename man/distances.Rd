@@ -134,7 +134,6 @@ if (interactive()) {
   Plot(sp1, addTo="idwRaster")
 }
 
-
 }
 \seealso{
 \code{\link{rings}}, \code{\link{cir}}, \code{\link[raster]{distanceFromPoints}},
