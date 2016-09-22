@@ -488,4 +488,4 @@ setMethod(
     }
     output$args <- deoptimArgs
     return(output)
-  })
+})
