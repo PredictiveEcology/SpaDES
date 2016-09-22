@@ -54,7 +54,7 @@ warnings_are_errors: true
 
 r_binary_packages:
   - chron
-  - circstats
+  - CircStats
   - colorspace
   - data.table
   - DEoptim
@@ -67,15 +67,15 @@ r_binary_packages:
   - igraph
   - knitr
   - labeling
-  - latticeextra
+  - latticeExtra
   - lubridate
   - magrittr
   - munsell
   - proto
-  - randomfields
+  - RandomFields
   - raster
-  - rcolorbrewer
-  - rcpp
+  - RColorBrewer
+  - Rcpp
   - reshape
   - rgdal
   - scales
