@@ -742,9 +742,11 @@ setMethod(
 #' @param sim Character string for the \code{simList} simulation object.
 #'
 #' @param debug Optional. Either Logical or character. If logical, entire \code{simList}
-#'              will be printed at each event. If a character string, then it must
-#'              be one of the many simList accessors, such as \code{events}, \code{params}.
-#'              If \code{"events"} is used, then it will be a compact list of the events
+#'              will be printed at each event. If a character string, then it can be one
+#'              of the many simList accessors, such as \code{events}, \code{params}. It
+#'              can also be any R expression that will be evaluated with access to the \code{sim}
+#'              object.
+#'              If \code{"current"} is used, then it will be a compact list of the events
 #'              as they go by.
 #'
 #' @return Returns the modified \code{simList} object.
@@ -1003,8 +1005,9 @@ setMethod(
 #'
 #' @param sim A \code{simList} simulation object, generally produced by \code{simInit}.
 #'
-#' @param debug Optional logical flag determines whether sim debug info
-#'              will be printed (default is \code{debug=FALSE}).
+#' @param debug Optional logical flag or character vector indicating what to print to
+#'              console at each event. See details.
+#'              Default is \code{debug=FALSE}.
 #'
 #' @param progress Logical (TRUE or FALSE show a graphical progress bar),
 #'                 character ("graphical", "text") or numeric indicating
@@ -1056,6 +1059,18 @@ setMethod(
 #' based on the input simList. See also \code{experiment} for the same mechanism,
 #' but it can be used with replication.
 #'
+#' If \code{debug} is specified, it can be Logical or character vector. In all
+#' cases, something will be printed to the console immediately before each event is
+#' being executed. If \code{TRUE}, then the event immediately following will be
+#' printed as it runs (equivalent to current(sim)).
+#' If a character string, then it can be one
+#' of the many simList accessors, such as \code{events}, \code{params}, or
+#' \code{"simList"} (print the entire simList), or any R expression.
+#' If an R expression
+#' if will be evaluated with access to the \code{sim}
+#' object. If this is more than one character string, then all will be
+#' printed to the screen in their sequence.
+#'
 #' @note The debug option is primarily intended to facilitate building simulation
 #' models by the user. Will print additional outputs informing the user of updates
 #' to the values of various simList slot components.
@@ -1063,6 +1078,7 @@ setMethod(
 #' @export
 #' @docType methods
 #' @rdname spades
+#' @importFrom stringr str_pad str_length
 #' @seealso \code{\link{experiment}} for using replication with \code{spades}.
 #'
 #' @author Alex Chubaty
@@ -1080,6 +1096,11 @@ setMethod(
 #'    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
 #'  )
 #'  spades(mySim)
+#'
+#'  # Different debug options
+#'  spades(mySim, debug = TRUE) # Fastest
+#'  spades(mySim, debug = "simList")
+#'  spades(mySim, debug = "print(table(sim$landscape$Fires[]))")
 #'
 #'  # Can turn off plotting, and inspect the output simList instead
 #'  out <- spades(mySim, .plotInitialTime = NA) # much faster
@@ -1156,33 +1177,42 @@ setMethod(
       }
     }
 
+    if((!(all(debug == FALSE)))) {
+      sim$.spadesDebugFirst <- TRUE
+      sim$.spadesDebugWidth <- c(9,10,9,13)
+
+    }
     while (time(sim, "second") <= end(sim, "second")) {
 
       # print debugging info: this can, and should, be more sophisticated;
       #  i.e., don't simply print the entire object
-      if (!(debug == FALSE)) {
-        if (debug == "current") {
+      if (!(all(debug == FALSE))) {
+        if(length(debug)>1) print("---------------------------")
+        for(i in seq_along(debug)) {
+          if (isTRUE(debug[i]) | debug[i] == "current") {
 
-          evnts1 <- data.table::copy(events(sim)[1L])
-          widths <- unlist(lapply(events(sim), function(x) max(nchar(x))))
-          widths <- pmax(widths, nchar(names(events(sim))))
-          evnts1$eventTime <- encodeString(evnts1$eventTime, width = widths[1], justify="r")
-          evnts1$moduleName <- encodeString(evnts1$moduleName, width = widths[2], justify="r")
-          evnts1$eventType <- encodeString(evnts1$eventType, width = widths[3], justify="r")
-          evnts1$eventPriority <- encodeString(evnts1$eventPriority, width = widths[4], justify="r")
-          evnts1 <- data.frame(evnts1)
-          if(time(sim)==start(sim) & events(sim)[1L]$moduleName=="checkpoint") {
-            print(evnts1)
+            evnts1 <- data.frame(events(sim)[1L])
+            widths <- str_length(format(evnts1, digits = 4))
+            sim$.spadesDebugWidth <- pmax(widths, sim$.spadesDebugWidth)
+            evnts1[1L,] <- str_pad(format(evnts1, digits = 4), sim$.spadesDebugWidth)
+
+            if(sim$.spadesDebugFirst) {
+              evnts2 <- evnts1
+              evnts2[1L,] <- str_pad(names(evnts1), sim$.spadesDebugWidth)
+              write.table(evnts2, quote = FALSE, row.names = FALSE, col.names = FALSE)
+              sim$.spadesDebugFirst <- FALSE
+            } else {
+              colnames(evnts1) <- NULL
+              #write.table(evnts1, quote = FALSE)
+              write.table(evnts1, quote = FALSE, row.names = FALSE)
+            }
+          } else if(debug[i]=="simList") {
+            print(sim)
+          } else if(grepl(debug[i], pattern = "\\(") ) {
+            tryCatch(eval(parse(text = debug[i])), error=function(x) "")
           } else {
-            colnames(evnts1) <- NULL
-            write.table(evnts1, quote = FALSE)
+            print(do.call(debug[i], list(sim)))
           }
-        } else if(isTRUE(debug)) {
-          print(sim)
-        } else {
-          print(do.call(debug, list(sim)))
-          print(time(sim))
-          print("-------------")
         }
 
       }
