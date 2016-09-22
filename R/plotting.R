@@ -349,6 +349,8 @@ setMethod(
                         zero.color, length, arr, plotFn) {
     # Section 1 - extract object names, and determine which ones need plotting,
     # which ones need replotting etc.
+
+
     news <- sapply(new, function(x) x)
     # this covers the case where R thinks that there is nothing, but
     #  there may in fact be something.
@@ -359,9 +361,11 @@ setMethod(
         clearPlot(dev.cur())
     }}
 
-    if (length(ls(.spadesEnv)) == 0 ) {
-      clearPlot()
-    }
+    # I have commented this out because it is a waste of time for unusual cases, which
+    #  are currently not reproducible
+    # if (length(ls(.spadesEnv)) == 0 ) {
+    #   clearPlot()
+    # }
 
     # this covers the case where R thinks that there is a base plot... must be cleared
     #if(names(dev.cur()) %in% "null device") dev.new()
@@ -693,6 +697,7 @@ setMethod(
       } # sGrob
     } # subPlots
 
+    seekViewport("top", recording = FALSE)
     .assignSpaDES(paste0("spadesPlot", dev.cur()), updated)
     return(invisible(updated$curr))
 })
