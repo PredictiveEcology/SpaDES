@@ -96,16 +96,16 @@ requires a \code{simList} object, acting as the basis for the experiment,
 plus optional inputs and/or objects and/or params and/or modules and/or replications.
 
 
-This function requires a complete simList: this simList will form the basis of the
-modifications as passed by params, modules, inputs, and objects.
-All params, modules, inputs or objects
-passed into this function will override the corresponding params, modules, inputs,
-or identically named objects that are in the \code{sim} argument.
+This function requires a complete simList: this simList will form the basis of
+the modifications as passed by params, modules, inputs, and objects.
+All params, modules, inputs or objects passed into this function will override
+the corresponding params, modules, inputs, or identically named objects that
+are in the \code{sim} argument.
 
 This function is parallel aware, using the same mechanism as used in the \code{raster}
 package. Specifically, if you start a cluster using \code{\link{beginCluster}}, then
 this experiment function will automatically use that cluster. It is always a good
-idea to stop the cluster when finished, using \code{\link{endCluster}}. See
+idea to stop the cluster when finished, using \code{\link{endCluster}}.
 
 Here are generic examples of how \code{params}, \code{modules}, \code{objects},
 and \code{inputs} should be structured.
@@ -170,27 +170,30 @@ To force this one level down, \code{dirPrefix} can be used or a manual change to
 \code{outputPath} before the call to experiment.
 
 \code{dirPrefix} can be used to give custom names to directories for outputs.
-There is a special value, \code{"simNum"}, that is used as default, which is an arbitrary
-number  associated with the experiment.
+There is a special value, \code{"simNum"}, that is used as default, which is
+an arbitrary number  associated with the experiment.
 This corresponds to the row number in the \code{attr(sims, "experiment")}.
 This \code{"simNum"} can be used with other strings, such as
-\code{dirPrefix = c("expt","simNum")}.
+\code{dirPrefix = c("expt", "simNum")}.
 
-The experiment structure is kept in two places: the return object has an attribute, and a file
-named \code{experiment.RData} (see argument \code{experimentFile}) located in \code{outputPath(sim)}.
+The experiment structure is kept in two places: the return object has an attribute,
+and a file named \code{experiment.RData} (see argument \code{experimentFile})
+located in \code{outputPath(sim)}.
 
-\code{substrLength}, if \code{0}, will eliminate the subfolder naming convention and use
-only \code{dirPrefix}.
+\code{substrLength}, if \code{0}, will eliminate the subfolder naming convention
+and use only \code{dirPrefix}.
 
-If \code{cache = TRUE} is passed, then this will pass this to \code{spades}, with the
-additional argument \code{replicate = x}, where x is the replicate number. That means that
-if a user runs \code{experiment} with \code{replicate = 4} and \code{cache = TRUE}, then spades
-will run 4 replicates, caching the results, including replicate = 1, replicate = 2, replicate = 3,
-and replicate = 4. Thus, if a second call to experiment with the exact same simList is passed,
-and \code{replicates = 6}, the first 4 will be taken from the cached copies, and replicate 5 and
-6 will be run (and cached) as normal. If \code{notOlderThan} used with a time that is more recent
-than the cached copy, then a new spades will be done, and the cached copy will be deleted from
-the cache repository, so there will only ever be one copy of a particular replicate for a
+If \code{cache = TRUE} is passed, then this will pass this to \code{spades},
+with the additional argument \code{replicate = x}, where x is the replicate number.
+That means that if a user runs \code{experiment} with \code{replicate = 4} and
+\code{cache = TRUE}, then SpaDES will run 4 replicates, caching the results,
+including replicate = 1, replicate = 2, replicate = 3, and replicate = 4.
+Thus, if a second call to experiment with the exact same simList is passed,
+and \code{replicates = 6}, the first 4 will be taken from the cached copies,
+and replicate 5 and 6 will be run (and cached) as normal.
+If \code{notOlderThan} used with a time that is more recent than the cached copy,
+then a new spades will be done, and the cached copy will be deleted from the
+cache repository, so there will only ever be one copy of a particular replicate for a
 particular simList. NOTE: caching may not work as desired on a Windows machine because
 the sqlite database can only be written to one at a time, so there may be collisions.
 }
