@@ -20,9 +20,9 @@ We have also made several other improvements and bug fixes (see NEWS).
 * Windows 7               (local), R 3.3.0, 3.3.1
 
 ### Development R version
-* Debian:testing (rocker/r-devel), R 3.4.0 (2016-07-31 r71015)
+* Debian:testing (rocker/r-devel), R 3.4.0 (2016-09-18 r71304)
 * Windows              (appveyor), R 3.4.0 (2016-09-21 r71333)
-* Windows           (win-builder), R 3.4.0 ()
+* Windows           (win-builder), R 3.4.0 (2016-09-21 r71333)
 
 ## R CMD check results
 
