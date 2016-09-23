@@ -29,4 +29,5 @@ Internal function primarily used from \code{Plot}.
 \author{
 Eliot McIntire
 }
+\keyword{internal}
 

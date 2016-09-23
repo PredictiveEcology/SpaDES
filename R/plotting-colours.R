@@ -303,14 +303,15 @@ setMethod(
 #' @importFrom RColorBrewer brewer.pal.info brewer.pal
 #'
 #' @docType methods
+#' @keywords internal
 #' @author Eliot McIntire
 #'
-setGeneric(".makeColorMatrix",
-           function(grobToPlot, zoomExtent, maxpixels, legendRange,
-                    cols = NULL, na.color = "#FFFFFF00", zero.color = NULL,
-                    skipSample = TRUE) {
-             standardGeneric(".makeColorMatrix")
-           })
+setGeneric(
+  ".makeColorMatrix",
+   function(grobToPlot, zoomExtent, maxpixels, legendRange, cols = NULL,
+            na.color = "#FFFFFF00", zero.color = NULL, skipSample = TRUE) {
+     standardGeneric(".makeColorMatrix")
+})
 
 #' @rdname makeColorMatrix
 setMethod(

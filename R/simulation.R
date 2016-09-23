@@ -13,6 +13,7 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @export
 #' @docType methods
+#' @keywords internal
 #' @rdname unparsed
 #'
 #' @author Alex Chubaty
@@ -114,8 +115,8 @@ setMethod(
 #' @include module-dependencies-class.R
 #' @include simList-class.R
 #' @include environment.R
-#' @export
 #' @docType methods
+#' @keywords internal
 #' @rdname parseModule
 #'
 #' @author Alex Chubaty
@@ -176,9 +177,9 @@ setMethod(
 
       # parse any scripts in R subfolder
       RSubFolder <- file.path(dirname(filename), "R")
-      RScript = dir(RSubFolder)
-      if(length(RScript)>0) {
-        for(Rfiles in RScript) {
+      RScript <- dir(RSubFolder)
+      if (length(RScript) > 0) {
+        for (Rfiles in RScript) {
           parsedFile <- parse(file.path(RSubFolder, Rfiles))
           eval(parsedFile, envir = envir(sim))
         }
@@ -736,7 +737,6 @@ setMethod(
     return(invisible(sim))
 })
 
-
 ################################################################################
 #' Process a simulation event
 #'
@@ -753,9 +753,9 @@ setMethod(
 #'
 #' @param debug Optional. Either Logical or character. If logical, entire \code{simList}
 #'              will be printed at each event. If a character string, then it can be one
-#'              of the many simList accessors, such as \code{events}, \code{params}. It
-#'              can also be any R expression that will be evaluated with access to the \code{sim}
-#'              object.
+#'              of the many simList accessors, such as \code{events}, \code{params}.
+#'              It can also be any R expression that will be evaluated with access
+#'              to the \code{sim} object.
 #'              If \code{"current"} is used, then it will be a compact list of the events
 #'              as they go by.
 #'
@@ -1187,27 +1187,22 @@ setMethod(
       }
     }
 
-    if((!(all(debug == FALSE)))) {
+    if (!(all(debug == FALSE))) {
       sim$.spadesDebugFirst <- TRUE
-      sim$.spadesDebugWidth <- c(9,10,9,13)
-
+      sim$.spadesDebugWidth <- c(9, 10, 9, 13)
     }
     while (time(sim, "second") <= end(sim, "second")) {
-
-      # print debugging info: this can, and should, be more sophisticated;
-      #  i.e., don't simply print the entire object
       if (!(all(debug == FALSE))) {
-        if(length(debug)>1) print("---------------------------")
-        for(i in seq_along(debug)) {
+        if (length(debug) > 1) print("---------------------------")
+        for (i in seq_along(debug)) {
           if (isTRUE(debug[i]) | debug[i] == "current") {
-
-            if(NROW(events(sim))>0) {
+            if (NROW(events(sim)) > 0) {
               evnts1 <- data.frame(events(sim)[1L])
               widths <- str_length(format(evnts1, digits = 4))
               sim$.spadesDebugWidth <- pmax(widths, sim$.spadesDebugWidth)
               evnts1[1L,] <- str_pad(format(evnts1, digits = 4), sim$.spadesDebugWidth)
 
-              if(sim$.spadesDebugFirst) {
+              if (sim$.spadesDebugFirst) {
                 evnts2 <- evnts1
                 evnts2[1L,] <- str_pad(names(evnts1), sim$.spadesDebugWidth)
                 write.table(evnts2, quote = FALSE, row.names = FALSE, col.names = FALSE)
@@ -1218,18 +1213,17 @@ setMethod(
                 write.table(evnts1, quote = FALSE, row.names = FALSE)
               }
             }
-          } else if(debug[i]=="simList") {
+          } else if (debug[i] == "simList") {
             print(sim)
-          } else if(grepl(debug[i], pattern = "\\(") ) {
-            tryCatch(eval(parse(text = debug[i])), error=function(x) "")
+          } else if (grepl(debug[i], pattern = "\\(") ) {
+            tryCatch(eval(parse(text = debug[i])), error = function(x) "")
           } else {
             print(do.call(debug[i], list(sim)))
           }
         }
-
       }
 
-      sim <- doEvent(sim, !(debug==FALSE))  # process the next event
+      sim <- doEvent(sim, !(debug == FALSE))  # process the next event
 
     }
     time(sim) <- end(sim, "second")
@@ -1240,9 +1234,8 @@ setMethod(
 setMethod(
   "spades",
   signature(cache = "logical"),
-  definition = function(sim, debug, progress, cache,
-                        .plotInitialTime, .saveInitialTime,
-                        notOlderThan, ...) {
+  definition = function(sim, debug, progress, cache, .plotInitialTime,
+                        .saveInitialTime, notOlderThan, ...) {
     stopifnot(class(sim) == "simList")
 
     if (missing(notOlderThan)) notOlderThan <- NULL

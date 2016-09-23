@@ -33,6 +33,7 @@ Create new module code file
 Eliot McIntire and Alex Chubaty
 }
 \seealso{
-\code{\link{newModule}}, \code{\link{newModuleDocumentation}}
+Other module creation helpers: \code{\link{newModuleDocumentation}},
+  \code{\link{newModuleTests}}, \code{\link{newModule}}
 }
 

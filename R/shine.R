@@ -26,14 +26,15 @@
 #'                  Publishing this to shinyapps.io is currently very buggy,
 #'                  and will likely not work as desired.
 #' @param ... additional arguments. Currently not used
+#'
 #' @export
-#' @importFrom shiny fluidPage titlePanel sidebarPanel sidebarLayout
-#'   actionButton sliderInput uiOutput
-#' @importFrom shiny mainPanel plotOutput renderUI tabPanel tabsetPanel
-#' @importFrom shiny eventReactive renderPlot runApp downloadButton
-#' @importFrom shiny numericInput h4 checkboxInput invalidateLater observe
-#' @importFrom shiny updateTabsetPanel downloadHandler h3 textOutput
-#' @importFrom shiny reactiveValues observeEvent updateSliderInput renderPrint
+#' @importFrom shiny actionButton checkboxInput downloadButton downloadHandler
+#' @importFrom shiny eventReactive fluidPage h3 h4 invalidateLater
+#' @importFrom shiny mainPanel numericInput observe observeEvent plotOutput
+#' @importFrom shiny reactiveValues renderPlot renderPrint renderUI runApp
+#' @importFrom shiny sliderInput sidebarLayout sidebarPanel
+#' @importFrom shiny tabPanel tabsetPanel textOutput titlePanel
+#' @importFrom shiny uiOutput updateSliderInput updateTabsetPanel
 #' @importFrom DiagrammeR DiagrammeROutput renderDiagrammeR
 #' @importFrom DT renderDataTable dataTableOutput
 #' @examples
@@ -53,7 +54,7 @@
 #' shine(mySim, filesOnly = TRUE)
 #'
 #' # if the user wants to see the events go by, which can help with debugging:
-#' shine(mySim, debug=TRUE)
+#' shine(mySim, debug = TRUE)
 #' }
 setGeneric("shine", function(sim, title = "SpaDES App", debug = FALSE, filesOnly = FALSE, ...) {
   standardGeneric("shine")
@@ -70,7 +71,6 @@ setMethod(
   simOrig_ <- as(sim, "simList_") # convert objects first
   simOrig <- sim # Not enough because objects are in an environment, so they both change
 
-  #i = 1
   endTime <- end(sim)
   startTime <- start(sim)
   fluidPageArgs <-     list(
@@ -104,7 +104,7 @@ setMethod(
   server <- function(input, output, session) {
     # Some cases there may be an error due to a previous plot still existing - this should clear
     curDev <- dev.cur()
-    if(exists(".spadesEnv"))
+    if (exists(".spadesEnv"))
       alreadyPlotted <- grepl(ls(.spadesEnv), pattern = paste0("spadesPlot", curDev))
     else
       alreadyPlotted <- FALSE
@@ -231,7 +231,7 @@ setMethod(
     # Main plot
     output$spadesPlot <- renderPlot({
       curDev <- dev.cur()
-      if(exists(".spadesEnv"))
+      if (exists(".spadesEnv"))
         alreadyPlotted <- grepl(ls(.spadesEnv), pattern = paste0("spadesPlot", curDev))
       else
         alreadyPlotted <- FALSE
@@ -345,7 +345,7 @@ setMethod(
     )
   }
 
-  if(filesOnly) {
+  if (filesOnly) {
     shinyAppDir <- file.path(tempdir() , "shinyApp")
     checkPath(shinyAppDir, create = TRUE)
     globalFile <- file.path(shinyAppDir,"global.R", fsep = "/")
@@ -371,23 +371,22 @@ setMethod(
 
     serverFile <- file.path(shinyAppDir,"server.R", fsep = "/")
     con <- file(serverFile, open = "w+b");
-    writeLines("shinyServer(", con= con);
-    writeLines(deparse(dput(server)), con = con, sep= "\n");
-    writeLines(")", con= con);
+    writeLines("shinyServer(", con = con);
+    writeLines(deparse(dput(server)), con = con, sep = "\n");
+    writeLines(")", con = con);
     close(con)
     serverFile <- gsub(x = serverFile, pattern = "\\\\", "/")
 
     uiFile <- file.path(shinyAppDir,"ui.R", fsep = "/")
     con <- file(uiFile, open = "w+b");
-    writeLines("fluidPage(", con= con);
-    writeLines(deparse(dput(fluidPageArgs)), con = con, sep= "\n");
-    writeLines(")", con= con);
+    writeLines("fluidPage(", con = con);
+    writeLines(deparse(dput(fluidPageArgs)), con = con, sep = "\n");
+    writeLines(")", con = con);
     close(con)
 
-    message("server.R file is saved. Type: file.edit(\"", serverFile,"\")",
-            " to edit the file, or runApp(\"", dirname(serverFile),"\") to run it,",
-            " or, rsconnect::deployApp(\"",dirname(serverFile), "\")")
-
+    message("server.R file is saved. Type: file.edit(\"", serverFile, "\")",
+            " to edit the file, or runApp(\"", dirname(serverFile), "\") to run it,",
+            " or, rsconnect::deployApp(\"", dirname(serverFile), "\")")
   } else {
     runApp(list(ui = fluidPage(fluidPageArgs), server = server),
            launch.browser = getOption("viewer", browseURL),

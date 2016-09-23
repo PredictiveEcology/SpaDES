@@ -16,4 +16,5 @@ A vector of integer factors
 Internal function (used in \code{link{gaussMap}}).
 Finds the integer factors of an integer.
 }
+\keyword{internal}
 

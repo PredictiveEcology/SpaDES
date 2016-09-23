@@ -109,6 +109,7 @@ setMethod(
 #' @include simList-class.R
 #' @docType methods
 #' @rdname ls-method
+#' @family functions to access elements of a \code{simList} object
 ls.simList <- function(name) {
   ls(envir(name))
 }
@@ -149,6 +150,8 @@ setMethod("objects",
 #' @include simList-class.R
 #' @docType methods
 #' @rdname ls_str-method
+#' @family functions to access elements of a \code{simList} object
+#'
 ls.str.simList <- function(name) {
   ls.str(envir(name))
 }
@@ -183,6 +186,7 @@ setMethod("ls.str",
 #'
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
+#' @family functions to access elements of a \code{simList} object
 #' @seealso \code{\link{SpaDES}}, specifically the section 1.2.8 on simList environment.
 #'
 #' @export
@@ -246,6 +250,7 @@ setReplaceMethod("envir",
 #'
 #' @return Returns or sets a list of objects in the \code{simList} environment.
 #'
+#' @family functions to access elements of a \code{simList} object
 #' @seealso \code{\link{SpaDES}}, specifically the section 1.2.1 on Simulation Parameters.
 #'
 #' @export
@@ -370,6 +375,7 @@ setReplaceMethod("$", signature(x = "simList", value = "ANY"),
 #'
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
+#' @family functions to access elements of a \code{simList} object
 #' @seealso \code{\link{SpaDES}}, specifically the section 1.2.7 on Modules and dependencies.
 #'
 #' @export
@@ -468,6 +474,7 @@ setReplaceMethod("depends",
 #' @inheritParams modules
 #' @include simList-class.R
 #' @export
+#' @keywords internal
 #' @docType methods
 #' @rdname namespacing
 #' @author Eliot McIntire
@@ -550,6 +557,7 @@ setMethod(
 #' part for speed (e.g., 2-4x faster) is specifying the moduleName.
 #' Specifying the parameter name is <5% faster.
 #'
+#' @family functions to access elements of a \code{simList} object
 #' @seealso \code{\link{SpaDES}}, specifically the section 1.2.1 on Simulation parameters.
 #'
 #' @export
@@ -642,6 +650,8 @@ setMethod("P",
 #' @export
 #' @docType methods
 #' @rdname globals
+#'
+#' @family functions to access elements of a \code{simList} object
 #' @seealso \code{\link{SpaDES}}, specifically the section 1.2.1 on Simulation Parameters.
 #'
 setGeneric("globals", function(object) {
@@ -728,6 +738,7 @@ setMethod("parameters",
 #' @include simList-class.R
 #' @docType methods
 #' @rdname checkpoint
+#' @family functions to access elements of a \code{simList} object
 #'
 setGeneric("checkpointFile", function(object) {
   standardGeneric("checkpointFile")
@@ -805,17 +816,20 @@ setReplaceMethod("checkpointInterval",
 #' in the .progress list element in the params list element passed to \code{\link{simInit}}.
 #' Second, at the \code{\link{spades}} call itself, which can be simpler. See examples.
 #'
+#' @details Progress Bar:
+#' Progress type can be one of  \code{"text"}, \code{"graphical"}, or \code{"shiny"}.
+#' Progress interval can be a numeric.
+#' These both can get set by passing a
+#' \code{.progress=list(type="graphical", interval=1)} into the \code{simInit} call.
+#' See examples.
+#'
 #' @inheritParams params
 #' @include simList-class.R
 #' @export
-#' @details Progress Bar:
-#' Progress type can be "text", "graphical" or "shiny".
-#' Progress interval can be a numeric.
-#' These both can get set by passing a
-#' \code{.progress=list(type="graphical", interval=1)} into the
-#' simInit call. See examples
 #' @docType methods
+#' @family functions to access elements of a \code{simList} object
 #' @rdname progress
+#'
 #' @examples
 #' \dontrun{
 #' mySim <- simInit(times=list(start=0.0, end=100.0),
@@ -971,6 +985,7 @@ setReplaceMethod("progressType",
 #' @return Returns or sets the value(s) of the \code{input} or \code{output} slots
 #' in the \code{simList} object.
 #'
+#' @family functions to access elements of a \code{simList} object
 #' @seealso \code{\link{SpaDES}}, specifically the section 1.2.2 on loading and saving.
 #'
 #' @include simList-class.R
@@ -1522,6 +1537,7 @@ setReplaceMethod(
 #'
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
+#' @family functions to access elements of a \code{simList} object
 #' @seealso \code{\link{SpaDES}}, specifically the section 1.2.4 on Simulation Paths.
 #'
 #' @include simList-class.R
@@ -1781,6 +1797,7 @@ setReplaceMethod(
 #'
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
+#' @family functions to access elements of a \code{simList} object
 #' @seealso \code{\link{SpaDES}}, specifically the section 1.2.5 on Simulation times.
 #'
 #' @export
@@ -2061,6 +2078,7 @@ setReplaceMethod(
 #' @include simList-class.R
 #' @include times.R
 #' @docType methods
+#' @keywords internal
 #' @rdname namespacing
 #'
 setGeneric(".callingFrameTimeunit", function(x) {
@@ -2242,6 +2260,7 @@ setMethod(
 #'
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
+#' @family functions to access elements of a \code{simList} object
 #' @seealso \code{\link{SpaDES}}, specifically the section 1.2.6 on Simulation event queues.
 #'
 #' @export
@@ -2479,6 +2498,8 @@ setReplaceMethod("completed",
 #'
 #' @include simList-class.R
 #' @docType methods
+#' @family functions to access elements of a \code{simList} object
+#' @keywords internal
 #' @rdname addDepends
 #'
 #' @author Alex Chubaty
@@ -2514,6 +2535,7 @@ setMethod(
 #' @export
 #' @include simList-class.R
 #' @docType methods
+#' @family functions to access elements of a \code{simList} object
 #' @rdname packages
 #'
 #' @author Alex Chubaty
@@ -3079,5 +3101,3 @@ p <- function(object, module = NULL, param = NULL) {
   .Deprecated("P", old = "p")
   P(object = object, module = module, param = param)
 }
-
-

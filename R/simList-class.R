@@ -9,6 +9,7 @@
 #' @return An empty data.frame with structure needed for input/output fileTable.
 #'
 #' @docType methods
+#' @keywords internal
 #' @rdname fileTable
 #'
 setGeneric(".fileTableIn", function(x) {
@@ -213,6 +214,7 @@ setClass("simList",
 #' @seealso \code{\link{simList}}
 #'
 #' @aliases simList_
+#' @keywords internal
 #' @rdname simList_-class
 #'
 #' @author Alex Chubaty

@@ -72,8 +72,7 @@
 # @importFrom utils file.edit
 #' @author Alex Chubaty and Eliot McIntire
 #'
-#' @seealso \code{\link{newModuleCode}}, \code{\link{newModuleDocumentation}},
-#'          \code{\link{newModuleTests}}
+#' @family module creation helpers
 #'
 #' @examples
 #' \dontrun{
@@ -174,7 +173,8 @@ setGeneric("newModuleCode", function(name, path, open, type, children) {
 
 #' @export
 #' @rdname newModuleCode
-#' @seealso \code{\link{newModule}}, \code{\link{newModuleDocumentation}}
+#' @family module creation helpers
+#'
 setMethod(
   "newModuleCode",
   signature = c(name = "character", path = "character", open = "logical",
@@ -400,7 +400,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
 # @importFrom utils file.edit
 #'
 #' @author Eliot McIntire and Alex Chubaty
-#' @seealso \code{\link{newModule}}, \code{\link{newModuleCode}}, \code{\link{newModuleTests}}
+#' @family module creation helpers
 #'
 setGeneric("newModuleDocumentation", function(name, path, open, type, children) {
   standardGeneric("newModuleDocumentation")
@@ -580,8 +580,7 @@ setMethod("newModuleDocumentation",
 #' @rdname newModuleTests
 # @importFrom utils file.edit
 #'
-#' @seealso \code{\link{newModuleCode}}, \code{\link{newModuleDocumentation}},
-#'          \code{\link{newModuleTests}}
+#' @family module creation helpers
 #'
 #' @author Eliot McIntire and Alex Chubaty
 #'

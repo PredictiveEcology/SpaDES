@@ -53,6 +53,6 @@ This is useful for Gantt Charts generally but can be considered a 'bug' here.
 Alex Chubaty
 }
 \seealso{
-\code{\link{mermaid}}.
+\code{\link[DiagrammeR]{mermaid}}.
 }
 

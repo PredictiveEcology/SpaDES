@@ -149,6 +149,7 @@ setMethod("depsGraph",
 #' @importFrom stats na.omit
 #' @export
 #' @docType methods
+#' @keywords internal
 #' @rdname depsPruneEdges
 #'
 #' @author Alex Chubaty
@@ -232,6 +233,7 @@ setMethod(
 #'
 #' @include simList-class.R
 #' @export
+#' @keywords internal
 #' @docType methods
 #' @rdname depsLoadOrder
 #'

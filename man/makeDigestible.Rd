@@ -41,4 +41,5 @@ Eliot McIntire
 
 \code{\link[digest]{digest}}.
 }
+\keyword{internal}
 

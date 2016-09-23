@@ -44,6 +44,7 @@ Create new module documentation
 Eliot McIntire and Alex Chubaty
 }
 \seealso{
-\code{\link{newModule}}, \code{\link{newModuleCode}}, \code{\link{newModuleTests}}
+Other module creation helpers: \code{\link{newModuleCode}},
+  \code{\link{newModuleTests}}, \code{\link{newModule}}
 }
 

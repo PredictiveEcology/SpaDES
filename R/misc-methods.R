@@ -675,6 +675,7 @@ setMethod(
 #'
 #' @include simList-class.R
 #' @docType methods
+#' @keywords internal
 #' @rdname sortDotsFirst
 #' @author Eliot McIntire
 sortDotsFirst <- function(obj) {

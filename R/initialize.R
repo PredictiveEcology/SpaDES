@@ -85,6 +85,7 @@ gaussMap <- function(x, scale = 10, var = 1, speedup = 10, inMemory = FALSE, ...
 #'
 #' @return A vector of integer factors
 #'
+#' @keywords internal
 #' @rdname findFactors
 #'
 .findFactors <- function(x) {

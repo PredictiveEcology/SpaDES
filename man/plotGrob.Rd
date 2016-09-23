@@ -107,4 +107,5 @@ For building on Windows, you'll need to install Rtools from
 \author{
 Eliot McIntire
 }
+\keyword{internal}
 
