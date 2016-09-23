@@ -737,7 +737,6 @@ setMethod(
     return(invisible(sim))
 })
 
-
 ################################################################################
 #' Process a simulation event
 #'
