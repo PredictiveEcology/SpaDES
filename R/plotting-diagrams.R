@@ -136,7 +136,7 @@ setMethod(
 #'
 #' @return Plots an event diagram as Gantt Chart, invisibly returning a \code{mermaid} object.
 #'
-#' @seealso \code{\link{mermaid}}.
+#' @seealso \code{\link[DiagrammeR]{mermaid}}.
 #'
 #' @include simList-accessors.R
 #' @importFrom DiagrammeR mermaid
@@ -229,7 +229,7 @@ setMethod(
 #'
 #' @return Plots a sequence diagram, invisibly returning a \code{mermaid} object.
 #'
-#' @seealso \code{\link{mermaid}}.
+#' @seealso \code{\link[DiagrammeR]{mermaid}}.
 #'
 #' @include simList-accessors.R
 #' @importFrom DiagrammeR mermaid

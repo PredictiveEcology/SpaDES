@@ -29,6 +29,6 @@ plotting the \code{depsEdgeList} directly with \code{\link{moduleDiagram}}.
 Alex Chubaty
 }
 \seealso{
-\code{\link{mermaid}}.
+\code{\link[DiagrammeR]{mermaid}}.
 }
 

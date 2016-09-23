@@ -69,7 +69,8 @@ is provided.
 Alex Chubaty and Eliot McIntire
 }
 \seealso{
-\code{\link{newModuleCode}}, \code{\link{newModuleDocumentation}},
-         \code{\link{newModuleTests}}
+Other module creation helpers: \code{\link{newModuleCode}},
+  \code{\link{newModuleDocumentation}},
+  \code{\link{newModuleTests}}
 }
 

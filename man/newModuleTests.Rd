@@ -26,7 +26,8 @@ Create template testing structures for new modules
 Eliot McIntire and Alex Chubaty
 }
 \seealso{
-\code{\link{newModuleCode}}, \code{\link{newModuleDocumentation}},
-         \code{\link{newModuleTests}}
+Other module creation helpers: \code{\link{newModuleCode}},
+  \code{\link{newModuleDocumentation}},
+  \code{\link{newModule}}
 }
 

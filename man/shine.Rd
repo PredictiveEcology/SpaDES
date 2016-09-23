@@ -62,7 +62,7 @@ shine(mySim)
 shine(mySim, filesOnly = TRUE)
 
 # if the user wants to see the events go by, which can help with debugging:
-shine(mySim, debug=TRUE)
+shine(mySim, debug = TRUE)
 }
 }
 

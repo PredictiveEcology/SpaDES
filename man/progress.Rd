@@ -40,11 +40,11 @@ Second, at the \code{\link{spades}} call itself, which can be simpler. See examp
 }
 \details{
 Progress Bar:
-Progress type can be "text", "graphical" or "shiny".
+Progress type can be one of  \code{"text"}, \code{"graphical"}, or \code{"shiny"}.
 Progress interval can be a numeric.
 These both can get set by passing a
-\code{.progress=list(type="graphical", interval=1)} into the
-simInit call. See examples
+\code{.progress=list(type="graphical", interval=1)} into the \code{simInit} call.
+See examples.
 }
 \examples{
 \dontrun{
@@ -69,5 +69,15 @@ checkpointFile(mySim) # returns the name of the checkpoint file
                       # In this example, "chkpnt.RData"
 checkpointInterval(mySim) # 10
 }
+}
+\seealso{
+Other functions to access elements of a \code{simList} object: \code{\link{.addDepends}},
+  \code{\link{doEvent.checkpoint}}, \code{\link{envir}},
+  \code{\link{events}}, \code{\link{globals}},
+  \code{\link{inputs}}, \code{\link{ls.simList}},
+  \code{\link{ls.str.simList}}, \code{\link{modules}},
+  \code{\link{objs}}, \code{\link{packages}},
+  \code{\link{params}}, \code{\link{paths}},
+  \code{\link{times}}
 }
 

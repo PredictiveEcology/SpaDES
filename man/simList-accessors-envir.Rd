@@ -37,5 +37,14 @@ Alex Chubaty
 }
 \seealso{
 \code{\link{SpaDES}}, specifically the section 1.2.8 on simList environment.
+
+Other functions to access elements of a \code{simList} object: \code{\link{.addDepends}},
+  \code{\link{doEvent.checkpoint}}, \code{\link{events}},
+  \code{\link{globals}}, \code{\link{inputs}},
+  \code{\link{ls.simList}}, \code{\link{ls.str.simList}},
+  \code{\link{modules}}, \code{\link{objs}},
+  \code{\link{packages}}, \code{\link{params}},
+  \code{\link{paths}}, \code{\link{progressInterval}},
+  \code{\link{times}}
 }
 

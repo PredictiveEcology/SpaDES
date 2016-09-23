@@ -75,5 +75,14 @@ Alex Chubaty
 }
 \seealso{
 \code{\link{.Random.seed}}.
+
+Other functions to access elements of a \code{simList} object: \code{\link{.addDepends}},
+  \code{\link{envir}}, \code{\link{events}},
+  \code{\link{globals}}, \code{\link{inputs}},
+  \code{\link{ls.simList}}, \code{\link{ls.str.simList}},
+  \code{\link{modules}}, \code{\link{objs}},
+  \code{\link{packages}}, \code{\link{params}},
+  \code{\link{paths}}, \code{\link{progressInterval}},
+  \code{\link{times}}
 }
 
