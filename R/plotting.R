@@ -453,7 +453,8 @@ setMethod(
         plotArgs$title <- mc$main
       }
       if(is.null(mcPlot$col)) {
-        plotArgs$col <- "black"
+        if(!any(unlist(lapply(dotObjs, is, "histogram")))) #dfault for histogram is NULL
+          plotArgs$col <- "black"
       }
       plotArgs$main <- ""
       plotObjs[[1]][[1]]$main <- plotArgs$main
