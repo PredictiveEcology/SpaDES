@@ -174,6 +174,16 @@ setMethod(
       # evaluate the rest of the parsed file
       eval(parsedFile[!defineModuleItem], envir = envir(sim))
 
+      # parse any scripts in R subfolder
+      RSubFolder <- file.path(dirname(filename), "R")
+      RScript = dir(RSubFolder)
+      if(length(RScript)>0) {
+        for(Rfiles in RScript) {
+          parsedFile <- parse(file.path(RSubFolder, Rfiles))
+          eval(parsedFile, envir = envir(sim))
+        }
+      }
+
       # update parse status of the module
       attributes(modules[[j]]) <- list(parsed = TRUE)
 

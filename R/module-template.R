@@ -120,6 +120,7 @@ setMethod(
     path <- checkPath(path, create = TRUE)
     nestedPath <- file.path(path, name) %>% checkPath(create = TRUE)
     dataPath <- file.path(nestedPath, "data") %>% checkPath(create = TRUE)
+    RPath <- file.path(nestedPath, "R") %>% checkPath(create = TRUE)
 
     # empty data checksum file
     cat("", file = file.path(dataPath, "CHECKSUMS.txt"))

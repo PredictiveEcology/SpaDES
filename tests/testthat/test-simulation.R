@@ -196,3 +196,27 @@ test_that("spades calls with different signatures don't work", {
   expect_gt(st1[1], st2[1])
   file.remove(dir(paths(a)$cachePath, full.names = TRUE, recursive = TRUE))
 })
+
+
+test_that("simInit with R subfolder scripts", {
+  library(igraph)
+  tmpdir <- file.path(tempdir(), "test_timeunits") %>% checkPath(create = TRUE)
+  cwd <- getwd()
+  setwd(tmpdir)
+
+  on.exit({
+    setwd(cwd)
+    unlink(tmpdir, recursive = TRUE)
+  })
+
+  newModule("child1", ".")
+  cat(file = file.path("child1", "R", "script.R"),
+      "a <- function(r) {
+          r + 1
+      }", sep = "\n")
+  mySim <- simInit(modules = "child1",
+          paths = list(modulePath = tmpdir))
+  expect_true(sum(grepl(ls(mySim), pattern = "^a$"))==1)
+  expect_true(mySim$a(2)==3)
+
+})
