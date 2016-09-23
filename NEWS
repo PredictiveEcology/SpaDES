@@ -2,25 +2,28 @@ Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
 version 1.2.0.9000
 ==================
-* module structure now includes an R subfolder for R scripts. These will be parsed during simInit.
 * debug arg in spades - now can take any expression, character strings. TRUE/FALSE changed behavior to show only current event
 * timeunits - when there are parent and grandparent modules, if timeunit is defined, it overrides the "smallest unit" rule. Thus, a parent module can force a timeunit
-* Plot - more robust base plotting and many visual tests on Windows
+* Plot - enhancements and fixes
+
+    * more robust base plotting and many visual tests on Windows
+    * re-add `col` arg to `Plot` (mimicks `cols`). Was lost from version 1.1.2.
+    * allow any arbitrary function to be used internally to `Plot` (*e.g.*, barplot, plot, etc.)
+    * add `arr` argument to `Plot()`, allowing passing of arrangement
+    * allow `title` arg in `Plot()` to accept character for plot title
+    * change `new` arg in `Plot()`. Now it does one plot at a time, not whole device. Use `clearPlot()` to wipe whole device.
+    * `Plot` can use character passed to `title` as a title.
+    * some additional functionality for plotting of factor rasters, incl. `clickValues`, legends correct for wide variety of types
+
 * Add `filesOnly` arg to `shine()`. This can be in preparation for publishing to www.shinyapps.io or other pages. Currently still alpha.
 * Add POM: Pattern Oriented Modeling (#269). A simple interface to a simList object, allowing fitting parameters to data.
-* add `col` arg to `Plot` (mimicks `cols`). Was lost from version 1.1.2.
 * add `.inputObjects` functionality -- function that runs during `simInit()` to create default `inputObjects`
-* add `p` as a namespaced shortcut for params: `p(sim)` would replace `params(sim)$moduleName`
+* add `P` as a namespaced shortcut for params: `P(sim)` would replace `params(sim)$moduleName`
 * allow `params(sim)` & `start(sim)` & others in `defineModule()` by changing parse order in module metadata
-* allow any arbitrary function to be used internally to `Plot` (*e.g.*, barplot, plot, etc.)
-* add `arr` argument to `Plot()`, allowing passing of arrangement
-* allow `title` arg in `Plot()` to accept character for plot title
-* change `new` arg in `Plot()`. Now it does one plot at a time, not whole device. Use `clearPlot()` to wipe whole device.
-* `Plot` can use character passed to `title` as a title.
 * add `RandomFieldsUtils` to Imports
-* some additional functionality for factor rasters, incl. `clickValues`, legends correct for wide variety of types
 * add explicit `cl` arg to parallel aware functions, for more control
 * `newModule` gains new arguments `type = c("child", "parent")` and `children = c()`. See `?newModule` (#300).
+* module structure now includes an R subfolder for R scripts. These will be parsed during simInit.
 * `checksums` updated to use faster hashing algorithm (`xxhash64`) and now only requires a single hash value per file (#295)
 * new Rstudio addin for 'newModule' (#298); requires Import of `shiny (>= 0.13)`, `miniUI (>= 0.1.1)`, and `rstudioapi (>= 0.5)`
 * fix bugs in module template
