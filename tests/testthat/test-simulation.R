@@ -145,15 +145,32 @@ test_that("simulation runs with simInit and spades", {
 })
 
 test_that("spades calls with different signatures don't work", {
-  library(igraph); on.exit(detach("package:igraph"))
+  tmpdir <- file.path(tempdir(), "test_Plot1") %>% checkPath(create = TRUE)
+  cwd <- getwd()
+  setwd(tmpdir)
+
+  on.exit({
+    setwd(cwd)
+    unlink(tmpdir, recursive = TRUE)
+    detach("package:igraph")
+  })
+  library(igraph)
 
   a <- simInit()
   expect_silent(spades(a))
-  expect_output(spades(a, debug = TRUE), "Completed Events")
+  expect_output(spades(a, debug = TRUE), "eventTime")
   expect_silent(spades(a, .plotInitialTime = NA))
   expect_silent(spades(a, .saveInitialTime = NA))
-  expect_output(spades(a, debug = TRUE, .plotInitialTime = NA), "Completed Events")
-  expect_output(spades(a, debug = TRUE, .saveInitialTime = NA), "Completed Events")
+  expect_output(spades(a, debug = TRUE, .plotInitialTime = NA), "eventTime")
+  expect_output(spades(a, debug = TRUE, .saveInitialTime = NA), "eventTime")
+  expect_equivalent(capture_output(spades(a, debug = "current", .plotInitialTime = NA)),
+                capture_output(spades(a, debug = TRUE, .plotInitialTime = NA)))
+
+  expect_output(spades(a, debug = c("current", "events"), .plotInitialTime = NA),
+                "-------------")
+  expect_output(spades(a, debug = "simList", .plotInitialTime = NA),
+                "Completed Events")
+
 
   if (interactive()) {
     expect_output(spades(a, progress = "text", debug = TRUE), "10%")
@@ -164,7 +181,7 @@ test_that("spades calls with different signatures don't work", {
   expect_silent(spades(a, progress = "rr"))
 
   paths(a)$cachePath <- file.path(tempdir(), "cache") %>% checkPath(create = TRUE)
-  expect_output(spades(a, cache = TRUE, debug = TRUE), "Completed Events")
+  expect_output(spades(a, cache = TRUE, debug = TRUE), "eventTime")
   expect_true(all(dir(paths(a)$cachePath) == c("backpack.db", "gallery")))
   file.remove(dir(paths(a)$cachePath, full.names = TRUE, recursive = TRUE))
 
