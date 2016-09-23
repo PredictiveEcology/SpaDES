@@ -1257,9 +1257,9 @@ setMethod(
        }
 
        if (!returnIndices) {
-         outRas <- raster(landscape)
+         outRas <- numeric(ncell(landscape))
          if (returnDistances)
-           outRas[] <- NA
+           outRas[] <- NA_real_
          else
            outRas[] <- 0
 
@@ -1278,6 +1278,7 @@ setMethod(
            else
              outRas[out$indices] <- out$dists
          }
+         outRas <- raster(extent(landscape), res=res(landscape), vals = outRas)
          return(outRas)
        }
       #if(!allowOverlap) {
