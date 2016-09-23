@@ -957,7 +957,22 @@ test_that("Plot lists", {
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.02))
 
-    Plot(ras1, new=TRUE)
+
+  png(file = "test.png", width = 400, height = 300)
+  clearPlot()
+  Plot(a)
+  ras1 <- ras1^2
+  Plot(ras1, new=TRUE)
+  dev.off()
+
+
+  #dput(getFingerprint(file = "test.png"))
+  orig <- switch(Sys.info()["sysname"],
+                 Darwin = "",
+                 Linux = "",
+                 Windows = "B750A8AEC8895F53"
+  )
+  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.02))
 
 
 })
