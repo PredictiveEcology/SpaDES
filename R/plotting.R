@@ -402,7 +402,7 @@ setMethod(
                         # A test_that call can be very long, with many function calls, including Plot and do.call, even if
                         #  they don't have anything to do with each other
     dots <- list(...)
-    if(is.list(dots[[1]])) {
+    if(is.list(dots[[1]]) & !is(dots[[1]], "gg") & !is(dots[[1]], "histogram")) {
       dots <- unlist(dots, recursive = FALSE)
       if(is.null(names(dots)))
         stop("If providing a list of objects to Plot, it must be a named list.")

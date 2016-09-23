@@ -952,12 +952,13 @@ test_that("Plot lists", {
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
                  Darwin = "",
-                 Linux = "D5D52AD52AD52A94",
+                 Linux = "B757A8AAC8C85457",
                  Windows = "B755A8AEC8C85353"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.02))
 
 
+  set.seed(123)
   png(file = "test.png", width = 400, height = 300)
   clearPlot()
   Plot(a)
@@ -969,11 +970,12 @@ test_that("Plot lists", {
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
                  Darwin = "",
-                 Linux = "B1CCC39893C6CEC6",
-                 Windows = "B750A8AEC8895F53"
+                 Linux = "971FE8E0E8F05417",
+                 Windows = "971FA8E0E8E05F07"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.02))
 
+  set.seed(123)
   png(file = "test.png", width = 400, height = 300)
   clearPlot()
   Plot(a)
@@ -989,7 +991,7 @@ test_that("Plot lists", {
   orig <- switch(Sys.info()["sysname"],
                  Darwin = "",
                  Linux = "8F0F0F69E8E8F0C8",
-                 Windows = "8F1F37C8E8E0F04C"
+                 Windows = "8F1F37E8E8E0F048"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.02))
 
