@@ -952,7 +952,7 @@ test_that("Plot lists", {
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
                  Darwin = "",
-                 Linux = "",
+                 Linux = "D5D52AD52AD52A94",
                  Windows = "B755A8AEC8C85353"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.02))
