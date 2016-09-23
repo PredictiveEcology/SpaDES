@@ -108,7 +108,8 @@ test_that("timeunit works correctly", {
 
 
 test_that("timeunits with child and parent modules work correctly", {
-  tmpdir <- file.path(tempdir(), "test_Plot1") %>% checkPath(create = TRUE)
+  library(igraph)
+  tmpdir <- file.path(tempdir(), "test_timeunits") %>% checkPath(create = TRUE)
   cwd <- getwd()
   setwd(tmpdir)
 
