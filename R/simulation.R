@@ -1191,20 +1191,22 @@ setMethod(
         for(i in seq_along(debug)) {
           if (isTRUE(debug[i]) | debug[i] == "current") {
 
-            evnts1 <- data.frame(events(sim)[1L])
-            widths <- str_length(format(evnts1, digits = 4))
-            sim$.spadesDebugWidth <- pmax(widths, sim$.spadesDebugWidth)
-            evnts1[1L,] <- str_pad(format(evnts1, digits = 4), sim$.spadesDebugWidth)
+            if(NROW(events(sim))>0) {
+              evnts1 <- data.frame(events(sim)[1L])
+              widths <- str_length(format(evnts1, digits = 4))
+              sim$.spadesDebugWidth <- pmax(widths, sim$.spadesDebugWidth)
+              evnts1[1L,] <- str_pad(format(evnts1, digits = 4), sim$.spadesDebugWidth)
 
-            if(sim$.spadesDebugFirst) {
-              evnts2 <- evnts1
-              evnts2[1L,] <- str_pad(names(evnts1), sim$.spadesDebugWidth)
-              write.table(evnts2, quote = FALSE, row.names = FALSE, col.names = FALSE)
-              sim$.spadesDebugFirst <- FALSE
-            } else {
-              colnames(evnts1) <- NULL
-              #write.table(evnts1, quote = FALSE)
-              write.table(evnts1, quote = FALSE, row.names = FALSE)
+              if(sim$.spadesDebugFirst) {
+                evnts2 <- evnts1
+                evnts2[1L,] <- str_pad(names(evnts1), sim$.spadesDebugWidth)
+                write.table(evnts2, quote = FALSE, row.names = FALSE, col.names = FALSE)
+                sim$.spadesDebugFirst <- FALSE
+              } else {
+                colnames(evnts1) <- NULL
+                #write.table(evnts1, quote = FALSE)
+                write.table(evnts1, quote = FALSE, row.names = FALSE)
+              }
             }
           } else if(debug[i]=="simList") {
             print(sim)
