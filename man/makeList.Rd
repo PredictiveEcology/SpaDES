@@ -25,4 +25,5 @@ them a list of length \code{numSpadesPlotObjects} entries of lists.
 \author{
 Eliot McIntire
 }
+\keyword{internal}
 

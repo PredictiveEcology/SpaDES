@@ -349,10 +349,11 @@ setMethod(
 #'                 This can't easily be deduced from the \code{plotArgs} because
 #'                 of the RasterStacks. So passed manually.
 #'
-#' @rdname makeList
-#' @include plotting-classes.R
 #' @author Eliot McIntire
 #' @docType methods
+#' @include plotting-classes.R
+#' @keywords internal
+#' @rdname makeList
 #'
 setGeneric(".makeList", function(plotArgs, numSpadesPlotObjects) {
   standardGeneric(".makeList")
@@ -669,6 +670,7 @@ setMethod(
 #' @docType methods
 #' @importFrom grDevices dev.cur
 #' @include plotting-classes.R
+#' @keywords internal
 #' @rdname parseArgs
 #' @author Eliot McIntire and Alex Chubaty
 #'
@@ -855,8 +857,8 @@ setMethod(
 #'
 #' @include plotting-classes.R
 #' @docType methods
+#' @keywords internal
 #' @rdname objectNames
-#' @export
 #' @author Eliot McIntire
 #'
 objectNames <- function(calledFrom = "Plot",
@@ -903,7 +905,6 @@ setMethod("gpar",
             return(grid::gpar(...))
 })
 
-
 ################################################################################
 #' Internal functions used by Plot
 #'
@@ -921,6 +922,7 @@ setMethod("gpar",
 #'
 #' @include plotting-classes.R
 #' @docType methods
+#' @keywords internal
 #' @name .convertSpatialToPlotGrob
 #' @rdname Plot-internal
 #' @aliases PlotHelpers
@@ -1375,6 +1377,7 @@ setMethod(
 #'
 #' @author Eliot McIntire
 #' @include plotting-classes.R
+#' @keywords internal
 #' @rdname identifyGrobToPlot
 setGeneric(".identifyGrobToPlot", function(grobNamesi, toPlot, takeFromPlotObj) {
   standardGeneric(".identifyGrobToPlot")
@@ -1400,7 +1403,7 @@ setMethod(
 #    } else {
     # Does it already exist on the plot device or not
     if (nchar(grobNamesi@layerName) > 0) {# means it is in a raster
-      if(takeFromPlotObj) {
+      if (takeFromPlotObj) {
         grobToPlot <- unlist(toPlot[[1]], recursive = FALSE)[[grobNamesi@layerName]]
       } else {
         grobToPlot <- eval(parse(text = grobNamesi@objName),
@@ -1419,8 +1422,7 @@ setMethod(
     }
     #}
     return(grobToPlot)
-  })
-
+})
 
 ################################################################################
 #' Prepare raster for plotting
@@ -1438,6 +1440,7 @@ setMethod(
 #' @param newArr logical, whether this is a new arrangement or just adding to a previous one
 #'
 #' @include plotting-classes.R
+#' @keywords internal
 #' @rdname prepareRaster
 #' @author Eliot McIntire
 # igraph exports %>% from magrittr
@@ -1650,6 +1653,7 @@ setMethod(
 #' @importFrom grDevices dev.cur dev.new dev.size
 #' @importFrom sp bbox
 #' @export
+#' @keywords internal
 #' @author Eliot McIntire
 #' @docType methods
 # igraph exports %>% from magrittr
@@ -1808,6 +1812,7 @@ setMethod(
 #' @param ...     Additional arguments. None currently implemented.
 #'
 #' @docType methods
+#' @keywords internal
 #' @rdname plotGrob
 #'
 #' @importFrom data.table data.table ':='
@@ -2232,10 +2237,11 @@ setMethod(
 #'              written above plots and should be included as part of layout
 #'               calculation. Default is \code{TRUE}.
 #'
+#' @docType methods
 #' @include plotting-classes.R
 #' @importFrom grid unit unit.c
+#' @keywords internal
 #' @rdname makeLayout
-#' @docType methods
 #' @author Eliot McIntire
 #'
 .makeLayout <- function(arr, visualSqueeze,

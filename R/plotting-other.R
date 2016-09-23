@@ -105,6 +105,7 @@ setMethod("clearPlot",
 #'
 #' @docType methods
 #' @export
+#' @keywords internal
 #' @rdname unittrim
 #' @author Paul Murrell
 #'

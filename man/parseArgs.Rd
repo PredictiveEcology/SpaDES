@@ -26,4 +26,5 @@ Internal function used within objectNames.
 \author{
 Eliot McIntire and Alex Chubaty
 }
+\keyword{internal}
 

@@ -30,4 +30,5 @@ Internal function. Simple wrapper for \code{\link{assign}}.
 \author{
 Alex Chubaty
 }
+\keyword{internal}
 

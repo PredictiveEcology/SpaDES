@@ -13,6 +13,7 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @export
 #' @docType methods
+#' @keywords internal
 #' @rdname unparsed
 #'
 #' @author Alex Chubaty
@@ -114,8 +115,8 @@ setMethod(
 #' @include module-dependencies-class.R
 #' @include simList-class.R
 #' @include environment.R
-#' @export
 #' @docType methods
+#' @keywords internal
 #' @rdname parseModule
 #'
 #' @author Alex Chubaty

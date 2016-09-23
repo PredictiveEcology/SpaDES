@@ -34,4 +34,5 @@ Internal functions.
 Returns an empty fileTable to be used with inputs and outputs.
 }
 \keyword{datasets}
+\keyword{internal}
 

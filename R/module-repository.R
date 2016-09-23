@@ -367,6 +367,7 @@ setMethod(
 #' @return A character vector of hashes.
 #'
 #' @importFrom digest digest
+#' @keywords internal
 #' @rdname digest
 #'
 #' @author Alex Chubaty

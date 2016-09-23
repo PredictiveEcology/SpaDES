@@ -24,4 +24,5 @@ Internal function. Wrapper for \code{\link[digest]{digest}} using md5sum.
 \author{
 Alex Chubaty
 }
+\keyword{internal}
 

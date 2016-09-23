@@ -20,4 +20,5 @@ Alex Chubaty
 \seealso{
 \code{\link{simList}}
 }
+\keyword{internal}
 

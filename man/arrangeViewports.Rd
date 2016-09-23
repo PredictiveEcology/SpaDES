@@ -26,4 +26,5 @@ the Plot functions to plot them efficiently.
 \author{
 Eliot McIntire
 }
+\keyword{internal}
 

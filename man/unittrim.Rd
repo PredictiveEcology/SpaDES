@@ -19,4 +19,5 @@ Used within \code{.clickCoord}
 \author{
 Paul Murrell
 }
+\keyword{internal}
 

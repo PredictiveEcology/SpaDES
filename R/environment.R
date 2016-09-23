@@ -21,6 +21,7 @@
 #' @param ... Additional arguments to pass to \code{assign}.
 #'
 #' @docType methods
+#' @keywords internal
 #' @rdname assignSpaDES
 #'
 #' @author Alex Chubaty
@@ -53,6 +54,7 @@ setMethod(".assignSpaDES",
 #' @param ... Additional arguments passed to \code{\link{exists}}
 #'
 #' @docType methods
+#' @keywords internal
 #' @rdname existsSpaDES
 #'
 #' @author Alex Chubaty
@@ -77,6 +79,7 @@ setMethod(".existsSpaDES",
 #' @param ... Additional arguments to pass to \code{get}.
 #'
 #' @docType methods
+#' @keywords internal
 #' @name .getSpaDES
 #' @rdname getSpaDES
 #'

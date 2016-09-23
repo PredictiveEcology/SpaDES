@@ -30,4 +30,5 @@ dimension ratios of the plots, place them optimally in the plotting region.
 \author{
 Eliot McIntire
 }
+\keyword{internal}
 

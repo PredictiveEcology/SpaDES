@@ -255,6 +255,7 @@ setMethod(
 #' @include misc-methods.R
 #' @importFrom digest digest
 #' @docType methods
+#' @keywords internal
 #' @rdname makeDigestible
 #' @author Eliot McIntire
 setGeneric("makeDigestible", function(simList) {

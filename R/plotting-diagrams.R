@@ -17,6 +17,7 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @include simList-accessors.R
 #' @docType methods
+#' @keywords internal
 #' @rdname ganttStatus
 #'
 #' @author Alex Chubaty
@@ -63,6 +64,7 @@ setMethod("ganttStatus",
 #' @include simList-accessors.R
 # @importFrom utils tail
 #' @docType methods
+#' @keywords internal
 #' @rdname sim2gantt
 #'
 #' @author Alex Chubaty
