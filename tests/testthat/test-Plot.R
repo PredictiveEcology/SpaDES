@@ -952,7 +952,7 @@ test_that("Plot lists", {
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
                  Darwin = "",
-                 Linux = "",
+                 Linux = "D5D52AD52AD52A94",
                  Windows = "B755A8AEC8C85353"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.02))
@@ -961,8 +961,8 @@ test_that("Plot lists", {
   png(file = "test.png", width = 400, height = 300)
   clearPlot()
   Plot(a)
-  ras1 <- ras1^2
-  Plot(ras1, new=TRUE)
+  ras1 <- ras2^2
+  Plot(ras1, new=TRUE, cols = c("red", "blue"))
   dev.off()
 
 
@@ -974,5 +974,23 @@ test_that("Plot lists", {
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.02))
 
+  png(file = "test.png", width = 400, height = 300)
+  clearPlot()
+  Plot(a)
+  ras1 <- ras2^2
+  Plot(ras1, new=TRUE, cols = c("red", "blue"))
+  gg <- qplot(1:10, sample(1:10))
+  gg1 <- qplot(1:10, sample(1:10))
+  b <- list(gg=gg, gg1=gg1)
+  Plot(b)
+  dev.off()
+
+  #dput(getFingerprint(file = "test.png"))
+  orig <- switch(Sys.info()["sysname"],
+                 Darwin = "",
+                 Linux = "",
+                 Windows = "8F1F37C8E8E0F04C"
+  )
+  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.02))
 
 })
