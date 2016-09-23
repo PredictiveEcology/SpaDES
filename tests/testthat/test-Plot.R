@@ -891,7 +891,7 @@ test_that("rePlot doesn't work", {
 
 })
 
-test_that("rePlot doesn't work", {
+test_that("Plot - going through package coverage", {
   tmpdir <- file.path(tempdir(), "test_Plot1") %>% checkPath(create = TRUE)
   cwd <- getwd()
   setwd(tmpdir)
@@ -911,6 +911,53 @@ test_that("rePlot doesn't work", {
   clearPlot()
 
   #do.call(Plot, list(ras))
+
+
+})
+
+test_that("Plot lists", {
+  skip_on_travis()
+  tmpdir <- file.path(tempdir(), "test_Plot1") %>% checkPath(create = TRUE)
+  cwd <- getwd()
+  setwd(tmpdir)
+  skip_if_not_installed("visualTest")
+
+  library(visualTest)
+  on.exit({
+    setwd(cwd)
+    unlink(tmpdir, recursive = TRUE)
+  })
+
+  set.seed(123)
+  rasOrig <- raster(extent(0,40, 0,20), vals = sample(1:8,replace = T,size =800), res = 1)
+  rasOrig
+  ras1 <- ras2 <- ras3 <- ras4 <- rasOrig
+  a <- list();for(i in 1:4) a[[paste0("ras",i)]] <- get(paste0("ras",i))
+  Sr1 = Polygon(cbind(c(2, 4, 4, 1, 2), c(2, 3, 5, 4, 2))*20-50)
+  Sr2 = Polygon(cbind(c(5, 4, 2, 5), c(2, 3, 2, 2))*20 - 50)
+  Srs1 = Polygons(list(Sr1), "s1")
+  Srs2 = Polygons(list(Sr2), "s2")
+  SpP = SpatialPolygons(list(Srs1, Srs2), 1:2)
+  a$SpP <- SpP
+
+  clearPlot()
+  Plot(a)
+  ras1 <- ras1^2
+
+  png(file = "test.png", width = 400, height = 300)
+  clearPlot()
+  Plot(a, new = TRUE)
+  dev.off()
+
+  #dput(getFingerprint(file = "test.png"))
+  orig <- switch(Sys.info()["sysname"],
+                 Darwin = "",
+                 Linux = "",
+                 Windows = "B755A8AEC8C85353"
+  )
+  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.02))
+
+    Plot(ras1, new=TRUE)
 
 
 })

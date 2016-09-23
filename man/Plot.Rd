@@ -140,9 +140,11 @@ where \code{n} is the new device number.
 \description{
 The main plotting function accompanying \code{SpaDES}.
 This can take objects of type \code{Raster*}, \code{SpatialPoints*},
-\code{SpatialPolygons*}, and any combination of those.
+\code{SpatialPolygons*}, and any combination of those. These can be provided
+as individual objects, or a named list. If a named list, the name of the object
+and the object name must be the same, e.g., list(ras = ras)
 It can also handle \code{ggplot2} objects or \code{base::histogram} objects
-via call to \code{exHist <- hist(1:10, plot = FALSE)}. It can also take
+created via call to \code{exHist <- hist(1:10, plot = FALSE)}. It can also take
 arguments as if it were a call to \code{plot}. In this latter
 case, the user should be explicit about naming the plot area using \code{addTo}.
 Customization of the \code{ggplot2} elements can be done as a normal
@@ -153,10 +155,12 @@ Re-plot to a specific device
 \details{
 NOTE: Plot uses the \code{grid} package; therefore, it is NOT compatible with
 base R graphics. Also, because it does not by default wipe the plotting device
-before plotting, a call to \code{\link{clearPlot}} could be helpful to resolve
-many errors.
+before plotting, a call to \code{\link{clearPlot}} is helpful to resolve
+many errors. Careful use of the other device tools, such as \code{dev.off()} and
+\code{dev.list()} might also clear problems that may arise.
 
-If \code{new = TRUE}, a new plot will be generated, but only in the named figure region.
+If \code{new = TRUE}, a new plot will be generated, but only in the figure region that
+has the same name as the object being plotted.
 This is different than calling \code{clearPlot(); Plot(Object)},
 i.e,. directly before creating a new Plot. \code{clearPlot()} will clear the entire
 plotting device.
@@ -179,6 +183,20 @@ A more stable way is to use the object names directly, and any layer names
 If plotting a RasterLayer and the layer name is "layer" or the same as the
 object name, then, for simplicity, only the object name will be used.
 In other words, only enough information is used to uniquely identify the plot.
+
+Because of modularity, Plot must have access to the original objects that were
+plotted. These objects will be used if a subsequent Plot event forces a
+rearrangement of the Plot device. Rather than saving all the plot information
+(including the data) at each Plot
+call (this is generally too much data to constantly make copies),
+the function saves a pointer to the original R object. If the plot needs
+to be rearranged because of a future addition, then Plot will search for that
+original object that created the first plots, and replot them. This has several
+consequences. First, that object must still exist and in the same environment.
+Second, if that object has changed between the first time it is plot and any
+subsequent time it is replotted (via a forced rearrangement), then it will take
+the object *as it exists*, not as it existed. Third, the names that are given
+in the list of objects to plot must be equal to the name of that object.
 
 \code{cols} is a vector of colours that can be understood directly, or by
 \code{colorRampePalette}, such as \code{c("orange", "blue")}, will give a
@@ -333,6 +351,14 @@ if (interactive()) {
   Plot(4,5, pch=22, col = "blue", addTo = "test") # if there is no "test" then it will make it
   obj1 <- rnorm(1e2)
   Plot(obj1, axes = "L")
+
+  # Can plot named lists of objects (but not base objects yet)
+  ras1 <- ras2 <- ras
+  a <- list();for(i in 1:2) a[[paste0("ras",i)]] <- get(paste0("ras",i))
+  a$SpP <- SpP
+  clearPlot()
+  Plot(a)
+
 
 }
 
