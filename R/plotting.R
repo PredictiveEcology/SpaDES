@@ -408,16 +408,19 @@ setMethod(
         stop("If providing a list of objects to Plot, it must be a named list.")
     }
 
-
     # Determine where the objects are located; they could be .GlobalEnv, simList, or any other place.
     #  We need to know exactly where they are, so that they can be replotted later, if needed
     if (any(isDoCall)) {
-      stop("Currently, Plot can not be called within a do.call. Try making a named list of objects.")
-      #whFrame <- grep(scalls, pattern = "^do.call")
-      #plotFrame <- sys.frame(whFrame - 1)
-      #dotObjs <- get(as.character(match.call(do.call, call = sys.call(whFrame))$args),
-      #               envir = plotFrame)
-      #plotArgs <- mget(names(formals("Plot")[-1]), sys.frame(whFrame - 2)) # 2 up with do.call
+
+      whFrame <- grep(scalls, pattern = "^do.call")
+      plotFrame <- sys.frame(whFrame - 1)
+      if(is.null(dots$env))
+        dots$env <- plotFrame
+        #stop("Currently, Plot can not be called within a do.call. ",
+        #     "Try passing a named list of objects to Plot instead.")
+      dotObjs <- get(as.character(match.call(do.call, call = sys.call(whFrame))$args),
+                     envir = plotFrame)
+      plotArgs <- mget(names(formals("Plot")[-1]), sys.frame(whFrame - 2)) # 2 up with do.call
     } else {
       whFrame <- grep(scalls, pattern = "^Plot")
       dotObjs <- dots
