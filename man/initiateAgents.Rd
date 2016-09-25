@@ -64,7 +64,8 @@ if (interactive()) {
   Plot(agents, addTo = "map")
 }
 
-# If producing a Raster, then the number of points produced can't be more than
+# Note, can also produce a Raster representing agents,
+# then the number of points produced can't be more than
 # the number of pixels:
 agentsRas <- initiateAgents(map, 30, pr, asSpatialPoints = FALSE)
 if (interactive()) Plot(agentsRas)
