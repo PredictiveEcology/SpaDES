@@ -176,7 +176,6 @@ setMethod("initiateAgents",
               tmp[indices] <- 1
               return(tmp)
             }
-              tmp <- raster(map)
 })
 
 ################################################################################

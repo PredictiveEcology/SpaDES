@@ -7,11 +7,11 @@
 \title{Use Pattern Oriented Modeling to fit unknown parameters}
 \usage{
 POM(sim, params, objects, objFn, cl, optimizer = "DEoptim", sterr = FALSE,
-  ..., objFnCompare = "MAD", optimControl = NULL)
+  ..., objFnCompare = "MAD", optimControl = NULL, NaNRetries = NA)
 
 \S4method{POM}{simList,character}(sim, params, objects, objFn, cl,
   optimizer = "DEoptim", sterr = FALSE, ..., objFnCompare = "MAD",
-  optimControl = NULL)
+  optimControl = NULL, NaNRetries = NA)
 }
 \arguments{
 \item{sim}{A \code{simList} simulation object, generally produced by \code{simInit}.}
@@ -56,6 +56,13 @@ Root Mean Squared Error. Default is "MAD".}
 \item{optimControl}{List of control arguments passed into the control of each
 optimization routine. Currently, only passed to
 \code{\link{DEoptim.control}} when \code{optimizer} is \code{"DEoptim"}}
+
+\item{NaNRetries}{Numeric. If greater than 1, then the function will retry
+the objective function for a total of that number of times
+if it results in an \code{NaN}. In general
+this should not be used as the objective function should be
+made so that it doesn't produce \code{NaN}. But, sometimes
+it is difficult to diagnose stochastic results.}
 }
 \value{
 A list with at least 2 elements. The first (or first several) will
