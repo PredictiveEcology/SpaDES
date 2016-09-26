@@ -106,7 +106,12 @@
 #' @param objFnCompare Character string. Either, "MAD" or "RMSE" indicating that inside the objective
 #'                     function, data and prediction will be compared by Mean Absolute Deviation or
 #'                     Root Mean Squared Error. Default is "MAD".
-#'
+#' @param NaNRetries Numeric. If greater than 1, then the function will retry
+#'                   the objective function for a total of that number of times
+#'                   if it results in an \code{NaN}. In general
+#'                   this should not be used as the objective function should be
+#'                   made so that it doesn't produce \code{NaN}. But, sometimes
+#'                   it is difficult to diagnose stochastic results.
 #' @return A list with at least 2 elements. The first (or first several) will
 #' be the returned object from the optimizer. The second (or last if there are
 #' more than 2), named \code{args} is the set of arguments that were passed
@@ -300,7 +305,8 @@
 setGeneric(
   "POM",
   function(sim, params, objects, objFn, cl, optimizer = "DEoptim",
-           sterr = FALSE, ..., objFnCompare = "MAD", optimControl = NULL) {
+           sterr = FALSE, ..., objFnCompare = "MAD", optimControl = NULL,
+           NaNRetries = NA) {
     standardGeneric("POM")
 })
 
@@ -310,7 +316,8 @@ setMethod(
   signature(sim = "simList", params = "character", objects = "ANY",
             objFn = "ANY"),
   definition = function(sim, params, objects, objFn, cl, optimizer,
-                        sterr, ..., objFnCompare, optimControl) {
+                        sterr, ..., objFnCompare, optimControl,
+                        NaNRetries) {
 
     if (missing(cl)) {
       cl <- tryCatch(getCluster(), error = function(x) NULL)
@@ -320,6 +327,7 @@ setMethod(
       clProvided <- TRUE
     }
 
+    if(is.na(NaNRetries)) NaNRetries <- 1
     paramNames <- lapply(SpaDES::params(sim), names)
     whParams <- lapply(paramNames, function(pn) match(params, pn))
     whModules <- unlist(lapply(whParams, function(mod) any(!is.na(mod))))
@@ -328,7 +336,6 @@ setMethod(
     names(whParamsByMod) <- unlist(lapply(names(whModules), function(nam) {
       rep(nam, sum(grepl(pattern = nam, names(whParamsByMod))))
     }))
-    #whParamsList1 <- match(params, unlist(lapply(SpaDES::params(sim), names)))
 
     if (missing(objects)) {
       objects <- NULL
@@ -338,47 +345,58 @@ setMethod(
 
     if (missing(objFn)) {
       objFn <- function(par, objects, sim, whModules, whParams, whParamsByMod) {
-        sim_ <- SpaDES::copy(sim)
-        whP <- 0
-        for (wh in seq_along(whParamsByMod)) {
-          whP <- whP + 1
-          params(sim_)[[names(whParamsByMod)[wh]]][[whParamsByMod[wh]]] <- par[whP]
-        }
-
-        out <- spades(sim_, .plotInitialTime = NA)
-
-        outputObjects <- lapply(objects, function(objs) {
-          if (is.function(objs)) {
-            dat <- mget(names(formals(objs)), envir = envir(out))
-            do.call(objs, dat)
-          } else {
-            eval(parse(text = objs[[1]])[[1]], envir = envir(out))
-          }
-        })
-
-        objectiveRes <- unlist(lapply(seq_along(outputObjects), function(x) {
-          if (is(outputObjects[[x]], "Raster")) {
-            outObj <- getValues(outputObjects[[x]])
-            dataObj <- getValues(get(names(outputObjects)[x]))
-          } else {
-            outObj <- outputObjects[[x]]
-            dataObj <- get(names(outputObjects)[[x]])
+        keep <- TRUE
+        tryNum <- 1
+        while(keep) {
+          sim_ <- SpaDES::copy(sim)
+          whP <- 0
+          for (wh in seq_along(whParamsByMod)) {
+            whP <- whP + 1
+            params(sim_)[[names(whParamsByMod)[wh]]][[whParamsByMod[wh]]] <- par[whP]
           }
 
-          if (objFnCompare == "MAD") {
-            if (length(outObj) == 1) {
-              mean(abs((outObj - dataObj)))
+          out <- spades(sim_, .plotInitialTime = NA)
+
+          outputObjects <- lapply(objects, function(objs) {
+            if (is.function(objs)) {
+              dat <- mget(names(formals(objs)), envir = envir(out))
+              do.call(objs, dat)
             } else {
-              mean(abs(outObj - dataObj))
+              eval(parse(text = objs[[1]])[[1]], envir = envir(out))
             }
-          } else if (objFnCompare == "RMSE") {
-            sqrt(mean((outObj - dataObj)^2))
-          } else {
-            stop("objFnCompare must be either MAD or RMSE, see help")
-          }
+          })
 
-        }))
-        sum(objectiveRes)
+          objectiveRes <- unlist(lapply(seq_along(outputObjects), function(x) {
+            if (is(outputObjects[[x]], "Raster")) {
+              outObj <- getValues(outputObjects[[x]])
+              dataObj <- getValues(get(names(outputObjects)[x]))
+            } else {
+              outObj <- outputObjects[[x]]
+              dataObj <- get(names(outputObjects)[[x]])
+            }
+
+            if (objFnCompare == "MAD") {
+              if (length(outObj) == 1) {
+                mean(abs((outObj - dataObj)))
+              } else {
+                mean(abs(outObj - dataObj))
+              }
+            } else if (objFnCompare == "RMSE") {
+              sqrt(mean((outObj - dataObj)^2))
+            } else {
+              stop("objFnCompare must be either MAD or RMSE, see help")
+            }
+
+          }))
+          sumObj <- sum(objectiveRes)
+          if(is.nan(sumObj)) {
+            tryNum <- tryNum + 1
+            if(tryNum <= NaNRetries) keep <- TRUE else keep <- FALSE
+          } else {
+            keep <- FALSE
+          }
+        }
+        return(sumObj)
       }
       userSuppliedObjFn <- FALSE
     } else {

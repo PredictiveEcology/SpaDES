@@ -891,7 +891,7 @@ test_that("rePlot doesn't work", {
 
 })
 
-test_that("rePlot doesn't work", {
+test_that("Plot - going through package coverage", {
   tmpdir <- file.path(tempdir(), "test_Plot1") %>% checkPath(create = TRUE)
   cwd <- getwd()
   setwd(tmpdir)
@@ -913,4 +913,76 @@ test_that("rePlot doesn't work", {
   #do.call(Plot, list(ras))
 
 
+})
+
+test_that("Plot lists", {
+  skip_on_travis()
+  tmpdir <- file.path(tempdir(), "test_Plot1") %>% checkPath(create = TRUE)
+  cwd <- getwd()
+  setwd(tmpdir)
+  skip_if_not_installed("visualTest")
+
+  library(visualTest)
+  on.exit({
+    setwd(cwd)
+  #  unlink(tmpdir, recursive = TRUE)
+  })
+
+
+  set.seed(123)
+  rasOrig <- raster(extent(0,40, 0,20), vals = sample(1:8,replace = T,size =800), res = 1)
+  ras1 <- ras2 <- ras3 <- ras4 <- rasOrig
+  a <- list();for(i in 1:4) a[[paste0("ras",i)]] <- get(paste0("ras",i))
+  Sr1 = Polygon(cbind(c(2, 4, 4, 1, 2), c(2, 3, 5, 4, 2))*20-50)
+  Sr2 = Polygon(cbind(c(5, 4, 2, 5), c(2, 3, 2, 2))*20 - 50)
+  Srs1 = Polygons(list(Sr1), "s1")
+  Srs2 = Polygons(list(Sr2), "s2")
+  SpP = SpatialPolygons(list(Srs1, Srs2), 1:2)
+
+  png(file = "test.png", width = 400, height = 300)
+  clearPlot()
+  Plot(a)
+  dev.off()
+
+  #dput(getFingerprint(file = "test.png"))
+  orig <- switch(Sys.info()["sysname"],
+                 Darwin = "",
+                 Linux = "B757A8AAC8C85457",
+                 Windows = "AD3DD26CD287C609"
+  )
+  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.02))
+
+  set.seed(123)
+  a$SpP <- SpP
+  png(file = "test.png", width = 400, height = 300)
+  clearPlot()
+  Plot(a)
+  dev.off()
+
+
+  #dput(getFingerprint(file = "test.png"))
+  orig <- switch(Sys.info()["sysname"],
+                 Darwin = "",
+                 Linux = "971FE8E0E8F05417",
+                 Windows = "B755A8AEC8C85353"
+  )
+  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
+
+  set.seed(123)
+  #browser()
+  gg <- qplot(1:10, sample(1:10))
+  gg1 <- qplot(1:10, sample(1:10))
+  b <- list(gg=gg, gg1=gg1)
+  png(file = "test.png", width = 400, height = 300)
+  clearPlot()
+  Plot(a, b)
+  dev.off()
+
+  #dput(getFingerprint(file = "test.png"))
+  orig <- switch(Sys.info()["sysname"],
+                 Darwin = "",
+                 Linux = "8F0F0F69E8E8F0C8",
+                 Windows = "87737289CC99F04E"
+  )
+  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.02))
 })
