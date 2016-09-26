@@ -77,7 +77,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">02 Building modules in <code>SpaDES</code></h1>
 <h4 class="author"><em>Alex M. Chubaty</em></h4>
-<h4 class="date"><em>September 25 2016</em></h4>
+<h4 class="date"><em>September 26 2016</em></h4>
 
 
 <div id="TOC">
@@ -124,9 +124,10 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li><a href="#module-design-considerations"><span class="toc-section-number">6.1</span> Module design considerations</a></li>
 <li><a href="#using-the-module-template"><span class="toc-section-number">6.2</span> Using the module template</a></li>
 <li><a href="#module-groups"><span class="toc-section-number">6.3</span> Module groups</a></li>
-<li><a href="#contributing-modules"><span class="toc-section-number">6.4</span> Contributing modules</a><ul>
-<li><a href="#minimum-requirements"><span class="toc-section-number">6.4.1</span> Minimum requirements</a></li>
-<li><a href="#module-submission"><span class="toc-section-number">6.4.2</span> Module submission</a></li>
+<li><a href="#debugging"><span class="toc-section-number">6.4</span> Debugging</a></li>
+<li><a href="#contributing-modules"><span class="toc-section-number">6.5</span> Contributing modules</a><ul>
+<li><a href="#minimum-requirements"><span class="toc-section-number">6.5.1</span> Minimum requirements</a></li>
+<li><a href="#module-submission"><span class="toc-section-number">6.5.2</span> Module submission</a></li>
 </ul></li>
 </ul></li>
 </ul>
@@ -462,8 +463,8 @@ randomLandscapesInit &lt;-<span class="st"> </span>function(sim) {
 
 <span class="co"># overview of the events in the simulation</span>
 <span class="kw">eventDiagram</span>(mySim, <span class="st">&quot;0000-06-01&quot;</span>, <span class="dt">n =</span> <span class="dv">200</span>, <span class="dt">width =</span> <span class="dv">720</span>)</code></pre></div>
-<div id="htmlwidget-b6dfbfca03c210f371ec" style="width:720px;height:1612px;" class="DiagrammeR html-widget"></div>
-<script type="application/json" data-for="htmlwidget-b6dfbfca03c210f371ec">{"x":{"diagram":"gantt\ndateFormat  YYYY-MM-DD\ntitle SpaDES event diagram\nsection  checkpoint \n init:done,checkpoint1,0-06-01,0-06-07\nsection  save \n init:done,save1,0-06-01,0-06-07\nsection  load \n init:done,load1,0-06-01,0-06-07\nsection  randomLandscapes \n init:done,randomLandscapes1,0-06-01,0-06-07\nplot:crit,randomLandscapes2,0-06-01,0-06-07\nsection  caribouMovement \n init:done,caribouMovement1,0-06-01,0-06-07\nmove:active,caribouMovement2,0-07-01,0-07-07\nplot.init:active,caribouMovement3,0-07-01,0-07-07\nmove:active,caribouMovement4,0-07-31,0-08-07\nplot:crit,caribouMovement5,0-07-31,0-08-07\nmove:active,caribouMovement6,0-08-31,0-09-06\nplot:crit,caribouMovement7,0-08-31,0-09-06\nmove:active,caribouMovement8,0-09-30,0-10-07\nplot:crit,caribouMovement9,0-09-30,0-10-07\nmove:active,caribouMovement10,0-10-31,0-11-06\nplot:crit,caribouMovement11,0-10-31,0-11-06\nmove:active,caribouMovement12,0-11-30,0-12-06\nplot:crit,caribouMovement13,0-11-30,0-12-06\nmove:active,caribouMovement14,0-12-31,1-01-06\nplot:crit,caribouMovement15,0-12-31,1-01-06\nmove:active,caribouMovement16,1-01-30,1-02-05\nplot:crit,caribouMovement17,1-01-30,1-02-05\nmove:active,caribouMovement18,1-03-01,1-03-08\nplot:crit,caribouMovement19,1-03-01,1-03-08\nmove:active,caribouMovement20,1-04-01,1-04-07\nplot:crit,caribouMovement21,1-04-01,1-04-07\nmove:active,caribouMovement22,1-05-01,1-05-08\nplot:crit,caribouMovement23,1-05-01,1-05-08\nmove:active,caribouMovement24,1-06-01,1-06-07\nplot:crit,caribouMovement25,1-06-01,1-06-07\nmove:active,caribouMovement26,1-07-01,1-07-07\nplot:crit,caribouMovement27,1-07-01,1-07-07\nmove:active,caribouMovement28,1-08-01,1-08-07\nplot:crit,caribouMovement29,1-08-01,1-08-07\nmove:active,caribouMovement30,1-08-31,1-09-06\nplot:crit,caribouMovement31,1-08-31,1-09-06\nmove:active,caribouMovement32,1-10-01,1-10-07\nplot:crit,caribouMovement33,1-10-01,1-10-07\nmove:active,caribouMovement34,1-10-31,1-11-06\nplot:crit,caribouMovement35,1-10-31,1-11-06\nmove:active,caribouMovement36,1-11-30,1-12-07\nplot:crit,caribouMovement37,1-11-30,1-12-07\nmove:active,caribouMovement38,1-12-31,2-01-06\nplot:crit,caribouMovement39,1-12-31,2-01-06\nmove:active,caribouMovement40,2-01-30,2-02-06\nplot:crit,caribouMovement41,2-01-30,2-02-06\nmove:active,caribouMovement42,2-03-02,2-03-08\nplot:crit,caribouMovement43,2-03-02,2-03-08\nmove:active,caribouMovement44,2-04-01,2-04-07\nplot:crit,caribouMovement45,2-04-01,2-04-07\nmove:active,caribouMovement46,2-05-02,2-05-08\nplot:crit,caribouMovement47,2-05-02,2-05-08\nmove:active,caribouMovement48,2-06-01,2-06-07\nplot:crit,caribouMovement49,2-06-01,2-06-07\nsection  fireSpread \n init:done,fireSpread1,0-06-01,0-06-07\nburn:active,fireSpread2,0-06-01,0-06-07\nstats:active,fireSpread3,0-06-01,0-06-07\nplot.init:active,fireSpread4,0-06-01,0-06-07\nburn:active,fireSpread5,1-06-01,1-06-07\nstats:active,fireSpread6,1-06-01,1-06-07\nburn:active,fireSpread7,2-06-01,2-06-07\nstats:active,fireSpread8,2-06-01,2-06-07\n"},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-d0f8fff8fb3e8fc77104" style="width:720px;height:1612px;" class="DiagrammeR html-widget"></div>
+<script type="application/json" data-for="htmlwidget-d0f8fff8fb3e8fc77104">{"x":{"diagram":"gantt\ndateFormat  YYYY-MM-DD\ntitle SpaDES event diagram\nsection  checkpoint \n init:done,checkpoint1,0-06-01,0-06-07\nsection  save \n init:done,save1,0-06-01,0-06-07\nsection  load \n init:done,load1,0-06-01,0-06-07\nsection  randomLandscapes \n init:done,randomLandscapes1,0-06-01,0-06-07\nplot:crit,randomLandscapes2,0-06-01,0-06-07\nsection  caribouMovement \n init:done,caribouMovement1,0-06-01,0-06-07\nmove:active,caribouMovement2,0-07-01,0-07-07\nplot.init:active,caribouMovement3,0-07-01,0-07-07\nmove:active,caribouMovement4,0-07-31,0-08-07\nplot:crit,caribouMovement5,0-07-31,0-08-07\nmove:active,caribouMovement6,0-08-31,0-09-06\nplot:crit,caribouMovement7,0-08-31,0-09-06\nmove:active,caribouMovement8,0-09-30,0-10-07\nplot:crit,caribouMovement9,0-09-30,0-10-07\nmove:active,caribouMovement10,0-10-31,0-11-06\nplot:crit,caribouMovement11,0-10-31,0-11-06\nmove:active,caribouMovement12,0-11-30,0-12-06\nplot:crit,caribouMovement13,0-11-30,0-12-06\nmove:active,caribouMovement14,0-12-31,1-01-06\nplot:crit,caribouMovement15,0-12-31,1-01-06\nmove:active,caribouMovement16,1-01-30,1-02-05\nplot:crit,caribouMovement17,1-01-30,1-02-05\nmove:active,caribouMovement18,1-03-01,1-03-08\nplot:crit,caribouMovement19,1-03-01,1-03-08\nmove:active,caribouMovement20,1-04-01,1-04-07\nplot:crit,caribouMovement21,1-04-01,1-04-07\nmove:active,caribouMovement22,1-05-01,1-05-08\nplot:crit,caribouMovement23,1-05-01,1-05-08\nmove:active,caribouMovement24,1-06-01,1-06-07\nplot:crit,caribouMovement25,1-06-01,1-06-07\nmove:active,caribouMovement26,1-07-01,1-07-07\nplot:crit,caribouMovement27,1-07-01,1-07-07\nmove:active,caribouMovement28,1-08-01,1-08-07\nplot:crit,caribouMovement29,1-08-01,1-08-07\nmove:active,caribouMovement30,1-08-31,1-09-06\nplot:crit,caribouMovement31,1-08-31,1-09-06\nmove:active,caribouMovement32,1-10-01,1-10-07\nplot:crit,caribouMovement33,1-10-01,1-10-07\nmove:active,caribouMovement34,1-10-31,1-11-06\nplot:crit,caribouMovement35,1-10-31,1-11-06\nmove:active,caribouMovement36,1-11-30,1-12-07\nplot:crit,caribouMovement37,1-11-30,1-12-07\nmove:active,caribouMovement38,1-12-31,2-01-06\nplot:crit,caribouMovement39,1-12-31,2-01-06\nmove:active,caribouMovement40,2-01-30,2-02-06\nplot:crit,caribouMovement41,2-01-30,2-02-06\nmove:active,caribouMovement42,2-03-02,2-03-08\nplot:crit,caribouMovement43,2-03-02,2-03-08\nmove:active,caribouMovement44,2-04-01,2-04-07\nplot:crit,caribouMovement45,2-04-01,2-04-07\nmove:active,caribouMovement46,2-05-02,2-05-08\nplot:crit,caribouMovement47,2-05-02,2-05-08\nmove:active,caribouMovement48,2-06-01,2-06-07\nplot:crit,caribouMovement49,2-06-01,2-06-07\nsection  fireSpread \n init:done,fireSpread1,0-06-01,0-06-07\nburn:active,fireSpread2,0-06-01,0-06-07\nstats:active,fireSpread3,0-06-01,0-06-07\nplot.init:active,fireSpread4,0-06-01,0-06-07\nburn:active,fireSpread5,1-06-01,1-06-07\nstats:active,fireSpread6,1-06-01,1-06-07\nburn:active,fireSpread7,2-06-01,2-06-07\nstats:active,fireSpread8,2-06-01,2-06-07\n"},"evals":[],"jsHooks":[]}</script>
 </div>
 </div>
 <div id="module-documentation-modulename.rmd" class="section level2">
@@ -536,8 +537,8 @@ mySim &lt;-<span class="st"> </span><span class="kw">simInit</span>(<span class=
 
 <span class="co"># detailed visual representation of objects</span>
 <span class="kw">objectDiagram</span>(mySim, <span class="dt">width =</span> <span class="dv">720</span>)</code></pre></div>
-<div id="htmlwidget-445fe80548d41f69f4f4" style="width:720px;height:288px;" class="DiagrammeR html-widget"></div>
-<script type="application/json" data-for="htmlwidget-445fe80548d41f69f4f4">{"x":{"diagram":"sequenceDiagram\ncaribouMovement ->> caribouMovement : landscape\ncaribouMovement ->> fireSpread : landscape\nfireSpread ->> caribouMovement : landscape\nfireSpread ->> fireSpread : landscape\nfireSpread ->> fireSpread : nPixelsBurned\nrandomLandscapes ->> caribouMovement : landscape\nrandomLandscapes ->> fireSpread : landscape\n"},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-dbe14f8199d96ea56222" style="width:720px;height:288px;" class="DiagrammeR html-widget"></div>
+<script type="application/json" data-for="htmlwidget-dbe14f8199d96ea56222">{"x":{"diagram":"sequenceDiagram\ncaribouMovement ->> caribouMovement : landscape\ncaribouMovement ->> fireSpread : landscape\nfireSpread ->> caribouMovement : landscape\nfireSpread ->> fireSpread : landscape\nfireSpread ->> fireSpread : nPixelsBurned\nrandomLandscapes ->> caribouMovement : landscape\nrandomLandscapes ->> fireSpread : landscape\n"},"evals":[],"jsHooks":[]}</script>
 <p>The output of the <code>depsEdgeList</code> is an edgelist describing the relationships between each module. In the example above, line 2 of the output indicates that the <code>fireSpread</code> module relies on an object <code>landscape</code> provided by the <code>caribouMovement</code> module. This edgelist is used inside the <code>depsGraph</code> function to produce a dependency graph (network), where each module corresponds to a vertex (node), and object dependencies are denoted by the arrows. When plotting the dependency graph, it’s often useful to use the <code>plot=TRUE</code> argument to simplify the network by showing no more than one object dependency between modules.</p>
 </div>
 </div>
@@ -857,7 +858,7 @@ mySim &lt;-<span class="st"> </span><span class="kw">simInit</span>(<span class=
 ## &lt;0 rows&gt; (or 0-length row.names)</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">outputs</span>(mySim)   <span class="co"># shows all files and objects that are &quot;outputs&quot;</span></code></pre></div>
 <pre><code>##   objectName                                            file     fun
-## 1  landscape /tmp/RtmpLa95Ii/simOutputs/landscape_year10.rds saveRDS
+## 1  landscape /tmp/Rtmp8H1heG/simOutputs/landscape_year10.rds saveRDS
 ##   package saveTime saved arguments
 ## 1    base       10    NA        NA</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">params</span>(mySim)$randomLandscapes$.saveInitialTime</code></pre></div>
@@ -867,7 +868,7 @@ mySim &lt;-<span class="st"> </span><span class="kw">simInit</span>(<span class=
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">params</span>(mySim)$randomLandscapes$.saveObjects</code></pre></div>
 <pre><code>## [1] &quot;landscape&quot;</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">params</span>(mySim)$randomLandscapes$.savePath</code></pre></div>
-<pre><code>## [1] &quot;/tmp/RtmpLa95Ii/simOutputs/randomLandscapes&quot;</code></pre>
+<pre><code>## [1] &quot;/tmp/Rtmp8H1heG/simOutputs/randomLandscapes&quot;</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ftmp &lt;-<span class="st"> </span><span class="kw">file.path</span>(<span class="kw">tempdir</span>(), <span class="st">&quot;spades_vignetteOutputs&quot;</span>)
 <span class="kw">pdf</span>(ftmp)
 <span class="kw">clearPlot</span>()
@@ -955,7 +956,7 @@ mySim &lt;-<span class="st"> </span><span class="kw">scheduleEvent</span>(mySim,
 </div>
 <div id="using-the-module-template" class="section level2">
 <h2><span class="header-section-number">6.2</span> Using the module template</h2>
-<p>Code for new modules can be developed quickly using the template generator function <code>newModule</code> which accepts as arguments the name of the new module, a directory path in which to create the new module, and a logical indicating whether to open the newly created module code file for editing.</p>
+<p>Code for new modules can be developed quickly using the template generator function <code>newModule</code>(also available as an Rstudio addin) which accepts as arguments the name of the new module, a directory path in which to create the new module, and a logical indicating whether to open the newly created module code file for editing.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># create a new module called &quot;randomLandscape&quot; in the &quot;custom-modules&quot; subdirectory</span>
 <span class="co"># and open the resulting file immediately for editing.</span>
 <span class="kw">newModule</span>(<span class="dt">name =</span> <span class="st">&quot;randomLandscapes&quot;</span>, <span class="dt">path =</span> <span class="st">&quot;custom-modules&quot;</span>, <span class="dt">open =</span> <span class="ot">TRUE</span>)</code></pre></div>
@@ -1003,11 +1004,15 @@ mySim &lt;-<span class="st"> </span><span class="kw">simInit</span>(<span class=
 <p>Module groups can also be used to simplify the download of multiple modules:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">downloadModule</span>(<span class="st">&quot;SpaDES_sampleModules&quot;</span>)</code></pre></div>
 </div>
+<div id="debugging" class="section level2">
+<h2><span class="header-section-number">6.4</span> Debugging</h2>
+<p>Various debugging techniques are discussed at <a href="https://github.com/PredictiveEcology/SpaDES/wiki/Debugging" class="uri">https://github.com/PredictiveEcology/SpaDES/wiki/Debugging</a>.</p>
+</div>
 <div id="contributing-modules" class="section level2">
-<h2><span class="header-section-number">6.4</span> Contributing modules</h2>
+<h2><span class="header-section-number">6.5</span> Contributing modules</h2>
 <p>After publication you may wish to make your module more easily accessible for others to use (in fact we encourage it). We maintain a repository of <code>SpaDES</code> modules at the following site: <a href="https://github.com/PredictiveEcology/SpaDES-modules" class="uri">https://github.com/PredictiveEcology/SpaDES-modules</a></p>
 <div id="minimum-requirements" class="section level3">
-<h3><span class="header-section-number">6.4.1</span> Minimum requirements</h3>
+<h3><span class="header-section-number">6.5.1</span> Minimum requirements</h3>
 <p>All contributed modules should be well documented. In addition to providing <em>complete</em> metadata within the module’s <code>.R</code> file, the following components (see details above) should be included:</p>
 <ol style="list-style-type: decimal">
 <li>Complete module documentation, such as an Rmarkdown (<code>.Rmd</code>) document that can be built as a <code>PDF</code>.</li>
@@ -1018,7 +1023,7 @@ mySim &lt;-<span class="st"> </span><span class="kw">simInit</span>(<span class=
 <p>Note that <code>newModule()</code> produces skeleton templates of these files. Additionally, <code>zipModule()</code> can be used to build the <code>.zip</code> file corresponding to a particular version of your module.</p>
 </div>
 <div id="module-submission" class="section level3">
-<h3><span class="header-section-number">6.4.2</span> Module submission</h3>
+<h3><span class="header-section-number">6.5.2</span> Module submission</h3>
 <p>To submit your module for inclusion in our GitHub repository, login to GitHub with your account and initiate a pull request to the repository. See the <a href="https://help.github.com/articles/creating-a-pull-request/">GitHub help documentation</a> for more details.</p>
 </div>
 </div>
