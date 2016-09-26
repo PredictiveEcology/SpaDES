@@ -31,7 +31,7 @@ setMethod(
   definition = function(modules) {
     ids <- lapply(modules, function(x) {
       (attr(x, "parsed") == FALSE)
-    }) %>% `==`(., TRUE) %>% which
+    }) %>% `==`(., TRUE) %>% which()
     return(ids)
 })
 
@@ -442,28 +442,27 @@ setMethod(
 
     # create simList object for the simulation
     sim <- new("simList")
-    modules(sim) <- modules
-    paths(sim) <- paths
+    paths(sim) <- paths      ## paths need to be set first
+    modules(sim) <- modules  ## will be updated below
 
-    # timeunit is needed before all parsing of modules.
-    # It could be used within modules within defineParameter statements.
-
+    ## timeunit is needed before all parsing of modules.
+    ## It could be used within modules within defineParameter statements.
     timeunits <- .parseModulePartial(sim, modules(sim), defineModuleElement = "timeunit")
 
     allTimeUnits <- FALSE
 
-    findSmallestTU <- function(mods) {
+    findSmallestTU <- function(sim, mods) {
       out <- lapply(.parseModulePartial(sim, mods, defineModuleElement = "childModules"),
                     as.list)
-      tu <- .parseModulePartial(sim, mods, defineModuleElement = "timeunit")
       isParent <- lapply(out, length) > 0
+      tu <- .parseModulePartial(sim, mods, defineModuleElement = "timeunit")
       hasTU <- !is.na(tu)
       out[hasTU] <- tu[hasTU]
       if (!all(hasTU)) {
         out[!isParent] <- tu[!isParent]
         while (any(isParent  & !hasTU)) {
           for (i in which(isParent & !hasTU)) {
-            out[[i]] <- findSmallestTU(as.list(unlist(out[i])))
+            out[[i]] <- findSmallestTU(sim, as.list(unlist(out[i])))
             isParent[i] <- FALSE
           }
         }
@@ -471,7 +470,7 @@ setMethod(
       minTimeunit(as.list(unlist(out)))
     }
 
-    timeunits <- findSmallestTU(modules(sim))
+    timeunits <- findSmallestTU(sim, modules(sim))
 
     if (length(timeunits) == 0) timeunits <- list("second") # no modules at all
 
@@ -506,24 +505,18 @@ setMethod(
     # for now, assign only some core & global params
     globals(sim) <- params$.globals
 
-    # load core modules
-    for (c in core) {
-      ### sourcing the code in each core module is already done
-      ### because they are loaded with the package
-
-      # add core module name to the loaded list:
-      modulesLoaded <- append(modulesLoaded, c)
-    }
+    # add core module name to the loaded list (loaded with the package)
+    modulesLoaded <- append(modulesLoaded, core)
 
     # source module metadata and code files, checking version info
-    lapply(modules(sim, hidden = TRUE), function(m) {
-      mVersion <- .parseModulePartial(sim = sim, modules = list(m),
-                                      defineModuleElement = "version")[[m]]
-      versionWarning(m, mVersion)
+    lapply(modules(sim), function(m) {
+      .parseModulePartial(sim = sim, modules = list(m), defineModuleElement = "version")[[m]] %>%
+        versionWarning(m, .)
     })
+
+    ## do multi-pass if there are parent modules; first for parents, then for children
     all_parsed <- FALSE
-    while (!all_parsed) { # this does a 2 pass if there are parent modules,
-                          #   first for parents, then for children
+    while (!all_parsed) {
       sim <- .parseModule(sim, modules(sim, hidden = TRUE),
                           userSuppliedObjNames = sim$.userSuppliedObjNames)
       if (length(.unparsed(modules(sim, hidden = TRUE))) == 0) {
@@ -531,10 +524,12 @@ setMethod(
       }
     }
 
-    # add name to depdends
-    if (!is.null(names(depends(sim)@dependencies)))
-      names(depends(sim)@dependencies) <-
-        unlist(lapply(depends(sim)@dependencies, function(x) x@name))
+    # add name to depends
+    if (!is.null(names(depends(sim)@dependencies))) {
+      names(depends(sim)@dependencies) <- depends(sim)@dependencies %>%
+        lapply(., function(x) x@name) %>%
+        unlist()
+    }
 
     # load core modules
     for (c in core) {
