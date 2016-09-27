@@ -470,6 +470,30 @@ setMethod(
       minTimeunit(as.list(unlist(out)))
     }
 
+
+    # recursive function to extract parent and child structures
+    buildModuleGraph <- function(sim, mods) {
+      out <- lapply(.parseModulePartial(sim, mods, defineModuleElement = "childModules"),
+                    as.list)
+      isParent <- lapply(out, length) > 0
+      to <- unlist(lapply(out, function(x) if(length(x) == 0) names(x) else x))
+      if(is.null(to)) to <- character(0)
+      from <- rep(names(out), unlist(lapply(out, length)))
+      outDF <- data.frame(from = from,
+                          to = to,
+                          stringsAsFactors = FALSE)
+      while (any(isParent)) {
+        for (i in which(isParent)) {
+          outDF <- rbind(outDF, buildModuleGraph(sim, as.list(unlist(out[i]))))
+          isParent[i] <- FALSE
+        }
+      }
+      outDF
+    }
+
+    # run this only once, at the highest level of the hierarchy, so before the parse tree happens
+    moduleGraph <- buildModuleGraph(sim, modules(sim))
+
     timeunits <- findSmallestTU(sim, modules(sim))
 
     if (length(timeunits) == 0) timeunits <- list("second") # no modules at all
@@ -596,6 +620,9 @@ setMethod(
     } else {
       stop("There was a problem loading some modules.")
     }
+
+    # Add the data.frame as an attribute
+    attr(sim@modules, "modulesGraph") <- moduleGraph
 
     # END OF MODULE PARSING AND LOADING
     if (length(objects)) {

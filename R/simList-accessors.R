@@ -493,13 +493,8 @@ setMethod(
   definition = function(object) {
     # Only return module name if inside a spades call,
     #  because this only makes sense if there is an "active" module
-    #browser()
     sc <- sys.calls()
-    #scc <- as.character(sc)
     st <- grepl(sc, pattern = "moduleCall")
-    #stgrepl1 <- grepl(sc, pattern = "moduleCall")
-    #st <- str_detect(scc, pattern = "moduleCall")
-    #if(!identical(stgrepl1, st)) stop("now")
     if (any(st)) {
       mod <- strsplit(
         eval(parse(text = "moduleCall"), envir = sys.frame(which(st)[1]-1)),

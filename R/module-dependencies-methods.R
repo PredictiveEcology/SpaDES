@@ -131,6 +131,8 @@ setMethod("depsGraph",
             return(depsGraph(sim, FALSE))
 })
 
+
+
 ################################################################################
 #' Prune edges to remove cycles in module dependencies
 #'
@@ -268,3 +270,73 @@ setMethod(".depsLoadOrder",
             }
             return(loadOrder)
 })
+
+
+################################################################################
+#' Build a module dependency graph
+#'
+#' This is still experimental, but this will show the hierarchical structure of
+#' parent and children modules. Currently only tested with
+#'
+#' @inheritParams depsEdgeList
+#'
+#' @return An \code{\link{igraph}} object.
+#'
+#' @include simList-class.R
+#' @export
+#' @docType methods
+#' @rdname moduleGraph
+#' @seealso moduleDiagram
+#'
+#' @author Eliot McIntire
+setGeneric("moduleGraph", function(sim, plot) {
+  standardGeneric("moduleGraph")
+})
+
+#' @export
+#' @rdname moduleGraph
+setMethod("moduleGraph",
+          signature(sim = "simList", plot = "logical"),
+          definition = function(sim, plot) {
+
+            #browser()
+            mg <- attr(sim@modules, "modulesGraph")
+            #if(NROW(mg)==0)
+            #  mg <- data.frame(from=numeric(), to=numeric())
+            parents <- unique(mg[,"from"])
+
+            deps <- depsEdgeList(sim)[,list(from,to)]
+            el <- rbind(mg, deps) # don't seem to need the rbinded version
+
+            # This is just for the dummy case of having no object dependencies
+            if(NROW(deps)==0) {
+              deps <- mg
+            }
+            grph <- graph_from_data_frame(el, directed = TRUE)
+            grps <- cluster_optimal(grph)
+
+            membership <- as.numeric(as.factor(mg[match(names(V(grph)), mg[,2]),1]))
+            membership[is.na(membership)] <- 1
+            membership[which(names(V(grph))=="_INPUT_")] <-
+              max(membership, na.rm = TRUE) + 1
+            grps$membership <- membership
+
+            el1 <- data.frame(el[from=="LCC2005"])
+            e <- apply(el1, 1, paste, collapse="|")
+            e <- edges(e)
+
+
+            if (plot) {
+              vs <- c(15,0)[(names(V(grph)) %in% parents)+1]
+              plot(grps, grph  - e, vertex.size = vs)
+            }
+            return(list(graph = grph, communities = grps))
+          })
+
+#' @export
+#' @rdname moduleGraph
+setMethod("moduleGraph",
+          signature(sim = "simList", plot = "missing"),
+          definition = function(sim) {
+            return(moduleGraph(sim, TRUE))
+          })

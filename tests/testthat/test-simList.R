@@ -56,7 +56,10 @@ test_that("simList object initializes correctly", {
 
   ### SLOT modules
   expect_is(modules(mySim), "list")
-  expect_equal(modules(mySim, hidden = TRUE), as.list(c(defaults, modules)))
+  compList <- as.list(c(defaults, modules))
+  attr(compList, "modulesGraph") <- data.frame(from = character(0), to = character(),
+                                               stringsAsFactors = FALSE)
+  expect_equal(modules(mySim, hidden = TRUE), compList)
   expect_equal(modules(mySim), as.list(modules))
 
   ### SLOT params

@@ -969,7 +969,6 @@ test_that("Plot lists", {
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
 
   set.seed(123)
-  #browser()
   gg <- qplot(1:10, sample(1:10))
   gg1 <- qplot(1:10, sample(1:10))
   b <- list(gg=gg, gg1=gg1)

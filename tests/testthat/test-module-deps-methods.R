@@ -149,3 +149,58 @@ test_that("depsEdgeList and depsGraph work", {
   # depsGraph
   expect_is(depsGraph(mySim), "igraph")
 })
+
+
+test_that("3 levels of parent and child modules load and show correctly", {
+  library(igraph)
+  tmpdir <- file.path(tempdir(), "test_hierachicalModules") %>% checkPath(create = TRUE)
+  cwd <- getwd()
+  setwd(tmpdir)
+
+  on.exit({
+    setwd(cwd)
+    unlink(tmpdir, recursive = TRUE)
+  })
+
+  newModule("grandpar1", ".", type = "parent", children = c("child1", "child2",
+                                                            "par1", "par2"))
+  newModule("par1", ".", type = "parent", children = c("child4", "child3"))
+  newModule("par2", ".", type = "parent", children = c("child5", "child6"))
+  newModule("child1", ".")
+  newModule("child3", ".")
+  newModule("child4", ".")
+  newModule("child5", ".")
+  newModule("child6", ".")
+
+  newModule("child2", ".")
+  fileName <- 'child2/child2.R'
+  xxx <- readLines(fileName)
+  xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = "day"')
+  cat(xxx1, file = fileName, sep = "\n")
+
+  fileName <- 'child3/child3.R'
+  xxx <- readLines(fileName)
+  xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = "week"')
+  cat(xxx1, file = fileName, sep = "\n")
+
+  fileName <- 'child5/child5.R'
+  xxx <- readLines(fileName)
+  xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = "second"')
+  cat(xxx1, file = fileName, sep = "\n")
+
+  fileName <- 'par1/par1.R'
+  xxx <- readLines(fileName)
+  xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = "month"')
+  cat(xxx1, file = fileName, sep = "\n")
+
+  mySim <- simInit(modules = list("grandpar1"))
+  mg <- moduleGraph(mySim, FALSE)
+  expect_true(is(mg, "list"))
+  expect_true(is(mg$graph, "igraph"))
+  expect_true(is(mg$communities, "communities"))
+  expect_true(length(unique(mg$communities$member))==3)
+  expect_true(any(communities(mg$communities)[['1']] %in% "grandpar1"))
+  expect_true(identical(communities(mg$communities)[['1']],
+                        c("grandpar1","par1", "par2", "child1", "child2")))
+
+})

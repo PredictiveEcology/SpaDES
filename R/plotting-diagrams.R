@@ -282,7 +282,8 @@ setMethod(
 #'
 #' @return Plots module dependency diagram.
 #'
-#' @seealso \code{\link{igraph}}.
+#' @seealso \code{\link{igraph}}, \code{\link{moduleGraph}} for a version that accounts for
+#' parent and children module structure.
 #'
 #' @include simList-accessors.R
 #' @export
