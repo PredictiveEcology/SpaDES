@@ -68,6 +68,16 @@
 #' will load all objects in the cluster that are necessary, by sending \code{names(objects)}
 #' to \code{parVar} in \code{DEoptim.control}.
 #'
+#' Setting \code{logObjFnVals} to TRUE may help diagnosing some problems. Using the POM derived
+#' objective function, essentially all patterns are treated equally. This may not give the correct
+#' behavior for the objective function. Because the POM weighs the patterns equally, it may be
+#' useful to set all patterns so that their expected values are each close to the same value, e.g., 1.
+#' If they are all expected to be near that value, then their sum will give relatively equal
+#' weights to each of the patterns. This can, of course, be manipulated to give higher weight
+#' to some patterns over others, by setting their expected value to be scaled to 1, then multiplied
+#' by some weight. This would have to be done in the preparation of the patterns with the
+#'  \code{objects} argument.
+#'
 #' @inheritParams spades
 #' @inheritParams splitRaster
 #'
@@ -112,9 +122,16 @@
 #'                   this should not be used as the objective function should be
 #'                   made so that it doesn't produce \code{NaN}. But, sometimes
 #'                   it is difficult to diagnose stochastic results.
-#'                   
-#' @param showObjectiveFn Logical. If TRUE, then the intermediate steps
-#'                   
+#'
+#' @param logObjFnVals Logical or Character string indicating a filename. Ignored if
+#'                       \code{objFn} is supplied.
+#'                       If TRUE (and there is no \code{objFn} supplied), then the
+#'                       value of the individual patterns will be output the console
+#'                       if being run interactively or to a tab delimited
+#'                       text file named \code{ObjectiveFnValues.txt} (or that passed by
+#'                       the user here) at each evaluation of the
+#'                       POM created objective function. See details.
+#'
 #' @return A list with at least 2 elements. The first (or first several) will
 #' be the returned object from the optimizer. The second (or last if there are
 #' more than 2), named \code{args} is the set of arguments that were passed
@@ -187,7 +204,7 @@
 #'  out1 <- POM(mySim, "spreadprob",
 #'              list(propCellBurnedData = propCellBurnedFn), # data = pattern pair
 #'              #optimControl = list(parallelType = 1),
-#'              showObjectiveFn = TRUE)
+#'              logObjFnVals = TRUE)
 #'
 #'  ## Once cl arg is available from DEoptim, this will work:
 #'  # out1 <- POM(mySim, "spreadprob", cl = cl,
@@ -208,7 +225,7 @@
 #'  parsToVary <- c("spreadprob", "N")
 #'  out2 <- POM(mySim, parsToVary,
 #'             list(propCellBurnedData = propCellBurnedFn,
-#'                  N1000 = caribouFn), showObjectiveFn = TRUE)
+#'                  N1000 = caribouFn), logObjFnVals = TRUE)
 #'              #optimControl = list(parallelType = 1))
 #'             #cl = cl) # not yet implemented, waiting for DEoptim
 #'  bTime <- Sys.time()
@@ -310,7 +327,7 @@ setGeneric(
   "POM",
   function(sim, params, objects, objFn, cl, optimizer = "DEoptim",
            sterr = FALSE, ..., objFnCompare = "MAD", optimControl = NULL,
-           NaNRetries = NA, showObjectiveFn = FALSE) {
+           NaNRetries = NA, logObjFnVals = FALSE) {
     standardGeneric("POM")
 })
 
@@ -321,7 +338,7 @@ setMethod(
             objFn = "ANY"),
   definition = function(sim, params, objects, objFn, cl, optimizer,
                         sterr, ..., objFnCompare, optimControl,
-                        NaNRetries, showObjectiveFn) {
+                        NaNRetries, logObjFnVals) {
 
     if (missing(cl)) {
       cl <- tryCatch(getCluster(), error = function(x) NULL)
@@ -330,6 +347,10 @@ setMethod(
     } else {
       clProvided <- TRUE
     }
+
+    on.exit({
+      while(sink.number()>0) sink()
+    }, add = TRUE)
 
     if(is.na(NaNRetries)) NaNRetries <- 1
     paramNames <- lapply(SpaDES::params(sim), names)
@@ -348,8 +369,8 @@ setMethod(
     range01 <- function(x, ...){(x - min(x, ...)) / (max(x, ...) - min(x, ...))}
 
     if (missing(objFn)) {
-      objFn <- function(par, objects, sim, whModules, whParams, 
-                        whParamsByMod) {
+      objFn <- function(par, objects, sim, whModules, whParams,
+                        whParamsByMod, parallelType) {
         keep <- TRUE
         tryNum <- 1
         while(keep) {
@@ -401,11 +422,13 @@ setMethod(
             keep <- FALSE
           }
         }
-        if(showObjectiveFn) {
-          sink(file = "objectiveFnValues.txt", append = TRUE)
+        if(!(identical(logObjFnVals,FALSE))) {
+          if(parallelType>0  | (logObjFnVals != "objectiveFnValues.txt"))
+            sink(file = logObjFnVals, append = TRUE)
           cat(format(objectiveRes,digits=4), sep ="\t")
           cat("\n")
-          sink()
+          if(parallelType>0)
+            sink()
         }
         return(sumObj)
       }
@@ -472,16 +495,22 @@ setMethod(
         deoptimArgs$control$packages <- SpaDES::packages(sim)
       }
 
+      deoptimArgs$parallelType <- deoptimArgs$control$parallelType
+
       deoptimArgs$control <- do.call(DEoptim.control, deoptimArgs$control)
 
-      if(showObjectiveFn) {
-        sink(file = "objectiveFnValues.txt", append = FALSE)
+      if(!(identical(logObjFnVals,FALSE))) {
+        if(isTRUE(logObjFnVals)) logObjFnVals <- "objectiveFnValues.txt"
+
+        if(deoptimArgs$parallelType>0 | (logObjFnVals != "objectiveFnValues.txt"))
+          sink(file = logObjFnVals, append = FALSE)
         cat(names(objects), sep = "\t")
         cat("\n")
-        sink()
+        if(deoptimArgs$parallelType>0)
+          sink()
       }
-        
-        
+
+
       output <- do.call("DEoptim", deoptimArgs)
 
     } else {

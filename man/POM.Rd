@@ -8,11 +8,11 @@
 \usage{
 POM(sim, params, objects, objFn, cl, optimizer = "DEoptim", sterr = FALSE,
   ..., objFnCompare = "MAD", optimControl = NULL, NaNRetries = NA,
-  showObjectiveFn = FALSE)
+  logObjFnVals = FALSE)
 
 \S4method{POM}{simList,character}(sim, params, objects, objFn, cl,
   optimizer = "DEoptim", sterr = FALSE, ..., objFnCompare = "MAD",
-  optimControl = NULL, NaNRetries = NA, showObjectiveFn = FALSE)
+  optimControl = NULL, NaNRetries = NA, logObjFnVals = FALSE)
 }
 \arguments{
 \item{sim}{A \code{simList} simulation object, generally produced by \code{simInit}.}
@@ -64,6 +64,15 @@ if it results in an \code{NaN}. In general
 this should not be used as the objective function should be
 made so that it doesn't produce \code{NaN}. But, sometimes
 it is difficult to diagnose stochastic results.}
+
+\item{logObjFnVals}{Logical or Character string indicating a filename. Ignored if
+\code{objFn} is supplied.
+If TRUE (and there is no \code{objFn} supplied), then the
+value of the individual patterns will be output the console
+if being run interactively or to a tab delimited
+text file named \code{ObjectiveFnValues.txt} (or that passed by
+the user here) at each evaluation of the
+POM created objective function. See details.}
 }
 \value{
 A list with at least 2 elements. The first (or first several) will
@@ -139,6 +148,16 @@ passing of a custom cluster object via \code{cl} argument. \code{POM} will autom
 determine packages to load in the spawned cluster (via \code{SpaDES::packages}) and it
 will load all objects in the cluster that are necessary, by sending \code{names(objects)}
 to \code{parVar} in \code{DEoptim.control}.
+
+Setting \code{logObjFnVals} to TRUE may help diagnosing some problems. Using the POM derived
+objective function, essentially all patterns are treated equally. This may not give the correct
+behavior for the objective function. Because the POM weighs the patterns equally, it may be
+useful to set all patterns so that their expected values are each close to the same value, e.g., 1.
+If they are all expected to be near that value, then their sum will give relatively equal
+weights to each of the patterns. This can, of course, be manipulated to give higher weight
+to some patterns over others, by setting their expected value to be scaled to 1, then multiplied
+by some weight. This would have to be done in the preparation of the patterns with the
+ \code{objects} argument.
 }
 \examples{
 \dontrun{
@@ -170,8 +189,8 @@ to \code{parVar} in \code{DEoptim.control}.
  propCellBurnedFn <- function(landscape) {
               sum(getValues(landscape$Fires))/ncell(landscape$Fires)
             }
- propCellBurnedData <- propCellBurnedFn(outData$landscape)
  # visualize the burned maps of true "data"
+ propCellBurnedData <- propCellBurnedFn(outData$landscape)
  clearPlot()
  Plot(outData$landscape$Fires)
 
@@ -188,7 +207,8 @@ to \code{parVar} in \code{DEoptim.control}.
  # cl <- makeCluster(detectCores() - 1) # not implemented yet in DEoptim
  out1 <- POM(mySim, "spreadprob",
              list(propCellBurnedData = propCellBurnedFn), # data = pattern pair
-             optimControl = list(parallelType = 1))
+             #optimControl = list(parallelType = 1),
+             logObjFnVals = TRUE)
 
  ## Once cl arg is available from DEoptim, this will work:
  # out1 <- POM(mySim, "spreadprob", cl = cl,
@@ -209,8 +229,8 @@ to \code{parVar} in \code{DEoptim.control}.
  parsToVary <- c("spreadprob", "N")
  out2 <- POM(mySim, parsToVary,
             list(propCellBurnedData = propCellBurnedFn,
-                 N1000 = caribouFn),
-             optimControl = list(parallelType = 1))
+                 N1000 = caribouFn), logObjFnVals = TRUE)
+             #optimControl = list(parallelType = 1))
             #cl = cl) # not yet implemented, waiting for DEoptim
  bTime <- Sys.time()
  # check that population overlaps known values (0.225 and 100)
