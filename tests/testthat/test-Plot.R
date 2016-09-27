@@ -929,6 +929,7 @@ test_that("Plot lists", {
   })
 
 
+  clearPlot()
   set.seed(123)
   rasOrig <- raster(extent(0,40, 0,20), vals = sample(1:8,replace = T,size =800), res = 1)
   ras1 <- ras2 <- ras3 <- ras4 <- rasOrig
