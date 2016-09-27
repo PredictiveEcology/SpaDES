@@ -112,6 +112,9 @@
 #'                   this should not be used as the objective function should be
 #'                   made so that it doesn't produce \code{NaN}. But, sometimes
 #'                   it is difficult to diagnose stochastic results.
+#'                   
+#' @param showObjectiveFn Logical. If TRUE, then the intermediate steps
+#'                   
 #' @return A list with at least 2 elements. The first (or first several) will
 #' be the returned object from the optimizer. The second (or last if there are
 #' more than 2), named \code{args} is the set of arguments that were passed
@@ -165,8 +168,8 @@
 #'  propCellBurnedFn <- function(landscape) {
 #'               sum(getValues(landscape$Fires))/ncell(landscape$Fires)
 #'             }
-#'  propCellBurnedData <- propCellBurnedFn(outData$landscape)
 #'  # visualize the burned maps of true "data"
+#'  propCellBurnedData <- propCellBurnedFn(outData$landscape)
 #'  clearPlot()
 #'  Plot(outData$landscape$Fires)
 #'
@@ -183,7 +186,8 @@
 #'  # cl <- makeCluster(detectCores() - 1) # not implemented yet in DEoptim
 #'  out1 <- POM(mySim, "spreadprob",
 #'              list(propCellBurnedData = propCellBurnedFn), # data = pattern pair
-#'              optimControl = list(parallelType = 1))
+#'              #optimControl = list(parallelType = 1),
+#'              showObjectiveFn = TRUE)
 #'
 #'  ## Once cl arg is available from DEoptim, this will work:
 #'  # out1 <- POM(mySim, "spreadprob", cl = cl,
@@ -204,8 +208,8 @@
 #'  parsToVary <- c("spreadprob", "N")
 #'  out2 <- POM(mySim, parsToVary,
 #'             list(propCellBurnedData = propCellBurnedFn,
-#'                  N1000 = caribouFn),
-#'              optimControl = list(parallelType = 1))
+#'                  N1000 = caribouFn), showObjectiveFn = TRUE)
+#'              #optimControl = list(parallelType = 1))
 #'             #cl = cl) # not yet implemented, waiting for DEoptim
 #'  bTime <- Sys.time()
 #'  # check that population overlaps known values (0.225 and 100)
@@ -306,7 +310,7 @@ setGeneric(
   "POM",
   function(sim, params, objects, objFn, cl, optimizer = "DEoptim",
            sterr = FALSE, ..., objFnCompare = "MAD", optimControl = NULL,
-           NaNRetries = NA) {
+           NaNRetries = NA, showObjectiveFn = FALSE) {
     standardGeneric("POM")
 })
 
@@ -317,7 +321,7 @@ setMethod(
             objFn = "ANY"),
   definition = function(sim, params, objects, objFn, cl, optimizer,
                         sterr, ..., objFnCompare, optimControl,
-                        NaNRetries) {
+                        NaNRetries, showObjectiveFn) {
 
     if (missing(cl)) {
       cl <- tryCatch(getCluster(), error = function(x) NULL)
@@ -344,7 +348,8 @@ setMethod(
     range01 <- function(x, ...){(x - min(x, ...)) / (max(x, ...) - min(x, ...))}
 
     if (missing(objFn)) {
-      objFn <- function(par, objects, sim, whModules, whParams, whParamsByMod) {
+      objFn <- function(par, objects, sim, whModules, whParams, 
+                        whParamsByMod) {
         keep <- TRUE
         tryNum <- 1
         while(keep) {
@@ -395,6 +400,12 @@ setMethod(
           } else {
             keep <- FALSE
           }
+        }
+        if(showObjectiveFn) {
+          sink(file = "objectiveFnValues.txt", append = TRUE)
+          cat(format(objectiveRes,digits=4), sep ="\t")
+          cat("\n")
+          sink()
         }
         return(sumObj)
       }
@@ -463,6 +474,14 @@ setMethod(
 
       deoptimArgs$control <- do.call(DEoptim.control, deoptimArgs$control)
 
+      if(showObjectiveFn) {
+        sink(file = "objectiveFnValues.txt", append = FALSE)
+        cat(names(objects), sep = "\t")
+        cat("\n")
+        sink()
+      }
+        
+        
       output <- do.call("DEoptim", deoptimArgs)
 
     } else {

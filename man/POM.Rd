@@ -7,11 +7,12 @@
 \title{Use Pattern Oriented Modeling to fit unknown parameters}
 \usage{
 POM(sim, params, objects, objFn, cl, optimizer = "DEoptim", sterr = FALSE,
-  ..., objFnCompare = "MAD", optimControl = NULL, NaNRetries = NA)
+  ..., objFnCompare = "MAD", optimControl = NULL, NaNRetries = NA,
+  showObjectiveFn = FALSE)
 
 \S4method{POM}{simList,character}(sim, params, objects, objFn, cl,
   optimizer = "DEoptim", sterr = FALSE, ..., objFnCompare = "MAD",
-  optimControl = NULL, NaNRetries = NA)
+  optimControl = NULL, NaNRetries = NA, showObjectiveFn = FALSE)
 }
 \arguments{
 \item{sim}{A \code{simList} simulation object, generally produced by \code{simInit}.}
