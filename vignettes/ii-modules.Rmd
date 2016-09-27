@@ -718,7 +718,7 @@ While it may be useful for modules to exhibit indirect dependence on each other 
 
 ## Using the module template
 
-Code for new modules can be developed quickly using the template generator function `newModule` which accepts as arguments the name of the new module, a directory path in which to create the new module, and a logical indicating whether to open the newly created module code file for editing.
+Code for new modules can be developed quickly using the template generator function `newModule`(also available as an Rstudio addin) which accepts as arguments the name of the new module, a directory path in which to create the new module, and a logical indicating whether to open the newly created module code file for editing.
 
 ```{r create-new-module, eval=FALSE, echo=TRUE, message=FALSE}
 # create a new module called "randomLandscape" in the "custom-modules" subdirectory
@@ -779,6 +779,10 @@ Module groups can also be used to simplify the download of multiple modules:
 ```{r module-group-dl, eval=FALSE}
 downloadModule("SpaDES_sampleModules")
 ```
+
+## Debugging
+
+Various debugging techniques are discussed at [https://github.com/PredictiveEcology/SpaDES/wiki/Debugging](https://github.com/PredictiveEcology/SpaDES/wiki/Debugging).
 
 ## Contributing modules
 

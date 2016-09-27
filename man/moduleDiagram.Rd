@@ -35,6 +35,7 @@ plotting the \code{depsEdgeList} directly with \code{\link{objectDiagram}}.
 Alex Chubaty
 }
 \seealso{
-\code{\link{igraph}}.
+\code{\link{igraph}}, \code{\link{moduleGraph}} for a version that accounts for
+parent and children module structure.
 }
 

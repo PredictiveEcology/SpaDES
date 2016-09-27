@@ -929,6 +929,7 @@ test_that("Plot lists", {
   })
 
 
+  clearPlot()
   set.seed(123)
   rasOrig <- raster(extent(0,40, 0,20), vals = sample(1:8,replace = T,size =800), res = 1)
   ras1 <- ras2 <- ras3 <- ras4 <- rasOrig
@@ -969,7 +970,6 @@ test_that("Plot lists", {
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
 
   set.seed(123)
-  #browser()
   gg <- qplot(1:10, sample(1:10))
   gg1 <- qplot(1:10, sample(1:10))
   b <- list(gg=gg, gg1=gg1)

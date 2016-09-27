@@ -832,7 +832,6 @@ setMethod(
         events <- potentials[, 2L]
 
         # Implement maxSize
-        #browser()
         # if (length(maxSize) == 1L) { # It can't be length 1 because of earlier
         #                    # in function
         #   len <- length(events)
