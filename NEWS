@@ -14,7 +14,7 @@ version 1.2.0.9000
     * `Plot` can use character passed to `title` as a title;
     * some additional functionality for plotting of factor rasters, incl. `clickValues`, legends correct for wide variety of types;
     * change `new` arg in `Plot()`. Now it does one plot at a time, not whole device. Use `clearPlot()` to wipe whole device.
-
+* Add `modulesGraph`, showing parent and child module relationships.
 * Add `filesOnly` arg to `shine()`. This can be in preparation for publishing to www.shinyapps.io or other pages. Currently still alpha.
 * Add POM: Pattern Oriented Modeling (#269). A simple interface to a simList object, allowing fitting parameters to data.
 * add `.inputObjects` functionality -- function that runs during `simInit()` to create default `inputObjects`
