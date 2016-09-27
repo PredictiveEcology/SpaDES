@@ -23,11 +23,14 @@ so that only a single arrow is drawn connecting the modules.
 Default is \code{FALSE}.}
 }
 \value{
-An \code{\link{igraph}} object.
+A list with 2 elements, an \code{\link{igraph}} object and an \code{igraph}
+communities object.
 }
 \description{
 This is still experimental, but this will show the hierarchical structure of
-parent and children modules.
+parent and children modules and return a list with an igraph object
+and an igraph communities object, showing the groups.
+Currently only tested with relatively simple structures.
 }
 \author{
 Eliot McIntire

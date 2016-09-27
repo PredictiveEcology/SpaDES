@@ -276,11 +276,14 @@ setMethod(".depsLoadOrder",
 #' Build a module dependency graph
 #'
 #' This is still experimental, but this will show the hierarchical structure of
-#' parent and children modules. Currently only tested with
+#' parent and children modules and return a list with an igraph object
+#' and an igraph communities object, showing the groups.
+#' Currently only tested with relatively simple structures.
 #'
 #' @inheritParams depsEdgeList
 #'
-#' @return An \code{\link{igraph}} object.
+#' @return A list with 2 elements, an \code{\link{igraph}} object and an \code{igraph}
+#' communities object.
 #'
 #' @include simList-class.R
 #' @export
