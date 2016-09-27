@@ -101,7 +101,9 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li><a href="#polygon-agents"><span class="toc-section-number">4.2.2</span> Polygon agents</a></li>
 </ul></li>
 </ul></li>
-<li><a href="#simulation-experiments"><span class="toc-section-number">5</span> Simulation experiments</a></li>
+<li><a href="#simulation-experiments"><span class="toc-section-number">5</span> Simulation experiments</a><ul>
+<li><a href="#running-a-groups-of-simulations-the-experiment-function"><span class="toc-section-number">5.1</span> Running a groups of simulations: the <code>experiment</code> function</a></li>
+</ul></li>
 <li><a href="#additonal-resources"><span class="toc-section-number">6</span> Additonal resources</a><ul>
 <li><a href="#spades-documentation-and-vignettes"><span class="toc-section-number">6.1</span> <code>SpaDES</code> documentation and vignettes</a><ul>
 <li><a href="#help-files"><span class="toc-section-number">6.1.1</span> Help files</a></li>
@@ -262,6 +264,24 @@ mySim &lt;-<span class="st"> </span><span class="kw">spades</span>(mySim)       
 <div id="simulation-experiments" class="section level1">
 <h1><span class="header-section-number">5</span> Simulation experiments</h1>
 <p>Running multiple simulations with different parameter values is a critical part of sensitivity and robustness analysis, simulation experiments, optimization, and pattern oriented modelling. Likewise, greater understanding and evaluation of models and their uncertainty requires simulation replication and repetition <span class="citation">(Grimm and Railsback 2005; Thiele and Grimm 2015)</span>. Using <code>R</code> as a common platform for data, simulation, and analyses we can do all of these easily and directly as part of our <code>SpaDES</code> simulation without breaking the linkages between model and analysis. This workflow facilitates and enhances the use of ensemble and consensus modelling, and studies of cumulative effects.</p>
+<div id="running-a-groups-of-simulations-the-experiment-function" class="section level2">
+<h2><span class="header-section-number">5.1</span> Running a groups of simulations: the <code>experiment</code> function</h2>
+<p>Once a simulation is properly initialized it works correctly with the <code>spades</code> function, it is likely time to do things like run replicates. There is a function, <code>experiment</code> to do this, as well as building parameter and module “simulation experiments”. For example, you can pass alternative values to parameters in modules and the <code>experiment</code> function will build a fully factorial experiment, with replication and run them. This function (as with <code>POM</code> and <code>splitRaster</code>) is parallel-aware and can either proceed with a cluster object (<code>cl</code> argument) or a cluster running in the background using the <code>startCluster</code> function in the <code>raster</code> package.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">?experiment <span class="co"># will give many more examples than here</span>
+<span class="co"># Copy Example 5 here:</span>
+ mySim &lt;-<span class="st"> </span><span class="kw">simInit</span>(
+    <span class="dt">times =</span> <span class="kw">list</span>(<span class="dt">start =</span> <span class="fl">0.0</span>, <span class="dt">end =</span> <span class="fl">2.0</span>, <span class="dt">timeunit =</span> <span class="st">&quot;year&quot;</span>),
+    <span class="dt">params =</span> <span class="kw">list</span>(<span class="dt">.globals =</span> <span class="kw">list</span>(<span class="dt">stackName =</span> <span class="st">&quot;landscape&quot;</span>, <span class="dt">burnStats =</span> <span class="st">&quot;nPixelsBurned&quot;</span>)),
+    <span class="dt">modules =</span> <span class="kw">list</span>(<span class="st">&quot;randomLandscapes&quot;</span>, <span class="st">&quot;fireSpread&quot;</span>, <span class="st">&quot;caribouMovement&quot;</span>),
+    <span class="dt">paths =</span> <span class="kw">list</span>(<span class="dt">modulePath =</span> <span class="kw">system.file</span>(<span class="st">&quot;sampleModules&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;SpaDES&quot;</span>),
+                 <span class="dt">outputPath =</span> tmpdir),
+    <span class="co"># Save final state of landscape and caribou</span>
+    <span class="dt">outputs =</span> <span class="kw">data.frame</span>(<span class="dt">objectName =</span> <span class="kw">c</span>(<span class="st">&quot;landscape&quot;</span>, <span class="st">&quot;caribou&quot;</span>), <span class="dt">stringsAsFactors =</span> <span class="ot">FALSE</span>)
+  )
+
+sims &lt;-<span class="st"> </span><span class="kw">experiment</span>(mySim, <span class="dt">replicates =</span> <span class="dv">2</span>)
+<span class="kw">attr</span>(sims, <span class="st">&quot;experiment&quot;</span>)$expDesign <span class="co"># shows 2 replicates of same experiment</span></code></pre></div>
+</div>
 </div>
 <div id="additonal-resources" class="section level1">
 <h1><span class="header-section-number">6</span> Additonal resources</h1>
