@@ -344,7 +344,7 @@ setMethod(
       if (is.na(path)) {
         stop("Invalid path: cannot be NA.")
       } else {
-        path = normPath(path)
+        path <- normPath(path)
 
         if (!file.exists(path)) {
           if (create == TRUE) {
@@ -354,7 +354,7 @@ setMethod(
                        "Create it and try again."))
           }
         }
-        return(path)
+        return(normPath(path)) # ensure path re-normalized after creation (see #267)
       }
     }
 })
