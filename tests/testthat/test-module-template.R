@@ -8,7 +8,7 @@ test_that("module templates work", {
     detach('package:knitr')
     detach('package:igraph')
     unlink(path, recursive = TRUE)
-  })
+  }, add = TRUE)
 
   expect_true(file.exists(path))
   moduleName <- "myModule"

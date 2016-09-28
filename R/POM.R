@@ -3,28 +3,33 @@
 #'
 #' This is very much in alpha condition. It has been tested on simple problems,
 #' as shown in the examples, with up to 2 parameters.
-#' It appears that DEoptim is the superior package for the stochastic problems.
-#' This should be used with caution as with all optimization routines. This function
-#' can nevertheless take optim or genoud as optimizers, using
-#' \code{stats::optim} or \code{rgenoud::genoud}, respectively. These latter
-#' do not seem appropriate for stochastic problems however, and have not
-#' been widely tested.
+#' It appears that \code{DEoptim} is the superior package for the stochastic problems.
+#' This should be used with caution as with all optimization routines.
+#' This function can nevertheless take optim or genoud as optimizers, using
+#' \code{stats::optim} or \code{rgenoud::genoud}, respectively.
+#' However, these latter approaches do not seem appropriate for stochastic problems,
+#' and have not been widely tested.
 #'
 #' There are two ways to use this function, via 1) \code{objFn} or 2) \code{objects}.
-#' 1) The user can pass the entire
-#' objective function to the \code{objFn} argument that will be passed directly
-#' to the \code{optimizer}. For this, the user will likely need to pass named
-#' objects as part of the \code{...}. 2) The slightly simpler approach is to pass a list of
-#' 'actual data--simulated data' pairs as a named list in \code{objects} and
-#' specify how these objects should be compared via \code{objFnCompare} (whose default is
-#' Mean Absolute Deviation or "MAD"). Option 1 offers more control to the
-#' user, but may require more knowledge. Option 1 should likely contain
-#' a call to \code{simInit(copy(simList))} and \code{spades} internally.  See examples
-#' that show simple examples of each type, option 1 and option 2. In both cases,
-#' \code{params} is required to indicate which parameters can be varied in
-#' order to achieve the fit.
 #'
-#' Currently, option 1) only exists when optimizer is "DEoptim", the default.
+#' \enumerate{
+#'   \item The user can pass the entire objective function to the \code{objFn}
+#'   argument that will be passed directly to the \code{optimizer}.
+#'   For this, the user will likely need to pass named objects as part of the \code{...}.
+#'
+#'   \item The slightly simpler approach is to pass a list of 'actual data--simulated data'
+#'   pairs as a named list in \code{objects} and specify how these objects should be
+#'   compared via \code{objFnCompare} (whose default is Mean Absolute Deviation or "MAD").
+#' }
+#'
+#' Option 1 offers more control to the user, but may require more knowledge.
+#' Option 1 should likely contain a call to \code{simInit(copy(simList))} and
+#' \code{spades} internally.
+#' See examples that show simple examples of each type, option 1 and option 2.
+#' In both cases, \code{params} is required to indicate which parameters can be
+#' varied in order to achieve the fit.
+#'
+#' Currently, option 1 only exists when optimizer is \code{"DEoptim"}, the default.
 #'
 #' The upper and lower limits for parameter values are taken from the
 #' metadata in the module. Thus, if the module metadata does not define the
@@ -176,17 +181,15 @@ setMethod(
 
     if (missing(cl)) {
       cl <- tryCatch(getCluster(), error = function(x) NULL)
-      on.exit(if (!is.null(cl)) returnCluster())
+      on.exit(if (!is.null(cl)) returnCluster(), add = TRUE)
       clProvided <- FALSE
     } else {
       clProvided <- TRUE
     }
 
-    on.exit({
-      while(sink.number()>0) sink()
-    }, add = TRUE)
+    on.exit(while (sink.number() > 0) sink(), add = TRUE)
 
-    if(is.na(NaNRetries)) NaNRetries <- 1
+    if (is.na(NaNRetries)) NaNRetries <- 1
     paramNames <- lapply(SpaDES::params(sim), names)
     whParams <- lapply(paramNames, function(pn) match(params, pn))
     whModules <- unlist(lapply(whParams, function(mod) any(!is.na(mod))))

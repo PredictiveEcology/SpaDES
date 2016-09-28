@@ -180,7 +180,7 @@ test_that("simList test all signatures", {
 
     # outputs
     outputs <- data.frame(
-      expand.grid(objectName = c("caribou","landscape"),
+      expand.grid(objectName = c("caribou", "landscape"),
                   saveTime = 1:2,
                   stringsAsFactors = FALSE)
     )
@@ -217,7 +217,8 @@ test_that("simList test all signatures", {
       names(li) <- argNames
       li <- li[!sapply(li, is.null)]
       errors[i] <- tryCatch(is(do.call(simInit, args = li), "simList"),
-                             error = function(x) { FALSE })
+                            error = function(e) { FALSE },
+                            warning = function(w) { FALSE })
       argsTested[[i]] <- names(li)
     }
     expect_gt(sum(errors, na.rm = TRUE), 27) # needs paths and params

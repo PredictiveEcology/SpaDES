@@ -1,6 +1,6 @@
 test_that("saving files does not work correctly", {
   savePath <- file.path(tempdir(), "test_save")
-  on.exit(unlink(savePath, recursive = TRUE))
+  on.exit(unlink(savePath, recursive = TRUE), add = TRUE)
 
   times <- list(start = 0, end = 6, "month")
   parameters <- list(
@@ -57,7 +57,6 @@ test_that("saving files does not work correctly", {
   rm(mySim)
 })
 
-
 test_that("saving csv files does not work correctly", {
    library(igraph)
    savePath <- file.path(tempdir(), "test_save") %>% checkPath(create = TRUE)
@@ -66,8 +65,8 @@ test_that("saving csv files does not work correctly", {
    tempObj <- 1:10
    tempObj2 <- paste("val",1:10)
    df1 <- data.frame(col1 = tempObj, col2 = tempObj2)
-   sim <- simInit(objects=c("tempObj", "tempObj2", "df1"),
-     paths=list(outputPath=savePath))
+   sim <- simInit(objects = c("tempObj", "tempObj2", "df1"),
+                  paths = list(outputPath = savePath))
    outputs(sim) = data.frame(
         objectName = c(rep("tempObj",2), rep("tempObj2", 3), "df1"),
         saveTime = c(c(1,4), c(2,6,7), end(sim)),
@@ -77,22 +76,21 @@ test_that("saving csv files does not work correctly", {
    # since write.csv has a default of adding a column, x, with rownames, must add additional
    #   argument for 6th row in data.frame (corresponding to the write.csv function)
    sim2 <- SpaDES::copy(sim)
-   outputArgs(sim2)[[6]] <- list(row.names=FALSE)
+   outputArgs(sim2)[[6]] <- list(row.names = FALSE)
    sim2 <- spades(sim2)
    outputs(sim2)
 
    # read one back in just to test it all worked as planned
-   newObj <- read.csv(dir(savePath, pattern="second10.csv", full.name=TRUE))
+   newObj <- read.csv(dir(savePath, pattern = "second10.csv", full.name = TRUE))
    expect_true(identical(df1, newObj))
 
    # Confirm that arguments are actually being passed in by changing row.names to TRUE
    sim2 <- copy(sim)
-   outputArgs(sim2)[[6]] <- list(row.names=TRUE)
+   outputArgs(sim2)[[6]] <- list(row.names = TRUE)
    sim2 <- spades(sim2)
    outputs(sim2)
    # read one back in just to test it all worked as planned
-   newObj <- read.csv(dir(savePath, pattern="second10.csv", full.name=TRUE))
+   newObj <- read.csv(dir(savePath, pattern = "second10.csv", full.name = TRUE))
    expect_false(identical(df1, newObj))
 
 })
-

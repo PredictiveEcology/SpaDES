@@ -43,19 +43,19 @@ test_that("timeunit works correctly", {
   # Test for user defined timeunits, in .GlobalEnv
   expect_message(timeunit(mySim) <- "fortNight", "^unknown timeunit provided:")
   assign("dfortNight", function(x) lubridate::duration(dday(14)),
-         envir=.GlobalEnv)
+         envir = .GlobalEnv)
   expect_match(timeunit(mySim) <- "fortNight", "")
   expect_match(timeunit(mySim), "fortNight")
   expect_equivalent(as.numeric(dfortNight(1)), 1209600)
-  rm(dfortNight, envir=.GlobalEnv)
+  rm(dfortNight, envir = .GlobalEnv)
 
   # check for new unit being put into simList
   assign("dfortNight", function(x) lubridate::duration(dday(14)),
-         envir=envir(mySim))
+         envir = envir(mySim))
   expect_match(timeunit(mySim) <- "fortNight", "")
   expect_match(timeunit(mySim), "fortNight")
   expect_equivalent(as.numeric(mySim$dfortNight(1)), 1209600)
-  rm(dfortNight, envir=envir(mySim))
+  rm(dfortNight, envir = envir(mySim))
 
   # test that NA_real_ gets coerced to NA_character_
   timeunit(mySim) <- NA_real_
@@ -75,7 +75,7 @@ test_that("timeunit works correctly", {
   whNotNA <- sapply(depends(mySim)@dependencies,
                     function(x) !is.na(x@timeunit))
   expect_equivalent(as.numeric(eval(parse(
-    text=paste0("d", minTimeunit(mySim), "(1)")))),
+    text = paste0("d", minTimeunit(mySim), "(1)")))),
     min(sapply(depends(mySim)@dependencies[whNotNA],
                function(x) {
                  eval(parse(text = paste0("d", x@timeunit,"(1)")))
@@ -105,7 +105,6 @@ test_that("timeunit works correctly", {
 
   expect_equal(as.numeric(dweek(1)), 60*60*24*365.25/52)
 })
-
 
 test_that("timeunits with child and parent modules work correctly", {
   library(igraph)
@@ -192,5 +191,4 @@ test_that("timeunits with child and parent modules work correctly", {
   # If parent has NA for timeunit, then take smallest of children
   mySim <- simInit(modules = list("grandpar1"))
   expect_equal(timeunit(mySim), "month") # because par1 is month, grandpar1 is NA
-
 })

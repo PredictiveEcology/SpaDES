@@ -1,7 +1,12 @@
 test_that("Plot 1 is not error-free", {
-  library(raster); on.exit(detach("package:raster"), add = TRUE)
-  library(sp); on.exit(detach("package:sp"), add = TRUE)
-  library(igraph); on.exit(detach("package:igraph"), add = TRUE)
+  library(raster)
+  library(sp)
+  library(igraph)
+
+  on.exit({
+    detach("package:igraph")
+    detach("package:raster")
+  }, add = TRUE)
 
   tmpdir <- file.path(tempdir(), "test_Plot1") %>% checkPath(create = TRUE)
   cwd <- getwd()
@@ -85,7 +90,6 @@ test_that("Plot 1 is not error-free", {
   Srs2 <- sp::Polygons(list(Sr2), "s2")
   SpP87 <- sp::SpatialPolygons(list(Srs1, Srs2), 1:2)
   if (suppressWarnings(require(fastshp))) {
-    on.exit(detach("package:fastshp"), add = TRUE)
     expect_silent(Plot(SpP87, new = TRUE))
   }
 
@@ -100,7 +104,6 @@ test_that("Plot 1 is not error-free", {
   S2 <- sp::Lines(list(Sl2), ID = "b")
   Sl87654 <- sp::SpatialLines(list(S1, S2))
   if (suppressWarnings(require(fastshp))) {
-    on.exit(detach("package:fastshp"), add = TRUE)
     expect_silent(Plot(Sl87654))
   }
   # Test polygon with > 1e3 points to test the speedup parameter
@@ -121,7 +124,6 @@ test_that("Plot 1 is not error-free", {
   S2 <- sp::Lines(list(Sl2), ID = "b")
   Sl87654 <- sp::SpatialLines(list(S1, S2))
   if (suppressWarnings(require(fastshp))) {
-    on.exit(detach("package:fastshp"), add = TRUE)
     expect_silent(Plot(Sl87654, new = TRUE))
     # test addTo
     expect_silent(Plot(SpP87654, addTo = "landscape87654$habitatQuality87654"))
@@ -149,7 +151,6 @@ test_that("Plot 1 is not error-free", {
     coords = cbind(x = stats::runif(1.1e3, 0, 10), y = stats::runif(1e1, 0, 10))
   )
   if (suppressWarnings(require(fastshp))) {
-    on.exit(detach("package:fastshp"), add = TRUE)
     expect_silent(Plot(caribou87, speedup = 10, new = TRUE))
   }
   # test ggplot2 and hist -- don't work unless invoke global environment
@@ -432,13 +433,12 @@ test_that("Plot 2 is not error-free", {
   skip_if_not_installed("visualTest")
   skip_on_travis()
 
+  library(raster)
+  library(visualTest)
+
   tmpdir <- file.path(tempdir(), "test_Plot2") %>% checkPath(create = TRUE)
   cwd <- getwd()
   setwd(tmpdir)
-
-  library(raster)
-  library(SpaDES)
-  library(visualTest)
 
   on.exit({
     detach("package:SpaDES")
@@ -598,15 +598,13 @@ test_that("setColors is not error-free", {
   skip("Apparently color palettes are not universal")
   skip_on_travis()
 
+  library(raster); on.exit(detach("package:raster"), add = TRUE)
+
   tmpdir <- file.path(tempdir(), "test_setColors") %>% checkPath(create = TRUE)
   cwd <- getwd()
   setwd(tmpdir)
-  library(raster)
-  library(SpaDES)
 
   on.exit({
-    detach("package:SpaDES")
-    detach("package:raster")
     setwd(cwd)
     unlink(tmpdir, recursive = TRUE)
   }, add = TRUE)
@@ -861,11 +859,12 @@ test_that("Plot messages and warnings and errors", {
 test_that("rePlot doesn't work", {
   skip_if_not_installed("visualTest")
 
+  library(raster); on.exit(detach("package:raster"), add = TRUE)
+  library(visualTest); on.exit(detach("package:visualTest"), add = TRUE)
+
   tmpdir <- file.path(tempdir(), "test_Plot1") %>% checkPath(create = TRUE)
   cwd <- getwd()
   setwd(tmpdir)
-
-  library(visualTest); on.exit(detach("package:visualTest"), add = TRUE)
 
   on.exit({
     setwd(cwd)
@@ -895,11 +894,13 @@ test_that("rePlot doesn't work", {
 test_that("Plot - going through package coverage", {
   skip_if_not_installed("visualTest")
 
+  library(raster); on.exit(detach("package:raster"), add = TRUE)
+  library(visualTest); on.exit(detach("package:visualTest"), add = TRUE)
+
   tmpdir <- file.path(tempdir(), "test_Plot1") %>% checkPath(create = TRUE)
   cwd <- getwd()
   setwd(tmpdir)
 
-  library(visualTest); on.exit(detach("package:visualTest"), add = TRUE)
   on.exit({
     setwd(cwd)
     unlink(tmpdir, recursive = TRUE)
@@ -919,11 +920,14 @@ test_that("Plot lists", {
   skip_if_not_installed("visualTest")
   skip_on_travis()
 
+  library(ggplot2); on.exit(detach("package:ggplot2"), add = TRUE)
+  library(raster); on.exit(detach("package:raster"), add = TRUE)
+  library(visualTest); on.exit(detach("package:visualTest"), add = TRUE)
+
   tmpdir <- file.path(tempdir(), "test_Plot1") %>% checkPath(create = TRUE)
   cwd <- getwd()
   setwd(tmpdir)
 
-  library(visualTest)
   on.exit({
     setwd(cwd)
     unlink(tmpdir, recursive = TRUE)
@@ -931,8 +935,9 @@ test_that("Plot lists", {
 
   clearPlot()
   set.seed(123)
-  rasOrig <- raster(extent(0, 40, 0, 20), vals = sample(1:8, replace = TRUE, size = 800), res = 1)
-  ras1 <- ras2 <- ras3 <- ras4 <- rasOrig
+  ras1 <- ras2 <- ras3 <- ras4 <- rasOrig <- raster(
+    extent(0, 40, 0, 20), vals = sample(1:8, replace = TRUE, size = 800), res = 1
+  )
   a <- list(); for (i in 1:4) a[[paste0("ras", i)]] <- get(paste0("ras", i))
   Sr1 <- Polygon(cbind(c(2, 4, 4, 1, 2), c(2, 3, 5, 4, 2))*20 - 50)
   Sr2 <- Polygon(cbind(c(5, 4, 2, 5), c(2, 3, 2, 2))*20 - 50)
