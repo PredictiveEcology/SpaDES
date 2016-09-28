@@ -402,10 +402,15 @@ setMethod(
                         # A test_that call can be very long, with many function calls, including Plot and do.call, even if
                         #  they don't have anything to do with each other
     dots <- list(...)
-    if(is.list(dots[[1]]) & !is(dots[[1]], "gg") & !is(dots[[1]], "histogram")) {
+    if(is.list(dots[[1]]) & !is(dots[[1]], ".spadesPlottables") &
+       !is(dots[[1]], "communities") & !is(dots[[1]], "igraph")) {
       dots <- unlist(dots, recursive = FALSE)
+      isList <- TRUE
+
       if(is.null(names(dots)))
         stop("If providing a list of objects to Plot, it must be a named list.")
+    } else {
+      isList <- FALSE
     }
 
     # Determine where the objects are located; they could be .GlobalEnv, simList, or any other place.
@@ -424,6 +429,7 @@ setMethod(
     } else {
       whFrame <- grep(scalls, pattern = "^Plot")
       dotObjs <- dots
+      if(isList) dots$env <- sys.frame(whFrame - 1)
       plotFrame <- sys.frame(whFrame)
       plotArgs <- mget(names(formals("Plot")), plotFrame)[-1]
     }
@@ -550,11 +556,6 @@ setMethod(
 
     newSpadesPlots <- .makeSpadesPlot(
       plotObjs, plotArgs, whichSpadesPlottables, env = objFrame)
-    #names(plotObjs) <- unlist(unique(lapply(newSpadesPlots@spadesGrobList,
-    #                                        function(x) {
-#                                             x[[1]]@objName
-    #                                        }
-    #                                        )))
 
     if (exists(paste0("spadesPlot", dev.cur()), envir = .spadesEnv)) {
       currSpadesPlots <- .getSpaDES(paste0("spadesPlot", dev.cur()))
