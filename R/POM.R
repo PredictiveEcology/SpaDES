@@ -6,9 +6,9 @@
 #' It appears that DEoptim is the superior package for the stochastic problems.
 #' This should be used with caution as with all optimization routines. This function
 #' can nevertheless take optim or genoud as optimizers, using
-#' \code{stats::optim} or \code{rgenoud::genoud}, respectively. These latter
-#' do not seem appropriate for stochastic problems however, and have not
-#' been widely tested or supported within POM.
+#' \code{stats::optim} or \code{rgenoud::genoud}, respectively.
+#' However, these latter approaches do not seem appropriate for stochastic problems,
+#' and have not been widely tested and are not supported within POM.
 #'
 #' There are two ways to use this function, via 1) \code{objFn} or 2) \code{objects}.
 #'

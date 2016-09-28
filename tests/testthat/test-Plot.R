@@ -195,8 +195,6 @@ test_that("Unit tests for image content is not error-free", {
   setwd(tmpdir)
 
   on.exit({
-    detach("package:raster")
-    detach("package:visualTest")
     if(length(dev.list())>0)
       dev.off()
     setwd(cwd)
@@ -285,8 +283,6 @@ test_that("Unit tests for plotting colors", {
   setwd(tmpdir)
 
   on.exit({
-    detach("package:raster")
-    detach("package:visualTest")
     if(length(dev.list())>0)
       dev.off()
     setwd(cwd)
@@ -375,8 +371,6 @@ test_that("Unit tests for internal functions in Plot", {
   setwd(tmpdir)
 
   on.exit({
-    detach("package:raster")
-    detach("package:visualTest")
     if(length(dev.list())>0)
       dev.off()
     setwd(cwd)
@@ -455,7 +449,7 @@ test_that("Plot 2 is not error-free", {
   setwd(tmpdir)
 
   on.exit({
-    detach("package:SpaDES")
+    #detach("package:SpaDES")
     detach("package:raster")
     detach("package:visualTest")
     setwd(cwd)
@@ -973,7 +967,7 @@ test_that("Plot - going through package coverage", {
     if(length(dev.list())>0)
       dev.off()
     unlink(tmpdir, recursive = TRUE)
-  })
+  }, add = TRUE)
 
   a <- dev.cur()
   set.seed(123)
@@ -1002,7 +996,7 @@ test_that("Plot lists", {
     if(length(dev.list())>0)
       dev.off()
     unlink(tmpdir, recursive = TRUE)
-  })
+  }, add = TRUE)
 
   clearPlot()
   set.seed(123)
