@@ -86,10 +86,11 @@
 #' Output directories are changed using this function: this is one of the dominant
 #' side effects of this function. If there are only replications, then a set of
 #' subdirectories will be created, one for each replicate.
-#' If there are varying parameters and or modules, \code{outputPath} is updated to include
-#' a subdirectory for each level of the experiment. These are not nested, i.e., even if there
-#' are nested factors, all subdirectories due to the experimental setup will be
-#' at the same level. Replicates will be one level below this.
+#' If there are varying parameters and or modules, \code{outputPath} is updated
+#' to include a subdirectory for each level of the experiment.
+#' These are not nested, i.e., even if there are nested factors, all subdirectories
+#' due to the experimental setup will be at the same level.
+#' Replicates will be one level below this.
 #' The subdirectory names will include the module(s), parameter names, the parameter values,
 #' and input index number (i.e., which row of the inputs data.frame).
 #' The default rule for naming is a concatenation of:
@@ -205,11 +206,11 @@ setMethod(
 
     if (missing(cl)) {
       cl <- tryCatch(getCluster(), error = function(x) NULL)
-      on.exit(if (!is.null(cl)) returnCluster())
+      on.exit(if (!is.null(cl)) returnCluster(), add = TRUE)
     }
 
     # cl <- tryCatch(getCluster(), error = function(x) NULL)
-    # on.exit(if (!is.null(cl)) returnCluster())
+    # on.exit(if (!is.null(cl)) returnCluster(), add = TRUE)
 
     #if (length(modules) == 0) modules <- list(modules(sim)[-(1:4)])
     factorialExpList <- lapply(seq_along(modules), function(x) {
@@ -252,11 +253,11 @@ setMethod(
     # Add replicates to experiment
     if (replicates > 1) {
       if (length(replicates == 1)) {
-        replicates = seq_len(replicates)
+        replicates <- seq_len(replicates)
       }
       factorialExp <- do.call(rbind, replicate(length(replicates), factorialExp,
                                                simplify = FALSE))
-      factorialExp$replicate = rep(replicates, each = numExpLevels)
+      factorialExp$replicate <- rep(replicates, each = numExpLevels)
     }
 
     FunDef <- function(ind, ...) {
@@ -338,14 +339,13 @@ setMethod(
 
         if ("modules" %in% names(factorialExp)) {
           if (!identical(sort(unlist(modules[factorialExp[ind, "modules"]])),
-                         sort(unlist(SpaDES::modules(sim, hidden = FALSE))))) { # test if modules are different from sim,
+                         sort(unlist(SpaDES::modules(sim))))) { # test if modules are different from sim,
             #  if yes, rerun simInit
             sim_ <- simInit(params = params(sim_),
                             modules = as.list(unlist(modules[factorialExp[ind, "modules"]])),
                             times = append(lapply(times(sim_)[2:3], as.numeric), times(sim_)[4]),
                             paths = paths(sim_),
                             outputs = outputs(sim_))
-
           }
         }
       }

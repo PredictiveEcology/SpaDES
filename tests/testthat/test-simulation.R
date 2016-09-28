@@ -151,11 +151,15 @@ test_that("spades calls with different signatures don't work", {
   cwd <- getwd()
   setwd(tmpdir)
 
+  userModulePath <- getOption('spades.modulesPath')
+  options(spades.modulesPath = tmpdir)
+
   on.exit({
     detach("package:igraph")
+    options(spades.modulesPath = userModulePath)
     setwd(cwd)
     unlink(tmpdir, recursive = TRUE)
-  })
+  }, add = TRUE)
 
   a <- simInit()
   expect_silent(spades(a))

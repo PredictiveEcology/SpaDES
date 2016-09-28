@@ -146,6 +146,13 @@ test_that("simList object initializes correctly", {
 })
 
 test_that("simList test all signatures", {
+  userModulePath <- getOption('spades.modulesPath')
+  options(spades.modulesPath = tempdir())
+
+  on.exit({
+    options(spades.modulesPath = userModulePath)
+  }, add = TRUE)
+
   # times
   times <- list(start = 0.0, end = 10)
 

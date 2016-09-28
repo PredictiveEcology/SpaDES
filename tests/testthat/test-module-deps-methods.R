@@ -1,4 +1,11 @@
 test_that("defineModule correctly handles different inputs", {
+  userModulePath <- getOption('spades.modulesPath')
+  options(spades.modulesPath = tempdir())
+
+  on.exit({
+    options(spades.modulesPath = userModulePath)
+  }, add = TRUE)
+
   tmp <- simInit()
 
   # check empty metadata
@@ -156,10 +163,15 @@ test_that("3 levels of parent and child modules load and show correctly", {
   cwd <- getwd()
   setwd(tmpdir)
 
+  userModulePath <- getOption('spades.modulesPath')
+  options(spades.modulesPath = tmpdir)
+
   on.exit({
+    detach("package:igraph")
+    options(spades.modulesPath = userModulePath)
     setwd(cwd)
     unlink(tmpdir, recursive = TRUE)
-  })
+  }, add = TRUE)
 
   newModule("grandpar1", ".", type = "parent", children = c("child1", "child2",
                                                             "par1", "par2"))

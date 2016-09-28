@@ -81,8 +81,17 @@ These are ways to add or access the file paths used by \code{\link{spades}}.
 There are four file paths: \code{cachePath}, \code{modulePath},
 \code{inputPath}, and \code{outputPath}.
 Each has a function to get or set the value in a \code{simList} object.
-When not otherwise specified, the default is to set the path values to the
-current working directory.
+If no paths are specified, the defaults are as follows:
+
+\itemize{
+  \item \code{cachePath}: a subdirectory of the current working directory (\code{"./cache"});
+
+\item \code{inputPath}: the current working directory (\code{"."};
+
+\item \code{modulePath}: \code{getOption("spades.modulePath")};
+
+\item \code{inputPath}: the current working directory (\code{"."};
+}
 }
 \seealso{
 \code{\link{SpaDES}}, specifically the section 1.2.4 on Simulation Paths.

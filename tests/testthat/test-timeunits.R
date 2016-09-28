@@ -1,4 +1,11 @@
 test_that("timeunit works correctly", {
+  userModulePath <- getOption('spades.modulesPath')
+  options(spades.modulesPath = tempdir())
+
+  on.exit({
+    options(spades.modulesPath = userModulePath)
+  }, add = TRUE)
+
   times <- list(start = 0.0, end = 10)
   params <- list(
     .globals = list(burnStats = "npixelsburned", stackName = "landscape"),
@@ -112,10 +119,15 @@ test_that("timeunits with child and parent modules work correctly", {
   cwd <- getwd()
   setwd(tmpdir)
 
+  userModulePath <- getOption('spades.modulesPath')
+  options(spades.modulesPath = tmpdir)
+
   on.exit({
+    detach("package:igraph")
+    options(spades.modulesPath = userModulePath)
     setwd(cwd)
     unlink(tmpdir, recursive = TRUE)
-  })
+  }, add = TRUE)
 
   newModule("grandpar1", ".", type = "parent", children = c("child1", "child2", "par1"))
   newModule("par1", ".", type = "parent", children = c("child4", "child3"))

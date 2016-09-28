@@ -706,8 +706,11 @@ Requires a RasterStack object whose name is specified by `globals(sim)$stackName
 Modules from this (or another suitable GitHub repository) can be downloaded using:
 
 ```{r download-module, echo=TRUE, eval=FALSE}
-downloadModule("moduleName", "path/to/my/modules/directory")
+downloadModule("moduleName")
 ```
+
+**Note:** by default, modules and their data are saved to the directory specified by the `spades.modulesPath`.
+An alternate path can be provided to `downloadModule` directly via the `path` argument, or specified using `options(spades.modulesPath = "path/to/my/modules")`.
 
 # Creating new modules
 

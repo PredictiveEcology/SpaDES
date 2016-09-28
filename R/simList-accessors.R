@@ -62,7 +62,7 @@ setMethod(
 
     p <- mapply(
       function(x, y) {
-        if(length(names(y))>0)
+        if (length(names(y)) > 0)
         data.frame(Module = x, Parameter = names(y), Value = I(as.list(y)),
                    stringsAsFactors = FALSE, row.names = NULL)
       },
@@ -373,6 +373,8 @@ setReplaceMethod("$", signature(x = "simList", value = "ANY"),
 #'
 #' @param value The object to be stored at the slot.
 #'
+#' @param hidden Logical. If TRUE, show the default core modules.
+#'
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
 #' @family functions to access elements of a \code{simList} object
@@ -383,7 +385,6 @@ setReplaceMethod("$", signature(x = "simList", value = "ANY"),
 #' @docType methods
 #' @aliases simList-accessors-modules
 #' @rdname simList-accessors-modules
-#' @param hidden Logical. If TRUE, show the 4 default, "hidden" modules
 #'
 #' @author Alex Chubaty
 #'
@@ -392,16 +393,17 @@ setGeneric("modules", function(object, hidden = FALSE) {
 })
 
 #' @rdname simList-accessors-modules
-setMethod("modules",
-          signature = ".simList",
-          definition = function(object, hidden) {
-            if(hidden) {
-              mods <- object@modules
-            } else {
-              hiddenMods <- unlist(object@modules) %in% c("checkpoint", "save", "progress", "load")
-              mods <- object@modules[!hiddenMods]
-            }
-            return(mods)
+setMethod(
+  "modules",
+  signature = ".simList",
+  definition = function(object, hidden) {
+    if (hidden) {
+      mods <- object@modules
+    } else {
+      hiddenMods <- unlist(object@modules) %in% c("checkpoint", "save", "progress", "load")
+      mods <- object@modules[!hiddenMods]
+    }
+    return(mods)
 })
 
 #' @export
@@ -1525,8 +1527,17 @@ setReplaceMethod(
 #' There are four file paths: \code{cachePath}, \code{modulePath},
 #' \code{inputPath}, and \code{outputPath}.
 #' Each has a function to get or set the value in a \code{simList} object.
-#' When not otherwise specified, the default is to set the path values to the
-#' current working directory.
+#' If no paths are specified, the defaults are as follows:
+#'
+#' \itemize{
+#'   \item \code{cachePath}: a subdirectory of the current working directory (\code{"./cache"});
+#'
+#'   \item \code{inputPath}: the current working directory (\code{"."};
+#'
+#'   \item \code{modulePath}: \code{getOption("spades.modulePath")};
+#'
+#'   \item \code{inputPath}: the current working directory (\code{"."};
+#' }
 #'
 #' @inheritParams params
 #'

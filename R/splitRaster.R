@@ -60,7 +60,7 @@ setMethod(
 
     if (missing(cl)) {
       cl <- tryCatch(getCluster(), error = function(x) NULL)
-      on.exit(if (!is.null(cl)) returnCluster())
+      on.exit(if (!is.null(cl)) returnCluster(), add = TRUE)
     }
 
     if (length(buffer) > 2) {
@@ -91,7 +91,7 @@ setMethod(
     }
 
     #cl <- tryCatch(getCluster(), error = function(e) NULL)
-    #on.exit(if (!is.null(cl)) returnCluster())
+    #on.exit(if (!is.null(cl)) returnCluster(), add = TRUE)
 
     croppy <- function(i, e, r, path) {
       filename <- file.path(path, paste0(names(r), "_tile", i, ".grd"))

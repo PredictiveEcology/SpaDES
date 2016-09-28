@@ -4,7 +4,7 @@
 #' @param module Character string. Your module's name.
 #'
 #' @param path   Character string specifying the file path to modules directory.
-#'               Default is the current working directory.
+#'               Default is to use the \code{spades.modulesPath} option.
 #'
 #' @return A list of module metadata, matching the structure in
 #'         \code{\link{defineModule}}.
@@ -18,9 +18,9 @@
 #' @author Alex Chubaty
 #'
 #' @examples
-#'   path <- system.file(package = "SpaDES", "sampleModules")
-#'   sampleModules <- dir(path)
-#'   x <- moduleMetadata(sampleModules[1], path)
+#' path <- system.file(package = "SpaDES", "sampleModules")
+#' sampleModules <- dir(path)
+#' x <- moduleMetadata(sampleModules[3], path)
 #'
 setGeneric("moduleMetadata", function(module, path) {
   standardGeneric("moduleMetadata")
@@ -72,5 +72,5 @@ setMethod(
   "moduleMetadata",
   signature = c(module = "character", path = "missing"),
   definition = function(module) {
-    moduleMetadata(module, getwd())
+    moduleMetadata(module, getOption("spades.modulesPath"))
 })

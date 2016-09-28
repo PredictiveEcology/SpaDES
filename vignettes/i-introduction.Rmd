@@ -141,9 +141,11 @@ Additional `SpaDES` modules are available via a GitHub repository:  [https://git
 Modules from this repository can be downloaded to a local directory using:
 
 ```{r SpaDES-modules, eval=FALSE, echo=TRUE}
-saveTo <- "~/SpaDES-modules" # change this to suit your needs
-downloadModule(name="moduleName", path=saveTo)
+downloadModule(name = "moduleName")
 ```
+
+**Note:** by default, modules and their data are saved to the directory specified by the `spades.modulesPath`.
+An alternate path can be provided to `downloadModule` directly via the `path` argument, or specified using `options(spades.modulesPath = "path/to/my/modules")`.
 
 A detailed guide to module development is provided in the [modules vignette](ii-modules.html).
 
@@ -338,11 +340,7 @@ We provide a number of modules to facilitate getting started:
 
 [https://github.com/PredictiveEcology/SpaDES-modules](https://github.com/PredictiveEcology/SpaDES-modules)
 
-Modules from this (or another suitable GitHub repository) can be downloaded using:
-
-```{r download-module, echo=TRUE, eval=FALSE}
-downloadModule("moduleName", "localpath/to/put/my/modules/directory")
-```
+Modules from this (or another suitable GitHub repository) can be downloaded using `downloadModule`.
 
 We welcome additional contributions to this module repository.
 

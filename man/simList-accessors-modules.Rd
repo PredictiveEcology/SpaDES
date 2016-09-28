@@ -32,7 +32,7 @@ depends(object) <- value
 \arguments{
 \item{object}{A \code{simList} simulation object.}
 
-\item{hidden}{Logical. If TRUE, show the 4 default, "hidden" modules}
+\item{hidden}{Logical. If TRUE, show the default core modules.}
 
 \item{value}{The object to be stored at the slot.}
 }
