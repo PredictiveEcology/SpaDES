@@ -71,7 +71,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <h1 class="title toc-ignore">01 Introduction to <code>SpaDES</code></h1>
 <h4 class="author"><em>Alex M. Chubaty</em></h4>
 <h4 class="author"><em>Eliot J. B. McIntire</em></h4>
-<h4 class="date"><em>September 27 2016</em></h4>
+<h4 class="date"><em>September 28 2016</em></h4>
 
 
 <div id="TOC">
@@ -176,8 +176,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(<span class="st">&quot;SpaDES&quot;</span>)
 <span class="kw">demo</span>(<span class="st">&quot;spades-simulation&quot;</span>, <span class="dt">package=</span><span class="st">&quot;SpaDES&quot;</span>)</code></pre></div>
 <p>Additional <code>SpaDES</code> modules are available via a GitHub repository: <a href="https://github.com/PredictiveEcology/SpaDES-modules" class="uri">https://github.com/PredictiveEcology/SpaDES-modules</a>. Modules from this repository can be downloaded to a local directory using:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">saveTo &lt;-<span class="st"> &quot;~/SpaDES-modules&quot;</span> <span class="co"># change this to suit your needs</span>
-<span class="kw">downloadModule</span>(<span class="dt">name=</span><span class="st">&quot;moduleName&quot;</span>, <span class="dt">path=</span>saveTo)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">downloadModule</span>(<span class="dt">name =</span> <span class="st">&quot;moduleName&quot;</span>)</code></pre></div>
+<p><strong>Note:</strong> by default, modules and their data are saved to the directory specified by the <code>spades.modulesPath</code>. An alternate path can be provided to <code>downloadModule</code> directly via the <code>path</code> argument, or specified using <code>options(spades.modulesPath = &quot;path/to/my/modules&quot;)</code>.</p>
 <p>A detailed guide to module development is provided in the <a href="ii-modules.html">modules vignette</a>.</p>
 </div>
 </div>
@@ -319,8 +319,7 @@ sims &lt;-<span class="st"> </span><span class="kw">experiment</span>(mySim, <sp
 <h2><span class="header-section-number">6.2</span> <code>SpaDES</code> module repository</h2>
 <p>We provide a number of modules to facilitate getting started:</p>
 <p><a href="https://github.com/PredictiveEcology/SpaDES-modules" class="uri">https://github.com/PredictiveEcology/SpaDES-modules</a></p>
-<p>Modules from this (or another suitable GitHub repository) can be downloaded using:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">downloadModule</span>(<span class="st">&quot;moduleName&quot;</span>, <span class="st">&quot;localpath/to/put/my/modules/directory&quot;</span>)</code></pre></div>
+<p>Modules from this (or another suitable GitHub repository) can be downloaded using <code>downloadModule</code>.</p>
 <p>We welcome additional contributions to this module repository.</p>
 </div>
 <div id="reporting-bugs" class="section level2">
