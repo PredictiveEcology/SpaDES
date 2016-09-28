@@ -427,14 +427,18 @@ times <- list(start = 0.0, end = 20)
 parameters <- list(
   .globals = list(stackName = "landscape", burnStats = "nPixelsBurned")
 )
-modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
+modules <- list("SpaDES_sampleModules")
 paths <- list(modulePath = system.file("sampleModules", package = "SpaDES"))
 
 mySim <- simInit(times = times, params = parameters, modules = modules, paths = paths)
 
 ## examine simulation module (object) dependencies
 depsEdgeList(mySim, FALSE)      # all object dependency relationships
-if(interactive()) moduleDiagram(mySim)            # simplified visual representation of modules
+clearPlot()
+moduleDiagram(mySim)            # simplified visual representation of modules
+
+clearPlot()
+moduleDiagram(mySim, showParents = TRUE) # similar, but showing parent module grouping
 
 # detailed visual representation of objects
 objectDiagram(mySim, width = 720)
