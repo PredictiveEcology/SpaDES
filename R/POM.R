@@ -8,7 +8,7 @@
 #' can nevertheless take optim or genoud as optimizers, using
 #' \code{stats::optim} or \code{rgenoud::genoud}, respectively. These latter
 #' do not seem appropriate for stochastic problems however, and have not
-#' been widely tested.
+#' been widely tested or supported within POM.
 #'
 #' There are two ways to use this function, via 1) \code{objFn} or 2) \code{objects}.
 #' 1) The user can pass the entire
@@ -35,12 +35,14 @@
 #'
 #' \code{objects} is a named list of data--pattern pairs.
 #' Each of these pairs will be assessed against one another using
-#' the \code{objFnCompare}. if there is more than one data--pattern
+#' the \code{objFnCompare}, after standardizing each independently. The
+#' standardization is: \code{mean(abs(derived value - data value))/mean(data value)}.
+#' If there is more than one data--pattern
 #' pair, then they will simply be added together in the objective
-#' function. This gives equal weight to each pair. Thus, if there is
-#' more than one data--pattern pair,
-#' the user may wish to standarize the pairs (say between 0 and 1) so that
-#' they are all on or about the same scale. Alternatively, the user
+#' function. This gives equal weight to each pair. If the user wishes to
+#' put different weight on each pattern, a \code{weights} vector can be
+#' provided. This will be used to multiply the standardized values described above.
+#' Alternatively, the user
 #' may wish to weight them differently, in which case, their relative
 #' scales can be adjusted.
 #'
@@ -86,8 +88,10 @@
 #'
 #' @param objects A optional named list (must be specified if objFn is not).
 #'                The names of each list element must correspond to an object in the
-#'                \code{.GlobalEnv} and the list elements must be objects that can be accessed in
-#'                the ls(sim) internally. See details and examples.
+#'                \code{.GlobalEnv} and the list elements must be objects or
+#'                functions of objects that can be accessed in
+#'                the ls(sim) internally. These will be used to create the
+#'                objective function passed to the optimizer. See details and examples.
 #'
 #' @param objFn An optional objective function to be passed into \code{optimizer}.
 #'              If missing, then \code{POM} will use \code{objFnCompare} and
@@ -131,6 +135,10 @@
 #'                       text file named \code{ObjectiveFnValues.txt} (or that passed by
 #'                       the user here) at each evaluation of the
 #'                       POM created objective function. See details.
+#'
+#' @param weights Numeric. If provided, this vector will be multiplied by the standardized mean
+#'                absolute deviations as describe in \code{objects}. This has the effect of weighing
+#'                each pattern to a user specified amount in the objective function.
 #'
 #' @return A list with at least 2 elements. The first (or first several) will
 #' be the returned object from the optimizer. The second (or last if there are
@@ -183,7 +191,7 @@
 #'  #  i.e., sim$landscape$Fires
 #'  #  the return value being compared via MAD with propCellBurnedData
 #'  propCellBurnedFn <- function(landscape) {
-#'               sum(getValues(landscape$Fires))/ncell(landscape$Fires)
+#'               sum(getValues(landscape$Fires)>0)/ncell(landscape$Fires)
 #'             }
 #'  # visualize the burned maps of true "data"
 #'  propCellBurnedData <- propCellBurnedFn(outData$landscape)
@@ -212,20 +220,18 @@
 #'
 #'# Example 2 - 2 parameters
 #'  # Function defined that will use caribou from sim$caribou, with
-#'  #  the return value being compared via MAD with N1000
-#'  # Here, divide by 1000 so the numbers are in the range of 0 to 1
-#'  #  (because the possible range of values in the metadata for caribouMovement
-#'  #  module, parameter N, is from 10 to 1000)
-#'  caribouFn <- function(caribou) length(caribou)/1000
+#'  #  the return value being compared via MAD with Nout
+#'  caribouFn <- function(caribou) length(caribou)
 #'
 #'  # Extract "data" from simList object (normally, this would be actual data)
-#'  N1000 <- caribouFn(outData$caribou)
+#'  Nout <- caribouFn(outData$caribou)
 #'
 #'  aTime <- Sys.time()
 #'  parsToVary <- c("spreadprob", "N")
 #'  out2 <- POM(mySim, parsToVary,
 #'             list(propCellBurnedData = propCellBurnedFn,
-#'                  N1000 = caribouFn), logObjFnVals = TRUE)
+#'                  Nout = caribouFn), logObjFnVals = TRUE,
+#'                  weights = c(10,1))
 #'              #optimControl = list(parallelType = 1))
 #'             #cl = cl) # not yet implemented, waiting for DEoptim
 #'  bTime <- Sys.time()
@@ -252,7 +258,7 @@
 #'  #   - pass data that will be used internally for objective function
 #'  objFnEx <- function(pars, # param values
 #'                      sim, # simList object
-#'                      N1000, propCellBurnedData, caribouFn, propCellBurnedFn) { # data
+#'                      Nout, propCellBurnedData, caribouFn, propCellBurnedFn) { # data
 #'
 #'    # make a copy of simList because it will possibly be altered by spades call
 #'    sim1 <- SpaDES::copy(sim)
@@ -266,9 +272,9 @@
 #'
 #'    # calculate outputs
 #'    propCellBurnedOut <- propCellBurnedFn(out$landscape)
-#'    N1000_Out <- caribouFn(out$caribou)
+#'    N_Out <- caribouFn(out$caribou)
 #'
-#'    minimizeFn <- abs(N1000_Out - N1000) +
+#'    minimizeFn <- abs(N_Out - N) +
 #'                  abs(propCellBurnedOut - propCellBurnedData)
 #'
 #'    # have more info reported to console, if desired
@@ -289,7 +295,7 @@
 #'  # Change optimization parameters to alter how convergence is achieved
 #'  out5 <- POM(mySim, params = c("spreadprob", "N"),
 #'              objFn = objFnEx,
-#'              N1000 = N1000,
+#'              Nout = Nout,
 #'              propCellBurnedData = propCellBurnedData,
 #'              caribouFn = caribouFn,
 #'              propCellBurnedFn = propCellBurnedFn,
@@ -307,7 +313,7 @@
 #' require(DEoptim)
 #' out7 <- DEoptim(fn = objFnEx,
 #'                 sim = mySim,
-#'                 N1000 = N1000,
+#'                 Nout = Nout,
 #'                 propCellBurnedData = propCellBurnedData,
 #'                 caribouFn = caribouFn,
 #'                 propCellBurnedFn = propCellBurnedFn,
@@ -327,7 +333,7 @@ setGeneric(
   "POM",
   function(sim, params, objects, objFn, cl, optimizer = "DEoptim",
            sterr = FALSE, ..., objFnCompare = "MAD", optimControl = NULL,
-           NaNRetries = NA, logObjFnVals = FALSE) {
+           NaNRetries = NA, logObjFnVals = FALSE, weights) {
     standardGeneric("POM")
 })
 
@@ -338,7 +344,7 @@ setMethod(
             objFn = "ANY"),
   definition = function(sim, params, objects, objFn, cl, optimizer,
                         sterr, ..., objFnCompare, optimControl,
-                        NaNRetries, logObjFnVals) {
+                        NaNRetries, logObjFnVals, weights) {
 
     if (missing(cl)) {
       cl <- tryCatch(getCluster(), error = function(x) NULL)
@@ -351,6 +357,8 @@ setMethod(
     on.exit({
       while(sink.number()>0) sink()
     }, add = TRUE)
+
+    if(missing(weights)) weights <- rep(1, length(objects))
 
     if(is.na(NaNRetries)) NaNRetries <- 1
     paramNames <- lapply(SpaDES::params(sim), names)
@@ -370,7 +378,7 @@ setMethod(
 
     if (missing(objFn)) {
       objFn <- function(par, objects, sim, whModules, whParams,
-                        whParamsByMod, parallelType) {
+                        whParamsByMod, parallelType, weights) {
         keep <- TRUE
         tryNum <- 1
         while(keep) {
@@ -403,17 +411,20 @@ setMethod(
 
             if (objFnCompare == "MAD") {
               if (length(outObj) == 1) {
-                mean(abs((outObj - dataObj)))
+                out <- mean(abs(outObj - dataObj), na.rm = TRUE)
               } else {
-                mean(abs(outObj - dataObj))
+                out <- mean(abs(outObj - dataObj), na.rm = TRUE)
               }
             } else if (objFnCompare == "RMSE") {
-              sqrt(mean((outObj - dataObj)^2))
+              out <- sqrt(mean((outObj - dataObj)^2))
             } else {
               stop("objFnCompare must be either MAD or RMSE, see help")
             }
+            out <- out/mean(dataObj, na.rm = TRUE)
+            return(out)
 
           }))
+          objectiveRes <- objectiveRes*weights
           sumObj <- sum(objectiveRes)
           if(is.nan(sumObj)) {
             tryNum <- tryNum + 1
@@ -453,7 +464,7 @@ setMethod(
     deoptimArgs <- list(fn = objFn, lower = lowerRange, upper = upperRange,
                         sim = sim, objects = objects,
                         whModules = whModules, whParams = whParams,
-                        whParamsByMod = whParamsByMod)
+                        whParamsByMod = whParamsByMod, weights = weights)
 
     if (optimizer == "DEoptim") {
       deoptimArgs$control <- DEoptim.control()

@@ -8,11 +8,11 @@
 \usage{
 POM(sim, params, objects, objFn, cl, optimizer = "DEoptim", sterr = FALSE,
   ..., objFnCompare = "MAD", optimControl = NULL, NaNRetries = NA,
-  logObjFnVals = FALSE)
+  logObjFnVals = FALSE, weights)
 
 \S4method{POM}{simList,character}(sim, params, objects, objFn, cl,
   optimizer = "DEoptim", sterr = FALSE, ..., objFnCompare = "MAD",
-  optimControl = NULL, NaNRetries = NA, logObjFnVals = FALSE)
+  optimControl = NULL, NaNRetries = NA, logObjFnVals = FALSE, weights)
 }
 \arguments{
 \item{sim}{A \code{simList} simulation object, generally produced by \code{simInit}.}
@@ -22,8 +22,10 @@ must be accessible with \code{params(sim)} internally.}
 
 \item{objects}{A optional named list (must be specified if objFn is not).
 The names of each list element must correspond to an object in the
-\code{.GlobalEnv} and the list elements must be objects that can be accessed in
-the ls(sim) internally. See details and examples.}
+\code{.GlobalEnv} and the list elements must be objects or
+functions of objects that can be accessed in
+the ls(sim) internally. These will be used to create the
+objective function passed to the optimizer. See details and examples.}
 
 \item{objFn}{An optional objective function to be passed into \code{optimizer}.
 If missing, then \code{POM} will use \code{objFnCompare} and
@@ -73,6 +75,10 @@ if being run interactively or to a tab delimited
 text file named \code{ObjectiveFnValues.txt} (or that passed by
 the user here) at each evaluation of the
 POM created objective function. See details.}
+
+\item{weights}{Numeric. If provided, this vector will be multiplied by the standardized mean
+absolute deviations as describe in \code{objects}. This has the effect of weighing
+each pattern to a user specified amount in the objective function.}
 }
 \value{
 A list with at least 2 elements. The first (or first several) will
@@ -88,7 +94,7 @@ This should be used with caution as with all optimization routines. This functio
 can nevertheless take optim or genoud as optimizers, using
 \code{stats::optim} or \code{rgenoud::genoud}, respectively. These latter
 do not seem appropriate for stochastic problems however, and have not
-been widely tested.
+been widely tested or supported within POM.
 }
 \details{
 There are two ways to use this function, via 1) \code{objFn} or 2) \code{objects}.
@@ -116,12 +122,14 @@ to be different parameter limits for optimization.
 
 \code{objects} is a named list of data--pattern pairs.
 Each of these pairs will be assessed against one another using
-the \code{objFnCompare}. if there is more than one data--pattern
+the \code{objFnCompare}, after standardizing each independently. The
+standardization is: \code{mean(abs(derived value - data value))/mean(data value)}.
+If there is more than one data--pattern
 pair, then they will simply be added together in the objective
-function. This gives equal weight to each pair. Thus, if there is
-more than one data--pattern pair,
-the user may wish to standarize the pairs (say between 0 and 1) so that
-they are all on or about the same scale. Alternatively, the user
+function. This gives equal weight to each pair. If the user wishes to
+put different weight on each pattern, a \code{weights} vector can be
+provided. This will be used to multiply the standardized values described above.
+Alternatively, the user
 may wish to weight them differently, in which case, their relative
 scales can be adjusted.
 
@@ -187,7 +195,7 @@ by some weight. This would have to be done in the preparation of the patterns wi
  #  i.e., sim$landscape$Fires
  #  the return value being compared via MAD with propCellBurnedData
  propCellBurnedFn <- function(landscape) {
-              sum(getValues(landscape$Fires))/ncell(landscape$Fires)
+              sum(getValues(landscape$Fires)>0)/ncell(landscape$Fires)
             }
  # visualize the burned maps of true "data"
  propCellBurnedData <- propCellBurnedFn(outData$landscape)
@@ -216,20 +224,18 @@ by some weight. This would have to be done in the preparation of the patterns wi
 
 # Example 2 - 2 parameters
  # Function defined that will use caribou from sim$caribou, with
- #  the return value being compared via MAD with N1000
- # Here, divide by 1000 so the numbers are in the range of 0 to 1
- #  (because the possible range of values in the metadata for caribouMovement
- #  module, parameter N, is from 10 to 1000)
- caribouFn <- function(caribou) length(caribou)/1000
+ #  the return value being compared via MAD with Nout
+ caribouFn <- function(caribou) length(caribou)
 
  # Extract "data" from simList object (normally, this would be actual data)
- N1000 <- caribouFn(outData$caribou)
+ Nout <- caribouFn(outData$caribou)
 
  aTime <- Sys.time()
  parsToVary <- c("spreadprob", "N")
  out2 <- POM(mySim, parsToVary,
             list(propCellBurnedData = propCellBurnedFn,
-                 N1000 = caribouFn), logObjFnVals = TRUE)
+                 Nout = caribouFn), logObjFnVals = TRUE,
+                 weights = c(10,1))
              #optimControl = list(parallelType = 1))
             #cl = cl) # not yet implemented, waiting for DEoptim
  bTime <- Sys.time()
@@ -256,7 +262,7 @@ by some weight. This would have to be done in the preparation of the patterns wi
  #   - pass data that will be used internally for objective function
  objFnEx <- function(pars, # param values
                      sim, # simList object
-                     N1000, propCellBurnedData, caribouFn, propCellBurnedFn) { # data
+                     Nout, propCellBurnedData, caribouFn, propCellBurnedFn) { # data
 
    # make a copy of simList because it will possibly be altered by spades call
    sim1 <- SpaDES::copy(sim)
@@ -270,9 +276,9 @@ by some weight. This would have to be done in the preparation of the patterns wi
 
    # calculate outputs
    propCellBurnedOut <- propCellBurnedFn(out$landscape)
-   N1000_Out <- caribouFn(out$caribou)
+   N_Out <- caribouFn(out$caribou)
 
-   minimizeFn <- abs(N1000_Out - N1000) +
+   minimizeFn <- abs(N_Out - N) +
                  abs(propCellBurnedOut - propCellBurnedData)
 
    # have more info reported to console, if desired
@@ -293,7 +299,7 @@ by some weight. This would have to be done in the preparation of the patterns wi
  # Change optimization parameters to alter how convergence is achieved
  out5 <- POM(mySim, params = c("spreadprob", "N"),
              objFn = objFnEx,
-             N1000 = N1000,
+             Nout = Nout,
              propCellBurnedData = propCellBurnedData,
              caribouFn = caribouFn,
              propCellBurnedFn = propCellBurnedFn,
@@ -311,7 +317,7 @@ by some weight. This would have to be done in the preparation of the patterns wi
 require(DEoptim)
 out7 <- DEoptim(fn = objFnEx,
                 sim = mySim,
-                N1000 = N1000,
+                Nout = Nout,
                 propCellBurnedData = propCellBurnedData,
                 caribouFn = caribouFn,
                 propCellBurnedFn = propCellBurnedFn,
