@@ -485,11 +485,12 @@ setMethod(
         plotArgs$axes <- "L"
       }
 
-      if(is.null(mcPlot$title)) {
+      if(is.null(plotArgs$title)) {
         plotArgs$title <- mc$main
       }
       if(is.null(mcPlot$col)) {
-        if(!any(unlist(lapply(dotObjs, is, "histogram")))) #dfault for histogram is NULL
+        if(!any(unlist(lapply(dotObjs, function(x)
+             any(unlist(lapply(c("histogram", "igraph", "communities"), function(y) is(x,y)))))))) #dfault for histogram is NULL
           plotArgs$col <- "black"
       }
       plotArgs$main <- ""

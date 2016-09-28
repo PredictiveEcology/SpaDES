@@ -28,11 +28,11 @@ setMethod(
     y <- sum(sapply(x, function(x) {
       if (is(x, "RasterStack")) {
         x <- numLayers(x)
-        } else {
-          x <- 1L
-        }
+      } else {
+        x <- 1L
+      }
       return(x)
-      }))
+    }))
     return(y)
   }
 )
@@ -649,7 +649,7 @@ setMethod(
         coords = rbind(coordinates(from)[x,], coordinates(to)[x,])
       )), ID = x)
     }), proj4string = crs(from))
-})
+  })
 
 ################################################################################
 #' Parse arguments and find environments
@@ -903,7 +903,7 @@ setGeneric("gpar", function(...) {
 setMethod("gpar",
           definition = function(...) {
             return(grid::gpar(...))
-})
+          })
 
 ################################################################################
 #' Internal functions used by Plot
@@ -1008,11 +1008,11 @@ setMethod(
     if (sGrob@plotArgs$axes== "L") {
       if (sGrob@objClass=="Raster" &
           (arr@extents[(whPlotFrame - 1) %% arr@columns + 1][[1]] ==
-            arr@extents[max(
-              which(
-                (1:length(arr@names) - 1) %% arr@columns + 1 ==
-                  (whPlotFrame - 1) %% arr@columns + 1
-              ))][[1]])) {
+           arr@extents[max(
+             which(
+               (1:length(arr@names) - 1) %% arr@columns + 1 ==
+               (whPlotFrame - 1) %% arr@columns + 1
+             ))][[1]])) {
         if (whPlotFrame > (length(arr@names) - arr@columns)) {
           xaxis <- TRUE
         } else {
@@ -1149,6 +1149,8 @@ setMethod(
                     0.25 + makeSpaceForAxes * 0.05, # bottom
                     0.9))                         # top
 
+        plotFn <- args_plot1$plotFn
+        args_plot1$plotFn <- NULL
 
         # The actuall plot calls for base plotting
         if(is(grobToPlot, "igraph")) {
@@ -1165,11 +1167,25 @@ setMethod(
 
         } else if(spadesGrobCounter==1 | wipe | isHist) {
           suppressWarnings(par(new = TRUE))
-          suppressWarnings(do.call(args_plot1$plotFn,
-                                   args = args_plot1[-which(names(args_plot1)=="plotFn")]))
 
-        } else {
-          tmpPlotFn <- if(args_plot1$plotFn=="plot") "points" else args_plot1$plotFn
+          # This is a work around because I am not able to generically
+          #  assess the formals of a function to remove any that aren't
+          #  defined for that method... i.e., plot is the generic, but
+          #  plot.igraph has different formals. Some of the functions
+          #  are not exported, so their formals can't be found algorithmically
+          tryCatch(do.call(plotFn, args = args_plot1), error = function(x) {
+            parsRm <- unlist(strsplit(gsub(x,
+                                           pattern = ".*Unknown plot parameters: ",
+                                           replacement = ""), split = ", "))
+            parsRm <- gsub(parsRm, pattern = "\n", replacement = "")
+            args_plot1 <- args_plot1[!(names(args_plot1) %in% parsRm)]
+            do.call(plotFn, args = args_plot1)
+          })
+          #suppressWarnings(do.call(plotFn,
+          #                         args = args_plot1))
+
+        } else { # adding points to a plot
+          tmpPlotFn <- if(plotFn=="plot") "points" else plotFn
           args_plot1[c("axes", "xlab", "ylab", "plotFn")] <- NULL
           suppressWarnings(do.call(tmpPlotFn, args = args_plot1))
         }
@@ -1217,20 +1233,20 @@ setMethod(
       }
 
       plotGrobCall <- list(grobToPlot = zMat$z, col = zMat$cols,
-        size = unit(sGrob@plotArgs$size, "points"),
-        real = zMat$real,
-        minv = zMat$minz, maxv = zMat$maxz,
-        pch = sGrob@plotArgs$pch, name = subPlots,
-        vp = vps,
-        legend = #sGrob@plotArgs$legend  &  isBaseSubPlot &
-          #isReplot |
-          sGrob@plotArgs$legend & (isBaseSubPlot &
-          (isNewPlot | wipe | isReplot)),
-        legendText = sGrob@plotArgs$legendTxt,
-        gp = sGrob@plotArgs$gp,
-        gpText = sGrob@plotArgs$gpText,
-        speedup = sGrob@plotArgs$speedup,
-        length = sGrob@plotArgs$length
+                           size = unit(sGrob@plotArgs$size, "points"),
+                           real = zMat$real,
+                           minv = zMat$minz, maxv = zMat$maxz,
+                           pch = sGrob@plotArgs$pch, name = subPlots,
+                           vp = vps,
+                           legend = #sGrob@plotArgs$legend  &  isBaseSubPlot &
+                             #isReplot |
+                             sGrob@plotArgs$legend & (isBaseSubPlot &
+                                                        (isNewPlot | wipe | isReplot)),
+                           legendText = sGrob@plotArgs$legendTxt,
+                           gp = sGrob@plotArgs$gp,
+                           gpText = sGrob@plotArgs$gpText,
+                           speedup = sGrob@plotArgs$speedup,
+                           length = sGrob@plotArgs$length
       ) %>% append(., nonPlotArgs)
 
       seekViewport(subPlots, recording = FALSE)
@@ -1258,7 +1274,7 @@ setMethod(
     }
 
     return(sGrob)
-})
+  })
 
 
 
@@ -1308,7 +1324,7 @@ setMethod(
     }
     seekViewport(subPlots, recording = FALSE)
     return(sGrob)
-})
+  })
 
 
 #' @include plotting-classes.R
@@ -1393,25 +1409,18 @@ setMethod(
     if (length(toPlot) == 0)
       takeFromPlotObj <- FALSE
 
-#    if(any(takeFromPlotObj)) {
-#      if(length(takeFromPlotObj)>1) {
-#        grobToPlot <- toPlot[takeFromPlotObj][[1]]
-#      } else {
-#        grobToPlot <- toPlot[[1]]
-#      }
-
-#    } else {
     # Does it already exist on the plot device or not
+    #browser(expr=names(grobNamesi@layerName)=="ras1")
     if (nchar(grobNamesi@layerName) > 0) {# means it is in a raster
       if (takeFromPlotObj) {
         grobToPlot <- unlist(toPlot[[1]], recursive = FALSE)[[grobNamesi@layerName]]
       } else {
         grobToPlot <- eval(parse(text = grobNamesi@objName),
-                         grobNamesi@envir)[[grobNamesi@layerName]]
+                           grobNamesi@envir)[[grobNamesi@layerName]]
       }
     } else {
       if(takeFromPlotObj) {
-        if(!is(toPlot[[1]], "gg")) {
+        if(!is(toPlot[[1]], "gg") & !is(toPlot[[1]], "igraph")) {
           grobToPlot <- unlist(toPlot[[1]], recursive = FALSE)
         } else {
           grobToPlot <- toPlot[[1]]
@@ -1422,7 +1431,7 @@ setMethod(
     }
     #}
     return(grobToPlot)
-})
+  })
 
 ################################################################################
 #' Prepare raster for plotting
@@ -2334,7 +2343,7 @@ setMethod(
     widths = arr@layout$wdth, heights = arr@layout$ht
   )
   topVp <- viewport(layout = gl1,
-    name = "top"
+                    name = "top"
   )
   plotVps <- list()
 
@@ -2420,9 +2429,9 @@ setMethod(
   }
 
   #if (newArr) {
-    wholeVp <- vpTree(topVp, do.call(vpList, plotVps))
+  wholeVp <- vpTree(topVp, do.call(vpList, plotVps))
   #} #else {
-    #wholeVp <- do.call(vpList, plotVps)
+  #wholeVp <- do.call(vpList, plotVps)
   #}
   return(list(wholeVp = wholeVp, extents = extents))
 }
