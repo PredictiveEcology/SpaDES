@@ -968,7 +968,6 @@ test_that("Plot - going through package coverage", {
 test_that("Plot lists", {
   skip_if_not_installed("visualTest")
   skip_on_travis()
-  skip_on_os("mac")
 
   library(ggplot2); on.exit(detach("package:ggplot2"), add = TRUE)
   library(raster); on.exit(detach("package:raster"), add = TRUE)
