@@ -9,6 +9,8 @@ test_that("Plot 1 is not error-free", {
 
   on.exit({
     setwd(cwd)
+    if(length(dev.list())>0)
+      dev.off()
     unlink(tmpdir, recursive = TRUE)
   })
 
@@ -192,6 +194,8 @@ test_that("Unit tests for image content is not error-free", {
   on.exit({
     detach("package:raster")
     detach("package:visualTest")
+    if(length(dev.list())>0)
+      dev.off()
     setwd(cwd)
     unlink(tmpdir, recursive = TRUE)
   })
@@ -282,6 +286,8 @@ test_that("Unit tests for plotting colors", {
   on.exit({
     detach("package:raster")
     detach("package:visualTest")
+    if(length(dev.list())>0)
+      dev.off()
     setwd(cwd)
     unlink(tmpdir, recursive = TRUE)
   })
@@ -373,6 +379,8 @@ test_that("Unit tests for internal functions in Plot", {
   on.exit({
     detach("package:raster")
     detach("package:visualTest")
+    if(length(dev.list())>0)
+      dev.off()
     setwd(cwd)
     unlink(tmpdir, recursive = TRUE)
   })
@@ -449,6 +457,8 @@ test_that("Plot 2 is not error-free", {
 
   on.exit({
     setwd(cwd)
+    if(length(dev.list())>0)
+      dev.off()
     unlink(tmpdir, recursive = TRUE)
   })
 
@@ -610,6 +620,8 @@ test_that("setColors is not error-free", {
 
   on.exit({
     setwd(cwd)
+    if(length(dev.list())>0)
+      dev.off()
     unlink(tmpdir, recursive = TRUE)
   })
   set.seed(1234)
@@ -666,6 +678,8 @@ test_that("Plot with base is not error-free", {
 
   on.exit({
     setwd(cwd)
+    if(length(dev.list())>0)
+      dev.off()
     unlink(tmpdir, recursive = TRUE)
   })
 
@@ -747,7 +761,7 @@ test_that("Plot with base is not error-free", {
     orig <- switch(Sys.info()["sysname"],
                    Darwin = "",
                    Linux = "",
-                   Windows = "EB27BD52D28CC948"
+                   Windows = "EB27FD720284D958"
     )
     expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
     #############################
@@ -762,7 +776,7 @@ test_that("Plot with base is not error-free", {
     orig <- switch(Sys.info()["sysname"],
                    Darwin = "",
                    Linux = "",
-                   Windows = "9FA5E441C2FAE01E"
+                   Windows = "9FE5E451C27AE01C"
     )
     expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
     #############################
@@ -795,7 +809,7 @@ test_that("Plot with base is not error-free", {
     orig <- switch(Sys.info()["sysname"],
                    Darwin = "",
                    Linux = "",
-                   Windows = "F3B42E4B8C0FF0C8"
+                   Windows = "F3B42E4A8C0FF0C9"
     )
     expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
     #############################
@@ -822,7 +836,7 @@ test_that("Plot with base is not error-free", {
     orig <- switch(Sys.info()["sysname"],
                    Darwin = "",
                    Linux = "",
-                   Windows = "BD96C3CE94E1C168"
+                   Windows = "9D96C3CE94E1E168"
     )
     expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
     #############################
@@ -866,6 +880,8 @@ test_that("rePlot doesn't work", {
   library(visualTest)
   on.exit({
     setwd(cwd)
+    if(length(dev.list())>0)
+      dev.off()
     unlink(tmpdir, recursive = TRUE)
   })
 
@@ -900,6 +916,8 @@ test_that("Plot - going through package coverage", {
   library(visualTest)
   on.exit({
     setwd(cwd)
+    if(length(dev.list())>0)
+      dev.off()
     unlink(tmpdir, recursive = TRUE)
   })
 
@@ -925,7 +943,9 @@ test_that("Plot lists", {
   library(visualTest)
   on.exit({
     setwd(cwd)
-  #  unlink(tmpdir, recursive = TRUE)
+    if(length(dev.list())>0)
+      dev.off()
+    unlink(tmpdir, recursive = TRUE)
   })
 
 
