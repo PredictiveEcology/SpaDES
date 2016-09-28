@@ -221,7 +221,7 @@ test_that("Unit tests for image content is not error-free", {
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(
     Sys.info()["sysname"],
-    Darwin = "",
+    Darwin = "BB1FC0E03E1E3B30",
     Linux = "BB1EC4E03E1E3B30",
     Windows = "BB1FC0E03E1E3B30"
   )
@@ -264,7 +264,7 @@ test_that("Unit tests for image content is not error-free", {
 
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
-    Darwin = "EEC0913E4AE16E2E",
+    Darwin = "EEC0911E4AE16E6E",
     Linux = "EEC0911E4AE16E6E",
     Windows = "EEC0911E4AE16E6E"
   )
@@ -391,7 +391,7 @@ test_that("Unit tests for internal functions in Plot", {
 
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
-    Darwin = "A0CB77708A30DF74",
+    Darwin = "AF8FD07080307F75",
     Linux = "AF8FD07080307F75",
     Windows = "AFCFD074C0302F74"
   )
@@ -449,7 +449,6 @@ test_that("Plot 2 is not error-free", {
   setwd(tmpdir)
 
   on.exit({
-    #detach("package:SpaDES")
     detach("package:raster")
     detach("package:visualTest")
     setwd(cwd)
@@ -476,7 +475,7 @@ test_that("Plot 2 is not error-free", {
 
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
-                 Darwin = "AF99D0E4C0653F64",
+                 Darwin = "AA68D51495C3D99D",
                  Linux = "AA68D51495C3D99D",
                  Windows = "AA68D51695C3D89D"
   )
@@ -688,7 +687,7 @@ test_that("Plot with base is not error-free", {
     unlink(tmpdir, recursive = TRUE)
   }, add = TRUE)
 
-  dev(2, width = 13, height = 7)
+  #dev(2, width = 13, height = 7)
   set.seed(123)
   rasOrig <- raster(extent(0, 40, 0, 20), vals = sample(1:8, replace = TRUE, size = 800), res = 1)
   ras <- rasOrig
@@ -703,7 +702,7 @@ test_that("Plot with base is not error-free", {
 
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
-                 Darwin = "",
+                 Darwin = "B04CC39C93D3CE36",
                  Linux = "B14CC39C93D3CE86",
                  Windows = "B0CCC39893D3CE36"
   )
@@ -722,7 +721,7 @@ test_that("Plot with base is not error-free", {
 
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
-                 Darwin = "",
+                 Darwin = "AED2D131E06D7A0E",
                  Linux = "AED2D1B1E06D3A0E",
                  Windows = "AED2D121E21F7A0E"
   )
@@ -742,7 +741,7 @@ test_that("Plot with base is not error-free", {
 
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
-                 Darwin = "",
+                 Darwin = "BEC6C131E03F3A0E",
                  Linux = "BEC6C1B1E03F380E",
                  Windows = "BED2C131E01F3A4E"
   )
@@ -756,7 +755,7 @@ test_that("Plot with base is not error-free", {
 
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
-                 Darwin = "",
+                 Darwin = "EB279D93C28CC94A",
                  Linux = "EB679553D28CC948",
                  Windows = "EB27BD52D28CC948"
   )
@@ -827,7 +826,7 @@ test_that("Plot with base is not error-free", {
 
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
-                 Darwin = "",
+                 Darwin = "F3B42F4A8C0FF049",
                  Linux = "F3B42E4A8C0FF0C9",
                  Windows = "F3B42E4B8C0FF0C8"
   )
@@ -879,7 +878,7 @@ test_that("Plot with base is not error-free", {
 
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
-                 Darwin = "",
+                 Darwin = "BC16C3CE96E1C364",
                  Linux = "BC1EC3CC96E1C165",
                  Windows = "BD96C3CE94E1C168"
   )
@@ -900,7 +899,7 @@ test_that("Plot with base is not error-free", {
 
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
-                 Darwin = "",
+                 Darwin = "B14CC39A93B1CE96",
                  Linux = "A14CC39A93B3CE96",
                  Windows = "A44CC39A93B3CE96"
   )
@@ -909,6 +908,8 @@ test_that("Plot with base is not error-free", {
 
 test_that("Plot messages and warnings and errors", {
   skip_on_travis()
+
+  library(raster); on.exit(detach("package:raster"), add = TRUE)
 
   rasOrig <- raster(extent(0, 40, 0, 20), vals = sample(1:8,replace = TRUE, size = 800), res = 1)
   ras <- rasOrig
@@ -953,10 +954,7 @@ test_that("rePlot doesn't work", {
 })
 
 test_that("Plot - going through package coverage", {
-  skip_if_not_installed("visualTest")
-
   library(raster); on.exit(detach("package:raster"), add = TRUE)
-  library(visualTest); on.exit(detach("package:visualTest"), add = TRUE)
 
   tmpdir <- file.path(tempdir(), "test_Plot1") %>% checkPath(create = TRUE)
   cwd <- getwd()
@@ -982,6 +980,7 @@ test_that("Plot - going through package coverage", {
 test_that("Plot lists", {
   skip_if_not_installed("visualTest")
   skip_on_travis()
+  skip_on_os("mac")
 
   library(ggplot2); on.exit(detach("package:ggplot2"), add = TRUE)
   library(raster); on.exit(detach("package:raster"), add = TRUE)
@@ -1000,9 +999,10 @@ test_that("Plot lists", {
 
   clearPlot()
   set.seed(123)
-  ras1 <- ras2 <- ras3 <- ras4 <- rasOrig <- raster(
+  rasOrig <- raster(
     extent(0, 40, 0, 20), vals = sample(1:8, replace = TRUE, size = 800), res = 1
   )
+  ras1 <- ras2 <- ras3 <- ras4 <- rasOrig
   a <- list(); for (i in 1:4) a[[paste0("ras", i)]] <- get(paste0("ras", i))
   Sr1 <- Polygon(cbind(c(2, 4, 4, 1, 2), c(2, 3, 5, 4, 2))*20 - 50)
   Sr2 <- Polygon(cbind(c(5, 4, 2, 5), c(2, 3, 2, 2))*20 - 50)
@@ -1017,7 +1017,7 @@ test_that("Plot lists", {
 
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
-                 Darwin = "",
+                 Darwin = "AD3CD238D2C7C34A",
                  Linux = "AD3CD238D2C7C26A",
                  Windows = "AD3DD26CD287C609"
   )
@@ -1032,7 +1032,7 @@ test_that("Plot lists", {
 
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
-                 Darwin = "",
+                 Darwin = "B756C8A6C8C85657",
                  Linux = "B75788AAC8C85657",
                  Windows = "B755A8AEC8C85353"
   )
@@ -1049,7 +1049,7 @@ test_that("Plot lists", {
 
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
-                 Darwin = "",
+                 Darwin = "8F62630DCC8DF05B",
                  Linux = "876272A9CC8DF05E",
                  Windows = "87737289CC99F04E"
   )
