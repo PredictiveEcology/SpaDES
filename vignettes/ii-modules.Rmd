@@ -59,11 +59,12 @@ If two modules are actually depedent on each others' events, then you should con
 
 ## Module directory structure (`moduleName/`)
 
-A module consists of a collection of files that ...
+A module consists of a collection of files and folders that ...
 
 ```
 /moduleRepository
   |_ moduleName/
+      |_ R/                     # A folder for optional R scripts, parsed in `simInit`
       |_ data/
           |_ CHECKSUMS.txt
       |_ citation.bib           # properly formatted bibtex citation for the module
