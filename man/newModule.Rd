@@ -35,7 +35,7 @@ The default is the current working directory.}
 }
 \value{
 Nothing is returned. The new module file is created at
-\code{path/name.R}, as well as ancillary files for documentation, citation,
+\file{path/name.R}, as well as ancillary files for documentation, citation,
 license, readme, and unit tests folder.
 }
 \description{
@@ -51,9 +51,11 @@ All files will be created within a subfolder named \code{name} within the
 }
 \note{
 On Windows there is currently a bug in RStudio that prevents the editor
-from opening when \code{file.edit} is called. \code{file.edit} does work if the user
-types it at the command prompt. A message with the correct lines to copy and paste
-is provided.
+from opening when \code{file.edit} is called.
+Similarly, in RStudio on OS X / macOS, there is an issue opening files where
+they are opened in an overlayed window rather than a new tab.
+\code{file.edit} does work if the user types it at the command prompt.
+A message with the correct lines to copy and paste is provided.
 }
 \examples{
 \dontrun{

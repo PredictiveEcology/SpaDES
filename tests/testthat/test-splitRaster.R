@@ -1,14 +1,14 @@
 test_that("splitRaster and mergeRaster work on small in-memory rasters", {
-  library(raster)
+  library(raster); on.exit(detach("package:raster"), add = TRUE)
+
   owd <- getwd()
   tmpdir <- file.path(tempdir(), "splitRaster-test") %>% checkPath(create = TRUE)
   setwd(tmpdir)
 
   on.exit({
-    detach("package:raster")
     setwd(owd)
     unlink(tmpdir, recursive = TRUE)
-  })
+  }, add = TRUE)
 
   b <- brick(system.file("external/rlogo.grd", package = "raster"))
   r <- b[[1]] # use first layer only
@@ -140,16 +140,16 @@ test_that("splitRaster works in parallel", {
   skip_on_cran()
   skip_on_travis()
   skip_on_appveyor()
-  if (interactive()) {
-  #skip("parallel usage of splitRaster must be run manually")
 
-    library(raster)
+  if (interactive()) {
+    library(raster); on.exit(detach("package:raster"), add = TRUE)
+
     tmpdir <- file.path(tempdir(), "splitRaster-test-parallel") %>% checkPath(create = TRUE)
 
     on.exit({
       detach("package:raster")
       unlink(tmpdir, recursive = TRUE)
-    })
+    }, add = TRUE)
 
     b <- brick(system.file("external/rlogo.grd", package = "raster"))
     r <- b[[1]] # use first layer only
@@ -203,16 +203,15 @@ test_that("splitRaster and mergeRaster work on large on-disk rasters", {
   skip_on_cran()
   skip_on_travis()
   skip_on_appveyor()
-  skip("This is very big")
+  skip("This is very big.")
 
   tmpdir <- file.path(tempdir(), "splitRaster-test-large") %>% checkPath(create = TRUE)
+    library(raster); on.exit(detach("package:raster"), add = TRUE)
 
-  library(raster)
 
   on.exit({
-    detach("package:raster")
     unlink(tmpdir, recursive = TRUE)
-  })
+  }, add = TRUE)
 
   ## use a large raster (1.3 GB)
   url <- "http://www.cec.org/sites/default/files/Atlas/Files/Land_Cover_2010/Land_Cover_2010_TIFF.zip"

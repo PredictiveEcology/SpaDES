@@ -51,10 +51,6 @@ Returns a Raster with the \code{colortable} slot set to \code{values}.
   library(raster)
   library(igraph) # need pipe for one example below
 
-  on.exit({
-    detach("package:raster")
-    detach("package:igraph")
-  })
   ras <- raster(matrix(c(0,0,1,2), ncol=2, nrow=2))
 
   # Use replacement method

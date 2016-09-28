@@ -96,8 +96,8 @@ it says TRUE. Here we can override that default with:
 \code{list(Fire=list(.plotInitialTime=NA))}, effectively turning off plotting. Since
 this is a list of lists, one can override the module defaults for multiple parameters
 from multiple modules all at once, with say:
-\code{list(Fire=list(.plotInitialTime=NA, .plotInterval=2),
-           caribouModule=list(N=1000))}.
+\code{list(Fire = list(.plotInitialTime = NA, .plotInterval = 2),
+           caribouModule = list(N = 1000))}.
 
 We implement a discrete event simulation in a more modular fashion so it is
 easier to add modules to the simulation. We use S4 classes and methods,
@@ -105,8 +105,18 @@ and use \code{data.table} instead of \code{data.frame} to implement the event
 queue (because it is much faster).
 
 \code{paths} specifies the location of the module source files,
-the data input files, and the saving output files. If no paths are specified,
-default is current working directory.
+the data input files, and the saving output files. If no paths are specified
+the defaults are as follows:
+
+\itemize{
+  \item \code{cachePath}: a subdirectory of the current working directory (\code{"./cache"});
+
+\item \code{inputPath}: the current working directory (\code{"."};
+
+\item \code{modulePath}: \code{getOption("spades.modulePath")};
+
+\item \code{inputPath}: the current working directory (\code{"."};
+}
 }
 \note{
 The user can opt to run a simpler simInit call without inputs, outputs, and times.

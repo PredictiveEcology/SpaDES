@@ -11,8 +11,8 @@ Description: Implement a variety of event-based models, with a focus on
     installed with `install.packages("fastshp", repos = "http://rforge.net",
     type = "source")`.
 URL: http://spades.predictiveecology.org, https://github.com/PredictiveEcology/SpaDES
-Version: 1.2.0.9028
-Date: 2016-09-22
+Version: 1.2.0.9029
+Date: 2016-09-28
 Authors@R: c(
     person(c("Alex", "M"), "Chubaty", email="alexander.chubaty@canada.ca",
     role=c("aut", "cre")),

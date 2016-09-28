@@ -3,6 +3,28 @@ if (getRversion() >= "3.1.0") {
 }
 
 ################################################################################
+#' Default paths to use for a simulation
+#'
+#' Internal function, used during \code{\link{simInit}}.
+#'
+#' @return A named list of paths used in the simulation.
+#'
+#' @docType methods
+#' @keywords internal
+#' @rdname paths
+#'
+#' @author Alex Chubaty
+#'
+.paths <- function() {
+  list(
+    cachePath = file.path(".", "cache"),
+    inputPath = file.path("."),
+    modulePath = getOption("spades.modulesPath"),
+    outputPath = file.path(".")
+  )
+}
+
+################################################################################
 #' Determine which modules in a list are unparsed
 #'
 #' Internal function, used during \code{\link{simInit}}.
@@ -11,7 +33,6 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @return The ids of the unparsed list elements.
 #'
-#' @export
 #' @docType methods
 #' @keywords internal
 #' @rdname unparsed
@@ -34,7 +55,6 @@ setMethod(
     }) %>% `==`(., TRUE) %>% which()
     return(ids)
 })
-
 
 ################################################################################
 #' @return \code{.parseModulePartial} extracts just the individual element
@@ -248,8 +268,8 @@ setMethod(
 #' \code{list(Fire=list(.plotInitialTime=NA))}, effectively turning off plotting. Since
 #' this is a list of lists, one can override the module defaults for multiple parameters
 #' from multiple modules all at once, with say:
-#' \code{list(Fire=list(.plotInitialTime=NA, .plotInterval=2),
-#'            caribouModule=list(N=1000))}.
+#' \code{list(Fire = list(.plotInitialTime = NA, .plotInterval = 2),
+#'            caribouModule = list(N = 1000))}.
 #'
 #' We implement a discrete event simulation in a more modular fashion so it is
 #' easier to add modules to the simulation. We use S4 classes and methods,
@@ -257,8 +277,18 @@ setMethod(
 #' queue (because it is much faster).
 #'
 #' \code{paths} specifies the location of the module source files,
-#' the data input files, and the saving output files. If no paths are specified,
-#' default is current working directory.
+#' the data input files, and the saving output files. If no paths are specified
+#' the defaults are as follows:
+#'
+#' \itemize{
+#'   \item \code{cachePath}: a subdirectory of the current working directory (\code{"./cache"});
+#'
+#'   \item \code{inputPath}: the current working directory (\code{"."};
+#'
+#'   \item \code{modulePath}: \code{getOption("spades.modulePath")};
+#'
+#'   \item \code{inputPath}: the current working directory (\code{"."};
+#' }
 #'
 #' @note
 #' The user can opt to run a simpler simInit call without inputs, outputs, and times.
@@ -402,7 +432,6 @@ setMethod(
 #'   }
 #' }
 #'
-# igraph exports %>% from magrittr
 setGeneric(
   "simInit",
    function(times, params, modules, objects, paths, inputs, outputs, loadOrder) {
@@ -419,7 +448,6 @@ setMethod(
                         loadOrder) {
 
     paths <- lapply(paths, checkPath, create = TRUE)
-    modulesLoaded <- list()
 
     objNames <- names(objects)
     if (length(objNames) != length(objects)) {
@@ -428,6 +456,7 @@ setMethod(
     }
 
     # user modules
+    modulesLoaded <- list()
     modules <- modules[!sapply(modules, is.null)] %>%
       lapply(., `attributes<-`, list(parsed = FALSE))
 
@@ -460,7 +489,7 @@ setMethod(
       out[hasTU] <- tu[hasTU]
       if (!all(hasTU)) {
         out[!isParent] <- tu[!isParent]
-        while (any(isParent  & !hasTU)) {
+        while (any(isParent & !hasTU)) {
           for (i in which(isParent & !hasTU)) {
             out[[i]] <- findSmallestTU(sim, as.list(unlist(out[i])))
             isParent[i] <- FALSE
@@ -470,14 +499,13 @@ setMethod(
       minTimeunit(as.list(unlist(out)))
     }
 
-
     # recursive function to extract parent and child structures
     buildModuleGraph <- function(sim, mods) {
       out <- lapply(.parseModulePartial(sim, mods, defineModuleElement = "childModules"),
                     as.list)
       isParent <- lapply(out, length) > 0
-      to <- unlist(lapply(out, function(x) if(length(x) == 0) names(x) else x))
-      if(is.null(to)) to <- character(0)
+      to <- unlist(lapply(out, function(x) if (length(x) == 0) names(x) else x))
+      if (is.null(to)) to <- character(0)
       from <- rep(names(out), unlist(lapply(out, length)))
       outDF <- data.frame(from = from,
                           to = to,
@@ -731,7 +759,7 @@ setMethod(
     if (missing(params)) li$params <- list()
     if (missing(modules)) li$modules <- list()
     if (missing(objects)) li$objects <- list()
-    if (missing(paths)) li$paths <- list(".")
+    if (missing(paths)) li$paths <- .paths()
     if (missing(inputs)) li$inputs <- as.data.frame(NULL)
     if (missing(outputs)) li$outputs <- as.data.frame(NULL)
     if (missing(loadOrder)) li$loadOrder <- character(0)

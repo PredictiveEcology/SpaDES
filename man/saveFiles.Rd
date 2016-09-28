@@ -34,7 +34,7 @@ that is listed in the \code{.saveObjects}.
 
 
 Using the \code{outputs} slot in the \code{\link{simInit}} call.
-See 2nd example in \code{\link{simInit}}.
+See second example in \code{\link{simInit}}.
 This can be convenient because it gives overall control of many modules at a
 time, and there is an implicit scheduling that gets created during the
 \code{\link{simInit}} call.

@@ -7,6 +7,7 @@
 \alias{downloadModule,character,character,character,missing,ANY,ANY-method}
 \alias{downloadModule,character,character,missing,character,ANY,ANY-method}
 \alias{downloadModule,character,character,missing,missing,ANY,ANY-method}
+\alias{downloadModule,character,missing,ANY,ANY,ANY,ANY-method}
 \title{Download a module from a SpaDES module GitHub repository}
 \usage{
 downloadModule(name, path, version, repo, data = FALSE, quiet = FALSE)
@@ -15,11 +16,14 @@ downloadModule(name, path, version, repo, data = FALSE, quiet = FALSE)
   \S4method{downloadModule}{character,character,character,character,logical,logical}(name,
   path, version, repo, data = FALSE, quiet = FALSE)
 
-\S4method{downloadModule}{character,character,character,missing,ANY,ANY}(name,
-  path, version, data, quiet)
+\S4method{downloadModule}{character,missing,ANY,ANY,ANY,ANY}(name, version,
+  data, quiet)
 
 \S4method{downloadModule}{character,character,missing,missing,ANY,ANY}(name,
   path, data, quiet)
+
+\S4method{downloadModule}{character,character,character,missing,ANY,ANY}(name,
+  path, version, data, quiet)
 
 \S4method{downloadModule}{character,character,missing,character,ANY,ANY}(name,
   path, repo, data, quiet)

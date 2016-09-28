@@ -59,7 +59,7 @@ setMethod(
   signature(name = "character", path = "character"),
   definition = function(name, path) {
     tmpdir <- file.path(tempdir(), "moduleCoverage")
-    dir.create(tmpdir); on.exit(unlink(tmpdir, recursive = TRUE))
+    dir.create(tmpdir); on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
     fnDir <- file.path(tmpdir, "moduleFunctions") %>% checkPath(create = TRUE)
     testDir <- file.path(path, name, "tests", "testthat")
 

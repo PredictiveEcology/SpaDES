@@ -205,11 +205,11 @@ setMethod(
 #' @rdname downloadModule
 setMethod(
   "downloadModule",
-  signature = c(name = "character", path = "character", version = "character",
-                repo = "missing", data = "ANY", quiet = "ANY"),
-  definition = function(name, path, version, data, quiet) {
-    files <- downloadModule(name, path, version,
-                            repo = getOption("spades.modulesRepo"),
+  signature = c(name = "character", path = "missing", version = "ANY",
+                repo = "ANY", data = "ANY", quiet = "ANY"),
+  definition = function(name, version, data, quiet) {
+    files <- downloadModule(name, path = getOption("spades.modulesPath"),
+                            version, repo = getOption("spades.modulesRepo"),
                             data = data, quiet = quiet)
     return(invisible(files))
 })
@@ -230,6 +230,18 @@ setMethod(
 #' @rdname downloadModule
 setMethod(
   "downloadModule",
+  signature = c(name = "character", path = "character", version = "character",
+                repo = "missing", data = "ANY", quiet = "ANY"),
+  definition = function(name, path, version, data, quiet) {
+    files <- downloadModule(name, path, version,
+                            repo = getOption("spades.modulesRepo"),
+                            data = data, quiet = quiet)
+    return(invisible(files))
+})
+
+#' @rdname downloadModule
+setMethod(
+  "downloadModule",
   signature = c(name = "character", path = "character", version = "missing",
                 repo = "character", data = "ANY", quiet = "ANY"),
   definition = function(name, path, repo, data, quiet) {
@@ -237,6 +249,7 @@ setMethod(
                             data = data, quiet)
     return(invisible(files))
 })
+
 
 ################################################################################
 #' Download module data
@@ -261,7 +274,7 @@ setMethod(
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("downloadData", function(module, path, quiet = FALSE) {
+setGeneric("downloadData", function(module, path, quiet) {
   standardGeneric("downloadData")
 })
 
@@ -283,13 +296,13 @@ setMethod(
     }
 
     ids <- which( urls == "" | is.na(urls) )
-    to.dl <- if (length(ids)) { urls[-ids] } else { urls }
+    to.dl <- if (length(ids)) urls[-ids] else urls
     chksums <- checksums(module, path) %>%
       mutate(renamed = NA, module = module)
     dataDir <- file.path(path, module, "data" )
 
     if (any(chksums$result == "FAIL")) {
-      setwd(path); on.exit(setwd(cwd))
+      setwd(path); on.exit(setwd(cwd), add = TRUE)
 
       files <- sapply(to.dl, function(x) {
         destfile <- file.path(dataDir, basename(x))
@@ -346,6 +359,22 @@ setMethod(
     }
 
     return(bind_rows(chksums, chksums2))
+})
+
+#' @rdname downloadData
+setMethod(
+  "downloadData",
+  signature = c(module = "character", path = "missing", quiet = "missing"),
+  definition = function(module) {
+    downloadData(module = module, path = getOption("spades.modulesPath"), quiet = FALSE)
+})
+
+#' @rdname downloadData
+setMethod(
+  "downloadData",
+  signature = c(module = "character", path = "missing", quiet = "logical"),
+  definition = function(module, quiet) {
+    downloadData(module = module, path = getOption("spades.modulesPath"), quiet = quiet)
 })
 
 #' @rdname downloadData

@@ -5,7 +5,7 @@ test_that("mapReduce: file does not work correctly 1", {
   on.exit({
     detach("package:data.table")
     detach("package:raster")
-  })
+  }, add = TRUE)
 
   Ras <- raster(extent(0, 15, 0, 15), res = 1)
   set.seed(123)
@@ -30,7 +30,7 @@ test_that("mapReduce: file does not work correctly 1", {
 #   on.exit({
 #    detach("package:data.table")
 #    detach("package:raster"))
-#   })
+#   }, add = TRUE)
 #
 #   Ras <- raster(extent(0,15,0,15), res=1)
 #   fullRas <- randomPolygons(Ras, numTypes=5, speedup=1, p=0.3)
@@ -59,7 +59,7 @@ test_that("mapReduce: file does not work correctly 1", {
 #   on.exit({
 #    detach("package:data.table")
 #    detach("package:raster"))
-#   })
+#   }, add = TRUE)
 #
 #   Ras <- raster(extent(0, 15, 0, 15), res = 1)
 #   fullRas <- randomPolygons(Ras, numTypes = 5, speedup = 1, p = 0.3)
@@ -84,7 +84,7 @@ test_that("mapReduce: file does not work correctly 1", {
 #   on.exit({
 #    detach("package:data.table")
 #    detach("package:raster"))
-#   })
+#   }, add = TRUE)
 #
 #   Ras <- raster(extent(0,15,0,15), res=1)
 #   fullRas <- randomPolygons(Ras, numTypes=5, speedup=1, p=0.3)

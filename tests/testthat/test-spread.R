@@ -1,31 +1,32 @@
 test_that("spread produces legal RasterLayer", {
   set.seed(123)
 
-  library(raster)
+  library(raster); on.exit(detach("package:raster"), add = TRUE)
+
   # inputs for x
-  a = raster(extent(0,100,0,100), res=1)
-  b = raster(extent(a), res=1, vals=stats::runif(ncell(a),0,1))
+  a <- raster(extent(0,100,0,100), res = 1)
+  b <- raster(extent(a), res = 1, vals = stats::runif(ncell(a),0,1))
 
   # check it makes a RasterLayer
-  expect_that(spread(a, loci=ncell(a)/2, stats::runif(1,0.15,0.25)), is_a("RasterLayer"))
+  expect_that(spread(a, loci = ncell(a)/2, stats::runif(1, 0.15, 0.25)), is_a("RasterLayer"))
 
   #check wide range of spreadProbs
-  for(i in 1:20) {
-    expect_that(spread(a, loci=ncell(a)/2, stats::runif(1,0,1)), is_a("RasterLayer"))
+  for (i in 1:20) {
+    expect_that(spread(a, loci = ncell(a)/2, stats::runif(1,0,1)), is_a("RasterLayer"))
   }
 
   # check spreadProbs outside of legal returns an "spreadProb is not a probability"
-  expect_that(spread(a, loci=ncell(a)/2, 1.1), throws_error("spreadProb is not a probability"))
-  expect_that(spread(a, loci=ncell(a)/2, -0.1), throws_error("spreadProb is not a probability"))
+  expect_that(spread(a, loci = ncell(a)/2, 1.1), throws_error("spreadProb is not a probability"))
+  expect_that(spread(a, loci = ncell(a)/2, -0.1), throws_error("spreadProb is not a probability"))
 
   # checks if maxSize is working properly
   # One process spreading
-  expect_equal(ncell(a), tabulate(spread(a, spreadProb=1, id = TRUE)[]))
+  expect_equal(ncell(a), tabulate(spread(a, spreadProb = 1, id = TRUE)[]))
 
   # several processes spreading
   sizes = rep_len(330,3)
   expect_equal(sizes,
-               tabulate(spread(a, loci=c(100, 3500, 8000), spreadProb = 1,
+               tabulate(spread(a, loci = c(100, 3500, 8000), spreadProb = 1,
                                id = TRUE, maxSize = sizes)[]))
 
   # Test that spreadState with a data.table works
@@ -34,33 +35,33 @@ test_that("spread produces legal RasterLayer", {
                        0.235, 0, NULL, 1e8, 8, iterations = 2, id = TRUE)
   stopped <- list()
   stopped[[1]] <- fires[[1]][, sum(active), by = id][V1 == 0, id]
-  for(i in 2:4){
-    j = sample(1:1000,1);
+  for (i in 2:4) {
+    j <- sample(1:1000,1);
     set.seed(j);
     fires[[i]] <- spread(a, loci = as.integer(sample(1:ncell(a), 10)), returnIndices = TRUE,
                          0.235, 0, NULL, 1e8, 8, iterations = 2, id = TRUE,
-                         spreadState=fires[[i-1]])
+                         spreadState = fires[[i - 1]])
     stopped[[i]] <- fires[[i]][, sum(active), by = id][V1 == 0, id]
 
     # Test that any fire that stopped previously is not rekindled
-    expect_true(all(stopped[[i-1]] %in% stopped[[i]]))
+    expect_true(all(stopped[[i - 1]] %in% stopped[[i]]))
   }
 
   # Test that passing NA to loci returns a correct data.table
   set.seed(123)
   fires <- spread(a, loci = as.integer(sample(1:ncell(a), 10)), returnIndices = TRUE,
                   0.235, 0, NULL, 1e8, 8, iterations = 2, id = TRUE)
-  fires2 <- spread(a, loci=NA_real_, returnIndices = TRUE,
+  fires2 <- spread(a, loci = NA_real_, returnIndices = TRUE,
                    0.235, 0, NULL, 1e8, 8, iterations = 2, id = TRUE,
-                   spreadState=fires)
+                   spreadState = fires)
   expect_true(all(fires2[, unique(id)] %in% fires[,unique(id)]))
   expect_true(all(fires[, unique(id)] %in% fires2[,unique(id)] ))
   expect_true(all(fires2[, length(initialLocus), by = id][,V1] == c(5,14,10,16,1,39,16,18,28,1)))
 })
 
-
 test_that("spread stopRule does not work correctly", {
-  require(raster)
+  require(raster); on.exit(detach("package:raster"), add = TRUE)
+
   a <- raster(extent(0,1e2,0,1e2), res = 1)
   hab <- gaussMap(a, speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
   names(hab) = "hab"
@@ -93,16 +94,15 @@ test_that("spread stopRule does not work correctly", {
   stopRuleB <- spread(hab, loci = startCells, 1, 0,
                       NULL, maxSize = 1e6, 8, 1e6, id = TRUE, circle = TRUE, stopRule = stopRule1,
                       stopRuleBehavior = "excludePixel")
-  foo <- cbind(vals=hab[stopRuleB], id = stopRuleB[stopRuleB > 0]);
+  foo <- cbind(vals = hab[stopRuleB], id = stopRuleB[stopRuleB > 0]);
   expect_true(all( tapply(foo[, "vals"], foo[, "id"], sum) <= maxVal))
 
   # If boolean, then it is exact
   stopRuleB <- spread(hab2, loci = startCells, 1, 0,
                       NULL, maxSize = 1e6, 8, 1e6, id = TRUE, circle = TRUE, stopRule = stopRule1,
                       stopRuleBehavior = "excludePixel")
-  foo <- cbind(vals=hab2[stopRuleB], id = stopRuleB[stopRuleB > 0]);
+  foo <- cbind(vals = hab2[stopRuleB], id = stopRuleB[stopRuleB > 0]);
   expect_true(all( tapply(foo[, "vals"], foo[, "id"], sum) == maxVal))
-
 
   # Test vector maxSize and stopRule when they interfere
   maxSizes <- sample(maxVal*2, length(startCells))
@@ -110,9 +110,8 @@ test_that("spread stopRule does not work correctly", {
                       NULL, maxSize = maxSizes, 8, 1e6, id = TRUE, circle = TRUE, stopRule = stopRule1,
                       stopRuleBehavior = "excludePixel")
   if (interactive()) Plot(stopRuleB, new = TRUE)
-  foo <- cbind(vals=hab2[stopRuleB], id = stopRuleB[stopRuleB > 0]);
+  foo <- cbind(vals = hab2[stopRuleB], id = stopRuleB[stopRuleB > 0]);
   expect_true(all( tapply(foo[, "vals"], foo[, "id"], sum) == pmin(maxSizes, maxVal)))
-
 
   # Test non integer maxSize and stopRule when they interfere
   maxSizes <- runif(length(startCells), 1, maxVal*2)
@@ -120,7 +119,7 @@ test_that("spread stopRule does not work correctly", {
                       NULL, maxSize = maxSizes, 8, 1e6, id = TRUE, circle = TRUE, stopRule = stopRule1,
                       stopRuleBehavior = "excludePixel")
   if (interactive()) Plot(stopRuleB, new = TRUE)
-  foo <- cbind(vals=hab2[stopRuleB], id = stopRuleB[stopRuleB > 0]);
+  foo <- cbind(vals = hab2[stopRuleB], id = stopRuleB[stopRuleB > 0]);
   expect_true(all( tapply(foo[, "vals"], foo[, "id"], sum) == pmin(floor(maxSizes), maxVal)))
 
   ####################################
@@ -221,8 +220,7 @@ test_that("spread stopRule does not work correctly", {
   vals <- tapply(hab[TwoCirclesDiffSize], cirs[cirs > 0], sum)
   expect_true(all(vals < endSizes))
 
-  # Testing allowOverlap
-
+  # Test allowOverlap
   initialLoci <- as.integer(sample(1:ncell(hab), 10))
   expect_silent(circs <- spread(hab2, spreadProb = 1, circle = TRUE, loci = initialLoci,
                                 id = TRUE, circleMaxRadius = maxRadius, allowOverlap = TRUE))
@@ -232,7 +230,6 @@ test_that("spread stopRule does not work correctly", {
 
   expect_silent(circs <- spread(hab2, spreadProb = 1, loci = initialLoci,
                                 maxSize = seq_along(initialLoci)*3, allowOverlap = TRUE))
-
 
   # Test allowOverlap and stopRule
   for (i in 1:6) {
@@ -305,9 +302,10 @@ test_that("spread stopRule does not work correctly", {
 })
 
 test_that("asymmetry doesn't work properly", {
-  require(CircStats)
-  require(raster)
-  a <- raster(extent(0,1e2,0,1e2), res = 1)
+  require(CircStats); on.exit(detach("package:CircStats"), add = TRUE)
+  require(raster); on.exit(detach("package:raster"), add = TRUE)
+
+  a <- raster(extent(0, 1e2, 0, 1e2), res = 1)
   hab <- gaussMap(a, speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
   names(hab) = "hab"
   hab2 <- hab > 0
@@ -369,7 +367,9 @@ test_that("asymmetry doesn't work properly", {
 
 test_that("spread benchmarking", {
   skip("This is just benchmarking, not testing")
-  require(raster)
+
+  require(raster); on.exit(detach("package:raster"), add = TRUE)
+
   a <- raster(extent(0,1e2,0,1e2), res = 1)
   hab <- gaussMap(a, speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
   names(hab) = "hab"
@@ -443,9 +443,10 @@ test_that("spread benchmarking", {
                                 id = FALSE, circle = TRUE, allowOverlap = TRUE,
                                 iterations = 20, directions = 8, returnIndices = FALSE),
                  dists2 = distanceFromPoints(circs, xy = xy))
-  if (interactive()) Plot(dists,dists2,new = TRUE)
+  if (interactive()) Plot(dists, dists2, new = TRUE)
 
-  require(raster)
+  require(raster); on.exit(detach("package:raster"), add = TRUE)
+
   a <- raster(extent(0,436,0,296), res = 1)
   hab <- gaussMap(a,speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
   names(hab) = "hab"
@@ -497,14 +498,13 @@ test_that("spread benchmarking", {
   a[] <- 1
   sizes <- rep(6600,3)
   set.seed(343)
-  microbenchmark(times = 20, maxSize=spread(a, loci=c(100, 3500, 8000), spreadProb = 1,
-                                            id = TRUE, maxSize = sizes))
+  microbenchmark(times = 20, maxSize = spread(a, loci = c(100, 3500, 8000), spreadProb = 1,
+                                              id = TRUE, maxSize = sizes))
   set.seed(343)
   microbenchmark(times = 20,
-                 stopRule=spread(a, loci=c(100, 3500, 8000), spreadProb = 1,
-                                 stopRuleBehavior = "excludePixel",
-                                 id = TRUE,
-                                 stopRule = function(cells,id) length(cells)>sizes[id]))
+                 stopRule = spread(a, loci = c(100, 3500, 8000), spreadProb = 1,
+                                   stopRuleBehavior = "excludePixel", id = TRUE,
+                                   stopRule = function(cells,id) length(cells) > sizes[id]))
   # With 300x300 raster and 6600 sizes
   # maxSizes
   # Unit: milliseconds
@@ -512,10 +512,9 @@ test_that("spread benchmarking", {
   # maxSize  50.39086 54.11104 74.02115  57.60774 101.3887 129.1427    20
   # stopRule  423.923  470.764 552.4836  521.938  594.7501 886.5732    20
   library(profvis)
-  pv = profvis(spread(a, loci=c(100, 3500, 8000), spreadProb = 1,
-                      stopRuleBehavior = "excludePixel",
-                      id = TRUE,
-                      stopRule = function(cells,id) length(cells)>sizes[id]))
+  pv <- profvis(spread(a, loci = c(100, 3500, 8000), spreadProb = 1,
+                       stopRuleBehavior = "excludePixel", id = TRUE,
+                       stopRule = function(cells,id) length(cells) > sizes[id]))
   pv
 
   ##foo <- fooOrig
@@ -534,13 +533,21 @@ test_that("spread benchmarking", {
 })
 
 test_that("rings and cir", {
+  require(sp)
   require(raster)
   require(fpCompare)
-  library(data.table)
-  a <- raster(extent(0,1e2,0,1e2), res = 1)
+  require(data.table)
+
+  on.exit({
+    detach("package:data.table")
+    detach("package:fpCompare")
+    detach("package:raster")
+  }, add = TRUE)
+
+  a <- raster(extent(0, 1e2, 0, 1e2), res = 1)
   hab <- gaussMap(a,speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
-  names(hab) = "hab"
-  hab2 <- hab>0
+  names(hab) <- "hab"
+  hab2 <- hab > 0
   N <- 2
   caribou <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(hab), xmax(hab)),
                                           y = stats::runif(N, xmin(hab), xmax(hab))))
@@ -551,7 +558,7 @@ test_that("rings and cir", {
   cirsIncl <- cir(hab, caribou, maxRadius = radius*1.5, minRadius = radius, simplify = TRUE,
                   includeBehavior = "includePixels")
 
-  expect_true(NROW(cirsEx)<NROW(cirsIncl))
+  expect_true(NROW(cirsEx) < NROW(cirsIncl))
 
   # With including pixels, then distances are not strictly within the bounds of minRadius
   #   and maxRadius, because every cell is included if it has a point anywhere within
@@ -560,7 +567,7 @@ test_that("rings and cir", {
   b <- cbind(coordinates(caribou), id = seq_along(caribou))
   a <- as.matrix(cirsIncl)
   colnames(a)[match(c("id", "indices"),colnames(a))] <- c("id", "to")
-  dists <- distanceFromEachPoint(b,a)
+  dists <- distanceFromEachPoint(b, a)
   expect_true(radius*1.5 < max(dists[, "dists"]))
   expect_true(radius > min(dists[, "dists"]))
 
@@ -601,8 +608,8 @@ test_that("rings and cir", {
   cirs <- data.table(cir(hab, caribou[1,], maxRadius = radius*1.5001, minRadius = radius,
                          simplify = TRUE, allowOverlap = TRUE,
                          includeBehavior = "excludePixels", returnDistances = TRUE))
-  cirs2 <- rings(hab, loci, minRadius = radius, maxRadius = radius*1.5001, allowOverlap = TRUE, returnIndices = TRUE,
-                 includeBehavior = "includeRing")
+  cirs2 <- rings(hab, loci, minRadius = radius, maxRadius = radius*1.5001,
+                 allowOverlap = TRUE, returnIndices = TRUE, includeBehavior = "includeRing")
 
   expect_true(all.equal(range(cirs$dists),range(cirs2$dists)))
   setkey(cirs2, dists, indices)
@@ -657,24 +664,24 @@ test_that("rings and cir", {
 })
 
 test_that("distanceFromPoints does not work correctly", {
-  require(raster)
-  require(fpCompare)
-  library(data.table)
+  require(raster); on.exit(detach("package:raster"), add = TRUE)
+  require(fpCompare); on.exit(detach("package:fpCompare"), add = TRUE)
+  library(data.table); on.exit(detach("package:data.table"), add = TRUE)
   hab <- raster(extent(0, 1e2, 0, 1e2), res = 1)
   hab <- gaussMap(hab,speedup = 1) # if raster is large (>1e6 pixels), use speedup > 1
-  names(hab) = "hab"
+  names(hab) <- "hab"
   N <- 1
   coords <- cbind(x = round(stats::runif(N, xmin(hab), xmax(hab))) + 0.5,
                   y = round(stats::runif(N, xmin(hab), xmax(hab))) + 0.5)
-  distsDFP1Pt = distanceFromPoints(hab, coords[1, , drop = FALSE])
-  distsDFEP1Pt = distanceFromEachPoint(coords[1, , drop = FALSE], landscape = hab)
+  distsDFP1Pt <- distanceFromPoints(hab, coords[1, , drop = FALSE])
+  distsDFEP1Pt <- distanceFromEachPoint(coords[1, , drop = FALSE], landscape = hab)
   ras1 <- raster(hab)
   ras1[] <- distsDFEP1Pt[, "dists"]
   expect_identical(0, unique(round(getValues(distsDFP1Pt - ras1), 7)) )
   if (interactive()) Plot(distsDFP1Pt, ras1, new = TRUE)
 
-  maxDistance = 30
-  distsDFEPMaxD =  dists6 <- distanceFromEachPoint(coords, landscape = hab, maxDistance = maxDistance)
+  maxDistance <- 30
+  distsDFEPMaxD <- dists6 <- distanceFromEachPoint(coords, landscape = hab, maxDistance = maxDistance)
   expect_true(round(max(distsDFEPMaxD[, "dists"]), 7) == maxDistance) # test that maxDistance arg is working
 
   # evaluate cumulativeFn
@@ -683,14 +690,13 @@ test_that("distanceFromPoints does not work correctly", {
   coords <- cbind(x = round(stats::runif(N, xmin(hab), xmax(hab))) + 0.5,
                   y = round(stats::runif(N, xmin(hab), xmax(hab))) + 0.5)
   dfep20 <- distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE], landscape = hab)
-  idw <- tapply(dfep20[,c("dists")],cellFromXY(hab,dfep20[,c("x", "y")]), function(x) sum(1/(1+x)))
+  idw <- tapply(dfep20[, c("dists")], cellFromXY(hab,dfep20[, c("x", "y")]), function(x) sum(1/(1 + x)))
   dfep <- distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE], landscape = hab, cumulativeFn = `+`)
-  expect_true(sum(idw-dfep[, "val"]) %==% 0)
-
+  expect_true(sum(idw - dfep[, "val"]) %==% 0)
 
   skip("this is currently only benchmarking")
 
-  library(microbenchmark)
+  library(microbenchmark); on.exit(detach("package:microbenchmark"), add = TRUE)
 
   loci <- cellFromXY(hab, xy = coords)
   distsCir =  dists7 <- cir(coords, landscape = hab, maxRadius = 30, minRadius = 0, returnDistances = TRUE)
@@ -700,22 +706,24 @@ test_that("distanceFromPoints does not work correctly", {
   hab <- raster(extent(0,1e2,0,1e2), res = 1)
   hab <- gaussMap(hab,speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
   names(hab) = "hab"
-  hab2 <- hab>0
+  hab2 <- hab > 0
   N <- 10
   coords = cbind(x = stats::runif(N, xmin(hab), xmax(hab)),
                  y = stats::runif(N, xmin(hab), xmax(hab)))
   indices = 1:ncell(hab)
 
-  microbenchmark(times = 3,
-                 distsDFP10Pts = dists2 <- distanceFromPoints(hab, coords[,c("x", "y")]),
-                 distsDFP1Pt = dists3 <- distanceFromPoints(hab, coords[1,c("x", "y"),drop = FALSE]),
-                 distsDFEP10Pts = dists1 <- distanceFromEachPoint(coords, landscape = hab),
-                 distsDFEP1Pt = dists5 <- distanceFromEachPoint(coords[1,,drop = FALSE], landscape = hab),
-                 distsDFEPMaxD =  dists6 <- distanceFromEachPoint(coords, landscape = hab, maxDistance = 30),
-                 distsCir =  dists7 <- cir(coords[,c("x", "y")], landscape = hab, maxRadius = 30, minRadius = 0, returnDistances = TRUE,
-                                           returnIndices = TRUE, allowOverlap = TRUE),
-                 distsRings =  dists8 <- rings(loci = loci, landscape = hab, maxRadius = 30, minRadius = 0,
-                                               allowOverlap = TRUE, returnIndices = TRUE)
+  microbenchmark(
+    times = 3,
+    distsDFP10Pts = dists2 <- distanceFromPoints(hab, coords[,c("x", "y")]),
+    distsDFP1Pt = dists3 <- distanceFromPoints(hab, coords[1,c("x", "y"), drop = FALSE]),
+    distsDFEP10Pts = dists1 <- distanceFromEachPoint(coords, landscape = hab),
+    distsDFEP1Pt = dists5 <- distanceFromEachPoint(coords[1,,drop = FALSE], landscape = hab),
+    distsDFEPMaxD =  dists6 <- distanceFromEachPoint(coords, landscape = hab, maxDistance = 30),
+    distsCir =  dists7 <- cir(coords[,c("x", "y")], landscape = hab, maxRadius = 30,
+                              minRadius = 0, returnDistances = TRUE,
+                              returnIndices = TRUE, allowOverlap = TRUE),
+    distsRings =  dists8 <- rings(loci = loci, landscape = hab, maxRadius = 30, minRadius = 0,
+                                 allowOverlap = TRUE, returnIndices = TRUE)
   )
 
   #  for(i in 1:10) {
@@ -723,27 +731,27 @@ test_that("distanceFromPoints does not work correctly", {
   nLoci <- seq(1, log(1000), length.out = 5)
   results <- list()
 
-  for(numPix in nPix) {
-    a = as.character(numPix)
+  for (numPix in nPix) {
+    a <- as.character(numPix)
     results[[a]] <- list()
-    for(numLoci in round(exp(nLoci))) {
-      b = as.character(numLoci)
+    for (numLoci in round(exp(nLoci))) {
+      b <- as.character(numLoci)
       results[[a]][[b]] <- list()
       hab <- raster(extent(0,numPix,0,numPix), res = 1)
       N <- numLoci
-      coords = cbind(x = stats::runif(N, xmin(hab), xmax(hab)),
-                     y = stats::runif(N, xmin(hab), xmax(hab)))
-      results[[a]][[b]] <- summary(microbenchmark(times = 1,
-                                                  #dfep = distanceFromEachPoint(coords[,c("x", "y"),drop = FALSE], landscape = hab),
-                                                  #cir = cir(coords=coords[,c("x", "y")], landscape = hab,
-                                                  #               minRadius = 0, returnDistances = TRUE, allowOverlap = TRUE),
-                                                  dfp  = distanceFromPoints(hab, coords[, c("x", "y"), drop = FALSE]),
-                                                  dfep20 = distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE], landscape = hab),
-                                                  dfep20Cum = distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE], landscape = hab, cumulativeFn = `+`),
-                                                  cir20 = cir(coords = coords[,c("x", "y")], landscape = hab, maxRadius = 20,
-                                                              minRadius = 0, returnDistances = TRUE, allowOverlap = TRUE)
-      )
-      )
+      coords <- cbind(x = stats::runif(N, xmin(hab), xmax(hab)),
+                      y = stats::runif(N, xmin(hab), xmax(hab)))
+      results[[a]][[b]] <- summary(microbenchmark(
+        times = 1,
+        #dfep = distanceFromEachPoint(coords[,c("x", "y"),drop = FALSE], landscape = hab),
+        #cir = cir(coords=coords[,c("x", "y")], landscape = hab,
+        #               minRadius = 0, returnDistances = TRUE, allowOverlap = TRUE),
+        dfp  = distanceFromPoints(hab, coords[, c("x", "y"), drop = FALSE]),
+        dfep20 = distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE], landscape = hab),
+        dfep20Cum = distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE], landscape = hab, cumulativeFn = `+`),
+        cir20 = cir(coords = coords[,c("x", "y")], landscape = hab, maxRadius = 20,
+                    minRadius = 0, returnDistances = TRUE, allowOverlap = TRUE)
+      ))
       print(paste("numLoci =", numLoci, "numPix =", numPix))
     }
   }
@@ -754,11 +762,11 @@ test_that("distanceFromPoints does not work correctly", {
   coords = cbind(x = stats::runif(N, xmin(hab), xmax(hab)),
                  y = stats::runif(N, xmin(hab), xmax(hab)))
   a <- Sys.time()
-  dfep20Cum = distanceFromEachPoint(coords[,c("x", "y"),drop = FALSE], landscape = hab,
-                                    cumulativeFn = `+`, maxDistance = 50)
+  dfep20Cum <- distanceFromEachPoint(coords[,c("x", "y"),drop = FALSE], landscape = hab,
+                                     cumulativeFn = `+`, maxDistance = 50)
   b <- Sys.time()
-  cir20 = cir(coords=coords[,c("x", "y")], landscape = hab, maxRadius = 50,
-              minRadius = 0, returnDistances = TRUE, allowOverlap = TRUE)
+  cir20 <- cir(coords = coords[, c("x", "y")], landscape = hab, maxRadius = 50,
+               minRadius = 0, returnDistances = TRUE, allowOverlap = TRUE)
   d <- Sys.time()
 
   idwRaster <- raster(hab)
@@ -767,7 +775,7 @@ test_that("distanceFromPoints does not work correctly", {
 
   cells <- cellFromXY(hab, cir20[,c("x", "y")])
   cir20DT <- data.table(cir20, cells, key = "cells")
-  idw <- cir20DT[,list(idw=sum(1/sqrt(1+dists))), by = cells]
+  idw <- cir20DT[, list(idw = sum(1/sqrt(1 + dists))), by = cells]
   distsRas <- raster(hab)
   distsRas[] <- 0
   distsRas[idw$cells] <- idw$idw
@@ -782,7 +790,7 @@ test_that("distanceFromPoints does not work correctly", {
   # sum of idw
   cells <- cellFromXY(hab, dists7[,c("x", "y")])
   dists7DT <- data.table(dists7, cells, key = "cells")
-  idw <- dists7DT[,list(idw=sum(1/sqrt(1+dists))), by = cells]
+  idw <- dists7DT[,list(idw = sum(1/sqrt(1 + dists))), by = cells]
   distsRas <- raster(hab)
   distsRas[] <- 0
   distsRas[idw$cells] <- idw$idw
@@ -791,20 +799,20 @@ test_that("distanceFromPoints does not work correctly", {
   # sum of idw
   cells <- cellFromXY(hab, dists6[,c("x", "y")])
   dists6DT <- data.table(dists6, cells, key = "cells")
-  idw <- dists6DT[,list(idw=sum(1/sqrt(1+dists))), by = cells]
+  idw <- dists6DT[,list(idw = sum(1/sqrt(1 + dists))), by = cells]
   distsRas <- raster(hab)
   distsRas[] <- 0
   distsRas[idw$cells] <- idw$idw
 
   cells <- cellFromXY(hab, dists7[,c("x", "y")])
   dists7DT <- data.table(dists7, cells, key = "cells")
-  idw <- dists7DT[,list(idw=sum(1/sqrt(1+dists))), by = cells]
+  idw <- dists7DT[,list(idw = sum(1/sqrt(1 + dists))), by = cells]
   distsRasCir <- raster(hab)
   distsRasCir[] <- 0
   distsRasCir[idw$cells] <- idw$idw
 
   dists8DT <- data.table(dists8, key = "indices")
-  idw <- dists8DT[,list(idw=sum(1/sqrt(1+dists))), by = indices]
+  idw <- dists8DT[,list(idw = sum(1/sqrt(1 + dists))), by = indices]
   distsRasRings <- raster(hab)
   distsRasRings[] <- 0
   distsRasRings[idw$indices] <- idw$idw
@@ -837,7 +845,7 @@ test_that("distanceFromPoints does not work correctly", {
   # sum of idw
   cells <- cellFromXY(hab, dists50[,c("x", "y")])
   dists50DT <- data.table(dists50, cells, key = "cells")
-  idw <- dists50DT[,list(idw=sum(1/sqrt(1+dists))), by = cells]
+  idw <- dists50DT[,list(idw = sum(1/sqrt(1 + dists))), by = cells]
 
   #idw <- dists1DT[,list(sumID=sum(id)), by = cells]
   distsRas <- raster(hab)
@@ -955,54 +963,54 @@ test_that("distanceFromPoints does not work correctly", {
 })
 
 test_that("simple cir does not work correctly", {
-
-  require(raster)
-  require(fpCompare)
+  require(raster); on.exit(detach("package:raster"), add = TRUE)
+  require(fpCompare); on.exit(detach("package:fpCompare"), add = TRUE)
   hab <- raster(extent(0,1e1,0,1e1), res = 1)
 
   circleRas <- cir(hab, maxRadius = 1, includeBehavior = "excludePixels")
   expect_true(NROW(circleRas) == 4)
   expect_true(all(circleRas[, "indices"] == c(35,44,55,46)))
-  expect_true(all(mean(circleRas[, "x"]) == (ncol(hab)/2-0.5)))
-  expect_true(all(mean(circleRas[, "y"]) == (nrow(hab)/2+0.5)))
+  expect_true(all(mean(circleRas[, "x"]) == (ncol(hab)/2 - 0.5)))
+  expect_true(all(mean(circleRas[, "y"]) == (nrow(hab)/2 + 0.5)))
 
   N = 1
-  coords = cbind(x1 = round(stats::runif(N, xmin(hab), xmax(hab)))+0.5,
-                 y1 = round(stats::runif(N, xmin(hab), xmax(hab)))+0.5)
-  expect_error(cir(hab, coords=coords), "coords must have columns named x and y")
+  coords = cbind(x1 = round(stats::runif(N, xmin(hab), xmax(hab))) + 0.5,
+                 y1 = round(stats::runif(N, xmin(hab), xmax(hab))) + 0.5)
+  expect_error(cir(hab, coords = coords), "coords must have columns named x and y")
 
   # test id column in coords
   N <- 2
-  coords <- cbind(x = (stats::runif(N, xmin(hab)+0.5, xmax(hab)-0.5)),
-                  y = (stats::runif(N, xmin(hab)+0.5, xmax(hab)-0.5)),
+  coords <- cbind(x = (stats::runif(N, xmin(hab) + 0.5, xmax(hab) - 0.5)),
+                  y = (stats::runif(N, xmin(hab) + 0.5, xmax(hab) - 0.5)),
                   id = c(45, 56))
-  cirs <- cir(hab, coords=coords, maxRadius = 1, minRadius = 0, includeBehavior = "includePixels",
-              returnIndices = TRUE)
+  cirs <- cir(hab, coords = coords, maxRadius = 1, minRadius = 0,
+              includeBehavior = "includePixels", returnIndices = TRUE)
   expect_true(all(unique(cirs[, "id"]) == c(45,56)))
   expect_true(all(distanceFromEachPoint(coords, cirs)[, "dists"] %<=% 1))
 
   # test closest
-  N = 1
+  N <- 1
   coords = cbind(x = c(5,6),
                  y = c(5,5))
-  cirsClosestT <- cir(hab, coords=coords, maxRadius = 2, minRadius = 0, includeBehavior = "includePixels",
-                      closest = TRUE, returnIndices = TRUE, allowOverlap = FALSE)
-  cirsClosestF <- cir(hab, coords=coords, maxRadius = 2, minRadius = 0, includeBehavior = "includePixels",
-                      closest = FALSE, returnIndices = TRUE, allowOverlap = FALSE)
+  cirsClosestT <- cir(hab, coords = coords, maxRadius = 2, minRadius = 0,
+                      includeBehavior = "includePixels", closest = TRUE,
+                      returnIndices = TRUE, allowOverlap = FALSE)
+  cirsClosestF <- cir(hab, coords = coords, maxRadius = 2, minRadius = 0,
+                      includeBehavior = "includePixels", closest = FALSE,
+                      returnIndices = TRUE, allowOverlap = FALSE)
   expect_true(all(table(cirsClosestF[, "id"]) == c(17,4)))
   expect_true(all(table(cirsClosestT[, "id"]) - table(cirsClosestF[, "id"]) == c(-5, 5)))
 
-
-
-  cirs2 <- cir(hab, coords=coords, maxRadius = 2, minRadius = 0, includeBehavior = "includePixels",
-               closest = FALSE, returnIndices = FALSE, allowOverlap = FALSE,
-               returnDistances = FALSE)
+  cirs2 <- cir(hab, coords = coords, maxRadius = 2, minRadius = 0,
+               includeBehavior = "includePixels", closest = FALSE,
+               returnIndices = FALSE, allowOverlap = FALSE, returnDistances = FALSE)
   expect_is(cirs2, "Raster")
   expect_true(max(getValues(cirs2)) == 2)
   expect_true(min(getValues(cirs2)) == 0)
 
-  cirs2 <- cir(hab, coords=coords, maxRadius = 2, minRadius = 0, includeBehavior = "includePixels",
-               closest = FALSE, returnIndices = FALSE, allowOverlap = TRUE, returnDistances = FALSE)
+  cirs2 <- cir(hab, coords = coords, maxRadius = 2, minRadius = 0,
+               includeBehavior = "includePixels", closest = FALSE,
+               returnIndices = FALSE, allowOverlap = TRUE, returnDistances = FALSE)
   expect_is(cirs2, "Raster")
   expect_true(max(getValues(cirs2)) == 3)
   expect_true(min(getValues(cirs2)) == 0)
@@ -1024,8 +1032,7 @@ test_that("simple cir does not work correctly", {
 })
 
 test_that("wrap does not work correctly", {
-
-  library(raster)
+  library(raster); on.exit(detach("package:raster"), add = TRUE)
   xrange <- yrange <- c(-50, 50)
   hab <- raster(extent(c(xrange, yrange)))
   hab[] <- 0
@@ -1037,8 +1044,8 @@ test_that("wrap does not work correctly", {
   x1 <- rep(0, N)
   y1 <- rep(0, N)
   # initial points, outside of range
-  starts <- cbind(x = stats::runif(N, xrange[1]-10, xrange[1]),
-                  y = stats::runif(N, yrange[1]-10, yrange[1]))
+  starts <- cbind(x = stats::runif(N, xrange[1] - 10, xrange[1]),
+                  y = stats::runif(N, yrange[1] - 10, yrange[1]))
 
   expect_false(all(wrap(starts, bounds = extent(hab)) == starts))
   expect_false(all(wrap(starts, bounds = hab) == starts))
@@ -1056,8 +1063,8 @@ test_that("wrap does not work correctly", {
                "Must use either a bbox, Raster\\*, or Extent for 'bounds'")
 
   # errrors
-  starts <- cbind(x1 = stats::runif(N, xrange[1]-10, xrange[1]),
-                  y = stats::runif(N, yrange[1]-10, yrange[1]))
+  starts <- cbind(x1 = stats::runif(N, xrange[1] - 10, xrange[1]),
+                  y = stats::runif(N, yrange[1] - 10, yrange[1]))
   spdf <- SpatialPointsDataFrame(coords = starts, data = data.frame(x1, y1))
   expect_error(wrap(spdf, bounds = extent(hab)),
                "When X is a matrix, it must have 2 columns, x and y,")
@@ -1065,31 +1072,29 @@ test_that("wrap does not work correctly", {
 })
 
 test_that("cir angles arg doesn't work", {
-
-  require(raster)
-  require(fpCompare)
+  require(raster); on.exit(detach("package:raster"), add = TRUE)
+  require(fpCompare); on.exit(detach("package:fpCompare"), add = TRUE)
   Ras <- raster(extent(0, 100, 0, 100), res = 1)
   Ras[] <- 0
-  N = 2
+  N <- 2
   coords <- cbind(x = stats::runif(N, xmin(Ras), xmax(Ras)),
                   y = stats::runif(N, xmin(Ras), xmax(Ras)))
-  angles <- seq(0,2*pi,length.out=21)[-21]
-  circ <- cir(Ras, coords, angles = angles,
-              maxRadius = 3, minRadius = 0, returnIndices = TRUE,
-              allowOverlap = TRUE, returnAngles = TRUE)
+  angles <- seq(0, 2*pi, length.out = 21)[-21]
+  circ <- cir(Ras, coords, angles = angles, maxRadius = 3, minRadius = 0,
+              returnIndices = TRUE, allowOverlap = TRUE, returnAngles = TRUE)
   anglesTab <- table(circ[, "angles"])
   expect_true(all(as.numeric(names(anglesTab)) %==% angles))
   expect_true(all(length(anglesTab) == (length(angles))))
 
   skip("microbenchmarking below this")
 
-  library(microbenchmark)
+  library(microbenchmark); on.exit(detach("package:microbenchmark"), add = TRUE)
   Ras <- raster(extent(0, 330, 0, 330), res = 1)
   Ras[] <- 0
-  N = 1e3
+  N <- 1e3
   coords <- cbind(x = stats::runif(N, xmin(Ras), xmax(Ras)),
                   y = stats::runif(N, xmin(Ras), xmax(Ras)))
-  angles <- seq(0,2*pi,length.out=21)[-21]
+  angles <- seq(0, 2*pi, length.out = 21)[-21]
   newWay <- FALSE
   microbenchmark(times = 100,
   circ <- cir(Ras, coords, angles = angles,
@@ -1116,14 +1121,14 @@ test_that("cir angles arg doesn't work", {
                                 allowOverlap = TRUE, returnAngles = TRUE)
   })
 
-test_that("multiple core version of distanceFromEachPoints does not work correctly", {
+test_that("multi-core version of distanceFromEachPoints does not work correctly", {
   skip_on_cran()
   skip_on_travis()
   skip_on_appveyor()
 
   if (interactive()) {
-    require(raster)
-    require(parallel)
+    require(raster); on.exit(detach("package:raster"), add = TRUE)
+    require(parallel); on.exit(detach("package:parallel"), add = TRUE)
 
     hab <- randomPolygons(raster(extent(0, 1e2, 0, 1e2)), res = 1)
 
@@ -1147,4 +1152,3 @@ test_that("multiple core version of distanceFromEachPoints does not work correct
     expect_true(all.equal(dfep, dfepCluster2))
   }
 })
-

@@ -5,12 +5,17 @@
 \alias{downloadData}
 \alias{downloadData,character,character,logical-method}
 \alias{downloadData,character,character,missing-method}
+\alias{downloadData,character,missing,logical-method}
+\alias{downloadData,character,missing,missing-method}
 \title{Download module data}
 \usage{
-downloadData(module, path, quiet = FALSE)
+downloadData(module, path, quiet)
 
-\S4method{downloadData}{character,character,logical}(module, path,
-  quiet = FALSE)
+\S4method{downloadData}{character,character,logical}(module, path, quiet)
+
+\S4method{downloadData}{character,missing,missing}(module)
+
+\S4method{downloadData}{character,missing,logical}(module, quiet)
 
 \S4method{downloadData}{character,character,missing}(module, path)
 }

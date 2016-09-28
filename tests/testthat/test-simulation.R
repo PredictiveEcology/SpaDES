@@ -1,5 +1,5 @@
 test_that("simulation runs with simInit and spades", {
-  library(igraph); on.exit(detach("package:igraph"))
+  library(igraph); on.exit(detach("package:igraph"), add = TRUE)
 
   set.seed(42)
 
@@ -145,16 +145,21 @@ test_that("simulation runs with simInit and spades", {
 })
 
 test_that("spades calls with different signatures don't work", {
+  library(igraph)
+
   tmpdir <- file.path(tempdir(), "test_Plot1") %>% checkPath(create = TRUE)
   cwd <- getwd()
   setwd(tmpdir)
 
+  userModulePath <- getOption('spades.modulesPath')
+  options(spades.modulesPath = tmpdir)
+
   on.exit({
+    detach("package:igraph")
+    options(spades.modulesPath = userModulePath)
     setwd(cwd)
     unlink(tmpdir, recursive = TRUE)
-    detach("package:igraph")
-  })
-  library(igraph)
+  }, add = TRUE)
 
   a <- simInit()
   expect_silent(spades(a))
@@ -197,7 +202,6 @@ test_that("spades calls with different signatures don't work", {
   file.remove(dir(paths(a)$cachePath, full.names = TRUE, recursive = TRUE))
 })
 
-
 test_that("simInit with R subfolder scripts", {
   library(igraph)
   tmpdir <- file.path(tempdir(), "test_timeunits") %>% checkPath(create = TRUE)
@@ -205,18 +209,17 @@ test_that("simInit with R subfolder scripts", {
   setwd(tmpdir)
 
   on.exit({
+    detach("package:igraph")
     setwd(cwd)
     unlink(tmpdir, recursive = TRUE)
-  })
+  }, add = TRUE)
 
   newModule("child1", ".")
   cat(file = file.path("child1", "R", "script.R"),
       "a <- function(r) {
           r + 1
       }", sep = "\n")
-  mySim <- simInit(modules = "child1",
-          paths = list(modulePath = tmpdir))
-  expect_true(sum(grepl(ls(mySim), pattern = "^a$"))==1)
-  expect_true(mySim$a(2)==3)
-
+  mySim <- simInit(modules = "child1", paths = list(modulePath = tmpdir))
+  expect_true(sum(grepl(ls(mySim), pattern = "^a$")) == 1)
+  expect_true(mySim$a(2) == 3)
 })

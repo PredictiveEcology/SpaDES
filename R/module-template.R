@@ -58,13 +58,15 @@
 #'              specifying the names of child modules.
 #'
 #' @return Nothing is returned. The new module file is created at
-#' \code{path/name.R}, as well as ancillary files for documentation, citation,
+#' \file{path/name.R}, as well as ancillary files for documentation, citation,
 #' license, readme, and unit tests folder.
 #'
 #' @note On Windows there is currently a bug in RStudio that prevents the editor
-#' from opening when \code{file.edit} is called. \code{file.edit} does work if the user
-#' types it at the command prompt. A message with the correct lines to copy and paste
-#' is provided.
+#' from opening when \code{file.edit} is called.
+#' Similarly, in RStudio on OS X / macOS, there is an issue opening files where
+#' they are opened in an overlayed window rather than a new tab.
+#' \code{file.edit} does work if the user types it at the command prompt.
+#' A message with the correct lines to copy and paste is provided.
 #'
 #' @export
 #' @docType methods
@@ -141,7 +143,7 @@ setMethod(
   "newModule",
   signature = c(name = "character", path = "missing"),
   definition = function(name, ...) {
-    newModule(name = name, path = ".", ...)
+    newModule(name = name, path = getOption("spades.modulesPath"), ...)
 })
 
 ################################################################################
@@ -445,12 +447,13 @@ For help writing in RMarkdown, see http://rmarkdown.rstudio.com/.
 # Usage
 
 ```{r module_usage}
+library(igraph)
 library(SpaDES)
-library(magrittr)
 
 moduleDir <- file.path(\"", path, "\")
 inputDir <- file.path(moduleDir, \"inputs\") %>% checkPath(create = TRUE)
 outputDir <- file.path(moduleDir, \"outputs\")
+cacheDir <- file.path(outputDir, \"cache\")
 times <- list(start = 0, end = 10)
 parameters <- list(
   #.progress = list(type = \"text\", interval = 1), # for a progress bar
@@ -461,7 +464,7 @@ parameters <- list(
 modules <- list(\"", name, "\")
 objects <- list()
 paths <- list(
-  cachePath = file.path(outputDir, \"cache\"),
+  cachePath = cacheDir,
   modulePath = moduleDir,
   inputPath = inputDir,
   outputPath = outputDir
@@ -834,11 +837,9 @@ setMethod(
   "zipModule",
   signature = c(name = "character", path = "character", version = "character"),
   definition = function(name, path, version, ...) {
-
     path <- checkPath(path, create = FALSE)
-
     callingWd <- getwd()
-    on.exit(setwd(callingWd))
+    on.exit(setwd(callingWd), add = TRUE)
     setwd(path)
     zipFileName = paste0(name, "_", version, ".zip")
     print(paste("Zipping module into zip file:", zipFileName))
