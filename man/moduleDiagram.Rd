@@ -23,7 +23,7 @@ or \code{"tk"} for \code{igraph::tkplot}. Default missing, which uses regular
 
 \item{showParents}{Logical. If TRUE, then any children that are grouped into parent
 modules will be grouped together by colored blobs. Internally,
-this is calling \code{\link{moduleGraph}}. Default is FALSE.}
+this is calling \code{\link{moduleGraph}}. Default \code{FALSE}.}
 
 \item{...}{Additional arguments passed to plotting function specfied by \code{type}.}
 }
