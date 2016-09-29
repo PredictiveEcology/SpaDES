@@ -218,18 +218,19 @@ defineModule(sim, list(
     defineParameter(\".saveInitialTime\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first save event should occur\"),
     defineParameter(\".saveInterval\", \"numeric\", NA, NA, NA, \"This describes the simulation time interval between save events\")
   ),
-  inputObjects = data.frame(
-    objectName = NA_character_,
-    objectClass = NA_character_,
-    sourceURL = \"\",
-    other = NA_character_,
-    stringsAsFactors = FALSE
+  inputObjects = rbind(
+    #defineIOObject(\"input\", objectName, objectClass, sourceURL, other), # sourceURL and other can be ignored, if they can not be specified
+    defineIOObject(\"input\", objectName = \"testinputObject1\", objectClass = \"numeric\",
+    sourceURL = \"weblink\", other = \"test\"), # should be replaced or deleted
+    defineIOObject(\"input\", objectName = \"testinputObject2\", objectClass = \"numeric\") # should be replaced or deleted
+    # define more input objects if you have
   ),
-  outputObjects = data.frame(
-    objectName = NA_character_,
-    objectClass = NA_character_,
-    other = NA_character_,
-    stringsAsFactors = FALSE
+  outputObjects = rbind(
+    #defineIOObject(\"output\", objectName, objectClass, other), # other can be ignored, if they can not be specified
+    defineIOObject(\"output\", objectName = \"testoutputObject1\", objectClass = \"RasterLayer\",
+    other = \"test\"), # should be replaced or deleted
+    defineIOObject(\"output\", objectName = \"testoutputObject2\", objectClass = \"data.table\") # should be replaced or deleted
+    # define more output objects if you have
   )","
 ))\n",
       file = filenameR, fill = FALSE, sep = "")
