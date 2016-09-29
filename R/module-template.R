@@ -218,19 +218,20 @@ defineModule(sim, list(
     defineParameter(\".saveInitialTime\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first save event should occur\"),
     defineParameter(\".saveInterval\", \"numeric\", NA, NA, NA, \"This describes the simulation time interval between save events\")
   ),
-  inputObjects = data.frame(
-    objectName = NA_character_,
-    objectClass = NA_character_,
-    sourceURL = \"\",
-    other = NA_character_,
-    stringsAsFactors = FALSE
-  ),
-  outputObjects = data.frame(
-    objectName = NA_character_,
-    objectClass = NA_character_,
-    other = NA_character_,
-    stringsAsFactors = FALSE
-  )","
+  inputObjects = data.frame(rbindlist(list(
+    #expectsInput(name, class, desc, sourceURL, ...), # desc is description; default is NA for sourceURL
+                                                      # other information can be added through ... arguement
+    expectsInput(name = \"testinputObject1\", class = \"numeric\", desc = \"this is test for input object1\",
+                 sourceURL = \"weblink\", otherInformation = \"test\"), # should be replaced or deleted
+    expectsInput(name = \"testmap\", class = \"RasterLayer\", desc = \"this is a test map for input object1\",
+                 extent = c(1, 2, 3, 4)) # should be replaced or deleted
+    # define more input objects using expectsInput function
+  outputObjects = data.frame(rbindlist(list(
+    #createsOutput(name, class, desc, ...), # desc is description; other information can be added through ... arguement
+    createsOutput(name = \"testoutputObject2\", class = \"SpatialPologonsDataFrame\", desc = \"test\",
+                  extent = c(1, 2, 3, 4)) # should be replaced or deleted
+    # define more output objects using createsOutput function
+  ), fill = TRUE))","
 ))\n",
       file = filenameR, fill = FALSE, sep = "")
 
