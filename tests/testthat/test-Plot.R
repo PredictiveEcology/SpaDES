@@ -781,7 +781,7 @@ test_that("Plot with base is not error-free", {
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
                  Darwin = "B8E1C60F39F88E07",
-                 Linux = "",
+                 Linux = "9FE1E441C2FAE01E",
                  Windows = "9FE5E451C27AE01C"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
@@ -841,7 +841,7 @@ test_that("Plot with base is not error-free", {
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
                  Darwin = "BC16C3CE96E1C364",
-                 Linux = "",
+                 Linux = "BC1EC3CC96E1C165",
                  Windows = "9D96C3CE94E1E168"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
