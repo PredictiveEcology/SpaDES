@@ -59,11 +59,12 @@ If two modules are actually depedent on each others' events, then you should con
 
 ## Module directory structure (`moduleName/`)
 
-A module consists of a collection of files that ...
+A module consists of a collection of files and folders that ...
 
 ```
 /moduleRepository
   |_ moduleName/
+      |_ R/                     # A folder for optional R scripts, parsed in `simInit`
       |_ data/
           |_ CHECKSUMS.txt
       |_ citation.bib           # properly formatted bibtex citation for the module
@@ -427,14 +428,18 @@ times <- list(start = 0.0, end = 20)
 parameters <- list(
   .globals = list(stackName = "landscape", burnStats = "nPixelsBurned")
 )
-modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
+modules <- list("SpaDES_sampleModules")
 paths <- list(modulePath = system.file("sampleModules", package = "SpaDES"))
 
 mySim <- simInit(times = times, params = parameters, modules = modules, paths = paths)
 
 ## examine simulation module (object) dependencies
 depsEdgeList(mySim, FALSE)      # all object dependency relationships
-if(interactive()) moduleDiagram(mySim)            # simplified visual representation of modules
+clearPlot()
+moduleDiagram(mySim)            # simplified visual representation of modules
+
+clearPlot()
+moduleDiagram(mySim, showParents = TRUE) # similar, but showing parent module grouping
 
 # detailed visual representation of objects
 objectDiagram(mySim, width = 720)
@@ -706,8 +711,11 @@ Requires a RasterStack object whose name is specified by `globals(sim)$stackName
 Modules from this (or another suitable GitHub repository) can be downloaded using:
 
 ```{r download-module, echo=TRUE, eval=FALSE}
-downloadModule("moduleName", "path/to/my/modules/directory")
+downloadModule("moduleName")
 ```
+
+**Note:** by default, modules and their data are saved to the directory specified by the `spades.modulesPath`.
+An alternate path can be provided to `downloadModule` directly via the `path` argument, or specified using `options(spades.modulesPath = "path/to/my/modules")`.
 
 # Creating new modules
 

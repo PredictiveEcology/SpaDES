@@ -17,7 +17,7 @@ moduleMetadata(module, path)
 \item{module}{Character string. Your module's name.}
 
 \item{path}{Character string specifying the file path to modules directory.
-Default is the current working directory.}
+Default is to use the \code{spades.modulesPath} option.}
 }
 \value{
 A list of module metadata, matching the structure in
@@ -27,9 +27,9 @@ A list of module metadata, matching the structure in
 Parse and extract module metadata
 }
 \examples{
-  path <- system.file(package = "SpaDES", "sampleModules")
-  sampleModules <- dir(path)
-  x <- moduleMetadata(sampleModules[1], path)
+path <- system.file(package = "SpaDES", "sampleModules")
+sampleModules <- dir(path)
+x <- moduleMetadata(sampleModules[3], path)
 
 }
 \author{

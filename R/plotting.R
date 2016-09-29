@@ -402,10 +402,15 @@ setMethod(
                         # A test_that call can be very long, with many function calls, including Plot and do.call, even if
                         #  they don't have anything to do with each other
     dots <- list(...)
-    if(is.list(dots[[1]]) & !is(dots[[1]], "gg") & !is(dots[[1]], "histogram")) {
+    if (is.list(dots[[1]]) & !is(dots[[1]], ".spadesPlottables") &
+       !is(dots[[1]], "communities") & !is(dots[[1]], "igraph")) {
       dots <- unlist(dots, recursive = FALSE)
-      if(is.null(names(dots)))
+      isList <- TRUE
+
+      if (is.null(names(dots)))
         stop("If providing a list of objects to Plot, it must be a named list.")
+    } else {
+      isList <- FALSE
     }
 
     # Determine where the objects are located; they could be .GlobalEnv, simList, or any other place.
@@ -424,6 +429,7 @@ setMethod(
     } else {
       whFrame <- grep(scalls, pattern = "^Plot")
       dotObjs <- dots
+      if (isList) dots$env <- sys.frame(whFrame - 1)
       plotFrame <- sys.frame(whFrame)
       plotArgs <- mget(names(formals("Plot")), plotFrame)[-1]
     }
@@ -485,11 +491,12 @@ setMethod(
         plotArgs$axes <- "L"
       }
 
-      if(is.null(mcPlot$title)) {
+      if(is.null(plotArgs$title)) {
         plotArgs$title <- mc$main
       }
       if(is.null(mcPlot$col)) {
-        if(!any(unlist(lapply(dotObjs, is, "histogram")))) #dfault for histogram is NULL
+        if(!any(unlist(lapply(dotObjs, function(x)
+             any(unlist(lapply(c("histogram", "igraph", "communities"), function(y) is(x,y)))))))) #dfault for histogram is NULL
           plotArgs$col <- "black"
       }
       plotArgs$main <- ""
@@ -549,11 +556,6 @@ setMethod(
 
     newSpadesPlots <- .makeSpadesPlot(
       plotObjs, plotArgs, whichSpadesPlottables, env = objFrame)
-    #names(plotObjs) <- unlist(unique(lapply(newSpadesPlots@spadesGrobList,
-    #                                        function(x) {
-#                                             x[[1]]@objName
-    #                                        }
-    #                                        )))
 
     if (exists(paste0("spadesPlot", dev.cur()), envir = .spadesEnv)) {
       currSpadesPlots <- .getSpaDES(paste0("spadesPlot", dev.cur()))
@@ -788,4 +790,3 @@ rePlot <- function(toDev = dev.cur(), fromDev = dev.cur(), ...) {
     )
   }
 }
-

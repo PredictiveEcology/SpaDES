@@ -1,4 +1,11 @@
 test_that("defineModule correctly handles different inputs", {
+  userModulePath <- getOption('spades.modulesPath')
+  options(spades.modulesPath = tempdir())
+
+  on.exit({
+    options(spades.modulesPath = userModulePath)
+  }, add = TRUE)
+
   tmp <- simInit()
 
   # check empty metadata
@@ -150,17 +157,21 @@ test_that("depsEdgeList and depsGraph work", {
   expect_is(depsGraph(mySim), "igraph")
 })
 
-
 test_that("3 levels of parent and child modules load and show correctly", {
   library(igraph)
   tmpdir <- file.path(tempdir(), "test_hierachicalModules") %>% checkPath(create = TRUE)
   cwd <- getwd()
   setwd(tmpdir)
 
+  userModulePath <- getOption('spades.modulesPath')
+  options(spades.modulesPath = tmpdir)
+
   on.exit({
+    detach("package:igraph")
+    options(spades.modulesPath = userModulePath)
     setwd(cwd)
     unlink(tmpdir, recursive = TRUE)
-  })
+  }, add = TRUE)
 
   newModule("grandpar1", ".", type = "parent", children = c("child1", "child2",
                                                             "par1", "par2"))
@@ -198,9 +209,8 @@ test_that("3 levels of parent and child modules load and show correctly", {
   expect_true(is(mg, "list"))
   expect_true(is(mg$graph, "igraph"))
   expect_true(is(mg$communities, "communities"))
-  expect_true(length(unique(mg$communities$member))==3)
+  expect_true(length(unique(mg$communities$member)) == 3)
   expect_true(any(communities(mg$communities)[['1']] %in% "grandpar1"))
   expect_true(identical(communities(mg$communities)[['1']],
                         c("grandpar1","par1", "par2", "child1", "child2")))
-
 })

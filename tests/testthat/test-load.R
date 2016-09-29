@@ -1,7 +1,10 @@
 test_that("test-load.R: loading inputs does not work correctly", {
   library(igraph)
   tmpdir <- file.path(tempdir(), "test_load", rndstr()) %>% checkPath(create = TRUE)
-  on.exit(unlink(tmpdir, recursive = TRUE))
+  on.exit({
+    detach("package:igraph")
+    unlink(tmpdir, recursive = TRUE)
+  }, add = TRUE)
 
   mapPath <- system.file("maps", package = "SpaDES")
 
@@ -111,7 +114,9 @@ test_that("test-load.R: loading inputs does not work correctly", {
 
 test_that("test-load.R: passing arguments to filelist in simInit does not work correctly", {
   tmpdir <- file.path(tempdir(), "test_load", rndstr()) %>% checkPath(create = TRUE)
-  on.exit(unlink(tmpdir, recursive = TRUE))
+  on.exit({
+    unlink(tmpdir, recursive = TRUE)
+  }, add = TRUE)
 
   # Second, more sophisticated. All maps loaded at time = 0, and the last one is reloaded
   #  at time = 10 and 20 (via "intervals").
@@ -143,6 +148,7 @@ test_that("test-load.R: passing arguments to filelist in simInit does not work c
   times <- list(start = 0, end = 1, timeunit = "seconds")
 
   if (require(rgdal, quietly = TRUE)) {
+    on.exit(detach("package:rgdal"), add = TRUE)
     sim2 <- simInit(times = times, params = parameters, modules = modules,
                     paths = paths, inputs = inputs)
     expect_true(c("DEM") %in% ls(sim2))
@@ -174,7 +180,10 @@ test_that("test-load.R: passing arguments to filelist in simInit does not work c
 test_that("test-load.R: passing objects to simInit does not work correctly", {
   library(igraph)
   tmpdir <- file.path(tempdir(), "test_load", rndstr()) %>% checkPath(create = TRUE)
-  on.exit(unlink(tmpdir, recursive = TRUE))
+  on.exit({
+    detach("package:igraph")
+    unlink(tmpdir, recursive = TRUE)
+  }, add = TRUE)
 
   mapPath <- mapPath <- system.file("maps", package = "SpaDES")
 
@@ -272,7 +281,13 @@ test_that("test-load.R: passing nearly empty file to simInit does not work corre
 
 test_that("test-load.R: more tests", {
   tmpdir <- file.path(tempdir(), "test_load", rndstr()) %>% checkPath(create = TRUE)
-  on.exit(unlink(tmpdir, recursive = TRUE))
+  userModulePath <- getOption('spades.modulesPath')
+  options(spades.modulesPath = tmpdir)
+
+  on.exit({
+    options(spades.modulesPath = userModulePath)
+    unlink(tmpdir, recursive = TRUE)
+  }, add = TRUE)
 
   sim <- simInit()
   test <- 1:10
@@ -287,10 +302,10 @@ test_that("test-load.R: more tests", {
   if (require(rgdal, quietly = TRUE)) {
     on.exit(detach("package:rgdal"), add = TRUE)
 
-    files = dir(system.file("maps", package = "SpaDES"),
+    files <- dir(system.file("maps", package = "SpaDES"),
                 full.names = TRUE, pattern = "tif")
-    arguments = I(rep(list(native = TRUE), length(files)))
-    filelist = data.frame(
+    arguments <- I(rep(list(native = TRUE), length(files)))
+    filelist <- data.frame(
        files = files,
        functions = "raster::raster",
        objectName = NA,

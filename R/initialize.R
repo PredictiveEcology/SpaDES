@@ -28,10 +28,8 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @seealso \code{\link{RFsimulate}} and \code{\link{extent}}
 #'
-#' @importFrom RandomFieldsUtils RFoptions
-#' @importFrom RandomFields RFsimulate
-#' @importFrom RandomFields RMexp
-#' @importFrom RandomFields round
+#' @importFrom RandomFields RFsimulate RMexp round
+#' @importFrom RandomFields RFoptions
 #' @importFrom raster cellStats disaggregate extent 'extent<-' raster res
 #' @export
 #' @docType methods
@@ -147,7 +145,7 @@ randomPolygons <- function(ras = raster(extent(0,15,0,15), res = 1, vals = 0),
                            numTypes = 2, ...) {
   args <- list(...)
   if (any(c("p", "A", "speedup", "minpatch") %in% names(args))) {
-    message("Arguments p, A, speedup, and minpatch have been deprecated. See new function definition.")
+    warning("Arguments p, A, speedup, and minpatch have been deprecated. See new function definition.")
   }
 
   starts <- SpatialPoints(coords = cbind(x = stats::runif(numTypes, xmin(ras), xmax(ras)),

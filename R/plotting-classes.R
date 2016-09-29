@@ -81,7 +81,7 @@ setClassUnion(name = "spatialObjects",
 ## all of `graphics` (for histogram) is being imported in `spades-package.R`
 ## all of `igraph` (for igraph) has to be imported in `spades-package.R`
 setClassUnion(name = ".spadesPlotObjects",
-              members = c("spatialObjects", "gg", "igraph"))
+              members = c("spatialObjects", "gg"))#, "igraph", "communities"))
 
 ################################################################################
 #' The \code{.spadesGrob} class

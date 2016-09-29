@@ -1483,7 +1483,7 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
 
         if (missing(cl)) {
           cl <- tryCatch(getCluster(), error = function(x) NULL)
-          on.exit(if (!is.null(cl)) returnCluster())
+          on.exit(if (!is.null(cl)) returnCluster(), add = TRUE)
         }
 
         outerCumFunArgs <- list(landscape = landscape, to = to, angles = angles,

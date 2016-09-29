@@ -2,7 +2,10 @@ test_that("test checkpointing", {
   library(igraph)
   tmpdir <- file.path(tempdir(), "test_checkpoint") %>% checkPath(create = TRUE)
   file <- file.path("chkpnt.RData")
-  on.exit(unlink(tmpdir, recursive = TRUE))
+  on.exit({
+    detach("package:igraph")
+    unlink(tmpdir, recursive = TRUE)
+  }, add = TRUE)
 
   ## save checkpoints; no load/restore
   set.seed(1234)

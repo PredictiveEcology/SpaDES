@@ -3,15 +3,15 @@
 \docType{methods}
 \name{moduleDiagram}
 \alias{moduleDiagram}
-\alias{moduleDiagram,simList,character-method}
-\alias{moduleDiagram,simList,missing-method}
+\alias{moduleDiagram,simList,character,logical-method}
+\alias{moduleDiagram,simList,missing,ANY-method}
 \title{Simulation module dependency diagram}
 \usage{
-moduleDiagram(sim, type, ...)
+moduleDiagram(sim, type, showParents, ...)
 
-\S4method{moduleDiagram}{simList,character}(sim, type, ...)
+\S4method{moduleDiagram}{simList,character,logical}(sim, type, showParents, ...)
 
-\S4method{moduleDiagram}{simList,missing}(sim, type, ...)
+\S4method{moduleDiagram}{simList,missing,ANY}(sim, type, showParents, ...)
 }
 \arguments{
 \item{sim}{A \code{simList} object (typically corresponding to a
@@ -20,6 +20,10 @@ completed simulation).}
 \item{type}{Character string, either \code{"rgl"} for \code{igraph::rglplot}
 or \code{"tk"} for \code{igraph::tkplot}. Default missing, which uses regular
 \code{plot}.}
+
+\item{showParents}{Logical. If TRUE, then any children that are grouped into parent
+modules will be grouped together by colored blobs. Internally,
+this is calling \code{\link{moduleGraph}}. Default \code{FALSE}.}
 
 \item{...}{Additional arguments passed to plotting function specfied by \code{type}.}
 }
