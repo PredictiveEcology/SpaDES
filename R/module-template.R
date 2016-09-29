@@ -226,10 +226,8 @@ defineModule(sim, list(
     expectsInput(name = \"testmap\", class = \"RasterLayer\", desc = \"this is a test map for input object1\",
                  extent = c(1, 2, 3, 4)) # should be replaced or deleted
     # define more input objects using expectsInput function
-  ), fill = TRUE)), # require data.table V1.9.7 or higher
   outputObjects = data.frame(rbindlist(list(
     #createsOutput(name, class, desc, ...), # desc is description; other information can be added through ... arguement
-    createsOutput(name = \"testoutputObject1\", class = \"RasterLayer\", desc = \"test\"), # should be replaced or deleted
     createsOutput(name = \"testoutputObject2\", class = \"SpatialPologonsDataFrame\", desc = \"test\",
                   extent = c(1, 2, 3, 4)) # should be replaced or deleted
     # define more output objects using createsOutput function
