@@ -71,7 +71,7 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @seealso \code{\link[raster]{adjacent}}
 #'
-#' @importFrom data.table data.table key setcolorder setkeyv ':='
+#' @importFrom data.table data.table key set setcolorder setkeyv ':='
 #' @importFrom raster ncell ncol nrow
 #' @importFrom stats na.omit
 #' @export
