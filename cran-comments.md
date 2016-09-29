@@ -13,6 +13,7 @@ We have also made several other improvements and bug fixes (see NEWS).
 ### Current R versions
 * OS X El Capitan         (local), R 3.3.0
 * OS X El Capitan     (travis-ci), R 3.3.1
+* Ubuntu 12.04        (travis-ci), R 3.3.1
 * Ubuntu 14.04        (travis-ci), R 3.3.1
 * Ubuntu 16.04            (local), R 3.3.1
 * Windows              (appveyor), R 3.3.1
@@ -21,6 +22,7 @@ We have also made several other improvements and bug fixes (see NEWS).
 
 ### Development R version
 * Debian:testing (rocker/r-devel), R 3.4.0 (2016-09-18 r71304)
+* Ubuntu 12.04        (travis-ci), R 3.4.0 (2016-09-21 r71333)
 * Windows              (appveyor), R 3.4.0 (2016-09-21 r71333)
 * Windows           (win-builder), R 3.4.0 (2016-09-21 r71333)
 
