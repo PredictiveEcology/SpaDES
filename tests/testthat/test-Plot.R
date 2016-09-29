@@ -749,27 +749,10 @@ test_that("Plot with base is not error-free", {
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
                  Darwin = "AB27BDD38284D94A",
-                 Linux = "EB679553D28CC948",
+                 Linux = "AB27BD730284D9CA",
                  Windows = "EB27BD52D28CC948"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
-
-  ##################################################
-
-  png(file = "test.png")
-  clearPlot()
-  Plot(1:10, ylab = "hist")
-  dev.off()
-
-  #dput(getFingerprint(file = "test.png"))
-  orig <- switch(Sys.info()["sysname"],
-                 Darwin = "EB279D93C28CC94A",
-                 Linux = "",
-                 Windows = "EB27FD720284D958"
-  )
-  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
-
-  ##################################################
 
   # Mixing base and grid
   png(file = "test.png")
