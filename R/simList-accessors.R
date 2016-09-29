@@ -2972,6 +2972,128 @@ setMethod(
     return(df)
 })
 
+
+###########################################################################################
+#' This function is to define the input that the module expects
+#'
+#' @param objectName character vector, specify the object name
+#'
+#' @param objectClass character, specify the object class
+#'
+#' @param desc, character, the description for this input object
+#'
+#' @param sourceURL character, specify the URL to reach the object, default is NA
+#'
+#' @param ... other attibutes the module expects for this input object
+#'
+#' @return a data table
+#'
+#' @export
+#' @docType methods
+#' @rdname expectsInput
+#'
+#' @author Yong Luo
+#'
+setGeneric("expectsInput",
+           function(objectName,
+                    objectClass,
+                    desc,
+                    sourceURL,
+                    ...) {
+             standardGeneric("expectsInput")
+           })
+#' @export
+#' @rdname expectsInput
+setMethod("expectsInput",
+          signature = signature(objectName = "character",
+                                objectClass = "character",
+                                desc = "character",
+                                sourceURL = "character"),
+          definition = function(objectName,
+                                objectClass,
+                                desc,
+                                sourceURL,
+                                ...){
+            returnDataframe <- data.frame(cbind(objectName, objectClass, desc, sourceURL),
+                                          stringsAsFactors = FALSE)
+            templist <- list(...)
+            if(length(templist)>0){
+              for(i in 1:length(templist)){
+                returnDataframe <- data.frame(cbind(returnDataframe, I(list(templist[[i]])),
+                                                    stringsAsFactors = FALSE))
+                names(returnDataframe)[ncol(returnDataframe)] <- names(templist)[i]
+              }
+            }
+            return(data.table(returnDataframe))
+
+          })
+
+#' @export
+#' @rdname expectsInput
+setMethod("expectsInput",
+          signature = signature(objectName = "character",
+                                objectClass = "character",
+                                desc = "character",
+                                sourceURL = "missing"),
+          definition = function(objectName,
+                                objectClass,
+                                desc,
+                                ...){
+            return(expectsInput(objectName, objectClass, desc, sourceURL = NA_character_, ...))
+          })
+
+###########################################################################################
+#' This function is to define the output object that the module wants to export
+#'
+#' @param objectName character vector, specify the object name
+#'
+#' @param objectClass character, specify the object class
+#'
+#' @param desc, character, the description for this output object
+#'
+#' @param ... other attibutes the module expects for this output object
+#'
+#' @return a data table
+#'
+#' @export
+#' @docType methods
+#' @rdname createsOutput
+#'
+#' @author Yong Luo
+#'
+setGeneric("createsOutput",
+           function(objectName,
+                    objectClass,
+                    desc,
+                    ...) {
+             standardGeneric("createsOutput")
+           })
+#' @export
+#' @rdname createsOutput
+setMethod("createsOutput",
+          signature = signature(objectName = "character",
+                                objectClass = "character",
+                                desc = "character"),
+          definition = function(objectName,
+                                objectClass,
+                                desc,
+                                ...){
+            returnDataframe <- data.frame(cbind(objectName, objectClass, desc),
+                                          stringsAsFactors = FALSE)
+            templist <- list(...)
+            if(length(templist)>0){
+              for(i in 1:length(templist)){
+                returnDataframe <- data.frame(cbind(returnDataframe, I(list(templist[[i]])),
+                                                    stringsAsFactors = FALSE))
+                names(returnDataframe)[ncol(returnDataframe)] <- names(templist)[i]
+              }
+            }
+            return(data.table(returnDataframe))
+
+          })
+
+
+
 #' An internal function for coercing a data.frame to inputs()
 #'
 #' @param inputDF A data.frame with partial columns to pass to inputs( ) <-
