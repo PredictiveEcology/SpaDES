@@ -763,7 +763,7 @@ test_that("Plot with base is not error-free", {
 
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
-                 Darwin = "B8E1C60F39F88E07",
+                 Darwin = "9FE1E441C2FAE01E",
                  Linux = "9FE1E441C2FAE01E",
                  Windows = "9FE5E451C27AE01C"
   )
