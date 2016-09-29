@@ -280,7 +280,7 @@ setMethod(
 #'
 #' @param showParents Logical. If TRUE, then any children that are grouped into parent
 #'                    modules will be grouped together by colored blobs. Internally,
-#'                    this is calling \code{\link{moduleGraph}}. Default is FALSE.
+#'                    this is calling \code{\link{moduleGraph}}. Default \code{FALSE}.
 #'
 #' @param ...  Additional arguments passed to plotting function specfied by \code{type}.
 #'
@@ -302,38 +302,38 @@ setGeneric("moduleDiagram", function(sim, type, showParents, ...) {
 
 #' @export
 #' @rdname moduleDiagram
-setMethod("moduleDiagram",
-          signature = c(sim = "simList", type = "character", showParents = "logical"),
-          definition = function(sim, type, showParents, ...) {
-            if (type == "rgl") {
-              rglplot(depsGraph(sim, TRUE), ...)
-            } else if (type == "tk") {
-              tkplot(depsGraph(sim, TRUE), ...)
-            } else {
-              moduleDiagram(sim)
-            }
+setMethod(
+  "moduleDiagram",
+  signature = c(sim = "simList", type = "character", showParents = "logical"),
+  definition = function(sim, type, showParents, ...) {
+    if (type == "rgl") {
+      rglplot(depsGraph(sim, TRUE), ...)
+    } else if (type == "tk") {
+      tkplot(depsGraph(sim, TRUE), ...)
+    } else {
+      moduleDiagram(sim)
+    }
 })
 
 #' @export
 #' @rdname moduleDiagram
-setMethod("moduleDiagram",
-          signature = c(sim = "simList", type = "missing"),
-          definition = function(sim, ...) {
-              modDia <- depsGraph(sim, TRUE)
-              dots <- list(...)
-              if(missing(showParents)) showParents <- FALSE
-              if(showParents) {
-                moduleGraph(sim = sim, ...)
-              } else {
-                if ("title" %in% names(dots)) {
-                  Plot(modDia, plotFn = "plot", axes = FALSE, ...)
-                } else {
-                  Plot(modDia, plotFn = "plot", axes = FALSE, title = "Module Diagram", ...)
-                }
-              }
-
+setMethod(
+  "moduleDiagram",
+  signature = c(sim = "simList", type = "missing"),
+  definition = function(sim, ...) {
+    modDia <- depsGraph(sim, TRUE)
+    dots <- list(...)
+    if (missing(showParents)) showParents <- FALSE
+    if (showParents) {
+      moduleGraph(sim = sim, ...)
+    } else {
+      if ("title" %in% names(dots)) {
+        Plot(modDia, plotFn = "plot", axes = FALSE, ...)
+      } else {
+        Plot(modDia, plotFn = "plot", axes = FALSE, title = "Module Diagram", ...)
+      }
+    }
 })
-
 
 ################################################################################
 #' Build a module dependency graph
@@ -365,52 +365,44 @@ setGeneric("moduleGraph", function(sim, plot, ...) {
 
 #' @export
 #' @rdname moduleGraph
-setMethod("moduleGraph",
-          signature(sim = "simList", plot = "logical"),
-          definition = function(sim, plot, ...) {
+setMethod(
+  "moduleGraph",
+  signature(sim = "simList", plot = "logical"),
+  definition = function(sim, plot, ...) {
+    mg <- attr(sim@modules, "modulesGraph")
+    parents <- unique(mg[, "from"])
 
-            #browser()
-            mg <- attr(sim@modules, "modulesGraph")
-            #if(NROW(mg)==0)
-            #  mg <- data.frame(from=numeric(), to=numeric())
-            parents <- unique(mg[,"from"])
+    deps <- depsEdgeList(sim)[, list(from, to)]
+    el <- rbind(mg, deps) # don't seem to need the rbinded version
 
-            deps <- depsEdgeList(sim)[,list(from,to)]
-            el <- rbind(mg, deps) # don't seem to need the rbinded version
+    # This is just for the dummy case of having no object dependencies
+    if (NROW(deps) == 0) deps <- mg
 
-            # This is just for the dummy case of having no object dependencies
-            if(NROW(deps)==0) {
-              deps <- mg
-            }
-            grph <- graph_from_data_frame(el, directed = TRUE)
-            grps <- cluster_optimal(grph)
+    grph <- graph_from_data_frame(el, directed = TRUE)
+    grps <- cluster_optimal(grph)
 
-            membership <- as.numeric(as.factor(mg[match(names(V(grph)), mg[,2]),1]))
-            membership[is.na(membership)] <- 1
-            membership[which(names(V(grph))=="_INPUT_")] <-
-              max(membership, na.rm = TRUE) + 1
-            grps$membership <- membership
+    membership <- as.numeric(as.factor(mg[match(names(V(grph)), mg[, 2]), 1]))
+    membership[is.na(membership)] <- 1
+    membership[which(names(V(grph)) == "_INPUT_")] <- max(membership, na.rm = TRUE) + 1
+    grps$membership <- membership
 
-            el1 <- lapply(parents, function(par)
-              data.frame(el[from==par]))
-            el1 <- rbindlist(el1)
-            e <- apply(el1, 1, paste, collapse="|")
-            e <- edges(e)
+    el1 <- lapply(parents, function(par) data.frame(el[from == par]))
+    el1 <- rbindlist(el1)
+    e <- apply(el1, 1, paste, collapse = "|")
+    e <- edges(e)
 
-
-            if (plot) {
-              vs <- c(15,0)[(names(V(grph)) %in% parents)+1]
-              dots <- list(...)
-              if ("title" %in% names(dots)) {
-                Plot(grps, grph - e, vertex.size = vs, plotFn = "plot", axes = FALSE,
-                     ...)
-              } else {
-                Plot(grps, grph - e, vertex.size = vs, plotFn = "plot", axes = FALSE,
-                     title = "Module Graph", ...)
-              }
-            }
-            return(invisible(list(graph = grph, communities = grps)))
-          })
+    if (plot) {
+      vs <- c(15,0)[(names(V(grph)) %in% parents) + 1]
+      dots <- list(...)
+      if ("title" %in% names(dots)) {
+        Plot(grps, grph - e, vertex.size = vs, plotFn = "plot", axes = FALSE, ...)
+      } else {
+        Plot(grps, grph - e, vertex.size = vs, plotFn = "plot", axes = FALSE,
+             title = "Module Graph", ...)
+      }
+    }
+    return(invisible(list(graph = grph, communities = grps)))
+})
 
 #' @export
 #' @rdname moduleGraph
@@ -418,4 +410,4 @@ setMethod("moduleGraph",
           signature(sim = "simList", plot = "missing"),
           definition = function(sim, ...) {
             return(moduleGraph(sim, TRUE, ...))
-          })
+})

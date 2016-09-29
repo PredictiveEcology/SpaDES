@@ -402,12 +402,12 @@ setMethod(
                         # A test_that call can be very long, with many function calls, including Plot and do.call, even if
                         #  they don't have anything to do with each other
     dots <- list(...)
-    if(is.list(dots[[1]]) & !is(dots[[1]], ".spadesPlottables") &
+    if (is.list(dots[[1]]) & !is(dots[[1]], ".spadesPlottables") &
        !is(dots[[1]], "communities") & !is(dots[[1]], "igraph")) {
       dots <- unlist(dots, recursive = FALSE)
       isList <- TRUE
 
-      if(is.null(names(dots)))
+      if (is.null(names(dots)))
         stop("If providing a list of objects to Plot, it must be a named list.")
     } else {
       isList <- FALSE
@@ -429,7 +429,7 @@ setMethod(
     } else {
       whFrame <- grep(scalls, pattern = "^Plot")
       dotObjs <- dots
-      if(isList) dots$env <- sys.frame(whFrame - 1)
+      if (isList) dots$env <- sys.frame(whFrame - 1)
       plotFrame <- sys.frame(whFrame)
       plotArgs <- mget(names(formals("Plot")), plotFrame)[-1]
     }
@@ -790,4 +790,3 @@ rePlot <- function(toDev = dev.cur(), fromDev = dev.cur(), ...) {
     )
   }
 }
-
