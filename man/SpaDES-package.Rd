@@ -66,7 +66,7 @@ of a \code{\link{simList}} object are summarized further below.
 \tabular{ll}{
    \code{\link{globals}} \tab List of global simulation parameters.\cr
    \code{\link{params}} \tab Nested list of all simulation parameter.\cr
-   \code{\link{p}} \tab Namespaced version of \code{\link{params}}
+   \code{\link{P}} \tab Namespaced version of \code{\link{params}}
                         (i.e., do not have to specify module name).\cr
 }
 }
