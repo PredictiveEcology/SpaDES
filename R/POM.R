@@ -371,9 +371,9 @@ setMethod(
     if (missing(objFn)) {
       objFn <- function(par, objects, sim, whModules, whParams,
                         whParamsByMod, parallelType) {
-        keep <- TRUE
+        keepGoing <- TRUE
         tryNum <- 1
-        while(keep) {
+        while(keepGoing) {
           sim_ <- SpaDES::copy(sim)
           whP <- 0
           for (wh in seq_along(whParamsByMod)) {
@@ -416,10 +416,10 @@ setMethod(
           }))
           sumObj <- sum(objectiveRes)
           if(is.nan(sumObj)) {
+            if(tryNum < NaNRetries) keepGoing <- TRUE else keepGoing <- FALSE
             tryNum <- tryNum + 1
-            if(tryNum <= NaNRetries) keep <- TRUE else keep <- FALSE
           } else {
-            keep <- FALSE
+            keepGoing <- FALSE
           }
         }
         if(!(identical(logObjFnVals,FALSE))) {
