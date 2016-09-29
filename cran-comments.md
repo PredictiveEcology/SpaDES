@@ -22,7 +22,7 @@ We have also made several other improvements and bug fixes (see NEWS).
 
 ### Development R version
 * Debian:testing (rocker/r-devel), R 3.4.0 (2016-09-18 r71304)
-* Ubuntu 12.04        (travis-ci), R 3.4.0 (2016-09-21 r71333)
+* Ubuntu 12.04        (travis-ci), R 3.4.0 (2016-09-29 r71408)
 * Windows              (appveyor), R 3.4.0 (2016-09-21 r71333)
 * Windows           (win-builder), R 3.4.0 (2016-09-21 r71333)
 
