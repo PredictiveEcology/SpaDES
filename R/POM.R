@@ -41,7 +41,9 @@
 #' \code{objects} is a named list of data--pattern pairs.
 #' Each of these pairs will be assessed against one another using
 #' the \code{objFnCompare}, after standardizing each independently. The
-#' standardization is: \code{mean(abs(derived value - data value))/mean(data value)}.
+#' standardization, which only occurs if the abs(data value < 1),
+#' is: \code{mean(abs(derived value - data value))/mean(data value)}. If
+#' the data value is between -1 and 1, then there is no standardization.
 #' If there is more than one data--pattern
 #' pair, then they will simply be added together in the objective
 #' function. This gives equal weight to each pair. If the user wishes to
@@ -176,7 +178,7 @@ setGeneric(
            sterr = FALSE, ..., objFnCompare = "MAD", optimControl = NULL,
            NaNRetries = NA, logObjFnVals = FALSE, weights) {
     standardGeneric("POM")
-})
+  })
 
 #' @rdname POM
 setMethod(
@@ -259,13 +261,16 @@ setMethod(
             } else {
               stop("objFnCompare must be either MAD or RMSE, see help")
             }
-            out <- out/mean(dataObj, na.rm = TRUE)
+            dataObjVal <- mean(dataObj, na.rm = TRUE)
+            if(abs(dataObjVal)<1) dataObjVal <- 1
+            out <- out/dataObjVal
             return(out)
 
           }))
           objectiveRes <- objectiveRes*weights
           sumObj <- sum(objectiveRes)
           if(is.nan(sumObj)) {
+            #browser()
             if(tryNum < NaNRetries) keepGoing <- TRUE else keepGoing <- FALSE
             tryNum <- tryNum + 1
           } else {
@@ -404,4 +409,4 @@ setMethod(
     }
     output$args <- deoptimArgs
     return(output)
-})
+  })

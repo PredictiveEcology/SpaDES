@@ -128,7 +128,9 @@ to be different parameter limits for optimization.
 \code{objects} is a named list of data--pattern pairs.
 Each of these pairs will be assessed against one another using
 the \code{objFnCompare}, after standardizing each independently. The
-standardization is: \code{mean(abs(derived value - data value))/mean(data value)}.
+standardization, which only occurs if the abs(data value < 1),
+is: \code{mean(abs(derived value - data value))/mean(data value)}. If
+the data value is between -1 and 1, then there is no standardization.
 If there is more than one data--pattern
 pair, then they will simply be added together in the objective
 function. This gives equal weight to each pair. If the user wishes to
