@@ -26,6 +26,17 @@ matrix:
 
   - os: linux
     dist: trusty
+    r: oldrel
+    cran: https://cran.rstudio.com/
+    before_install:
+    - tlmgr install xcolor
+    - export DISPLAY=:99.0
+    - sh -e /etc/init.d/xvfb start
+    - echo "options(repos = c(CRAN='https://cran.rstudio.com'))" >> ~/.Rprofile
+
+  - os: linux
+    dist: trusty
+    r: release
     cran: https://cran.rstudio.com/
     before_install:
     - tlmgr install xcolor
@@ -36,8 +47,39 @@ matrix:
     after_success:
     - ./_push_vignettes.sh
 
+  - os: linux
+    dist: trusty
+    r: devel
+    cran: https://cran.rstudio.com/
+    before_install:
+    - tlmgr install xcolor
+    - export DISPLAY=:99.0
+    - sh -e /etc/init.d/xvfb start
+    - echo "options(repos = c(CRAN='https://cran.rstudio.com'))" >> ~/.Rprofile
+
   - os: osx
     osx_image: xcode8
+    r: oldrel
+    cran: https://cran.rstudio.com/
+    latex: false
+    r_build_args: '--no-build-vignettes'
+    r_check_args: '--as-cran --ignore-vignettes --no-examples'
+    before_install:
+    - echo "options(repos = c(CRAN='https://cran.rstudio.com'))" >> ~/.Rprofile
+
+  - os: osx
+    osx_image: xcode8
+    r: release
+    cran: https://cran.rstudio.com/
+    latex: false
+    r_build_args: '--no-build-vignettes'
+    r_check_args: '--as-cran --ignore-vignettes --no-examples'
+    before_install:
+    - echo "options(repos = c(CRAN='https://cran.rstudio.com'))" >> ~/.Rprofile
+
+  - os: osx
+    osx_image: xcode8
+    r: devel
     cran: https://cran.rstudio.com/
     latex: false
     r_build_args: '--no-build-vignettes'
