@@ -8,11 +8,6 @@ sudo: required
 
 language: r
 
-r:
-  - oldrel
-  - release
-  - devel
-
 env:
   global:
     - secure: "KxcKSH4TFMbNMKAj6ePl4yq6SCeYQJcDkw0PMuEdImomwxqY3mP8p+GWVmNN1PKl8k7C/rgLNPAiBoJmddXMzFvGoGRWvyeER0lDN49rzNPHANF9wnMBBYN27mp98hBZlX2Vxu48M3jbmy+wRpmKKvKxTxOa8tUkt0GVEUTPeGQ="
@@ -23,6 +18,10 @@ matrix:
   - os: linux
     dist: precise
     cran: http://cran.rstudio.com/
+    r:
+    - oldrel
+    - release
+    - devel
     before_install:
     - tlmgr install xcolor
     - export DISPLAY=:99.0
@@ -44,6 +43,10 @@ matrix:
   - os: osx
     osx_image: xcode8
     cran: https://cran.rstudio.com/
+    r:
+    - oldrel
+    - release
+    - devel
     latex: false
     r_build_args: '--no-build-vignettes'
     r_check_args: '--as-cran --ignore-vignettes --no-examples'
