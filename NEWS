@@ -2,6 +2,7 @@ Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
 version 1.2.0.9000
 ==================
+* stricter package version dependencies in Imports and Suggests
 * `debug` argument in `spades()` can now take any expression, character strings. `TRUE`/`FALSE` changed behavior to show only current event.
 * timeunits: when there are parent and grandparent modules, if timeunit is defined, it overrides the "smallest unit" rule. Thus, a parent module can force a timeunit.
 * Plot - enhancements and fixes:
