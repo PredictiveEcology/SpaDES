@@ -8,6 +8,11 @@ sudo: required
 
 language: r
 
+r:
+  - oldrel
+  - release
+  - devel
+
 env:
   global:
     - secure: "KxcKSH4TFMbNMKAj6ePl4yq6SCeYQJcDkw0PMuEdImomwxqY3mP8p+GWVmNN1PKl8k7C/rgLNPAiBoJmddXMzFvGoGRWvyeER0lDN49rzNPHANF9wnMBBYN27mp98hBZlX2Vxu48M3jbmy+wRpmKKvKxTxOa8tUkt0GVEUTPeGQ="
