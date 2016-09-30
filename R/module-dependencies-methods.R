@@ -42,7 +42,6 @@ setMethod(
   "depsEdgeList",
   signature(sim = "simList", plot = "logical"),
   definition = function(sim, plot) {
-
     deps <- depends(sim)
     sim.in <- sim.out <- data.table(objectName = character(0),
                                     objectClass = character(0),
@@ -50,8 +49,8 @@ setMethod(
 
     lapply(deps@dependencies, function(x) {
       if (!is.null(x)) {
-        z.in <- as.data.table(x@inputObjects)[, sourceURL:=NULL][, other:=NULL]
-        z.out <- as.data.table(x@outputObjects)[, other:=NULL]
+        z.in <- as.data.table(x@inputObjects)[,.(objectName, objectClass)]
+        z.out <- as.data.table(x@outputObjects)[,.(objectName, objectClass)]
         z.in$module <- z.out$module <- x@name
         if (!all(is.na(z.in[,objectName]), is.na(z.in[, objectClass]))) {
           sim.in <<- rbindlist(list(sim.in, z.in), use.names = TRUE)
