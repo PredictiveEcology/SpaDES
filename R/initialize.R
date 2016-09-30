@@ -28,8 +28,7 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @seealso \code{\link{RFsimulate}} and \code{\link{extent}}
 #'
-#' @importFrom RandomFields RFsimulate RMexp round
-#' @importFrom RandomFields RFoptions
+#' @importFrom RandomFields RFoptions RFsimulate RMexp round
 #' @importFrom raster cellStats disaggregate extent 'extent<-' raster res
 #' @export
 #' @docType methods
