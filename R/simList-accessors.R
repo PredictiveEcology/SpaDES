@@ -2974,25 +2974,33 @@ setMethod(
 
 
 ###########################################################################################
-#' This function is to define the input that the module expects
+#' Define an input object that the module expects
 #'
-#' @param objectName character vector, specify the object name
+#' Used to specify an input object's name, class, description, sourceURL and other specifications.
 #'
-#' @param objectClass character, specify the object class
+#' @param objectName    Character string to define the input object's name.
+#' @param objectClass   Character string to specify the input object's class.
+#' @param desc          Text string providing a brief description of the input object.
+#' @param sourceURL     Character string to specify an URL to reach the input object, default is NA.
+#' @param ...           Other specifications of the input object.
 #'
-#' @param desc, character, the description for this input object
-#'
-#' @param sourceURL character, specify the URL to reach the object, default is NA
-#'
-#' @param ... other attibutes the module expects for this input object
-#'
-#' @return a data table
+#' @return a data frame
 #'
 #' @export
 #' @docType methods
 #' @rdname expectsInput
 #'
 #' @author Yong Luo
+#'
+#' @examples
+#' library(dplyr)
+#' inputObjets = bind_rows(
+#'   expectsInput(objectName = "inputObject1", objectClass = "character",
+#'                desc = "this is for example", sourceURL = "not available"),
+#'   expectsInput(objectName = "inputObject2", objectClass = "numeric",
+#'                desc = "this is for example", sourceURL = "not available",
+#'                otherInformation = "I am the second input object")
+#' )
 #'
 setGeneric("expectsInput",
            function(objectName,
@@ -3024,8 +3032,7 @@ setMethod("expectsInput",
                 names(returnDataframe)[ncol(returnDataframe)] <- names(templist)[i]
               }
             }
-            return(data.table(returnDataframe))
-
+            return(returnDataframe)
           })
 
 #' @export
@@ -3043,23 +3050,32 @@ setMethod("expectsInput",
           })
 
 ###########################################################################################
-#' This function is to define the output object that the module wants to export
+#' Define an output object of a module
 #'
-#' @param objectName character vector, specify the object name
+#' Used to specify an output object's name, class, description and other specifications.
 #'
-#' @param objectClass character, specify the object class
+#' @param objectName    Character string to define the output object's name.
+#' @param objectClass   Character string to specify the output object's class.
+#' @param desc          Text string providing a brief description of the output object.
+#' @param ...           Other specifications of the output object.
 #'
-#' @param desc, character, the description for this output object
-#'
-#' @param ... other attibutes the module expects for this output object
-#'
-#' @return a data table
+#' @return a data frame
 #'
 #' @export
 #' @docType methods
 #' @rdname createsOutput
 #'
 #' @author Yong Luo
+#'
+#' @examples
+#' library(dplyr)
+#' outputObjets = bind_rows(
+#'   createsOutput(objectName = "outputObject1", objectClass = "character",
+#'                 desc = "this is for example"),
+#'   createsOutput(objectName = "outputObject2", objectClass = "numeric",
+#'                 desc = "this is for example",
+#'                 otherInformation = "I am the second output object")
+#' )
 #'
 setGeneric("createsOutput",
            function(objectName,
@@ -3088,8 +3104,7 @@ setMethod("createsOutput",
                 names(returnDataframe)[ncol(returnDataframe)] <- names(templist)[i]
               }
             }
-            return(data.table(returnDataframe))
-
+            return(returnDataframe)
           })
 
 

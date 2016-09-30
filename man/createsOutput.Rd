@@ -4,7 +4,7 @@
 \name{createsOutput}
 \alias{createsOutput}
 \alias{createsOutput,character,character,character-method}
-\title{This function is to define the output object that the module wants to export}
+\title{Define an output object of a module}
 \usage{
 createsOutput(objectName, objectClass, desc, ...)
 
@@ -12,19 +12,30 @@ createsOutput(objectName, objectClass, desc, ...)
   desc, ...)
 }
 \arguments{
-\item{objectName}{character vector, specify the object name}
+\item{objectName}{Character string to define the output object's name.}
 
-\item{objectClass}{character, specify the object class}
+\item{objectClass}{Character string to specify the output object's class.}
 
-\item{desc, }{character, the description for this output object}
+\item{desc}{Text string providing a brief description of the output object.}
 
-\item{...}{other attibutes the module expects for this output object}
+\item{...}{Other specifications of the output object.}
 }
 \value{
-a data table
+a data frame
 }
 \description{
-This function is to define the output object that the module wants to export
+Used to specify an output object's name, class, description and other specifications.
+}
+\examples{
+library(dplyr)
+outputObjets = bind_rows(
+  createsOutput(objectName = "outputObject1", objectClass = "character",
+                desc = "this is for example"),
+  createsOutput(objectName = "outputObject2", objectClass = "numeric",
+                desc = "this is for example",
+                otherInformation = "I am the second output object")
+)
+
 }
 \author{
 Yong Luo
