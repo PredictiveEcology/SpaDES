@@ -284,7 +284,7 @@ setMethod(
             sink(file = logObjFnVals, append = TRUE)
           cat(format(objectiveResW,digits=4), sep ="\t")
           cat("\n")
-          cat(format(objectiveRes$value, digits = 4), dep = "\t"
+          cat(format(objectiveRes$value, digits = 4), dep = "\t")
           cat("\n")
           if(parallelType>0)
             sink()
