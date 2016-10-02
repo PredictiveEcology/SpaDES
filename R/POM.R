@@ -263,12 +263,14 @@ setMethod(
             }
             dataObjVal <- mean(dataObj, na.rm = TRUE)
             if(abs(dataObjVal)<1) dataObjVal <- 1
-            out <- out/dataObjVal
+            outStandard <- out/dataObjVal
+            out <- list(raw = out, standardized = outStandard,
+                        value = outObj)
             return(out)
 
           }))
-          objectiveRes <- objectiveRes*weights
-          sumObj <- sum(objectiveRes)
+          objectiveResW <- objectiveRes$standardized*weights
+          sumObj <- sum(objectiveResW)
           if(is.nan(sumObj)) {
             #browser()
             if(tryNum < NaNRetries) keepGoing <- TRUE else keepGoing <- FALSE
@@ -280,7 +282,9 @@ setMethod(
         if(!(identical(logObjFnVals,FALSE))) {
           if(parallelType>0  | (logObjFnVals != "objectiveFnValues.txt"))
             sink(file = logObjFnVals, append = TRUE)
-          cat(format(objectiveRes,digits=4), sep ="\t")
+          cat(format(objectiveResW,digits=4), sep ="\t")
+          cat("\n")
+          cat(format(objectiveRes$value, digits = 4), dep = "\t"
           cat("\n")
           if(parallelType>0)
             sink()
