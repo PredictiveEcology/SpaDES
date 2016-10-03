@@ -540,8 +540,11 @@ setMethod(
     if (!any(stopRuleBehavior %in% c("includePixel","excludePixel","includeRing","excludeRing")))
       stop("stopRuleBehaviour must be one of \"includePixel\", \"excludePixel\", \"includeRing\", or \"excludeRing\"")
     spreadStateExists <- is(spreadState, "data.table")
+    spreadProbLaterExists <- TRUE
+    
     if (!is(spreadProbLater, "Raster")) {
       if (is.na(spreadProbLater)) {
+        spreadProbLaterExists <- FALSE
         spreadProbLater <- spreadProb
       }
     }
@@ -645,34 +648,43 @@ setMethod(
       }
     }
 
-    # Convert mask and NAs to 0 on the spreadProbLater Raster
-    if (is(spreadProbLater, "Raster")) {
-      # convert NA to 0s
-      spreadProbLater[is.na(spreadProbLater)] <- 0L
-    } else if (is.numeric(spreadProbLater)) {
-      # Translate numeric spreadProbLater into a Raster, if there is a mask
-      if (is(mask, "Raster")) {
-        spreadProbLater <- raster(extent(landscape), res = res(landscape), vals = spreadProbLater)
-      }
-    }
-
     # Convert mask and NAs to 0 on the spreadProb Raster
     if (is(spreadProb, "Raster")) {
       # convert NA to 0s
-      spreadProb[is.na(spreadProb)] <- 0L
+      isNASpreadProb <- is.na(spreadProb[])
+      if(any(isNASpreadProb)) 
+        spreadProb[isNASpreadProb] <- 0L
     } else if (is.numeric(spreadProb)) {
       # Translate numeric spreadProb into a Raster, if there is a mask
       if (is(mask, "Raster")) {
         spreadProb <- raster(extent(landscape), res = res(landscape), vals = spreadProb)
       }
     }
+    
+    # Convert mask and NAs to 0 on the spreadProbLater Raster
+    if (is(spreadProbLater, "Raster")) {
+      # convert NA to 0s
+      if(!spreadProbLaterExists) {
+        isNASpreadProbLater <- isNASpreadProb
+      } else {
+        isNASpreadProbLater <- is.na(spreadProbLater[])
+      }
+      if(any(isNASpreadProbLater)) 
+        spreadProbLater[isNASpreadProbLater] <- 0L
+
+    } else if (is.numeric(spreadProbLater)) {
+       # Translate numeric spreadProbLater into a Raster, if there is a mask
+       if (is(mask, "Raster")) {
+         spreadProbLater <- raster(extent(landscape), res = res(landscape), vals = spreadProbLater)
+       }
+    }
 
     # Mask spreadProbLater and spreadProb
     if (is(mask, "Raster")) {
-      spreadProbLater[mask == 1L] <- 0L
+      spreadProbLater[mask[] == 1L] <- 0L
     }
     if (is(mask, "Raster")) {
-      spreadProb[mask == 1L] <- 0L
+      spreadProb[mask[] == 1L] <- 0L
     }
 
     if (spreadStateExists) {
@@ -765,13 +777,13 @@ setMethod(
         } else {
           spreadProbs <- spreadProb
         }
-      } else {
+      } else { # here for raster spreadProb
         if (n == 1 & spreadStateExists) { # need cell specific values
-          spreadProbs <- spreadProb[potentials[, 2L]]
+          spreadProbs <- spreadProb[][potentials[, 2L]]
           prevIndices <- potentials[, 1L] %in% spreadState[active == TRUE, indices]
           spreadProbs[prevIndices] <- spreadProbLater
         } else {
-          spreadProbs <- spreadProb[potentials[, 2L]]
+          spreadProbs <- spreadProb[][potentials[, 2L]]
         }
       }
       if (!is.na(asymmetry)) {
@@ -785,10 +797,10 @@ setMethod(
         #d1 <- .matchedPointDirection(a, initialLociXY)
         d <- directionFromEachPoint(from = initialLociXY, to = a)
         #expect_true(all(0 %==% (d[order(d[,"x"],d[,"y"]),"angles"]-d1[order(d1[,"x"],d1[,"y"]),"angles"])))
-        newSpreadProbExtremes <- (spreadProb*2) / (asymmetry + 1)*c(1, asymmetry)
+        newSpreadProbExtremes <- (spreadProb[]*2) / (asymmetry + 1)*c(1, asymmetry)
         angleQuality <- ((cos(d[, "angles"] - rad(asymmetryAngle)) + 1)/2)
         spreadProbs <- newSpreadProbExtremes[1] + (angleQuality * diff(newSpreadProbExtremes))
-        spreadProbs <- spreadProbs - diff(c(spreadProb, mean(spreadProbs)))
+        spreadProbs <- spreadProbs - diff(c(spreadProb[], mean(spreadProbs)))
       }
 
       if (any(spreadProbs < 1)) {
