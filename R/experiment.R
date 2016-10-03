@@ -425,8 +425,10 @@ setMethod(
       if (!is.na(pmatch("Windows", Sys.getenv("OS")))) {
         parallel::clusterEvalQ(cl, library(SpaDES))
       }
+      packagesToLoad <- SpaDES::packages(sim)
+      parallel::clusterExport(cl, "packagesToLoad", envir = environment())
       parallel::clusterEvalQ(cl, {
-        lapply(SpaDES::packages(sim), library, character.only = TRUE)
+        lapply(packagesToLoad, library, character.only = TRUE)
       })
       
       
