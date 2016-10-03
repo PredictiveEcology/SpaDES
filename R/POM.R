@@ -241,7 +241,7 @@ setMethod(
             }
           })
 
-          objectiveRes <- unlist(lapply(seq_along(outputObjects), function(x) {
+          objectiveRes <- lapply(seq_along(outputObjects), function(x) {
             if (is(outputObjects[[x]], "Raster")) {
               outObj <- getValues(outputObjects[[x]])
               dataObj <- getValues(get(names(outputObjects)[x]))
@@ -268,8 +268,9 @@ setMethod(
                         value = outObj)
             return(out)
 
-          }))
-          objectiveResW <- objectiveRes$standardized*weights
+          })
+          objectiveResStd <- unlist(lapply(objectiveRes, function(x) x[['standardized']]))
+          objectiveResW <- objectiveResStd*weights
           sumObj <- sum(objectiveResW)
           if(is.nan(sumObj)) {
             #browser()
@@ -284,10 +285,17 @@ setMethod(
             sink(file = logObjFnVals, append = TRUE)
           cat(format(objectiveResW,digits=4), sep ="\t")
           cat("\n")
-          cat(format(objectiveRes$value, digits = 4), dep = "\t")
-          cat("\n")
-          if(parallelType>0)
+          if(parallelType>0  | (logObjFnVals != "objectiveFnValues.txt"))
             sink()
+          if(parallelType>0  | (logObjFnVals != "objectiveFnValues.txt"))
+            sink(file = paste0(gsub(logObjFnVals,pattern=".txt",
+                                    replacement = ""),
+                               "_RawPattern.txt"), append = TRUE)
+          cat(format(unlist(lapply(objectiveRes, function(x) x[["value"]])), digits = 4), dep = "\t")
+          cat("\n")
+          if(parallelType>0  | (logObjFnVals != "objectiveFnValues.txt"))
+            sink()
+          
         }
         return(sumObj)
       }
@@ -366,6 +374,15 @@ setMethod(
         cat(names(objects), sep = "\t")
         cat("\n")
         if(deoptimArgs$parallelType>0)
+          sink()
+        if(deoptimArgs$parallelType>0 | (logObjFnVals != "objectiveFnValues.txt"))
+          sink(file = paste0(gsub(logObjFnVals,pattern=".txt",
+                                  replacement = ""),
+                             "_RawPattern.txt"), append = FALSE)
+        
+        cat(names(objects), sep = "\t")
+        cat("\n")
+        if(deoptimArgs$parallelType>0 | (logObjFnVals != "objectiveFnValues.txt"))
           sink()
       }
 
