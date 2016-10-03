@@ -425,6 +425,11 @@ setMethod(
       if (!is.na(pmatch("Windows", Sys.getenv("OS")))) {
         parallel::clusterEvalQ(cl, library(SpaDES))
       }
+      parallel::clusterEvalQ(cl, {
+        lapply(SpaDES::packages(sim), library, character.only = TRUE)
+      })
+      
+      
     } else {
       parFun <- "lapply"
       args <- list(X = 1:NROW(factorialExp), FUN = FunDef)
