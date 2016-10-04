@@ -31,15 +31,16 @@ defineModule(sim, list(
     defineParameter(".saveInitialTime", "numeric", NA_real_, NA, NA, "time to schedule first save event"),
     defineParameter(".saveInterval", "numeric", NA_real_, NA, NA, "time interval between save events")
   ),
-  inputObjects = data.frame(
-    objectName = globals(sim)$stackName, objectClass = "RasterStack",
-    sourceURL = NA_character_, other = "layername = \"habitatQuality\"",
-    stringsAsFactors = FALSE),
-  outputObjects = data.frame(
-    objectName = c(globals(sim)$stackName, "caribou"),
-    objectClass = c("RasterStack", "SpatialPointsDataFrame"),
-    other = c("layername = \"habitatQuality\"", NA_character_),
-    stringsAsFactors = FALSE)
+  inputObjects = bind_rows(
+    expectsInput(objectName = globals(sim)$stackName, objectClass = "RasterStack",
+                 desc = "layername = \"habitatQuality\"", sourceURL = NA_character_)
+  ),
+  outputObjects = bind_rows(
+    createsOutput(objectName = globals(sim)$stackName, objectClass = "RasterStack",
+                  desc = "layername = \"habitatQuality\""),
+    createsOutput(objectName = "caribou", objectClass = "SpatialPointsDataFrame",
+                  desc = NA_character_)
+  )
 ))
 
 ## event types

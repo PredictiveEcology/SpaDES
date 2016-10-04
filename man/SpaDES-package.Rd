@@ -205,12 +205,14 @@ including our
 
 
 Each module requires several items to be defined.
-These comprise the metadata for that module (including default parameter specifications),
-and are currently written at the top of the module's \code{.R} file.
+These comprise the metadata for that module (including default parameter specifications,
+ inputs and outputs), and are currently written at the top of the module's \code{.R} file.
 
 \tabular{ll}{
   \code{\link{defineModule}} \tab Define the module metadata\cr
   \code{\link{defineParameter}} \tab Specify a parameter's name, value and set a default\cr
+  \code{\link{expectsInput}} \tab Specify an input object's name, class, description, sourceURL and other specifications\cr
+  \code{\link{createsOutput}} \tab Specify an output object's name, class, description and other specifications\cr
 }
 }
 

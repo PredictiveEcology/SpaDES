@@ -218,18 +218,13 @@ defineModule(sim, list(
     defineParameter(\".saveInitialTime\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first save event should occur\"),
     defineParameter(\".saveInterval\", \"numeric\", NA, NA, NA, \"This describes the simulation time interval between save events\")
   ),
-  inputObjects = data.frame(
-    objectName = NA_character_,
-    objectClass = NA_character_,
-    sourceURL = \"\",
-    other = NA_character_,
-    stringsAsFactors = FALSE
+  inputObjects = bind_rows(
+    #expectsInput(\"objectName\", \"objectClass\", \"input object description\", sourceURL, ...),
+    expectsInput(objectName = NA, objectClass = NA, desc = NA, sourceURL = NA)
   ),
-  outputObjects = data.frame(
-    objectName = NA_character_,
-    objectClass = NA_character_,
-    other = NA_character_,
-    stringsAsFactors = FALSE
+  outputObjects = bind_rows(
+    #createsOutput(\"objectName\", \"objectClass\", \"output object description\", ...),
+    createsOutput(objectName = NA, objectClass = NA, desc = NA)
   )","
 ))\n",
       file = filenameR, fill = FALSE, sep = "")
