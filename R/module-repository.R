@@ -151,8 +151,7 @@ setMethod("checkModule",
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("downloadModule", function(name, path, version, repo, data = FALSE,
-                                      quiet = FALSE) {
+setGeneric("downloadModule", function(name, path, version, repo, data, quiet) {
   standardGeneric("downloadModule")
 })
 
@@ -205,51 +204,31 @@ setMethod(
 #' @rdname downloadModule
 setMethod(
   "downloadModule",
-  signature = c(name = "character", path = "missing", version = "ANY",
-                repo = "ANY", data = "ANY", quiet = "ANY"),
-  definition = function(name, version, data, quiet) {
+  signature = c(name = "character", path = "missing", version = "missing",
+                repo = "missing", data = "missing", quiet = "missing"),
+  definition = function(name) {
     files <- downloadModule(name, path = getOption("spades.modulesPath"),
-                            version, repo = getOption("spades.modulesRepo"),
-                            data = data, quiet = quiet)
+                            version = NA_character_,
+                            repo = getOption('spades.modulesRepo'),
+                            data = FALSE, quiet = FALSE)
     return(invisible(files))
 })
 
 #' @rdname downloadModule
 setMethod(
   "downloadModule",
-  signature = c(name = "character", path = "character", version = "missing",
-                repo = "missing", data = "ANY", quiet = "ANY"),
-  definition = function(name, path, data, quiet) {
-    files <- downloadModule(name, path, version = NA_character_,
-                            repo = getOption("spades.modulesRepo"),
-                            data = data,
-                            quiet = quiet)
+  signature = c(name = "character", path = "ANY", version = "ANY",
+                repo = "ANY", data = "ANY", quiet = "ANY"),
+  definition = function(name, path, version, repo, data, quiet) {
+    if (missing(path)) path <- getOption("spades.modulesPath")
+    if (missing(version)) version <- NA_character_
+    if (missing(repo)) repo <- getOption("spades.modulesRepo")
+    if (missing(data)) data <- FALSE
+    if (missing(quiet)) quiet <- FALSE
+
+    files <- downloadModule(name, path, version, repo, data, quiet)
     return(invisible(files))
 })
-
-#' @rdname downloadModule
-setMethod(
-  "downloadModule",
-  signature = c(name = "character", path = "character", version = "character",
-                repo = "missing", data = "ANY", quiet = "ANY"),
-  definition = function(name, path, version, data, quiet) {
-    files <- downloadModule(name, path, version,
-                            repo = getOption("spades.modulesRepo"),
-                            data = data, quiet = quiet)
-    return(invisible(files))
-})
-
-#' @rdname downloadModule
-setMethod(
-  "downloadModule",
-  signature = c(name = "character", path = "character", version = "missing",
-                repo = "character", data = "ANY", quiet = "ANY"),
-  definition = function(name, path, repo, data, quiet) {
-    files <- downloadModule(name, path, version = NA_character_, repo = repo,
-                            data = data, quiet)
-    return(invisible(files))
-})
-
 
 ################################################################################
 #' Download module data
