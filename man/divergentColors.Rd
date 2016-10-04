@@ -3,15 +3,14 @@
 \docType{methods}
 \name{divergentColors}
 \alias{divergentColors}
-\alias{divergentColors,character,character,numeric,numeric,numeric,character-method}
+\alias{divergentColors,character,character,numeric,numeric-method}
 \alias{divergentColours}
 \title{Divergent colour palette}
 \usage{
 divergentColors(start.color, end.color, min.value, max.value, mid.value = 0,
   mid.color = "white")
 
-
-  \S4method{divergentColors}{character,character,numeric,numeric,numeric,character}(start.color,
+\S4method{divergentColors}{character,character,numeric,numeric}(start.color,
   end.color, min.value, max.value, mid.value = 0, mid.color = "white")
 }
 \arguments{
@@ -19,9 +18,11 @@ divergentColors(start.color, end.color, min.value, max.value, mid.value = 0,
 
 \item{end.color}{End colour to be passed to \code{colorRampPalette}.}
 
-\item{min.value}{Numeric minimum value corresponding to \code{start.colour}.}
+\item{min.value}{Numeric minimum value corresponding to \code{start.colour}. If attempting
+to change the color of a Raster layer, this can be set to minValue(RasterObject)}
 
-\item{max.value}{Numeric maximum value corresponding to \code{end.colour}.}
+\item{max.value}{Numeric maximum value corresponding to \code{end.colour}. If attempting
+to change the color of a Raster layer, this can be set to maxValue(RasterObject)}
 
 \item{mid.value}{Numeric middle value corresponding to \code{mid.colour}.
 Default is \code{0}.}

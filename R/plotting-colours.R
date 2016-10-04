@@ -575,8 +575,11 @@ setMethod(
 #'
 #' @param start.color  Start colour to be passed to \code{colorRampPalette}.
 #' @param end.color    End colour to be passed to \code{colorRampPalette}.
-#' @param min.value    Numeric minimum value corresponding to \code{start.colour}.
-#' @param max.value    Numeric maximum value corresponding to \code{end.colour}.
+#' @param min.value    Numeric minimum value corresponding to \code{start.colour}. If attempting
+#'                     to change the color of a Raster layer, this can be set to minValue(RasterObject)
+#'
+#' @param max.value    Numeric maximum value corresponding to \code{end.colour}. If attempting
+#'                     to change the color of a Raster layer, this can be set to maxValue(RasterObject)
 #' @param mid.value    Numeric middle value corresponding to \code{mid.colour}.
 #'                     Default is \code{0}.
 #' @param mid.color    Middle colour to be passed to \code{colorRampPalette}.
@@ -603,10 +606,9 @@ setGeneric("divergentColors",
 #' @aliases divergentColours
 setMethod(
   "divergentColors",
-  signature = c("character", "character", "numeric", "numeric",
-                "numeric", "character"),
+  signature = c("character", "character", "numeric", "numeric"),
   definition = function(start.color, end.color, min.value, max.value,
-                        mid.value = 0, mid.color = "white") {
+                        mid.value, mid.color) {
   ramp1 <- colorRampPalette(c(start.color, mid.color))
   ramp2 <- colorRampPalette(c(mid.color, end.color))
 
