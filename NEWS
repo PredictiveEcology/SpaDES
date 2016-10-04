@@ -28,6 +28,7 @@ version 1.2.0.9000
 * new Rstudio addin for 'newModule' (#298); requires Import of `shiny (>= 0.13)`, `miniUI (>= 0.1.1)`, and `rstudioapi (>= 0.5)`
 * fix bugs in module template
 * improved use of package options; added new option `spades.modulesPath`.
+* improved specification of module inputs and outputs (#189, #214, PR#310)
 
 version 1.2.0
 =============
