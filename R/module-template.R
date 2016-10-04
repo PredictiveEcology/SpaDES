@@ -220,9 +220,11 @@ defineModule(sim, list(
   ),
   inputObjects = bind_rows(
     #expectsInput(\"objectName\", \"objectClass\", \"input object description\", sourceURL, ...),
+    expectsInput(objectName = NA, objectClass = NA, desc = NA, sourceURL = NA)
   ),
   outputObjects = bind_rows(
     #createsOutput(\"objectName\", \"objectClass\", \"output object description\", ...),
+    createsOutput(objectName = NA, objectClass = NA, desc = NA)
   )","
 ))\n",
       file = filenameR, fill = FALSE, sep = "")

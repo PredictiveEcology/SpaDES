@@ -173,8 +173,8 @@ test_that("3 levels of parent and child modules load and show correctly", {
     unlink(tmpdir, recursive = TRUE)
   }, add = TRUE)
 
-  newModule("grandpar1", ".", type = "parent", children = c("child1", "child2",
-                                                            "par1", "par2"))
+  newModule("grandpar1", ".", type = "parent",
+            children = c("child1", "child2", "par1", "par2"))
   newModule("par1", ".", type = "parent", children = c("child4", "child3"))
   newModule("par2", ".", type = "parent", children = c("child5", "child6"))
   newModule("child1", ".")
