@@ -38,17 +38,14 @@ defineModule(sim, list(
     defineParameter(".saveInitialTime", "numeric", NA_real_, NA, NA, "time to schedule first save event"),
     defineParameter(".saveInterval", "numeric", NA_real_, NA, NA, "time interval between save events")
   ),
-  inputObjects = data.frame(
-    objectName = c(globals(sim)$stackName, globals(sim)$burnStats),
-    objectClass = c("RasterStack", "numeric"),
-    sourceURL = c(NA_character_, NA_character_),
-    other = c(NA_character_, NA_character_),
-    stringsAsFactors = FALSE),
-  outputObjects = data.frame(
-    objectName = c(globals(sim)$stackName, globals(sim)$burnStats),
-    objectClass = c("RasterStack", "numeric"),
-    other = c(NA_character_, NA_character_),
-    stringsAsFactors = FALSE)
+  inputObjects = bind_rows(
+    expectsInput(objectName = globals(sim)$stackName, objectClass = "RasterStack", desc = "NA", sourceURL = "NA"),
+    expectsInput(objectName = globals(sim)$burnStats, objectClass = "numeric", desc = "NA", sourceURL = "NA")
+  ),
+  outputObjects = bind_rows(
+    createsOutput(objectName = globals(sim)$stackName, objectClass = "RasterStack", desc = "NA", other = "NA"),
+    createsOutput(objectName = globals(sim)$burnStats, objectClass = "numeric", desc = "NA", other = "NA")
+  )
 ))
 
 ## event types
