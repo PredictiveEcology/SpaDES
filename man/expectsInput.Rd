@@ -3,11 +3,15 @@
 \docType{methods}
 \name{expectsInput}
 \alias{expectsInput}
+\alias{expectsInput,ANY,ANY,ANY,ANY-method}
 \alias{expectsInput,character,character,character,character-method}
 \alias{expectsInput,character,character,character,missing-method}
 \title{Define an input object that the module expects.}
 \usage{
 expectsInput(objectName, objectClass, desc, sourceURL, ...)
+
+\S4method{expectsInput}{ANY,ANY,ANY,ANY}(objectName, objectClass, desc,
+  sourceURL, ...)
 
 \S4method{expectsInput}{character,character,character,character}(objectName,
   objectClass, desc, sourceURL, ...)
@@ -36,7 +40,7 @@ Used to specify an input object's name, class, description, source url and
 other specifications.
 }
 \examples{
-inputObjects = dplyr::bind_rows(
+inputObjects <- dplyr::bind_rows(
   expectsInput(objectName = "inputObject1", objectClass = "character",
                desc = "this is for example", sourceURL = "not available"),
   expectsInput(objectName = "inputObject2", objectClass = "numeric",

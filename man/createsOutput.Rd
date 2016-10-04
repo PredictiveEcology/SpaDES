@@ -3,10 +3,13 @@
 \docType{methods}
 \name{createsOutput}
 \alias{createsOutput}
+\alias{createsOutput,ANY,ANY,ANY-method}
 \alias{createsOutput,character,character,character-method}
 \title{Define an output object of a module}
 \usage{
 createsOutput(objectName, objectClass, desc, ...)
+
+\S4method{createsOutput}{ANY,ANY,ANY}(objectName, objectClass, desc, ...)
 
 \S4method{createsOutput}{character,character,character}(objectName, objectClass,
   desc, ...)
@@ -28,8 +31,7 @@ a module's metadata.
 Used to specify an output object's name, class, description and other specifications.
 }
 \examples{
-library(dplyr)
-outputObjects = bind_rows(
+outputObjects <- dplyr::bind_rows(
   createsOutput(objectName = "outputObject1", objectClass = "character",
                 desc = "this is for example"),
   createsOutput(objectName = "outputObject2", objectClass = "numeric",

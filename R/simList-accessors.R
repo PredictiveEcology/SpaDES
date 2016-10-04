@@ -2999,7 +2999,7 @@ setMethod(
 #' @author Yong Luo
 #'
 #' @examples
-#' inputObjects = dplyr::bind_rows(
+#' inputObjects <- dplyr::bind_rows(
 #'   expectsInput(objectName = "inputObject1", objectClass = "character",
 #'                desc = "this is for example", sourceURL = "not available"),
 #'   expectsInput(objectName = "inputObject2", objectClass = "numeric",
@@ -3010,6 +3010,17 @@ setMethod(
 setGeneric("expectsInput",
            function(objectName, objectClass, desc, sourceURL, ...) {
              standardGeneric("expectsInput")
+})
+
+#' @export
+#' @rdname expectsInput
+setMethod(
+  "expectsInput",
+  signature = signature(objectName = "ANY", objectClass = "ANY",
+                        desc = "ANY", sourceURL = "ANY"),
+  definition = function(objectName, objectClass, desc, sourceURL, ...) {
+    return(expectsInput(as.character(objectName), as.character(objectClass),
+                        as.character(desc), as.character(sourceURL), ...))
 })
 
 #' @export
@@ -3065,8 +3076,7 @@ setMethod(
 #' @author Yong Luo
 #'
 #' @examples
-#' library(dplyr)
-#' outputObjects = bind_rows(
+#' outputObjects <- dplyr::bind_rows(
 #'   createsOutput(objectName = "outputObject1", objectClass = "character",
 #'                 desc = "this is for example"),
 #'   createsOutput(objectName = "outputObject2", objectClass = "numeric",
@@ -3078,6 +3088,17 @@ setGeneric(
   "createsOutput",
   function(objectName, objectClass, desc, ...) {
     standardGeneric("createsOutput")
+})
+
+#' @export
+#' @rdname createsOutput
+setMethod(
+  "createsOutput",
+  signature = signature(objectName = "ANY", objectClass = "ANY",
+                        desc = "ANY"),
+  definition = function(objectName, objectClass, desc, ...) {
+    return(createsOutput(as.character(objectName), as.character(objectClass),
+                         as.character(desc)))
 })
 
 #' @export
