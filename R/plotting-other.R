@@ -46,6 +46,10 @@ setMethod(
         try(rm(list = paste0("basePlots_", dev), envir = .spadesEnv))
       )
       suppressWarnings(
+          try(rm(list = paste0("Dev", dev), envir = .spadesEnv))
+      )
+
+      suppressWarnings(
         try(rm(list = ls(.spadesEnv[[paste0("dev", dev)]]),
                envir = .spadesEnv[[paste0("dev", dev)]]), silent = TRUE)
       )
