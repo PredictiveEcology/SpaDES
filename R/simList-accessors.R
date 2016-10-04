@@ -2972,19 +2972,25 @@ setMethod(
     return(df)
 })
 
-
-###########################################################################################
-#' Define an input object that the module expects
+################################################################################
+#' Define an input object that the module expects.
 #'
-#' Used to specify an input object's name, class, description, sourceURL and other specifications.
+#' Used to specify an input object's name, class, description, source url and
+#' other specifications.
 #'
-#' @param objectName    Character string to define the input object's name.
-#' @param objectClass   Character string to specify the input object's class.
-#' @param desc          Text string providing a brief description of the input object.
-#' @param sourceURL     Character string to specify an URL to reach the input object, default is NA.
-#' @param ...           Other specifications of the input object.
+#' @param objectName   Character string to define the input object's name.
 #'
-#' @return a data frame
+#' @param objectClass  Character string to specify the input object's class.
+#'
+#' @param desc         Text string providing a brief description of the input object.
+#'
+#' @param sourceURL    Character string to specify an URL to reach the input object,
+#'                     default is \code{NA}.
+#'
+#' @param ...          Other specifications of the input object.
+#'
+#' @return A \code{data.frame} suitable to be passed to \code{inputObjects} in a
+#' module's metadata.
 #'
 #' @export
 #' @docType methods
@@ -2993,8 +2999,7 @@ setMethod(
 #' @author Yong Luo
 #'
 #' @examples
-#' library(dplyr)
-#' inputObjets = bind_rows(
+#' inputObjects = dplyr::bind_rows(
 #'   expectsInput(objectName = "inputObject1", objectClass = "character",
 #'                desc = "this is for example", sourceURL = "not available"),
 #'   expectsInput(objectName = "inputObject2", objectClass = "numeric",
@@ -3003,63 +3008,55 @@ setMethod(
 #' )
 #'
 setGeneric("expectsInput",
-           function(objectName,
-                    objectClass,
-                    desc,
-                    sourceURL,
-                    ...) {
+           function(objectName, objectClass, desc, sourceURL, ...) {
              standardGeneric("expectsInput")
-           })
-#' @export
-#' @rdname expectsInput
-setMethod("expectsInput",
-          signature = signature(objectName = "character",
-                                objectClass = "character",
-                                desc = "character",
-                                sourceURL = "character"),
-          definition = function(objectName,
-                                objectClass,
-                                desc,
-                                sourceURL,
-                                ...){
-            returnDataframe <- data.frame(cbind(objectName, objectClass, desc, sourceURL),
-                                          stringsAsFactors = FALSE)
-            templist <- list(...)
-            if(length(templist)>0){
-              for(i in 1:length(templist)){
-                returnDataframe <- data.frame(cbind(returnDataframe, I(list(templist[[i]])),
-                                                    stringsAsFactors = FALSE))
-                names(returnDataframe)[ncol(returnDataframe)] <- names(templist)[i]
-              }
-            }
-            return(returnDataframe)
-          })
+})
 
 #' @export
 #' @rdname expectsInput
-setMethod("expectsInput",
-          signature = signature(objectName = "character",
-                                objectClass = "character",
-                                desc = "character",
-                                sourceURL = "missing"),
-          definition = function(objectName,
-                                objectClass,
-                                desc,
-                                ...){
-            return(expectsInput(objectName, objectClass, desc, sourceURL = NA_character_, ...))
-          })
+setMethod(
+  "expectsInput",
+  signature = signature(objectName = "character", objectClass = "character",
+                        desc = "character", sourceURL = "character"),
+  definition = function(objectName, objectClass, desc, sourceURL, ...) {
+    returnDataframe <- data.frame(cbind(objectName, objectClass, desc, sourceURL),
+                                  stringsAsFactors = FALSE)
+    templist <- list(...)
+    if (length(templist) > 0) {
+      for (i in 1:length(templist)) {
+        returnDataframe <- data.frame(cbind(returnDataframe, I(list(templist[[i]])),
+                                            stringsAsFactors = FALSE))
+        names(returnDataframe)[ncol(returnDataframe)] <- names(templist)[i]
+      }
+    }
+    return(returnDataframe)
+})
 
-###########################################################################################
+#' @export
+#' @rdname expectsInput
+setMethod(
+  "expectsInput",
+  signature = signature(objectName = "character", objectClass = "character",
+                        desc = "character", sourceURL = "missing"),
+  definition = function(objectName, objectClass, desc, ...) {
+    return(expectsInput(objectName, objectClass, desc, sourceURL = NA_character_, ...))
+})
+
+################################################################################
 #' Define an output object of a module
 #'
 #' Used to specify an output object's name, class, description and other specifications.
 #'
-#' @param objectName    Character string to define the output object's name.
-#' @param objectClass   Character string to specify the output object's class.
-#' @param desc          Text string providing a brief description of the output object.
-#' @param ...           Other specifications of the output object.
+#' @param objectName   Character string to define the output object's name.
 #'
-#' @return a data frame
+#' @param objectClass  Character string to specify the output object's class.
+#'
+#' @param desc         Text string providing a brief description of the output object.
+#'
+#' @param ...          Other specifications of the output object.
+#'
+#' @return A \code{data.frame} suitable to be passed to \code{outputObjects} in
+#' a module's metadata.
 #'
 #' @export
 #' @docType methods
@@ -3069,7 +3066,7 @@ setMethod("expectsInput",
 #'
 #' @examples
 #' library(dplyr)
-#' outputObjets = bind_rows(
+#' outputObjects = bind_rows(
 #'   createsOutput(objectName = "outputObject1", objectClass = "character",
 #'                 desc = "this is for example"),
 #'   createsOutput(objectName = "outputObject2", objectClass = "numeric",
@@ -3077,37 +3074,31 @@ setMethod("expectsInput",
 #'                 otherInformation = "I am the second output object")
 #' )
 #'
-setGeneric("createsOutput",
-           function(objectName,
-                    objectClass,
-                    desc,
-                    ...) {
-             standardGeneric("createsOutput")
-           })
+setGeneric(
+  "createsOutput",
+  function(objectName, objectClass, desc, ...) {
+    standardGeneric("createsOutput")
+})
+
 #' @export
 #' @rdname createsOutput
-setMethod("createsOutput",
-          signature = signature(objectName = "character",
-                                objectClass = "character",
-                                desc = "character"),
-          definition = function(objectName,
-                                objectClass,
-                                desc,
-                                ...){
-            returnDataframe <- data.frame(cbind(objectName, objectClass, desc),
-                                          stringsAsFactors = FALSE)
-            templist <- list(...)
-            if(length(templist)>0){
-              for(i in 1:length(templist)){
-                returnDataframe <- data.frame(cbind(returnDataframe, I(list(templist[[i]])),
-                                                    stringsAsFactors = FALSE))
-                names(returnDataframe)[ncol(returnDataframe)] <- names(templist)[i]
-              }
-            }
-            return(returnDataframe)
-          })
-
-
+setMethod(
+  "createsOutput",
+  signature = signature(objectName = "character", objectClass = "character",
+                        desc = "character"),
+  definition = function(objectName, objectClass, desc, ...) {
+    returnDataframe <- data.frame(cbind(objectName, objectClass, desc),
+                                  stringsAsFactors = FALSE)
+    templist <- list(...)
+    if (length(templist) > 0) {
+      for (i in 1:length(templist)) {
+        returnDataframe <- data.frame(cbind(returnDataframe, I(list(templist[[i]])),
+                                            stringsAsFactors = FALSE))
+        names(returnDataframe)[ncol(returnDataframe)] <- names(templist)[i]
+      }
+    }
+    return(returnDataframe)
+})
 
 #' An internal function for coercing a data.frame to inputs()
 #'
@@ -3116,7 +3107,6 @@ setMethod("createsOutput",
 #'
 #' @rdname fillInputRows
 .fillInputRows <- function(inputDF, startTime) {
-
   factorCols <- sapply(inputDF, is.factor)
   if (any(factorCols)) {
     inputDF[,factorCols] <- sapply(inputDF[,factorCols], as.character)
@@ -3171,7 +3161,7 @@ setMethod("createsOutput",
     }
     inputDF[!objectsOnly,] <- inputDF2
   }
-  inputDF
+  return(inputDF)
 }
 
 #' An internal function for coercing a data.frame to inputs()

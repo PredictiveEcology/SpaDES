@@ -21,14 +21,15 @@ createsOutput(objectName, objectClass, desc, ...)
 \item{...}{Other specifications of the output object.}
 }
 \value{
-a data frame
+A \code{data.frame} suitable to be passed to \code{outputObjects} in
+a module's metadata.
 }
 \description{
 Used to specify an output object's name, class, description and other specifications.
 }
 \examples{
 library(dplyr)
-outputObjets = bind_rows(
+outputObjects = bind_rows(
   createsOutput(objectName = "outputObject1", objectClass = "character",
                 desc = "this is for example"),
   createsOutput(objectName = "outputObject2", objectClass = "numeric",

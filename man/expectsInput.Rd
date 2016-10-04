@@ -5,7 +5,7 @@
 \alias{expectsInput}
 \alias{expectsInput,character,character,character,character-method}
 \alias{expectsInput,character,character,character,missing-method}
-\title{Define an input object that the module expects}
+\title{Define an input object that the module expects.}
 \usage{
 expectsInput(objectName, objectClass, desc, sourceURL, ...)
 
@@ -22,19 +22,21 @@ expectsInput(objectName, objectClass, desc, sourceURL, ...)
 
 \item{desc}{Text string providing a brief description of the input object.}
 
-\item{sourceURL}{Character string to specify an URL to reach the input object, default is NA.}
+\item{sourceURL}{Character string to specify an URL to reach the input object,
+default is \code{NA}.}
 
 \item{...}{Other specifications of the input object.}
 }
 \value{
-a data frame
+A \code{data.frame} suitable to be passed to \code{inputObjects} in a
+module's metadata.
 }
 \description{
-Used to specify an input object's name, class, description, sourceURL and other specifications.
+Used to specify an input object's name, class, description, source url and
+other specifications.
 }
 \examples{
-library(dplyr)
-inputObjets = bind_rows(
+inputObjects = dplyr::bind_rows(
   expectsInput(objectName = "inputObject1", objectClass = "character",
                desc = "this is for example", sourceURL = "not available"),
   expectsInput(objectName = "inputObject2", objectClass = "numeric",
