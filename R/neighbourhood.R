@@ -388,6 +388,7 @@ adj <- compiler::cmpfun(adj.raw)
 #' @import igraph
 #' @importFrom data.table data.table set setkeyv
 #' @importFrom sp coordinates
+#' @importFrom fpCompare %==%
 #' @importFrom raster cellFromXY extract res xyFromCell ncell ncol
 #' @export
 #' @rdname cir
@@ -575,10 +576,12 @@ setMethod(
     stop("includeBehavior can only be \"includePixels\" or \"excludePixels\"")
   }
 
+  
   scaleRaster <- scaleRaster[1]
 
   moreThanOne <- NROW(coords) > 1
 
+  equalRadii <- TRUE
   if (suppliedAngles) { # if provided with angles, then problem is easier
     seqNumInd <- seq_len(NROW(coords))
     maxRadius <- c(seq(minRadius, maxRadius, by = max(0.68, 0.75 - maxRadius/3e3)), maxRadius)
@@ -595,19 +598,31 @@ setMethod(
 
       if (length(maxRadius) == 1) maxRadius <- rep(maxRadius, NROW(coords))
       if (length(minRadius) == 1) minRadius <- rep(minRadius, NROW(coords))
-
+      equalRadii <- sum(maxRadius - maxRadius[1]) %==% 0
+      
       # The goal of maxRadius and numAngles is to identify every cell within the circle
       #  The 0.68 and 0.75 were found by trial and error to minimize the number of
       #  pixels selected that are duplicates of each other.
       if (any((minRadius != maxRadius))) {
         if (any(minRadius > maxRadius)) stop("minRadius must be less than or equal to maxRadius")
-        maxRadius <- do.call(cbind, lapply(seqNumInd, function(x) {
+        maxRadiusList <- lapply(seqNumInd, function(x) {
           ## 0.75 was the maximum that worked with 1e4 pixels, 1e2 maxRadius
           ## 0.66 was the maximum that worked with 4e6 pixels, 1.3e3 maxRadius
+          #browser(expr=x>55)
           a <- seq(minRadius[x], maxRadius[x], by = max(0.68, 0.75 - maxRadius[x]/3e3))
           if (a[length(a)] != maxRadius[x]) a <- c(a, maxRadius[x])
           a
-        }))
+        })
+        
+        if(equalRadii) {
+          maxRadius <- do.call(cbind, maxRadiusList)
+        } else {
+          lengths <- unlist(lapply(maxRadiusList, length))
+          maxLen <- max(lengths)
+          maxRadius <- do.call(cbind, lapply(seq_along(maxRadiusList), function(y) {
+            c(maxRadiusList[[y]],rep(NA_real_,maxLen-lengths[y]))}
+          ))
+        }
       }
     } else {
       seqNumInd <- 1
@@ -624,7 +639,7 @@ setMethod(
 
     if (moreThanOne) {
       if (is.matrix(numAngles)) {
-        nAngles <- apply(numAngles, 2, sum)
+        nAngles <- apply(numAngles, 2, sum, na.rm = TRUE)
       } else {
         nAngles <- numAngles
       }
@@ -645,15 +660,22 @@ setMethod(
     }
 
     # create vector of radius for the number of points that will be done for each individual circle
-    rads <- rep.int(maxRadius, times = numAngles)
+    if(equalRadii)
+      rads <- rep.int(maxRadius, times = numAngles)
+    else 
+      rads <- rep.int(na.omit(as.vector(maxRadius)), times = na.omit(as.vector(numAngles)))
+    
 
     # extract the individuals' current coords
     xs <- rep.int(coords[, "x"], times = nAngles)
     ys <- rep.int(coords[, "y"], times = nAngles)
-
+    
     angles <- if (all(is.na(angles))) {
       if (!is.null(dim(numAngles))) {
-        rep(unlist(lapply(numAngles[,1], function(na) seq_len(na)*(pi*2/na))), ncol(numAngles))
+        if(equalRadii)
+          rep(unlist(lapply(numAngles[,1], function(na) seq_len(na)*(pi*2/na))), ncol(numAngles))
+        else 
+          unlist(lapply(na.omit(as.vector(numAngles)), function(na) seq_len(na)*(pi*2/na)))
       } else {
         unlist(lapply(numAngles, function(na) seq.int(na)*(pi*2/na)))
       }
@@ -664,17 +686,21 @@ setMethod(
     y <- sin(angles)*rads + ys
   }
 
-
   indices <- as.integer(cellFromXY(landscape, cbind(x,y)))
 
   if (moreThanOne & allowOverlap & !closest) {
     MAT <- data.table(id, indices, rads, angles, x = x, y = y)
     setkeyv(MAT, c("id", "indices"))
+    if(!equalRadii) {
+      MAT[,maxRad:=rep(apply(maxRadius,2,max,na.rm = TRUE), nAngles)]
+      MAT[,minRad:=rep(apply(maxRadius,2,min,na.rm = TRUE), nAngles)]  
+    }
     if (!allowDuplicates) {
       MAT <- unique(MAT)
     }
     MAT <- na.omit(MAT)
     MAT <- as.matrix(MAT)
+    
   } else {
     MAT <- cbind(id, rads, angles, x, y, indices)
     if (!closest & !allowDuplicates) {
@@ -687,13 +713,20 @@ setMethod(
 
   if (includeBehavior == "excludePixels" | returnDistances | closest) { # only need to calculate distances
                                                             #   for these two cases
-    maxRad <- maxRadius[NROW(maxRadius)]
-    minRad <- maxRadius[1]
+    if(equalRadii) {
+      maxRad <- maxRadius[NROW(maxRadius)]
+      minRad <- maxRadius[1]
+    } 
+    
     if (returnDistances | closest) { # if distances are not required, then only need the inner circle and outer circle
                           #   distances. Don't waste resources on calculating all distances
       MAT2 <- MAT
     } else {
-      MAT2 <- MAT[MAT[, "rads"] >= (maxRad - 0.71) | MAT[, "rads"] <= (minRad + 0.71),] # 0.71 is the sqrt of 1, so keep
+      if(equalRadii)
+        MAT2 <- MAT[MAT[, "rads"] >= (maxRad - 0.71) | MAT[, "rads"] <= (minRad + 0.71),] # 0.71 is the sqrt of 1, so keep
+      else {
+        MAT2 <- MAT[MAT[, "rads"] >= (MAT[, "maxRad"] - 0.71) | MAT[, "rads"] <= (MAT[, "minRad"] + 0.71),] # 0.71 is the sqrt of 1, so keep
+      }
     }                                                                         #  only pixels that are in
                                                                               #  inner or outer ring of pixels
 
@@ -706,7 +739,9 @@ setMethod(
       a <- cbind(id = MAT2[, "id"], rads = MAT2[, "rads"], angles = MAT2[, "angles"],
                  x = xyC[, "x"], y = xyC[, "y"], to = MAT2[, "indices"])
     }
-
+    if(!equalRadii)
+      a <- cbind(a, maxRad = MAT2[,"maxRad"], minRad = MAT2[,"minRad"])
+    
     b <- cbind(coords, id = 1:NROW(coords))
 
     colnames(b)[1:2] <- c("x", "y")
@@ -720,7 +755,10 @@ setMethod(
     }
 
     if (includeBehavior == "excludePixels")
-      d <- d[d[, "dists"] %<=% maxRad & d[, "dists"] %>=% minRad, , drop = FALSE]
+      if(equalRadii)
+        d <- d[d[, "dists"] %<=% maxRad & d[, "dists"] %>=% minRad, , drop = FALSE]
+      else 
+        d <- d[d[, "dists"] %<=% d[, "maxRad"] & d[, "dists"] %>=% d[, "minRad"], , drop = FALSE]
 
     colnames(d)[which(colnames(d) == "to")] <- "indices"
     if (!returnDistances)
@@ -741,7 +779,11 @@ setMethod(
       wh <- na.omit(match(c("rads", "dists"), colnames(d)))
       if (length(wh) > 0) MAT <- d[, -wh, drop = FALSE] #c("id", "indices", "x", "y")
     } else {
-      MATinterior <- MAT[MAT[, "rads"] < (maxRad - 0.71) & MAT[, "rads"] > (minRad + 0.71), , drop = FALSE]
+      if(equalRadii)
+        MATinterior <- MAT[MAT[, "rads"] < (maxRad - 0.71) & MAT[, "rads"] > (minRad + 0.71), , drop = FALSE]
+      else
+        MATinterior <- MAT[MAT[, "rads"] < (MAT[, "maxRad"] - 0.71) & MAT[, "rads"] > (MAT[, "minRad"] + 0.71), , drop = FALSE]
+      
       MAT <- rbind(d[, colnames(MATinterior), drop = FALSE], MATinterior)
       MAT <- MAT[, -which(colnames(MAT) == "rads"), drop = FALSE]
     }
