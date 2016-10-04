@@ -37,7 +37,7 @@ defineModule(sim, list(
   ),
   outputObjects = bind_rows(
     createsOutput(objectName = globals(sim)$stackName, objectClass = "RasterStack",
-                                 desc = "layername = \"habitatQuality\""),
+                  desc = "layername = \"habitatQuality\""),
     createsOutput(objectName = "caribou", objectClass = "SpatialPointsDataFrame",
                   desc = NA_character_)
   )

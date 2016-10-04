@@ -39,12 +39,16 @@ defineModule(sim, list(
     defineParameter(".saveInterval", "numeric", NA_real_, NA, NA, "time interval between save events")
   ),
   inputObjects = bind_rows(
-    expectsInput(objectName = globals(sim)$stackName, objectClass = "RasterStack", desc = NA_character_, sourceURL = NA_character_),
-    expectsInput(objectName = globals(sim)$burnStats, objectClass = "numeric", desc = NA_character_, sourceURL = NA_character_)
+    expectsInput(objectName = globals(sim)$stackName, objectClass = "RasterStack",
+                 desc = NA_character_, sourceURL = NA_character_),
+    expectsInput(objectName = globals(sim)$burnStats, objectClass = "numeric",
+                 desc = NA_character_, sourceURL = NA_character_)
   ),
   outputObjects = bind_rows(
-    createsOutput(objectName = globals(sim)$stackName, objectClass = "RasterStack", desc = NA_character_, other = NA_character_),
-    createsOutput(objectName = globals(sim)$burnStats, objectClass = "numeric", desc = NA_character_, other = NA_character_)
+    createsOutput(objectName = globals(sim)$stackName, objectClass = "RasterStack",
+                  desc = NA_character_, other = NA_character_),
+    createsOutput(objectName = globals(sim)$burnStats, objectClass = "numeric",
+                  desc = NA_character_, other = NA_character_)
   )
 ))
 
