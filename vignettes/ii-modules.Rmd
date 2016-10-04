@@ -114,12 +114,13 @@ Every module requires complete metadata, structured as a named list, and passed 
 **`parameters`**      | A `data.frame` constructed using `rbind` with `defineParameter`, specifying module
 &nbsp;                | parameters, with columns `paramName`, `paramClass`, `default`, `min`, `max`, and `paramDesc`.
 &nbsp;                | Default values may be overridden by the user by passing a list of parameters to `simInit`.
-**`inputObjects`**    | A `data.frame` specifying the object dependencies of the module, with columns
-&nbsp;                | `objectName`, `objectClass`, `sourceURL`, and `other`.
+**`inputObjects`**    | A `data.frame` constructed using `bind_rows` with `expectsInput`, specifying
+&nbsp;                | the object dependencies of the module, with columns `objectName`, `objectClass`, `desc`, `sourceURL` and other specifications.
 &nbsp;                | For objects that are used within the module as both an input and an output,
-&nbsp;                | add the object to each of these `data.frame`s.
-**`outputObjects`**   | A `data.frame` specifying the objects output by the module, with columns
-&nbsp;                | `objectName`, `objectClass`, and `other`.
+&nbsp;                | add an input object by using `expectsInput`.
+**`outputObjects`**   | A `data.frame` constructed using `bind_rows` with `createsOutput`, specifying 
+&nbsp;                | the objects output by the module, with columns `objectName`, `objectClass`, `desc` and other specifications.
+&nbsp;                | Add an output object by using `createsOutput`.
 
 ```{r module-metadata, eval=FALSE, echo=TRUE}
 ## sample module metadata for the default `randomLandscapes` module
@@ -150,12 +151,14 @@ defineModule(sim, list(
     defineParameter(".saveInitialTime", "numeric", NA_real_, NA, NA, "time ..."),
     defineParameter(".saveInterval", "numeric", NA_real_, NA, NA, "time ...")
   ),
-  inputObjects = data.frame(objectName = character(), objectClass = character(),
-                            sourceURL = character(), other = character(),
-                            stringsAsFactors = FALSE),
-  outputObjects = data.frame(objectName = globals(sim)$stackName,
-                             objectClass = "RasterStack",
-                             other = NA_character_, stringsAsFactors = FALSE)
+  inputObjects = bind_rows(
+    expectsInput(objectName = NA_character_, objectClass = NA_character_,
+                 desc = NA_character_, sourceURL = NA_character_, other = NA_character_)
+  ),
+  outputObjects = bind_rows(
+    createsOutput(objectName = globals(sim)$stackName, objectClass = "RasterStack",
+                  desc = NA_character_, other = NA_character_)
+  )
 ))
 ```
 
