@@ -764,7 +764,7 @@ test_that("Plot with base is not error-free", {
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
                  Darwin = "9FE1E441C2FAE01E",
-                 Linux = "9FE1E441C2FAE01E",
+                 Linux = "9FE1E441C2F2E09E",
                  Windows = "9FE5E451C27AE01C"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
@@ -824,36 +824,8 @@ test_that("Plot with base is not error-free", {
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
                  Darwin = "BC16C3CE96E1C364",
-                 Linux = "BC1EC3CC96E1C165",
+                 Linux = "BC1EC3CC96E1C364",
                  Windows = "9D96C3CE94E1E168"
-  )
-  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
-
-  ##################################################
-
-  png(file = "test.png", width = 500, height = 400)
-  ras <- rasOrig
-  clearPlot()
-  set.seed(3123)
-  a <- rnorm(1e2)
-  b <- rnorm(1e2)
-  Plot(a, axes = TRUE, addTo = "first", visualSqueeze = 0.6)
-  Plot(a, b, axes = TRUE, addTo = "second", visualSqueeze = 0.6)
-  Plot(1:10, axes = TRUE, addTo = "third", visualSqueeze = 0.6)
-  Plot(1:10, 1:10, axes = TRUE, addTo = "fourth", visualSqueeze = 0.6,
-       main = "test4", title = FALSE)
-  Plot(1:10, 1:10, axes = TRUE, addTo = "fourth", visualSqueeze = 0.6,
-       main = "test4", title = "test5")
-  Plot(1:10, 1:10, axes = TRUE, addTo = "fifth", visualSqueeze = 0.6,
-       main = "test4", title = "test5")
-  Plot(ras)
-  dev.off()
-
-  #dput(getFingerprint(file = "test.png"))
-  orig <- switch(Sys.info()["sysname"],
-                 Darwin = "BC16C3CE96E1C364",
-                 Linux = "BC1EC3CC96E1C165",
-                 Windows = "BD96C3CE94E1C168"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
 
