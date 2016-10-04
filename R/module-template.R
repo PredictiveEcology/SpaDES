@@ -219,16 +219,10 @@ defineModule(sim, list(
     defineParameter(\".saveInterval\", \"numeric\", NA, NA, NA, \"This describes the simulation time interval between save events\")
   ),
   inputObjects = bind_rows(
-    #expectsInput(objectName, objectClass, desc, sourceURL, ...), # desc is description; default is NA for sourceURL
-                                                                  # other information can be added through ... arguement
-    expectsInput(objectName = NA_character_, objectClass = NA_character_, desc = NA_character_,
-                 sourceURL = NA_character_, otherInformation = NA_character_) # should be replaced or deleted
-                                                                              # define more input objects using expectsInput function
+    #expectsInput(\"objectName\", \"objectClass\", \"input object description\", sourceURL, ...),
   ),
   outputObjects = bind_rows(
-    #createsOutput(objectName, objectClass, desc, ...), # desc is description; other information can be added through ... arguement
-    createsOutput(objectName = NA_character_, objectClass = NA_character_, desc = NA_character_) # should be replaced or deleted
-                                                                                                 # define more output objects using createsOutput function
+    #createsOutput(\"objectName\", \"objectClass\", \"output object description\", ...),
   )","
 ))\n",
       file = filenameR, fill = FALSE, sep = "")
