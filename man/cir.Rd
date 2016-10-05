@@ -117,6 +117,8 @@ library(raster)
 library(data.table)
 library(sp)
 
+set.seed(1642)
+
 # circle centred
 Ras <- raster(extent(0, 15, 0, 15), res = 1, val = 0)
 middleCircle <- cir(Ras)
