@@ -407,7 +407,7 @@ setMethod(
                         #  they don't have anything to do with each other
     dots <- list(...)
     if (is.list(dots[[1]]) & !is(dots[[1]], ".spadesPlottables") &
-       !is(dots[[1]], "communities") & !is(dots[[1]], "igraph")) {
+       !is(dots[[1]], "communities") & !is(dots[[1]], "igraph") & !is(dots[[1]], "histogram")) {
       dots <- unlist(dots, recursive = FALSE)
       isList <- TRUE
       if (is.null(names(dots)))
