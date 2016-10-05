@@ -165,7 +165,7 @@ setMethod(
     checkModule(name, repo)
     if (is.na(version)) version <- getModuleVersion(name, repo)
 
-    versionWarning(name, version)
+    #versionWarning(name, version)
 
     zip <- paste0("https://raw.githubusercontent.com/", repo,
                   "/master/modules/", name, "/", name, "_", version, ".zip")

@@ -562,8 +562,8 @@ setMethod(
 
     # source module metadata and code files, checking version info
     lapply(modules(sim), function(m) {
-      .parseModulePartial(sim = sim, modules = list(m), defineModuleElement = "version")[[m]] %>%
-        versionWarning(m, .)
+      .parseModulePartial(sim = sim, modules = list(m), defineModuleElement = "version")[[m]] #%>%
+      #  versionWarning(m, .)
     })
 
     ## do multi-pass if there are parent modules; first for parents, then for children
