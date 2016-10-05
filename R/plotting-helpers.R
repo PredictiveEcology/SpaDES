@@ -1172,23 +1172,20 @@ setMethod(
         }
       }
 
-      if (#isBaseSubPlot & isReplot |
-        isBaseSubPlot & isNewPlot  | wipe ) {
-        if (xyAxes$x | xyAxes$y) {
+      if (any(unlist(xyAxes)) & (isBaseSubPlot & (isNewPlot | isReplot) | wipe)) {
+        if (xyAxes$x | xyAxes$y & ((isBaseSubPlot & (isNewPlot | isReplot) | wipe))) {
           axesArgs <- sGrob@plotArgs
           axesArgs$side <- 1
           axesArgs <- axesArgs[names(axesArgs) %in% c("at", "labels", "tick", "line", "pos", "outer", "font",
                                                       "lty", "lwd", "lwd.ticks", "col.ticks", "hadj", "padj")]
         }
 
-        if (#xyAxes$x & isBaseSubPlot & isReplot |
-          xyAxes$x & (isBaseSubPlot & isNewPlot | wipe)) {
+        if(xyAxes$x & (isBaseSubPlot & (isNewPlot | isReplot) | wipe)){
 
           axesArgsX <- append(list(side = 1), axesArgs)
           suppressWarnings(do.call(axis, args = axesArgsX))
         }
-        if (#xyAxes$y & isBaseSubPlot & isReplot |
-          xyAxes$y & (isBaseSubPlot & isNewPlot | wipe) ) {
+        if (xyAxes$y & (isBaseSubPlot & (isNewPlot | isReplot) | wipe)) {
           axesArgsY <- append(list(side=2), axesArgs)
           suppressWarnings(do.call(axis, args = axesArgsY))
         }
@@ -1233,12 +1230,12 @@ setMethod(
       seekViewport(subPlots, recording = FALSE)
       suppressWarnings(do.call(.plotGrob, args = plotGrobCall))
 
-      if (any(unlist(xyAxes)) & (isBaseSubPlot & isNewPlot | wipe)) {
+      if (any(unlist(xyAxes)) & (isBaseSubPlot & (isNewPlot | isReplot) | wipe)) {
         seekViewport(paste0("outer",subPlots), recording = FALSE)
-        if (xyAxes$x & (isBaseSubPlot & isNewPlot | wipe)) {
+        if (xyAxes$x & (isBaseSubPlot & (isNewPlot | isReplot) | wipe)) {
           grid.xaxis(name = "xaxis", gp = sGrob@plotArgs$gpAxis)#, vp = vps$wholeVp$children[[paste0("outer",subPlots)]])
         }
-        if (xyAxes$y & (isBaseSubPlot & isNewPlot | wipe)) {
+        if (xyAxes$y & (isBaseSubPlot & (isNewPlot | isReplot) | wipe)) {
           grid.yaxis(name = "yaxis", gp = sGrob@plotArgs$gpAxis, vp = vps$wholeVp$children[[paste0("outer",subPlots)]])
         }
         seekViewport(subPlots, recording = FALSE)
