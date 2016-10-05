@@ -32,7 +32,7 @@ There were no ERRORs or WARNINGs
 
 There were 2 NOTEs:
 
-1. There are three parts to this note:
+1. There are multiple parts to this note:
 
     a. Several words were flagged as possibly mispelled, but they are not.
     
@@ -50,10 +50,6 @@ There were 2 NOTEs:
             Availability using Additional_repositories specification:
               fastshp   yes   http://rforge.net
 
-    c. We suggest the `snow` package can be use for creating clusters on Linux (required when using `raster::beginCluster()`).
-    
-            Uses the superceded package: 'snow'
-    
 2. As noted above, we provide instructions for the user to install the suggested `fastshp` package.
 
         Package suggested but not available for checking: 'fastshp'
