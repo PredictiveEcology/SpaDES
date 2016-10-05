@@ -129,11 +129,12 @@ if (interactive()) {
 }
 
 # circles non centred
-Ras <- randomPolygons(Ras, numTypes = 4)
-N <- 2
-agent <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(Ras), xmax(Ras)),
-                                        y = stats::runif(N, xmin(Ras), xmax(Ras))))
 if (interactive()) {
+  Ras <- randomPolygons(Ras, numTypes = 4)
+  N <- 2
+  agent <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(Ras), xmax(Ras)),
+                                        y = stats::runif(N, xmin(Ras), xmax(Ras))))
+
   cirs <- cir(Ras, agent, maxRadius = 15, simplify = TRUE)
   cirsSP <- SpatialPoints(coords = cirs[, c("x", "y")])
   cirsRas <- raster(Ras)
@@ -160,7 +161,7 @@ cirs <- cir(hab, coords, maxRadius = rep(radius, length(coords)), simplify = TRU
 
 # rings
 loci <- cellFromXY(hab, coordinates(coords))
-cirs2 <- rings(hab, loci, maxRadius = radius, minRadius=radius-1, returnIndices = TRUE)
+cirs2 <- rings(hab, loci, maxRadius = radius, minRadius = radius - 1, returnIndices = TRUE)
 
 # Plot both
 ras1 <- raster(hab)
@@ -175,12 +176,12 @@ if (interactive()) {
   Plot(ras1, ras2)
 }
 
-a <- raster(extent(0,100,0,100), res = 1)
+a <- raster(extent(0, 100, 0, 100), res = 1)
 hab <- gaussMap(a,speedup = 1)
 cirs <- cir(hab, coords, maxRadius = 44, minRadius = 0)
 ras1 <- raster(hab)
 ras1[] <- 0
-cirsOverlap <- data.table(cirs)[,list(sumIDs = sum(id)),by=indices]
+cirsOverlap <- data.table(cirs)[,list(sumIDs = sum(id)),by = indices]
 ras1[cirsOverlap$indices] <- cirsOverlap$sumIDs
 if (interactive()) {
   clearPlot()
@@ -190,12 +191,12 @@ if (interactive()) {
 # Provide a specific set of angles
 Ras <- raster(extent(0, 330, 0, 330), res = 1)
 Ras[] <- 0
+N <- 2
 coords <- cbind(x = stats::runif(N, xmin(Ras), xmax(Ras)),
                 y = stats::runif(N, xmin(Ras), xmax(Ras)))
-circ <- cir(Ras, coords, angles = seq(0,2*pi,length.out=21),
+circ <- cir(Ras, coords, angles = seq(0, 2*pi, length.out = 21),
             maxRadius = 200, minRadius = 0, returnIndices = FALSE,
             allowOverlap = TRUE, returnAngles = TRUE)
-
 }
 \seealso{
 \code{\link{rings}} which uses \code{spread} internally.
