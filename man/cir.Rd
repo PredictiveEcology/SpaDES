@@ -122,7 +122,7 @@ Ras <- raster(extent(0, 15, 0, 15), res = 1)
 Ras[] <- 0
 middleCircle <- cir(Ras)
 Ras[middleCircle[, "indices"]] <- 1
-circlePoints <- SpatialPoints(middleCircle[,c("x", "y")])
+circlePoints <- SpatialPoints(middleCircle[, c("x", "y")])
 if (interactive()) {
   clearPlot()
   Plot(Ras)
@@ -133,7 +133,7 @@ if (interactive()) {
 Ras <- randomPolygons(Ras, numTypes = 4)
 N <- 2
 agent <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(Ras), xmax(Ras)),
-                                        y = stats::runif(N, xmin(Ras), xmax(Ras))))
+                                      y = stats::runif(N, xmin(Ras), xmax(Ras))))
 cirs <- cir(Ras, agent, maxRadius = 15, simplify = TRUE)
 cirsSP <- SpatialPoints(coords = cirs[, c("x", "y")])
 cirsRas <- raster(Ras)
@@ -150,11 +150,11 @@ if (interactive()) {
 
 # Example comparing rings and cir
 a <- raster(extent(0,30,0,30), res = 1)
-hab <- gaussMap(a,speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
+hab <- gaussMap(a, speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
 radius <- 4
-N = 2
+N <- 2
 coords <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(hab), xmax(hab)),
-                                        y = stats::runif(N, xmin(hab), xmax(hab))))
+                                       y = stats::runif(N, xmin(hab), xmax(hab))))
 
 # cirs
 cirs <- cir(hab, coords, maxRadius = rep(radius, length(coords)), simplify = TRUE)
