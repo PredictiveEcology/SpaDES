@@ -13,7 +13,7 @@ Included are numerous tools to rapidly visualize raster and other maps.
 
 ## Installation
 
-Building packages from source requires the appropriate development libraries for your operating system (*e.g.*, Windows users should install [Rtools](http://cran.r-project.org/bin/windows/Rtools/)).
+Building packages from source requires the appropriate development libraries for your operating system (*e.g.*, Windows users should install [Rtools](https://cran.r-project.org/bin/windows/Rtools/)).
 
 The suggested package `fastshp` can be installed with:
 
