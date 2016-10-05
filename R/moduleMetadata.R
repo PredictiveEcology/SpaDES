@@ -5,6 +5,7 @@
 #'
 #' @param path   Character string specifying the file path to modules directory.
 #'               Default is to use the \code{spades.modulesPath} option.
+#' @inheritParams spades
 #'
 #' @return A list of module metadata, matching the structure in
 #'         \code{\link{defineModule}}.
@@ -22,7 +23,18 @@
 #' sampleModules <- dir(path)
 #' x <- moduleMetadata(sampleModules[3], path)
 #'
-setGeneric("moduleMetadata", function(module, path) {
+#' # using simList
+#' mySim <- simInit(
+#'    times = list(start = 2000.0, end = 2002.0, timeunit = "year"),
+#'    params = list(
+#'      .globals = list(stackName = "landscape", burnStats = "nPixelsBurned")
+#'    ),
+#'    modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
+#'    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
+#' )
+#' moduleMetadata(sim = mySim)
+#'
+setGeneric("moduleMetadata", function(module, path, sim) {
   standardGeneric("moduleMetadata")
 })
 
@@ -98,7 +110,28 @@ setMethod(
 #' @rdname moduleMetadata
 setMethod(
   "moduleMetadata",
-  signature = c(module = "character", path = "missing"),
+  signature = c(module = "character", path = "missing", sim = "missing"),
   definition = function(module) {
     moduleMetadata(module, getOption("spades.modulesPath"))
 })
+
+#' @export
+#' @rdname moduleMetadata
+setMethod(
+  "moduleMetadata",
+  signature = c(module = "ANY", path = "missing", sim = "simList"),
+  definition = function(module, sim) {
+    if(missing(module)) {
+      module <- modules(sim)
+    }
+
+    metadata <- lapply(module, function(mod)
+      moduleMetadata(mod, path = modulePath(sim)))
+    if(length(module)==1) {
+      metadata <- unlist(metadata, recursive = FALSE)
+    } else {
+      names(metadata) <- module
+    }
+    return(metadata)
+
+  })
