@@ -207,8 +207,10 @@ if (interactive()) {
   # visualize the burned maps of true "data"
   propCellBurnedData <- propCellBurnedFn(outData$landscape)
   clearPlot()
-  Plot(outData$landscape$Fires)
-
+  if(interactive()) {
+    Fires <- outData$landscape$Fires # Plot doesn't do well with many nested layers
+    Plot(Fires)
+  }
   # Example 1 - 1 parameter
   # In words, this says, "find the best value of spreadprob such that
   #  the proportion of the area burned in the simulation

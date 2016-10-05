@@ -118,8 +118,7 @@ library(data.table)
 library(sp)
 
 # circle centred
-Ras <- raster(extent(0, 15, 0, 15), res = 1)
-Ras[] <- 0
+Ras <- raster(extent(0, 15, 0, 15), res = 1, val = 0)
 middleCircle <- cir(Ras)
 Ras[middleCircle[, "indices"]] <- 1
 circlePoints <- SpatialPoints(middleCircle[,c("x", "y")])
@@ -134,13 +133,13 @@ Ras <- randomPolygons(Ras, numTypes = 4)
 N <- 2
 agent <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(Ras), xmax(Ras)),
                                         y = stats::runif(N, xmin(Ras), xmax(Ras))))
-cirs <- cir(Ras, agent, maxRadius = 15, simplify = TRUE)
-cirsSP <- SpatialPoints(coords = cirs[, c("x", "y")])
-cirsRas <- raster(Ras)
-cirsRas[] <- 0
-cirsRas[cirs[, "indices"]] <- 1
-
 if (interactive()) {
+  cirs <- cir(Ras, agent, maxRadius = 15, simplify = TRUE)
+  cirsSP <- SpatialPoints(coords = cirs[, c("x", "y")])
+  cirsRas <- raster(Ras)
+  cirsRas[] <- 0
+  cirsRas[cirs[, "indices"]] <- 1
+
   clearPlot()
   Plot(Ras)
   Plot(cirsRas, addTo = "Ras", cols = c("transparent", "#00000055"))

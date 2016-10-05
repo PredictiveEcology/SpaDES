@@ -47,10 +47,8 @@ if (interactive()) {
     caribou <- readRDS(outputs(sim)$file[outputs(sim)$objectName == "caribou"])
   })
   names(caribouMaps) <- paste0("caribou", 1:8)
-  # Plot does not plot whole lists (yet)
-  for (i in 1:NROW(attr(sims,"experiment")$expDesign)) {
-    if (interactive()) Plot(caribouMaps[[i]], size = 0.1)
-  }
+  # Plot whole named list
+  if (interactive()) Plot(caribouMaps, size = 0.1)
 
   # Example 2 - test alternative modules
   # Example of changing modules, i.e., caribou with and without fires
