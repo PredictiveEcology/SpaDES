@@ -22,11 +22,11 @@ defineModule(sim, list(
   documentation = list(),
   reqdPkgs = list("grid", "raster", "sp"),
   parameters = rbind(
-    defineParameter("moveInitialTime", "numeric", 1.0, NA, NA, "time to schedule first movement event"),
+    defineParameter("moveInitialTime", "numeric", start(sim)+1, NA, NA, "time to schedule first movement event"),
     defineParameter("moveInterval", "numeric", 1.0, NA, NA, "time interval between movoment events"),
     defineParameter("N", "numeric", 100L, 10L, 1000L, "initial number of caribou"),
     defineParameter("torus", "logical", FALSE, NA, NA, "should the map wrap around like a torus?"),
-    defineParameter(".plotInitialTime", "numeric", 0, NA, NA, "time to schedule first plot event"),
+    defineParameter(".plotInitialTime", "numeric", start(sim), NA, NA, "time to schedule first plot event"),
     defineParameter(".plotInterval", "numeric", 1, NA, NA, "time interval between plot events"),
     defineParameter(".saveInitialTime", "numeric", NA_real_, NA, NA, "time to schedule first save event"),
     defineParameter(".saveInterval", "numeric", NA_real_, NA, NA, "time interval between save events")
