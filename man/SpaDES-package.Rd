@@ -325,6 +325,7 @@ Here are several helper functions to add to, set and get colors of \code{Raster*
 \tabular{ll}{
   \code{\link[SpaDES:setColors<-]{setColors}} \tab Set colours for plotting \code{Raster*} objects\cr
   \code{\link{getColors}} \tab Get colours in a \code{Raster*} objects\cr
+  \code{\link{divergentColors}} \tab Create a color palette with diverging colors around a middle\cr
 }
 }
 

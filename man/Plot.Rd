@@ -141,8 +141,10 @@ where \code{n} is the new device number.
 The main plotting function accompanying \code{SpaDES}.
 This can take objects of type \code{Raster*}, \code{SpatialPoints*},
 \code{SpatialPolygons*}, and any combination of those. These can be provided
-as individual objects, or a named list. If a named list, the name of the object
-and the object name must be the same, e.g., list(ras = ras)
+as individual objects, or a named list. If a named list, the names either represent
+a different original object in the calling environment and that will be
+used, or if the names don't exist in the calling environment, then they will be
+copied to the .spadesEnv for reuse later.
 It can also handle \code{ggplot2} objects or \code{base::histogram} objects
 created via call to \code{exHist <- hist(1:10, plot = FALSE)}. It can also take
 arguments as if it were a call to \code{plot}. In this latter
@@ -195,8 +197,10 @@ original object that created the first plots, and replot them. This has several
 consequences. First, that object must still exist and in the same environment.
 Second, if that object has changed between the first time it is plot and any
 subsequent time it is replotted (via a forced rearrangement), then it will take
-the object *as it exists*, not as it existed. Third, the names that are given
-in the list of objects to plot must be equal to the name of that object.
+the object *as it exists*, not as it existed. Third, if passing a named list
+of objects, Plot will either create a link to objects with those names in the
+calling environment (e.g., .GlobalEnv) or, if they do not exist, then Plot
+will make a copy in the hidden .spadesEnv for later reuse.
 
 \code{cols} is a vector of colours that can be understood directly, or by
 \code{colorRampePalette}, such as \code{c("orange", "blue")}, will give a

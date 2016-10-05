@@ -750,7 +750,7 @@ test_that("Plot with base is not error-free", {
   orig <- switch(Sys.info()["sysname"],
                  Darwin = "AB27BDD38284D94A",
                  Linux = "AB27BD730284D9CA",
-                 Windows = "EB27BD52D28CC948"
+                 Windows = "EB27FD720284D958"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
 
