@@ -2,6 +2,8 @@ library(raster)
 library(data.table)
 library(sp)
 
+set.seed(1642)
+
 # circle centred
 Ras <- raster(extent(0, 15, 0, 15), res = 1, val = 0)
 middleCircle <- cir(Ras)
@@ -14,24 +16,22 @@ if (interactive()) {
 }
 
 # circles non centred
-if (interactive()) {
-  Ras <- randomPolygons(Ras, numTypes = 4)
-  N <- 2
-  agent <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(Ras), xmax(Ras)),
-                                        y = stats::runif(N, xmin(Ras), xmax(Ras))))
+Ras <- randomPolygons(Ras, numTypes = 4)
+N <- 2
+agent <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(Ras), xmax(Ras)),
+                                      y = stats::runif(N, xmin(Ras), xmax(Ras))))
 
-  cirs <- cir(Ras, agent, maxRadius = 15, simplify = TRUE)
-  cirsSP <- SpatialPoints(coords = cirs[, c("x", "y")])
-  cirsRas <- raster(Ras)
-  cirsRas[] <- 0
-  cirsRas[cirs[, "indices"]] <- 1
+cirs <- cir(Ras, agent, maxRadius = 15, simplify = TRUE)
+cirsSP <- SpatialPoints(coords = cirs[, c("x", "y")])
+cirsRas <- raster(Ras)
+cirsRas[] <- 0
+cirsRas[cirs[, "indices"]] <- 1
 
-  clearPlot()
-  Plot(Ras)
-  Plot(cirsRas, addTo = "Ras", cols = c("transparent", "#00000055"))
-  Plot(agent, addTo = "Ras")
-  Plot(cirsSP, addTo = "Ras")
-}
+clearPlot()
+Plot(Ras)
+Plot(cirsRas, addTo = "Ras", cols = c("transparent", "#00000055"))
+Plot(agent, addTo = "Ras")
+Plot(cirsSP, addTo = "Ras")
 
 # Example comparing rings and cir
 a <- raster(extent(0,30,0,30), res = 1)
