@@ -2,28 +2,27 @@ Package: SpaDES
 Type: Package
 Title: Develop and Run Spatially Explicit Discrete Event Simulation Models
 Description: Implement a variety of event-based models, with a focus on
-    spatially explicit models. These include raster-based,
-    event-based, and agent-based models. The core simulation components are
-    built upon a discrete event simulation framework that facilitates
-    modularity, and easily enables the user to include additional functionality
-    by running user-built simulation modules. Included are numerous tools to
-    visualize raster and other maps. The suggested package 'fastshp' can be
-    installed with `install.packages("fastshp", repos = "http://rforge.net",
-    type = "source")`.
+    spatially explicit models. These include raster-based, event-based, and
+    agent-based models. The core simulation components are built upon a discrete
+    event simulation (DES) framework that facilitates modularity, and easily
+    enables the user to include additional functionality by running user-built
+    simulation modules. Included are numerous tools to visualize raster and
+    other maps. The suggested package 'fastshp' can be installed with
+    `install.packages("fastshp", repos = "http://rforge.net", type = "source")`.
 URL: http://spades.predictiveecology.org, https://github.com/PredictiveEcology/SpaDES
 Version: 1.2.0.9035
 Date: 2016-10-05
 Authors@R: c(
-    person(c("Alex", "M"), "Chubaty", email="alexander.chubaty@canada.ca",
-    role=c("aut", "cre")),
-    person(c("Eliot", "J", "B"), "McIntire", email="eliot.mcintire@canada.ca",
-    role=c("aut")),
-    person("Yong", "Luo", email="yong.luo@canada.ca",
-    role=c("ctb")),
-    person("Steve", "Cumming", email="Steve.Cumming@sbf.ulaval.ca",
-    role=c("ctb")),
+    person(c("Alex", "M"), "Chubaty", email = "alexander.chubaty@canada.ca",
+    role = c("aut", "cre")),
+    person(c("Eliot", "J", "B"), "McIntire", email = "eliot.mcintire@canada.ca",
+    role = c("aut")),
+    person("Yong", "Luo", email = "yong.luo@canada.ca",
+    role = c("ctb")),
+    person("Steve", "Cumming", email = "Steve.Cumming@sbf.ulaval.ca",
+    role = c("ctb")),
     person("Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada",
-    role="cph")
+    role = "cph")
     )
 Additional_repositories: http://rforge.net
 Depends:
