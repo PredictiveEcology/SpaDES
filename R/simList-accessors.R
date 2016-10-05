@@ -2921,10 +2921,13 @@ setMethod("defineParameter",
           signature(name = "character", class = "character", default = "ANY",
                     min = "ANY", max = "ANY", desc = "character"),
           definition = function(name, class, default, min, max, desc) {
+
             # coerce `default`, `min`, and `max` to same specified type
-            default <- as(default, class)
-            min <- as(min, class)
-            max <- as(max, class)
+            # These next lines commented out because it doesn't allow for character e.g.,
+            #   start(sim)
+            #default <- as(default, class)
+            #min <- as(min, class)
+            #max <- as(max, class)
 
             # previously used `substitute()` instead of `I()`,
             # but it did not allow for a vector to be passed with `c()`
