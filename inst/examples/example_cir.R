@@ -27,11 +27,13 @@ cirsRas <- raster(Ras)
 cirsRas[] <- 0
 cirsRas[cirs[, "indices"]] <- 1
 
-clearPlot()
-Plot(Ras)
-Plot(cirsRas, addTo = "Ras", cols = c("transparent", "#00000055"))
-Plot(agent, addTo = "Ras")
-Plot(cirsSP, addTo = "Ras")
+if (interactive()) {
+  clearPlot()
+  Plot(Ras)
+  Plot(cirsRas, addTo = "Ras", cols = c("transparent", "#00000055"))
+  Plot(agent, addTo = "Ras")
+  Plot(cirsSP, addTo = "Ras")
+}
 
 # Example comparing rings and cir
 a <- raster(extent(0,30,0,30), res = 1)

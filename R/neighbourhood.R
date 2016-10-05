@@ -642,10 +642,10 @@ setMethod(
     } else {
       if (equalRadii)
         # 0.71 is the sqrt of 1, so keep
-        MAT2 <- MAT[MAT[, "rads"] >= (maxRad - 0.71) | MAT[, "rads"] <= (minRad + 0.71),]
+        MAT2 <- MAT[MAT[, "rads"] >= (maxRad - 0.71) | MAT[, "rads"] <= (minRad + 0.71),, drop = FALSE]
       else {
         # 0.71 is the sqrt of 1, so keep
-        MAT2 <- MAT[MAT[, "rads"] >= (MAT[, "maxRad"] - 0.71) | MAT[, "rads"] <= (MAT[, "minRad"] + 0.71),]
+        MAT2 <- MAT[MAT[, "rads"] >= (MAT[, "maxRad"] - 0.71) | MAT[, "rads"] <= (MAT[, "minRad"] + 0.71),, drop = FALSE]
       }
     } #  only pixels that are in inner or outer ring of pixels
 
@@ -667,9 +667,9 @@ setMethod(
     d <- distanceFromEachPoint(b, a)
 
     if (closest) {
-      d <- d[order(d[, "rads"]),]
-      dups <- duplicated(d[, "to"])
-      d <- d[!dups,]
+      d <- d[order(d[, "rads"]),, drop = FALSE]
+      dups <- duplicated(d[, "to", drop = FALSE])
+      d <- d[!dups,, drop = FALSE]
 
     }
 
@@ -681,14 +681,14 @@ setMethod(
 
     colnames(d)[which(colnames(d) == "to")] <- "indices"
     if (!returnDistances)
-      d <- d[, -which(colnames(d) == "dists")]
+      d <- d[, -which(colnames(d) == "dists"), drop = FALSE]
 
     if (!returnAngles) {
-      d <- d[, -which(colnames(d) == "angles")]
-      MAT <- MAT[, -which(colnames(MAT) == "angles")]
+      d <- d[, -which(colnames(d) == "angles"), drop = FALSE]
+      MAT <- MAT[, -which(colnames(MAT) == "angles"), drop = FALSE]
     } else {
       d[,"angles"] <- (pi/2 - d[,"angles"]) %% (2*pi)# convert to geographic
-      MAT[,"angles"] <- pi/2 -  MAT[,"angles"] %% (2*pi)# convert to geographic
+      MAT[,"angles"] <- pi/2 -  MAT[,"angles", drop = FALSE] %% (2*pi)# convert to geographic
     }
 
     if (returnDistances) {
@@ -708,7 +708,7 @@ setMethod(
     }
   } else {
     if (!returnAngles) {
-      MAT <- MAT[, -which(colnames(MAT) == "angles")]
+      MAT <- MAT[, -which(colnames(MAT) == "angles"), drop = FALSE]
     } #else {
       #MAT[,"angles"] <- pi/2 -  MAT[,"angles"] %% (2*pi)# convert to geographic
     #}

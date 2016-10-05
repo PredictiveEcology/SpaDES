@@ -562,8 +562,8 @@ setMethod(
 
     # source module metadata and code files, checking version info
     lapply(modules(sim), function(m) {
-      .parseModulePartial(sim = sim, modules = list(m), defineModuleElement = "version")[[m]] %>%
-        versionWarning(m, .)
+      .parseModulePartial(sim = sim, modules = list(m), defineModuleElement = "version")[[m]] #%>%
+      #  versionWarning(m, .)
     })
 
     ## do multi-pass if there are parent modules; first for parents, then for children
@@ -831,7 +831,7 @@ setGeneric("doEvent", function(sim, debug) {
 #' @rdname doEvent
 setMethod(
   "doEvent",
-  signature(sim = "simList", debug = "logical"),
+  signature(sim = "simList"),
   definition = function(sim, debug) {
     if (class(sim) != "simList") { # use inherits()?
       stop("doEvent can only accept a simList object")
@@ -867,14 +867,47 @@ setMethod(
         moduleCall <- paste("doEvent", cur$moduleName, sep = ".")
 
         # check the module call for validity
+        if (!(all(debug == FALSE))) {
+          if (length(debug) > 1) print("---------------------------")
+          for (i in seq_along(debug)) {
+            if (isTRUE(debug[i]) | debug[i] == "current") {
+              if (NROW(events(sim)) > 0) {
+                evnts1 <- data.frame(current(sim))
+                widths <- str_length(format(evnts1))
+                sim$.spadesDebugWidth <- pmax(widths, sim$.spadesDebugWidth)
+                evnts1[1L,] <- str_pad(format(evnts1), side = "right", sim$.spadesDebugWidth)
+
+                if (sim$.spadesDebugFirst) {
+                  evnts2 <- evnts1
+                  evnts2[1L,] <- str_pad(names(evnts1), sim$.spadesDebugWidth)
+                  cat("This is the current event, printed as it is happening:\n")
+                  write.table(evnts2, quote = FALSE, row.names = FALSE, col.names = FALSE)
+                  sim$.spadesDebugFirst <- FALSE
+                } else {
+                  colnames(evnts1) <- NULL
+                  #write.table(evnts1, quote = FALSE)
+                  write.table(evnts1, quote = FALSE, row.names = FALSE)
+                }
+              }
+            } else if (debug[i] == "simList") {
+              print(sim)
+            } else if (grepl(debug[i], pattern = "\\(") ) {
+              tryCatch(eval(parse(text = debug[i])), error = function(x) "")
+            } else {
+              print(do.call(debug[i], list(sim)))
+            }
+          }
+        }
+
         if (cur$moduleName %in% modules(sim, hidden = TRUE)) {
+
           if (cur$moduleName %in% core) {
               sim <- get(moduleCall)(sim, cur$eventTime,
-                                     cur$eventType, debug)
+                                     cur$eventType, !(debug == FALSE))
            } else {
               sim <- get(moduleCall,
                          envir = envir(sim))(sim, cur$eventTime,
-                                             cur$eventType, debug)
+                                             cur$eventType, !(debug == FALSE))
            }
         } else {
           stop(paste("Invalid module call. The module `", cur$moduleName,
@@ -1242,38 +1275,8 @@ setMethod(
       sim$.spadesDebugWidth <- c(9, 10, 9, 13)
     }
     while (time(sim, "second") <= end(sim, "second")) {
-      if (!(all(debug == FALSE))) {
-        if (length(debug) > 1) print("---------------------------")
-        for (i in seq_along(debug)) {
-          if (isTRUE(debug[i]) | debug[i] == "current") {
-            if (NROW(events(sim)) > 0) {
-              evnts1 <- data.frame(events(sim)[1L])
-              widths <- str_length(format(evnts1, digits = 4))
-              sim$.spadesDebugWidth <- pmax(widths, sim$.spadesDebugWidth)
-              evnts1[1L,] <- str_pad(format(evnts1, digits = 4), sim$.spadesDebugWidth)
 
-              if (sim$.spadesDebugFirst) {
-                evnts2 <- evnts1
-                evnts2[1L,] <- str_pad(names(evnts1), sim$.spadesDebugWidth)
-                write.table(evnts2, quote = FALSE, row.names = FALSE, col.names = FALSE)
-                sim$.spadesDebugFirst <- FALSE
-              } else {
-                colnames(evnts1) <- NULL
-                #write.table(evnts1, quote = FALSE)
-                write.table(evnts1, quote = FALSE, row.names = FALSE)
-              }
-            }
-          } else if (debug[i] == "simList") {
-            print(sim)
-          } else if (grepl(debug[i], pattern = "\\(") ) {
-            tryCatch(eval(parse(text = debug[i])), error = function(x) "")
-          } else {
-            print(do.call(debug[i], list(sim)))
-          }
-        }
-      }
-
-      sim <- doEvent(sim, !(debug == FALSE))  # process the next event
+      sim <- doEvent(sim, debug = debug)  # process the next event
 
     }
     time(sim) <- end(sim, "second")

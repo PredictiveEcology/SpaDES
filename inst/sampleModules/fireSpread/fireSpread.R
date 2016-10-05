@@ -32,8 +32,8 @@ defineModule(sim, list(
     defineParameter("persistprob", "numeric", 0.00, 0, 1, "probability of fire persisting in a pixel"),
     defineParameter("returnInterval", "numeric", 1.0, NA, NA, "fire return interval"),
     defineParameter("spreadprob", "numeric", 0.225, 0.05, 0.5, "probability of fire spreading into a pixel"),
-    defineParameter("startTime", "numeric", 1.0, 0, NA, "time of initial fire ignition"),
-    defineParameter(".plotInitialTime", "numeric", 0, NA, NA, "time to schedule first plot event"),
+    defineParameter("startTime", "numeric", start(sim)+1, 0, NA, "time of initial fire ignition"),
+    defineParameter(".plotInitialTime", "numeric", start(sim), NA, NA, "time to schedule first plot event"),
     defineParameter(".plotInterval", "numeric", 1, NA, NA, "time interval between plot events"),
     defineParameter(".saveInitialTime", "numeric", NA_real_, NA, NA, "time to schedule first save event"),
     defineParameter(".saveInterval", "numeric", NA_real_, NA, NA, "time interval between save events")
