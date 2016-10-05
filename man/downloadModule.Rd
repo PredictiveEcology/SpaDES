@@ -3,26 +3,22 @@
 \docType{methods}
 \name{downloadModule}
 \alias{downloadModule}
+\alias{downloadModule,character,ANY,ANY,ANY,ANY,ANY-method}
 \alias{downloadModule,character,character,character,character,logical,logical-method}
-\alias{downloadModule,character,character,character,missing,ANY,ANY-method}
-\alias{downloadModule,character,character,missing,character,ANY,ANY-method}
-\alias{downloadModule,character,character,missing,missing,ANY,ANY-method}
+\alias{downloadModule,character,missing,missing,missing,missing,missing-method}
 \title{Download a module from a SpaDES module GitHub repository}
 \usage{
-downloadModule(name, path, version, repo, data = FALSE, quiet = FALSE)
+downloadModule(name, path, version, repo, data, quiet)
 
 
   \S4method{downloadModule}{character,character,character,character,logical,logical}(name,
-  path, version, repo, data = FALSE, quiet = FALSE)
+  path, version, repo, data, quiet)
 
-\S4method{downloadModule}{character,character,character,missing,ANY,ANY}(name,
-  path, version, data, quiet)
 
-\S4method{downloadModule}{character,character,missing,missing,ANY,ANY}(name,
-  path, data, quiet)
+  \S4method{downloadModule}{character,missing,missing,missing,missing,missing}(name)
 
-\S4method{downloadModule}{character,character,missing,character,ANY,ANY}(name,
-  path, repo, data, quiet)
+\S4method{downloadModule}{character,ANY,ANY,ANY,ANY,ANY}(name, path, version,
+  repo, data, quiet)
 }
 \arguments{
 \item{name}{Character string giving the module name.}

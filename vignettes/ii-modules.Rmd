@@ -59,11 +59,12 @@ If two modules are actually depedent on each others' events, then you should con
 
 ## Module directory structure (`moduleName/`)
 
-A module consists of a collection of files that ...
+A module consists of a collection of files and folders that ...
 
 ```
 /moduleRepository
   |_ moduleName/
+      |_ R/                     # A folder for optional R scripts, parsed in `simInit`
       |_ data/
           |_ CHECKSUMS.txt
       |_ citation.bib           # properly formatted bibtex citation for the module
@@ -113,12 +114,13 @@ Every module requires complete metadata, structured as a named list, and passed 
 **`parameters`**      | A `data.frame` constructed using `rbind` with `defineParameter`, specifying module
 &nbsp;                | parameters, with columns `paramName`, `paramClass`, `default`, `min`, `max`, and `paramDesc`.
 &nbsp;                | Default values may be overridden by the user by passing a list of parameters to `simInit`.
-**`inputObjects`**    | A `data.frame` specifying the object dependencies of the module, with columns
-&nbsp;                | `objectName`, `objectClass`, `sourceURL`, and `other`.
+**`inputObjects`**    | A `data.frame` constructed using `bind_rows` with `expectsInput`, specifying
+&nbsp;                | the object dependencies of the module, with columns `objectName`, `objectClass`, `desc`, `sourceURL` and other specifications.
 &nbsp;                | For objects that are used within the module as both an input and an output,
-&nbsp;                | add the object to each of these `data.frame`s.
-**`outputObjects`**   | A `data.frame` specifying the objects output by the module, with columns
-&nbsp;                | `objectName`, `objectClass`, and `other`.
+&nbsp;                | add an input object by using `expectsInput`.
+**`outputObjects`**   | A `data.frame` constructed using `bind_rows` with `createsOutput`, specifying 
+&nbsp;                | the objects output by the module, with columns `objectName`, `objectClass`, `desc` and other specifications.
+&nbsp;                | Add an output object by using `createsOutput`.
 
 ```{r module-metadata, eval=FALSE, echo=TRUE}
 ## sample module metadata for the default `randomLandscapes` module
@@ -149,12 +151,14 @@ defineModule(sim, list(
     defineParameter(".saveInitialTime", "numeric", NA_real_, NA, NA, "time ..."),
     defineParameter(".saveInterval", "numeric", NA_real_, NA, NA, "time ...")
   ),
-  inputObjects = data.frame(objectName = character(), objectClass = character(),
-                            sourceURL = character(), other = character(),
-                            stringsAsFactors = FALSE),
-  outputObjects = data.frame(objectName = globals(sim)$stackName,
-                             objectClass = "RasterStack",
-                             other = NA_character_, stringsAsFactors = FALSE)
+  inputObjects = bind_rows(
+    expectsInput(objectName = NA_character_, objectClass = NA_character_,
+                 desc = NA_character_, sourceURL = NA_character_, other = NA_character_)
+  ),
+  outputObjects = bind_rows(
+    createsOutput(objectName = globals(sim)$stackName, objectClass = "RasterStack",
+                  desc = NA_character_, other = NA_character_)
+  )
 ))
 ```
 
@@ -204,7 +208,7 @@ mySim <- simInit(times = times, params = parameters, modules = modules,
 ### Event types
 
 Each module may contain an arbitrary number of event types.
-Each of these event types are defined within the `doEvent.moduleName` call, and are wrapped in a simple `if`/`else` stanza that matches the called event type (NOTE: when several event types are defined, `switch`/case can faster than `if`/`else`).
+Each of these event types are defined within the `doEvent.moduleName` call, and are wrapped in a simple `if`/`else` stanza that matches the called event type (NOTE: when several event types are defined, `switch`/`case` can faster than `if`/`else`).
 To keep the `doEvent.moduleName` code block as clear and readable as possible, keep the definitions of each event type minimal, using functions (defined outside of the block) for the details of what is happening for each event.
 
 ```{r event-types, echo=TRUE, eval=FALSE}
@@ -338,7 +342,8 @@ mySim <- simInit(
   modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
   objects = list(),
   paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
-  ) %>% spades()
+  ) %>% 
+  spades()
 dev.off()
 unlink(ftmp)
 ```
@@ -426,14 +431,18 @@ times <- list(start = 0.0, end = 20)
 parameters <- list(
   .globals = list(stackName = "landscape", burnStats = "nPixelsBurned")
 )
-modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
+modules <- list("SpaDES_sampleModules")
 paths <- list(modulePath = system.file("sampleModules", package = "SpaDES"))
 
 mySim <- simInit(times = times, params = parameters, modules = modules, paths = paths)
 
 ## examine simulation module (object) dependencies
 depsEdgeList(mySim, FALSE)      # all object dependency relationships
+clearPlot()
 moduleDiagram(mySim)            # simplified visual representation of modules
+
+clearPlot()
+moduleDiagram(mySim, showParents = TRUE) # similar, but showing parent module grouping
 
 # detailed visual representation of objects
 objectDiagram(mySim, width = 720)
@@ -705,8 +714,11 @@ Requires a RasterStack object whose name is specified by `globals(sim)$stackName
 Modules from this (or another suitable GitHub repository) can be downloaded using:
 
 ```{r download-module, echo=TRUE, eval=FALSE}
-downloadModule("moduleName", "path/to/my/modules/directory")
+downloadModule("moduleName")
 ```
+
+**Note:** by default, modules and their data are saved to the directory specified by the `spades.modulesPath`.
+An alternate path can be provided to `downloadModule` directly via the `path` argument, or specified using `options(spades.modulesPath = "path/to/my/modules")`.
 
 # Creating new modules
 
@@ -717,7 +729,7 @@ While it may be useful for modules to exhibit indirect dependence on each other 
 
 ## Using the module template
 
-Code for new modules can be developed quickly using the template generator function `newModule` which accepts as arguments the name of the new module, a directory path in which to create the new module, and a logical indicating whether to open the newly created module code file for editing.
+Code for new modules can be developed quickly using the template generator function `newModule`(also available as an Rstudio addin) which accepts as arguments the name of the new module, a directory path in which to create the new module, and a logical indicating whether to open the newly created module code file for editing.
 
 ```{r create-new-module, eval=FALSE, echo=TRUE, message=FALSE}
 # create a new module called "randomLandscape" in the "custom-modules" subdirectory
@@ -778,6 +790,10 @@ Module groups can also be used to simplify the download of multiple modules:
 ```{r module-group-dl, eval=FALSE}
 downloadModule("SpaDES_sampleModules")
 ```
+
+## Debugging
+
+Various debugging techniques are discussed at [https://github.com/PredictiveEcology/SpaDES/wiki/Debugging](https://github.com/PredictiveEcology/SpaDES/wiki/Debugging).
 
 ## Contributing modules
 

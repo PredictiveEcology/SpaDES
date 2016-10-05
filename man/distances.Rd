@@ -7,8 +7,8 @@
 \title{Calculate distances and directions between many points and many grid cells}
 \usage{
 distanceFromEachPoint(from, to = NULL, landscape, angles = NA_real_,
-  maxDistance = NA_real_, cumulativeFn = NULL, distFn = function(x) 1/(1 +
-  x))
+  maxDistance = NA_real_, cumulativeFn = NULL, distFn = function(dist)
+  1/(1 + dist), cl, ...)
 
 .pointDistance(from, to, angles = NA, maxDistance = NA_real_)
 }
@@ -33,8 +33,17 @@ this distance. Using this will keep memory use down.}
 \item{cumulativeFn}{A function that can be used to incrementally accumulate values in each \code{to}
 location, as the function iterates through each \code{from}. See Details.}
 
-\item{distFn}{A function, of "x", to convert the distance in cells to some other set of units
-that will be accumulated by the \code{cumulativeFn}. See Details.}
+\item{distFn}{A function. This can be a function of landscape, fromCells, toCells, and
+dist. If cumulativeFn is supplied, then this will be used to convert
+the distances to some other set of units
+that will be accumulated by the \code{cumulativeFn}. See Details and examples.}
+
+\item{cl}{A cluster object. Optional. This would generally be created using
+parallel::makeCluster or equivalent. This is an alternative way, instead
+of \code{beginCluster()}, to use parallelism for this function, allowing for
+more control over cluster use.}
+
+\item{...}{Any additional objects needed for \code{distFn}.}
 }
 \value{
 A sorted matrix on \code{id} with same number of rows as \code{to},
@@ -52,6 +61,12 @@ use down, but with the consequences that there will be a maximum distance return
 has the potential to use a lot of memory if there are a lot of \code{from} and \code{to} points.
 }
 \details{
+This function is cluster aware. If there is a cluster running, it will use it. To start a cluster
+use \code{\link[raster]{beginCluster}}, with N being the number of cores to use. See examples in
+\code{\link{experiment}}.
+
+
+
 If the user requires an id (indicating the from cell for each to cell) to be returned with
 the fuction, the user must add an identifier to the \code{from} matrix, such as "id".
 Otherwise, the function will only return the coordinates and distances.
@@ -81,7 +96,10 @@ dists1 <- distanceFromEachPoint(coords, landscape = distRas)
 indices <- cellFromXY(distRas,dists1[,c("x","y")])
 invDist <- tapply(dists1[,"dists"], indices, function(x) sum(1/(1+x))) # idw function
 distRas[] <- as.vector(invDist)
-if (interactive()) Plot(distRas, new = TRUE)
+if (interactive()) {
+  clearPlot()
+  Plot(distRas)
+}
 
 # With iterative summing via cumulativeFn to keep memory use low, with same result
 dists1 <- distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE],
@@ -92,6 +110,30 @@ if (interactive()) Plot(idwRaster)
 
 all(idwRaster[] == distRas[]) # TRUE
 
+# A more complex example of cumulative inverse distance sums, weighted by the value
+#  of the origin cell
+ras <- raster(extent(0,34, 0,34), res = 1, val = 0)
+rp <- randomPolygons(ras, numTypes = 10) ^ 2
+N <- 15
+cells <- sample(ncell(ras), N)
+coords <- xyFromCell(ras, cells)
+distFn <- function(landscape, fromCell, dist) landscape[fromCell] / (1 + dist)
+
+# beginCluster(3) # can do parallel
+dists1 <- distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE],
+               landscape = rp, distFn = distFn, cumulativeFn = `+`)
+
+# endCluster() # if beginCluster was run
+idwRaster <- raster(ras)
+idwRaster[] <- dists1[,"val"]
+if (interactive()) {
+  clearPlot()
+  Plot(rp, idwRaster)
+  sp1 <- SpatialPoints(coords)
+  Plot(sp1, addTo="rp")
+  Plot(sp1, addTo="idwRaster")
+}
+
 }
 \seealso{
 \code{\link{rings}}, \code{\link{cir}}, \code{\link[raster]{distanceFromPoints}},
@@ -100,7 +142,7 @@ But each has different primary use cases. Each is also faster under different co
 For instance, if \code{maxDistance} is relatively small compared to the number of cells
 in the \code{landscape}, then \code{\link{cir}} will likely be faster. If a minimum
 distance from all cells in the \code{landscape} to any cell in \code{from}, then
-\code{distanceFromPoints} will be fastest. This function scales best when all \code{to}
-is many or all cells (which is default).
+\code{distanceFromPoints} will be fastest. This function scales best when there are
+many \code{to} points or all cells are used \code{to = NULL} (which is default).
 }
 

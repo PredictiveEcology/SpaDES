@@ -46,7 +46,7 @@ doEvent.save <- function(sim, eventTime, eventType, debug = FALSE) {
 #' @section 1. Model-level saving:
 #'
 #' Using the \code{outputs} slot in the \code{\link{simInit}} call.
-#' See 2nd example in \code{\link{simInit}}.
+#' See second example in \code{\link{simInit}}.
 #' This can be convenient because it gives overall control of many modules at a
 #' time, and there is an implicit scheduling that gets created during the
 #' \code{\link{simInit}} call.
@@ -79,9 +79,37 @@ doEvent.save <- function(sim, eventTime, eventType, debug = FALSE) {
 #'
 #' @examples
 #' \dontrun{
-#'  sim <- saveFiles(mySim)
+#'
+#' # This will save the "caribou" object at the save interval of 1 unit of time
+#' #  in the outputPath location
+#' outputPath <- file.path(tempdir(), "test_save")
+#' times <- list(start = 0, end = 6, "month")
+#' parameters <- list(
+#'   .globals = list(stackName = "landscape"),
+#'   caribouMovement = list(
+#'     .saveObjects = "caribou",
+#'     .saveInitialTime = 1, .saveInterval = 1
+#'   ),
+#'   randomLandscapes = list(.plotInitialTime = NA, nx = 20, ny = 20))
+#'
+#' modules <- list("randomLandscapes", "caribouMovement")
+#' paths <- list(
+#'   modulePath = system.file("sampleModules", package = "SpaDES"),
+#'   outputPath = savePath
+#' )
+#' mySim <- simInit(times = times, params = parameters, modules = modules,
+#'                  paths = paths)
+#'
+#' # The caribou module has a saveFiles(sim) call, so it will save caribou
+#' spades(mySim)
+#' dir(outputPath)
+#'
+#' # remove the files
+#' file.remove(dir(savePath, full.names = T))
+#'
 #' }
 saveFiles <- function(sim) {
+
   curTime <- time(sim, timeunit(sim))
   # extract the current module name that called this function
   moduleName <- currentModule(sim)

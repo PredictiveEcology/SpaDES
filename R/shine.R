@@ -3,8 +3,7 @@
 #' Currently, this is quite simple. It creates a side bar with the simulation
 #' times, plus a set of tabs, one for each module, with numeric sliders.
 #' Currently, this does not treat NAs correctly. Also, it is slow (shiny is not
-#' built to be fast out of the box). Currently, it does not show plotting
-#' updates; it only shows the final output of a spades call. There are two
+#' built to be fast out of the box). There are two
 #' buttons, one to run the entire spades call, the other to do just one time
 #' step at a time. It can be repeatedly pressed.
 #'
@@ -22,42 +21,42 @@
 #' @param title character string. The title of the shiny page.
 #' @param debug Logical. If TRUE, then will show spades event debugger in
 #'   console.
+#' @param filesOnly Logical. If TRUE, then the server.R, ui.R files will be written
+#'                  to a temp location, with a message indicating where they are.
+#'                  Publishing this to shinyapps.io is currently very buggy,
+#'                  and will likely not work as desired.
 #' @param ... additional arguments. Currently not used
+#'
 #' @export
-#' @importFrom shiny fluidPage titlePanel sidebarPanel sidebarLayout
-#'   actionButton sliderInput uiOutput
-#' @importFrom shiny mainPanel plotOutput renderUI tabPanel tabsetPanel
-#' @importFrom shiny eventReactive renderPlot runApp downloadButton
-#' @importFrom shiny numericInput h4 checkboxInput invalidateLater observe
-#' @importFrom shiny updateTabsetPanel downloadHandler h3 textOutput
-#' @importFrom shiny reactiveValues observeEvent updateSliderInput renderPrint
+#' @importFrom shiny actionButton checkboxInput downloadButton downloadHandler
+#' @importFrom shiny eventReactive fluidPage h3 h4 invalidateLater
+#' @importFrom shiny mainPanel numericInput observe observeEvent plotOutput
+#' @importFrom shiny reactiveValues renderPlot renderPrint renderUI runApp
+#' @importFrom shiny sliderInput sidebarLayout sidebarPanel
+#' @importFrom shiny tabPanel tabsetPanel textOutput titlePanel
+#' @importFrom shiny uiOutput updateSliderInput updateTabsetPanel
 #' @importFrom DiagrammeR DiagrammeROutput renderDiagrammeR
 #' @importFrom DT renderDataTable dataTableOutput
 #' @examples
 #' \dontrun{
-#' times <- list(start = 0.0, end = 20.0)
-#' parameters <- list(
-#'   .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
-#'   .progress = list(NA),
-#'   randomLandscapes = list(nx = 100L, ny = 100L, inRAM = TRUE),
-#'   fireSpread = list(nFires = 10L, spreadprob = 0.225, its = 1e6, persistprob = 0,
-#'                     returnInterval = 10, startTime = 0,
-#'                     .plotInitialTime = 0.0, .plotInterval = 10),
-#'   caribouMovement = list(N = 100L, moveInterval = 1,
-#'                          .plotInitialTime = 1, .plotInterval = 1)
-#' )
-#' modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
-#' path <- list(modulePath = system.file("sampleModules", package = "SpaDES"),
-#'              outputPath = file.path(tempdir(), "simOutputs"))
-#'
-#' mySim <- simInit(times = times, params = parameters, modules = modules, path = path)
+#'  mySim <- simInit(
+#'    times <- list(start = 0.0, end = 20.0),
+#'    params = list(
+#'      .globals = list(stackName = "landscape", burnStats = "nPixelsBurned")
+#'    ),
+#'    modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
+#'    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
+#'  )
 #'
 #' shine(mySim)
 #'
+#' # To publish to shinyapps.io, need files. THis is not reliable yet.
+#' shine(mySim, filesOnly = TRUE)
+#'
 #' # if the user wants to see the events go by, which can help with debugging:
-#' shine(mySim, debug=TRUE)
+#' shine(mySim, debug = TRUE)
 #' }
-setGeneric("shine", function(sim, title = "SpaDES App", debug = FALSE, ...) {
+setGeneric("shine", function(sim, title = "SpaDES App", debug = FALSE, filesOnly = FALSE, ...) {
   standardGeneric("shine")
 })
 
@@ -66,16 +65,15 @@ setGeneric("shine", function(sim, title = "SpaDES App", debug = FALSE, ...) {
 setMethod(
   "shine",
   signature = signature(sim = "simList"),
-  definition = function(sim, title, debug, ...) {
+  definition = function(sim, title, debug, filesOnly, ...) {
 
   # Keep a copy of input simList so Reset button works
   simOrig_ <- as(sim, "simList_") # convert objects first
   simOrig <- sim # Not enough because objects are in an environment, so they both change
 
-  #i = 1
   endTime <- end(sim)
   startTime <- start(sim)
-  ui <- fluidPage(
+  fluidPageArgs <-     list(
     titlePanel(title),
     sidebarLayout(
       sidebarPanel(
@@ -85,7 +83,7 @@ setMethod(
         numericInput("Steps", "Step size", 1, width = "100px"),
         actionButton("resetSimInit", "Reset"),
         downloadButton('downloadData', 'Download'),
-        sliderInput("simTimes", paste0("Simuated ", timeunit(sim)), sep = "",
+        sliderInput("simTimes", paste0("Simulated ", timeunit(sim)), sep = "",
                     start(sim) , end(sim), start(sim)),
         h3("Modules"),
         uiOutput("moduleTabs")
@@ -106,14 +104,18 @@ setMethod(
   server <- function(input, output, session) {
     # Some cases there may be an error due to a previous plot still existing - this should clear
     curDev <- dev.cur()
-    alreadyPlotted <- grepl(ls(.spadesEnv), pattern = paste0("spadesPlot", curDev))
+    if (exists(".spadesEnv"))
+      alreadyPlotted <- grepl(ls(.spadesEnv), pattern = paste0("spadesPlot", curDev))
+    else
+      alreadyPlotted <- FALSE
+
     if (any(alreadyPlotted)) {
       clearPlot() # Don't want to use this, but it seems that renderPlot will not allow overplotting
     }
 
     # Left side module tabs
     output$moduleTabs <- renderUI({
-      mods <- unlist(modules(sim))[-(1:4)]
+      mods <- unlist(modules(sim))
       nTabs <- length(mods)
       myTabs <- lapply(mods, function(x) {
         tabPanel(x, h4("Parameters"), uiOutput(outputId = x))
@@ -122,7 +124,7 @@ setMethod(
     })
 
     # Sliders in module tabs
-    for (k in unlist(modules(sim))[-(1:4)]) {
+    for (k in unlist(modules(sim))) {
       local({ # local is needed because it must force evaluation, avoid lazy evaluation
         kLocal <- k
         output[[kLocal]] <- renderUI({
@@ -163,7 +165,7 @@ setMethod(
 
     spadesCallFull <- function() {#eventReactive(input$fullSpaDESButton, {
       # Update simInit with values obtained from UI
-      mods <- unlist(modules(sim))[-(1:4)]
+      mods <- unlist(modules(sim))
       for (m in mods) {
         for (i in names(params(sim)[[m]])) {
           if (!is.null(input[[paste0(m, "$", i)]])) # only if it is not null
@@ -179,7 +181,7 @@ setMethod(
     # Needs cleaning up - This should just be a subset of above
     spadesCall <- eventReactive(input$oneTimestepSpaDESButton, {
       # Update simInit with values obtained from UI
-      mods <- unlist(modules(sim))[-(1:4)]
+      mods <- unlist(modules(sim))
       for (m in mods) {
         for (i in names(params(sim)[[m]])) {
           if (!is.null(input[[paste0(m, "$", i)]])) {# only if it is not null
@@ -229,7 +231,11 @@ setMethod(
     # Main plot
     output$spadesPlot <- renderPlot({
       curDev <- dev.cur()
-      alreadyPlotted <- grepl(ls(.spadesEnv), pattern = paste0("spadesPlot", curDev))
+      if (exists(".spadesEnv"))
+        alreadyPlotted <- grepl(ls(.spadesEnv), pattern = paste0("spadesPlot", curDev))
+      else
+        alreadyPlotted <- FALSE
+
       if (any(alreadyPlotted)) {
         rePlot()
       } else {
@@ -256,7 +262,7 @@ setMethod(
 
     output$moduleDiagramUI <- renderUI({
       plotOutput("moduleDiagram",
-                 height = max(600, (length(modules(sim)) - 4)*100))
+                 height = max(600, (length(modules(sim)) )*100))
     })
 
     output$objectDiagram <- renderDiagrammeR({
@@ -339,8 +345,52 @@ setMethod(
     )
   }
 
-  runApp(list(ui = ui, server = server),
-                launch.browser = getOption("viewer", browseURL),
-                quiet = TRUE
-  )
+  if (filesOnly) {
+    shinyAppDir <- file.path(tempdir() , "shinyApp")
+    checkPath(shinyAppDir, create = TRUE)
+    globalFile <- file.path(shinyAppDir,"global.R", fsep = "/")
+    saveRDS(sim, file = file.path(shinyAppDir, "sim.Rdata"))
+    con <- file(globalFile, open = "w+b");
+    writeLines(paste("debug <-",debug), con = con)
+    writeLines("library(DiagrammeR)", con = con)
+    #writeLines("library(igraph)", con = con)
+    writeLines("library(DT)", con = con)
+    writeLines("library(SpaDES)", con = con)
+    pkgs <- unique(unlist(lapply(sim@depends@dependencies,
+                         function(x) x@reqdPkgs)))
+    writeLines(paste0(paste0("library(", pkgs,")"), collapse = "\n"),
+               con = con)
+    writeLines("sim <- readRDS(file=\"sim.Rdata\")", con = con)
+    writeLines("simOrig_ <- as(sim, \"simList_\")", con = con) # convert objects first
+    writeLines("simOrig <- sim", con = con) # Not enough because objects are in an environment, so they both change
+
+    writeLines("endTime <- end(sim)", con = con)
+    writeLines("startTime <- start(sim)", con = con)
+
+    close(con)
+
+    serverFile <- file.path(shinyAppDir,"server.R", fsep = "/")
+    con <- file(serverFile, open = "w+b");
+    writeLines("shinyServer(", con = con);
+    writeLines(deparse(dput(server)), con = con, sep = "\n");
+    writeLines(")", con = con);
+    close(con)
+    serverFile <- gsub(x = serverFile, pattern = "\\\\", "/")
+
+    uiFile <- file.path(shinyAppDir,"ui.R", fsep = "/")
+    con <- file(uiFile, open = "w+b");
+    writeLines("fluidPage(", con = con);
+    writeLines(deparse(dput(fluidPageArgs)), con = con, sep = "\n");
+    writeLines(")", con = con);
+    close(con)
+
+    message("server.R file is saved. Type: file.edit(\"", serverFile, "\")",
+            " to edit the file, or runApp(\"", dirname(serverFile), "\") to run it,",
+            " or, rsconnect::deployApp(\"", dirname(serverFile), "\")")
+  } else {
+    runApp(list(ui = fluidPage(fluidPageArgs), server = server),
+           launch.browser = getOption("viewer", browseURL),
+           quiet = TRUE
+    )
+  }
 })

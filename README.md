@@ -2,7 +2,8 @@
 
 ### Develop and run spatially explicit discrete event simulation models
 
-Easily implement a variety of simulation models, with a focus on spatially explicit models. These include raster-based, event-based, and agent-based models.
+Easily implement a variety of simulation models, with a focus on spatially explicit models.
+These include raster-based, event-based, and agent-based models.
 The core simulation components are built upon a discrete event simulation framework that facilitates modularity, and easily enables the user to include additional functionality by running user-built simulation modules. 
 Included are numerous tools to rapidly visualize raster and other maps.
 
@@ -12,7 +13,7 @@ Included are numerous tools to rapidly visualize raster and other maps.
 
 ## Installation
 
-Building packages from source requires the appropriate development libraries for your operating system (*e.g.*, Windows users should install [Rtools](http://cran.r-project.org/bin/windows/Rtools/)).
+Building packages from source requires the appropriate development libraries for your operating system (*e.g.*, Windows users should install [Rtools](https://cran.r-project.org/bin/windows/Rtools/)).
 
 The suggested package `fastshp` can be installed with:
 
@@ -40,7 +41,7 @@ install.packages("SpaDES")
 ```r
 #install.packages("devtools")
 library("devtools")
-install_github("PredictiveEcology/SpaDES") # stable
+install_github("PredictiveEcology/SpaDES", dependencies = TRUE) # stable
 ```
 
 ### Development version (unstable)
@@ -54,14 +55,14 @@ install_github("PredictiveEcology/SpaDES") # stable
 ```r
 #install.packages("devtools")
 library("devtools")
-install_github("PredictiveEcology/SpaDES", ref = "development") # unstable
+install_github("PredictiveEcology/SpaDES", ref = "development", dependencies = TRUE) # unstable
 ```
 
 ## Getting started
 
 **Vignettes:**
 
-Available via our [wiki](https://github.com/PredictiveEcology/SpaDES/wiki/Help-Vignettes) or via `browseVignettes(package="SpaDES")`.
+Available via our [wiki](https://github.com/PredictiveEcology/SpaDES/wiki/Help-Vignettes) or via `browseVignettes(package = "SpaDES")`.
 
 **Wiki:**
 

@@ -8,12 +8,12 @@ test_that("module templates work", {
     detach('package:knitr')
     detach('package:igraph')
     unlink(path, recursive = TRUE)
-  })
+  }, add = TRUE)
 
   expect_true(file.exists(path))
   moduleName <- "myModule"
 
-  newModule(moduleName, path, FALSE, unitTests = TRUE)
+  newModule(moduleName, path, open = FALSE, unitTests = TRUE)
 
   mpath <- file.path(path, moduleName)
 

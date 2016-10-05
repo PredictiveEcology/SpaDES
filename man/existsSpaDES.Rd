@@ -23,4 +23,5 @@ Internal function. Simple wrapper for \code{\link{exists}}.
 \author{
 Alex Chubaty
 }
+\keyword{internal}
 

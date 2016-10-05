@@ -1,14 +1,14 @@
 test_that("splitRaster and mergeRaster work on small in-memory rasters", {
-  library(raster)
+  library(raster); on.exit(detach("package:raster"), add = TRUE)
+
   owd <- getwd()
   tmpdir <- file.path(tempdir(), "splitRaster-test") %>% checkPath(create = TRUE)
   setwd(tmpdir)
 
   on.exit({
-    detach("package:raster")
     setwd(owd)
     unlink(tmpdir, recursive = TRUE)
-  })
+  }, add = TRUE)
 
   b <- brick(system.file("external/rlogo.grd", package = "raster"))
   r <- b[[1]] # use first layer only
@@ -140,77 +140,78 @@ test_that("splitRaster works in parallel", {
   skip_on_cran()
   skip_on_travis()
   skip_on_appveyor()
-  skip("parallel usage of splitRaster must be run manually")
 
-  library(raster)
-  tmpdir <- file.path(tempdir(), "splitRaster-test-parallel") %>% checkPath(create = TRUE)
+  if (interactive()) {
+    library(raster); on.exit(detach("package:raster"), add = TRUE)
 
-  on.exit({
-    detach("package:raster")
-    unlink(tmpdir, recursive = TRUE)
-  })
+    tmpdir <- file.path(tempdir(), "splitRaster-test-parallel") %>% checkPath(create = TRUE)
 
-  b <- brick(system.file("external/rlogo.grd", package = "raster"))
-  r <- b[[1]] # use first layer only
-  nx <- 3
-  ny <- 4
-  expect_equal(xres(r), 1)
-  expect_equal(yres(r), 1)
+    on.exit({
+      detach("package:raster")
+      unlink(tmpdir, recursive = TRUE)
+    }, add = TRUE)
 
-  # change the extent of r
-  extent(r) <- extent(xmin(r) - 30, xmax(r) - 30, ymin(r) - 20, ymax(r) - 20)
+    b <- brick(system.file("external/rlogo.grd", package = "raster"))
+    r <- b[[1]] # use first layer only
+    nx <- 3
+    ny <- 4
+    expect_equal(xres(r), 1)
+    expect_equal(yres(r), 1)
 
-  # test parallel cropping
-  n <- pmin(parallel::detectCores(), 4) # use up to 4 cores
-  beginCluster(n)
-  on.exit(raster::endCluster(), add = TRUE)
+    # change the extent of r
+    extent(r) <- extent(xmin(r) - 30, xmax(r) - 30, ymin(r) - 20, ymax(r) - 20)
 
-  cl <- getCluster()
+    # test parallel cropping
+    n <- pmin(parallel::detectCores(), 4) # use up to 4 cores
+    beginCluster(n)
+    on.exit(raster::endCluster(), add = TRUE)
 
-  y11 <- splitRaster(r, nx, ny, c(3L, 4L), path = file.path(tmpdir, "red11"))
-  expect_true(unique(unlist(lapply(y11, fromDisk))))
+    cl <- getCluster()
 
-  for (i in 1:12) {
-    expect_true(file.exists(file.path(tmpdir, "red11", paste0("red_tile", i, ".grd"))))
+    y11 <- splitRaster(r, nx, ny, c(3L, 4L), path = file.path(tmpdir, "red11"))
+    expect_true(unique(unlist(lapply(y11, fromDisk))))
+
+    for (i in 1:12) {
+      expect_true(file.exists(file.path(tmpdir, "red11", paste0("red_tile", i, ".grd"))))
+    }
+
+    xextents <- c()
+    yextents <- c()
+    for (i in seq_along(y11)) {
+      xextents <- c(xextents, xmin(y11[[i]]), xmax(y11[[i]]))
+      yextents <- c(yextents, ymin(y11[[i]]), ymax(y11[[i]]))
+    }
+    expect_equal(sort(unique(xextents)), c(-30, 1, 7, 34, 40, 71))
+    expect_equal(sort(unique(yextents)), c(-20, -5, 3, 14, 22, 34, 42, 57))
+    rm(xextents, yextents)
+
+    expect_equal(length(unique(lapply(y11, crs))), 1L)
+    expect_equal(unique(lapply(y11, crs))[[1]], crs(r))
+
+    m11 <- mergeRaster(y11)
+    expect_equal(dim(m11), dim(r))
+    expect_equal(extent(m11), extent(r))
+    expect_equal(names(m11), names(r))
+    expect_equal(res(m11), res(r))
+    expect_equal(max(values(m11)), max(values(r)))
+    expect_equal(min(values(m11)), min(values(r)))
+    endCluster()
   }
-
-  xextents <- c()
-  yextents <- c()
-  for (i in seq_along(y11)) {
-    xextents <- c(xextents, xmin(y11[[i]]), xmax(y11[[i]]))
-    yextents <- c(yextents, ymin(y11[[i]]), ymax(y11[[i]]))
-  }
-  expect_equal(sort(unique(xextents)), c(-30, 1, 7, 34, 40, 71))
-  expect_equal(sort(unique(yextents)), c(-20, -5, 3, 14, 22, 34, 42, 57))
-  rm(xextents, yextents)
-
-  expect_equal(length(unique(lapply(y11, crs))), 1L)
-  expect_equal(unique(lapply(y11, crs))[[1]], crs(r))
-
-  m11 <- mergeRaster(y11)
-  expect_equal(dim(m11), dim(r))
-  expect_equal(extent(m11), extent(r))
-  expect_equal(names(m11), names(r))
-  expect_equal(res(m11), res(r))
-  expect_equal(max(values(m11)), max(values(r)))
-  expect_equal(min(values(m11)), min(values(r)))
-  endCluster()
 })
 
 test_that("splitRaster and mergeRaster work on large on-disk rasters", {
   skip_on_cran()
   skip_on_travis()
   skip_on_appveyor()
-  skip("This is very big")
+  skip("This is very big.")
 
   tmpdir <- file.path(tempdir(), "splitRaster-test-large") %>% checkPath(create = TRUE)
+    library(raster); on.exit(detach("package:raster"), add = TRUE)
 
-  library(raster)
 
   on.exit({
-    detach("package:raster")
     unlink(tmpdir, recursive = TRUE)
-  })
+  }, add = TRUE)
 
   ## use a large raster (1.3 GB)
   url <- "http://www.cec.org/sites/default/files/Atlas/Files/Land_Cover_2010/Land_Cover_2010_TIFF.zip"

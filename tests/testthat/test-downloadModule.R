@@ -1,4 +1,6 @@
 test_that("downloadModule downloads and unzips a single module", {
+  if (identical(Sys.getenv("TRAVIS"), "true") &&
+      tolower(Sys.info()[["sysname"]]) == "darwin") skip("On Travis OSX")
   skip_on_cran()
 
   if (Sys.info()['sysname'] == "Windows") {
@@ -7,13 +9,13 @@ test_that("downloadModule downloads and unzips a single module", {
     options(download.file.method = "curl", download.file.extra = "-L")
   }
 
-  library(igraph); on.exit(detach("package:igraph"))
+  library(igraph); on.exit(detach("package:igraph"), add = TRUE)
 
   m <- "test"
   tmpdir <- file.path(tempdir(), "modules") %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
 
-  f <- downloadModule(m, tmpdir)[[1]] %>% unlist() %>% basename()
+  f <- downloadModule(m, tmpdir, quiet = TRUE)[[1]] %>% unlist() %>% basename()
 
   f_expected <- c("citation.bib", "CHECKSUMS.txt", "LICENSE",
                   "README.txt", "test.R", "test.Rmd")
@@ -25,6 +27,8 @@ test_that("downloadModule downloads and unzips a single module", {
 })
 
 test_that("downloadModule downloads and unzips a parent module", {
+  if (identical(Sys.getenv("TRAVIS"), "true") &&
+      tolower(Sys.info()[["sysname"]]) == "darwin") skip("On Travis OSX")
   skip_on_cran()
 
   if (Sys.info()['sysname'] == "Windows") {
@@ -33,23 +37,25 @@ test_that("downloadModule downloads and unzips a parent module", {
     options(download.file.method = "curl")
   }
 
-  library(igraph); on.exit(detach("package:igraph"))
+  library(igraph); on.exit(detach("package:igraph"), add = TRUE)
 
   m <- "LCC2005"
   tmpdir <- file.path(tempdir(), "modules") %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
 
-  f <- downloadModule(m, tmpdir)[[1]] %>% unlist() %>% as.character()
+  f <- downloadModule(m, tmpdir, quiet = TRUE)[[1]] %>% unlist() %>% as.character()
   d <- f %>% dirname() %>% basename() %>% unique() %>% sort()
 
   d_expected <- moduleMetadata("LCC2005", tmpdir)$childModules %>%
     c(m, "data", "testthat") %>% sort()
 
-  expect_equal(length(f), 44)
+  expect_equal(length(f), 42)
   expect_equal(d, d_expected)
 })
 
 test_that("downloadData downloads and unzips module data", {
+  if (identical(Sys.getenv("TRAVIS"), "true") &&
+      tolower(Sys.info()[["sysname"]]) == "darwin") skip("On Travis OSX")
   skip_on_cran()
 
   if (Sys.info()['sysname'] == "Windows") {
@@ -61,17 +67,17 @@ test_that("downloadData downloads and unzips module data", {
   m <- "test"
   tmpdir <- file.path(tempdir(), "modules")
   datadir <- file.path(tmpdir, m, "data") %>% checkPath(create = TRUE)
-  on.exit(unlink(tmpdir, recursive = TRUE))
+  on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
 
   filenames <- c("DEM.tif", "habitatQuality.tif")
-  f <- downloadModule(m, tmpdir)
+  f <- downloadModule(m, tmpdir, quiet = TRUE)
   t1 <- system.time(downloadData(m, tmpdir))
   result <- checksums(m, tmpdir)$result
   expect_true(all(file.exists(file.path(datadir, filenames))))
   expect_true(all(result == "OK"))
 
   # shouldn't need a redownload because file exists
-  t2 <- system.time(downloadData(m, tmpdir))
+  t2 <- system.time(downloadData(m, tmpdir, quiet = TRUE))
   expect_true(t1[3] > t2[3]) # compare elapsed times
 
   # if one file is missing, will fill in correctly

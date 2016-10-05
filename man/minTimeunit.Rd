@@ -3,12 +3,15 @@
 \docType{methods}
 \name{minTimeunit}
 \alias{minTimeunit}
+\alias{minTimeunit,list-method}
 \alias{minTimeunit,simList-method}
 \title{Determine the smallest timeunit in a simulation}
 \usage{
 minTimeunit(sim)
 
 \S4method{minTimeunit}{simList}(sim)
+
+\S4method{minTimeunit}{list}(sim)
 }
 \arguments{
 \item{sim}{A \code{simList} simulation object.}

@@ -5,8 +5,8 @@
 \alias{randomPolygons}
 \title{randomPolygons}
 \usage{
-randomPolygons(ras = raster(extent(0, 15, 0, 15), res = 1), numTypes = 2,
-  ...)
+randomPolygons(ras = raster(extent(0, 15, 0, 15), res = 1, vals = 0),
+  numTypes = 2, ...)
 }
 \arguments{
 \item{ras}{A raster that whose extent will be used for the randomPolygons}
@@ -21,20 +21,29 @@ This will be overridden by \code{p}, \code{A} or
 A map of extent \code{ext} with random polygons.
 }
 \description{
-Produces a raster of with random polygons. These are built with the
-\code{\link{spread}} function internally.
+Produces a raster of random polygons.
+These are built with the \code{\link{spread}} function internally.
 }
 \examples{
+set.seed(1234)
 Ras <- randomPolygons(numTypes = 5)
-if (interactive()) Plot(Ras, cols = c("yellow", "dark green", "blue", "dark red"), new = TRUE)
+if (interactive()) {
+  clearPlot()
+  Plot(Ras, cols = c("yellow", "dark green", "blue", "dark red"))
+}
 
 library(raster)
 # more complex patterning, with a range of patch sizes
-a = randomPolygons(numTypes = 400, raster(extent(0, 50, 0, 50), res = 1))
+a <- randomPolygons(numTypes = 400, raster(extent(0, 50, 0, 50), res = 1, vals = 0))
 a[a<320] <- 0
 a[a>=320] <- 1
-aHist <- hist(table(getValues(clump(a, directions = 4))), plot = FALSE)
-if (interactive()) Plot(a, aHist, new = TRUE)
+suppressWarnings(clumped <- clump(a)) # (warning sometimes occurs, but not important)
+aHist <- hist(table(getValues(clumped)), plot = FALSE)
+if (interactive()) {
+  clearPlot()
+  Plot(a)
+  Plot(aHist)
+}
 
 }
 \references{

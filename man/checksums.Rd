@@ -40,6 +40,32 @@ that the module downloads and extracts the data required. It is useful to not
 only check that the data files exist locally but that their checksums match
 those expected. See also \code{\link{downloadData}}.
 }
+\note{
+In version 1.2.0 and earlier, two checksums per file were required
+because of differences in the checksum hash values on Windows and Unix-like
+platforms. Recent versions use a different (faster) algorithm and only require
+one checksum value per file.
+To update your \file{CHECKSUMS.txt} files using the new algorithm, see
+\url{https://github.com/PredictiveEcology/SpaDES/issues/295#issuecomment-246513405}.
+}
+\examples{
+\dontrun{
+moduleName <- "my_module"
+modulePath <- file.path("path", "to", "modules")
+
+## verify checksums of all data files
+checksums(monudleName, modulePath)
+
+## write new CHECKSUMS.txt file
+
+# 1. verify that all data files are present (and no extra files are present)
+list.files(file.path(modulePath, moduleName, "data")
+
+# 2. calculate file checksums and write to file (this will overwrite CHECKSUMS.txt)
+checksums(monudleName, modulePath, write = TRUE)
+}
+
+}
 \author{
 Alex Chubaty
 }

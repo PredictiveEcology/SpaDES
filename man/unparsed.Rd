@@ -22,4 +22,5 @@ Internal function, used during \code{\link{simInit}}.
 \author{
 Alex Chubaty
 }
+\keyword{internal}
 

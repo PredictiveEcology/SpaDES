@@ -2,14 +2,15 @@
 doEvent.progress = function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
     if (interactive()) {
-       defaults <- list(type = "text", interval = (end(sim)-start(sim))/10)
+      tu <- timeunit(sim)
+      defaults <- list(type = "text", interval = (end(sim, tu) - start(sim, tu))/(end(sim, tu)-start(sim,tu)))
 
       # Check whether a .progress is specified in the simList
-      if ( is.null(params(sim)$.progress$type) &&
-             is.null(params(sim)$.progress$interval) ) {
+      if ( is.null(P(sim, ".progress")$type) &&
+             is.null(P(sim, ".progress")$interval) ) {
         params(sim)[[".progress"]] = defaults
       } else {
-        ids <- na.omit(match(names(params(sim)$.progress), c("type", "interval")))
+        ids <- na.omit(match(names(P(sim, ".progress")), c("type", "interval")))
         params(sim)[[".progress"]][names(defaults)[-ids]] <- defaults[-ids]
       }
     } else {
@@ -18,17 +19,17 @@ doEvent.progress = function(sim, eventTime, eventType, debug = FALSE) {
     }
 
     # if NA then don't use progress bar
-    if (any(!is.na(params(sim)$.progress))) {
+    if (any(!is.na(P(sim, ".progress")))) {
       newProgressBar(sim)
-      sim <- scheduleEvent(sim, start(sim, "seconds"), "progress", "set", .last())
-      sim <- scheduleEvent(sim, end(sim, "seconds"), "progress", "set", .last())
+      sim <- scheduleEvent(sim, start(sim, tu), "progress", "set", .last())
+      sim <- scheduleEvent(sim, end(sim, tu), "progress", "set", .last())
     }
   } else if (eventType == "set") {
       # update progress bar
       setProgressBar(sim)
 
       # schedule the next save
-      timeNextUpdate <- time(sim, timeunit(sim)) + params(sim)$.progress$interval
+      timeNextUpdate <- time(sim, timeunit(sim)) + P(sim, ".progress")$interval
 
       sim <- scheduleEvent(sim, timeNextUpdate, "progress", "set", .last())
   } else {
@@ -63,25 +64,22 @@ newProgressBar <- function(sim) {
     close(get(".pb", envir = .spadesEnv))
     # rm(.pb, envir = .spadeEnv)
   }
+  tu <- timeunit(sim)
   OS <- tolower(Sys.info()["sysname"])
-  if (params(sim)$.progress$type == "graphical") {
+  if (P(sim, ".progress")$type == "graphical") {
     if (OS == "windows") {
-      pb <- winProgressBar(min = start(sim, timeunit(sim)),
-                           max = end(sim, timeunit(sim)),
-                           initial = start(sim, timeunit(sim)))
+      pb <- winProgressBar(min = start(sim, tu), max = end(sim, tu),
+                           initial = start(sim, tu))
     } else {
-      pb <- tkProgressBar(min = start(sim, timeunit(sim)),
-                          max = end(sim, timeunit(sim)),
-                          initial = start(sim, timeunit(sim)))
+      pb <- tkProgressBar(min = start(sim, tu), max = end(sim, tu),
+                          initial = start(sim, tu))
     }
-  } else if (params(sim)$.progress$type == "shiny"){
+  } else if (P(sim, ".progress")$type == "shiny"){
     ## see http://shiny.rstudio.com/articles/progress.html
     stop("shiny progress bar not yet implemented")
-  }else  if (params(sim)$.progress$type == "text") {
-    pb <- txtProgressBar(min = start(sim, timeunit(sim)),
-                         max = end(sim, timeunit(sim)),
-                         initial = start(sim, timeunit(sim)),
-                         char = ".", style = 3)
+  } else  if (P(sim, ".progress")$type == "text") {
+    pb <- txtProgressBar(min = start(sim, tu), max = end(sim, tu),
+                         initial = start(sim, tu), char = ".", style = 3)
   }
   assign(".pb", pb, envir = .spadesEnv)
 }
@@ -90,28 +88,26 @@ newProgressBar <- function(sim) {
 # @importFrom utils setTxtProgressBar setWinProgressBar
 setProgressBar <- function(sim) {
   OS <- tolower(Sys.info()["sysname"])
-
+  tu <- timeunit(sim)
   pb <- get(".pb", envir = .spadesEnv)
-  if (params(sim)$.progress$type == "graphical") {
+  if (P(sim, ".progress")$type == "graphical") {
     if (OS == "windows") {
       utils::setWinProgressBar(
-        pb, time(sim, timeunit(sim)),
-        title = paste("Current simulation time:",
-                      timeunit(sim), round(time(sim, timeunit(sim)), 3),
-                      "of total", end(sim, timeunit(sim)))
+        pb, time(sim, tu),
+        title = paste("Current simulation time:", tu, round(time(sim, tu), 3),
+                      "of total", end(sim, tu))
       )
     } else {
-      setTkProgressBar(pb, time(sim, timeunit(sim)),
-                       title = paste("Current simulation time:",
-                                     timeunit(sim),
-                                     round(time(sim, timeunit(sim)), 3),
-                                     "of total", end(sim, timeunit(sim))))
+      setTkProgressBar(pb, time(sim, tu),
+                       title = paste("Current simulation time:", tu,
+                                     round(time(sim, tu), 3),
+                                     "of total", end(sim, tu)))
     }
-  } else if (params(sim)$.progress$type == "shiny") {
+  } else if (P(sim, ".progress")$type == "shiny") {
     ## see http://shiny.rstudio.com/articles/progress.html
     stop("shiny progress bar not yet implemented")
-  } else if (params(sim)$.progress$type == "text") {
-    setTxtProgressBar(pb, round(time(sim, timeunit(sim)), 3))
+  } else if (P(sim, ".progress")$type == "text") {
+    setTxtProgressBar(pb, round(time(sim, tu), 3))
   }
   assign(".pb", pb, envir = .spadesEnv)
 }

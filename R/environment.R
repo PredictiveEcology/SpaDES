@@ -21,6 +21,7 @@
 #' @param ... Additional arguments to pass to \code{assign}.
 #'
 #' @docType methods
+#' @keywords internal
 #' @rdname assignSpaDES
 #'
 #' @author Alex Chubaty
@@ -53,6 +54,7 @@ setMethod(".assignSpaDES",
 #' @param ... Additional arguments passed to \code{\link{exists}}
 #'
 #' @docType methods
+#' @keywords internal
 #' @rdname existsSpaDES
 #'
 #' @author Alex Chubaty
@@ -77,6 +79,7 @@ setMethod(".existsSpaDES",
 #' @param ... Additional arguments to pass to \code{get}.
 #'
 #' @docType methods
+#' @keywords internal
 #' @name .getSpaDES
 #' @rdname getSpaDES
 #'
@@ -136,7 +139,7 @@ setMethod(
 
     lapply(x, function(obj) {
        tryCatch(
-         assign(obj, envir = toEnv, value = get(obj, envir = fromEnv)),
+         assign(obj, envir = toEnv, value = eval(parse(text = obj), envir = fromEnv)),
          error = function(x) {
            warning(paste("object", obj, "not found and not copied"))
        })
@@ -150,9 +153,6 @@ setMethod(
   "changeObjEnv",
   signature = c("character", "environment", "missing", "missing"),
   definition = function(x, toEnv) {
-    if (is.null(getOption("spades.lowMemory"))) {
-      options(spades.lowMemory = FALSE)
-    }
     changeObjEnv(x, toEnv, .GlobalEnv, rmSrc = getOption("spades.lowMemory"))
 })
 
@@ -161,9 +161,6 @@ setMethod(
   "changeObjEnv",
   signature = c("character", "missing", "environment", "missing"),
   definition = function(x, fromEnv) {
-    if (is.null(getOption("spades.lowMemory"))) {
-      options(spades.lowMemory = FALSE)
-    }
     changeObjEnv(x, .GlobalEnv, fromEnv, rmSrc = getOption("spades.lowMemory"))
 })
 
@@ -188,9 +185,6 @@ setMethod(
   "changeObjEnv",
   signature = c("character", "environment", "environment", "missing"),
   definition = function(x, toEnv, fromEnv) {
-    if (is.null(getOption("spades.lowMemory"))) {
-      options(spades.lowMemory = FALSE)
-    }
     changeObjEnv(x, toEnv, fromEnv, rmSrc = getOption("spades.lowMemory"))
 })
 
@@ -200,5 +194,4 @@ setMethod(
   signature = c("list", "ANY", "ANY", "ANY"),
   definition = function(x, toEnv, fromEnv, rmSrc) {
     list2env(x, envir = toEnv)
-
 })

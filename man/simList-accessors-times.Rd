@@ -2,9 +2,6 @@
 % Please edit documentation in R/simList-accessors.R
 \docType{methods}
 \name{times}
-\alias{.callingFrameTimeunit}
-\alias{.callingFrameTimeunit,.simList-method}
-\alias{.callingFrameTimeunit,NULL-method}
 \alias{end}
 \alias{end,.simList,character-method}
 \alias{end,.simList,missing-method}
@@ -71,12 +68,6 @@ start(x) <- value
 
 \S4method{start}{.simList}(x) <- value
 
-.callingFrameTimeunit(x)
-
-\S4method{.callingFrameTimeunit}{.simList}(x)
-
-\S4method{.callingFrameTimeunit}{`NULL`}(x)
-
 timeunit(x)
 
 \S4method{timeunit}{.simList}(x)
@@ -133,8 +124,11 @@ If it is set within a \code{simInit}, e.g.,
 \code{times=list(start=0, end=52, timeunit = "week")}, it will set the
 units for that simulation.
 By default, a \code{simInit} call will use the smallest unit contained within
-the metadata for the modules being used.
-If \code{NA}, \code{timeunit} defaults to none.
+the metadata for the modules being used. If there are parent modules, then the
+parent module timeunit will be used even if one of its children is a smaller timeunit.
+If all modules, including parents, are set to \code{NA}, \code{timeunit} defaults to seconds.
+If parents are set to \code{NA}, then the set of modules defined by that parent module
+will be given the smallest units of the children.
 
 Currently, available units are "second", "hours", day", "week", "month", and
 "year" can be used in the metadata of a module.
@@ -158,17 +152,17 @@ write out the longer one, minimizing the looking up that R must do.
 }
 \author{
 Alex Chubaty and Eliot McIntire
-
-Eliot McIntire
 }
 \seealso{
-\code{\link{simList-class}},
-         \code{\link{simList-accessors-envir}},
-         \code{\link{simList-accessors-events}},
-         \code{\link{simList-accessors-inout}},
-         \code{\link{simList-accessors-modules}},
-         \code{\link{simList-accessors-objects}},
-         \code{\link{simList-accessors-params}},
-         \code{\link{simList-accessors-paths}}.
+\code{\link{SpaDES}}, specifically the section 1.2.5 on Simulation times.
+
+Other functions to access elements of a \code{simList} object: \code{\link{.addDepends}},
+  \code{\link{doEvent.checkpoint}}, \code{\link{envir}},
+  \code{\link{events}}, \code{\link{globals}},
+  \code{\link{inputs}}, \code{\link{ls.simList}},
+  \code{\link{ls.str.simList}}, \code{\link{modules}},
+  \code{\link{objs}}, \code{\link{packages}},
+  \code{\link{params}}, \code{\link{paths}},
+  \code{\link{progressInterval}}
 }
 

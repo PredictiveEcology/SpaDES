@@ -3,21 +3,26 @@
 \docType{methods}
 \name{doEvent}
 \alias{doEvent}
-\alias{doEvent,simList,logical-method}
+\alias{doEvent,simList,ANY-method}
 \alias{doEvent,simList,missing-method}
 \title{Process a simulation event}
 \usage{
 doEvent(sim, debug)
 
-\S4method{doEvent}{simList,logical}(sim, debug)
+\S4method{doEvent}{simList,ANY}(sim, debug)
 
 \S4method{doEvent}{simList,missing}(sim)
 }
 \arguments{
 \item{sim}{Character string for the \code{simList} simulation object.}
 
-\item{debug}{Optional logical flag determines whether sim debug info
-will be printed (default is \code{debug=FALSE}).}
+\item{debug}{Optional. Either Logical or character. If logical, entire \code{simList}
+will be printed at each event. If a character string, then it can be one
+of the many simList accessors, such as \code{events}, \code{params}.
+It can also be any R expression that will be evaluated with access
+to the \code{sim} object.
+If \code{"current"} is used, then it will be a compact list of the events
+as they go by.}
 }
 \value{
 Returns the modified \code{simList} object.

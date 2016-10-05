@@ -1,14 +1,10 @@
 test_that("experiment does not work correctly", {
-  library(raster)
-  library(magrittr)
-  library(dplyr)
+  library(raster); on.exit(detach("package:raster"), add = TRUE)
+  library(igraph); on.exit(detach("package:igraph"), add = TRUE)
+  library(dplyr); on.exit(detach("package:dplyr"), add = TRUE)
+
   tmpdir <- file.path(tempdir(), "testParallel") %>% checkPath(create = TRUE)
-  on.exit({
-    detach("package:raster")
-    detach("package:magrittr")
-    detach("package:dplyr")
-    unlink(tmpdir, recursive = TRUE)
-  })
+  on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
 
   # Example of changing parameter values
   mySimFull <- simInit(
@@ -109,8 +105,8 @@ test_that("experiment does not work correctly", {
   set.seed(1232)
   sims <- experiment(mySimNoRL, replicates = 2,
                      inputs = lapply(landscapeFiles, function(filenames) {
-                       data.frame(file = filenames, loadTime=0,
-                                  objectName= "landscape", stringsAsFactors = FALSE)
+                       data.frame(file = filenames, loadTime = 0,
+                                  objectName = "landscape", stringsAsFactors = FALSE)
                      })
   )
 
@@ -152,17 +148,19 @@ test_that("experiment does not work correctly", {
 })
 
 test_that("parallel does not work with experiment function", {
+  skip_on_cran()
+  skip_on_travis()
+  skip_on_appveyor()
+
   skip("Can't automatically test parallel processing - Run Manually")
-  library(raster)
-  library(magrittr)
-  library(dplyr)
+
+  library(raster); on.exit(detach("package:raster"), add = TRUE)
+  library(magrittr); on.exit(detach("package:magrittr"), add = TRUE)
+  library(dplyr); on.exit(detach("package:dplyr"), add = TRUE)
+
   tmpdir <- file.path(tempdir(), "testParallel") %>% checkPath(create = TRUE)
-  on.exit({
-    detach("package:raster")
-    detach("package:magrittr")
-    detach("package:dplyr")
-    unlink(tmpdir, recursive = TRUE)
-  })
+
+  on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
 
   # Example of changing parameter values
   mySimFull <- simInit(
@@ -176,11 +174,12 @@ test_that("parallel does not work with experiment function", {
     ),
     modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
     paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
+                 cachePath = file.path(tmpdir, "cache"),
+                 inputPath = tmpdir,
                  outputPath = tmpdir),
     # Save final state of landscape and caribou
     outputs = data.frame(objectName = c("landscape", "caribou"), stringsAsFactors = FALSE)
   )
-
 
   # Create an experiment - here, 2 x 2 x 2 (2 levels of 2 params in fireSpread,
   #    and 2 levels of 1 param in caribouMovement)

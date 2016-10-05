@@ -40,7 +40,7 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug = FALSE) {
   ### default is not to use checkpointing if unspecified
   ### - this default is set when a new simList object is initialized
 
-  useChkpnt <- !any(is.na(params(sim)$.checkpoint))
+  useChkpnt <- !any(is.na(P(sim, ".checkpoint")))
 
   ### determine checkpoint file location, for use in events below
   if (useChkpnt) {
@@ -134,6 +134,8 @@ checkpointLoad <- function(file) {
 #' Thus, only non-function objects are used as part of the \code{digest} call
 #' in the \code{digest} package (used internally in the \code{cache} function).
 #'
+#' Normally, a user will access this functionality as an argument in \code{\link{spades}}.
+#'
 #' @inheritParams archivist::cache
 #'
 #' @return Identical to \code{\link[archivist]{cache}}
@@ -148,19 +150,25 @@ checkpointLoad <- function(file) {
 #' @author Eliot McIntire
 #' @examples
 #' \dontrun{
-#' times <- list(start=0, end=10)
-#' params <- list(dummy = 1)
-#' mySim <- simInit(times = times, params = params)
+#' mySim <- simInit(times=list(start=0.0, end=5.0),
+#'                  params=list(.globals=list(stackName="landscape", burnStats = "testStats")),
+#'                  modules=list("randomLandscapes", "fireSpread"),
+#'                  paths=list(modulePath=system.file("sampleModules", package="SpaDES")))
 #' if (require(archivist)) {
+#'   # Call cache function directly
 #'   archivist::createLocalRepo(paths(mySim)$cachePath)
-#'   system.time(outSim <- cache(paths(mySim)$cachePath, spades, sim = mySim))
+#'   system.time(outSim <- cache(paths(mySim)$cachePath,
+#'               spades, sim = copy(mySim), .plotInitialTime = NA, notOlderThan = Sys.time()))
+#'   system.time(outSim <- cache(paths(mySim)$cachePath,
+#'               spades, sim = copy(mySim), .plotInitialTime = NA))
 #'
-#'   # will be cached now, to be sure inputs are identical,
-#'   #   mySim should be put back to original state
-#'   mySim <- simInit(times = times)
-#'   system.time(outSim <- cache(paths(mySim)$cachePath, spades, sim = mySim))
-#'   # compare
-#'   system.time(outSim2 <- spades(mySim))
+#'   # This functionality can be achieved within a spades call
+#'   # compare caching ... run once to create cache
+#'   system.time(outSim <- spades(copy(mySim), cache = TRUE, notOlderThan = Sys.time(),
+#'                                .plotInitialTime = NA))
+#'   # compare... second time is fast
+#'   system.time(outSimCached <- spades(copy(mySim), cache = TRUE, .plotInitialTime = NA))
+#'   all.equal(outSim, outSimCached)
 #' }
 #' }
 #'
@@ -182,27 +190,22 @@ setMethod(
     tmpl$.FUN <- format(FUN) # This is changed to allow copying between computers
     if (length(wh) > 0) tmpl[wh] <- lapply(tmpl[wh], makeDigestible)
     if (length(whFun) > 0) tmpl[whFun] <- lapply(tmpl[whFun], format)
-    if (!is.na(tmpl$progress)) tmpl$progress <- NULL
+    if (!is.null(tmpl$progress)) if (!is.na(tmpl$progress)) tmpl$progress <- NULL
 
     outputHash <- digest::digest(tmpl)
     localTags <- showLocalRepo(cacheRepo, "tags")
-    isInRepo <- localTags[localTags$tag ==
-                            paste0("cacheId:", outputHash), , drop = FALSE]
+    isInRepo <- localTags[localTags$tag == paste0("cacheId:", outputHash), , drop = FALSE]
     if (nrow(isInRepo) > 0) {
       lastEntry <- max(isInRepo$createdDate)
       lastOne <- order(isInRepo$createdDate, decreasing = TRUE)[1]
       if (is.null(notOlderThan) || (notOlderThan < lastEntry)) {
-        #if(!is.null(tmpl$replicate))
-        #  warning(paste("replicate",tmpl$replicate,"was cached previously; returning cached value"))
         out <- loadFromLocalRepo(isInRepo$artifact[lastOne],
                                  repoDir = cacheRepo, value = TRUE)
-        #out <- as(out, "simList")
         return(out)
       }
       if ((notOlderThan >= lastEntry)) { # flush it if notOlderThan is violated
         rmFromLocalRepo(isInRepo$artifact[lastOne], repoDir = cacheRepo)
       }
-
     }
     output <- do.call(FUN, list(...))
     attr(output, "tags") <- paste0("cacheId:", outputHash)
@@ -252,6 +255,7 @@ setMethod(
 #' @include misc-methods.R
 #' @importFrom digest digest
 #' @docType methods
+#' @keywords internal
 #' @rdname makeDigestible
 #' @author Eliot McIntire
 setGeneric("makeDigestible", function(simList) {

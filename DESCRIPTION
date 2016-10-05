@@ -1,29 +1,28 @@
 Package: SpaDES
 Type: Package
 Title: Develop and Run Spatially Explicit Discrete Event Simulation Models
-Description: Easily implement a variety of simulation models, with a focus on
-    spatially explicit agent based models. These include raster-based,
-    event-based, and agent-based models. The core simulation components are
-    built upon a discrete event simulation framework that facilitates
-    modularity, and easily enables the user to include additional functionality
-    by running user-built simulation modules. Included are numerous tools to
-    visualize raster and other maps. The suggested package `fastshp` can be
-    installed with `install.packages("fastshp", repos="http://rforge.net",
-    type="source")`.
+Description: Implement a variety of event-based models, with a focus on
+    spatially explicit models. These include raster-based, event-based, and
+    agent-based models. The core simulation components are built upon a discrete
+    event simulation (DES) framework that facilitates modularity, and easily
+    enables the user to include additional functionality by running user-built
+    simulation modules. Included are numerous tools to visualize raster and
+    other maps. The suggested package 'fastshp' can be installed with
+    `install.packages("fastshp", repos = "http://rforge.net", type = "source")`.
 URL: http://spades.predictiveecology.org, https://github.com/PredictiveEcology/SpaDES
-Version: 1.2.0
-Date: 2016-06-24
+Version: 1.3.0
+Date: 2016-10-05
 Authors@R: c(
-    person(c("Alex", "M"), "Chubaty", email="alexander.chubaty@canada.ca",
-    role=c("aut", "cre")),
-    person(c("Eliot", "J", "B"), "McIntire", email="eliot.mcintire@canada.ca",
-    role=c("aut")),
-    person("Yong", "Luo", email="yong.luo@canada.ca",
-    role=c("ctb")),
-    person("Steve", "Cumming", email="Steve.Cumming@sbf.ulaval.ca",
-    role=c("ctb")),
+    person(c("Alex", "M"), "Chubaty", email = "alexander.chubaty@canada.ca",
+    role = c("aut", "cre")),
+    person(c("Eliot", "J", "B"), "McIntire", email = "eliot.mcintire@canada.ca",
+    role = c("aut")),
+    person("Yong", "Luo", email = "yong.luo@canada.ca",
+    role = c("ctb")),
+    person("Steve", "Cumming", email = "Steve.Cumming@sbf.ulaval.ca",
+    role = c("ctb")),
     person("Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada",
-    role="cph")
+    role = "cph")
     )
 Additional_repositories: http://rforge.net
 Depends:
@@ -35,19 +34,21 @@ Suggests:
     Matrix,
     png,
     rgdal,
+    rgenoud,
     rmarkdown,
     snow,
     tcltk,
-    testthat,
+    testthat (>= 1.0.2),
     tkrplot
 Imports:
-    archivist (>= 2.0),
+    archivist (>= 2.1),
     chron,
     CircStats,
-    data.table,
+    data.table (>= 1.9.6),
+    DEoptim (>= 2.2-3),
     DiagrammeR (>= 0.8.2),
     digest,
-    dplyr,
+    dplyr (>= 0.5.0),
     DT,
     ff,
     ffbase,
@@ -58,16 +59,18 @@ Imports:
     grid,
     gridBase,
     httr,
-    igraph,
+    igraph (>= 1.0.1),
     lazyeval,
     lubridate (>= 1.3.3),
     methods,
+    miniUI (>= 0.1.1),
     parallel,
     R.utils,
-    RandomFields,
+    RandomFields (>= 3.1.24),
     raster,
     RColorBrewer,
-    shiny,
+    rstudioapi (>= 0.5),
+    shiny (>= 0.13),
     stats,
     sp,
     stringi,
@@ -78,15 +81,16 @@ VignetteBuilder: knitr, rmarkdown
 BugReports: https://github.com/PredictiveEcology/SpaDES/issues
 ByteCompile: yes
 Collate:
-    'agent.R'
-    'SELES.R'
+    'priority.R'
+    'environment.R'
     'misc-methods.R'
     'module-dependencies-class.R'
     'helpers.R'
     'simList-class.R'
+    'POM.R'
+    'agent.R'
+    'SELES.R'
     'check.R'
-    'priority.R'
-    'environment.R'
     'checkpoint.R'
     'copy.R'
     'experiment.R'
@@ -113,6 +117,7 @@ Collate:
     'plotting.R'
     'probability.R'
     'progress.R'
+    'rstudio-addins.R'
     'save.R'
     'shine.R'
     'spades-classes.R'

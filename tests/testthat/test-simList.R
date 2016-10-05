@@ -14,7 +14,7 @@ test_that("simList object initializes correctly", {
   w <- getOption("width")
   options(width = 100L)
   out <- utils::capture.output(show(mySim))
-  expect_equal(length(out), 78)
+  expect_equal(length(out), 74)
   options(width = w); rm(w)
 
   ### SLOT .envir
@@ -56,7 +56,11 @@ test_that("simList object initializes correctly", {
 
   ### SLOT modules
   expect_is(modules(mySim), "list")
-  expect_equal(modules(mySim), as.list(c(defaults, modules)))
+  compList <- as.list(c(defaults, modules))
+  attr(compList, "modulesGraph") <- data.frame(from = character(0), to = character(),
+                                               stringsAsFactors = FALSE)
+  expect_equal(modules(mySim, hidden = TRUE), compList)
+  expect_equal(modules(mySim), as.list(modules))
 
   ### SLOT params
   expect_is(params(mySim), "list")
@@ -92,7 +96,7 @@ test_that("simList object initializes correctly", {
 
   ### SLOT events
   expect_is(events(mySim), "data.table")
-  expect_equal(nrow(events(mySim)), length(modules(mySim)))
+  expect_equal(nrow(events(mySim)), length(modules(mySim, hidden = TRUE)))
 
   ### SLOT current
   expect_is(current(mySim), "data.table")
@@ -142,6 +146,13 @@ test_that("simList object initializes correctly", {
 })
 
 test_that("simList test all signatures", {
+  userModulePath <- getOption('spades.modulesPath')
+  options(spades.modulesPath = tempdir())
+
+  on.exit({
+    options(spades.modulesPath = userModulePath)
+  }, add = TRUE)
+
   # times
   times <- list(start = 0.0, end = 10)
 
@@ -176,7 +187,7 @@ test_that("simList test all signatures", {
 
     # outputs
     outputs <- data.frame(
-      expand.grid(objectName = c("caribou","landscape"),
+      expand.grid(objectName = c("caribou", "landscape"),
                   saveTime = 1:2,
                   stringsAsFactors = FALSE)
     )
@@ -213,7 +224,8 @@ test_that("simList test all signatures", {
       names(li) <- argNames
       li <- li[!sapply(li, is.null)]
       errors[i] <- tryCatch(is(do.call(simInit, args = li), "simList"),
-                             error = function(x) { FALSE })
+                            error = function(e) { FALSE },
+                            warning = function(w) { FALSE })
       argsTested[[i]] <- names(li)
     }
     expect_gt(sum(errors, na.rm = TRUE), 27) # needs paths and params

@@ -4,20 +4,67 @@
 # see the wiki:
 #   https://github.com/craigcitro/r-travis/wiki
 
-language: r
 sudo: required
-cran: http://cran.rstudio.com/
+
+language: r
 
 env:
   global:
     - secure: "KxcKSH4TFMbNMKAj6ePl4yq6SCeYQJcDkw0PMuEdImomwxqY3mP8p+GWVmNN1PKl8k7C/rgLNPAiBoJmddXMzFvGoGRWvyeER0lDN49rzNPHANF9wnMBBYN27mp98hBZlX2Vxu48M3jbmy+wRpmKKvKxTxOa8tUkt0GVEUTPeGQ="
 
-before_install:
-  - tlmgr install xcolor
-  - export DISPLAY=:99.0
-  - sh -e /etc/init.d/xvfb start
-  - echo "options(repos = c(CRAN='http://cran.rstudio.com'))" >> ~/.Rprofile
-  - chmod 755 ./_push_vignettes.sh
+matrix:
+  include:
+
+  - os: linux
+    dist: precise
+    r: oldrel
+    cran: http://cran.rstudio.com/
+    before_install:
+    - tlmgr install xcolor
+    - export DISPLAY=:99.0
+    - sh -e /etc/init.d/xvfb start
+    - echo "options(repos = c(CRAN='http://cran.rstudio.com'))" >> ~/.Rprofile
+
+  - os: linux
+    dist: precise
+    r: release
+    cran: http://cran.rstudio.com/
+    before_install:
+    - tlmgr install xcolor
+    - export DISPLAY=:99.0
+    - sh -e /etc/init.d/xvfb start
+    - echo "options(repos = c(CRAN='http://cran.rstudio.com'))" >> ~/.Rprofile
+
+  - os: linux
+    dist: precise
+    r: devel
+    cran: http://cran.rstudio.com/
+    before_install:
+    - tlmgr install xcolor
+    - export DISPLAY=:99.0
+    - sh -e /etc/init.d/xvfb start
+    - echo "options(repos = c(CRAN='http://cran.rstudio.com'))" >> ~/.Rprofile
+
+  - os: linux
+    dist: trusty
+    cran: https://cran.rstudio.com/
+    before_install:
+    - tlmgr install xcolor
+    - export DISPLAY=:99.0
+    - sh -e /etc/init.d/xvfb start
+    - echo "options(repos = c(CRAN='https://cran.rstudio.com'))" >> ~/.Rprofile
+    - chmod 755 ./_push_vignettes.sh
+    after_success:
+    - ./_push_vignettes.sh
+
+  - os: osx
+    osx_image: xcode8
+    cran: https://cran.rstudio.com/
+    latex: false
+    r_build_args: '--no-build-vignettes'
+    r_check_args: '--as-cran --ignore-vignettes --no-examples'
+    before_install:
+    - echo "options(repos = c(CRAN='https://cran.rstudio.com'))" >> ~/.Rprofile
 
 r_build_args: " "
 
@@ -27,9 +74,10 @@ warnings_are_errors: true
 
 r_binary_packages:
   - chron
-  - circstats
+  - CircStats
   - colorspace
   - data.table
+  - DEoptim
   - dichromat
   - digest
   - dplyr
@@ -39,15 +87,15 @@ r_binary_packages:
   - igraph
   - knitr
   - labeling
-  - latticeextra
+  - latticeExtra
   - lubridate
   - magrittr
   - munsell
   - proto
-  - randomfields
+  - RandomFields
   - raster
-  - rcolorbrewer
-  - rcpp
+  - RColorBrewer
+  - Rcpp
   - reshape
   - rgdal
   - scales
@@ -59,10 +107,6 @@ r_binary_packages:
   - tkrplot
   - xts
   - zoo
-
-after_success:
-  - ./_push_vignettes.sh
-  - Rscript -e 'library(covr); coveralls(coverage = print(package_coverage(quiet = FALSE))); devtools::session_info()'
 
 notifications:
   email:

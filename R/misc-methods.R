@@ -83,9 +83,8 @@ setMethod("updateList",
               if (length(x)==0) return(y)
               stop("All elements in lists x,y must be named.")
             } else {
-              i <- which(names(x) %in% names(y))
-              z <- append(x[-i], y)
-              return(z[order(names(z))])
+              x[names(y)] <- y
+              return(x[order(names(x))])
             }
 })
 
@@ -345,7 +344,7 @@ setMethod(
       if (is.na(path)) {
         stop("Invalid path: cannot be NA.")
       } else {
-        path = normPath(path)
+        path <- normPath(path)
 
         if (!file.exists(path)) {
           if (create == TRUE) {
@@ -355,7 +354,7 @@ setMethod(
                        "Create it and try again."))
           }
         }
-        return(path)
+        return(normPath(path)) # ensure path re-normalized after creation (see #267)
       }
     }
 })
@@ -676,6 +675,7 @@ setMethod(
 #'
 #' @include simList-class.R
 #' @docType methods
+#' @keywords internal
 #' @rdname sortDotsFirst
 #' @author Eliot McIntire
 sortDotsFirst <- function(obj) {

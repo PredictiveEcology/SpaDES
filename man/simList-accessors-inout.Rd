@@ -120,7 +120,6 @@ default is NA or no interval, i.e, load the file only once as described in
 will pass the argument "native = TRUE" to raster.  If there is only one list,
 then it is assumed to apply to all files and will be recycled as per normal R
 rules of recycling for each \code{fun}.\cr
-
 }
 
 Currently, only \code{file} is required. All others will be filled with defaults
@@ -297,13 +296,15 @@ if (require(rgdal)) {
 unlink(tmpdir, recursive = TRUE)
 }
 \seealso{
-\code{\link{simList-class}},
-         \code{\link{simList-accessors-modules}},
-         \code{\link{simList-accessors-envir}},
-         \code{\link{simList-accessors-events}},
-         \code{\link{simList-accessors-objects}},
-         \code{\link{simList-accessors-params}},
-         \code{\link{simList-accessors-paths}},
-         \code{\link{simList-accessors-times}}.
+\code{\link{SpaDES}}, specifically the section 1.2.2 on loading and saving.
+
+Other functions to access elements of a \code{simList} object: \code{\link{.addDepends}},
+  \code{\link{doEvent.checkpoint}}, \code{\link{envir}},
+  \code{\link{events}}, \code{\link{globals}},
+  \code{\link{ls.simList}}, \code{\link{ls.str.simList}},
+  \code{\link{modules}}, \code{\link{objs}},
+  \code{\link{packages}}, \code{\link{params}},
+  \code{\link{paths}}, \code{\link{progressInterval}},
+  \code{\link{times}}
 }
 

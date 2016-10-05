@@ -14,14 +14,19 @@
 #' @param removeData Logical indicating whether any data that was stored in the
 #' \code{.spadesEnv} should also be removed; i.e., not just the plot window wiped.
 #'
+#' @param force Logical or "all". Sometimes the graphics state cannot be fixed by a simple
+#'              clearPlot(). If TRUE, this will close the device and reopen the same
+#'              device number. If "all", then all spades related data from all devices
+#'              will be cleared, in addition to device closing and reopening.
+#'
 #' @export
-#' @importFrom grDevices dev.cur
+#' @importFrom grDevices dev.cur dev.off
 #' @importFrom grid grid.newpage
 #' @docType methods
 #' @rdname clearPlot
 #' @include plotting-classes.R
 #' @author Eliot McIntire
-setGeneric("clearPlot", function(dev = dev.cur(), removeData = TRUE) {
+setGeneric("clearPlot", function(dev = dev.cur(), removeData = TRUE, force = FALSE) {
   standardGeneric("clearPlot")
 })
 
@@ -29,21 +34,41 @@ setGeneric("clearPlot", function(dev = dev.cur(), removeData = TRUE) {
 #' @rdname clearPlot
 setMethod(
   "clearPlot",
-  signature = c("numeric", "logical"),
-  definition = function(dev, removeData) {
+  signature = c("numeric", "logical", "ANY"),
+  definition = function(dev, removeData, force) {
+
     suppressWarnings(
       try(rm(list = paste0("spadesPlot", dev), envir = .spadesEnv))
     )
+
     if (removeData) {
+      suppressWarnings(
+        try(rm(list = paste0("basePlots_", dev), envir = .spadesEnv))
+      )
+      suppressWarnings(
+          try(rm(list = paste0("Dev", dev), envir = .spadesEnv))
+      )
+
       suppressWarnings(
         try(rm(list = ls(.spadesEnv[[paste0("dev", dev)]]),
                envir = .spadesEnv[[paste0("dev", dev)]]), silent = TRUE)
       )
     }
+    if(!identical(FALSE, force)) {
+      if(force == "all") {
+        rm(list = ls(.spadesEnv), envir = .spadesEnv)
+      }
+      dc <- dev.cur()
+      dev.off()
+      dev(dc)
+      return(invisible())
+    }
     devActive <- dev.cur()
     if (devActive == 1) { return(invisible()) }
     dev(dev)
     grid.newpage()
+    plot.new()
+    par(.spadesEnv$.parOrig)
     dev(devActive)
   }
 )
@@ -51,25 +76,25 @@ setMethod(
 #' @export
 #' @rdname clearPlot
 setMethod("clearPlot",
-          signature = c("numeric", "missing"),
-          definition = function(dev) {
-            clearPlot(dev, removeData = FALSE)
+          signature = c("numeric", "missing", "ANY"),
+          definition = function(dev, force) {
+            clearPlot(dev, removeData = TRUE, force = force)
 })
 
 #' @export
 #' @rdname clearPlot
 setMethod("clearPlot",
-          signature = c("missing","logical"),
-          definition =  function(removeData) {
-            clearPlot(dev = dev.cur(), removeData = removeData)
+          signature = c("missing","logical", "ANY"),
+          definition =  function(removeData, force) {
+            clearPlot(dev = dev.cur(), removeData = removeData, force = force)
 })
 
 #' @export
 #' @rdname clearPlot
 setMethod("clearPlot",
           signature = c("missing","missing"),
-          definition =  function(dev, removeData) {
-            clearPlot(dev.cur(), removeData = FALSE)
+          definition =  function(dev, removeData, force) {
+            clearPlot(dev.cur(), removeData = TRUE, force = force)
 })
 
 ################################################################################
@@ -84,6 +109,7 @@ setMethod("clearPlot",
 #'
 #' @docType methods
 #' @export
+#' @keywords internal
 #' @rdname unittrim
 #' @author Paul Murrell
 #'
@@ -124,6 +150,7 @@ setMethod("clearPlot",
 #'
 #' @export
 #' @include plotting-classes.R
+#' @importFrom raster is.factor factorValues
 #' @docType methods
 #' @author Eliot McIntire
 #' @rdname spadesMouseClicks
@@ -134,23 +161,20 @@ clickValues <- function(n = 1) {
   objNames <- sapply(objLay, function(x) { x[1] })
   layNames <- sapply(objLay, function(x) { x[2] })
   for (i in 1:n) {
+    ras1 <- eval(parse(text = objNames[i]), envir = coords$envir[[i]])
     if (!is.na(layNames[i])) {
       coords$coords$value <- sapply(seq_len(n), function(i) {
-        eval(parse(text = objNames[i]),
-             envir = coords$envir[[i]])[[layNames[i]]][cellFromXY(
-               eval(parse(text = objNames[i]),
-                    envir = coords$envir[[i]])[[layNames[i]]],
-               coords$coords[i,1:2])]
+        ras1[[layNames[i]]][cellFromXY(ras1[[layNames[i]]], coords$coords[i,1:2])]
       })
     } else {
       coords$coords$value <- sapply(seq_len(n), function(i) {
-        eval(parse(text = objNames[i]),
-             envir = coords$envir[[i]])[cellFromXY(
-               eval(parse(text = objNames[i]),
-                    envir = coords$envir[[i]]),
-               coords$coords[i,1:2])]
+        ras1[cellFromXY(ras1,coords$coords[i,1:2])]
       })
     }
+  }
+  if(any(raster::is.factor(ras1))) {
+    for(i in which(raster::is.factor(ras1)))
+    coords$coords$value <- factorValues(ras1[[i]], coords$coords$value)
   }
   return(coords$coords)
 }
@@ -186,7 +210,8 @@ clickExtent <- function(devNum = NULL, plot.it = TRUE) {
       Plot(eval(parse(text = objNames), envir = corners$envir[[1]])[[layNames]],
            zoomExtent = zoom, new = TRUE)
     } else {
-      Plot(get(objNames, envir = corners$envir[[1]]), zoomExtent = zoom, new = TRUE)
+      clearPlot()
+      Plot(get(objNames, envir = corners$envir[[1]]), zoomExtent = zoom)
     }
 
     dev(devActive)
@@ -211,13 +236,13 @@ clickCoordinates <- function(n = 1) {
   arr <- try(.getSpaDES(paste0("spadesPlot", dc)))
   if (is(arr, "try-error")) {
     stop(paste("Plot does not already exist on current device.",
-               "Try new = TRUE, clearPlot() or change device to",
+               "clearPlot() or change device to",
                "one that has objects from a call to Plot()."))
   }
-  gl <- grid.layout(nrow = arr@arr@rows*3+2,
-                    ncol = arr@arr@columns*3+2,
-                    widths = arr@arr@layout$wdth,
-                    heights = arr@arr@layout$ht)
+  gl <- grid.layout(nrow = arr$curr@arr@rows*3+2,
+                    ncol = arr$curr@arr@columns*3+2,
+                    widths = arr$curr@arr@layout$wdth,
+                    heights = arr$curr@arr@layout$ht)
 
   grepNullsW <- grep("null$", gl$widths)
   grepNpcsW <- grep("npc$", gl$widths)
@@ -258,7 +283,7 @@ clickCoordinates <- function(n = 1) {
   grobLoc <- list()
 
   for (i in 1:n) {
-    seekViewport("top")
+    seekViewport("top", recording = FALSE)
     gloc <- grid.locator(unit = "npc")
     xInt <- findInterval(as.numeric(strsplit(as.character(gloc$x), "npc")[[1]]),
                          c(0, cumsum(widthNpcs)))
@@ -271,7 +296,7 @@ clickCoordinates <- function(n = 1) {
     }
     column <-  which(xInt == grepNpcsW)
     row <- which((yInt == grepNpcsH)[length(grepNpcsH):1])
-    map <- column + (row - 1) * arr@arr@columns
+    map <- column + (row - 1) * arr$curr@arr@columns
 
     maxLayX <- cumsum(widthNpcs)[xInt]
     minLayX <- cumsum(widthNpcs)[xInt - 1]
@@ -285,10 +310,10 @@ clickCoordinates <- function(n = 1) {
       as.character(gloc$y), "npc"
       )[[1]]) - minLayY) / (maxLayY - minLayY), "npc")
 
-    clickCoords[i, ] <- .clickCoord(arr@spadesGrobList[[map]][[1]]@plotName,
+    clickCoords[i, ] <- .clickCoord(arr$curr@spadesGrobList[[map]][[1]]@plotName,
                                     n = 1, gl = grobLoc)
-    mapNames[i] <- arr@spadesGrobList[[map]][[1]]@plotName
-    envs[[i]] <- arr@spadesGrobList[[map]][[1]]@envir
+    mapNames[i] <- arr$curr@spadesGrobList[[map]][[1]]@plotName
+    envs[[i]] <- arr$curr@spadesGrobList[[map]][[1]]@envir
   }
   return(list(map = mapNames, envir = envs, coords = clickCoords))
 }
@@ -305,7 +330,7 @@ clickCoordinates <- function(n = 1) {
 #' @importFrom grid seekViewport grid.locator convertX convertY
 .clickCoord <- function(X, n = 1, gl = NULL) {
   pts <- data.frame(x = NA_real_, y = NA_real_, stringsAsFactors = FALSE)
-  seekViewport(X)
+  seekViewport(X, recording = FALSE)
   for (i in 1:n) {
     if (is.null(gl)) {
       gl <- grid.locator()
@@ -321,7 +346,10 @@ clickCoordinates <- function(n = 1) {
 #' Specify where to plot
 #'
 #' Switch to an existing plot device, or if not already open,
-#' launch a new graphics device based on operating system used.
+#' launch a new graphics device based on operating system used. On Windows and
+#' Mac, if no x is provided, then this will open or switch to the first non
+#' R Studio device, which is much faster than the png-based R Studio Plot device.
+#' Currently, this will not open anything new
 #'
 #' For example, \code{dev(6)} switches the active plot device to device #6.
 #' If it doesn't exist, it opens it. NOTE: if devices 1-5 don't exist
@@ -358,7 +386,9 @@ dev <- function(x, ...) {
     }
   }
   if (is.null(dev.list())) newPlot(...)
-  while (dev.set(x) < x) newPlot(...)
+  if(.Platform$OS.type != "unix") {
+    while (dev.set(x) < x) newPlot(...)
+  }
   return(invisible(dev.cur()))
 }
 
@@ -383,3 +413,34 @@ dev <- function(x, ...) {
 newPlot <- function(noRStudioGD = TRUE, ...) {
   dev.new(noRStudioGD = TRUE, ...)
 }
+
+
+assign(".parOrig", envir = .spadesEnv,
+       structure(list(xlog = FALSE, ylog = FALSE, adj = 0.5, ann = TRUE,
+                      ask = FALSE, bg = "white", bty = "o", cex = 1, cex.axis = 1,
+                      cex.lab = 1, cex.main = 1.2, cex.sub = 1, col = "black",
+                      col.axis = "black", col.lab = "black", col.main = "black",
+                      col.sub = "black", crt = 0, err = 0L, family = "", fg = "black",
+                      fig = c(0.5, 0.9866, 0.0233, 0.875), fin = c(5.00285625,
+                                                                   2.155865625), font = 1L, font.axis = 1L, font.lab = 1L, font.main = 2L,
+                      font.sub = 1L, lab = c(5L, 5L, 7L), las = 0L, lend = "round",
+                      lheight = 1, ljoin = "round", lmitre = 10, lty = "solid",
+                      lwd = 1, mai = c(1.02, 0.82, 0.82, 0.42), mar = c(5.1, 4.1,
+                                                                        4.1, 2.1), mex = 1, mfcol = c(1L, 1L), mfg = c(1L, 1L, 1L,
+                                                                                                                       1L), mfrow = c(1L, 1L), mgp = c(3, 1, 0), mkh = 0.001, new = FALSE,
+                      oma = c(0, 0, 0, 0), omd = c(0, 1, 0, 1), omi = c(0, 0, 0,
+                                                                        0), pch = 1L, pin = c(3.6020565, 1.293519375), plt = c(0.23,
+                                                                                                                               0.95, 0.3, 0.9), ps = 12L, pty = "m", smo = 1, srt = 0, tck = NA_real_,
+                      tcl = -0.5, usr = c(0.64, 10.36, -1.74682466270393, 0.852684557824307
+                      ), xaxp = c(2, 10, 4), xaxs = "r", xaxt = "s", xpd = FALSE,
+                      yaxp = c(-1.5, 0.5, 4), yaxs = "r", yaxt = "s", ylbias = 0.2),
+                 .Names = c("xlog",
+                            "ylog", "adj", "ann", "ask", "bg", "bty", "cex", "cex.axis",
+                            "cex.lab", "cex.main", "cex.sub", "col", "col.axis", "col.lab",
+                            "col.main", "col.sub", "crt", "err", "family", "fg", "fig", "fin",
+                            "font", "font.axis", "font.lab", "font.main", "font.sub", "lab",
+                            "las", "lend", "lheight", "ljoin", "lmitre", "lty", "lwd", "mai",
+                            "mar", "mex", "mfcol", "mfg", "mfrow", "mgp", "mkh", "new", "oma",
+                            "omd", "omi", "pch", "pin", "plt", "ps", "pty", "smo", "srt",
+                            "tck", "tcl", "usr", "xaxp", "xaxs", "xaxt", "xpd", "yaxp", "yaxs",
+                            "yaxt", "ylbias")))

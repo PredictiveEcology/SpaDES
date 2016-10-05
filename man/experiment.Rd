@@ -9,12 +9,12 @@
 experiment(sim, replicates = 1, params, modules, objects = list(), inputs,
   dirPrefix = "simNum", substrLength = 3, saveExperiment = TRUE,
   experimentFile = "experiment.RData", clearSimEnv = FALSE, notOlderThan,
-  ...)
+  cl, ...)
 
 \S4method{experiment}{simList}(sim, replicates = 1, params, modules,
   objects = list(), inputs, dirPrefix = "simNum", substrLength = 3,
   saveExperiment = TRUE, experimentFile = "experiment.RData",
-  clearSimEnv = FALSE, notOlderThan, ...)
+  clearSimEnv = FALSE, notOlderThan, cl, ...)
 }
 \arguments{
 \item{sim}{A \code{simList} simulation object, generally produced by \code{simInit}.}
@@ -56,6 +56,11 @@ Default FALSE.}
 NULL, meaning don't update the cache. If \code{Sys.time()} is provided
 then, it will force a recache. Ignored if \code{cache} is FALSE.}
 
+\item{cl}{A cluster object. Optional. This would generally be created using
+parallel::makeCluster or equivalent. This is an alternative way, instead
+of \code{beginCluster()}, to use parallelism for this function, allowing for
+more control over cluster use.}
+
 \item{...}{Passed to \code{spades}. Specifically, \code{debug}, \code{.plotInitialTime},
 \code{.saveInitialTime}, \code{cache} and/or \code{notOlderThan}. Caching
 is still experimental. It is tested to work under some conditions, but not
@@ -75,7 +80,8 @@ normal \code{\link{spades}} call, using \code{outputs} like, say, \code{outputs(
 \description{
 This is essentially a wrapper around the \code{spades} call that allows for multiple
 calls to spades. This function will use a single processor, or multiple processors if
-\code{\link[raster]{beginCluster}} has been run first.
+\code{\link[raster]{beginCluster}} has been run first or a cluster objects is passed
+in the \code{cl} argument (gives more control to user).
 }
 \details{
 Generally, there are 2 reasons to do this: replication and varying simulation inputs
@@ -90,16 +96,16 @@ requires a \code{simList} object, acting as the basis for the experiment,
 plus optional inputs and/or objects and/or params and/or modules and/or replications.
 
 
-This function requires a complete simList: this simList will form the basis of the
-modifications as passed by params, modules, inputs, and objects.
-All params, modules, inputs or objects
-passed into this function will override the corresponding params, modules, inputs,
-or identically named objects that are in the \code{sim} argument.
+This function requires a complete simList: this simList will form the basis of
+the modifications as passed by params, modules, inputs, and objects.
+All params, modules, inputs or objects passed into this function will override
+the corresponding params, modules, inputs, or identically named objects that
+are in the \code{sim} argument.
 
 This function is parallel aware, using the same mechanism as used in the \code{raster}
 package. Specifically, if you start a cluster using \code{\link{beginCluster}}, then
 this experiment function will automatically use that cluster. It is always a good
-idea to stop the cluster when finished, using \code{\link{endCluster}}. See
+idea to stop the cluster when finished, using \code{\link{endCluster}}.
 
 Here are generic examples of how \code{params}, \code{modules}, \code{objects},
 and \code{inputs} should be structured.
@@ -117,14 +123,14 @@ and \code{inputs} should be structured.
                    stringsAsFactors = FALSE)
   )}
 
-
 Output directories are changed using this function: this is one of the dominant
 side effects of this function. If there are only replications, then a set of
 subdirectories will be created, one for each replicate.
-If there are varying parameters and or modules, \code{outputPath} is updated to include
-a subdirectory for each level of the experiment. These are not nested, i.e., even if there
-are nested factors, all subdirectories due to the experimental setup will be
-at the same level. Replicates will be one level below this.
+If there are varying parameters and or modules, \code{outputPath} is updated
+to include a subdirectory for each level of the experiment.
+These are not nested, i.e., even if there are nested factors, all subdirectories
+due to the experimental setup will be at the same level.
+Replicates will be one level below this.
 The subdirectory names will include the module(s), parameter names, the parameter values,
 and input index number (i.e., which row of the inputs data.frame).
 The default rule for naming is a concatenation of:
@@ -165,37 +171,41 @@ To force this one level down, \code{dirPrefix} can be used or a manual change to
 \code{outputPath} before the call to experiment.
 
 \code{dirPrefix} can be used to give custom names to directories for outputs.
-There is a special value, \code{"simNum"}, that is used as default, which is an arbitrary
-number  associated with the experiment.
+There is a special value, \code{"simNum"}, that is used as default, which is
+an arbitrary number  associated with the experiment.
 This corresponds to the row number in the \code{attr(sims, "experiment")}.
 This \code{"simNum"} can be used with other strings, such as
-\code{dirPrefix = c("expt","simNum")}.
+\code{dirPrefix = c("expt", "simNum")}.
 
-The experiment structure is kept in two places: the return object has an attribute, and a file
-named \code{experiment.RData} (see argument \code{experimentFile}) located in \code{outputPath(sim)}.
+The experiment structure is kept in two places: the return object has an attribute,
+and a file named \code{experiment.RData} (see argument \code{experimentFile})
+located in \code{outputPath(sim)}.
 
-\code{substrLength}, if \code{0}, will eliminate the subfolder naming convention and use
-only \code{dirPrefix}.
+\code{substrLength}, if \code{0}, will eliminate the subfolder naming convention
+and use only \code{dirPrefix}.
 
-If \code{cache = TRUE} is passed, then this will pass this to \code{spades}, with the
-additional argument \code{replicate = x}, where x is the replicate number. That means that
-if a user runs \code{experiment} with \code{replicate = 4} and \code{cache = TRUE}, then spades
-will run 4 replicates, caching the results, including replicate = 1, replicate = 2, replicate = 3,
-and replicate = 4. Thus, if a second call to experiment with the exact same simList is passed,
-and \code{replicates = 6}, the first 4 will be taken from the cached copies, and replicate 5 and
-6 will be run (and cached) as normal. If \code{notOlderThan} used with a time that is more recent
-than the cached copy, then a new spades will be done, and the cached copy will be deleted from
-the cache repository, so there will only ever be one copy of a particular replicate for a
+If \code{cache = TRUE} is passed, then this will pass this to \code{spades},
+with the additional argument \code{replicate = x}, where x is the replicate number.
+That means that if a user runs \code{experiment} with \code{replicate = 4} and
+\code{cache = TRUE}, then SpaDES will run 4 replicates, caching the results,
+including replicate = 1, replicate = 2, replicate = 3, and replicate = 4.
+Thus, if a second call to experiment with the exact same simList is passed,
+and \code{replicates = 6}, the first 4 will be taken from the cached copies,
+and replicate 5 and 6 will be run (and cached) as normal.
+If \code{notOlderThan} used with a time that is more recent than the cached copy,
+then a new spades will be done, and the cached copy will be deleted from the
+cache repository, so there will only ever be one copy of a particular replicate for a
 particular simList. NOTE: caching may not work as desired on a Windows machine because
 the sqlite database can only be written to one at a time, so there may be collisions.
 }
 \examples{
-\dontrun{
- library(magrittr) # use \%>\% in a few examples
+if (interactive()) {
+  library(igraph) # use \%>\% in a few examples
+  library(raster)
 
- tmpdir <- file.path(tempdir(), "examples")
+  tmpdir <- file.path(tempdir(), "examples")
 
-# Create a default simList object for use through these examples
+  # Create a default simList object for use through these examples
   mySim <- simInit(
     times = list(start = 0.0, end = 2.0, timeunit = "year"),
     params = list(
@@ -212,7 +222,7 @@ the sqlite database can only be written to one at a time, so there may be collis
     outputs = data.frame(objectName = c("landscape", "caribou"), stringsAsFactors = FALSE)
   )
 
-# Example 1 - test alternative parameter values
+  # Example 1 - test alternative parameter values
   # Create an experiment - here, 2 x 2 x 2 (2 levels of 2 params in fireSpread,
   #    and 2 levels of 1 param in caribouMovement)
 
@@ -221,7 +231,7 @@ the sqlite database can only be written to one at a time, so there may be collis
   #   but they can be anything, as long as it is a list.
   experimentParams <- list(fireSpread = list(spreadprob = list(0.2, 0.23),
                                              nFires = list(20, 10)),
-                            caribouMovement = list(N = list(100, 1000)))
+                           caribouMovement = list(N = list(100, 1000)))
 
   sims <- experiment(mySim, params = experimentParams)
 
@@ -230,49 +240,48 @@ the sqlite database can only be written to one at a time, so there may be collis
 
   # Read in outputs from sims object
   FireMaps <- do.call(stack, lapply(1:NROW(attr(sims, "experiment")$expDesign),
-                     function(x) sims[[x]]$landscape$Fires))
+                                    function(x) sims[[x]]$landscape$Fires))
   if (interactive()) Plot(FireMaps, new = TRUE)
 
   # Or reload objects from files, useful if sim objects too large to store in RAM
   caribouMaps <- lapply(sims, function(sim) {
     caribou <- readRDS(outputs(sim)$file[outputs(sim)$objectName == "caribou"])
   })
-  names(caribouMaps) <- paste0("caribou",1:8)
-  # Plot does not plot whole lists (yet)
-  for (i in 1:NROW(attr(sims,"experiment")$expDesign)) {
-    if (interactive()) Plot(caribouMaps[[i]], size = 0.1)}
+  names(caribouMaps) <- paste0("caribou", 1:8)
+  # Plot whole named list
+  if (interactive()) Plot(caribouMaps, size = 0.1)
 
-# Example 2 - test alternative modules
+  # Example 2 - test alternative modules
   # Example of changing modules, i.e., caribou with and without fires
   # Create an experiment - here, 2 x 2 x 2 (2 levels of 2 params in fireSpread,
   #    and 2 levels of 1 param in caribouMovement)
   experimentModules <- list(
-      c("randomLandscapes", "fireSpread", "caribouMovement"),
-      c("randomLandscapes", "caribouMovement"))
+    c("randomLandscapes", "fireSpread", "caribouMovement"),
+    c("randomLandscapes", "caribouMovement"))
   sims <- experiment(mySim, modules = experimentModules)
   attr(sims, "experiment")$expVals # shows 2 alternative experiment levels
 
-# Example 3 - test alternative parameter values and modules
+  # Example 3 - test alternative parameter values and modules
   # Note, this isn't fully factorial because all parameters are not
   #   defined inside smaller module list
   sims <- experiment(mySim, modules = experimentModules, params = experimentParams)
   attr(sims, "experiment")$expVals # shows 10 alternative experiment levels
 
-# Example 4 - manipulate manipulate directory names -
+  # Example 4 - manipulate manipulate directory names -
   #  "simNum" is special value for dirPrefix, it is converted to 1, 2, ...
   sims <- experiment(mySim, params = experimentParams, dirPrefix = c("expt", "simNum"))
-  attr(sims, "experiment")$expVals # shows 10 alternative experiment levels, 26 unique
+  attr(sims, "experiment")$expVals # shows 8 alternative experiment levels, 24 unique
                                    #   parameter values
 
-# Example 5 - doing replicate runs -
+  # Example 5 - doing replicate runs -
   sims <- experiment(mySim, replicates = 2)
   attr(sims, "experiment")$expDesign # shows 2 replicates of same experiment
 
-# Example 6 - doing replicate runs, but within a sub-directory
+  # Example 6 - doing replicate runs, but within a sub-directory
   sims <- experiment(mySim, replicates = 2, dirPrefix = c("expt"))
   lapply(sims, outputPath) # shows 2 replicates of same experiment, within a sub directory
 
-# Example 7 - doing replicate runs, of a complex, non factorial experiment.
+  # Example 7 - doing replicate runs, of a complex, non factorial experiment.
   # Here we do replication, parameter variation, and module variation all together.
   # This creates 20 combinations.
   # The experiment function tries to make fully factorial, but won't
@@ -282,28 +291,28 @@ the sqlite database can only be written to one at a time, so there may be collis
   # library(raster)
   # beginCluster(20) # if you have multiple clusters available, use them here to save time
   sims <- experiment(mySim, replicates = 2, params = experimentParams,
-                    modules = experimentModules,
-                    dirPrefix = c("expt", "simNum"))
+                     modules = experimentModules,
+                     dirPrefix = c("expt", "simNum"))
   # endCluster() # end the clusters
   attr(sims, "experiment")
 
-# Example 8 - Use replication to build a probability map.
+  # Example 8 - Use replication to build a probability map.
   # For this to be meaningful, we need to provide a fixed input landscape,
   #   not a randomLandscape for each experiment level. So requires 2 steps.
   # Step 1 - run randomLandscapes module twice to get 2 randomly
   #  generated landscape maps. We will use 1 right away, and we will
   #  use the two further below
   mySimRL <- simInit(
-     times = list(start = 0.0, end = 0.1, timeunit = "year"),
-     params = list(
-       .globals = list(stackName = "landscape"),
-       # Turn off interactive plotting
-       randomLandscapes = list(.plotInitialTime = NA)
-     ),
-     modules = list("randomLandscapes"),
-     paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
-                  outputPath = file.path(tmpdir, "landscapeMaps1")),
-     outputs = data.frame(objectName = "landscape", saveTime = 0, stringsAsFactors = FALSE)
+    times = list(start = 0.0, end = 0.1, timeunit = "year"),
+    params = list(
+      .globals = list(stackName = "landscape"),
+      # Turn off interactive plotting
+      randomLandscapes = list(.plotInitialTime = NA)
+    ),
+    modules = list("randomLandscapes"),
+    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
+                 outputPath = file.path(tmpdir, "landscapeMaps1")),
+    outputs = data.frame(objectName = "landscape", saveTime = 0, stringsAsFactors = FALSE)
   )
   # Run it twice to get two copies of the randomly generated landscape
   mySimRLOut <- experiment(mySimRL, replicate = 2)
@@ -314,19 +323,19 @@ the sqlite database can only be written to one at a time, so there may be collis
   # here we don't run the randomLandscapes module; instead we pass in a landscape
   #  as an object, i.e., a fixed input
   mySimNoRL <- simInit(
-     times = list(start = 0.0, end = 1, timeunit = "year"), # only 1 year to save time
-     params = list(
-       .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
-       # Turn off interactive plotting
-       fireSpread = list(.plotInitialTime = NA),
-       caribouMovement = list(.plotInitialTime = NA)
-     ),
-     modules = list("fireSpread", "caribouMovement"), # No randomLandscapes modules
-     paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
-                  outputPath = tmpdir),
-     objects = c("landscape"), # Pass in the object here
-     # Save final state (the default if saveTime is not specified) of landscape and caribou
-     outputs = data.frame(objectName = c("landscape", "caribou"), stringsAsFactors = FALSE)
+    times = list(start = 0.0, end = 1, timeunit = "year"), # only 1 year to save time
+    params = list(
+      .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
+      # Turn off interactive plotting
+      fireSpread = list(.plotInitialTime = NA),
+      caribouMovement = list(.plotInitialTime = NA)
+    ),
+    modules = list("fireSpread", "caribouMovement"), # No randomLandscapes modules
+    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
+                 outputPath = tmpdir),
+    objects = c("landscape"), # Pass in the object here
+    # Save final state (the default if saveTime is not specified) of landscape and caribou
+    outputs = data.frame(objectName = c("landscape", "caribou"), stringsAsFactors = FALSE)
   )
 
   # Put outputs into a specific folder to keep them easy to find
@@ -341,44 +350,45 @@ the sqlite database can only be written to one at a time, so there may be collis
   # Can read in Fires layers from disk since they were saved, or from the sims
   #  object
   # Fires <- lapply(sims, function(x) x$landscape$Fires) \%>\% stack
-  Fires <- lapply(landscapeFiles, function(x) readRDS(x)$Fires) \%>\% stack
+  Fires <- lapply(landscapeFiles, function(x) readRDS(x)$Fires) \%>\% stack()
   Fires[Fires > 0] <- 1 # convert to 1s and 0s
   fireProb <- sum(Fires)/nlayers(Fires) # sum them and convert to probability
   if (interactive()) Plot(fireProb, new = TRUE)
 
-# Example 9 - Pass in inputs, i.e., input data objects taken from disk
+  # Example 9 - Pass in inputs, i.e., input data objects taken from disk
   #  Here, we, again, don't provide randomLandscapes module, so we need to
   #  provide an input stack called lanscape. We point to the 2 that we have
   #  saved to disk in Example 8
   mySimInputs <- simInit(
-     times = list(start = 0.0, end = 2.0, timeunit = "year"),
-     params = list(
-       .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
-       # Turn off interactive plotting
-       fireSpread = list(.plotInitialTime = NA),
-       caribouMovement = list(.plotInitialTime = NA)
-     ),
-     modules = list("fireSpread", "caribouMovement"),
-     paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
-                  outputPath = tmpdir),
-     # Save final state of landscape and caribou
-     outputs = data.frame(objectName = c("landscape", "caribou"), stringsAsFactors = FALSE)
+    times = list(start = 0.0, end = 2.0, timeunit = "year"),
+    params = list(
+      .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
+      # Turn off interactive plotting
+      fireSpread = list(.plotInitialTime = NA),
+      caribouMovement = list(.plotInitialTime = NA)
+    ),
+    modules = list("fireSpread", "caribouMovement"),
+    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
+                 outputPath = tmpdir),
+    # Save final state of landscape and caribou
+    outputs = data.frame(objectName = c("landscape", "caribou"), stringsAsFactors = FALSE)
   )
   landscapeFiles <- dir(tmpdir, pattern = "landscape_year0", recursive = TRUE, full.names = TRUE)
 
   # Varying inputs files - This could be combined with params, modules, replicates also
   outputPath(mySimInputs) <- file.path(tmpdir, "example9")
   sims <- experiment(mySimInputs,
-     inputs = lapply(landscapeFiles,function(filenames) {
-       data.frame(file = filenames, loadTime = 0, objectName = "landscape",
-                  stringsAsFactors = FALSE) })
+                     inputs = lapply(landscapeFiles,function(filenames) {
+                       data.frame(file = filenames, loadTime = 0,
+                                  objectName = "landscape",
+                                  stringsAsFactors = FALSE) })
    )
 
   # load in experimental design object
   experiment <- load(file = file.path(tmpdir, "example9", "experiment.RData")) \%>\% get()
   print(experiment) # shows input files and details
 
-# Example 10 - Use a very simple output dir name using substrLength = 0,
+  # Example 10 - Use a very simple output dir name using substrLength = 0,
   #   i.e., just the simNum is used for outputPath of each spades call
   outputPath(mySim) <- file.path(tmpdir, "example10")
   sims <- experiment(mySim, modules = experimentModules, replicates = 2,
@@ -387,7 +397,7 @@ the sqlite database can only be written to one at a time, so there may be collis
   experiment <- load(file = file.path(tmpdir, "example10", "experiment.RData")) \%>\% get()
   print(experiment) # shows input files and details
 
-# Example 11 - use clearSimEnv = TRUE to remove objects from simList
+  # Example 11 - use clearSimEnv = TRUE to remove objects from simList
   # This will shrink size of return object, which may be useful because the
   #  return from experiment function may be a large object (it is a list of
   # simLists). To see size of a simList, you have to look at the objects
@@ -395,21 +405,20 @@ the sqlite database can only be written to one at a time, so there may be collis
   sapply(sims, function(x) object.size(objs(x))) \%>\% sum + object.size(sims)
   # around 3 MB
   # rerun with clearSimEnv = TRUE
-  sims <- experiment(mySim, modules = experimentModules, replicates = 2, substrLength = 0,
-                     clearSimEnv = TRUE)
+  sims <- experiment(mySim, modules = experimentModules, replicates = 2,
+                     substrLength = 0, clearSimEnv = TRUE)
   sapply(sims, function(x) object.size(objs(x))) \%>\% sum + object.size(sims)
   # around 250 kB, i.e., all the simList contents except the objects.
 
-# Example 12 - pass in objects
+  # Example 12 - pass in objects
   experimentObj <- list(landscape = lapply(landscapeFiles, readRDS) \%>\%
                                     setNames(paste0("landscape",1:2)))
   # Pass in this list of landscape objects
   sims <- experiment(mySimNoRL, objects = experimentObj)
 
-# Remove all temp files
+  # Remove all temp files
   unlink(tmpdir, recursive = TRUE)
 }
-
 }
 \author{
 Eliot McIntire

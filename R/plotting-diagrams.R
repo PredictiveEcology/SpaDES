@@ -17,6 +17,7 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @include simList-accessors.R
 #' @docType methods
+#' @keywords internal
 #' @rdname ganttStatus
 #'
 #' @author Alex Chubaty
@@ -63,6 +64,7 @@ setMethod("ganttStatus",
 #' @include simList-accessors.R
 # @importFrom utils tail
 #' @docType methods
+#' @keywords internal
 #' @rdname sim2gantt
 #'
 #' @author Alex Chubaty
@@ -136,7 +138,7 @@ setMethod(
 #'
 #' @return Plots an event diagram as Gantt Chart, invisibly returning a \code{mermaid} object.
 #'
-#' @seealso \code{\link{mermaid}}.
+#' @seealso \code{\link[DiagrammeR]{mermaid}}.
 #'
 #' @include simList-accessors.R
 #' @importFrom DiagrammeR mermaid
@@ -173,7 +175,7 @@ setMethod(
       dots$height <- if (any(grepl(pattern = "height", names(dots)))) {
         as.numeric(dots$height)
       } else {
-        sapply(ll, NROW) %>% sum %>% `*`(., 26L)
+        sapply(ll, NROW) %>% sum() %>% `*`(., 26L)
       }
 
       diagram <- paste0(
@@ -204,6 +206,16 @@ setMethod(
     eventDiagram(sim = sim, n = NROW(completed(sim)), startDate = startDate, ...)
 })
 
+#' @export
+#' @rdname eventDiagram
+setMethod(
+  "eventDiagram",
+  signature(sim = "simList", n = "missing", startDate = "missing"),
+  definition = function(sim, startDate, ...) {
+    d <- as.Date(start(sim), format(Sys.time(), "%Y-%m-%d")) %>% as.character()
+    eventDiagram(sim = sim, n = NROW(completed(sim)), startDate = d, ...)
+})
+
 ################################################################################
 #' Simulation object dependency diagram
 #'
@@ -219,7 +231,7 @@ setMethod(
 #'
 #' @return Plots a sequence diagram, invisibly returning a \code{mermaid} object.
 #'
-#' @seealso \code{\link{mermaid}}.
+#' @seealso \code{\link[DiagrammeR]{mermaid}}.
 #'
 #' @include simList-accessors.R
 #' @importFrom DiagrammeR mermaid
@@ -266,11 +278,16 @@ setMethod(
 #' or \code{"tk"} for \code{igraph::tkplot}. Default missing, which uses regular
 #' \code{plot}.
 #'
+#' @param showParents Logical. If TRUE, then any children that are grouped into parent
+#'                    modules will be grouped together by colored blobs. Internally,
+#'                    this is calling \code{\link{moduleGraph}}. Default \code{FALSE}.
+#'
 #' @param ...  Additional arguments passed to plotting function specfied by \code{type}.
 #'
 #' @return Plots module dependency diagram.
 #'
-#' @seealso \code{\link{igraph}}.
+#' @seealso \code{\link{igraph}}, \code{\link{moduleGraph}} for a version that accounts for
+#' parent and children module structure.
 #'
 #' @include simList-accessors.R
 #' @export
@@ -279,28 +296,118 @@ setMethod(
 #'
 #' @author Alex Chubaty
 # igraph is being imported in spades-package.R
-setGeneric("moduleDiagram", function(sim, type, ...) {
+setGeneric("moduleDiagram", function(sim, type, showParents, ...) {
   standardGeneric("moduleDiagram")
 })
 
 #' @export
 #' @rdname moduleDiagram
-setMethod("moduleDiagram",
-          signature = c(sim = "simList", type = "character"),
-          definition = function(sim, type, ...) {
-            if (type == "rgl") {
-              rglplot(depsGraph(sim, TRUE), ...)
-            } else if (type == "tk") {
-              tkplot(depsGraph(sim, TRUE), ...)
-            } else {
-              moduleDiagram(sim)
-            }
+setMethod(
+  "moduleDiagram",
+  signature = c(sim = "simList", type = "character", showParents = "logical"),
+  definition = function(sim, type, showParents, ...) {
+    if (type == "rgl") {
+      rglplot(depsGraph(sim, TRUE), ...)
+    } else if (type == "tk") {
+      tkplot(depsGraph(sim, TRUE), ...)
+    } else {
+      moduleDiagram(sim)
+    }
 })
 
 #' @export
 #' @rdname moduleDiagram
-setMethod("moduleDiagram",
-          signature = c(sim = "simList", type = "missing"),
-          definition = function(sim, type, ...) {
-              plot(depsGraph(sim, TRUE), ...)
+setMethod(
+  "moduleDiagram",
+  signature = c(sim = "simList", type = "missing"),
+  definition = function(sim, ...) {
+    modDia <- depsGraph(sim, TRUE)
+    dots <- list(...)
+    if (missing(showParents)) showParents <- FALSE
+    if (showParents) {
+      moduleGraph(sim = sim, ...)
+    } else {
+      if ("title" %in% names(dots)) {
+        Plot(modDia, plotFn = "plot", axes = FALSE, ...)
+      } else {
+        Plot(modDia, plotFn = "plot", axes = FALSE, title = "Module Diagram", ...)
+      }
+    }
+})
+
+################################################################################
+#' Build a module dependency graph
+#'
+#' This is still experimental, but this will show the hierarchical structure of
+#' parent and children modules and return a list with an igraph object
+#' and an igraph communities object, showing the groups.
+#' Currently only tested with relatively simple structures.
+#'
+#' @inheritParams depsEdgeList
+#'
+#' @param ... Arguments passed to \code{Plot}
+#'
+#' @return A list with 2 elements, an \code{\link{igraph}} object and an \code{igraph}
+#' communities object.
+#'
+#' # @importFrom igraph graph_from_data_frame cluster_optimal edges # already with import igraph
+#' @include simList-class.R
+#' @importFrom data.table rbindlist
+#' @export
+#' @docType methods
+#' @rdname moduleGraph
+#' @seealso moduleDiagram
+#'
+#' @author Eliot McIntire
+setGeneric("moduleGraph", function(sim, plot, ...) {
+  standardGeneric("moduleGraph")
+})
+
+#' @export
+#' @rdname moduleGraph
+setMethod(
+  "moduleGraph",
+  signature(sim = "simList", plot = "logical"),
+  definition = function(sim, plot, ...) {
+    mg <- attr(sim@modules, "modulesGraph")
+    parents <- unique(mg[, "from"])
+
+    deps <- depsEdgeList(sim)[, list(from, to)]
+    el <- rbind(mg, deps) # don't seem to need the rbinded version
+
+    # This is just for the dummy case of having no object dependencies
+    if (NROW(deps) == 0) deps <- mg
+
+    grph <- graph_from_data_frame(el, directed = TRUE)
+    grps <- cluster_optimal(grph)
+
+    membership <- as.numeric(as.factor(mg[match(names(V(grph)), mg[, 2]), 1]))
+    membership[is.na(membership)] <- 1
+    membership[which(names(V(grph)) == "_INPUT_")] <- max(membership, na.rm = TRUE) + 1
+    grps$membership <- membership
+
+    el1 <- lapply(parents, function(par) data.frame(el[from == par]))
+    el1 <- rbindlist(el1)
+    e <- apply(el1, 1, paste, collapse = "|")
+    e <- edges(e)
+
+    if (plot) {
+      vs <- c(15,0)[(names(V(grph)) %in% parents) + 1]
+      dots <- list(...)
+      if ("title" %in% names(dots)) {
+        Plot(grps, grph - e, vertex.size = vs, plotFn = "plot", axes = FALSE, ...)
+      } else {
+        Plot(grps, grph - e, vertex.size = vs, plotFn = "plot", axes = FALSE,
+             title = "Module Graph", ...)
+      }
+    }
+    return(invisible(list(graph = grph, communities = grps)))
+})
+
+#' @export
+#' @rdname moduleGraph
+setMethod("moduleGraph",
+          signature(sim = "simList", plot = "missing"),
+          definition = function(sim, ...) {
+            return(moduleGraph(sim, TRUE, ...))
 })

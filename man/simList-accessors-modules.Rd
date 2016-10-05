@@ -2,9 +2,6 @@
 % Please edit documentation in R/simList-accessors.R
 \docType{methods}
 \name{modules}
-\alias{.callingModuleName}
-\alias{.callingModuleName,.simList-method}
-\alias{currentModule}
 \alias{depends}
 \alias{depends,.simList-method}
 \alias{depends<-}
@@ -16,9 +13,9 @@
 \alias{simList-accessors-modules}
 \title{Simulation modules and dependencies}
 \usage{
-modules(object)
+modules(object, hidden = FALSE)
 
-\S4method{modules}{.simList}(object)
+\S4method{modules}{.simList}(object, hidden = FALSE)
 
 modules(object) <- value
 
@@ -31,15 +28,11 @@ depends(object)
 depends(object) <- value
 
 \S4method{depends}{.simList}(object) <- value
-
-.callingModuleName(object)
-
-\S4method{.callingModuleName}{.simList}(object)
-
-currentModule(object)
 }
 \arguments{
 \item{object}{A \code{simList} simulation object.}
+
+\item{hidden}{Logical. If TRUE, show the default core modules.}
 
 \item{value}{The object to be stored at the slot.}
 }
@@ -55,33 +48,23 @@ These are included for advanced users.
    \code{\link{modules}} \tab List of simulation modules to be loaded. (advanced) \cr
    \code{\link{inputs}} \tab List of loaded objects used in simulation. (advanced) \cr
 }
-
-\code{.callingModuleName} returns the name of the module that is currently
-the active module calling functions like \code{scheduleEvent}.
-This will only return the module name if it is inside a \code{spades}
-function call, i.e., it will return \code{NULL} if used in interactive mode.
-The related function \code{currentModule} is simply a rapid accessor for the
-current module name. This latter will return the module that is in the current
-event queue, which will never be \code{NULL}
 }
 \details{
 Currently, only get and set methods are defined. Subset methods are not.
 }
 \author{
 Alex Chubaty
-
-Eliot McIntire
-
-Eliot McIntire
 }
 \seealso{
-\code{\link{simList-class}},
-         \code{\link{simList-accessors-envir}},
-         \code{\link{simList-accessors-events}},
-         \code{\link{simList-accessors-inout}},
-         \code{\link{simList-accessors-objects}},
-         \code{\link{simList-accessors-params}},
-         \code{\link{simList-accessors-paths}},
-         \code{\link{simList-accessors-times}}.
+\code{\link{SpaDES}}, specifically the section 1.2.7 on Modules and dependencies.
+
+Other functions to access elements of a \code{simList} object: \code{\link{.addDepends}},
+  \code{\link{doEvent.checkpoint}}, \code{\link{envir}},
+  \code{\link{events}}, \code{\link{globals}},
+  \code{\link{inputs}}, \code{\link{ls.simList}},
+  \code{\link{ls.str.simList}}, \code{\link{objs}},
+  \code{\link{packages}}, \code{\link{params}},
+  \code{\link{paths}}, \code{\link{progressInterval}},
+  \code{\link{times}}
 }
 

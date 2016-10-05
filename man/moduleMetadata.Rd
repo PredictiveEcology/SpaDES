@@ -3,21 +3,26 @@
 \docType{methods}
 \name{moduleMetadata}
 \alias{moduleMetadata}
-\alias{moduleMetadata,character,character-method}
-\alias{moduleMetadata,character,missing-method}
+\alias{moduleMetadata,ANY,missing,simList-method}
+\alias{moduleMetadata,character,character,ANY-method}
+\alias{moduleMetadata,character,missing,missing-method}
 \title{Parse and extract module metadata}
 \usage{
-moduleMetadata(module, path)
+moduleMetadata(module, path, sim)
 
-\S4method{moduleMetadata}{character,character}(module, path)
+\S4method{moduleMetadata}{character,character,ANY}(module, path)
 
-\S4method{moduleMetadata}{character,missing}(module)
+\S4method{moduleMetadata}{character,missing,missing}(module)
+
+\S4method{moduleMetadata}{ANY,missing,simList}(module, sim)
 }
 \arguments{
 \item{module}{Character string. Your module's name.}
 
 \item{path}{Character string specifying the file path to modules directory.
-Default is the current working directory.}
+Default is to use the \code{spades.modulesPath} option.}
+
+\item{sim}{A \code{simList} simulation object, generally produced by \code{simInit}.}
 }
 \value{
 A list of module metadata, matching the structure in
@@ -27,9 +32,20 @@ A list of module metadata, matching the structure in
 Parse and extract module metadata
 }
 \examples{
-  path <- system.file(package = "SpaDES", "sampleModules")
-  sampleModules <- dir(path)
-  x <- moduleMetadata(sampleModules[1], path)
+path <- system.file(package = "SpaDES", "sampleModules")
+sampleModules <- dir(path)
+x <- moduleMetadata(sampleModules[3], path)
+
+# using simList
+mySim <- simInit(
+   times = list(start = 2000.0, end = 2002.0, timeunit = "year"),
+   params = list(
+     .globals = list(stackName = "landscape", burnStats = "nPixelsBurned")
+   ),
+   modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
+   paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
+)
+moduleMetadata(sim = mySim)
 
 }
 \author{

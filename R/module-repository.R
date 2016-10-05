@@ -35,7 +35,9 @@ setMethod(
       name = name[1]
     }
     moduleFiles <- checkModule(name, repo)
-    zipFiles <- grep("[.]zip$", moduleFiles, value = TRUE)
+    zipFiles <- grep(paste0(name,"_+.+.zip"), moduleFiles, value = TRUE) # moduleName_....zip only
+    zipFiles <- grep(file.path(name,"data"), zipFiles, invert = TRUE, value = TRUE) # remove any zip in data folder
+    # all zip files is not correct behaviour, only
     versions <- strsplit(zipFiles, "_") %>%
       unlist() %>%
       grep("[.]zip$", ., value = TRUE) %>%
@@ -149,8 +151,7 @@ setMethod("checkModule",
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("downloadModule", function(name, path, version, repo, data = FALSE,
-                                      quiet = FALSE) {
+setGeneric("downloadModule", function(name, path, version, repo, data, quiet) {
   standardGeneric("downloadModule")
 })
 
@@ -164,7 +165,7 @@ setMethod(
     checkModule(name, repo)
     if (is.na(version)) version <- getModuleVersion(name, repo)
 
-    versionWarning(name, version)
+    #versionWarning(name, version)
 
     zip <- paste0("https://raw.githubusercontent.com/", repo,
                   "/master/modules/", name, "/", name, "_", version, ".zip")
@@ -174,7 +175,9 @@ setMethod(
 
     # after download, check for childModules that also require downloading
     files2 <- list()
-    children <- moduleMetadata(name, path)$childModules
+    children <- .parseModulePartial(filename = file.path(path, name, paste0(name, ".R")),
+                                    defineModuleElement = "childModules")
+    #children <- moduleMetadata(name, path)$childModules
     dataList2 <- data.frame(result = character(0), expectedFile = character(0),
                             actualFile = character(0), checksum = character(0),
                             stringsAsFactors = FALSE)
@@ -193,42 +196,37 @@ setMethod(
     } else {
       dataList <- checksums(module = name, path = path)
     }
+    message("Download complete for module ", name, ".")
+
     return(list(c(files, files2), bind_rows(dataList, dataList2)))
 })
 
 #' @rdname downloadModule
 setMethod(
   "downloadModule",
-  signature = c(name = "character", path = "character", version = "character",
-                repo = "missing", data = "ANY", quiet = "ANY"),
-  definition = function(name, path, version, data, quiet) {
-    files <- downloadModule(name, path, version,
-                            repo = getOption("spades.modulesRepo"),
-                            data = data, quiet = quiet)
+  signature = c(name = "character", path = "missing", version = "missing",
+                repo = "missing", data = "missing", quiet = "missing"),
+  definition = function(name) {
+    files <- downloadModule(name, path = getOption("spades.modulesPath"),
+                            version = NA_character_,
+                            repo = getOption('spades.modulesRepo'),
+                            data = FALSE, quiet = FALSE)
     return(invisible(files))
 })
 
 #' @rdname downloadModule
 setMethod(
   "downloadModule",
-  signature = c(name = "character", path = "character", version = "missing",
-                repo = "missing", data = "ANY", quiet = "ANY"),
-  definition = function(name, path, data, quiet) {
-    files <- downloadModule(name, path, version = NA_character_,
-                            repo = getOption("spades.modulesRepo"),
-                            data = data,
-                            quiet = quiet)
-    return(invisible(files))
-})
+  signature = c(name = "character", path = "ANY", version = "ANY",
+                repo = "ANY", data = "ANY", quiet = "ANY"),
+  definition = function(name, path, version, repo, data, quiet) {
+    if (missing(path)) path <- getOption("spades.modulesPath")
+    if (missing(version)) version <- NA_character_
+    if (missing(repo)) repo <- getOption("spades.modulesRepo")
+    if (missing(data)) data <- FALSE
+    if (missing(quiet)) quiet <- FALSE
 
-#' @rdname downloadModule
-setMethod(
-  "downloadModule",
-  signature = c(name = "character", path = "character", version = "missing",
-                repo = "character", data = "ANY", quiet = "ANY"),
-  definition = function(name, path, repo, data, quiet) {
-    files <- downloadModule(name, path, version = NA_character_, repo = repo,
-                            data = data, quiet)
+    files <- downloadModule(name, path, version, repo, data, quiet)
     return(invisible(files))
 })
 
@@ -255,7 +253,7 @@ setMethod(
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("downloadData", function(module, path, quiet = FALSE) {
+setGeneric("downloadData", function(module, path, quiet) {
   standardGeneric("downloadData")
 })
 
@@ -266,15 +264,24 @@ setMethod(
   definition = function(module, path, quiet) {
     cwd <- getwd()
     path <- checkPath(path, create = FALSE)
-    urls <- moduleMetadata(module, path)$inputObjects$sourceURL
+    urls <- .parseModulePartial(filename = file.path(path, module, paste0(module,".R")),
+                                defineModuleElement = "inputObjects")$sourceURL
+    if (is.call(urls)) {
+      # This is the case where it can't evaluate the .parseModulePartial because of a reference
+      #  to the sim object that isn't available. Because sourceURL is unlikely to use
+      #  a call to sim object, then try to evaluate again here, just the one column
+      urls <- eval(urls)
+      #urls <- moduleMetadata(module, path)$inputObjects$sourceURL
+    }
+
     ids <- which( urls == "" | is.na(urls) )
-    to.dl <- if (length(ids)) { urls[-ids] } else { urls }
+    to.dl <- if (length(ids)) urls[-ids] else urls
     chksums <- checksums(module, path) %>%
       mutate(renamed = NA, module = module)
     dataDir <- file.path(path, module, "data" )
 
     if (any(chksums$result == "FAIL")) {
-      setwd(path); on.exit(setwd(cwd))
+      setwd(path); on.exit(setwd(cwd), add = TRUE)
 
       files <- sapply(to.dl, function(x) {
         destfile <- file.path(dataDir, basename(x))
@@ -287,11 +294,17 @@ setMethod(
           download.file(x, destfile = tmpFile, mode = "wb", quiet = quiet)
           copied <- file.copy(from = tmpFile, to = destfile, overwrite = TRUE)
           destfile
+        } else {
+          message("  Download data step skipped for module ", module, ". Local copy exists.")
         }
       })
 
       chksums <- checksums(module, path) %>%
         mutate(renamed = NA, module = module)
+    } else if (NROW(chksums) > 0) {
+      message("  Download data step skipped for module ", module, ". Local copy exists.")
+    } else {
+      message("  No data to download for module ", module)
     }
 
     wh <- match(chksums$actualFile, chksums$expectedFile) %>% is.na() %>% which()
@@ -304,21 +317,43 @@ setMethod(
       })
     }
 
-    if (any(!chksums$renamed %>% na.omit())) {
-      warning("Unable to automatically give proper name to downloaded files.",
-              " Manual file rename is required.")
-    }
+    # if (any(!chksums$renamed %>% na.omit())) {
+    #   message("Unable to automatically give proper name to downloaded files. ",
+    #           "Check for existence of \n",
+    #           paste(file.path(path, module, "data",
+    #                     chksums$expectedFile[!chksums$renamed] %>% na.omit()),
+    #                           collapse = "\n"),
+    #           "\nfollowing downloads.")
+    # }
 
     # after download, check for childModules that also require downloading
-    children <- moduleMetadata(module, path)$childModules
+    children <- .parseModulePartial(filename = file.path(path, module, paste0(module, ".R")),
+                                   defineModuleElement = "childModules")
+    #children <- moduleMetadata(module, path)$childModules
     if (!is.null(children)) {
       if ( all( nzchar(children) & !is.na(children) ) ) {
         chksums2 <- lapply(children, downloadData, path = path, quiet = quiet) %>%
           bind_rows()
       }
     }
-    message("Download complete for module ", module, ".")
+
     return(bind_rows(chksums, chksums2))
+})
+
+#' @rdname downloadData
+setMethod(
+  "downloadData",
+  signature = c(module = "character", path = "missing", quiet = "missing"),
+  definition = function(module) {
+    downloadData(module = module, path = getOption("spades.modulesPath"), quiet = FALSE)
+})
+
+#' @rdname downloadData
+setMethod(
+  "downloadData",
+  signature = c(module = "character", path = "missing", quiet = "logical"),
+  definition = function(module, quiet) {
+    downloadData(module = module, path = getOption("spades.modulesPath"), quiet = quiet)
 })
 
 #' @rdname downloadData
@@ -340,6 +375,7 @@ setMethod(
 #' @return A character vector of hashes.
 #'
 #' @importFrom digest digest
+#' @keywords internal
 #' @rdname digest
 #'
 #' @author Alex Chubaty
@@ -354,7 +390,7 @@ setMethod(
   signature = c(file = "character"),
   definition = function(file, ...) {
     sapply(file, function(f) {
-      digest::digest(object = f, file = TRUE, algo = "md5", ...) # use sha1?
+      digest::digest(object = f, file = TRUE, algo = "xxhash64", ...)
     }) %>% unname() %>% as.character() # need as.character for empty case
 })
 
@@ -373,6 +409,13 @@ setMethod(
 #' only check that the data files exist locally but that their checksums match
 #' those expected. See also \code{\link{downloadData}}.
 #'
+#' @note In version 1.2.0 and earlier, two checksums per file were required
+#' because of differences in the checksum hash values on Windows and Unix-like
+#' platforms. Recent versions use a different (faster) algorithm and only require
+#' one checksum value per file.
+#' To update your \file{CHECKSUMS.txt} files using the new algorithm, see
+#' \url{https://github.com/PredictiveEcology/SpaDES/issues/295#issuecomment-246513405}.
+#'
 #' @param module  Character string giving the name of the module.
 #'
 #' @param path    Character string giving the path to the module directory.
@@ -390,6 +433,23 @@ setMethod(
 #' @rdname checksums
 #'
 #' @author Alex Chubaty
+#'
+#' @examples
+#' \dontrun{
+#' moduleName <- "my_module"
+#' modulePath <- file.path("path", "to", "modules")
+#'
+#' ## verify checksums of all data files
+#' checksums(monudleName, modulePath)
+#'
+#' ## write new CHECKSUMS.txt file
+#'
+#' # 1. verify that all data files are present (and no extra files are present)
+#' list.files(file.path(modulePath, moduleName, "data")
+#'
+#' # 2. calculate file checksums and write to file (this will overwrite CHECKSUMS.txt)
+#' checksums(monudleName, modulePath, write = TRUE)
+#' }
 #'
 setGeneric("checksums", function(module, path, write) {
   standardGeneric("checksums")
@@ -413,20 +473,17 @@ setMethod(
 
     checksumFile <- file.path(path, "CHECKSUMS.txt")
 
+    txt <- if (file.info(checksumFile)$size > 0) {
+      read.table(checksumFile, header = TRUE, stringsAsFactors = FALSE)
+    } else {
+      data.frame(file = character(0), checksum = character(0),
+                 stringsAsFactors = FALSE)
+    }
+
     if (write) {
-      # TODO needs to intelligently merge, not just append. i.e., keep only
-      #   two rows max per file (UNIX and Windows)
-      write.table(out, checksumFile, eol = "\n",
-                  col.names = TRUE, row.names = FALSE, append = TRUE)
+      write.table(out, checksumFile, eol = "\n", col.names = TRUE, row.names = FALSE)
       return(out)
     } else {
-      txt <- if (file.info(checksumFile)$size > 0) {
-        read.table(checksumFile, header = TRUE, stringsAsFactors = FALSE)
-      } else {
-        data.frame(file = character(0), checksum = character(0),
-                   stringsAsFactors = FALSE)
-      }
-
       results.df <- out %>%
         rename_(actualFile = "file") %>%
         left_join(txt, ., by = "checksum") %>%

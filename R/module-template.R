@@ -1,39 +1,72 @@
 ################################################################################
+#' Open a file for editing
+#'
+#' Rstudio's \code{file.edit} behaves differently than \code{utils::file.edit}.
+#' The workaround is to have the user manually open the file if they are using
+#' Rstudio, as suggested in the Rstudio support ticket at
+#' \url{https://support.rstudio.com/hc/en-us/community/posts/206011308-file-edit-vs-utils-file-edit}.
+#'
+#' @param file  Character string giving the file path to open.
+#'
+#' @return  Invoked for its side effect of opening a file for editing.
+#'
+#  @importFrom utils file.edit
+#'
+#' @rdname fileEdit
+#' @author Alex Chubaty
+#'
+.fileEdit <- function(file) {
+  if (Sys.getenv("RSTUDIO") == "1") {
+    file <- gsub(file, pattern = "\\./", replacement = "")
+    message("Using RStudio, open file manually with:\n",
+            paste0("file.edit('", file, "')")
+    )
+  } else {
+    file.edit(file)
+  }
+}
+
+################################################################################
 #' Create new module from template.
 #'
 #' Autogenerate a skeleton for a new SpaDES module, a template for a
 #' documentation file, a citation file, a license file, a README.txt file, and a
 #' folder that contains unit tests information.
 #' The \code{newModuleDocumentation} will not generate the module file, but will
-#' create the other 4 files.
+#' create the other files.
 #'
 #' All files will be created within a subfolder named \code{name} within the
 #' \code{path}.
 #'
-#' @param name  Character string. Your module's name.
+#' @param name  Character string specfying the name of the new module.
 #'
 #' @param path  Character string. Subdirectory in which to place the new module code file.
 #'              The default is the current working directory.
 #'
-#' @param open  Logical. Should the new module file be opened after creation?
-#'              Default \code{TRUE}.
+#' @param ...   Additonal arguments. Currently, only the following are supported:\cr\cr
 #'
-#' @param unitTests Logical. Should the new module include unit test files?
-#'                  Default \code{TRUE}.
-#'                  Unit testing relies on the \code{testthat} package.
+#'              \code{open}. Logical. Should the new module file be opened after creation?
+#'              Default \code{TRUE}.\cr\cr
+#'
+#'              \code{unitTests}. Logical. Should the new module include unit test files?
+#'              Default \code{TRUE}. Unit testing relies on the \code{testthat} package.\cr\cr
+#'
+#'              \code{type}. Character string specifying one of \code{"child"} (default),
+#'              or \code{"parent"}.\cr\cr
+#'
+#'              \code{children}. Required when \code{type = "parent"}. A character vector
+#'              specifying the names of child modules.
 #'
 #' @return Nothing is returned. The new module file is created at
-#' \code{path/name.R}, as well as ancillary files for documentation, citation,
+#' \file{path/name.R}, as well as ancillary files for documentation, citation,
 #' license, readme, and unit tests folder.
 #'
-#' @note On Windows there is currently a bug in RStudio that it doesn't know
-#' what editor to open with \code{file.edit} is called (which is what moduleName
-#' does). This will return an error:
-#'
-#' \code{Error in editor(file = file, title = title) :}
-#' \code{argument "name" is missing, with no default}
-#'
-#' You can just browse to the file and open it manually.
+#' @note On Windows there is currently a bug in RStudio that prevents the editor
+#' from opening when \code{file.edit} is called.
+#' Similarly, in RStudio on OS X / macOS, there is an issue opening files where
+#' they are opened in an overlayed window rather than a new tab.
+#' \code{file.edit} does work if the user types it at the command prompt.
+#' A message with the correct lines to copy and paste is provided.
 #'
 #' @export
 #' @docType methods
@@ -41,12 +74,18 @@
 # @importFrom utils file.edit
 #' @author Alex Chubaty and Eliot McIntire
 #'
+#' @family module creation helpers
+#'
 #' @examples
 #' \dontrun{
 #'   ## create a "myModule" module in the "modules" subdirectory.
 #'   newModule("myModule", "modules")
+#'
+#'   ## create a new parent module in the "modules" subdirectory.
+#'   newModule("myParentModule", "modules", type = "parent", children = c("child1", "child2"))
 #' }
-setGeneric("newModule", function(name, path, open, unitTests) {
+#'
+setGeneric("newModule", function(name, path, ...) {
   standardGeneric("newModule")
 })
 
@@ -54,115 +93,107 @@ setGeneric("newModule", function(name, path, open, unitTests) {
 #' @rdname newModule
 setMethod(
   "newModule",
-  signature = c(name = "character", path = "character", open = "logical",
-                unitTests = "logical"),
-  definition = function(name, path, open, unitTests) {
+  signature = c(name = "character", path = "character"),
+  definition = function(name, path, ...) {
+    args <- list(...)
+
+    stopifnot((names(args) %in% c('open', 'unitTests', 'type', "children")))
+
+    open <- args$open
+    unitTests <- args$unitTests
+    type <- args$type
+    children <- args$children
+
+    # define defaults for ... args
+    if (is.null(open)) open <- TRUE
+    if (is.null(unitTests)) unitTests <- TRUE
+    if (is.null(type)) type <- "child"
+    if (is.null(children)) children <- NA_character_
+
+    stopifnot(
+      is(open, "logical"),
+      is(unitTests, "logical"),
+      is(type, "character"),
+      is(children, "character"),
+      type %in% c("child", "parent")
+    )
+
     path <- checkPath(path, create = TRUE)
     nestedPath <- file.path(path, name) %>% checkPath(create = TRUE)
     dataPath <- file.path(nestedPath, "data") %>% checkPath(create = TRUE)
+    RPath <- file.path(nestedPath, "R") %>% checkPath(create = TRUE)
 
     # empty data checksum file
     cat("", file = file.path(dataPath, "CHECKSUMS.txt"))
 
     # module code file
-    newModuleCode(name = name, path = path, open = open)
+    newModuleCode(name = name, path = path, open = open, type = type, children = children)
 
-    if (unitTests) { newModuleTests(name = name, path = path, open = open) }
+    if (type == "child" && unitTests) {
+      newModuleTests(name = name, path = path, open = open)
+    }
 
     ### Make Rmarkdown file for module documentation
-    newModuleDocumentation(name = name, path = path, open = open)
+    newModuleDocumentation(name = name, path = path, open = open, type = type, children = children)
 })
 
 #' @export
 #' @rdname newModule
 setMethod(
   "newModule",
-  signature = c(name = "character", path = "missing", open = "logical",
-                unitTests = "logical"),
-  definition = function(name, open, unitTests) {
-    newModule(name = name, path = ".", open = open, unitTests = unitTests)
-})
-
-#' @export
-#' @rdname newModule
-setMethod(
-  "newModule",
-  signature = c(name = "character", path = "character", open = "missing",
-                unitTests = "logical"),
-  definition = function(name, path, unitTests) {
-    newModule(name = name, path = path, open = TRUE, unitTests = unitTests)
-})
-
-#' @export
-#' @rdname newModule
-setMethod(
-  "newModule",
-  signature = c(name = "character", path = "missing", open = "missing",
-                unitTests = "logical"),
-  definition = function(name, unitTests) {
-    newModule(name = name, path = ".", open = TRUE, unitTests = unitTests)
-})
-
-#' @export
-#' @rdname newModule
-setMethod(
-  "newModule",
-  signature = c(name = "character", path = "character", open = "logical",
-                unitTests = "missing"),
-  definition = function(name, path, open) {
-    newModule(name = name, path = path, open = open, unitTests = TRUE)
-})
-
-#' @export
-#' @rdname newModule
-setMethod(
-  "newModule",
-  signature = c(name = "character", path = "missing", open = "logical",
-                unitTests = "missing"),
-  definition = function(name, open) {
-    newModule(name = name, path = ".", open = open, unitTests = TRUE)
-})
-
-#' @export
-#' @rdname newModule
-setMethod(
-  "newModule",
-  signature = c(name = "character", path = "character", open = "missing",
-                unitTests = "missing"),
-  definition = function(name, path) {
-    newModule(name = name, path = path, open = TRUE, unitTests = TRUE)
-})
-
-#' @export
-#' @rdname newModule
-setMethod(
-  "newModule",
-  signature = c(name = "character", path = "missing", open = "missing",
-                unitTests = "missing"),
-  definition = function(name) {
-    newModule(name = name, path = ".", open = TRUE, unitTests = TRUE)
+  signature = c(name = "character", path = "missing"),
+  definition = function(name, ...) {
+    newModule(name = name, path = getOption("spades.modulesPath"), ...)
 })
 
 ################################################################################
+#' Create new module code file
+#'
+#' @param name  Character string specifying the name of the new module.
+#'
+#' @param path  Character string. Subdirectory in which to place the new module code file.
+#'              The default is the current working directory.
+#'
+#' @param open  Logical. Should the new module file be opened after creation?
+#'              Default \code{TRUE}.
+#'
+#' @param type  Character string specifying one of \code{"child"} (default),
+#'              or \code{"parent"}.
+#'
+#' @param children   Required when \code{type = "parent"}. A character vector
+#'                   specifying the names of child modules.
+#'
 #' @export
 #' @docType methods
-#' @rdname newModule
-# @importFrom utils file.edit
+#' @rdname newModuleCode
+# @importFrom utils capture.output file.edit
 #' @author Eliot McIntire and Alex Chubaty
 #'
-setGeneric("newModuleCode", function(name, path, open) {
+setGeneric("newModuleCode", function(name, path, open, type, children) {
   standardGeneric("newModuleCode")
 })
 
 #' @export
-#' @rdname newModule
+#' @rdname newModuleCode
+#' @family module creation helpers
+#'
 setMethod(
   "newModuleCode",
-  signature = c(name = "character", path = "character", open = "logical"),
-  definition = function(name, path, open) {
+  signature = c(name = "character", path = "character", open = "logical",
+                type = "character", children = "character"),
+  definition = function(name, path, open, type, children) {
+    stopifnot(type %in% c("child", "parent"))
+
     path <- checkPath(path, create = TRUE)
     nestedPath <- file.path(path, name) %>% checkPath(create = TRUE)
     filenameR <- file.path(nestedPath, paste0(name, ".R"))
+
+    children_char <- if (is.na(children) || length(children) == 0L) {
+      "character(0)"
+    } else {
+      capture.output(dput(children))
+    }
+
     cat("
 # Everything in this file gets sourced during simInit, and all functions and objects
 # are put into the simList. To use objects and functions, use sim$xxx.
@@ -171,36 +202,35 @@ defineModule(sim, list(
   description = \"insert module description here\",
   keywords = c(\"insert key words here\"),
   authors = c(person(c(\"First\", \"Middle\"), \"Last\", email=\"email@example.com\", role=c(\"aut\", \"cre\"))),
-  childModules = character(),
+  childModules = ", children_char, ",
   version = numeric_version(\"", as.character(packageVersion("SpaDES")), "\"),
-  spatialExtent = raster::extent(rep(NA_real_, 4)),
-  timeframe = as.POSIXlt(c(NA, NA)),
-  timeunit = NA_character_, # e.g., \"year\",
+  ", if (type == "child") "spatialExtent = raster::extent(rep(NA_real_, 4)),
+  timeframe = as.POSIXlt(c(NA, NA)),","
+  timeunit = \"year\",","
   citation = list(\"citation.bib\"),
-  documentation = list(\"README.txt\", \"", name, ".Rmd\"),
+  documentation = list(\"README.txt\", \"", name, ".Rmd\")",
+  if (type == "child") ",
   reqdPkgs = list(),
   parameters = rbind(
     #defineParameter(\"paramName\", \"paramClass\", value, min, max, \"parameter description\")),
     defineParameter(\".plotInitialTime\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first plot event should occur\"),
-    defineParameter(\".plotInterval\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first plot event should occur\"),
+    defineParameter(\".plotInterval\", \"numeric\", NA, NA, NA, \"This describes the simulation time interval between plot events\"),
     defineParameter(\".saveInitialTime\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first save event should occur\"),
-    defineParameter(\".saveInterval\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first save event should occur\")
+    defineParameter(\".saveInterval\", \"numeric\", NA, NA, NA, \"This describes the simulation time interval between save events\")
   ),
-  inputObjects = data.frame(
-    objectName = NA_character_,
-    objectClass = NA_character_,
-    sourceURL = \"\",
-    other = NA_character_,
-    stringsAsFactors = FALSE
+  inputObjects = bind_rows(
+    #expectsInput(\"objectName\", \"objectClass\", \"input object description\", sourceURL, ...),
+    expectsInput(objectName = NA, objectClass = NA, desc = NA, sourceURL = NA)
   ),
-  outputObjects = data.frame(
-    objectName = NA_character_,
-    objectClass = NA_character_,
-    other = NA_character_,
-    stringsAsFactors = FALSE
-  )
-))
+  outputObjects = bind_rows(
+    #createsOutput(\"objectName\", \"objectClass\", \"output object description\", ...),
+    createsOutput(objectName = NA, objectClass = NA, desc = NA)
+  )","
+))\n",
+      file = filenameR, fill = FALSE, sep = "")
 
+    if (type == "child") {
+      cat("
 ## event types
 #   - type `init` is required for initialiazation
 
@@ -213,8 +243,8 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
     sim <- sim$", name, "Init(sim)
 
     # schedule future event(s)
-    sim <- scheduleEvent(sim, params(sim)$", name, "$.plotInitialTime, \"", name, "\", \"plot\")
-    sim <- scheduleEvent(sim, params(sim)$", name, "$.saveInitialTime, \"", name, "\", \"save\")
+    sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, \"", name, "\", \"plot\")
+    sim <- scheduleEvent(sim, P(sim)$.saveInitialTime, \"", name, "\", \"save\")
   } else if (eventType == \"plot\") {
     # ! ----- EDIT BELOW ----- ! #
     # do stuff for this event
@@ -223,7 +253,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
     # schedule future event(s)
 
     # e.g.,
-    #sim <- scheduleEvent(sim, params(sim)$", name, "$.plotInitialTime, \"", name, "\", \"plot\")
+    #sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, \"", name, "\", \"plot\")
 
     # ! ----- STOP EDITING ----- ! #
   } else if (eventType == \"save\") {
@@ -319,7 +349,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
 }
 
 ### template for your event2
-", name, "Event2 = function(sim) {
+", name, "Event2 <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # THE NEXT TWO LINES ARE FOR DUMMY UNIT TESTS; CHANGE OR DELETE THEM.
   sim$event2Test1 <- \" this is test for event 2. \" # for dummy unit test
@@ -330,35 +360,56 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
   return(invisible(sim))
 }
 
-### add additional events as needed by copy/pasting from above\n",
-    file = filenameR, fill = FALSE, sep = "")
+.inputObjects = function(sim) {
+  # Any code written here will be run during the simInit for the purpose of creating
+  # any objects required by this module and identified in the inputObjects element of defineModule.
+  # This is useful if there is something required before simulation to produce the module
+  # object dependencies, including such things as downloading default datasets, e.g.,
+  # downloadData(\"LCC2005\", modulePath(sim)).
+  # Nothing should be created here that does not create an named object in inputObjects.
+  # Any other initiation procedures should be put in \"init\" eventType of the doEvent function.
+  # Note: the module developer can use 'sim$.userSuppliedObjNames' in their function below to
+  # selectively skip unnecessary steps because the user has provided those inputObjects in the
+  # simInit call. e.g.,
+  # if(!('defaultColor' %in% sim$userSuppliedObjNames)) {
+  #  defaultColor <- 'red'
+  # }
+  # ! ----- EDIT BELOW ----- ! #
 
-    if (open) {
-      # use tryCatch: Rstudio bug causes file open to fail on Windows (#209)
-      tryCatch(file.edit(filenameR), error = function(e) {
-        warning("A bug in RStudio for Windows prevented the opening of the file:\n",
-                filenameR, "\nPlease open it manually.")
-      })
+  # ! ----- STOP EDITING ----- ! #
+  return(invisible(sim))
+}
+### add additional events as needed by copy/pasting from above\n",
+        file = filenameR, fill = FALSE, sep = "", append = TRUE)
     }
+
+    if (open) openModules(name, nestedPath)
 })
 
 ################################################################################
+#' Create new module documentation
+#'
+#' @inheritParams newModuleCode
+#'
 #' @export
 #' @docType methods
-#' @rdname newModule
+#' @rdname newModuleDocumentation
 # @importFrom utils file.edit
-#' @author Eliot McIntire
 #'
-setGeneric("newModuleDocumentation", function(name, path, open) {
+#' @author Eliot McIntire and Alex Chubaty
+#' @family module creation helpers
+#'
+setGeneric("newModuleDocumentation", function(name, path, open, type, children) {
   standardGeneric("newModuleDocumentation")
 })
 
 #' @export
-#' @rdname newModule
+#' @rdname newModuleDocumentation
 setMethod(
   "newModuleDocumentation",
-  signature = c(name = "character", path = "character", open = "logical"),
-  definition = function(name, path, open) {
+  signature = c(name = "character", path = "character", open = "logical",
+                type = "character", children = "character"),
+  definition = function(name, path, open, type, children) {
     path <- checkPath(path, create = TRUE)
     nestedPath <- file.path(path, name) %>% checkPath(create = TRUE)
     filenameRmd <- file.path(nestedPath, paste0(name, ".Rmd"))
@@ -370,7 +421,7 @@ setMethod(
     cat(
 "---
 title: \"", name, "\"
-author: \"Module Author\"
+author: \"", Sys.getenv('USER'), "\"
 date: \"", format(Sys.Date(), "%d %B %Y"), "\"
 output: pdf_document
 ---
@@ -391,14 +442,15 @@ For help writing in RMarkdown, see http://rmarkdown.rstudio.com/.
 # Usage
 
 ```{r module_usage}
+library(igraph)
 library(SpaDES)
-library(magrittr)
 
-inputDir <- file.path(tempdir(), \"inputs\") %>% checkPath(create = TRUE)
-outputDir <- file.path(tempdir(), \"outputs\")
+moduleDir <- file.path(\"", path, "\")
+inputDir <- file.path(moduleDir, \"inputs\") %>% checkPath(create = TRUE)
+outputDir <- file.path(moduleDir, \"outputs\")
+cacheDir <- file.path(outputDir, \"cache\")
 times <- list(start = 0, end = 10)
 parameters <- list(
-  .globals = list(burnStats = \"nPixelsBurned\"),
   #.progress = list(type = \"text\", interval = 1), # for a progress bar
   ## If there are further modules, each can have its own set of parameters:
   #module1 = list(param1 = value1, param2 = value2),
@@ -407,8 +459,8 @@ parameters <- list(
 modules <- list(\"", name, "\")
 objects <- list()
 paths <- list(
-  cachePath = file.path(outputDir, \"cache\"),
-  modulePath = file.path(\"..\"),
+  cachePath = cacheDir,
+  modulePath = moduleDir,
   inputPath = inputDir,
   outputPath = outputDir
 )
@@ -476,17 +528,19 @@ where to download data, etc.",
 
     if (open) {
       # use tryCatch: Rstudio bug causes file open to fail on Windows (#209)
-      tryCatch(file.edit(filenameRmd), error = function(e) {
-        warning("A bug in RStudio for Windows prevented the opening of the file:\n",
-                filenameRmd, "\nPlease open it manually.")
-      })
+      openModules(basename(filenameRmd), nestedPath)
+
+      # tryCatch(file.edit(filenameRmd), error = function(e) {
+      #   warning("A bug in RStudio for Windows prevented the opening of the file:\n",
+      #           filenameRmd, "\nPlease open it manually.")
+      # })
     }
 
     return(invisible(NULL))
 })
 
 #' @export
-#' @rdname newModule
+#' @rdname newModuleDocumentation
 setMethod("newModuleDocumentation",
           signature = c(name = "character", path = "missing", open = "logical"),
           definition = function(name, open) {
@@ -494,7 +548,7 @@ setMethod("newModuleDocumentation",
 })
 
 #' @export
-#' @rdname newModule
+#' @rdname newModuleDocumentation
 setMethod("newModuleDocumentation",
           signature = c(name = "character", path = "character", open = "missing"),
           definition = function(name, path) {
@@ -502,18 +556,30 @@ setMethod("newModuleDocumentation",
 })
 
 #' @export
-#' @rdname newModule
+#' @rdname newModuleDocumentation
 setMethod("newModuleDocumentation",
           signature = c(name = "character", path = "missing", open = "missing"),
           definition = function(name) {
             newModuleDocumentation(name = name, path = ".", open = TRUE)
 })
 
-################################################################################
+#' Create template testing structures for new modules
+#'
+#' @param name  Character string specifying the name of the new module.
+#'
+#' @param path  Character string. Subdirectory in which to place the new module code file.
+#'              The default is the current working directory.
+#'
+#' @param open  Logical. Should the new module file be opened after creation?
+#'              Default \code{TRUE}.
+#'
 #' @export
 #' @docType methods
-#' @rdname newModule
+#' @rdname newModuleTests
 # @importFrom utils file.edit
+#'
+#' @family module creation helpers
+#'
 #' @author Eliot McIntire and Alex Chubaty
 #'
 setGeneric("newModuleTests", function(name, path, open) {
@@ -521,7 +587,7 @@ setGeneric("newModuleTests", function(name, path, open) {
 })
 
 #' @export
-#' @rdname newModule
+#' @rdname newModuleTests
 setMethod(
   "newModuleTests",
   signature = c(name = "character", path = "character", open = "logical"),
@@ -647,18 +713,14 @@ test_that(\"test Event1 and Event2.\", {
 #' @return Nothing is returned. All file are open via \code{file.edit}.
 #'
 #' @note On Windows there is currently a bug in RStudio that prevents the editor
-#' from opening when \code{file.edit} is called:
-#'
-#' \code{Error in editor(file = file, title = title) :}
-#' \code{argument "name" is missing, with no default}
-#'
-#' The workaround is to browse to the file and open it manually.
+#' from opening when \code{file.edit} is called. \code{file.edit} does work if the user
+#' types it at the command prompt. A message with the correct lines to copy and paste
+#' is provided.
 #'
 #' @export
 #' @docType methods
 #' @rdname openModules
-# @importFrom utils file.edit
-#'
+#' @importFrom raster extension
 #' @author Eliot McIntire
 #'
 #' @examples
@@ -674,18 +736,37 @@ setMethod("openModules",
           signature = c(name = "character", path = "character"),
           definition = function(name, path) {
             basedir <- checkPath(path, create = FALSE)
+            fileExtension <- sub(extension(name), pattern = ".", replacement = "")
+            if (length(unique(fileExtension)) > 1) stop("Can only open one file type at a time.")
+            ncharFileExt <- unlist(lapply(fileExtension, nchar))
             origDir <- getwd()
             setwd(basedir)
             if (any(name == "all")) {
-              Rfiles <- dir(pattern = "[\\.][rR]$", recursive = TRUE)
+              Rfiles <- dir(pattern = "[\\.][rR]$", recursive = TRUE, full.names = TRUE)
+            } else if (all(ncharFileExt > 0) & all(fileExtension != "R")) {
+              Rfiles <- dir(pattern = name, recursive = TRUE, full.names = TRUE)
+              Rfiles <- Rfiles[unlist(lapply(name, function(n) grep(pattern = n, Rfiles)))]
             } else {
-              Rfiles <- dir(pattern = "[\\.][rR]$", recursive = TRUE)
-              Rfiles <- Rfiles[pmatch(name, Rfiles)]
+              Rfiles <- dir(pattern = "[\\.][rR]$", recursive = TRUE, full.names = TRUE)
+              Rfiles <- Rfiles[unlist(lapply(name, function(n) grep(pattern = n, Rfiles)))]
             }
-            Rfiles <- Rfiles[grep(pattern = "[/\\\\]",Rfiles)]
+            # remove tests
+            hasTests <- grep(pattern = "tests", Rfiles)
+            if (length(hasTests) > 0) Rfiles <- Rfiles[-hasTests]
+
+            onlyModuleRFile <- unlist(lapply(file.path(name, name),
+                                             function(n) grep(pattern = n, Rfiles)))
+            if (length(onlyModuleRFile) > 0) Rfiles <- Rfiles[onlyModuleRFile]
+
+            # Open Rmd file also
+            RfileRmd <- dir(pattern = paste0(name, ".[rR]md$"), recursive = TRUE, full.names = TRUE)
+
+            Rfiles <- c(Rfiles, RfileRmd)
+            Rfiles <- Rfiles[grep(pattern = "[/\\\\]", Rfiles)]
             Rfiles <- Rfiles[sapply(strsplit(Rfiles,"[/\\\\\\.]"),
                                     function(x) any(duplicated(x)))]
-            lapply(Rfiles, file.edit)
+
+            lapply(file.path(basedir, Rfiles), .fileEdit)
             setwd(origDir)
 })
 
@@ -712,6 +793,15 @@ setMethod("openModules",
           definition = function(name) {
             openModules(name = name, path = ".")
 })
+
+#' @export
+#' @rdname openModules
+setMethod("openModules",
+          signature = c(name = "simList", path = "missing"),
+          definition = function(name) {
+            mods <- unlist(modules(name))
+            openModules(name = mods, path = modulePath(name))
+          })
 
 ################################################################################
 #' Create a zip archive of a module subdirectory
@@ -742,15 +832,17 @@ setMethod(
   "zipModule",
   signature = c(name = "character", path = "character", version = "character"),
   definition = function(name, path, version, ...) {
-
     path <- checkPath(path, create = FALSE)
-
     callingWd <- getwd()
-    on.exit(setwd(callingWd))
+    on.exit(setwd(callingWd), add = TRUE)
     setwd(path)
     zipFileName = paste0(name, "_", version, ".zip")
     print(paste("Zipping module into zip file:", zipFileName))
-    zip(zipFileName, files = file.path(name), extras = c("-x","*.zip"), ...)
+
+    allFiles <- dir(path = file.path(name), recursive = TRUE, full.names = TRUE)
+    allFiles <- grep(paste0(name, "_+.+.zip"), allFiles, value = TRUE, invert = TRUE) # moduleName_....zip only
+
+    zip(zipFileName, files = allFiles)#, extras = c("-x"), ...)
     file.copy(zipFileName, to = paste0(name, "/", zipFileName), overwrite = TRUE)
     file.remove(zipFileName)
 })
@@ -768,7 +860,9 @@ setMethod("zipModule",
 setMethod("zipModule",
           signature = c(name = "character", path = "missing", version = "missing"),
           definition = function(name, ...) {
-            vers <- moduleMetadata(name, ".")$version %>% as.character
+            vers <- .parseModulePartial(filename = file.path(path, name, paste0(name,".R")),
+                                        defineModuleElement = "version") %>% as.character
+            #vers <- moduleMetadata(name, ".")$version %>% as.character
             zipModule(name = name, path = ".", version = vers, ...)
 })
 
@@ -777,6 +871,8 @@ setMethod("zipModule",
 setMethod("zipModule",
           signature = c(name = "character", path = "character", version = "missing"),
           definition = function(name, path, ...) {
-            vers <- moduleMetadata(name, path)$version %>% as.character
+            vers <- .parseModulePartial(filename = file.path(path, name, paste0(name,".R")),
+                                        defineModuleElement = "version") %>% as.character
+            #vers <- moduleMetadata(name, path)$version %>% as.character
             zipModule(name = name, path = path, version = vers, ...)
 })

@@ -23,6 +23,7 @@ removeClass("person4")
 #' @return An empty inputObjects or outputObjects data.frame.
 #'
 #' @docType methods
+#' @keywords internal
 #' @rdname inputObjects
 #'
 #' @author Alex Chubaty

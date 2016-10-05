@@ -21,4 +21,5 @@ Internal function. Simple wrapper for \code{\link{get}}.
 \author{
 Alex Chubaty
 }
+\keyword{internal}
 

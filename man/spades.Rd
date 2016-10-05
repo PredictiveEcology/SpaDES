@@ -21,8 +21,9 @@ spades(sim, debug = FALSE, progress = NA, cache, .plotInitialTime = NULL,
 \arguments{
 \item{sim}{A \code{simList} simulation object, generally produced by \code{simInit}.}
 
-\item{debug}{Optional logical flag determines whether sim debug info
-will be printed (default is \code{debug=FALSE}).}
+\item{debug}{Optional logical flag or character vector indicating what to print to
+console at each event. See details.
+Default is \code{debug=FALSE}.}
 
 \item{progress}{Logical (TRUE or FALSE show a graphical progress bar),
 character ("graphical", "text") or numeric indicating
@@ -78,6 +79,18 @@ been rerun. Use this with caution, as it will return exactly the result from
 a previous run, even if there is stochasticity internally. Caching is only
 based on the input simList. See also \code{experiment} for the same mechanism,
 but it can be used with replication.
+
+If \code{debug} is specified, it can be Logical or character vector. In all
+cases, something will be printed to the console immediately before each event is
+being executed. If \code{TRUE}, then the event immediately following will be
+printed as it runs (equivalent to current(sim)).
+If a character string, then it can be one
+of the many simList accessors, such as \code{events}, \code{params}, or
+\code{"simList"} (print the entire simList), or any R expression.
+If an R expression
+if will be evaluated with access to the \code{sim}
+object. If this is more than one character string, then all will be
+printed to the screen in their sequence.
 }
 \note{
 The debug option is primarily intended to facilitate building simulation
@@ -95,6 +108,11 @@ to the values of various simList slot components.
    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
  )
  spades(mySim)
+
+ # Different debug options
+ spades(mySim, debug = TRUE) # Fastest
+ spades(mySim, debug = "simList")
+ spades(mySim, debug = "print(table(sim$landscape$Fires[]))")
 
  # Can turn off plotting, and inspect the output simList instead
  out <- spades(mySim, .plotInitialTime = NA) # much faster

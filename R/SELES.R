@@ -99,11 +99,13 @@ numAgents <- function(N, probInit) {
 #' pr <- probInit(map, p = (map/maxValue(map))^2)
 #' agents <- initiateAgents(map, 100, pr)
 #' if (interactive()) {
-#'   Plot(map, new = TRUE)
+#'   clearPlot()
+#'   Plot(map)
 #'   Plot(agents, addTo = "map")
 #' }
 #'
-#' # If producing a Raster, then the number of points produced can't be more than
+#' # Note, can also produce a Raster representing agents,
+#' # then the number of points produced can't be more than
 #' # the number of pixels:
 #' agentsRas <- initiateAgents(map, 30, pr, asSpatialPoints = FALSE)
 #' if (interactive()) Plot(agentsRas)
@@ -158,19 +160,22 @@ setMethod(
 })
 
 #' @rdname initiateAgents
-setMethod(
-  "initiateAgents",
-  signature = c("Raster", "missing", "missing", "ANY", "numeric"),
-  function(map, numAgents, probInit, asSpatialPoints, indices) {
-    if (asSpatialPoints) {
-      if (length(indices > 0)) {
-        return(xyFromCell(map, indices, spatial = asSpatialPoints))
-      }
-    } else {
-      tmp <- raster(map)
-      tmp[indices] <- 1
-      return(tmp)
-    }
+setMethod("initiateAgents",
+          signature=c("Raster", "missing", "missing", "ANY", "numeric"),
+          function(map, numAgents, probInit, asSpatialPoints, indices) {
+            if(asSpatialPoints) {
+              if(length(indices>0)) {
+                xys <- xyFromCell(map, indices, spatial=asSpatialPoints)
+                xys@coords <- xys@coords+cbind(runif(length(indices), - res(map)[1]/2, res(map)[1]/2),
+                                     runif(length(indices), - res(map)[2]/2, res(map)[2]/2))
+                xys@bbox <- cbind(apply(coordinates(xys), 2, min), apply(coordinates(xys), 2, max))
+                return(xys)
+              }
+            } else {
+              tmp <- raster(extent(map), res = res(map), vals = 0)
+              tmp[indices] <- 1
+              return(tmp)
+            }
 })
 
 ################################################################################

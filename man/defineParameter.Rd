@@ -44,7 +44,7 @@ Used to specify a parameter's name, value, and set a default.
 \examples{
 parameters = rbind(
   defineParameter("lambda", "numeric", 1.23, desc = "intrinsic rate of increase"),
-  defineParameter("p", "numeric", 0.2, 0, 1, "probability of attack")
+  defineParameter("P", "numeric", 0.2, 0, 1, "probability of attack")
 )
 
 }

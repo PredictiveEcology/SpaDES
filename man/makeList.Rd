@@ -11,7 +11,8 @@
 \S4method{.makeList}{list}(plotArgs, numSpadesPlotObjects)
 }
 \arguments{
-\item{plotArgs}{The arguments passed to \code{Plot} as a \code{list}.}
+\item{plotArgs}{list. Any arguments that the the grid package can accept for
+the specific grob types, e.g., rasterGrob, polygonGrob, etc.}
 
 \item{numSpadesPlotObjects}{Numeric. The number of \code{.spadesPlotObjects}.
 This can't easily be deduced from the \code{plotArgs} because
@@ -24,4 +25,5 @@ them a list of length \code{numSpadesPlotObjects} entries of lists.
 \author{
 Eliot McIntire
 }
+\keyword{internal}
 

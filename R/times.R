@@ -282,11 +282,11 @@ setMethod(
 
         # if timeUnit is same as unit, skip calculations
         if (!stri_detect_fixed(unit, pattern = timeUnit)) {
-          if(timeUnit=="second")
+          if (timeUnit == "second")
             time <- time * 1 / inSeconds(unit, envir)
-          else if(unit=="second")
+          else if (unit == "second")
             time <- time * inSeconds(timeUnit, envir) / 1
-          else 
+          else
             time <- time * inSeconds(timeUnit, envir) / inSeconds(unit, envir)
           attr(time, "unit") <- unit
         }
@@ -397,6 +397,22 @@ setMethod(
       }
     }
     return("second")
+})
+
+#' @export
+#' @rdname minTimeunit
+setMethod(
+  "minTimeunit",
+  signature(sim = "list"),
+  definition = function(sim) {
+    keep <- sapply(sim, function(x) !is.na(x))
+    if (all(!keep)) {
+      keep <- rep(TRUE, length(keep))
+    }
+    tu <- unlist(lapply(sim[keep], function(xtime)
+      as.numeric(eval(parse(text = paste0("d",xtime,"(1)"))))))
+
+    return(sim[keep][which.min(tu)])
 })
 
 #' @rdname timeConversion

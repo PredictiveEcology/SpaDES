@@ -28,10 +28,7 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @seealso \code{\link{RFsimulate}} and \code{\link{extent}}
 #'
-#' @importFrom RandomFields RFoptions
-#' @importFrom RandomFields RFsimulate
-#' @importFrom RandomFields RMexp
-#' @importFrom RandomFields round
+#' @importFrom RandomFields RFoptions RFsimulate RMexp round
 #' @importFrom raster cellStats disaggregate extent 'extent<-' raster res
 #' @export
 #' @docType methods
@@ -85,6 +82,7 @@ gaussMap <- function(x, scale = 10, var = 1, speedup = 10, inMemory = FALSE, ...
 #'
 #' @return A vector of integer factors
 #'
+#' @keywords internal
 #' @rdname findFactors
 #'
 .findFactors <- function(x) {
@@ -96,8 +94,8 @@ gaussMap <- function(x, scale = 10, var = 1, speedup = 10, inMemory = FALSE, ...
 ###############################################################################
 #' randomPolygons
 #'
-#' Produces a raster of with random polygons. These are built with the
-#' \code{\link{spread}} function internally.
+#' Produces a raster of random polygons.
+#' These are built with the \code{\link{spread}} function internally.
 #'
 #' @param ras A raster that whose extent will be used for the randomPolygons
 #'
@@ -111,7 +109,8 @@ gaussMap <- function(x, scale = 10, var = 1, speedup = 10, inMemory = FALSE, ...
 #'
 #' @seealso \code{\link{spread}} and \code{\link{raster}}
 #'
-#' @importFrom raster disaggregate extent ncol nrow raster
+#' @importFrom raster cellFromXY extent raster xmax xmin ymax ymin
+#' @importFrom sp SpatialPoints
 #'
 #' @export
 #' @docType methods
@@ -121,23 +120,31 @@ gaussMap <- function(x, scale = 10, var = 1, speedup = 10, inMemory = FALSE, ...
 #' modified random clusters method. Landscape Ecology, 15, 661--678.
 #'
 #' @examples
+#' set.seed(1234)
 #' Ras <- randomPolygons(numTypes = 5)
-#' if (interactive()) Plot(Ras, cols = c("yellow", "dark green", "blue", "dark red"), new = TRUE)
+#' if (interactive()) {
+#'   clearPlot()
+#'   Plot(Ras, cols = c("yellow", "dark green", "blue", "dark red"))
+#' }
 #'
 #' library(raster)
 #' # more complex patterning, with a range of patch sizes
-#' a = randomPolygons(numTypes = 400, raster(extent(0, 50, 0, 50), res = 1))
+#' a <- randomPolygons(numTypes = 400, raster(extent(0, 50, 0, 50), res = 1, vals = 0))
 #' a[a<320] <- 0
 #' a[a>=320] <- 1
-#' aHist <- hist(table(getValues(clump(a, directions = 4))), plot = FALSE)
-#' if (interactive()) Plot(a, aHist, new = TRUE)
+#' suppressWarnings(clumped <- clump(a)) # (warning sometimes occurs, but not important)
+#' aHist <- hist(table(getValues(clumped)), plot = FALSE)
+#' if (interactive()) {
+#'   clearPlot()
+#'   Plot(a)
+#'   Plot(aHist)
+#' }
 #'
-randomPolygons <- function(ras = raster(extent(0,15,0,15), res = 1), #p = 0.1,
+randomPolygons <- function(ras = raster(extent(0,15,0,15), res = 1, vals = 0),
                            numTypes = 2, ...) {
-
   args <- list(...)
   if (any(c("p", "A", "speedup", "minpatch") %in% names(args))) {
-    message("Arguments p, A, speedup, and minpatch have been deprecated. See new function definition.")
+    warning("Arguments p, A, speedup, and minpatch have been deprecated. See new function definition.")
   }
 
   starts <- SpatialPoints(coords = cbind(x = stats::runif(numTypes, xmin(ras), xmax(ras)),
@@ -146,52 +153,6 @@ randomPolygons <- function(ras = raster(extent(0,15,0,15), res = 1), #p = 0.1,
   a <- spread(landscape = ras, spreadProb = 1, loci, allowOverlap = FALSE, id = TRUE, ...)
   return(a)
 }
-  # ext <- extent(ras)
-  # nc <- ncol(ras)
-  # nr <- nrow(ras)
-  # resol <- res(ras)
-  #
-  # wholeNumsCol <- .findFactors(nc)
-  # wholeNumsRow <- .findFactors(nr)
-  # ncSpeedup <- wholeNumsCol[which.min(abs(wholeNumsCol - nc/speedup))]
-  # nrSpeedup <- wholeNumsRow[which.min(abs(wholeNumsRow - nr/speedup))]
-  # speedupEffectiveCol <- nc/ncSpeedup
-  # speedupEffectiveRow <- nr/nrSpeedup
-  #
-  # minpatch <- minpatch/speedupEffectiveCol/speedupEffectiveRow
-  #
-  # if (length(resol)>1) {
-  #   message(paste("assuming square pixels with resolution =", resol[1]))
-  #   resol <- resol[1]
-  # }
-  # tempmask <- make.mask(nx = ncSpeedup, ny = nrSpeedup, spacing = resol)
-  #
-  # r <- raster(ext = extent(ext@xmin, ext@xmax, ext@ymin, ext@ymax),
-  #             res = res(ras)*c(speedupEffectiveCol, speedupEffectiveRow))
-  # if ((numTypes < length(p)) |
-  #     (numTypes < length(A)) |
-  #     (numTypes < length(minpatch))) {
-  #   numTypes <- max(length(p), length(A), length(minpatch))
-  # }
-  # r[] <- 0
-  #
-  # for (i in 1:numTypes) {
-  #   a <- randomHabitat(tempmask,
-  #                      p = p[(i - 1) %% length(p) + 1],
-  #                      A = A[(i - 1) %% length(A) + 1],
-  #                      minpatch = minpatch[(i - 1) %% length(minpatch) + 1])
-  #   if (nrow(a) == 0) {
-  #     stop("A NULL map was created. ",
-  #          "Please try again, perhaps with different parameters.")
-  #   }
-  #   r[as.integer(rownames(a))] <- i
-  # }
-  # if (speedup > 1) {
-  #   return(disaggregate(r, c(speedupEffectiveCol, speedupEffectiveRow)))
-  # } else {
-  #   return(invisible(r))
-  # }
-#}
 
 ###############################################################################
 #' Initiate a specific number of agents in a map of patches
@@ -221,15 +182,20 @@ randomPolygons <- function(ras = raster(extent(0,15,0,15), res = 1), #p = 0.1,
 #' @examples
 #' library(raster)
 #' library(data.table)
+#' set.seed(1234)
 #' Ntypes <- 4
 #' ras <- randomPolygons(numTypes = Ntypes)
-#' #Plot(ras, new = TRUE)
+#' if(interactive()) {
+#'   clearPlot()
+#'   Plot(ras)
+#' }
 #'
 #' # Use numPerPatchTable
 #' patchDT <- data.table(pops = 1:Ntypes, num.in.pop = c(1, 3, 5, 7))
 #' rasAgents <- specificNumPerPatch(ras, patchDT)
 #' rasAgents[is.na(rasAgents)] <- 0
 #' #Plot(rasAgents)
+#'
 #' library(testthat)
 #' expect_true(all(unname(table(ras[rasAgents])) == patchDT$num.in.pop))
 #'
@@ -238,10 +204,16 @@ randomPolygons <- function(ras = raster(extent(0,15,0,15), res = 1), #p = 0.1,
 #' for (i in 1:Ntypes) {
 #'   rasPatches[rasPatches==i] <- patchDT$num.in.pop[i]
 #' }
-#' #Plot(ras, rasPatches, new = TRUE)
+#' if (interactive()) {
+#'   clearPlot()
+#'   Plot(ras, rasPatches)
+#' }
 #' rasAgents <- specificNumPerPatch(ras, numPerPatchMap = rasPatches)
 #' rasAgents[is.na(rasAgents)] <- 0
-#' #Plot(rasAgents)
+#' if(interactive()) {
+#'   clearPlot()
+#'   Plot(rasAgents)
+#' }
 specificNumPerPatch <- function(patches, numPerPatchTable = NULL, numPerPatchMap = NULL) {
   patchids <- as.numeric(na.omit(getValues(patches)))
   wh <- Which(patches, cells = TRUE)
@@ -260,11 +232,11 @@ specificNumPerPatch <- function(patches, numPerPatchTable = NULL, numPerPatchMap
     stop("need numPerPatchMap or numPerPatchTable")
   }
 
-  resample <- function(x, ...) x[sample.int(length(x), ...)]
-  dt3 <- dt2[, list(cells = resample(wh, unique(num.in.pop))), by = "pops"]
+  resample2 <- function(x, ...) x[sample.int(length(x), ...)]
+  dt3 <- dt2[, list(cells = resample2(wh, unique(num.in.pop))), by = "pops"]
   dt3$ids <- rownames(dt3)
 
-  al <- raster(patches)
+  al <- raster(extent(patches), res = res(patches), vals = 0)
   al[dt3$cells] <- 1
 
   return(al)

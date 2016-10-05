@@ -10,23 +10,24 @@
 \usage{
 Plot(..., new = FALSE, addTo = NULL, gp = gpar(), gpText = gpar(),
   gpAxis = gpar(), axes = FALSE, speedup = 1, size = 5, cols = NULL,
-  zoomExtent = NULL, visualSqueeze = NULL, legend = TRUE,
+  col = NULL, zoomExtent = NULL, visualSqueeze = NULL, legend = TRUE,
   legendRange = NULL, legendText = NULL, pch = 19, title = TRUE,
-  na.color = "#FFFFFF00", zero.color = NULL, length = NULL)
+  na.color = "#FFFFFF00", zero.color = NULL, length = NULL, arr = NULL,
+  plotFn = "plot")
 
 \S4method{Plot}{ANY}(..., new = FALSE, addTo = NULL, gp = gpar(),
   gpText = gpar(), gpAxis = gpar(), axes = FALSE, speedup = 1,
-  size = 5, cols = NULL, zoomExtent = NULL, visualSqueeze = NULL,
-  legend = TRUE, legendRange = NULL, legendText = NULL, pch = 19,
-  title = TRUE, na.color = "#FFFFFF00", zero.color = NULL,
-  length = NULL)
+  size = 5, cols = NULL, col = NULL, zoomExtent = NULL,
+  visualSqueeze = NULL, legend = TRUE, legendRange = NULL,
+  legendText = NULL, pch = 19, title = TRUE, na.color = "#FFFFFF00",
+  zero.color = NULL, length = NULL, arr = NULL, plotFn = "plot")
 
 \S4method{Plot}{simList}(..., new = FALSE, addTo = NULL, gp = gpar(),
   gpText = gpar(), gpAxis = gpar(), axes = FALSE, speedup = 1,
-  size = 5, cols = NULL, zoomExtent = NULL, visualSqueeze = NULL,
-  legend = TRUE, legendRange = NULL, legendText = NULL, pch = 19,
-  title = TRUE, na.color = "#FFFFFF00", zero.color = NULL,
-  length = NULL)
+  size = 5, cols = NULL, col = NULL, zoomExtent = NULL,
+  visualSqueeze = NULL, legend = TRUE, legendRange = NULL,
+  legendText = NULL, pch = 19, title = TRUE, na.color = "#FFFFFF00",
+  zero.color = NULL, length = NULL, arr = NULL, plotFn = "plot")
 
 rePlot(toDev = dev.cur(), fromDev = dev.cur(), ...)
 }
@@ -34,10 +35,14 @@ rePlot(toDev = dev.cur(), fromDev = dev.cur(), ...)
 \item{...}{A combination of \code{spatialObjects} or some non-spatial objects.
 See details.}
 
-\item{new}{Logical. If \code{TRUE}, then the previous plot is wiped and a
-new one made; if \code{FALSE}, then the \code{...} plots will be
+\item{new}{Logical. If \code{TRUE}, then the previous named plot area is wiped
+and a new one made; if \code{FALSE}, then the \code{...} plots will be
 added to the current device, adding or rearranging the plot layout
-as necessary. Default is \code{FALSE}.}
+as necessary. Default is \code{FALSE}. This currently works best if
+there is only one object being plotted in a given Plot call. However,
+it is possible to pass a list of logicals to this, matching the
+length of the ... objects. Use \code{clearPlot} to clear the whole
+plotting device.}
 
 \item{addTo}{Character vector, with same length as \code{...}.
 This is for overplotting, when the overplot is not to occur on
@@ -63,6 +68,9 @@ by to plot rasters. See Details.}
 if using a scalable symbol.}
 
 \item{cols}{(also \code{col}) Character vector or list of character vectors of colours. See details.}
+
+\item{col}{(also \code{cols}) Alternative to \code{cols} to be consistent with \code{plot}.
+\code{cols} takes precedence, if both are provided.}
 
 \item{zoomExtent}{An \code{Extent} object. Supplying a single extent that is
 smaller than the rasters will call a crop statement before
@@ -92,8 +100,11 @@ this is mosty useful for discrete-valued rasters.}
 
 \item{pch}{see \code{?par}.}
 
-\item{title}{Logical indicating whether the names of each plot should be
-written above plots.}
+\item{title}{Logical or character string. If logical, it
+indicates whether to print the object name as the title
+above the plot. If a character string, it will print this
+above the plot. NOTE: the object name is used with \code{addTo},
+not the title.}
 
 \item{na.color}{Character string indicating the color for \code{NA} values.
 Default transparent.}
@@ -103,6 +114,14 @@ when zero is the minimum value, otherwise, zero is
 treated as any other color. Default transparent.}
 
 \item{length}{Numeric. Optional length, in inches, of the arrow head.}
+
+\item{arr}{A vector of length 2 indicating a desired arrangement of plot
+areas indicating number of rows, number of columns.
+Default NULL, meaning
+let Plot function do it automatically.}
+
+\item{plotFn}{An optional function name to do the plotting internally, e.g.,
+"barplot" to get a barplot() call. Default "plot".}
 
 \item{toDev}{Numeric. Which device should the new rePlot be plotted to.
 Default is current device.}
@@ -121,9 +140,15 @@ where \code{n} is the new device number.
 \description{
 The main plotting function accompanying \code{SpaDES}.
 This can take objects of type \code{Raster*}, \code{SpatialPoints*},
-\code{SpatialPolygons*}, and any combination of those.
+\code{SpatialPolygons*}, and any combination of those. These can be provided
+as individual objects, or a named list. If a named list, the names either represent
+a different original object in the calling environment and that will be
+used, or if the names don't exist in the calling environment, then they will be
+copied to the .spadesEnv for reuse later.
 It can also handle \code{ggplot2} objects or \code{base::histogram} objects
-via call to \code{exHist <- hist(1:10, plot = FALSE)}.
+created via call to \code{exHist <- hist(1:10, plot = FALSE)}. It can also take
+arguments as if it were a call to \code{plot}. In this latter
+case, the user should be explicit about naming the plot area using \code{addTo}.
 Customization of the \code{ggplot2} elements can be done as a normal
 \code{ggplot2} plot, then added with \code{Plot(ggplotObject)}.
 
@@ -132,12 +157,15 @@ Re-plot to a specific device
 \details{
 NOTE: Plot uses the \code{grid} package; therefore, it is NOT compatible with
 base R graphics. Also, because it does not by default wipe the plotting device
-before plotting, a call to \code{\link{clearPlot}} could be helpful to resolve
-many errors.
+before plotting, a call to \code{\link{clearPlot}} is helpful to resolve
+many errors. Careful use of the other device tools, such as \code{dev.off()} and
+\code{dev.list()} might also clear problems that may arise.
 
-If \code{new = TRUE}, a new plot will be generated.
-This is equivalent to calling \code{clearPlot(); Plot(Object)},
-i.e,. directly before creating a new Plot.
+If \code{new = TRUE}, a new plot will be generated, but only in the figure region that
+has the same name as the object being plotted.
+This is different than calling \code{clearPlot(); Plot(Object)},
+i.e,. directly before creating a new Plot. \code{clearPlot()} will clear the entire
+plotting device.
 When \code{new = FALSE}, any plot that already exists will be overplotted,
 while plots that have not already been plotted will be added.
 This function rearranges the plotting device to maximize the size of all the
@@ -157,6 +185,22 @@ A more stable way is to use the object names directly, and any layer names
 If plotting a RasterLayer and the layer name is "layer" or the same as the
 object name, then, for simplicity, only the object name will be used.
 In other words, only enough information is used to uniquely identify the plot.
+
+Because of modularity, Plot must have access to the original objects that were
+plotted. These objects will be used if a subsequent Plot event forces a
+rearrangement of the Plot device. Rather than saving all the plot information
+(including the data) at each Plot
+call (this is generally too much data to constantly make copies),
+the function saves a pointer to the original R object. If the plot needs
+to be rearranged because of a future addition, then Plot will search for that
+original object that created the first plots, and replot them. This has several
+consequences. First, that object must still exist and in the same environment.
+Second, if that object has changed between the first time it is plot and any
+subsequent time it is replotted (via a forced rearrangement), then it will take
+the object *as it exists*, not as it existed. Third, if passing a named list
+of objects, Plot will either create a link to objects with those names in the
+calling environment (e.g., .GlobalEnv) or, if they do not exist, then Plot
+will make a copy in the hidden .spadesEnv for later reuse.
 
 \code{cols} is a vector of colours that can be understood directly, or by
 \code{colorRampePalette}, such as \code{c("orange", "blue")}, will give a
@@ -250,17 +294,22 @@ caribou <- cbind(x = stats::runif (1e2, -50, 50), y = stats::runif (1e2, -50, 50
   SpatialPoints(coords = .)
 
 # use factor raster to give legends as character strings
-ras <- raster(matrix(sample(1:4, size=12, replace=TRUE),
-   ncol=4, nrow=3))
+ras <- raster(extent(0,3,0,4), vals = sample(1:4, size=12, replace=TRUE), res = 1)
 # needs to have a data.frame with ID as first column - see ?raster::ratify
 levels(ras) <- data.frame(ID=1:4, Name=paste0("Level",1:4))
 if (interactive()) Plot(ras, new=TRUE)
 
-# Arbitrary values for factors
-levels <- c(1,2,7)
-ras <- raster(matrix(sample(levels, size=12, replace=TRUE),
-   ncol=4, nrow=3))
-levels(ras) <- data.frame(ID=levels, Name=sample(LETTERS,3))
+# Arbitrary values for factors, including zero and not all levels represented in raster
+levs <- c(0:5,7:12)
+ras <- raster(extent(0,3,0,2), vals = c(1,1,3,5,8,9), res = 1)
+levels(ras) <- data.frame(ID=levs, Name=LETTERS[c(1:3,8:16)])
+if (interactive()) Plot(ras, new=TRUE)
+
+# Arbitrary values for factors, including zero and not all levels represented in raster
+levs <- c(0:5,7:23)
+ras <- raster(extent(0,3,0,2), vals = c(1,1,3,5,8,9), res = 1)
+levels(ras) <- data.frame(ID=levs, Name=LETTERS[1:23])
+if (interactive()) Plot(ras, new=TRUE)
 
 # SpatialPolygons
 Sr1 = Polygon(cbind(c(2, 4, 4, 1, 2), c(2, 3, 5, 4, 2))*20-50)
@@ -270,11 +319,13 @@ Srs2 = Polygons(list(Sr2), "s2")
 SpP = SpatialPolygons(list(Srs1, Srs2), 1:2)
 
 if (interactive()) {
-  Plot(ras, new = TRUE)
+  clearPlot()
+  Plot(ras)
 
   # dev(2)
 
-  Plot(landscape, new = TRUE)
+  clearPlot()
+  Plot(landscape)
 
   # Can overplot, using addTo
   Plot(caribou, addTo = "landscape$forestAge", size = 4, axes = FALSE)
@@ -294,6 +345,25 @@ if (interactive()) {
   Plot(habitatQuality2, new = FALSE)
   Plot(SpP)
   Plot(SpP, addTo = "landscape$forestCover", gp = gpar(lwd = 2))
+
+  # provide arrangement, NumRow, NumCol
+  Plot(SpP, arr = c(1,4), new=TRUE)
+
+  # example base plot
+  clearPlot()
+  Plot(1:10, 1:10, addTo = "test", new=TRUE) # if there is no "test" then it will make it
+  Plot(4,5, pch=22, col = "blue", addTo = "test") # if there is no "test" then it will make it
+  obj1 <- rnorm(1e2)
+  Plot(obj1, axes = "L")
+
+  # Can plot named lists of objects (but not base objects yet)
+  ras1 <- ras2 <- ras
+  a <- list();for(i in 1:2) a[[paste0("ras",i)]] <- get(paste0("ras",i))
+  a$SpP <- SpP
+  clearPlot()
+  Plot(a)
+
+
 }
 
 }
@@ -301,14 +371,10 @@ if (interactive()) {
 }
 \author{
 Eliot McIntire
-
-Eliot McIntire
 }
 \seealso{
 \code{\link{clearPlot}}, \code{\link{gpar}}, \code{\link{raster}},
 \code{\link{par}}, \code{\link{SpatialPolygons}}, \code{\link{grid.polyline}},
 \code{\link{ggplot}}, \code{\link{dev}}
-
-# @importClassesFrom NetLogoRClasses griddedClasses
 }
 

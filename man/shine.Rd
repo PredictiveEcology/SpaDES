@@ -6,9 +6,10 @@
 \alias{shine,simList-method}
 \title{Display a simple, interactive shiny app of the simList}
 \usage{
-shine(sim, title = "SpaDES App", debug = FALSE, ...)
+shine(sim, title = "SpaDES App", debug = FALSE, filesOnly = FALSE, ...)
 
-\S4method{shine}{simList}(sim, title = "SpaDES App", debug = FALSE, ...)
+\S4method{shine}{simList}(sim, title = "SpaDES App", debug = FALSE,
+  filesOnly = FALSE, ...)
 }
 \arguments{
 \item{sim}{a simList object}
@@ -18,14 +19,18 @@ shine(sim, title = "SpaDES App", debug = FALSE, ...)
 \item{debug}{Logical. If TRUE, then will show spades event debugger in
 console.}
 
+\item{filesOnly}{Logical. If TRUE, then the server.R, ui.R files will be written
+to a temp location, with a message indicating where they are.
+Publishing this to shinyapps.io is currently very buggy,
+and will likely not work as desired.}
+
 \item{...}{additional arguments. Currently not used}
 }
 \description{
 Currently, this is quite simple. It creates a side bar with the simulation
 times, plus a set of tabs, one for each module, with numeric sliders.
 Currently, this does not treat NAs correctly. Also, it is slow (shiny is not
-built to be fast out of the box). Currently, it does not show plotting
-updates; it only shows the final output of a spades call. There are two
+built to be fast out of the box). There are two
 buttons, one to run the entire spades call, the other to do just one time
 step at a time. It can be repeatedly pressed.
 }
@@ -42,27 +47,22 @@ Many module parameters are only accessed by modules at the start of a
 }
 \examples{
 \dontrun{
-times <- list(start = 0.0, end = 20.0)
-parameters <- list(
-  .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
-  .progress = list(NA),
-  randomLandscapes = list(nx = 100L, ny = 100L, inRAM = TRUE),
-  fireSpread = list(nFires = 10L, spreadprob = 0.225, its = 1e6, persistprob = 0,
-                    returnInterval = 10, startTime = 0,
-                    .plotInitialTime = 0.0, .plotInterval = 10),
-  caribouMovement = list(N = 100L, moveInterval = 1,
-                         .plotInitialTime = 1, .plotInterval = 1)
-)
-modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
-path <- list(modulePath = system.file("sampleModules", package = "SpaDES"),
-             outputPath = file.path(tempdir(), "simOutputs"))
-
-mySim <- simInit(times = times, params = parameters, modules = modules, path = path)
+ mySim <- simInit(
+   times <- list(start = 0.0, end = 20.0),
+   params = list(
+     .globals = list(stackName = "landscape", burnStats = "nPixelsBurned")
+   ),
+   modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
+   paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
+ )
 
 shine(mySim)
 
+# To publish to shinyapps.io, need files. THis is not reliable yet.
+shine(mySim, filesOnly = TRUE)
+
 # if the user wants to see the events go by, which can help with debugging:
-shine(mySim, debug=TRUE)
+shine(mySim, debug = TRUE)
 }
 }
 

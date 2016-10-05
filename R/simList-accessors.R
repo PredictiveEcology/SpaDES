@@ -39,7 +39,8 @@ setMethod(
     ord <- match(unlist(modules(object)), names(timeunits(object))) %>% na.omit
     out[[9]] <- capture.output(print(
       cbind(Name = modules(object),
-            Timeunit = c(rep(NA_character_, 4), unname(timeunits(object))[ord])),
+            #Timeunit = c(rep(NA_character_, 4), unname(timeunits(object))[ord])),
+            Timeunit = unname(timeunits(object))[ord]),
       quote = FALSE, row.names = FALSE))
     out[[10]] <- capture.output(cat("\n"))
 
@@ -61,6 +62,7 @@ setMethod(
 
     p <- mapply(
       function(x, y) {
+        if (length(names(y)) > 0)
         data.frame(Module = x, Parameter = names(y), Value = I(as.list(y)),
                    stringsAsFactors = FALSE, row.names = NULL)
       },
@@ -107,6 +109,7 @@ setMethod(
 #' @include simList-class.R
 #' @docType methods
 #' @rdname ls-method
+#' @family functions to access elements of a \code{simList} object
 ls.simList <- function(name) {
   ls(envir(name))
 }
@@ -147,6 +150,8 @@ setMethod("objects",
 #' @include simList-class.R
 #' @docType methods
 #' @rdname ls_str-method
+#' @family functions to access elements of a \code{simList} object
+#'
 ls.str.simList <- function(name) {
   ls.str(envir(name))
 }
@@ -181,14 +186,8 @@ setMethod("ls.str",
 #'
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
-#' @seealso \code{\link{simList-class}},
-#'          \code{\link{simList-accessors-events}},
-#'          \code{\link{simList-accessors-inout}},
-#'          \code{\link{simList-accessors-modules}},
-#'          \code{\link{simList-accessors-objects}},
-#'          \code{\link{simList-accessors-params}},
-#'          \code{\link{simList-accessors-paths}},
-#'          \code{\link{simList-accessors-times}}.
+#' @family functions to access elements of a \code{simList} object
+#' @seealso \code{\link{SpaDES}}, specifically the section 1.2.8 on simList environment.
 #'
 #' @export
 #' @include simList-class.R
@@ -251,29 +250,21 @@ setReplaceMethod("envir",
 #'
 #' @return Returns or sets a list of objects in the \code{simList} environment.
 #'
-#' @seealso \code{\link[SpaDES]{ls-method}},
-#'          \code{\link[SpaDES]{ls_str-method}},
-#'          \code{\link{simList-class}},
-#'          \code{\link{simList-accessors-envir}},
-#'          \code{\link{simList-accessors-events}},
-#'          \code{\link{simList-accessors-inout}},
-#'          \code{\link{simList-accessors-modules}},
-#'          \code{\link{simList-accessors-params}},
-#'          \code{\link{simList-accessors-paths}},
-#'          \code{\link{simList-accessors-times}}.
+#' @family functions to access elements of a \code{simList} object
+#' @seealso \code{\link{SpaDES}}, specifically the section 1.2.1 on Simulation Parameters.
 #'
 #' @export
 #' @include simList-class.R
 #' @docType methods
 #' @aliases simList-accessors-objects
-#' @rdname simList-accessors-objects
+#' @rdname objects
 #'
 setGeneric("objs", function(x, ...) {
   standardGeneric("objs")
 })
 
 #' @export
-#' @rdname simList-accessors-objects
+#' @rdname objects
 setMethod("objs",
           signature = "simList",
           definition = function(x, ...) {
@@ -285,7 +276,7 @@ setMethod("objs",
 })
 
 #' @export
-#' @rdname simList-accessors-objects
+#' @rdname objects
 setGeneric("objs<-",
            function(x, value) {
              standardGeneric("objs<-")
@@ -293,29 +284,29 @@ setGeneric("objs<-",
 
 #' @name objs<-
 #' @aliases objs<-,simList-method
-#' @rdname simList-accessors-objects
+#' @rdname objects
 #' @export
-setReplaceMethod("objs",
-                 signature = "simList",
-                 function(x, value) {
-                   if (is.list(value)) {
+setReplaceMethod(
+  "objs",
+  signature = "simList",
+  function(x, value) {
+    if (is.list(value)) {
+     list2env(value, envir = envir(x))
+     newInputs <- data.frame(
+       objectName = names(value),
+       loadTime = as.numeric(time(x, "seconds")),
+       loaded = TRUE,
+       stringsAsFactors = FALSE) %>% .fillInputRows(startTime = start(x))
+     inputs(x) <- rbind(inputs(x), newInputs)
 
-                     list2env(value, envir = envir(x))
-                     newInputs <- data.frame(
-                       objectName = names(value),
-                       loadTime = as.numeric(time(x, "seconds")),
-                       loaded = TRUE,
-                       stringsAsFactors = FALSE) %>% .fillInputRows(startTime = start(x))
-                     inputs(x) <- rbind(inputs(x), newInputs)
-
-                    # lapply(names(value), function(z) {
-                    #   x@.envir[[z]] <- value[[z]]
-                    # })
-                   } else {
-                     stop("must provide a named list.")
-                   }
-                   validObject(x)
-                   return(x)
+    # lapply(names(value), function(z) {
+    #   x@.envir[[z]] <- value[[z]]
+    # })
+    } else {
+     stop("must provide a named list.")
+    }
+    validObject(x)
+    return(x)
 })
 
 ################################################################################
@@ -324,8 +315,9 @@ setReplaceMethod("objs",
 #' @include simList-class.R
 #' @name [[
 #' @aliases [[,simList,ANY,ANY-method
+#' @aliases simList-accessors-objects
 #' @docType methods
-#' @rdname simList-accessors-objects
+#' @rdname objects
 setMethod("[[", signature(x = "simList", i = "ANY", j = "ANY"),
           definition = function(x, i, j, ..., drop) {
             return(x@.envir[[i]])
@@ -334,7 +326,8 @@ setMethod("[[", signature(x = "simList", i = "ANY", j = "ANY"),
 #' @export
 #' @name [[<-
 #' @aliases [[<-,simList,ANY,ANY,ANY-method
-#' @rdname simList-accessors-objects
+#' @aliases simList-accessors-objects
+#' @rdname objects
 setReplaceMethod("[[", signature(x = "simList", value = "ANY"),
                  definition = function(x, i, value) {
                    assign(i, value, envir = x@.envir, inherits = FALSE)
@@ -344,7 +337,8 @@ setReplaceMethod("[[", signature(x = "simList", value = "ANY"),
 #' @export
 #' @name $
 #' @aliases $,simList-method
-#' @rdname simList-accessors-objects
+#' @aliases simList-accessors-objects
+#' @rdname objects
 setMethod("$", signature(x = "simList"),
           definition = function(x, name) {
             return(x@.envir[[name]])
@@ -353,7 +347,8 @@ setMethod("$", signature(x = "simList"),
 #' @export
 #' @name $<-
 #' @aliases $<-,simList-method
-#' @rdname simList-accessors-objects
+#' @aliases simList-accessors-objects
+#' @rdname objects
 setReplaceMethod("$", signature(x = "simList", value = "ANY"),
                  definition = function(x, name, value) {
                    x@.envir[[name]] <- value
@@ -378,16 +373,12 @@ setReplaceMethod("$", signature(x = "simList", value = "ANY"),
 #'
 #' @param value The object to be stored at the slot.
 #'
+#' @param hidden Logical. If TRUE, show the default core modules.
+#'
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
-#' @seealso \code{\link{simList-class}},
-#'          \code{\link{simList-accessors-envir}},
-#'          \code{\link{simList-accessors-events}},
-#'          \code{\link{simList-accessors-inout}},
-#'          \code{\link{simList-accessors-objects}},
-#'          \code{\link{simList-accessors-params}},
-#'          \code{\link{simList-accessors-paths}},
-#'          \code{\link{simList-accessors-times}}.
+#' @family functions to access elements of a \code{simList} object
+#' @seealso \code{\link{SpaDES}}, specifically the section 1.2.7 on Modules and dependencies.
 #'
 #' @export
 #' @include simList-class.R
@@ -397,15 +388,22 @@ setReplaceMethod("$", signature(x = "simList", value = "ANY"),
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("modules", function(object) {
+setGeneric("modules", function(object, hidden = FALSE) {
   standardGeneric("modules")
 })
 
 #' @rdname simList-accessors-modules
-setMethod("modules",
-          signature = ".simList",
-          definition = function(object) {
-            return(object@modules)
+setMethod(
+  "modules",
+  signature = ".simList",
+  definition = function(object, hidden) {
+    if (hidden) {
+      mods <- object@modules
+    } else {
+      hiddenMods <- unlist(object@modules) %in% c("checkpoint", "save", "progress", "load")
+      mods <- object@modules[!hiddenMods]
+    }
+    return(mods)
 })
 
 #' @export
@@ -465,6 +463,8 @@ setReplaceMethod("depends",
 })
 
 ################################################################################
+#' Namespacing within SpaDES
+#'
 #' \code{.callingModuleName} returns the name of the module that is currently
 #' the active module calling functions like \code{scheduleEvent}.
 #' This will only return the module name if it is inside a \code{spades}
@@ -476,8 +476,9 @@ setReplaceMethod("depends",
 #' @inheritParams modules
 #' @include simList-class.R
 #' @export
+#' @keywords internal
 #' @docType methods
-#' @rdname simList-accessors-modules
+#' @rdname namespacing
 #' @author Eliot McIntire
 #'
 setGeneric(".callingModuleName", function(object) {
@@ -487,15 +488,15 @@ setGeneric(".callingModuleName", function(object) {
 #' @export
 #' @docType methods
 #' @importFrom stringr str_detect
-#' @rdname simList-accessors-modules
+#' @rdname namespacing
 setMethod(
   ".callingModuleName",
   signature = c(".simList"),
   definition = function(object) {
     # Only return module name if inside a spades call,
     #  because this only makes sense if there is an "active" module
-    #if (any(str_detect(as.character(sys.call(1)), pattern = "spades"))) {
-    st <- str_detect(as.character(sys.calls()), pattern = "moduleCall")
+    sc <- sys.calls()
+    st <- grepl(sc, pattern = "moduleCall")
     if (any(st)) {
       mod <- strsplit(
         eval(parse(text = "moduleCall"), envir = sys.frame(which(st)[1]-1)),
@@ -503,82 +504,72 @@ setMethod(
     } else {
       mod <- NULL
     }
-    #} else {
-    #  mod <- NULL
-    #}
     return(mod)
 })
-
 
 #' @inheritParams modules
 #' @include simList-class.R
 #' @export
 #' @docType methods
-#' @rdname simList-accessors-modules
+#' @rdname namespacing
 #' @author Eliot McIntire
 setGeneric("currentModule", function(object) {
   standardGeneric("currentModule")
 })
 
-#' @rdname simList-accessors-events
+#' @rdname namespacing
 #' @export
 setMethod(
   "currentModule",
   signature = c(".simList"),
   definition = function(object) {
-    object@current$module
+    ret <- object@current$moduleName
+    if(length(ret))
+      return(ret)
+    else
+      return(NA)
 })
-
 
 ################################################################################
 #' Get and set simulation parameters.
 #'
-#' Accessor functions for the \code{params} slot of a \code{simList} object
-#' and its elements.
-#' Additonal methods are provided to access core module and global parameters:
-#' Commonly used
-#' \tabular{ll}{
-#'    \code{globals} \tab List of global simulation parameters.\cr
-#'    \code{params} \tab Nested list of all simulation parameters.\cr
-#' }
-#' Advanced use
-#' \tabular{lll}{
-#'    Accessor method \tab Module \tab Description \cr
-#'    \code{checkpointFile} \tab \code{.checkpoint} \tab Name of the checkpoint file. (advanced)\cr
-#'    \code{checkpointInterval} \tab \code{.checkpoint} \tab The simulation checkpoint interval. (advanced)\cr
-#'    \code{progressType} \tab \code{.progress} \tab Type of graphical progress bar used. (advanced)\cr
-#'    \code{progressInterval} \tab \code{.progress} \tab Interval for the progress bar. (advanced)\cr
-#' }
-#'
-#' Currently, only get and set methods are defined. Subset methods are not.
+#' \code{params} and \code{P} access the parameter slot in the \code{simList}.
+#' \code{params} has a replace method, so can be used to update a parameter value.
 #'
 #' @param object A \code{simList} simulation object.
 #'
 #' @param value The object to be stored at the slot.
 #'
+#' @param module Optional character string indicating which module params should come from.
+#'
+#' @param param Optional character string indicating which parameter to choose.
+#'
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
-#' @seealso \code{\link{simList-class}},
-#'          \code{\link{simList-accessors-envir}},
-#'          \code{\link{simList-accessors-events}},
-#'          \code{\link{simList-accessors-inout}},
-#'          \code{\link{simList-accessors-modules}},
-#'          \code{\link{simList-accessors-objects}},
-#'          \code{\link{simList-accessors-paths}},
-#'          \code{\link{simList-accessors-times}}.
+#' @note The differences between P, params and being explicit with passing arguments
+#' are mostly a question of speed and code compactness.
+#' The computationally fastest way to get a parameter is to specify moduleName and parameter name, as in:
+#' \code{P(sim, "moduleName", "paramName")} (replacing moduleName and paramName with your
+#' specific module and parameter names), but it is more verbose than P(sim)$paramName. Note: the important
+#' part for speed (e.g., 2-4x faster) is specifying the moduleName.
+#' Specifying the parameter name is <5% faster.
+#'
+#' @family functions to access elements of a \code{simList} object
+#' @seealso \code{\link{SpaDES}}, specifically the section 1.2.1 on Simulation parameters.
 #'
 #' @export
 #' @include simList-class.R
 #' @docType methods
 #' @aliases simList-accessors-params
-#' @rdname simList-accessors-params
+#' @aliases parameters
+#' @rdname params
 #'
 setGeneric("params", function(object) {
   standardGeneric("params")
 })
 
 #' @export
-#' @rdname simList-accessors-params
+#' @rdname params
 setMethod("params",
           signature = ".simList",
           definition = function(object) {
@@ -586,7 +577,7 @@ setMethod("params",
 })
 
 #' @export
-#' @rdname simList-accessors-params
+#' @rdname params
 setGeneric("params<-",
            function(object, value) {
              standardGeneric("params<-")
@@ -594,7 +585,7 @@ setGeneric("params<-",
 
 #' @name params<-
 #' @aliases params<-,.simList-method
-#' @rdname simList-accessors-params
+#' @rdname params
 #' @export
 setReplaceMethod("params",
                  signature = ".simList",
@@ -604,19 +595,68 @@ setReplaceMethod("params",
                    return(object)
 })
 
+#' \code{P} is a concise way to access parameters within a module. It works more like
+#' a namespaced function in the sense that the module from which it is called is the
+#' default place it will look for the parameter. To access a parameter from within
+#' a module, you can use \code{P(sim)$paramName} instead of
+#' \code{params(sim)$moduleName$paramName}
+#'
+#' @export
+#' @note \code{P} is a function in \code{shiny} and html packages.
+#' This can produce namespace clashes that are difficult to detect,
+#' as the errors are not meaningful. The name of this function may
+#' be changed in the future to remove this potential conflict. In the
+#' mean time, use SpaDES::P(sim) if you are concerned with the potential
+#' conflicts with a shiny app.
+#'
+#' @include simList-class.R
+#' @docType methodsp
+#' @aliases simList-accessors-params
+#' @rdname params
+#'
+setGeneric("P", function(object, module = NULL, param = NULL) {
+  standardGeneric("P")
+})
+
+#' @export
+#' @rdname params
+setMethod("P",
+          signature = ".simList",
+          definition = function(object, module, param) {
+            if (is.null(module)) {
+              module <- currentModule(object)
+            }
+            if (!is.na(module)) {
+              if (is.null(param)) {
+                return(object@params[[module]])
+              } else {
+                return(object@params[[module]][[param]])
+              }
+            } else {
+              return(object@params)
+            }
+})
+
 ################################################################################
+#' Get and set simulation globals.
+#'
+#' \code{globals} accesses or sets the "globals" slot in the \code{simList}.
+#'
 #' @inheritParams params
 #' @include simList-class.R
 #' @export
 #' @docType methods
-#' @rdname simList-accessors-params
+#' @rdname globals
+#'
+#' @family functions to access elements of a \code{simList} object
+#' @seealso \code{\link{SpaDES}}, specifically the section 1.2.1 on Simulation Parameters.
 #'
 setGeneric("globals", function(object) {
   standardGeneric("globals")
 })
 
 #' @export
-#' @rdname simList-accessors-params
+#' @rdname globals
 setMethod("globals",
           signature = ".simList",
           definition = function(object) {
@@ -624,7 +664,7 @@ setMethod("globals",
 })
 
 #' @export
-#' @rdname simList-accessors-params
+#' @rdname globals
 setGeneric("globals<-",
            function(object, value) {
              standardGeneric("globals<-")
@@ -632,7 +672,7 @@ setGeneric("globals<-",
 
 #' @name globals<-
 #' @aliases globals<-,.simList-method
-#' @rdname simList-accessors-params
+#' @rdname globals
 #' @export
 setReplaceMethod("globals",
                  signature = ".simList",
@@ -644,17 +684,65 @@ setReplaceMethod("globals",
 
 ################################################################################
 #' @inheritParams params
+#' @param asDF Logical. For \code{parameters}, if TRUE, this will produce a single
+#'                 data.frame of all model parameters. If FALSE, then it will return
+#'                 a data.frame with 1 row for each parameter within nested lists,
+#'                 with the same structure as \code{params}.
+#'
+#' @include simList-class.R
+#' @export
+#' @docType methods
+#' @rdname params
+#' @examples
+#' modules = list("randomLandscapes")
+#' paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
+#' mySim <- simInit(modules = modules, paths = paths,
+#'                  params = list(.globals = list(stackName = "landscape")))
+#' parameters(mySim)
+#'
+setGeneric("parameters", function(object, asDF = FALSE) {
+  standardGeneric("parameters")
+})
+
+#' @export
+#' @rdname params
+setMethod("parameters",
+          signature = ".simList",
+          definition = function(object, asDF) {
+            if (any(!unlist(lapply(depends(object)@dependencies, is.null)))) {
+              if (asDF) {
+                tmp <- lapply(depends(object)@dependencies,
+                              function(x) {
+                                out <- x@parameters})
+                tmp <- do.call(rbind, tmp)
+              } else {
+                tmp <- lapply(depends(object)@dependencies,
+                              function(x) {
+                                out <- lapply(seq_len(NROW(x@parameters)),
+                                              function(y) x@parameters[y,-1])
+                                names(out) <- x@parameters$paramName
+                                out})
+              }
+            } else {
+              tmp <- NULL
+            }
+            return(tmp)
+})
+
+################################################################################
+#' @inheritParams params
 #' @export
 #' @include simList-class.R
 #' @docType methods
-#' @rdname simList-accessors-params
+#' @rdname checkpoint
+#' @family functions to access elements of a \code{simList} object
 #'
 setGeneric("checkpointFile", function(object) {
   standardGeneric("checkpointFile")
 })
 
 #' @export
-#' @rdname simList-accessors-params
+#' @rdname checkpoint
 setMethod("checkpointFile",
           signature = ".simList",
           definition = function(object) {
@@ -662,7 +750,7 @@ setMethod("checkpointFile",
 })
 
 #' @export
-#' @rdname simList-accessors-params
+#' @rdname checkpoint
 setGeneric("checkpointFile<-",
            function(object, value) {
              standardGeneric("checkpointFile<-")
@@ -670,7 +758,7 @@ setGeneric("checkpointFile<-",
 
 #' @name checkpointFile<-
 #' @aliases checkpointFile<-,.simList-method
-#' @rdname simList-accessors-params
+#' @rdname checkpoint
 #' @export
 setReplaceMethod("checkpointFile",
                  signature = ".simList",
@@ -685,14 +773,14 @@ setReplaceMethod("checkpointFile",
 #' @export
 #' @include simList-class.R
 #' @docType methods
-#' @rdname simList-accessors-params
+#' @rdname checkpoint
 #'
 setGeneric("checkpointInterval", function(object) {
   standardGeneric("checkpointInterval")
 })
 
 #' @export
-#' @rdname simList-accessors-params
+#' @rdname checkpoint
 setMethod("checkpointInterval",
           signature = ".simList",
           definition = function(object) {
@@ -700,7 +788,7 @@ setMethod("checkpointInterval",
 })
 
 #' @export
-#' @rdname simList-accessors-params
+#' @rdname checkpoint
 setGeneric("checkpointInterval<-",
            function(object, value) {
              standardGeneric("checkpointInterval<-")
@@ -708,7 +796,7 @@ setGeneric("checkpointInterval<-",
 
 #' @name checkpointInterval<-
 #' @aliases checkpointInterval<-,.simList-method
-#' @rdname simList-accessors-params
+#' @rdname checkpoint
 #' @export
 setReplaceMethod("checkpointInterval",
                  signature = ".simList",
@@ -719,17 +807,26 @@ setReplaceMethod("checkpointInterval",
 })
 
 ################################################################################
+#' Get and set simulation progress bar details
+#'
+#' The progress bar can be set in two ways in SpaDES. First, by setting values
+#' in the .progress list element in the params list element passed to \code{\link{simInit}}.
+#' Second, at the \code{\link{spades}} call itself, which can be simpler. See examples.
+#'
+#' @details Progress Bar:
+#' Progress type can be one of  \code{"text"}, \code{"graphical"}, or \code{"shiny"}.
+#' Progress interval can be a numeric.
+#' These both can get set by passing a
+#' \code{.progress=list(type="graphical", interval=1)} into the \code{simInit} call.
+#' See examples.
+#'
 #' @inheritParams params
 #' @include simList-class.R
 #' @export
-#' @details Progress Bar:
-#' Progress type can be "text", "graphical" or "shiny".
-#' Progress interval can be a numeric.
-#' These both can get set by passing a
-#' \code{.progress=list(type="graphical", interval=1)} into the
-#' simInit call. See examples
 #' @docType methods
-#' @rdname simList-accessors-params
+#' @family functions to access elements of a \code{simList} object
+#' @rdname progress
+#'
 #' @examples
 #' \dontrun{
 #' mySim <- simInit(times=list(start=0.0, end=100.0),
@@ -758,7 +855,7 @@ setGeneric("progressInterval", function(object) {
 })
 
 #' @export
-#' @rdname simList-accessors-params
+#' @rdname progress
 setMethod("progressInterval",
           signature = ".simList",
           definition = function(object) {
@@ -766,7 +863,7 @@ setMethod("progressInterval",
 })
 
 #' @export
-#' @rdname simList-accessors-params
+#' @rdname progress
 setGeneric("progressInterval<-",
            function(object, value) {
              standardGeneric("progressInterval<-")
@@ -774,7 +871,7 @@ setGeneric("progressInterval<-",
 
 #' @name progressInterval<-
 #' @aliases progressInterval<-,.simList-method
-#' @rdname simList-accessors-params
+#' @rdname progress
 #' @export
 setReplaceMethod("progressInterval",
                  signature = ".simList",
@@ -789,14 +886,14 @@ setReplaceMethod("progressInterval",
 #' @include simList-class.R
 #' @export
 #' @docType methods
-#' @rdname simList-accessors-params
+#' @rdname progress
 #'
 setGeneric("progressType", function(object) {
   standardGeneric("progressType")
 })
 
 #' @export
-#' @rdname simList-accessors-params
+#' @rdname progress
 setMethod("progressType",
           signature = ".simList",
           definition = function(object) {
@@ -804,7 +901,7 @@ setMethod("progressType",
 })
 
 #' @export
-#' @rdname simList-accessors-params
+#' @rdname progress
 setGeneric("progressType<-",
            function(object, value) {
              standardGeneric("progressType<-")
@@ -812,7 +909,7 @@ setGeneric("progressType<-",
 
 #' @name progressType<-
 #' @aliases progressType<-,.simList-method
-#' @rdname simList-accessors-params
+#' @rdname progress
 #' @export
 setReplaceMethod("progressType",
                  signature = ".simList",
@@ -821,7 +918,6 @@ setReplaceMethod("progressType",
                    validObject(object)
                    return(object)
 })
-
 
 ################################################################################
 #' Inputs and outputs
@@ -872,7 +968,6 @@ setReplaceMethod("progressType",
 #' will pass the argument "native = TRUE" to raster.  If there is only one list,
 #' then it is assumed to apply to all files and will be recycled as per normal R
 #' rules of recycling for each \code{fun}.\cr
-#'
 #' }
 #'
 #' Currently, only \code{file} is required. All others will be filled with defaults
@@ -887,14 +982,8 @@ setReplaceMethod("progressType",
 #' @return Returns or sets the value(s) of the \code{input} or \code{output} slots
 #' in the \code{simList} object.
 #'
-#' @seealso \code{\link{simList-class}},
-#'          \code{\link{simList-accessors-modules}},
-#'          \code{\link{simList-accessors-envir}},
-#'          \code{\link{simList-accessors-events}},
-#'          \code{\link{simList-accessors-objects}},
-#'          \code{\link{simList-accessors-params}},
-#'          \code{\link{simList-accessors-paths}},
-#'          \code{\link{simList-accessors-times}}.
+#' @family functions to access elements of a \code{simList} object
+#' @seealso \code{\link{SpaDES}}, specifically the section 1.2.2 on loading and saving.
 #'
 #' @include simList-class.R
 #' @importFrom data.table is.data.table
@@ -1062,7 +1151,7 @@ setReplaceMethod(
        if (!all(is.na(object@inputs[, "loadTime"]))) {
          newTime <- object@inputs[is.na(object@inputs$loaded), "loadTime"]
          attributes(newTime)$unit <- timeunit(object)
-         for (nT in newTime){
+         for (nT in newTime) {
            attributes(nT)$unit <- timeunit(object)
            object <- scheduleEvent(object, nT, "load", "inputs", .first())
          }
@@ -1261,7 +1350,7 @@ setReplaceMethod(
   "outputs",
   signature = ".simList",
   function(object, value) {
-    if (length(value)) {
+    if (NROW(value)) {
        if (!is.data.frame(value)) {
          if (!is.list(value)) {
            stop("outputs must be a list or data.frame")
@@ -1306,8 +1395,7 @@ setReplaceMethod(
        object@outputs[wh, "file"] <- paste0(object@outputs[wh, "file"], ".", fe[wh])
 
        # If the file name already has a time unit on it,
-       # i.e., passed explicitly by user,
-       # then don't postpend again
+       # i.e., passed explicitly by user, then don't postpend again
        txtTimeA <- paste0(attr(object@outputs[, "saveTime"], "unit"))
        txtTimeB <- paddedFloatToChar(
          object@outputs[, "saveTime"],
@@ -1439,31 +1527,24 @@ setReplaceMethod(
 #' There are four file paths: \code{cachePath}, \code{modulePath},
 #' \code{inputPath}, and \code{outputPath}.
 #' Each has a function to get or set the value in a \code{simList} object.
-#' When not otherwise specified, the default is to set the path values to the
-#' current working directory.
+#' If no paths are specified, the defaults are as follows:
 #'
-#' \tabular{lll}{
-#'    \code{cachePath} \tab \code{NA} \tab Global simulation cache path.\cr
-#'    \code{modulePath} \tab \code{NA} \tab Global simulation module path.\cr
-#'    \code{inputPath} \tab \code{NA} \tab Global simulation input path.\cr
-#'    \code{outputPath} \tab \code{NA} \tab Global simulation output path.\cr
-#'    \code{paths} \tab \code{NA} \tab Global simulation paths (cache, modules, inputs, outputs).\cr
+#' \itemize{
+#'   \item \code{cachePath}: a subdirectory of the current working directory (\code{"./cache"});
+#'
+#'   \item \code{inputPath}: the current working directory (\code{"."};
+#'
+#'   \item \code{modulePath}: \code{getOption("spades.modulePath")};
+#'
+#'   \item \code{inputPath}: the current working directory (\code{"."};
 #' }
 #'
-#' @param object A \code{simList} simulation object.
-#'
-#' @param value The object to be stored at the slot.
+#' @inheritParams params
 #'
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
-#' @seealso \code{\link{simList-class}},
-#'          \code{\link{simList-accessors-envir}},
-#'          \code{\link{simList-accessors-events}},
-#'          \code{\link{simList-accessors-inout}},
-#'          \code{\link{simList-accessors-modules}},
-#'          \code{\link{simList-accessors-objects}},
-#'          \code{\link{simList-accessors-params}},
-#'          \code{\link{simList-accessors-times}}.
+#' @family functions to access elements of a \code{simList} object
+#' @seealso \code{\link{SpaDES}}, specifically the section 1.2.4 on Simulation Paths.
 #'
 #' @include simList-class.R
 #' @importFrom stats na.omit
@@ -1722,14 +1803,8 @@ setReplaceMethod(
 #'
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
-#' @seealso \code{\link{simList-class}},
-#'          \code{\link{simList-accessors-envir}},
-#'          \code{\link{simList-accessors-events}},
-#'          \code{\link{simList-accessors-inout}},
-#'          \code{\link{simList-accessors-modules}},
-#'          \code{\link{simList-accessors-objects}},
-#'          \code{\link{simList-accessors-params}},
-#'          \code{\link{simList-accessors-paths}}.
+#' @family functions to access elements of a \code{simList} object
+#' @seealso \code{\link{SpaDES}}, specifically the section 1.2.5 on Simulation times.
 #'
 #' @export
 #' @include simList-class.R
@@ -1863,8 +1938,9 @@ setReplaceMethod(
      x@simtimes$current <- convertTimeunit(value, "second", envir(x))
 
      if (!is.numeric(x@simtimes$current)) stop("time must be a numeric")
-     if (!any(pmatch(.spadesTimes,attr(x@simtimes$current, "unit")))) stop("time must be one of",
-                                                                   paste(.spadesTimes, collapse=", "))
+     if (!any(pmatch(.spadesTimes, attr(x@simtimes$current, "unit")))) {
+       stop("time must be one of", paste(.spadesTimes, collapse = ", "))
+     }
      return(x)
 })
 
@@ -2007,9 +2083,9 @@ setReplaceMethod(
 #' @inheritParams times
 #' @include simList-class.R
 #' @include times.R
-#' @export
 #' @docType methods
-#' @rdname simList-accessors-times
+#' @keywords internal
+#' @rdname namespacing
 #'
 setGeneric(".callingFrameTimeunit", function(x) {
   standardGeneric(".callingFrameTimeunit")
@@ -2017,13 +2093,13 @@ setGeneric(".callingFrameTimeunit", function(x) {
 
 #' @export
 #' @docType methods
-#' @rdname simList-accessors-times
+#' @rdname namespacing
 setMethod(
   ".callingFrameTimeunit",
   signature = c(".simList"),
   definition = function(x) {
-    mod <- .callingModuleName(x)
-    out <- if (!is.null(mod)) {
+    mod <- currentModule(x)
+    out <- if (!is.na(mod)) {
       timeunits(x)[[mod]]
     } else {
       timeunit(x)
@@ -2033,7 +2109,7 @@ setMethod(
 
 #' @export
 #' @docType methods
-#' @rdname simList-accessors-times
+#' @rdname namespacing
 #'
 setMethod(
   ".callingFrameTimeunit",
@@ -2051,8 +2127,11 @@ setMethod(
 #' \code{times=list(start=0, end=52, timeunit = "week")}, it will set the
 #' units for that simulation.
 #' By default, a \code{simInit} call will use the smallest unit contained within
-#' the metadata for the modules being used.
-#' If \code{NA}, \code{timeunit} defaults to none.
+#' the metadata for the modules being used. If there are parent modules, then the
+#' parent module timeunit will be used even if one of its children is a smaller timeunit.
+#' If all modules, including parents, are set to \code{NA}, \code{timeunit} defaults to seconds.
+#' If parents are set to \code{NA}, then the set of modules defined by that parent module
+#' will be given the smallest units of the children.
 #'
 #' Currently, available units are "second", "hours", day", "week", "month", and
 #' "year" can be used in the metadata of a module.
@@ -2069,7 +2148,6 @@ setMethod(
 #' @export
 #' @docType methods
 #' @rdname simList-accessors-times
-#' @author Eliot McIntire
 #'
 setGeneric("timeunit", function(x) {
   standardGeneric("timeunit")
@@ -2188,14 +2266,8 @@ setMethod(
 #'
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
-#' @seealso \code{\link{simList-class}},
-#'          \code{\link{simList-accessors-envir}},
-#'          \code{\link{simList-accessors-inout}},
-#'          \code{\link{simList-accessors-modules}},
-#'          \code{\link{simList-accessors-objects}},
-#'          \code{\link{simList-accessors-params}},
-#'          \code{\link{simList-accessors-paths}},
-#'          \code{\link{simList-accessors-times}}.
+#' @family functions to access elements of a \code{simList} object
+#' @seealso \code{\link{SpaDES}}, specifically the section 1.2.6 on Simulation event queues.
 #'
 #' @export
 #' @include simList-class.R
@@ -2432,6 +2504,8 @@ setReplaceMethod("completed",
 #'
 #' @include simList-class.R
 #' @docType methods
+#' @family functions to access elements of a \code{simList} object
+#' @keywords internal
 #' @rdname addDepends
 #'
 #' @author Alex Chubaty
@@ -2467,6 +2541,7 @@ setMethod(
 #' @export
 #' @include simList-class.R
 #' @docType methods
+#' @family functions to access elements of a \code{simList} object
 #' @rdname packages
 #'
 #' @author Alex Chubaty
@@ -2497,21 +2572,94 @@ setMethod(
 #' @section Required metadata elements:
 #'
 #' \tabular{ll}{
-#'    \code{name} \tab Module name. Must match the filename (without the \code{.R} extension).\cr
-#'    \code{description} \tab Brief description of the module.\cr
-#'    \code{keywords} \tab Author-supplied keywords. \cr
-#'    \code{childModules} \tab Names of child modules. Can be \code{NA}. \cr
-#'    \code{authors} \tab Module author information (as a vector of \code{\link{person}} objects. \cr
-#'    \code{version} \tab Module version number (will be coerced to \code{\link{numeric_version}} if a character or numeric are supplied). \cr
-#'    \code{spatialExtent} \tab The spatial extent of the module supplied via \code{raster::extent}. \cr
-#'    \code{timeframe} \tab Vector (length 2) of POSIXt dates specifying the temporal extent of the module. \cr
-#'    \code{timeunit} \tab Time scale of the module (e.g., "day", "year"). \cr
-#'    \code{citation} \tab List of character strings specifying module citation information. Alternatively, a list of filenames of \code{.bib} or similar files. \cr
-#'    \code{documentation} \tab List of filenames refering to module documentation sources. \cr
-#'    \code{reqdPkgs} \tab List of R package names required by the module. \cr
-#'    \code{parameters} \tab A data.frame specifying the parameters used in the module. Usually produced by \code{rbind}-ing the outputs of multiple \code{\link{defineParameter}} calls. \cr
-#'    \code{inputObjects} \tab A data.frame specifying the data objects required as inputs to the module, with columns \code{objectName}, \code{objectClass}, \code{sourceURL}, and \code{other}. \cr
-#'    \code{outputObjects} \tab A data.frame specifying the data objects output by the module, with columns identical to those in \code{inputObjects}. \cr
+#'    \code{name} \tab Module name. Must match the filename (without the \code{.R} extension).
+#'                     This is currently not parsed by SpaDES;
+#'                         it is for human readers only. \cr
+#'    \code{description} \tab Brief description of the module.
+#'                            This is currently not parsed by SpaDES;
+#'                            it is for human readers only. \cr
+#'    \code{keywords} \tab Author-supplied keywords.
+#'                         This is currently not parsed by SpaDES;
+#'                         it is for human readers only. \cr
+#'    \code{childModules} \tab If this contains any character vector, then it will
+#'                             be treated as a parent module. If this is a parent module,
+#'                             then only this list entry will be read. For normal,
+#'                             i.e., 'child modules', this should be \code{character(0)} or
+#'                             \code{NA}.
+#'                             If a character vector is provided, then these must be the
+#'                             names of the modules located in the same file path as this
+#'                             parent module that will be loaded during the \code{simInit}.\cr
+#'    \code{authors} \tab Module author information (as a vector of \code{\link{person}}
+#'                        objects. This is currently not parsed by SpaDES;
+#'                        it is for human readers only.\cr
+#'    \code{version} \tab Module version number (will be coerced to \code{\link{numeric_version}}
+#'                        if a character or numeric are supplied).
+#'                        The module developer should update manually this with each change
+#'                        that is made to the module. See \url{http://semver.org/}
+#'                        for a widely accepted standard for version numering.\cr
+#'    \code{spatialExtent} \tab The spatial extent of the module supplied via
+#'                              \code{raster::extent}. This is currently unimplemented.
+#'                              Once implemented, this should define what spatial region this
+#'                              module is scientifically reasonable to be used in.\cr
+#'    \code{timeframe} \tab Vector (length 2) of POSIXt dates specifying the temporal extent
+#'                          of the module. Currently unimplemented.
+#'                          Once implemented, this should define what time frame this
+#'                          module is scientifically reasonable to be used for.\cr
+#'    \code{timeunit} \tab Time scale of the module (e.g., "day", "year"). This
+#'                         MUST be specified. It indicates what '1' unit of time
+#'                         means for this module. \code{SpaDES} interprets this
+#'                         and if modules have different \code{timeunit} values
+#'                         then it will correctly schedule each module, using the
+#'                         smallest (currently the default) timeunit as the
+#'                         'model' timeunit in the \code{spades} call.\cr
+#'    \code{citation} \tab List of character strings specifying module citation information.
+#'                         Alternatively, a list of filenames of \code{.bib} or similar files.
+#'                         This is currently not parsed by SpaDES;
+#'                         it is for human readers only.\cr
+#'    \code{documentation} \tab List of filenames refering to module documentation sources.
+#'                              This is currently not parsed by SpaDES;
+#'                              it is for human readers only.\cr\cr
+#'    \code{reqdPkgs} \tab List of R package names required by the module. These
+#'                         packages will be loaded when \code{simInit} is called. \cr
+#'    \code{parameters} \tab A data.frame specifying the parameters used in the module.
+#'                           Usually produced by \code{rbind}-ing the outputs of multiple
+#'                           \code{\link{defineParameter}} calls. These parameters indicate
+#'                           the default values that will be used unless a module user
+#'                           overrides them with the \code{params} argument in the
+#'                           \code{\link{simInit}} call. The minimum and maximum are
+#'                           currently used
+#'                           by the \code{shine} function and the \code{POM} function, and they
+#'                           should indicate the range of values that are reasonable
+#'                           scientifically.\cr
+#'    \code{inputObjects} \tab A \code{data.frame} specifying the data objects expected as
+#'                             inputs to the module,
+#'                             with columns \code{objectName} (class \code{character}),
+#'                             \code{objectClass} (class \code{character}),
+#'                             \code{sourceURL} (class \code{character}), and \code{other}
+#'                              (currently spades does nothing with this column).
+#'                             This data.frame identifies the objects that are expected,
+#'                             but does not do any loading of
+#'                             that object into the simList. The \code{sourceURL} gives
+#'                             the developer the opportunity
+#'                             to identify the source of a data file that can be used
+#'                             with the model. This URL will be
+#'                             used if the user calls \code{downloadData} (or
+#'                             \code{downloadModule(..., data = TRUE)}. If the raw data
+#'                             must be modified, the developer can use create a
+#'                             function called \code{.inputObjects} in their module. That
+#'                             function will be run during the \code{simInit} call. The
+#'                             developer should ensure that if the object is supplied
+#'                             by the module user as an argument in the \code{simInit}, then
+#'                             the \code{.inputObjects} should not be run, i.e., use an
+#'                             \code{(is.null(sim$xxx)))}.\cr
+#'    \code{outputObjects} \tab A \code{data.frame} specifying the data objects output by
+#'                              the module, with columns identical to those in
+#'                              \code{inputObjects}. Like \code{inputObjects} above,
+#'                              this only identifies the objects that this module will output
+#'                              into the \code{simList}.
+#'                              The module developer must create the necessary functions
+#'                              that will cause these objects to be put into the
+#'                              \code{simList}.\cr
 #' }
 #'
 #' @inheritParams .addDepends
@@ -2528,8 +2676,53 @@ setMethod(
 #'
 #' @examples
 #' \dontrun{
-#'   moduleInfo <- list(...)
-#'   defineModule(sim, moduleInfo)
+#'   # a default version of the defineModule is created with a call to newModule
+#'
+#'   newModule("test", path = tempdir())
+#'   # file.edit(file.path(tempdir(), "test", "test.R"))
+#'
+#'   # The default defineModule created by newModule is currently (SpaDES version 1.2.0.9010):
+#'   defineModule(sim, list(
+#'     name = "test",
+#'     description = "insert module description here",
+#'     keywords = c("insert key words here"),
+#'     authors = c(person(c("First", "Middle"), "Last",
+#'                      email="email@example.com", role=c("aut", "cre"))),
+#'     childModules = character(0),
+#'     version = numeric_version("1.2.0.9010"),spatialExtent =
+#'                                  raster::extent(rep(NA_real_, 4)),
+#'     timeframe = as.POSIXlt(c(NA, NA)),
+#'   timeunit = NA_character_, # e.g., "year",
+#'     citation = list("citation.bib"),
+#'   documentation = list("README.txt", "test.Rmd"),
+#'     reqdPkgs = list(),
+#'     parameters = rbind(
+#'       #defineParameter("paramName", "paramClass", value, min, max,
+#'       "parameter description")),
+#'       defineParameter(".plotInitialTime", "numeric", NA, NA, NA,
+#'       "This describes the simulation time at which the first plot event should occur"),
+#'       defineParameter(".plotInterval", "numeric", NA, NA, NA,
+#'       "This describes the simulation time at which the first plot event should occur"),
+#'       defineParameter(".saveInitialTime", "numeric", NA, NA, NA,
+#'       "This describes the simulation time at which the first save event should occur"),
+#'       defineParameter(".saveInterval", "numeric", NA, NA, NA,
+#'       "This describes the simulation time at which the first save event should occur")
+#'     ),
+#'     inputObjects = data.frame(
+#'       objectName = NA_character_,
+#'       objectClass = NA_character_,
+#'       sourceURL = "",
+#'       other = NA_character_,
+#'       stringsAsFactors = FALSE
+#'     ),
+#'     outputObjects = data.frame(
+#'       objectName = NA_character_,
+#'       objectClass = NA_character_,
+#'       other = NA_character_,
+#'       stringsAsFactors = FALSE
+#'     )
+#'   ))
+#'
 #' }
 #'
 setGeneric("defineModule", function(sim, x) {
@@ -2678,7 +2871,7 @@ setMethod(
       lapply(x$childModules, function(y) {
         if (file.exists(file.path(modulePath(sim), y))) {
           z <- y %>% lapply(., `attributes<-`, list(type = "child"))
-          modules(sim) <- append_attr(modules(sim), z)
+          modules(sim) <- append_attr(modules(sim, hidden = TRUE), z)
         } else {
           stop("Module ", y, "(a child module of ", x$name, ") not found in modulePath.")
         }
@@ -2716,7 +2909,7 @@ setMethod(
 #' @examples
 #' parameters = rbind(
 #'   defineParameter("lambda", "numeric", 1.23, desc = "intrinsic rate of increase"),
-#'   defineParameter("p", "numeric", 0.2, 0, 1, "probability of attack")
+#'   defineParameter("P", "numeric", 0.2, 0, 1, "probability of attack")
 #' )
 #'
 setGeneric("defineParameter", function(name, class, default, min, max, desc) {
@@ -2728,10 +2921,13 @@ setMethod("defineParameter",
           signature(name = "character", class = "character", default = "ANY",
                     min = "ANY", max = "ANY", desc = "character"),
           definition = function(name, class, default, min, max, desc) {
+
             # coerce `default`, `min`, and `max` to same specified type
-            default <- as(default, class)
-            min <- as(min, class)
-            max <- as(max, class)
+            # These next lines commented out because it doesn't allow for character e.g.,
+            #   start(sim)
+            #default <- as(default, class)
+            #min <- as(min, class)
+            #max <- as(max, class)
 
             # previously used `substitute()` instead of `I()`,
             # but it did not allow for a vector to be passed with `c()`
@@ -2779,6 +2975,155 @@ setMethod(
     return(df)
 })
 
+################################################################################
+#' Define an input object that the module expects.
+#'
+#' Used to specify an input object's name, class, description, source url and
+#' other specifications.
+#'
+#' @param objectName   Character string to define the input object's name.
+#'
+#' @param objectClass  Character string to specify the input object's class.
+#'
+#' @param desc         Text string providing a brief description of the input object.
+#'
+#' @param sourceURL    Character string to specify an URL to reach the input object,
+#'                     default is \code{NA}.
+#'
+#' @param ...          Other specifications of the input object.
+#'
+#' @return A \code{data.frame} suitable to be passed to \code{inputObjects} in a
+#' module's metadata.
+#'
+#' @export
+#' @docType methods
+#' @rdname expectsInput
+#'
+#' @author Yong Luo
+#'
+#' @examples
+#' inputObjects <- dplyr::bind_rows(
+#'   expectsInput(objectName = "inputObject1", objectClass = "character",
+#'                desc = "this is for example", sourceURL = "not available"),
+#'   expectsInput(objectName = "inputObject2", objectClass = "numeric",
+#'                desc = "this is for example", sourceURL = "not available",
+#'                otherInformation = "I am the second input object")
+#' )
+#'
+setGeneric("expectsInput",
+           function(objectName, objectClass, desc, sourceURL, ...) {
+             standardGeneric("expectsInput")
+})
+
+#' @export
+#' @rdname expectsInput
+setMethod(
+  "expectsInput",
+  signature = signature(objectName = "ANY", objectClass = "ANY",
+                        desc = "ANY", sourceURL = "ANY"),
+  definition = function(objectName, objectClass, desc, sourceURL, ...) {
+    return(expectsInput(as.character(objectName), as.character(objectClass),
+                        as.character(desc), as.character(sourceURL), ...))
+})
+
+#' @export
+#' @rdname expectsInput
+setMethod(
+  "expectsInput",
+  signature = signature(objectName = "character", objectClass = "character",
+                        desc = "character", sourceURL = "character"),
+  definition = function(objectName, objectClass, desc, sourceURL, ...) {
+    returnDataframe <- data.frame(cbind(objectName, objectClass, desc, sourceURL),
+                                  stringsAsFactors = FALSE)
+    templist <- list(...)
+    if (length(templist) > 0) {
+      for (i in 1:length(templist)) {
+        returnDataframe <- data.frame(cbind(returnDataframe, I(list(templist[[i]])),
+                                            stringsAsFactors = FALSE))
+        names(returnDataframe)[ncol(returnDataframe)] <- names(templist)[i]
+      }
+    }
+    return(returnDataframe)
+})
+
+#' @export
+#' @rdname expectsInput
+setMethod(
+  "expectsInput",
+  signature = signature(objectName = "character", objectClass = "character",
+                        desc = "character", sourceURL = "missing"),
+  definition = function(objectName, objectClass, desc, ...) {
+    return(expectsInput(objectName, objectClass, desc, sourceURL = NA_character_, ...))
+})
+
+################################################################################
+#' Define an output object of a module
+#'
+#' Used to specify an output object's name, class, description and other specifications.
+#'
+#' @param objectName   Character string to define the output object's name.
+#'
+#' @param objectClass  Character string to specify the output object's class.
+#'
+#' @param desc         Text string providing a brief description of the output object.
+#'
+#' @param ...          Other specifications of the output object.
+#'
+#' @return A \code{data.frame} suitable to be passed to \code{outputObjects} in
+#' a module's metadata.
+#'
+#' @export
+#' @docType methods
+#' @rdname createsOutput
+#'
+#' @author Yong Luo
+#'
+#' @examples
+#' outputObjects <- dplyr::bind_rows(
+#'   createsOutput(objectName = "outputObject1", objectClass = "character",
+#'                 desc = "this is for example"),
+#'   createsOutput(objectName = "outputObject2", objectClass = "numeric",
+#'                 desc = "this is for example",
+#'                 otherInformation = "I am the second output object")
+#' )
+#'
+setGeneric(
+  "createsOutput",
+  function(objectName, objectClass, desc, ...) {
+    standardGeneric("createsOutput")
+})
+
+#' @export
+#' @rdname createsOutput
+setMethod(
+  "createsOutput",
+  signature = signature(objectName = "ANY", objectClass = "ANY",
+                        desc = "ANY"),
+  definition = function(objectName, objectClass, desc, ...) {
+    return(createsOutput(as.character(objectName), as.character(objectClass),
+                         as.character(desc)))
+})
+
+#' @export
+#' @rdname createsOutput
+setMethod(
+  "createsOutput",
+  signature = signature(objectName = "character", objectClass = "character",
+                        desc = "character"),
+  definition = function(objectName, objectClass, desc, ...) {
+    returnDataframe <- data.frame(cbind(objectName, objectClass, desc),
+                                  stringsAsFactors = FALSE)
+    templist <- list(...)
+    if (length(templist) > 0) {
+      for (i in 1:length(templist)) {
+        returnDataframe <- data.frame(cbind(returnDataframe, I(list(templist[[i]])),
+                                            stringsAsFactors = FALSE))
+        names(returnDataframe)[ncol(returnDataframe)] <- names(templist)[i]
+      }
+    }
+    return(returnDataframe)
+})
+
 #' An internal function for coercing a data.frame to inputs()
 #'
 #' @param inputDF A data.frame with partial columns to pass to inputs( ) <-
@@ -2786,7 +3131,6 @@ setMethod(
 #'
 #' @rdname fillInputRows
 .fillInputRows <- function(inputDF, startTime) {
-
   factorCols <- sapply(inputDF, is.factor)
   if (any(factorCols)) {
     inputDF[,factorCols] <- sapply(inputDF[,factorCols], as.character)
@@ -2841,7 +3185,7 @@ setMethod(
     }
     inputDF[!objectsOnly,] <- inputDF2
   }
-  inputDF
+  return(inputDF)
 }
 
 #' An internal function for coercing a data.frame to inputs()
@@ -2851,7 +3195,7 @@ setMethod(
 #'
 #' @rdname fillOutputRows
 .fillOutputRows <- function(outputDF, endTime) {
-  needRenameArgs <- grepl(names(outputDF), pattern="arg[s]?$")
+  needRenameArgs <- grepl(names(outputDF), pattern = "arg[s]?$")
   if (any(needRenameArgs)) {
     colnames(outputDF)[needRenameArgs] <-
       .fileTableOutCols[pmatch("arg", .fileTableOutCols)]
@@ -2883,8 +3227,8 @@ setMethod(
     .fileExts <- .saveFileExtensions()
     fl <- outputDF$file
     exts <- fileExt(fl)
-    if (any(is.na(fl)) | any(nchar(exts)==0)) {
-      outputDF$fun[is.na(fl) | nchar(exts)==0] <- .fileExts$fun[1]
+    if (any(is.na(fl)) | any(nchar(exts) == 0)) {
+      outputDF$fun[is.na(fl) | nchar(exts) == 0] <- .fileExts$fun[1]
     }
     if (any(is.na(outputDF[, "fun"]))) {
       exts <- na.omit(match(exts, .fileExts[, "exts"]) )
@@ -2896,13 +3240,21 @@ setMethod(
     .fileExts <- .saveFileExtensions()
     fl <- outputDF$file
     exts <- fileExt(fl)
-    if (any(is.na(fl)) | any(nchar(exts)==0)) {
-      outputDF$package[is.na(fl) | nchar(exts)==0] <- .fileExts$package[1]
+    if (any(is.na(fl)) | any(nchar(exts) == 0)) {
+      outputDF$package[is.na(fl) | nchar(exts) == 0] <- .fileExts$package[1]
     }
     if (any(is.na(outputDF[, "package"]))) {
       exts <- na.omit(match(fileExt(fl), .fileExts[, "exts"]) )
       outputDF$package[is.na(outputDF$package)] <- .fileExts[exts, "package"]
     }
   }
-  outputDF
+  return(outputDF)
+}
+
+#' @rdname params
+#' @export
+#' @inheritParams P
+p <- function(object, module = NULL, param = NULL) {
+  .Deprecated("P", old = "p")
+  P(object = object, module = module, param = param)
 }

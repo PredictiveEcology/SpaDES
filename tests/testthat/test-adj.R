@@ -4,7 +4,7 @@ test_that("adj.R results not identical to adjacent", {
 
   on.exit({
     detach("package:raster")
-  })
+  }, add = TRUE)
 
 #   a <- raster::raster(raster::extent(0, 1e3, 0, 1e3), res = 1)
 #
@@ -217,11 +217,11 @@ test_that("adj.R results not identical to adjacent", {
 
   a1 <- Sys.time()
   a <- raster::raster(raster::extent(0, 1e1, 0, 1e1), res = 1)
-  sam <- sample(1:length(a), 4 )
+  sam <- sample(1:length(a), 4)
 
   for (incl in c(TRUE, FALSE)) {
     for (ids in list(NULL, seq_len(length(sam)))) {
-      for (targs in list(NULL, sam+1)) {
+      for (targs in list(NULL, sam + 1)) {
         for (sortTF in c(TRUE, FALSE)) {
           for (ma in c(TRUE, FALSE)) {
             for (dirs in list(4, 8, "bishop")) {
@@ -239,7 +239,7 @@ test_that("adj.R results not identical to adjacent", {
                   #numTests <<- numTests+1
                   if (!tor) {
                     adj2 <- tryCatch(raster::adjacent(a, sam, directions = dirs, sorted = sortTF, include = incl,
-                                             id = !is.null(ids), pairs = prs, target = targs), error=function(x) FALSE)
+                                             id = !is.null(ids), pairs = prs, target = targs), error = function(x) FALSE)
                     if (isTRUE(adj2)) {
                       if (!prs) {
                         if (ma) {
@@ -250,7 +250,6 @@ test_that("adj.R results not identical to adjacent", {
                                                                   ", prs=",prs))
                           #numTests <<- numTests+1
                         } else {
-                          #browser()
                           expect_equivalent(unique(sort(adjDT[,"to"])), sort(adj2))
                           #numTests <<- numTests+1
                         }
@@ -267,7 +266,7 @@ test_that("adj.R results not identical to adjacent", {
                         } else {
                           if (!sortTF) {# if match.adjacent is FALSE, and sort is FALSE, then they mostly don't match
                             #if(adjDT[order(adjDT[,"from"], adjDT[,"to"]),]==adjDT)
-                             if (sum((adjDT - adj2[,colOrd])^2)==0) {
+                             if (sum((adjDT - adj2[,colOrd])^2) == 0) {
                                expect_equivalent(adjDT, adj2[,colOrd])
                              } else {
                                expect_gt(sum((adjDT - adj2[,colOrd])^2), 0) # sum of squared difference should be positive

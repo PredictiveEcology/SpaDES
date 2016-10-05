@@ -34,7 +34,7 @@ This packages makes heavy use of the `raster` [@raster:2015] and `sp` [@sp:2005;
 The suggested package `fastshp` can be installed with:
 
 ```{r install-fastshp, echo=TRUE, eval=FALSE}
-install.packages("fastshp", repos="http://rforge.net", type="source")
+install.packages("fastshp", repos = "http://rforge.net", type = "source")
 ```
 
 Plotting features within `SpaDES` are built using the `grid` package, though it is not required to use these.
@@ -141,9 +141,11 @@ Additional `SpaDES` modules are available via a GitHub repository:  [https://git
 Modules from this repository can be downloaded to a local directory using:
 
 ```{r SpaDES-modules, eval=FALSE, echo=TRUE}
-saveTo <- "~/SpaDES-modules" # change this to suit your needs
-downloadModule(name="moduleName", path=saveTo)
+downloadModule(name = "moduleName")
 ```
+
+**Note:** by default, modules and their data are saved to the directory specified by the `spades.modulesPath`.
+An alternate path can be provided to `downloadModule` directly via the `path` argument, or specified using `options(spades.modulesPath = "path/to/my/modules")`.
 
 A detailed guide to module development is provided in the [modules vignette](ii-modules.html).
 
@@ -216,10 +218,10 @@ By default in an interactive session, a progress bar is displayed in the console
 Debugging mode, *i.e.*, setting `spades(mySim, debug=TRUE)`, prints the contents of the `simList` object after the completion of every event during simulation.
 
 ```{r view-event-sequences, eval=FALSE, echo=TRUE}
-options(spades.nCompleted = 50)   # default: store 10 events in the completed event list
+options(spades.nCompleted = 50)   # default: store 1000 events in the completed event list
 mySim <- simInit(...)             # initialize a simulation using valid parameters
 mySim <- spades(mySim)            # run the simulation, returning the completed sim object
-eventDiagram(mySim, "0000-06-01") # visualize the sequence of events for all modules
+eventDiagram(mySim)               # visualize the sequence of events for all modules
 ```
 
 # Types of models
@@ -272,6 +274,31 @@ Likewise, greater understanding and evaluation of models and their uncertainty r
 Using `R` as a common platform for data, simulation, and analyses we can do all of these easily and directly as part of our `SpaDES` simulation without breaking the linkages between model and analysis.
 This workflow facilitates and enhances the use of ensemble and consensus modelling, and studies of cumulative effects.
 
+## Running a groups of simulations: the `experiment` function
+
+Once a simulation is properly initialized and runs correctly with the `spades` function, it is likely time to do things like run replicates.
+There is a function, `experiment` to do this, as well as building parameter and module "simulation experiments".
+For example, you can pass alternative values to parameters in modules and the `experiment` will build a fully factorial experiment, with replication and run them.
+This function (as with `POM` and `splitRaster`) is parallel-aware and can either proceed with a cluster object (`cl` argument) or a cluster running in the background using the `raster::startCluster`.
+
+```{r experiment, eval=FALSE, echo=TRUE}
+?experiment # will give many more examples than here
+
+# Copy Example 5 here:
+ mySim <- simInit(
+    times = list(start = 0.0, end = 2.0, timeunit = "year"),
+    params = list(.globals = list(stackName = "landscape", burnStats = "nPixelsBurned")),
+    modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
+    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
+                 outputPath = tmpdir),
+    # Save final state of landscape and caribou
+    outputs = data.frame(objectName = c("landscape", "caribou"), stringsAsFactors = FALSE)
+  )
+
+sims <- experiment(mySim, replicates = 2)
+attr(sims, "experiment")$expDesign # shows 2 replicates of same experiment
+```
+
 # Additonal resources
 
 ## `SpaDES` documentation and vignettes
@@ -311,11 +338,7 @@ We provide a number of modules to facilitate getting started:
 
 [https://github.com/PredictiveEcology/SpaDES-modules](https://github.com/PredictiveEcology/SpaDES-modules)
 
-Modules from this (or another suitable GitHub repository) can be downloaded using:
-
-```{r download-module, echo=TRUE, eval=FALSE}
-downloadModule("moduleName", "localpath/to/put/my/modules/directory")
-```
+Modules from this (or another suitable GitHub repository) can be downloaded using `downloadModule`.
 
 We welcome additional contributions to this module repository.
 

@@ -59,11 +59,13 @@ map <- gaussMap(map, scale = 1, var = 4, speedup = 1)
 pr <- probInit(map, p = (map/maxValue(map))^2)
 agents <- initiateAgents(map, 100, pr)
 if (interactive()) {
-  Plot(map, new = TRUE)
+  clearPlot()
+  Plot(map)
   Plot(agents, addTo = "map")
 }
 
-# If producing a Raster, then the number of points produced can't be more than
+# Note, can also produce a Raster representing agents,
+# then the number of points produced can't be more than
 # the number of pixels:
 agentsRas <- initiateAgents(map, 30, pr, asSpatialPoints = FALSE)
 if (interactive()) Plot(agentsRas)

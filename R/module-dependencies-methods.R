@@ -42,7 +42,6 @@ setMethod(
   "depsEdgeList",
   signature(sim = "simList", plot = "logical"),
   definition = function(sim, plot) {
-
     deps <- depends(sim)
     sim.in <- sim.out <- data.table(objectName = character(0),
                                     objectClass = character(0),
@@ -50,8 +49,8 @@ setMethod(
 
     lapply(deps@dependencies, function(x) {
       if (!is.null(x)) {
-        z.in <- as.data.table(x@inputObjects)[, sourceURL:=NULL][, other:=NULL]
-        z.out <- as.data.table(x@outputObjects)[, other:=NULL]
+        z.in <- as.data.table(x@inputObjects)[,.(objectName, objectClass)]
+        z.out <- as.data.table(x@outputObjects)[,.(objectName, objectClass)]
         z.in$module <- z.out$module <- x@name
         if (!all(is.na(z.in[,objectName]), is.na(z.in[, objectClass]))) {
           sim.in <<- rbindlist(list(sim.in, z.in), use.names = TRUE)
@@ -118,7 +117,7 @@ setMethod("depsGraph",
               el <- depsEdgeList(sim, plot) %>% .depsPruneEdges()
             }
             core <- c("checkpoint", "save", "progress", "load")
-            m <- modules(sim) %>% unlist()
+            m <- modules(sim, hidden = TRUE) %>% unlist()
             v <- unique(c(el$to, el$from, m[-which(m %in% core)]))
             return(graph_from_data_frame(el, vertices = v, directed = TRUE))
 })
@@ -130,6 +129,8 @@ setMethod("depsGraph",
           definition = function(sim) {
             return(depsGraph(sim, FALSE))
 })
+
+
 
 ################################################################################
 #' Prune edges to remove cycles in module dependencies
@@ -149,6 +150,7 @@ setMethod("depsGraph",
 #' @importFrom stats na.omit
 #' @export
 #' @docType methods
+#' @keywords internal
 #' @rdname depsPruneEdges
 #'
 #' @author Alex Chubaty
@@ -232,6 +234,7 @@ setMethod(
 #'
 #' @include simList-class.R
 #' @export
+#' @keywords internal
 #' @docType methods
 #' @rdname depsLoadOrder
 #'
@@ -251,18 +254,20 @@ setMethod(".depsLoadOrder",
             if (length(tsort)) {
               loadOrder <- names(simGraph[[tsort,]]) %>% .[!(. %in% "_INPUT_" )]
             } else {
-              modules <- unlist(modules(sim))
-              if (length(modules(sim))) {
+              modules <- unlist(modules(sim, hidden = TRUE))
+              if (length(modules(sim, hidden = TRUE))) {
                 loadOrder <- modules
               } else {
                 loadOrder <- character()
               }
             }
             # make sure modules with no deps get added
-            if (!all(modules(sim) %in% loadOrder)) {
-              ids <- which(modules(sim) %in% loadOrder)
-              noDeps <- unlist(modules(sim))[-ids]
+            if (!all(modules(sim, hidden = TRUE) %in% loadOrder)) {
+              ids <- which(modules(sim, hidden = TRUE) %in% loadOrder)
+              noDeps <- unlist(modules(sim, hidden = TRUE))[-ids]
               loadOrder <- c(loadOrder, noDeps)
             }
             return(loadOrder)
 })
+
+
