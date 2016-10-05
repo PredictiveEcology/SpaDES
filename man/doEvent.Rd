@@ -3,13 +3,13 @@
 \docType{methods}
 \name{doEvent}
 \alias{doEvent}
-\alias{doEvent,simList,logical-method}
+\alias{doEvent,simList,ANY-method}
 \alias{doEvent,simList,missing-method}
 \title{Process a simulation event}
 \usage{
 doEvent(sim, debug)
 
-\S4method{doEvent}{simList,logical}(sim, debug)
+\S4method{doEvent}{simList,ANY}(sim, debug)
 
 \S4method{doEvent}{simList,missing}(sim)
 }
