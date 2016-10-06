@@ -17,10 +17,10 @@ if (getRversion() >= "3.1.0") {
 #'
 .paths <- function() {
   list(
-    cachePath = file.path(".", "cache"),
-    inputPath = file.path("."),
-    modulePath = getOption("spades.modulesPath"),
-    outputPath = file.path(".")
+    cachePath = getOption("spades.cachePath"),
+    inputPath = getOption("spades.inputPath"),
+    modulePath = getOption("spades.modulePath"),
+    outputPath = getOption("spades.outputPath")
   )
 }
 
@@ -281,13 +281,13 @@ setMethod(
 #' the defaults are as follows:
 #'
 #' \itemize{
-#'   \item \code{cachePath}: a subdirectory of the current working directory (\code{"./cache"});
+#'   \item \code{cachePath}: \code{getOption("spades.cachePath")};
 #'
-#'   \item \code{inputPath}: the current working directory (\code{"."};
+#'   \item \code{inputPath}: \code{getOption("spades.modulePath")};
 #'
-#'   \item \code{modulePath}: \code{getOption("spades.modulesPath")};
+#'   \item \code{modulePath}: \code{getOption("spades.inputPath")};
 #'
-#'   \item \code{inputPath}: the current working directory (\code{"."};
+#'   \item \code{inputPath}: \code{getOption("spades.outputPath")}.
 #' }
 #'
 #' @note

@@ -31,7 +31,7 @@ the most recent version will be retrieved.)}
 
 \item{repo}{GitHub repository name.
 Default is \code{"PredictiveEcology/SpaDES-modules"}, which is
-specified by the global option \code{spades.modulesRepo}.}
+specified by the global option \code{spades.moduleRepo}.}
 
 \item{data}{Logical. If TRUE, then the data that is identified in the module
 metadata will be downloaded, if possible. Default if FALSE.}
