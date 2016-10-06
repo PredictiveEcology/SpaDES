@@ -143,7 +143,7 @@ setMethod(
   "newModule",
   signature = c(name = "character", path = "missing"),
   definition = function(name, ...) {
-    newModule(name = name, path = getOption("spades.modulesPath"), ...)
+    newModule(name = name, path = getOption("spades.modulePath"), ...)
 })
 
 ################################################################################

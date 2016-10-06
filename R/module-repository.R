@@ -12,7 +12,7 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @param repo  GitHub repository name.
 #'              Default is \code{"PredictiveEcology/SpaDES-modules"}, which is
-#'              specified by the global option \code{spades.modulesRepo}.
+#'              specified by the global option \code{spades.moduleRepo}.
 #'
 #' @importFrom httr content GET stop_for_status
 #' @export
@@ -53,7 +53,7 @@ setMethod(
 setMethod("getModuleVersion",
           signature = c(name = "character", repo = "missing"),
           definition = function(name) {
-            v <- getModuleVersion(name, getOption("spades.modulesRepo"))
+            v <- getModuleVersion(name, getOption("spades.moduleRepo"))
             return(v)
 })
 
@@ -66,7 +66,7 @@ setMethod("getModuleVersion",
 #'
 #' @param repo  GitHub repository name.
 #'              Default is \code{"PredictiveEcology/SpaDES-modules"}, which is
-#'              specified by the global option \code{spades.modulesRepo}.
+#'              specified by the global option \code{spades.moduleRepo}.
 #'
 #' @importFrom httr content GET stop_for_status
 #' @export
@@ -112,7 +112,7 @@ setMethod(
 setMethod("checkModule",
           signature = c(name = "character", repo = "missing"),
           definition = function(name) {
-            v <- checkModule(name, getOption("spades.modulesRepo"))
+            v <- checkModule(name, getOption("spades.moduleRepo"))
             return(v)
 })
 
@@ -207,9 +207,9 @@ setMethod(
   signature = c(name = "character", path = "missing", version = "missing",
                 repo = "missing", data = "missing", quiet = "missing"),
   definition = function(name) {
-    files <- downloadModule(name, path = getOption("spades.modulesPath"),
+    files <- downloadModule(name, path = getOption("spades.modulePath"),
                             version = NA_character_,
-                            repo = getOption('spades.modulesRepo'),
+                            repo = getOption('spades.moduleRepo'),
                             data = FALSE, quiet = FALSE)
     return(invisible(files))
 })
@@ -220,9 +220,9 @@ setMethod(
   signature = c(name = "character", path = "ANY", version = "ANY",
                 repo = "ANY", data = "ANY", quiet = "ANY"),
   definition = function(name, path, version, repo, data, quiet) {
-    if (missing(path)) path <- getOption("spades.modulesPath")
+    if (missing(path)) path <- getOption("spades.modulePath")
     if (missing(version)) version <- NA_character_
-    if (missing(repo)) repo <- getOption("spades.modulesRepo")
+    if (missing(repo)) repo <- getOption("spades.moduleRepo")
     if (missing(data)) data <- FALSE
     if (missing(quiet)) quiet <- FALSE
 
@@ -345,7 +345,7 @@ setMethod(
   "downloadData",
   signature = c(module = "character", path = "missing", quiet = "missing"),
   definition = function(module) {
-    downloadData(module = module, path = getOption("spades.modulesPath"), quiet = FALSE)
+    downloadData(module = module, path = getOption("spades.modulePath"), quiet = FALSE)
 })
 
 #' @rdname downloadData
@@ -353,7 +353,7 @@ setMethod(
   "downloadData",
   signature = c(module = "character", path = "missing", quiet = "logical"),
   definition = function(module, quiet) {
-    downloadData(module = module, path = getOption("spades.modulesPath"), quiet = quiet)
+    downloadData(module = module, path = getOption("spades.modulePath"), quiet = quiet)
 })
 
 #' @rdname downloadData

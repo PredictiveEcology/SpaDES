@@ -1530,13 +1530,13 @@ setReplaceMethod(
 #' If no paths are specified, the defaults are as follows:
 #'
 #' \itemize{
-#'   \item \code{cachePath}: a subdirectory of the current working directory (\code{"./cache"});
+#'   \item \code{cachePath}: \code{getOption("spades.cachePath")};
 #'
-#'   \item \code{inputPath}: the current working directory (\code{"."};
+#'   \item \code{inputPath}: \code{getOption("spades.modulePath")};
 #'
-#'   \item \code{modulePath}: \code{getOption("spades.modulesPath")};
+#'   \item \code{modulePath}: \code{getOption("spades.inputPath")};
 #'
-#'   \item \code{inputPath}: the current working directory (\code{"."};
+#'   \item \code{inputPath}: \code{getOption("spades.outputPath")}.
 #' }
 #'
 #' @inheritParams params
