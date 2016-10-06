@@ -3,6 +3,7 @@ Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 version 1.3.1
 =============
 * Default module path (set via `spades.modulesPath` option) is now set to a temporary location to avoid unintentionally writing to the user's home directory.
+* New cache-related functions: showCache and clearCache
 
 version 1.3.0
 =============
