@@ -281,11 +281,8 @@ test_that("test-load.R: passing nearly empty file to simInit does not work corre
 
 test_that("test-load.R: more tests", {
   tmpdir <- file.path(tempdir(), "test_load", rndstr()) %>% checkPath(create = TRUE)
-  userModulePath <- getOption('spades.modulesPath')
-  options(spades.modulesPath = tmpdir)
 
   on.exit({
-    options(spades.modulesPath = userModulePath)
     unlink(tmpdir, recursive = TRUE)
   }, add = TRUE)
 

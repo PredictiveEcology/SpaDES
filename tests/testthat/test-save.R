@@ -60,12 +60,9 @@ test_that("saving files does not work correctly", {
 test_that("saving csv files does not work correctly", {
    library(igraph)
    savePath <- file.path(tempdir(), "test_save") %>% checkPath(create = TRUE)
-   userModulePath <- getOption('spades.modulesPath')
-   options(spades.modulesPath = savePath)
 
    on.exit({
      detach("package:igraph")
-     options(spades.modulesPath = userModulePath)
      unlink(savePath, recursive = TRUE)
     }, add = TRUE)
 
