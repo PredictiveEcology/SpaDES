@@ -973,7 +973,7 @@ test_that("simple cir does not work correctly", {
   expect_true(all(mean(circleRas[, "x"]) == (ncol(hab)/2 - 0.5)))
   expect_true(all(mean(circleRas[, "y"]) == (nrow(hab)/2 + 0.5)))
 
-  N = 1
+  N <- 1
   coords = cbind(x1 = round(stats::runif(N, xmin(hab), xmax(hab))) + 0.5,
                  y1 = round(stats::runif(N, xmin(hab), xmax(hab))) + 0.5)
   expect_error(cir(hab, coords = coords), "coords must have columns named x and y")
@@ -990,15 +990,14 @@ test_that("simple cir does not work correctly", {
 
   # test closest
   N <- 1
-  coords = cbind(x = c(5,6),
-                 y = c(5,5))
+  coords <- cbind(x = c(5,6), y = c(5,5))
   cirsClosestT <- cir(hab, coords = coords, maxRadius = 2, minRadius = 0,
                       includeBehavior = "includePixels", closest = TRUE,
                       returnIndices = TRUE, allowOverlap = FALSE)
   cirsClosestF <- cir(hab, coords = coords, maxRadius = 2, minRadius = 0,
                       includeBehavior = "includePixels", closest = FALSE,
                       returnIndices = TRUE, allowOverlap = FALSE)
-  expect_true(all(table(cirsClosestF[, "id"]) == c(17,4)))
+  expect_true(all(table(cirsClosestF[, "id"]) == c(17, 4)))
   expect_true(all(table(cirsClosestT[, "id"]) - table(cirsClosestF[, "id"]) == c(-5, 5)))
 
   cirs2 <- cir(hab, coords = coords, maxRadius = 2, minRadius = 0,
@@ -1015,18 +1014,17 @@ test_that("simple cir does not work correctly", {
   expect_true(max(getValues(cirs2)) == 3)
   expect_true(min(getValues(cirs2)) == 0)
 
-  cirs2 <- cir(hab, coords=coords, maxRadius = 2, minRadius = 0, includeBehavior = "includePixels",
+  cirs2 <- cir(hab, coords = coords, maxRadius = 2, minRadius = 0, includeBehavior = "includePixels",
                closest = FALSE, returnIndices = FALSE, allowOverlap = TRUE, returnDistances = TRUE)
   expect_is(cirs2, "Raster")
-  expect_true(max(getValues(cirs2))<2.82843)
+  expect_true(max(getValues(cirs2)) < 2.82843)
   expect_true(min(getValues(cirs2)) == 0)
 
-
-  hab <- raster(extent(0,1e1,0,1e1), res = c(1, 2))
+  hab <- raster(extent(0, 1e1, 0, 1e1), res = c(1, 2))
   expect_error(cir(hab, maxRadius = 1, includeBehavior = "excludePixels"),
                "cir function only accepts rasters with identical resolution in x and y dimensions")
 
-  hab <- raster(extent(0,1e1,0,1e1), res = 1)
+  hab <- raster(extent(0, 1e1, 0, 1e1), res = 1)
   expect_error(cir(hab, maxRadius = 1, includeBehavior = "excludeRings"),
                "includeBehavior can only be \"includePixels\" or \"excludePixels\""  )
 })
