@@ -4,7 +4,7 @@
 #' @param module Character string. Your module's name.
 #'
 #' @param path   Character string specifying the file path to modules directory.
-#'               Default is to use the \code{spades.modulesPath} option.
+#'               Default is to use the \code{spades.modulePath} option.
 #' @inheritParams spades
 #'
 #' @return A list of module metadata, matching the structure in
@@ -112,7 +112,7 @@ setMethod(
   "moduleMetadata",
   signature = c(module = "character", path = "missing", sim = "missing"),
   definition = function(module) {
-    moduleMetadata(module, getOption("spades.modulesPath"))
+    moduleMetadata(module, getOption("spades.modulePath"))
 })
 
 #' @export
@@ -121,13 +121,11 @@ setMethod(
   "moduleMetadata",
   signature = c(module = "ANY", path = "missing", sim = "simList"),
   definition = function(module, sim) {
-    if(missing(module)) {
-      module <- modules(sim)
-    }
+    if (missing(module)) module <- modules(sim)
 
     metadata <- lapply(module, function(mod)
       moduleMetadata(mod, path = modulePath(sim)))
-    if(length(module)==1) {
+    if (length(module) == 1) {
       metadata <- unlist(metadata, recursive = FALSE)
     } else {
       names(metadata) <- module

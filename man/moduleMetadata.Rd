@@ -20,7 +20,7 @@ moduleMetadata(module, path, sim)
 \item{module}{Character string. Your module's name.}
 
 \item{path}{Character string specifying the file path to modules directory.
-Default is to use the \code{spades.modulesPath} option.}
+Default is to use the \code{spades.modulePath} option.}
 
 \item{sim}{A \code{simList} simulation object, generally produced by \code{simInit}.}
 }
