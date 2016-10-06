@@ -966,6 +966,7 @@ test_that("simple cir does not work correctly", {
   set.seed(1234)
   require(raster); on.exit(detach("package:raster"), add = TRUE)
   require(fpCompare); on.exit(detach("package:fpCompare"), add = TRUE)
+
   hab <- raster(extent(0,1e1,0,1e1), res = 1)
 
   circleRas <- cir(hab, maxRadius = 1, includeBehavior = "excludePixels")
@@ -1052,7 +1053,6 @@ test_that("wrap does not work correctly", {
   expect_error(wrap(starts, bounds = starts),
                "Must use either a bbox, Raster\\*, or Extent for 'bounds'")
 
-
   # create spdf
   spdf <- SpatialPointsDataFrame(coords = starts, data = data.frame(x1, y1))
   expect_true(all(coordinates(wrap(spdf, bounds = hab)) == wrap(starts, hab)))
@@ -1067,7 +1067,6 @@ test_that("wrap does not work correctly", {
   spdf <- SpatialPointsDataFrame(coords = starts, data = data.frame(x1, y1))
   expect_error(wrap(spdf, bounds = extent(hab)),
                "When X is a matrix, it must have 2 columns, x and y,")
-
 })
 
 test_that("cir angles arg doesn't work", {
