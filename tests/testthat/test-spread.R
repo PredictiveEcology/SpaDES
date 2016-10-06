@@ -963,6 +963,7 @@ test_that("distanceFromPoints does not work correctly", {
 })
 
 test_that("simple cir does not work correctly", {
+  set.seed(1234)
   require(raster); on.exit(detach("package:raster"), add = TRUE)
   require(fpCompare); on.exit(detach("package:fpCompare"), add = TRUE)
   hab <- raster(extent(0,1e1,0,1e1), res = 1)
@@ -1012,13 +1013,13 @@ test_that("simple cir does not work correctly", {
                includeBehavior = "includePixels", closest = FALSE,
                returnIndices = FALSE, allowOverlap = TRUE, returnDistances = FALSE)
   expect_is(cirs2, "Raster")
-  expect_true(max(getValues(cirs2)) == 3)
+  expect_true(max(getValues(cirs2)) %==% 3)
   expect_true(min(getValues(cirs2)) == 0)
 
   cirs2 <- cir(hab, coords=coords, maxRadius = 2, minRadius = 0, includeBehavior = "includePixels",
                closest = FALSE, returnIndices = FALSE, allowOverlap = TRUE, returnDistances = TRUE)
   expect_is(cirs2, "Raster")
-  expect_true(max(getValues(cirs2))<2.82843)
+  expect_true(max(getValues(cirs2))<2.829)
   expect_true(min(getValues(cirs2)) == 0)
 
 
