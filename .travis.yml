@@ -63,6 +63,9 @@ matrix:
     latex: false
     r_build_args: '--no-build-vignettes'
     r_check_args: '--as-cran --ignore-vignettes --no-examples'
+    r_github_packages:
+    - s-u/fastshp
+    - MangoTheCat/VisualTest
     before_install:
     - echo "options(repos = c(CRAN='https://cran.rstudio.com'))" >> ~/.Rprofile
 
