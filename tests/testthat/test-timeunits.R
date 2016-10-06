@@ -1,11 +1,4 @@
 test_that("timeunit works correctly", {
-  userModulePath <- getOption('spades.modulesPath')
-  options(spades.modulesPath = tempdir())
-
-  on.exit({
-    options(spades.modulesPath = userModulePath)
-  }, add = TRUE)
-
   times <- list(start = 0.0, end = 10)
   params <- list(
     .globals = list(burnStats = "npixelsburned", stackName = "landscape"),
@@ -119,24 +112,22 @@ test_that("timeunits with child and parent modules work correctly", {
   cwd <- getwd()
   setwd(tmpdir)
 
-  userModulePath <- getOption('spades.modulesPath')
-  options(spades.modulesPath = tmpdir)
-
   on.exit({
     detach("package:igraph")
-    options(spades.modulesPath = userModulePath)
     setwd(cwd)
     unlink(tmpdir, recursive = TRUE)
   }, add = TRUE)
 
-  newModule("grandpar1", ".", type = "parent", children = c("child1", "child2", "par1"))
-  newModule("par1", ".", type = "parent", children = c("child4", "child3"))
-  newModule("child1", ".")
-  newModule("child3", ".")
-  newModule("child4", ".")
-  newModule("child5", ".")
+  suppressMessages({
+    newModule("grandpar1", ".", type = "parent", children = c("child1", "child2", "par1"))
+    newModule("par1", ".", type = "parent", children = c("child4", "child3"))
+    newModule("child1", ".")
+    newModule("child3", ".")
+    newModule("child4", ".")
+    newModule("child5", ".")
+  })
 
-  newModule("child2", ".")
+  suppressMessages(newModule("child2", "."))
   fileName <- 'child2/child2.R'
   xxx <- readLines(fileName)
   xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = "day"')
@@ -157,12 +148,12 @@ test_that("timeunits with child and parent modules work correctly", {
   xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = "month"')
   cat(xxx1, file = fileName, sep = "\n")
 
-  mySim <- simInit(modules = list("grandpar1","par1"))
+  mySim <- simInit(modules = list("grandpar1","par1"), paths = list(modulePath = "."))
   expect_equal(timeunit(mySim), "month")
 
   # If only listing the one module and it is a parent, then use it regardless of whether
   #  it is shortest or longest
-  mySim <- simInit(modules = list("grandpar1"))
+  mySim <- simInit(modules = list("grandpar1"), paths = list(modulePath = "."))
   expect_equal(timeunit(mySim), "year")
 
   fileName <- 'grandpar1/grandpar1.R'
@@ -172,35 +163,39 @@ test_that("timeunits with child and parent modules work correctly", {
 
   # If only listing the one module and it is a parent, then use it regardless of whether
   #  it is shortest or longest
-  mySim <- simInit(modules = list("grandpar1"))
+  mySim <- simInit(modules = list("grandpar1"), paths = list(modulePath = "."))
   expect_equal(timeunit(mySim), "hour")
 
-  mySim <- simInit(modules = list("grandpar1", "child5"))
+  mySim <- simInit(modules = list("grandpar1", "child5"), paths = list(modulePath = "."))
   expect_equal(timeunit(mySim), "second")
 
-  newModule("grandpar1", ".", type = "parent", children = c("child1", "child2", "par1"))
+  suppressMessages(
+    newModule("grandpar1", ".", type = "parent", children = c("child1", "child2", "par1"))
+  )
   fileName <- 'grandpar1/grandpar1.R'
   xxx <- readLines(fileName)
   xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = NA')
   cat(xxx1, file = fileName, sep = "\n")
 
   # If parent has NA for timeunit, then take smallest of children
-  mySim <- simInit(modules = list("grandpar1"))
+  mySim <- simInit(modules = list("grandpar1"), paths = list(modulePath = "."))
   expect_equal(timeunit(mySim), "day")
 
-  newModule("grandpar1", ".", type = "parent", children = c("child1", "child2", "par1"))
+  suppressMessages(
+    newModule("grandpar1", ".", type = "parent", children = c("child1", "child2", "par1"))
+  )
   fileName <- 'grandpar1/grandpar1.R'
   xxx <- readLines(fileName)
   xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = NA')
   cat(xxx1, file = fileName, sep = "\n")
 
-  newModule("child2", ".")
+  suppressMessages(newModule("child2", "."))
   fileName <- 'child2/child2.R'
   xxx <- readLines(fileName)
   xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = NA')
   cat(xxx1, file = fileName, sep = "\n")
 
   # If parent has NA for timeunit, then take smallest of children
-  mySim <- simInit(modules = list("grandpar1"))
+  mySim <- simInit(modules = list("grandpar1"), paths = list(modulePath = "."))
   expect_equal(timeunit(mySim), "month") # because par1 is month, grandpar1 is NA
 })
