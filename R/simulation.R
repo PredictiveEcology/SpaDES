@@ -893,7 +893,7 @@ setMethod(
             } else if (debug[i] == "simList") {
               print(sim)
             } else if (grepl(debug[i], pattern = "\\(") ) {
-              tryCatch(eval(parse(text = debug[i])), error = function(x) "")
+              print(tryCatch(eval(parse(text = debug[i])), error = function(x) ""))
             } else {
               print(do.call(debug[i], list(sim)))
             }
