@@ -182,20 +182,20 @@ test_that("timeunits with child and parent modules work correctly", {
   expect_equal(timeunit(mySim), "day")
 
   suppressMessages(
-    newModule("grandpar1", ".", type = "parent", children = c("child1", "child2", "par1"))
+    newModule("grandpar2", ".", type = "parent", children = c("child1", "child6", "par1"))
   )
-  fileName <- 'grandpar1/grandpar1.R'
+  fileName <- 'grandpar2/grandpar2.R'
   xxx <- readLines(fileName)
   xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = NA')
   cat(xxx1, file = fileName, sep = "\n")
 
-  suppressMessages(newModule("child2", "."))
-  fileName <- 'child2/child2.R'
+  suppressMessages(newModule("child6", "."))
+  fileName <- 'child6/child6.R'
   xxx <- readLines(fileName)
   xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = NA')
   cat(xxx1, file = fileName, sep = "\n")
 
   # If parent has NA for timeunit, then take smallest of children
-  mySim <- simInit(modules = list("grandpar1"), paths = list(modulePath = "."))
+  mySim <- simInit(modules = list("grandpar2"), paths = list(modulePath = "."))
   expect_equal(timeunit(mySim), "month") # because par1 is month, grandpar1 is NA
 })
