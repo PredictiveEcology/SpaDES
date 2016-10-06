@@ -7,7 +7,7 @@
 #'     efficient (but slower) algorithms. Default \code{FALSE}.
 #'
 #'   \item \code{spades.modulesPath}: The default local directory where modules
-#'     and data will be downloaded and stored.  Default \code{"~/SpaDES_modules"}.
+#'     and data will be downloaded and stored.  Default is a temporary directory.
 #'
 #'   \item \code{spades.modulesRepo}: The default GitHub repository to use when
 #'     downloading modules. Default \code{"PredictiveEcology/SpaDES-modules"}.
@@ -30,7 +30,7 @@ NULL
   opts <- options()
   opts.spades <- list(
     spades.lowMemory = FALSE,
-    spades.modulesPath = "~/SpaDES_modules",
+    spades.modulesPath = file.path(tempdir(), "SpaDES_modules"),
     spades.modulesRepo = "PredictiveEcology/SpaDES-modules",
     spades.nCompleted = 1000L,
     spades.tolerance = .Machine$double.eps^0.5
@@ -43,5 +43,12 @@ NULL
 
 .onAttach <- function(libname, pkgname) {
   packageStartupMessage("Default path for SpaDES modules set to: ",
-                        getOption("spades.modulesPath"), ".")
+                        getOption("spades.modulesPath"), ".\n",
+                        "To change this, set the 'spades.modulesPath' option.")
+}
+
+.onUnload <- function(libpath) {
+  if (getOption("spades.modulesPath") == file.path(tempdir(), "SpaDES_modules")) {
+    options(spades.modulesPath = NULL)
+  }
 }

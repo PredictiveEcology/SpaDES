@@ -321,13 +321,12 @@ test_that("asymmetry doesn't work properly", {
   lenAngles <- numeric(N)
 
   # function to calculate mean angle -- returns in degrees
-  meanAngle <- function(angles)
-    deg(atan2(mean(sin(rad(angles))),mean(cos(rad(angles)))))
-
-
+  meanAngle <- function(angles) {
+    deg(atan2(mean(sin(rad(angles))), mean(cos(rad(angles)))))
+  }
 
   if (interactive()) clearPlot()
-  seed <- sample(1e6,1)
+  seed <- sample(1e6, 1)
   set.seed(seed)
   for (asymAng in (2:N)) {
     circs <- spread(hab, spreadProb = 0.25, loci = ncell(hab)/2 - ncol(hab)/2,
@@ -472,14 +471,14 @@ test_that("spread benchmarking", {
   a[] <- 1
   sizes = rep(3300,3)
   set.seed(343)
-  microbenchmark(times = 100, maxSize=spread(a, loci=c(100, 3500, 8000), spreadProb = 1,
-                                             id = TRUE, maxSize = sizes))
+  microbenchmark(times = 100, maxSize = spread(a, loci = c(100, 3500, 8000),
+                                               spreadProb = 1, id = TRUE,
+                                               maxSize = sizes))
   set.seed(343)
   microbenchmark(times = 20,
-                 stopRule=spread(a, loci=c(100, 3500, 8000), spreadProb = 1,
-                                 stopRuleBehavior = "excludePixel",
-                                 id = TRUE,
-                                 stopRule = function(cells,id) length(cells) > sizes[id]))
+                 stopRule = spread(a, loci = c(100, 3500, 8000), spreadProb = 1,
+                                   stopRuleBehavior = "excludePixel", id = TRUE,
+                                   stopRule = function(cells,id) length(cells) > sizes[id]))
   # Unit: milliseconds
   #    expr      min       lq     mean   median       uq     max neval
   # maxSize 35.44505 37.38652 41.36509  38.2398 47.60329 84.6241   100
@@ -489,12 +488,13 @@ test_that("spread benchmarking", {
   quality[] <- runif(ncell(quality), 0, 1)
   stopRule4 <- function(landscape, quality, cells) (sum(landscape) > 200) | (mean(quality[cells]) < 0.5)
   set.seed(23432)
-  microbenchmark(circs <- spread(hab, spreadProb = 1, loci = initialLoci, circle = TRUE,
-                                 directions = 8, id = TRUE, stopRule = stopRule4, quality = quality,
+  microbenchmark(circs <- spread(hab, spreadProb = 1, loci = initialLoci,
+                                 circle = TRUE, directions = 8, id = TRUE,
+                                 stopRule = stopRule4, quality = quality,
                                  stopRuleBehavior = "includeRing"), times = 50)
 
   # ARbitrary stopRule is much slower than sizes -- 5x for this example
-  a <- raster(extent(0,300,0,300), res=1)
+  a <- raster(extent(0,300,0,300), res = 1)
   a[] <- 1
   sizes <- rep(6600,3)
   set.seed(343)
@@ -594,7 +594,6 @@ test_that("rings and cir", {
   expect_true(all(getValues(ras3) != 10)) # None should have only ras1, i.e., only circEx cells
   expect_true(all(getValues(ras3) != 20)) # None should have only ras1, i.e., only circEx cells
 
-
   cirsExSkinny <- data.table(cir(hab, caribou, maxRadius = radius, simplify = TRUE,
                                  includeBehavior = "excludePixels"))
   expect_true(NROW(cirsExSkinny) == 0)
@@ -668,7 +667,7 @@ test_that("distanceFromPoints does not work correctly", {
   require(fpCompare); on.exit(detach("package:fpCompare"), add = TRUE)
   library(data.table); on.exit(detach("package:data.table"), add = TRUE)
   hab <- raster(extent(0, 1e2, 0, 1e2), res = 1)
-  hab <- gaussMap(hab,speedup = 1) # if raster is large (>1e6 pixels), use speedup > 1
+  hab <- gaussMap(hab, speedup = 1) # if raster is large (>1e6 pixels), use speedup > 1
   names(hab) <- "hab"
   N <- 1
   coords <- cbind(x = round(stats::runif(N, xmin(hab), xmax(hab))) + 0.5,
@@ -836,10 +835,11 @@ test_that("distanceFromPoints does not work correctly", {
   microbenchmark(times = 2,
                  d1 = dists10 <- distanceFromEachPoint(coords, landscape = hab, maxDistance = 10),
                  d2 = dists30 <- distanceFromEachPoint(coords, landscape = hab, maxDistance = 30),
-                 d3 =  dists7 <- cir(landscape = hab, coords=coords[,c("x", "y")], maxRadius = 30, minRadius = 0, returnDistances = TRUE,
+                 d3 =  dists7 <- cir(landscape = hab, coords = coords[,c("x", "y")],
+                                     maxRadius = 30, minRadius = 0, returnDistances = TRUE,
                                      allowOverlap = TRUE),
                  d4 = dists50 <- distanceFromEachPoint(coords, landscape = hab, maxDistance = 300),
-                 d5 = distsDFP <- distanceFromPoints(xy=coords[,c("x", "y")], object = hab)
+                 d5 = distsDFP <- distanceFromPoints(xy = coords[,c("x", "y")], object = hab)
   )
 
   # sum of idw
@@ -862,11 +862,11 @@ test_that("distanceFromPoints does not work correctly", {
   head(dists5)
   distsRas <- raster(hab)
   distsRas[] <- dists5[, "dists"]
-  if (interactive()) Plot(distsRas, dists3, new=T)
+  if (interactive()) Plot(distsRas, dists3, new = TRUE)
 
   distsRas1 <- raster(hab)
   indices <- cellFromXY(hab,dists1[,c("x", "y")])
-  invDist <- tapply(dists1[, "dists"], indices, function(x) sum(1/(1+x)))
+  invDist <- tapply(dists1[, "dists"], indices, function(x) sum(1/(1 + x)))
   distsRas1[] <- as.vector(invDist)
   if (interactive()) Plot(distsRas1)
 
@@ -878,17 +878,17 @@ test_that("distanceFromPoints does not work correctly", {
 
   library(microbenchmark)
   microbenchmark(times = 100,
-                 cirs <- cir(hab, caribou, maxRadius = radius*1.5, minRadius = radius, simplify = TRUE,
-                             includeBehavior = "excludePixels"),
+                 cirs <- cir(hab, caribou, maxRadius = radius*1.5, minRadius = radius,
+                             simplify = TRUE, includeBehavior = "excludePixels"),
                  cirs2 <- {loci <- cellFromXY(hab, coordinates(caribou))
                  cirs2 <- rings(hab, loci, minRadius = radius, maxRadius = radius*1.5)})
 
 
   loci <- cellFromXY(hab, coordinates(caribou))
-  radius = 15
+  radius <- 15
   N <- 10
-  caribou <- SpatialPoints(coords = cbind(x = round(stats::runif(N, xmin(hab), xmax(hab)))+0.5,
-                                          y = round(stats::runif(N, xmin(hab), xmax(hab)))+0.5))
+  caribou <- SpatialPoints(coords = cbind(x = round(stats::runif(N, xmin(hab), xmax(hab))) + 0.5,
+                                          y = round(stats::runif(N, xmin(hab), xmax(hab))) + 0.5))
   microbenchmark(times = 200,
                  cirs2 <- rings(hab, loci, minRadius = 0, maxRadius = radius, returnIndices = TRUE, allowOverlap = FALSE),
                  aNoDists = cir(hab, coords = coordinates(caribou), allowOverlap = FALSE, returnDistances = FALSE,
@@ -932,8 +932,8 @@ test_that("distanceFromPoints does not work correctly", {
     hab <- raster(extent(0,size1,0,size1), res = 1)
     N <- 1
     radius = ncol(hab)/5
-    caribou <- SpatialPoints(coords = cbind(x = round(stats::runif(N, xmin(hab), xmax(hab)))+0.5,
-                                            y = round(stats::runif(N, xmin(hab), xmax(hab)))+0.5))
+    caribou <- SpatialPoints(coords = cbind(x = round(stats::runif(N, xmin(hab), xmax(hab))) + 0.5,
+                                            y = round(stats::runif(N, xmin(hab), xmax(hab))) + 0.5))
     count <- count + 1
     seed <- sample(1e6,1)
     set.seed(seed)
@@ -970,13 +970,13 @@ test_that("simple cir does not work correctly", {
 
   circleRas <- cir(hab, maxRadius = 1, includeBehavior = "excludePixels")
   expect_true(NROW(circleRas) == 4)
-  expect_true(all(circleRas[, "indices"] == c(35,44,55,46)))
+  expect_true(all(circleRas[, "indices"] == c(35, 44, 55, 46)))
   expect_true(all(mean(circleRas[, "x"]) == (ncol(hab)/2 - 0.5)))
   expect_true(all(mean(circleRas[, "y"]) == (nrow(hab)/2 + 0.5)))
 
-  N = 1
-  coords = cbind(x1 = round(stats::runif(N, xmin(hab), xmax(hab))) + 0.5,
-                 y1 = round(stats::runif(N, xmin(hab), xmax(hab))) + 0.5)
+  N <- 1
+  coords <- cbind(x1 = round(stats::runif(N, xmin(hab), xmax(hab))) + 0.5,
+                  y1 = round(stats::runif(N, xmin(hab), xmax(hab))) + 0.5)
   expect_error(cir(hab, coords = coords), "coords must have columns named x and y")
 
   # test id column in coords
@@ -991,15 +991,14 @@ test_that("simple cir does not work correctly", {
 
   # test closest
   N <- 1
-  coords = cbind(x = c(5,6),
-                 y = c(5,5))
+  coords <- cbind(x = c(5,6), y = c(5,5))
   cirsClosestT <- cir(hab, coords = coords, maxRadius = 2, minRadius = 0,
                       includeBehavior = "includePixels", closest = TRUE,
                       returnIndices = TRUE, allowOverlap = FALSE)
   cirsClosestF <- cir(hab, coords = coords, maxRadius = 2, minRadius = 0,
                       includeBehavior = "includePixels", closest = FALSE,
                       returnIndices = TRUE, allowOverlap = FALSE)
-  expect_true(all(table(cirsClosestF[, "id"]) == c(17,4)))
+  expect_true(all(table(cirsClosestF[, "id"]) == c(17, 4)))
   expect_true(all(table(cirsClosestT[, "id"]) - table(cirsClosestF[, "id"]) == c(-5, 5)))
 
   cirs2 <- cir(hab, coords = coords, maxRadius = 2, minRadius = 0,
@@ -1016,20 +1015,19 @@ test_that("simple cir does not work correctly", {
   expect_true(max(getValues(cirs2)) %==% 3)
   expect_true(min(getValues(cirs2)) == 0)
 
-  cirs2 <- cir(hab, coords=coords, maxRadius = 2, minRadius = 0, includeBehavior = "includePixels",
+  cirs2 <- cir(hab, coords = coords, maxRadius = 2, minRadius = 0, includeBehavior = "includePixels",
                closest = FALSE, returnIndices = FALSE, allowOverlap = TRUE, returnDistances = TRUE)
   expect_is(cirs2, "Raster")
   expect_true(max(getValues(cirs2))<2.829)
   expect_true(min(getValues(cirs2)) == 0)
 
-
-  hab <- raster(extent(0,1e1,0,1e1), res = c(1, 2))
+  hab <- raster(extent(0, 1e1, 0, 1e1), res = c(1, 2))
   expect_error(cir(hab, maxRadius = 1, includeBehavior = "excludePixels"),
                "cir function only accepts rasters with identical resolution in x and y dimensions")
 
-  hab <- raster(extent(0,1e1,0,1e1), res = 1)
+  hab <- raster(extent(0, 1e1, 0, 1e1), res = 1)
   expect_error(cir(hab, maxRadius = 1, includeBehavior = "excludeRings"),
-               "includeBehavior can only be \"includePixels\" or \"excludePixels\""  )
+               "includeBehavior can only be \"includePixels\" or \"excludePixels\"")
 })
 
 test_that("wrap does not work correctly", {
@@ -1120,7 +1118,7 @@ test_that("cir angles arg doesn't work", {
   newWay <- TRUE; circNW <- cir(Ras, coords, angles = angles,
                                 maxRadius = 3, minRadius = 0, returnIndices = TRUE,
                                 allowOverlap = TRUE, returnAngles = TRUE)
-  })
+})
 
 test_that("multi-core version of distanceFromEachPoints does not work correctly", {
   skip_on_cran()

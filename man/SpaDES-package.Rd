@@ -468,7 +468,7 @@ found with \code{file.path(find.package("SpaDES"), "sampleModules")}
     efficient (but slower) algorithms. Default \code{FALSE}.
 
   \item \code{spades.modulesPath}: The default local directory where modules
-    and data will be downloaded and stored.  Default \code{"~/SpaDES_modules"}.
+    and data will be downloaded and stored.  Default is a temporary directory.
 
   \item \code{spades.modulesRepo}: The default GitHub repository to use when
     downloading modules. Default \code{"PredictiveEcology/SpaDES-modules"}.

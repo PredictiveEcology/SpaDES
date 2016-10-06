@@ -1,7 +1,8 @@
 ## Updated release
 
-This is a maintenance release to deal with changes associated with the recent `RandomFields` update, which caused some of our tests to fail.
-We have also made several other improvements and bug fixes (see NEWS).
+This is an update to fix unintentional writes to a user's home directory.
+Previously, a default path to a directory in the user's home folder was set via an option.
+This has been changed to use a temporary directory by default instead, with a package startup message telling the user how to change it.
 
 ## Test environments
 
@@ -22,9 +23,9 @@ We have also made several other improvements and bug fixes (see NEWS).
 
 ### Development R version
 * Debian:testing  (rocker/drd), R 3.4.0 (2016-10-02 r71437)
-* Ubuntu 12.04     (travis-ci), R 3.4.0 (2016-10-04 r71449)
-* Windows           (appveyor), R 3.4.0 (2016-10-04 r71449)
-* Windows        (win-builder), R 3.4.0 (2016-10-04 r71449)
+* Ubuntu 12.04     (travis-ci), R 3.4.0 (2016-10-06 r71457)
+* Windows           (appveyor), R 3.4.0 (2016-10-05 r71456)
+* Windows        (win-builder), R 3.4.0 (2016-10-05 r71456)
 
 ## R CMD check results
 
@@ -32,14 +33,15 @@ There were no ERRORs or WARNINGs
 
 There were 2 NOTEs:
 
-1. There are three parts to this note:
+1. There are multiple parts to this note:
 
     a. Several words were flagged as possibly mispelled, but they are not.
     
             Possibly mis-spelled words in DESCRIPTION:
-              fastshp (11:61, 12:39)
-              modularity (9:5)
-              repos (12:49)
+              DES (8:23)
+              fastshp (12:24)
+              modularity (8:55)
+              repos (12:34)
 
     b. The `fastshp` package in Suggests is optionally installed from Rforge and not required to use the package. Instructions for installation are provided in the Description, README, and via a message to the user. We believe this should satisfy the CRAN policy requirement regarding additional dependencies.
 
@@ -49,10 +51,6 @@ There were 2 NOTEs:
             Availability using Additional_repositories specification:
               fastshp   yes   http://rforge.net
 
-    c. We suggest the `snow` package can be use for creating clusters on Linux (required when using `raster::beginCluster()`).
-    
-            Uses the superceded package: 'snow'
-    
 2. As noted above, we provide instructions for the user to install the suggested `fastshp` package.
 
         Package suggested but not available for checking: 'fastshp'

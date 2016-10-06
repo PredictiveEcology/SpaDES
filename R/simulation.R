@@ -749,7 +749,8 @@ setMethod(
 #' @rdname simInit
 setMethod(
   "simInit",
-  signature(),
+  signature(times = "ANY", params = "ANY", modules = "ANY", objects = "ANY",
+            paths = "ANY", inputs = "ANY", outputs = "ANY", loadOrder = "ANY"),
   definition = function(times, params, modules, objects, paths, inputs, outputs, loadOrder) {
 
     li <- lapply(names(match.call()[-1]), function(x) eval(parse(text = x)))

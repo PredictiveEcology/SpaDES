@@ -176,7 +176,7 @@ test <- 1:10
 library(igraph) # for \%>\%
 tmpdir <- file.path(tempdir(), "inputs") \%>\% checkPath(create = TRUE)
 tmpFile <- file.path(tmpdir, "test.rds")
-saveRDS(test, file=tmpFile)
+saveRDS(test, file = tmpFile)
 inputs(sim) <- data.frame(file = tmpFile) # using only required column, "file"
 inputs(sim) # see that it is not yet loaded, but when it is scheduled to be loaded
 simOut <- spades(sim)
@@ -202,18 +202,18 @@ if (require("rgdal", quietly = TRUE)) {
 
   ##############################
   #A fully described inputs object, including arguments:
-  files = dir(system.file("maps", package = "SpaDES"),
-              full.names = TRUE, pattern = "tif")
+  files <- dir(system.file("maps", package = "SpaDES"),
+               full.names = TRUE, pattern = "tif")
   # arguments must be a list of lists. This may require I() to keep it as a list
   #   once it gets coerced into the data.frame.
   arguments = I(rep(list(native = TRUE), length(files)))
   filelist = data.frame(
-     objectName = paste0("Maps",1:5),
+     objectName = paste0("Maps", 1:5),
      files = files,
      functions = "raster::raster",
      arguments = arguments,
      loadTime = 0,
-     intervals = c(rep(NA, length(files)-1), 10)
+     intervals = c(rep(NA, length(files) - 1), 10)
   )
   inputs(sim) <- filelist
   spades(sim)
