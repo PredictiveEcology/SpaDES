@@ -1018,7 +1018,7 @@ test_that("simple cir does not work correctly", {
   cirs2 <- cir(hab, coords = coords, maxRadius = 2, minRadius = 0, includeBehavior = "includePixels",
                closest = FALSE, returnIndices = FALSE, allowOverlap = TRUE, returnDistances = TRUE)
   expect_is(cirs2, "Raster")
-  expect_true(max(getValues(cirs2))<2.829)
+  expect_true(max(getValues(cirs2)) < 2.829)
   expect_true(min(getValues(cirs2)) == 0)
 
   hab <- raster(extent(0, 1e1, 0, 1e1), res = c(1, 2))
