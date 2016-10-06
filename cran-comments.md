@@ -1,7 +1,8 @@
 ## Updated release
 
-This is a maintenance release to deal with changes associated with the recent `RandomFields` update, which caused some of our tests to fail.
-We have also made several other improvements and bug fixes (see NEWS).
+This is an update to fix unintentional writes to a user's home directory.
+Previously, a default path to a directory in the user's home folder was set via an option.
+This has been changed to use a temporary directory by default instead, with a package startup message telling the user how to change it.
 
 ## Test environments
 
