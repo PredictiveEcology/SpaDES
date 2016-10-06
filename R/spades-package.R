@@ -221,6 +221,9 @@
 #'
 #' \tabular{ll}{
 #'   \code{\link{cache}} \tab Caches a spades call, but often used as arg in \code{\link{spades}}\cr
+#'   \code{\link{showCache}} \tab Shows information about the objects in the cache\cr
+#'   \code{\link{clearCache}} \tab Removes objects from the cache\cr
+#'   \code{\link{clearStubArtifacts}} \tab Removes some errors in cached files\cr
 #' }
 #'
 #' A module developer can build caching into their module by creating cached versions of their
