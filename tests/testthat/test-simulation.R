@@ -149,12 +149,8 @@ test_that("spades calls with different signatures don't work", {
   cwd <- getwd()
   setwd(tmpdir)
 
-  userModulePath <- getOption('spades.modulesPath')
-  options(spades.modulesPath = tmpdir)
-
   on.exit({
     detach("package:igraph")
-    options(spades.modulesPath = userModulePath)
     setwd(cwd)
     unlink(tmpdir, recursive = TRUE)
   }, add = TRUE)
@@ -167,7 +163,7 @@ test_that("spades calls with different signatures don't work", {
   expect_output(spades(a, debug = TRUE, .plotInitialTime = NA), "eventTime")
   expect_output(spades(a, debug = TRUE, .saveInitialTime = NA), "eventTime")
   expect_equivalent(capture_output(spades(a, debug = "current", .plotInitialTime = NA)),
-                capture_output(spades(a, debug = TRUE, .plotInitialTime = NA)))
+                    capture_output(spades(a, debug = TRUE, .plotInitialTime = NA)))
 
   expect_output(spades(a, debug = c("current", "events"), .plotInitialTime = NA),
                 "-------------")

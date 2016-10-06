@@ -285,7 +285,7 @@ setMethod(
 #'
 #'   \item \code{inputPath}: the current working directory (\code{"."};
 #'
-#'   \item \code{modulePath}: \code{getOption("spades.modulePath")};
+#'   \item \code{modulePath}: \code{getOption("spades.modulesPath")};
 #'
 #'   \item \code{inputPath}: the current working directory (\code{"."};
 #' }

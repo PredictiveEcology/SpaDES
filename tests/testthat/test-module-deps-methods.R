@@ -1,11 +1,4 @@
 test_that("defineModule correctly handles different inputs", {
-  userModulePath <- getOption('spades.modulesPath')
-  options(spades.modulesPath = tempdir())
-
-  on.exit({
-    options(spades.modulesPath = userModulePath)
-  }, add = TRUE)
-
   tmp <- simInit()
 
   # check empty metadata
@@ -163,27 +156,25 @@ test_that("3 levels of parent and child modules load and show correctly", {
   cwd <- getwd()
   setwd(tmpdir)
 
-  userModulePath <- getOption('spades.modulesPath')
-  options(spades.modulesPath = tmpdir)
-
   on.exit({
     detach("package:igraph")
-    options(spades.modulesPath = userModulePath)
     setwd(cwd)
     unlink(tmpdir, recursive = TRUE)
   }, add = TRUE)
 
-  newModule("grandpar1", ".", type = "parent",
-            children = c("child1", "child2", "par1", "par2"))
-  newModule("par1", ".", type = "parent", children = c("child4", "child3"))
-  newModule("par2", ".", type = "parent", children = c("child5", "child6"))
-  newModule("child1", ".")
-  newModule("child3", ".")
-  newModule("child4", ".")
-  newModule("child5", ".")
-  newModule("child6", ".")
+  suppressMessages({
+    newModule("grandpar1", ".", type = "parent",
+              children = c("child1", "child2", "par1", "par2"))
+    newModule("par1", ".", type = "parent", children = c("child4", "child3"))
+    newModule("par2", ".", type = "parent", children = c("child5", "child6"))
+    newModule("child1", ".")
+    newModule("child3", ".")
+    newModule("child4", ".")
+    newModule("child5", ".")
+    newModule("child6", ".")
+  })
 
-  newModule("child2", ".")
+  suppressMessages(newModule("child2", "."))
   fileName <- 'child2/child2.R'
   xxx <- readLines(fileName)
   xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = "day"')
@@ -204,7 +195,7 @@ test_that("3 levels of parent and child modules load and show correctly", {
   xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = "month"')
   cat(xxx1, file = fileName, sep = "\n")
 
-  mySim <- simInit(modules = list("grandpar1"))
+  mySim <- simInit(modules = list("grandpar1"), paths = list(modulePath = "."))
   mg <- moduleGraph(mySim, FALSE)
   expect_true(is(mg, "list"))
   expect_true(is(mg$graph, "igraph"))
