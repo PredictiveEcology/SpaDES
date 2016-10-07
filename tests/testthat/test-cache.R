@@ -1,7 +1,4 @@
 test_that("test cache", {
-  library(raster); on.exit(detach("package:raster"), add = TRUE)
-  library(igraph); on.exit(detach("package:igraph"), add = TRUE)
-  library(dplyr); on.exit(detach("package:dplyr"), add = TRUE)
 
   tmpdir <- file.path(tempdir(), "testCache") %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
@@ -29,7 +26,7 @@ test_that("test cache", {
   sims <- experiment(mySim, replicates = 2, cache = TRUE)
   out <- print(showCache(sims[[1]]))
   expect_output(print(out), "cacheId")
-  expect_true(NROW(out)==15)
+  expect_true(NROW(out)==10) # will become 15 with new experiment caching stuff
   clearCache(sims[[1]])
   out <- print(showCache(sims[[1]]))
   expect_true(NROW(out)==0)
