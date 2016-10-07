@@ -2,16 +2,17 @@
 % Please edit documentation in R/simList-accessors.R
 \name{.fillOutputRows}
 \alias{.fillOutputRows}
-\title{An internal function for coercing a data.frame to inputs()}
+\title{An internal function for coercing a data.frame to outputs()}
 \usage{
 .fillOutputRows(outputDF, endTime)
 }
 \arguments{
-\item{outputDF}{A data.frame with partial columns to pass to inputs( ) <-}
+\item{outputDF}{A data.frame with partial columns to pass to outputs<-}
 
 \item{endTime}{Numeric time. The end(sim).}
 }
 \description{
-An internal function for coercing a data.frame to inputs()
+An internal function for coercing a data.frame to outputs()
 }
+\keyword{internal}
 

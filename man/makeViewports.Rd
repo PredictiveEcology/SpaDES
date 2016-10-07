@@ -26,4 +26,5 @@ white space availabe to plot.
 \author{
 Eliot McIntire
 }
+\keyword{internal}
 

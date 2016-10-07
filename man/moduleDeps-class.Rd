@@ -70,4 +70,5 @@ Alex Chubaty
 \seealso{
 \code{.simDeps}, \code{\link{spadesClasses}}
 }
+\keyword{internal}
 

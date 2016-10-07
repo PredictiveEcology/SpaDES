@@ -182,12 +182,13 @@ setMethod(
 #' (i.e., layout and dimensions) and onefor all of the \code{spadesGrobs}
 #' (stored as a spadesGrobList of lists \code{.spadesGrob} objects).
 #'
-#' @rdname makeSpadesPlot
 #' @include plotting-classes.R
 #' @include plotting-helpers.R
 #' @export
 #' @author Eliot McIntire
 #' @docType methods
+#' @keywords internal
+#' @rdname makeSpadesPlot
 #'
 setGeneric(".makeSpadesPlot", function(plotObjects, plotArgs, whichSpadesPlottables, ...) {
   standardGeneric(".makeSpadesPlot")
@@ -919,9 +920,9 @@ setGeneric(".convertSpatialToPlotGrob", function(grobToPlot, sGrob, takeFromPlot
   standardGeneric(".convertSpatialToPlotGrob")
 })
 
-#' @export
-#' @rdname Plot-internal
 #' @aliases PlotHelpers
+#' @keywords internal
+#' @rdname Plot-internal
 setMethod(
   ".convertSpatialToPlotGrob",
   signature = c("spatialObjects", ".spadesGrob"),
@@ -973,17 +974,18 @@ setMethod(
 #'
 #' @include plotting-classes.R
 #' @docType methods
-#' @rdname Plot-internal
 #' @aliases PlotHelpers
+#' @keywords internal
 #' @name .xyAxes
+#' @rdname Plot-internal
 #'
 setGeneric(".xyAxes", function(sGrob, arr, whPlotFrame) {
   standardGeneric(".xyAxes")
 })
 
-#' @export
 #' @rdname Plot-internal
 #' @aliases PlotHelpers
+#' @keywords internal
 setMethod(
   ".xyAxes",
   signature = c(".spadesGrob", ".arrangement"),
@@ -1045,9 +1047,10 @@ setMethod(
 #' @include plotting-classes.R
 #' @importFrom grid seekViewport grid.text
 #' @docType methods
-#' @rdname Plot-internal
 #' @aliases PlotHelpers
+#' @keywords internal
 #' @name .Plot
+#' @rdname Plot-internal
 #'
 setGeneric(".Plot", function(sGrob, grobToPlot, subPlots, spadesSubPlots, spadesGrobCounter,
                              isBaseSubPlot, isNewPlot, isReplot, zMat, wipe, xyAxes, legendText,
@@ -1055,7 +1058,6 @@ setGeneric(".Plot", function(sGrob, grobToPlot, subPlots, spadesSubPlots, spades
   standardGeneric(".Plot")
 })
 
-#' @export
 #' @rdname Plot-internal
 #' @importFrom raster crop is.factor
 #' @aliases PlotHelpers
@@ -1259,18 +1261,19 @@ setMethod(
 #' @include plotting-classes.R
 #' @inheritParams .makeSpadesPlot
 #' @docType methods
-#' @rdname Plot-internal
 #' @aliases PlotHelpers
+#' @keywords internal
 #' @name .refreshGrob
+#' @rdname Plot-internal
 #'
 setGeneric(".refreshGrob", function(sGrob, subPlots, legendRange,
                                     grobToPlot, plotArgs, nColumns, whPlotObj) {
   standardGeneric(".refreshGrob")
 })
 
-#' @export
 #' @rdname Plot-internal
 #' @aliases PlotHelpers
+#' @keywords internal
 setMethod(
   ".refreshGrob",
   signature = c(".spadesGrob"),
@@ -1302,17 +1305,16 @@ setMethod(
 
 #' @include plotting-classes.R
 #' @docType methods
-#' @rdname Plot-internal
 #' @aliases PlotHelpers
+#' @keywords internal
 #' @name .updateGrobGPTextAxis
-#'
+#' @rdname Plot-internal
 setGeneric(".updateGrobGPTextAxis", function(sGrob, arr, newArr) {
   standardGeneric(".updateGrobGPTextAxis")
 })
 
-#' @export
-#' @rdname Plot-internal
 #' @aliases PlotHelpers
+#' @rdname Plot-internal
 setMethod(
   ".updateGrobGPTextAxis",
   signature = c(".spadesGrob"),
@@ -1471,17 +1473,16 @@ setMethod(
 #'
 #' @param ...    Additional arguments. Currently none implemented.
 #'
-#' @rdname updateSpadesPlot
-#' @export
 #' @importFrom stats na.omit
 #' @include plotting-classes.R
 #' @author Eliot McIntire
 #' @docType methods
+#' @keywords internal
+#' @rdname updateSpadesPlot
 setGeneric(".updateSpadesPlot", function(newSP, curr, ...) {
   standardGeneric(".updateSpadesPlot")
 })
 
-#' @export
 #' @rdname updateSpadesPlot
 setMethod(
   ".updateSpadesPlot",
@@ -2286,6 +2287,7 @@ setMethod(
 #' @include plotting-classes.R
 #' @importFrom grid viewport vpTree vpList
 #' @importFrom raster xmin xmax ymin ymax extent
+#' @keywords internal
 #' @rdname makeViewports
 #'
 .makeViewports <- function(sPlot, newArr = FALSE) {

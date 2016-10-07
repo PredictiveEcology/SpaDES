@@ -28,4 +28,5 @@ Merges two \code{.spadesPlot} objects
 \author{
 Eliot McIntire
 }
+\keyword{internal}
 

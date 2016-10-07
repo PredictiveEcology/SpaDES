@@ -14,6 +14,7 @@
 #'
 #' @rdname fileEdit
 #' @author Alex Chubaty
+#' @keywords internal
 #'
 .fileEdit <- function(file) {
   if (Sys.getenv("RSTUDIO") == "1") {
