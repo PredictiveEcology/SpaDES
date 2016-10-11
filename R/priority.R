@@ -7,7 +7,7 @@
 #'
 #' @export
 #' @docType methods
-#' @aliases priority
+#' @name priority
 #' @rdname priority
 #'
 #' @author Alex Chubaty
