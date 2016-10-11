@@ -3,28 +3,6 @@ if (getRversion() >= "3.1.0") {
 }
 
 ################################################################################
-#' Default paths to use for a simulation
-#'
-#' Internal function, used during \code{\link{simInit}}.
-#'
-#' @return A named list of paths used in the simulation.
-#'
-#' @docType methods
-#' @keywords internal
-#' @rdname paths
-#'
-#' @author Alex Chubaty
-#'
-.paths <- function() {
-  list(
-    cachePath = getOption("spades.cachePath"),
-    inputPath = getOption("spades.inputPath"),
-    modulePath = getOption("spades.modulePath"),
-    outputPath = getOption("spades.outputPath")
-  )
-}
-
-################################################################################
 #' Determine which modules in a list are unparsed
 #'
 #' Internal function, used during \code{\link{simInit}}.
@@ -760,7 +738,7 @@ setMethod(
     if (missing(params)) li$params <- list()
     if (missing(modules)) li$modules <- list()
     if (missing(objects)) li$objects <- list()
-    if (missing(paths)) li$paths <- .paths()
+    if (missing(paths)) li$paths <- getPaths()
     if (missing(inputs)) li$inputs <- as.data.frame(NULL)
     if (missing(outputs)) li$outputs <- as.data.frame(NULL)
     if (missing(loadOrder)) li$loadOrder <- character(0)
