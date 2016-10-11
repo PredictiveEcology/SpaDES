@@ -39,7 +39,7 @@ NULL
 
 #' @importFrom methods loadMethod
 .onLoad <- function(libname, pkgname) {
-  tmpdir <- file.path(dirname(tempdir()), "SpaDES")
+  tmpdir <- file.path(tempdir(), "SpaDES")
   ## set options using the approach used by devtools
   opts <- options()
   opts.spades <- list(
@@ -60,16 +60,15 @@ NULL
 
 .onAttach <- function(libname, pkgname) {
   packageStartupMessage("Default paths for SpaDES directories set to:\n",
-                        "  cachePath: ", getOption("spades.cachePath"), "\n",
-                        "  inputPath: ", getOption("spades.inputPath"), "\n",
+                        "  cachePath:  ", getOption("spades.cachePath"), "\n",
+                        "  inputPath:  ", getOption("spades.inputPath"), "\n",
                         "  modulePath: ", getOption("spades.modulePath"), "\n",
                         "  outputPath: ", getOption("spades.outputPath"), "\n",
-                        "These can be changed by setting the appropriate option using:\n",
-                        "  e.g., options(spades.cachePath = \"/path/to/my/cache\")")
+                        "These can be changed using 'setPaths()'. See '?setPaths'.")
 }
 
 .onUnload <- function(libpath) {
-  tmpdir <- file.path(dirname(tempdir()), "SpaDES")
+  tmpdir <- file.path(tempdir(), "SpaDES")
   if (getOption("spades.modulePath") == file.path(tmpdir)) {
     options(spades.modulePath = NULL)
   }
