@@ -746,9 +746,20 @@ setMethod(
 #'
 #' @author Alex Chubaty
 #' @export
-#' @rdname user-paths
+#' @keywords internal
+#' @name setPaths
+#' @rdname setPaths
 #'
-getPaths <- function() {
+#' @examples
+#' \dontrun{
+#' setPaths()                       ## returns the current default working paths
+#' setPaths(cachePath = tempdir())  ## sets the cachePath
+#' setPaths(inputPath = tempdir())  ## sets the inputPath
+#' setPaths(modulePath = tempdir()) ## sets the modulePath
+#' setPaths(outputPath = tempdir()) ## sets the outputPath
+#' }
+#'
+.paths <- function() {
   list(
     cachePath = getOption('spades.cachePath'),
     inputPath = getOption('spades.inputPath'),
@@ -758,10 +769,23 @@ getPaths <- function() {
 }
 
 #' @export
-#' @rdname user-paths
-setPaths <- function(cachePath = "~/SpaDES/cache", inputPath = "~/SpaDES/inputs",
-                     modulePath = "~/SpaDES/modules", outputPath = "~/SpaDES/outputs") {
+#' @rdname setPaths
+setPaths <- function(cachePath, inputPath, modulePath, outputPath) {
+  if (missing(cachePath) && missing(inputPath) &&
+      missing(modulePath) && missing(outputPath)) {
+    cachePath <- "~/SpaDES/cache"
+    inputPath <- "~/SpaDES/inputs"
+    modulePath <- "~/SpaDES/modules"
+    outputPath <- "~/SpaDES/outputs"
+  }
+
+  if (missing(cachePath)) cachePath <- getOption('spades.cachePath')
+  if (missing(inputPath)) inputPath <- getOption('spades.inputPath')
+  if (missing(modulePath)) modulePath <- getOption('spades.modulePath')
+  if (missing(outputPath)) outputPath <- getOption('spades.outputPath')
+
   options(spades.cachePath = cachePath, spades.inputPath = inputPath,
           spades.modulePath = modulePath, spades.outputPath = outputPath)
-  lapply(getPaths(), checkPath, create = TRUE)
+
+  lapply(.paths(), checkPath, create = TRUE)
 }

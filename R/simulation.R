@@ -738,7 +738,7 @@ setMethod(
     if (missing(params)) li$params <- list()
     if (missing(modules)) li$modules <- list()
     if (missing(objects)) li$objects <- list()
-    if (missing(paths)) li$paths <- getPaths()
+    if (missing(paths)) li$paths <- .paths()
     if (missing(inputs)) li$inputs <- as.data.frame(NULL)
     if (missing(outputs)) li$outputs <- as.data.frame(NULL)
     if (missing(loadOrder)) li$loadOrder <- character(0)
