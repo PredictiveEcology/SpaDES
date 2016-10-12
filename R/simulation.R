@@ -550,7 +550,7 @@ setMethod(
     if (NROW(inputs)) {
       inputs <- .fillInputRows(inputs, startTime = start(sim))
     }
-
+    
     # used to prevent .inputObjects from loading if object is passed in by user.
     sim$.userSuppliedObjNames <- c(objNames, inputs$objectName)
 
@@ -673,7 +673,7 @@ setMethod(
     }
 
     # load files in the filelist
-    if (NROW(inputs)) {
+    if (NROW(inputs) | NROW(inputs(sim))) {
       inputs(sim) <- rbind(inputs(sim), inputs)
       if (NROW(
         events(sim)[moduleName == "load" & eventType == "inputs" &
