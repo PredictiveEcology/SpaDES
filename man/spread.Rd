@@ -13,7 +13,7 @@ spread(landscape, loci = NA_real_, spreadProb = 0.23, persistence = 0,
   id = FALSE, plot.it = FALSE, spreadProbLater = NA_real_,
   spreadState = NA, circle = FALSE, circleMaxRadius = NA_real_,
   stopRule = NA, stopRuleBehavior = "includeRing", allowOverlap = FALSE,
-  asymmetry = NA_real_, asymmetryAngle = NA_real_, ...)
+  asymmetry = NA_real_, asymmetryAngle = NA_real_, quick = FALSE, ...)
 
 \S4method{spread}{RasterLayer}(landscape, loci = NA_real_,
   spreadProb = 0.23, persistence = 0, mask = NA, maxSize = 100000000L,
@@ -23,7 +23,7 @@ spread(landscape, loci = NA_real_, spreadProb = 0.23, persistence = 0,
   spreadProbLater = NA_real_, spreadState = NA, circle = FALSE,
   circleMaxRadius = NA_real_, stopRule = NA,
   stopRuleBehavior = "includeRing", allowOverlap = FALSE,
-  asymmetry = NA_real_, asymmetryAngle = NA_real_, ...)
+  asymmetry = NA_real_, asymmetryAngle = NA_real_, quick = FALSE, ...)
 }
 \arguments{
 \item{landscape}{A \code{RasterLayer} object. This defines the possible locations
@@ -34,8 +34,12 @@ be used as part of \code{stopRule}. Require input.}
 If user has x and y coordinates, these can be converted with
 \code{\link[raster]{cellFromXY}}.}
 
-\item{spreadProb}{Numeric or rasterLayer.  The overall probability of
-spreading, or probability raster driven. Default is \code{0.23}.
+\item{spreadProb}{Numeric or rasterLayer. If numeric of length 1, then this is
+the global probability of
+spreading into each cell from a neighbor. If a raster (or a vector
+of length \code{ncell(landscape)}, resolution and extent of
+\code{landscape}), then this will be the cell-specific
+probability. Default is \code{0.23}.
 If a \code{spreadProbLater} is provided, then this is
 only used for the first iteration. Also called Escape
 probability. See section on "Breaking out of spread events".}
@@ -125,6 +129,10 @@ Use with caution.}
 
 \item{asymmetryAngle}{A numeric indicating the angle in degrees (0 is "up", as in North on a map),
 that describes which way the \code{asymmetry} is.}
+
+\item{quick}{Logical. If TRUE, then several potentially time consuming checking (such as
+\code{inRange}) will be skipped. This should only be used if there is no
+concern about checking to ensure that inputs are legal.}
 
 \item{...}{Additional named vectors or named list of named vectors
 required for \code{stopRule}. These

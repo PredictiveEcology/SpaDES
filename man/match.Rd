@@ -6,6 +6,11 @@
 \usage{
 x \%fin\% table
 }
+\arguments{
+\item{x}{See \code{fastmatch::fmatch}}
+
+\item{table}{See \code{fastmatch::fmatch}}
+}
 \description{
 A faster %in%, directly pulled from fastmatch match, based on
 http://stackoverflow.com/questions/32934933/faster-in-operator

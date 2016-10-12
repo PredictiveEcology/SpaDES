@@ -1770,7 +1770,8 @@ directionFromEachPoint <- function(from, to = NULL, landscape) {
 #' http://stackoverflow.com/questions/32934933/faster-in-operator
 #'
 #' @importFrom fastmatch fmatch
-#' @inheritParams fmatch
+#' @param x See \code{fastmatch::fmatch}
+#' @param table See \code{fastmatch::fmatch}
 #' @rdname match
 `%fin%` <- function(x, table) {
   fmatch(x, table, nomatch = 0L) > 0L
