@@ -23,9 +23,9 @@ This has been changed to use a temporary directory by default instead, with a pa
 
 ### Development R version
 * Debian:testing  (rocker/drd), R 3.4.0 (2016-10-02 r71437)
-* Ubuntu 12.04     (travis-ci), R 3.4.0 (2016-10-06 r71457)
-* Windows           (appveyor), R 3.4.0 (2016-10-05 r71456)
-* Windows        (win-builder), R 3.4.0 (2016-10-05 r71456)
+* Ubuntu 12.04     (travis-ci), R 3.4.0 (2016-10-07 r71462)
+* Windows           (appveyor), R 3.4.0 (2016-10-07 r71462)
+* Windows        (win-builder), R 3.4.0 (2016-10-07 r71462)
 
 ## R CMD check results
 

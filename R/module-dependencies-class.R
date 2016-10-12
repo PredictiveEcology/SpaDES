@@ -121,6 +121,7 @@ setMethod(".outputObjects",
 #' @aliases .moduleDeps
 #' @rdname moduleDeps-class
 #' @importFrom raster extent
+#' @keywords internal
 #'
 #' @seealso \code{.simDeps}, \code{\link{spadesClasses}}
 #'
@@ -207,6 +208,7 @@ setClass(
 #' @seealso \code{\link{.moduleDeps}}, \code{\link{spadesClasses}}
 #'
 #' @aliases .simDeps
+#' @keywords internal
 #' @rdname simDeps-class
 #'
 #' @author Alex Chubaty

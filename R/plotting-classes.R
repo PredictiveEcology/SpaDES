@@ -121,6 +121,7 @@ setClassUnion(name = ".spadesPlotObjects",
 #' @slot plotArgs list. Any parameters needed for plotting, set by Plot call.
 #'
 #' @aliases .spadesGrob
+#' @keywords internal
 #' @name .spadesGrob-class
 #' @rdname spadesGrob-class
 #' @author Eliot McIntire
@@ -199,6 +200,7 @@ setClass(".spadesGrob",
 #' Default is 5. See details.
 #'
 #' @aliases .arrangement
+#' @keywords internal
 #' @name .arrangement-class
 #' @rdname arrangement-class
 #' @author Eliot McIntire
@@ -258,6 +260,7 @@ setClass(".arrangement",
 #' @slot spadesGrobList list. A list of lists of .spadesGrob objects
 #'
 #' @aliases .spadesPlot
+#' @keywords internal
 #' @name .spadesPlot-class
 #' @rdname spadesPlot-class
 #' @author Eliot McIntire
@@ -275,15 +278,17 @@ setClass(".spadesPlot",
 ################################################################################
 #' The \code{.spadesPlottables} class
 #'
-#' This class is the union of all .spadesPlotObjects (e.g., RasterLayer*,
-#' SpatialPoints*, SpatialPolygons*, ggplot, hist etc.) and \code{\link{.spadesPlot}}
-#' class objects.  This allows replotting of a \code{\link{.spadesPlot}} object
+#' This class is the union of all .spadesPlotObjects (e.g., \code{RasterLayer*},
+#' \code{SpatialPoints*}, \code{SpatialPolygons*}, \code{ggplot}, \code{hist}, etc.)
+#' and \code{\link{.spadesPlot}} class objects.
+#' This allows replotting of a \code{\link{.spadesPlot}} object.
 #'
 #' @seealso \code{\link{spadesClasses}}
 #'
 #' @slot members \code{\link{.spadesPlotObjects}} and \code{\link{.spadesPlot}}
 #'
 #' @aliases .spadesPlottables
+#' @keywords internal
 #' @name .spadesPlottables-class
 #' @rdname spadesPlottables-class
 #' @author Eliot McIntire

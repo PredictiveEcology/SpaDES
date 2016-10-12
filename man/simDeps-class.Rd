@@ -19,4 +19,5 @@ Alex Chubaty
 \seealso{
 \code{\link{.moduleDeps}}, \code{\link{spadesClasses}}
 }
+\keyword{internal}
 

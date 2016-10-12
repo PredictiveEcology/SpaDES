@@ -45,4 +45,5 @@ Eliot McIntire
 \seealso{
 \code{\link{spadesClasses}}
 }
+\keyword{internal}
 

@@ -724,3 +724,68 @@ setMethod(
     }
     return(invisible(isOK))
 })
+
+#' Get and set default working directories
+#'
+#' Wrapper functions to access the packages options for default working directories.
+#'
+#' @param cachePath   The default local directory in which to cache simulation outputs.
+#'                    If not specified, defaults to \code{~/SpaDES/cache}.
+#'
+#' @param inputPath   The default local directory in which to look for simulation inputs
+#'                    If not specified, defaults to \code{~/SpaDES/inputs}.
+#'
+#' @param modulePath  The default local directory where modules and data will be downloaded and stored.
+#'                    If not specified, defaults to \code{~/SpaDES/modules}.
+#'
+#' @param outputPath  The default local directory in which to save simulation outputs.
+#'                    If not specified, defaults to \code{~/SpaDES/outputs}.
+#'
+#' @return Returns a named list of the user's default working directories.
+#' \code{setPaths} is invoked for the side effect of setting these directories.
+#'
+#' @author Alex Chubaty
+#' @export
+#' @keywords internal
+#' @name setPaths
+#' @rdname setPaths
+#'
+#' @examples
+#' \dontrun{
+#' setPaths()                       ## returns the current default working paths
+#' setPaths(cachePath = tempdir())  ## sets the cachePath
+#' setPaths(inputPath = tempdir())  ## sets the inputPath
+#' setPaths(modulePath = tempdir()) ## sets the modulePath
+#' setPaths(outputPath = tempdir()) ## sets the outputPath
+#' }
+#'
+.paths <- function() {
+  list(
+    cachePath = getOption('spades.cachePath'),
+    inputPath = getOption('spades.inputPath'),
+    modulePath = getOption('spades.modulePath'),
+    outputPath = getOption('spades.outputPath')
+  )
+}
+
+#' @export
+#' @rdname setPaths
+setPaths <- function(cachePath, inputPath, modulePath, outputPath) {
+  if (missing(cachePath) && missing(inputPath) &&
+      missing(modulePath) && missing(outputPath)) {
+    cachePath <- "~/SpaDES/cache"
+    inputPath <- "~/SpaDES/inputs"
+    modulePath <- "~/SpaDES/modules"
+    outputPath <- "~/SpaDES/outputs"
+  }
+
+  if (missing(cachePath)) cachePath <- getOption('spades.cachePath')
+  if (missing(inputPath)) inputPath <- getOption('spades.inputPath')
+  if (missing(modulePath)) modulePath <- getOption('spades.modulePath')
+  if (missing(outputPath)) outputPath <- getOption('spades.outputPath')
+
+  options(spades.cachePath = cachePath, spades.inputPath = inputPath,
+          spades.modulePath = modulePath, spades.outputPath = outputPath)
+
+  lapply(.paths(), checkPath, create = TRUE)
+}

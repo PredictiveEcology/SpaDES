@@ -41,4 +41,5 @@ Builds a \code{.spadesPlot} object from a list of objects.
 \author{
 Eliot McIntire
 }
+\keyword{internal}
 

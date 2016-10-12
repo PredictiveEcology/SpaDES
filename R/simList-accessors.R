@@ -3131,9 +3131,10 @@ setMethod(
 
 #' An internal function for coercing a data.frame to inputs()
 #'
-#' @param inputDF A data.frame with partial columns to pass to inputs( ) <-
+#' @param inputDF A data.frame with partial columns to pass to inputs<-
 #' @param startTime Numeric time. The start(sim).
 #'
+#' @keywords internal
 #' @rdname fillInputRows
 .fillInputRows <- function(inputDF, startTime) {
   factorCols <- sapply(inputDF, is.factor)
@@ -3193,11 +3194,12 @@ setMethod(
   return(inputDF)
 }
 
-#' An internal function for coercing a data.frame to inputs()
+#' An internal function for coercing a data.frame to outputs()
 #'
-#' @param outputDF A data.frame with partial columns to pass to inputs( ) <-
+#' @param outputDF A data.frame with partial columns to pass to outputs<-
 #' @param endTime Numeric time. The end(sim).
 #'
+#' @keywords internal
 #' @rdname fillOutputRows
 .fillOutputRows <- function(outputDF, endTime) {
   needRenameArgs <- grepl(names(outputDF), pattern = "arg[s]?$")

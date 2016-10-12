@@ -2,8 +2,8 @@
 #'
 #' Environment used internally to store internal package objects and methods.
 #'
+#' @keywords internal
 #' @rdname spadesEnv
-#'
 .spadesEnv <- new.env(parent = emptyenv())
 
 #' Assign to the internal SpaDES environment.

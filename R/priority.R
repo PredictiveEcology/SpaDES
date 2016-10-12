@@ -3,13 +3,11 @@
 #'
 #' Preset envent priorities: 1 = first (highest); 5 = normal; 10 = last (lowest).
 #'
-#'
-#'
 #' @return A numeric.
 #'
 #' @export
 #' @docType methods
-#' @aliases priority
+#' @name priority
 #' @rdname priority
 #'
 #' @author Alex Chubaty

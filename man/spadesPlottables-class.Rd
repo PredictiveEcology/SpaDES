@@ -5,9 +5,10 @@
 \alias{.spadesPlottables-class}
 \title{The \code{.spadesPlottables} class}
 \description{
-This class is the union of all .spadesPlotObjects (e.g., RasterLayer*,
-SpatialPoints*, SpatialPolygons*, ggplot, hist etc.) and \code{\link{.spadesPlot}}
-class objects.  This allows replotting of a \code{\link{.spadesPlot}} object
+This class is the union of all .spadesPlotObjects (e.g., \code{RasterLayer*},
+\code{SpatialPoints*}, \code{SpatialPolygons*}, \code{ggplot}, \code{hist}, etc.)
+and \code{\link{.spadesPlot}} class objects.
+This allows replotting of a \code{\link{.spadesPlot}} object.
 }
 \section{Slots}{
 
@@ -20,4 +21,5 @@ Eliot McIntire
 \seealso{
 \code{\link{spadesClasses}}
 }
+\keyword{internal}
 
