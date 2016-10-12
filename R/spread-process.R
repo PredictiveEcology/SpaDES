@@ -1764,14 +1764,14 @@ directionFromEachPoint <- function(from, to = NULL, landscape) {
   cbind(to, angles = angls)
 }
 
-#' A faster %in% based on fastmatch package
+#' A faster '%in%' based on fastmatch package
 #'
-#' A faster %in%, directly pulled from fastmatch match, based on
+#' A faster '%in%', directly pulled from fastmatch match, based on
 #' http://stackoverflow.com/questions/32934933/faster-in-operator
 #'
 #' @importFrom fastmatch fmatch
-#' @param x See \code{fastmatch::fmatch}
-#' @param table See \code{fastmatch::fmatch}
+#' @param x See \code{fmatch} in fastmatch package
+#' @param table See \code{fmatch} in fastmatch package
 #' @rdname match
 `%fin%` <- function(x, table) {
   fmatch(x, table, nomatch = 0L) > 0L
