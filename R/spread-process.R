@@ -1586,18 +1586,33 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
   }
 
   # It is about 2x faster to use the compiled C routine from raster package
-    m1 <- to[, c("x", "y"), drop = FALSE]
-    m2 <- from[, c("x", "y"), drop = FALSE]
-    dists <- sqrt((m1[, "x"] - m2[, "x"])^2 + (m1[, "y"] - m2[, "y"])^2)
+    #m1 <- to[, c("x", "y"), drop = FALSE]
+    #m2 <- from[, c("x", "y"), drop = FALSE]
+    dists <- sqrt((to[, "x"] - from[, "x"])^2 + (to[, "y"] - from[, "y"])^2)
     if (!is.na(angles)) {
+      m1 <- to[, c("x", "y"), drop = FALSE]
+      m2 <- from[, c("x", "y"), drop = FALSE]
       angls <- .pointDirection(m1, m2)
       dists <- cbind(dists = dists, angles = angls)
     }
 
+  # This is experimental C++ routine
+  ##m1 <- to[, c("x", "y"), drop = FALSE]
+  ##m2 <- from[, c("x", "y"), drop = FALSE]
+  ##dists <- distC(m1[, "x"], m2[, "x"], m1[, "y"], m2[, "y"])
+  # dists <- distC(to[, "x"], from[, "x"], to[, "y"], from[, "y"])
+  # if (!is.na(angles)) {
+  #   m1 <- to[, c("x", "y"), drop = FALSE]
+  #   m2 <- from[, c("x", "y"), drop = FALSE]
+  #   angls <- .pointDirection(m1, m2)
+  #   dists <- cbind(dists = dists, angles = angls)
+  # }
+
   # C call from raster
     # m1 <- to[, c("x", "y"), drop = FALSE]
     # m2 <- from[, c("x", "y"), drop = FALSE]
-    # 
+    #
+    # browser(expr=NROW(m1)>500)
     # dists <- .Call("distanceToNearestPoint",
     #       m1, m2, as.integer(0), PACKAGE = "raster")
     # if (!is.na(angles)) {
