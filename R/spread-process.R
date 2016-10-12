@@ -135,8 +135,12 @@ if (getRversion() >= "3.1.0") {
 #'                      If user has x and y coordinates, these can be converted with
 #'                      \code{\link[raster]{cellFromXY}}.
 #'
-#' @param spreadProb    Numeric or rasterLayer.  The overall probability of
-#'                      spreading, or probability raster driven. Default is \code{0.23}.
+#' @param spreadProb    Numeric or rasterLayer. If numeric of length 1, then this is
+#'                      the global probability of
+#'                      spreading into each cell from a neighbor. If a raster (or a vector
+#'                      of length \code{ncell(landscape)}, resolution and extent of
+#'                      \code{landscape}), then this will be the cell-specific
+#'                      probability. Default is \code{0.23}.
 #'                      If a \code{spreadProbLater} is provided, then this is
 #'                      only used for the first iteration. Also called Escape
 #'                      probability. See section on "Breaking out of spread events".
@@ -537,8 +541,8 @@ setMethod(
       warning("mapID is deprecated, use id")
       id <- mapID
     }
-    if (!any(stopRuleBehavior %in% c("includePixel","excludePixel","includeRing","excludeRing")))
-      stop("stopRuleBehaviour must be one of \"includePixel\", \"excludePixel\", \"includeRing\", or \"excludeRing\"")
+      if (!any(stopRuleBehavior %fin% c("includePixel","excludePixel","includeRing","excludeRing")))
+        stop("stopRuleBehaviour must be one of \"includePixel\", \"excludePixel\", \"includeRing\", or \"excludeRing\"")
     spreadStateExists <- is(spreadState, "data.table")
     spreadProbLaterExists <- TRUE
     
@@ -556,7 +560,7 @@ setMethod(
     }
 
     if (spreadStateExists) {
-      loci <- loci[!(loci %in% spreadState[,indices])] # keep these for later
+      loci <- loci[!(loci %fin% spreadState[,indices])] # keep these for later
       initialLoci <- loci
     } else {
       initialLoci <- loci
@@ -657,7 +661,7 @@ setMethod(
     if (is(spreadProb, "Raster")) {
       # convert NA to 0s
       isNASpreadProb <- is.na(spreadProb[])
-      if(any(isNASpreadProb)) 
+      if(any(isNASpreadProb))
         spreadProb[isNASpreadProb] <- 0L
     } else if (is.numeric(spreadProb)) {
       # Translate numeric spreadProb into a Raster, if there is a mask
@@ -665,7 +669,7 @@ setMethod(
         spreadProb <- raster(extent(landscape), res = res(landscape), vals = spreadProb)
       }
     }
-    
+
     # Convert mask and NAs to 0 on the spreadProbLater Raster
     if (is(spreadProbLater, "Raster")) {
       # convert NA to 0s
@@ -674,7 +678,7 @@ setMethod(
       } else {
         isNASpreadProbLater <- is.na(spreadProbLater[])
       }
-      if(any(isNASpreadProbLater)) 
+      if(any(isNASpreadProbLater))
         spreadProbLater[isNASpreadProbLater] <- 0L
 
     } else if (is.numeric(spreadProbLater)) {
@@ -696,7 +700,7 @@ setMethod(
       if (allowOverlap | returnDistances) {
         stop("Using spreadState with either allowOverlap = TRUE or returnDistances = TRUE is not implemented")
       } else {
-        if (sum(colnames(spreadState) %in% c("indices", "id", "active", "initialLocus")) == 4) {
+        if (sum(colnames(spreadState) %fin% c("indices", "id", "active", "initialLocus")) == 4) {
           spreads[loci] <- spreads[loci] + spreadState[, max(id)] # reassign old ones
           spreads[spreadState[,indices]] <- spreadState[, id]
           loci <- c(spreadState[active == TRUE, indices], loci) %>% na.omit()
@@ -777,7 +781,7 @@ setMethod(
       if (is.numeric(spreadProb)) {
         if (n == 1 & spreadStateExists) { # need cell specific values
           spreadProbs <- rep(spreadProb, NROW(potentials))
-          prevIndices <- potentials[, 1L] %in% spreadState[active == TRUE, indices]
+          prevIndices <- potentials[, 1L] %fin% spreadState[active == TRUE, indices]
           spreadProbs[prevIndices] <- spreadProbLater
         } else {
           spreadProbs <- spreadProb
@@ -785,7 +789,7 @@ setMethod(
       } else { # here for raster spreadProb
         if (n == 1 & spreadStateExists) { # need cell specific values
           spreadProbs <- spreadProb[][potentials[, 2L]]
-          prevIndices <- potentials[, 1L] %in% spreadState[active == TRUE, indices]
+          prevIndices <- potentials[, 1L] %fin% spreadState[active == TRUE, indices]
           spreadProbs[prevIndices] <- spreadProbLater
         } else {
           spreadProbs <- spreadProb[][potentials[, 2L]]
@@ -829,7 +833,7 @@ setMethod(
                          xyFromCell(landscape, potentials[, "to"]))
             }
             # need to remove dists column because distanceFromEachPoint, adds one back
-            a <- a[, !(colnames(a) %in% c("dists")), drop = FALSE]
+            a <- a[, !(colnames(a) %fin% c("dists")), drop = FALSE]
             # need 3 columns, id, x, y in both initialLociXY and a
             d <- distanceFromEachPoint(initialLociXY, a, angles = asymmetry) # d is sorted
             cMR <- n
@@ -843,7 +847,7 @@ setMethod(
                 }
               }
             }
-            potentials <- d[, !(colnames(d) %in% c("x", "y")), drop = FALSE]
+            potentials <- d[, !(colnames(d) %fin% c("x", "y")), drop = FALSE]
             potentials <- potentials[(d[, "dists"] %<=% cMR), , drop = FALSE]
           }
         }
@@ -910,7 +914,7 @@ setMethod(
             eventCells <- cbind(eventCells, dist = potentials[,"dists"])
           }
           # don't need to continue doing ids that are not active
-          tmp <- rbind(prevCells[prevCells[,"id"] %in% unique(eventCells[,"id"]),], eventCells)
+          tmp <- rbind(prevCells[prevCells[,"id"] %fin% unique(eventCells[,"id"]),], eventCells)
 
           ids <- unique(tmp[, "id"])
 
@@ -933,10 +937,10 @@ setMethod(
             if (stopRuleBehavior != "includeRing") {
               if (stopRuleBehavior != "excludeRing") {
                 whStop <- as.numeric(names(shouldStop)[shouldStop])
-                whStopAll <- tmp[,"id"] %in% whStop
+                whStopAll <- tmp[,"id"] %fin% whStop
                 tmp2 <- tmp[whStopAll,]
 
-                whStopEvents <- eventCells[,"id"] %in% whStop
+                whStopEvents <- eventCells[,"id"] %fin% whStop
 
                 # If an event needs to stop, then must identify which cells are included
                 out <- lapply(whStop, function(id) {
@@ -973,7 +977,7 @@ setMethod(
                   tmp3[sequ, , drop = FALSE]
                 })
                 eventRm <- do.call(rbind, out)[,"cells"]
-                cellsKeep <- !(potentials[,2L] %in% eventRm)
+                cellsKeep <- !(potentials[,2L] %fin% eventRm)
               } else {
                 cellsKeep <- rep(FALSE, NROW(potentials))
               }
@@ -981,7 +985,7 @@ setMethod(
               events <- potentials[,2L]
               eventCells <- eventCells[cellsKeep, , drop = FALSE]
             }
-            toKeepSR <- !(eventCells[,"id"] %in% as.numeric(names(which((shouldStop)))))
+            toKeepSR <- !(eventCells[,"id"] %fin% as.numeric(names(which((shouldStop)))))
           }
         }
 
@@ -1014,10 +1018,10 @@ setMethod(
         if (length(maxSize) > 1L) {
           if (exists("whichID", inherits = FALSE)) {
             if (allowOverlap | returnDistances) {
-              maxSizeKeep <- !(spreads[spreads[,"active"] == 1,"id"] %in% whichID)
+              maxSizeKeep <- !(spreads[spreads[,"active"] == 1,"id"] %fin% whichID)
               spreads <- spreads[c(rep(TRUE, sum(spreads[,"active"] == 0)),maxSizeKeep),]
             } else {
-              maxSizeKeep <- !spreads[events] %in% whichID
+              maxSizeKeep <- !spreads[events] %fin% whichID
             }
             events <- events[maxSizeKeep]
             if (exists("toKeepSR",inherits = FALSE)) { # must update toKeepSR in case that is a second reason to stop event
@@ -1118,7 +1122,7 @@ setMethod(
         set(allCells, , j = "active", as.logical(allCells$active))
       } else {
         allCells <- rbindlist(list(completed, active))
-        initEventID <- allCells[indices %in% initialLoci, id]
+        initEventID <- allCells[indices %fin% initialLoci, id]
         if (!all(is.na(initialLoci))) {
           dtToJoin <- data.table(id = sort(initEventID), initialLocus = initialLoci)
         } else {
@@ -1436,10 +1440,10 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
                                   maxDistance = NA_real_, cumulativeFn = NULL,
                                   distFn = function(dist) 1/(1 + dist), cl, ...) {
   matched <- FALSE
-  if ("id" %in% colnames(from)) {
+  if ("id" %fin% colnames(from)) {
     ids <- unique(from[,"id"])
   }
-  if ("id" %in% colnames(to)) {
+  if ("id" %fin% colnames(to)) {
     matched <- TRUE
   }
   if (is.null(to)) {
@@ -1447,14 +1451,14 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
   }
   if (!is.null(cumulativeFn)) {
     forms <- names(formals(distFn))
-    fromC <- "fromCell" %in% forms
+    fromC <- "fromCell" %fin% forms
     if (fromC) fromCell <- cellFromXY(landscape, from[, c("x", "y")])
-    toC <- "toCell" %in% forms
+    toC <- "toCell" %fin% forms
     if (toC) toCell <- cellFromXY(landscape, to[, c("x", "y")])
-    land <- "landscape" %in% forms
+    land <- "landscape" %fin% forms
     distFnArgs <- if (land) list(landscape = landscape[]) else NULL
     if (length(list(...)) > 0) distFnArgs <- append(distFnArgs, list(...))
-    xDist <- "dist" %in% forms
+    xDist <- "dist" %fin% forms
   }
   if (!matched) {
     if (NROW(from) > 1) {
@@ -1684,13 +1688,13 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
 directionFromEachPoint <- function(from, to = NULL, landscape) {
   matched <- FALSE
   nrowFrom <- NROW(from)
-  if ("id" %in% colnames(from)) {
+  if ("id" %fin% colnames(from)) {
     ids <- unique(from[, "id"])
   } else if (nrowFrom > 1) {
     ids <- seq_len(nrowFrom)
   }
 
-  if ("id" %in% colnames(to)) {
+  if ("id" %fin% colnames(to)) {
     matched <- TRUE
   }
   if (is.null(to))
@@ -1726,3 +1730,17 @@ directionFromEachPoint <- function(from, to = NULL, landscape) {
   angls <- pi/2 - atan2(rise,run) # Convert to geographic 0 = North
   cbind(to, angles = angls)
 }
+
+#' A faster %in% based on fastmatch package
+#'
+#' A faster %in%, directly pulled from fastmatch match, based on
+#' http://stackoverflow.com/questions/32934933/faster-in-operator
+#'
+#' @importFrom fastmatch fmatch
+#' @inheritParams fmatch
+#' @rdname match
+`%fin%` <- function(x, table) {
+  fmatch(x, table, nomatch = 0L) > 0L
+}
+
+
