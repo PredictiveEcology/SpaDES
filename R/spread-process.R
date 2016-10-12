@@ -797,7 +797,12 @@ setMethod(
           prevIndices <- potentials[, 1L] %fin% spreadState[active == TRUE, indices]
           spreadProbs[prevIndices] <- spreadProbLater
         } else {
-          spreadProbs <- spreadProb
+          if(length(spreadProb)>1) {
+            spreadProbs <- spreadProb[potentials[, 2L]]
+          } else {
+            spreadProbs <- spreadProb
+          }
+
         }
       } else { # here for raster spreadProb
         if (n == 1 & spreadStateExists) { # need cell specific values
