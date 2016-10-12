@@ -1149,6 +1149,8 @@ setMethod(
 
         } else if (spadesGrobCounter == 1 | wipe | isHist) {
           suppressWarnings(par(new = TRUE))
+          args_plot1 <- lapply(args_plot1, unname)
+          
 
           # This is a work around because I am not able to generically
           #  assess the formals of a function to remove any that aren't
@@ -1168,6 +1170,7 @@ setMethod(
 
         } else {
           # adding points to a plot
+          suppressWarnings(par(new = TRUE))
           tmpPlotFn <- if (plotFn == "plot") "points" else plotFn
           args_plot1[c("axes", "xlab", "ylab", "plotFn")] <- NULL
           suppressWarnings(do.call(tmpPlotFn, args = args_plot1))
