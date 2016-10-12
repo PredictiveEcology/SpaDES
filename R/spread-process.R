@@ -221,6 +221,10 @@ if (getRversion() >= "3.1.0") {
 #' @param asymmetryAngle A numeric indicating the angle in degrees (0 is "up", as in North on a map),
 #'                      that describes which way the \code{asymmetry} is.
 #'
+#' @param quick Logical. If TRUE, then several potentially time consuming checking (such as
+#'              \code{inRange}) will be skipped. This should only be used if there is no
+#'              concern about checking to ensure that inputs are legal.
+#'
 #' @param ...           Additional named vectors or named list of named vectors
 #'                      required for \code{stopRule}. These
 #'                      vectors should be as long as required e.g., length
@@ -283,6 +287,7 @@ setGeneric("spread", function(landscape, loci = NA_real_,
                               stopRule = NA, stopRuleBehavior = "includeRing",
                               allowOverlap = FALSE,
                               asymmetry = NA_real_, asymmetryAngle = NA_real_,
+                              quick = FALSE,
                               ...) {
   standardGeneric("spread")
 })
@@ -535,17 +540,19 @@ setMethod(
                         returnDistances, mapID, id, plot.it, spreadProbLater,
                         spreadState, circle, circleMaxRadius, stopRule,
                         stopRuleBehavior, allowOverlap, asymmetry, asymmetryAngle,
+                        quick,
                         ...) {
 
     if (!is.null(mapID)) {
       warning("mapID is deprecated, use id")
       id <- mapID
     }
+    if(!quick)
       if (!any(stopRuleBehavior %fin% c("includePixel","excludePixel","includeRing","excludeRing")))
         stop("stopRuleBehaviour must be one of \"includePixel\", \"excludePixel\", \"includeRing\", or \"excludeRing\"")
     spreadStateExists <- is(spreadState, "data.table")
     spreadProbLaterExists <- TRUE
-    
+
     if (!is(spreadProbLater, "Raster")) {
       if (is.na(spreadProbLater)) {
         spreadProbLaterExists <- FALSE
@@ -566,20 +573,23 @@ setMethod(
       initialLoci <- loci
     }
 
-    if (is(spreadProbLater,"RasterLayer") | is(spreadProb, "Rasterlayer")) {
-      if ( (minValue(spreadProb) > 1L) || (maxValue(spreadProb) < 0L) ) {
-        stop("spreadProb is not a probability")
-      }
-      if(spreadProbLaterExists)
-        if ( (minValue(spreadProbLater) > 1L) || (maxValue(spreadProbLater) < 0L) ) {
-          stop("spreadProbLater is not a probability")
+    # Check for probabilities
+    if(!quick) {
+      if (is(spreadProbLater,"RasterLayer") | is(spreadProb, "Rasterlayer")) {
+        if ( (minValue(spreadProb) > 1L) || (maxValue(spreadProb) < 0L) ) {
+          stop("spreadProb is not a probability")
         }
-    } else {
-      if (!all(inRange(spreadProb))) stop("spreadProb is not a probability")
-      if(spreadProbLaterExists)
-        if (!all(inRange(spreadProbLater))) stop("spreadProbLater is not a probability")
+        if(spreadProbLaterExists)
+          if ( (minValue(spreadProbLater) > 1L) || (maxValue(spreadProbLater) < 0L) ) {
+            stop("spreadProbLater is not a probability")
+          }
+      } else {
+        if (!all(inRange(spreadProb))) stop("spreadProb is not a probability")
+        if(spreadProbLaterExists)
+          if (!all(inRange(spreadProbLater))) stop("spreadProbLater is not a probability")
+      }
     }
-    
+
     #integerProbs <- all(spreadProb[] == 1 | spreadProb[] == 0)
 
     ncells <- ncell(landscape)
@@ -622,14 +632,16 @@ setMethod(
     if (is.function(stopRule)) {
       id <- TRUE
       stopRuleObjs <- names(formals(stopRule))
-      if (any(is.na(match(stopRuleObjs,
-                         c("id", "landscape", "cells", names(otherVars)))))) {
-        stop(paste("Arguments in stopRule not valid. The function definition",
-             "must be a function of built-in options, ",
-             "(id, landscape, or cells) or user supplied variables.",
-             "If user supplied, the variables",
-             "must be passed as named vectors, or lists or data.frames.",
-             " See examples."))
+      if(!quick) {
+        if (any(is.na(match(stopRuleObjs,
+                           c("id", "landscape", "cells", names(otherVars)))))) {
+          stop(paste("Arguments in stopRule not valid. The function definition",
+               "must be a function of built-in options, ",
+               "(id, landscape, or cells) or user supplied variables.",
+               "If user supplied, the variables",
+               "must be passed as named vectors, or lists or data.frames.",
+               " See examples."))
+        }
       }
       LandRasNeeded <- any(stopRuleObjs == "landscape")
       colNamesPotentials <- c("id", "landscape"[LandRasNeeded], "cells", "prev")
@@ -712,7 +724,8 @@ setMethod(
     }
 
 
-    if (any(loci > ncells)) stop("loci indices are not on landscape")
+    if(!quick)
+      if (any(loci > ncells)) stop("loci indices are not on landscape")
 
     ## Recycling maxSize as needed
     if (any(!is.na(maxSize))) {
