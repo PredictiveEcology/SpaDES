@@ -666,6 +666,7 @@ test_that("distanceFromPoints does not work correctly", {
   require(raster); on.exit(detach("package:raster"), add = TRUE)
   require(fpCompare); on.exit(detach("package:fpCompare"), add = TRUE)
   library(data.table); on.exit(detach("package:data.table"), add = TRUE)
+
   hab <- raster(extent(0, 1e2, 0, 1e2), res = 1)
   hab <- gaussMap(hab, speedup = 1) # if raster is large (>1e6 pixels), use speedup > 1
   names(hab) <- "hab"
@@ -917,7 +918,7 @@ test_that("distanceFromPoints does not work correctly", {
                                   returnAngles = TRUE)
   )
   # for profvis
-  for(i in 1:600) {
+  for (i in 1:600) {
     cir(hab, coords = coordinates(caribou),
         allowOverlap = FALSE, returnDistances = FALSE,
         maxRadius = radius, minRadius = 0, includeBehavior = "includePixels",
@@ -927,7 +928,7 @@ test_that("distanceFromPoints does not work correctly", {
   TEST <- TRUE
   count = 0
   tmp = data.frame(len = numeric(), size1 = numeric(), j = numeric(), oneClump = logical())
-  while(TEST) {
+  while (TEST) {
     size1 <- sample(1.1^(2:10*8),1)
     hab <- raster(extent(0,size1,0,size1), res = 1)
     N <- 1

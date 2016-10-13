@@ -2,17 +2,18 @@
 % Please edit documentation in R/spread-process.R
 \name{\%fin\%}
 \alias{\%fin\%}
-\title{A faster '%in%' based on fastmatch package}
+\alias{match}
+\title{A faster '\%in\%' based on fastmatch package}
 \usage{
 x \%fin\% table
 }
 \arguments{
-\item{x}{See \code{fmatch} in fastmatch package}
+\item{x}{See \code{\link[fastmatch]{fmatch}}.}
 
-\item{table}{See \code{fmatch} in fastmatch package}
+\item{table}{See \code{\link[fastmatch]{fmatch}}.}
 }
 \description{
-A faster '%in%', directly pulled from fastmatch match, based on
-http://stackoverflow.com/questions/32934933/faster-in-operator
+A faster '\%in\%', directly pulled from \code{fastmatch::match}, based on
+\url{http://stackoverflow.com/questions/32934933/faster-in-operator}.
 }
 
