@@ -42,8 +42,8 @@ has the potential to use a lot of memory if there are a lot of \code{from} and \
 Internal function.
 }
 \details{
-\code{directionFromEachPoint} calls \code{.pointDirection}, which is not intended to be called
-directly by the user.
+\code{directionFromEachPoint} calls \code{.pointDirection}, which is
+not intended to be called directly by the user.
 
 If knowing the which from cell matches with which to cell is important,
 put a column "id" (e.g., starting cell) in the \code{from} matrix.

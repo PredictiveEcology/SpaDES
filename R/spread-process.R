@@ -1785,7 +1785,7 @@ directionFromEachPoint <- function(from, to = NULL, landscape) {
 #'
 #' @export
 #' @importFrom fastmatch fmatch
-#' @name '%fin%'
+#' @name %fin%
 #' @aliases match
 #' @rdname match
 #'
