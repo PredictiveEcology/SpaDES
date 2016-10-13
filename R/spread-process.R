@@ -1367,8 +1367,11 @@ setMethod(
 #' @param ... Any additional objects needed for \code{distFn}.
 #'
 #' @inheritParams splitRaster
-#' @rdname distances
-#' @export
+#'
+#' @return A sorted matrix on \code{id} with same number of rows as \code{to},
+#'         but with one extra column, \code{"dists"}
+#'         indicating the distance between from and to.
+#'
 #' @seealso \code{\link{rings}}, \code{\link{cir}}, \code{\link[raster]{distanceFromPoints}},
 #' which can all be made to do the same thing, under specific combinations of arguments.
 #' But each has different primary use cases. Each is also faster under different conditions.
@@ -1399,11 +1402,10 @@ setMethod(
 #'
 #' @name distanceFromEachPoint
 #' @aliases distanceFromEachPoint
-#' @return A sorted matrix on \code{id} with same number of rows as \code{to},
-#'         but with one extra column, \code{"dists"}
-#'         indicating the distance between from and to.
+#' @export
 #' @importFrom raster getCluster returnCluster
 #' @importFrom parallel clusterApply
+#' @rdname distances
 #' @examples
 #' library(raster)
 #' N <- 2
@@ -1487,9 +1489,10 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
         })
         out <- do.call(rbind, out)
       } else {
-        # if there is a cluster, then there are two levels of cumulative function... inside each
-        #  cluster and outside, or "within and between clusters". This is the outer one.
-        #  The inner one is the one defined by the user argument
+        # if there is a cluster, then there are two levels of cumulative function,
+        #  inside each cluster and outside, or "within and between clusters".
+        #  This is the outer one.
+        #  The inner one is the one defined by the user argument.
         outerCumFun <- function(x, from, fromCell, landscape, to, angles, maxDistance, distFnArgs,
                                 fromC, toC, xDist, cumulativeFn, distFn) {
 
@@ -1594,9 +1597,9 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
 }
 
 #' @rdname distances
-#' @name pointDistance
+#' @name .pointDistance
 #' @aliases pointDistance
-#' @export
+#' @keywords internal
 .pointDistance <- function(from, to, angles = NA, maxDistance=NA_real_) {
   if (!is.na(maxDistance)) {
     to <- to[(abs(to[,"x"] - from[,"x"]) <= maxDistance)  &
@@ -1643,9 +1646,16 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
       dists <- dists[dists[,"dists"] <= maxDistance,]
     }
     return(dists)
-
 }
 
+#' Calculate matched point directions
+#'
+#' Internal function
+#'
+#' @rdname matchedPointDirection
+#' @name .matchedPointDirection
+#' @aliases matchedPointDirection
+#' @keywords internal
 .matchedPointDirection <- function(to, from) {
   ids <- unique(from[, "id"])
   orig <- order(to[, "id", drop = FALSE], to[, "to", drop = FALSE])
@@ -1683,8 +1693,8 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
 #' @seealso \code{\link{distanceFromEachPoint}}, which will also return directions if \code{angles}
 #' is TRUE.
 #'
-#' @details \code{directionFromEachPoint} calls \code{.pointDirection}, which is not intended to be called
-#' directly by the user.
+#' @details \code{directionFromEachPoint} calls \code{.pointDirection}, which is
+#' not intended to be called directly by the user.
 #'
 #' If knowing the which from cell matches with which to cell is important,
 #' put a column "id" (e.g., starting cell) in the \code{from} matrix.
@@ -1754,8 +1764,9 @@ directionFromEachPoint <- function(from, to = NULL, landscape) {
 
 #' Calculate the direction from a point to a set of points
 #'
-#' This is meant to be used internally.
+#' Internal function.
 #'
+#' @keywords internal
 #' @rdname directions
 .pointDirection <- function(from, to) {
   rise <- to[, "y"] - from[, "y"]
@@ -1764,17 +1775,20 @@ directionFromEachPoint <- function(from, to = NULL, landscape) {
   cbind(to, angles = angls)
 }
 
-#' A faster '%in%' based on fastmatch package
+#' A faster '\%in\%' based on fastmatch package
 #'
-#' A faster '%in%', directly pulled from fastmatch match, based on
-#' http://stackoverflow.com/questions/32934933/faster-in-operator
+#' A faster '\%in\%', directly pulled from \code{fastmatch::match}, based on
+#' \url{http://stackoverflow.com/questions/32934933/faster-in-operator}.
 #'
+#' @param x      See \code{\link[fastmatch]{fmatch}}.
+#' @param table  See \code{\link[fastmatch]{fmatch}}.
+#'
+#' @export
 #' @importFrom fastmatch fmatch
-#' @param x See \code{fmatch} in fastmatch package
-#' @param table See \code{fmatch} in fastmatch package
+#' @name '%fin%'
+#' @aliases match
 #' @rdname match
+#'
 `%fin%` <- function(x, table) {
   fmatch(x, table, nomatch = 0L) > 0L
 }
-
-

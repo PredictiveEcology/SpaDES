@@ -145,4 +145,5 @@ distance from all cells in the \code{landscape} to any cell in \code{from}, then
 \code{distanceFromPoints} will be fastest. This function scales best when there are
 many \code{to} points or all cells are used \code{to = NULL} (which is default).
 }
+\keyword{internal}
 

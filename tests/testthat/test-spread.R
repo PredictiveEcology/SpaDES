@@ -666,6 +666,7 @@ test_that("distanceFromPoints does not work correctly", {
   require(raster); on.exit(detach("package:raster"), add = TRUE)
   require(fpCompare); on.exit(detach("package:fpCompare"), add = TRUE)
   library(data.table); on.exit(detach("package:data.table"), add = TRUE)
+
   hab <- raster(extent(0, 1e2, 0, 1e2), res = 1)
   hab <- gaussMap(hab, speedup = 1) # if raster is large (>1e6 pixels), use speedup > 1
   names(hab) <- "hab"

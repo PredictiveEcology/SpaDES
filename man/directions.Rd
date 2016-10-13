@@ -39,7 +39,7 @@ of distance-based processes etc. If memory limitation is an issue, maxDistance w
 use down, but with the consequences that there will be a maximum distance returned. This function
 has the potential to use a lot of memory if there are a lot of \code{from} and \code{to} points.
 
-This is meant to be used internally.
+Internal function.
 }
 \details{
 \code{directionFromEachPoint} calls \code{.pointDirection}, which is not intended to be called
@@ -74,4 +74,5 @@ if (interactive()) {
 \code{\link{distanceFromEachPoint}}, which will also return directions if \code{angles}
 is TRUE.
 }
+\keyword{internal}
 
