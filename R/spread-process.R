@@ -1427,7 +1427,7 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
 #'         indicating the angle in radians between from and to. For speed, this
 #'         angle will be between -pi/2 and 3*pi/2. If the user wants this between
 #'         say, 0 and 2*pi, then \code{angles \%\% (2*pi)} will do the trick. See example.
-
+#'
 #' @examples
 #' library(raster)
 #' N <- 2
@@ -1440,7 +1440,7 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
 #' require(CircStats)
 #' dirs1[, "angles"] <- deg(dirs1[,"angles"] %% (2*pi))
 #' indices <- cellFromXY(dirRas,dirs1[, c("x", "y")])
-#' minDir <- tapply(dirs1[,"angles"], indices, function(x) min(x)) # minimum angle
+#' minDir <- tapply(dirs1[, "angles"], indices, function(x) min(x)) # minimum angle
 #' dirRas[] <- as.vector(minDir)
 #' if (interactive()) {
 #'   clearPlot()
