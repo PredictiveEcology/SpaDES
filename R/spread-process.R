@@ -1452,13 +1452,13 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
 directionFromEachPoint <- function(from, to = NULL, landscape) {
   matched <- FALSE
   nrowFrom <- NROW(from)
-  if ("id" %fin% colnames(from)) {
+  if ("id" %in% colnames(from)) {
     ids <- unique(from[, "id"])
   } else if (nrowFrom > 1) {
     ids <- seq_len(nrowFrom)
   }
 
-  if ("id" %fin% colnames(to)) {
+  if ("id" %in% colnames(to)) {
     matched <- TRUE
   }
   if (is.null(to))
@@ -1492,7 +1492,7 @@ directionFromEachPoint <- function(from, to = NULL, landscape) {
 .pointDirection <- function(from, to) {
   rise <- to[, "y"] - from[, "y"]
   run <- to[, "x"] - from[, "x"]
-  angls <- pi/2 - atan2(rise,run) # Convert to geographic 0 = North
+  angls <- pi/2 - atan2(rise, run) # Convert to geographic 0 = North
   cbind(to, angles = angls)
 }
 
