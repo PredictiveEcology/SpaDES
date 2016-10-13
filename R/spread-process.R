@@ -1460,10 +1460,10 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
                                   maxDistance = NA_real_, cumulativeFn = NULL,
                                   distFn = function(dist) 1/(1 + dist), cl, ...) {
   matched <- FALSE
-  if ("id" %fin% colnames(from)) {
+  if ("id" %in% colnames(from)) {
     ids <- unique(from[,"id"])
   }
-  if ("id" %fin% colnames(to)) {
+  if ("id" %in% colnames(to)) {
     matched <- TRUE
   }
   if (is.null(to)) {
