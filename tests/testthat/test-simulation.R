@@ -166,7 +166,9 @@ test_that("spades calls with different signatures don't work", {
                     capture_output(spades(a, debug = TRUE, .plotInitialTime = NA)))
 
   expect_output(spades(a, debug = c("current", "events"), .plotInitialTime = NA),
-                "-------------")
+                "This is the current event")
+  expect_output(spades(a, debug = c("current", "events"), .plotInitialTime = NA),
+                "moduleName")
   expect_output(spades(a, debug = "simList", .plotInitialTime = NA),
                 "Completed Events")
 
