@@ -528,7 +528,7 @@ setMethod(
     if (NROW(inputs)) {
       inputs <- .fillInputRows(inputs, startTime = start(sim))
     }
-    
+
     # used to prevent .inputObjects from loading if object is passed in by user.
     sim$.userSuppliedObjNames <- c(objNames, inputs$objectName)
 
@@ -845,11 +845,14 @@ setMethod(
         # call the module responsible for processing this event
         moduleCall <- paste("doEvent", cur$moduleName, sep = ".")
 
+        # Debug internally in the doEvent?
+        debugDoEvent <- FALSE
+        
         # check the module call for validity
-        if (!(all(debug == FALSE))) {
-          if (length(debug) > 1) print("---------------------------")
+        if (!(all(sapply(debug, identical, FALSE)))) {
+          #if (length(debug) > 1) print("---------------------------")
           for (i in seq_along(debug)) {
-            if (isTRUE(debug[i]) | debug[i] == "current") {
+            if (isTRUE(debug[[i]]) | debug[[i]] == "current") {
               if (NROW(events(sim)) > 0) {
                 evnts1 <- data.frame(current(sim))
                 widths <- str_length(format(evnts1))
@@ -864,17 +867,24 @@ setMethod(
                   sim$.spadesDebugFirst <- FALSE
                 } else {
                   colnames(evnts1) <- NULL
-                  #write.table(evnts1, quote = FALSE)
                   write.table(evnts1, quote = FALSE, row.names = FALSE)
                 }
               }
-            } else if (debug[i] == "simList") {
+            } else if (debug[[i]] == "simList") {
               print(sim)
-            } else if (grepl(debug[i], pattern = "\\(") ) {
-              print(tryCatch(eval(parse(text = debug[i])), error = function(x) ""))
-            } else {
-              print(do.call(debug[i], list(sim)))
+            } else if (grepl(debug[[i]], pattern = "\\(") ) {
+              print(tryCatch(eval(parse(text = debug[[i]])), error = function(x) ""))
+            } else if (any(debug[[i]]==unlist(modules(sim, hidden = TRUE)))) {
+              if (debug[[i]]==cur$moduleName){
+                debugDoEvent <- TRUE
+              }
+            } else if (!any(debug[[i]] == c("step", "browser"))) {
+              print(do.call(debug[[i]], list(sim)))
             }
+            
+            if (debug[[i]] == "step") {
+              readline("Press any key to continue")
+            } 
           }
         }
 
@@ -882,11 +892,11 @@ setMethod(
 
           if (cur$moduleName %in% core) {
               sim <- get(moduleCall)(sim, cur$eventTime,
-                                     cur$eventType, !(debug == FALSE))
+                                     cur$eventType, debugDoEvent)
            } else {
-              sim <- get(moduleCall,
+             sim <- get(moduleCall,
                          envir = envir(sim))(sim, cur$eventTime,
-                                             cur$eventType, !(debug == FALSE))
+                                             cur$eventType, debugDoEvent)
            }
         } else {
           stop(paste("Invalid module call. The module `", cur$moduleName,
@@ -1249,7 +1259,7 @@ setMethod(
       }
     }
 
-    if (!(all(debug == FALSE))) {
+    if (!(all(sapply(debug, identical, FALSE)))) {
       sim$.spadesDebugFirst <- TRUE
       sim$.spadesDebugWidth <- c(9, 10, 9, 13)
     }
