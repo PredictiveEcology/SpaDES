@@ -144,9 +144,16 @@
 #'                       POM created objective function. See details.
 #'
 #' @param weights Numeric. If provided, this vector will be multiplied by the standardized mean
-#'                absolute deviations as describe in \code{objects}. This has the effect of weighing
+#'                absolute deviations as describe in \code{objects}. This has the effect of 
+#'                weighing
 #'                each pattern to a user specified amount in the objective function.
 #'
+#' @param useLog Logical. Should the data patterns and output patterns be logged (\code{log}) 
+#'               before calculating the \code{objFnCompare}. i.e., 
+#'               \code{mean(abs(log(output) - log(data)))}.
+#'               This should be length 1 or length \code{objects}. 
+#'               It will be recycled if length >1, less than \code{objects}.
+#'               
 #' @return A list with at least 2 elements. The first (or first several) will
 #' be the returned object from the optimizer. The second (or last if there are
 #' more than 2), named \code{args} is the set of arguments that were passed
@@ -176,7 +183,7 @@ setGeneric(
   "POM",
   function(sim, params, objects, objFn, cl, optimizer = "DEoptim",
            sterr = FALSE, ..., objFnCompare = "MAD", optimControl = NULL,
-           NaNRetries = NA, logObjFnVals = FALSE, weights) {
+           NaNRetries = NA, logObjFnVals = FALSE, weights, useLog = FALSE) {
     standardGeneric("POM")
   })
 
@@ -187,7 +194,7 @@ setMethod(
             objFn = "ANY"),
   definition = function(sim, params, objects, objFn, cl, optimizer,
                         sterr, ..., objFnCompare, optimControl,
-                        NaNRetries, logObjFnVals, weights) {
+                        NaNRetries, logObjFnVals, weights, useLog) {
 
     if (missing(cl)) {
       cl <- tryCatch(getCluster(), error = function(x) NULL)
@@ -196,10 +203,13 @@ setMethod(
     } else {
       clProvided <- TRUE
     }
+    if(!is.null(list(...)$weight)) message("Did you mean to pass 'weight' instead of 'weights'?")
 
     on.exit(while (sink.number() > 0) sink(), add = TRUE)
 
     if(missing(weights)) weights <- rep(1, length(objects))
+    if(!missing(objects)) 
+      if(length(useLog)<length(objects)) useLog <- rep_len(useLog, length(objects))
 
     if(is.na(NaNRetries)) NaNRetries <- 1
     paramNames <- lapply(SpaDES::params(sim), names)
@@ -219,7 +229,7 @@ setMethod(
 
     if (missing(objFn)) {
       objFn <- function(par, objects, sim, whModules, whParams,
-                        whParamsByMod, parallelType, weights) {
+                        whParamsByMod, parallelType, weights, useLog) {
         keepGoing <- TRUE
         tryNum <- 1
         while(keepGoing) {
@@ -250,18 +260,33 @@ setMethod(
               dataObj <- get(names(outputObjects)[[x]])
             }
 
+            if(useLog[x]) {
+              if((outObj <= 0) | (dataObj <= 0)){
+                useLog[x] <- FALSE
+                warning(paste0(names(outputObjects)[x]," or its pattern is zero or negative; not using log"))
+              }
+                
+            }
             if (objFnCompare == "MAD") {
-              if (length(outObj) == 1) {
-                out <- mean(abs(outObj - dataObj), na.rm = TRUE)
+              if(useLog[x]) {
+                out <- mean(abs(log(outObj) - log(dataObj)), na.rm = TRUE)
               } else {
                 out <- mean(abs(outObj - dataObj), na.rm = TRUE)
               }
             } else if (objFnCompare == "RMSE") {
-              out <- sqrt(mean((outObj - dataObj)^2))
+              if(useLog[x]) {
+                out <- sqrt(mean((log(outObj) - log(dataObj))^2))
+              } else {
+                out <- sqrt(mean((outObj - dataObj)^2))
+              }
             } else {
               stop("objFnCompare must be either MAD or RMSE, see help")
             }
-            dataObjVal <- mean(dataObj, na.rm = TRUE)
+            if(useLog[x]) {
+              dataObjVal <- mean(abs(log(dataObj)), na.rm = TRUE)
+            } else{
+              dataObjVal <- mean(abs(dataObj), na.rm = TRUE)
+            }
             if(abs(dataObjVal)<1) dataObjVal <- 1
             outStandard <- out/dataObjVal
             out <- list(raw = out, standardized = outStandard,
@@ -320,7 +345,8 @@ setMethod(
     deoptimArgs <- list(fn = objFn, lower = lowerRange, upper = upperRange,
                         sim = sim, objects = objects,
                         whModules = whModules, whParams = whParams,
-                        whParamsByMod = whParamsByMod, weights = weights)
+                        whParamsByMod = whParamsByMod, weights = weights, 
+                        useLog = useLog)
 
     if (optimizer == "DEoptim") {
       deoptimArgs$control <- DEoptim.control()
