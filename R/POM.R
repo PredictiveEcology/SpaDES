@@ -229,7 +229,7 @@ setMethod(
     range01 <- function(x, ...){(x - min(x, ...)) / (max(x, ...) - min(x, ...))}
 
     if (missing(objFn)) {
-      objFn <- function(par, objects, sim, whModules, whParams,
+      objFn1 <- function(par, objects, sim, whModules, whParams,
                         whParamsByMod, parallelType, weights, useLog) {
         keepGoing <- TRUE
         tryNum <- 1
@@ -324,6 +324,22 @@ setMethod(
 
         }
         return(sumObj)
+      }
+      objFn <- function(...) {
+        keepGoing1 <- TRUE
+        tryNum1 <- 1
+        while(keepGoing1) {
+          outTry <- try(objFn1(...))
+          if(!is(outTry, "try-error")) { # success
+            keepGoing1 <- FALSE
+          } else { # had error
+            warning("objective function returned error on try #",tryNum1)
+            if(tryNum1 < NaNRetries) keepGoing1 <- TRUE else keepGoing1 <- FALSE
+            tryNum1 <- tryNum1 + 1
+          }
+        }
+        return(outTry)
+
       }
       userSuppliedObjFn <- FALSE
     } else {
