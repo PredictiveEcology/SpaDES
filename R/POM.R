@@ -79,13 +79,13 @@
 #'
 #' Setting \code{logObjFnVals} to TRUE may help diagnosing some problems. Using the POM derived
 #' objective function, essentially all patterns are treated equally. This may not give the correct
-#' behavior for the objective function. Because the POM weighs the patterns equally, it may be
-#' useful to set all patterns so that their expected values are each close to the same value, e.g., 1.
-#' If they are all expected to be near that value, then their sum will give relatively equal
-#' weights to each of the patterns. This can, of course, be manipulated to give higher weight
-#' to some patterns over others, by setting their expected value to be scaled to 1, then multiplied
-#' by some weight. This would have to be done in the preparation of the patterns with the
-#'  \code{objects} argument.
+#' behavior for the objective function. Because \code{POM} weighs the patterns equally, it may be
+#' useful to use the log files to examine the behaviour of the pattern--data pairs.
+#' The first file, ObjectiveFnValues.txt, shows the result of each of the
+#' (possibly logged), pattern--data deviations, standardized, and weighted. The second file,
+#' ObjectiveFnValues_RawPatterns.txt, shows the actual value of the pattern (unstandardized,
+#' unweighted, unlogged). If \code{weights} is passed, then these weighted values will be reflected
+#' in the ObjectiveFnValues.txt file.
 #'
 #' @inheritParams spades
 #' @inheritParams splitRaster
@@ -143,17 +143,18 @@
 #'                       the user here) at each evaluation of the
 #'                       POM created objective function. See details.
 #'
-#' @param weights Numeric. If provided, this vector will be multiplied by the standardized mean
-#'                absolute deviations as describe in \code{objects}. This has the effect of 
-#'                weighing
-#'                each pattern to a user specified amount in the objective function.
+#' @param weights Numeric. If provided, this vector will be multiplied by the standardized
+#'                deviations (possibly MAD or RMSE) as described in \code{objects}. This has
+#'                the effect of weighing
+#'                each standardized deviation (pattern--data pair) to a user
+#'                specified amount in the objective function.
 #'
-#' @param useLog Logical. Should the data patterns and output patterns be logged (\code{log}) 
-#'               before calculating the \code{objFnCompare}. i.e., 
+#' @param useLog Logical. Should the data patterns and output patterns be logged (\code{log})
+#'               before calculating the \code{objFnCompare}. i.e.,
 #'               \code{mean(abs(log(output) - log(data)))}.
-#'               This should be length 1 or length \code{objects}. 
+#'               This should be length 1 or length \code{objects}.
 #'               It will be recycled if length >1, less than \code{objects}.
-#'               
+#'
 #' @return A list with at least 2 elements. The first (or first several) will
 #' be the returned object from the optimizer. The second (or last if there are
 #' more than 2), named \code{args} is the set of arguments that were passed
@@ -208,7 +209,7 @@ setMethod(
     on.exit(while (sink.number() > 0) sink(), add = TRUE)
 
     if(missing(weights)) weights <- rep(1, length(objects))
-    if(!missing(objects)) 
+    if(!missing(objects))
       if(length(useLog)<length(objects)) useLog <- rep_len(useLog, length(objects))
 
     if(is.na(NaNRetries)) NaNRetries <- 1
@@ -265,7 +266,7 @@ setMethod(
                 useLog[x] <- FALSE
                 warning(paste0(names(outputObjects)[x]," or its pattern is zero or negative; not using log"))
               }
-                
+
             }
             if (objFnCompare == "MAD") {
               if(useLog[x]) {
@@ -320,7 +321,7 @@ setMethod(
           cat("\n")
           if(parallelType>0  | (logObjFnVals != "objectiveFnValues.txt"))
             sink()
-          
+
         }
         return(sumObj)
       }
@@ -345,7 +346,7 @@ setMethod(
     deoptimArgs <- list(fn = objFn, lower = lowerRange, upper = upperRange,
                         sim = sim, objects = objects,
                         whModules = whModules, whParams = whParams,
-                        whParamsByMod = whParamsByMod, weights = weights, 
+                        whParamsByMod = whParamsByMod, weights = weights,
                         useLog = useLog)
 
     if (optimizer == "DEoptim") {
@@ -405,7 +406,7 @@ setMethod(
           sink(file = paste0(gsub(logObjFnVals,pattern=".txt",
                                   replacement = ""),
                              "_RawPattern.txt"), append = FALSE)
-        
+
         cat(names(objects), sep = "\t")
         cat("\n")
         if(deoptimArgs$parallelType>0 | (logObjFnVals != "objectiveFnValues.txt"))
