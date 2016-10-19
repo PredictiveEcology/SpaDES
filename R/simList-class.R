@@ -177,7 +177,8 @@ setClass(
         stop("simulation end time cannot be before start time.")
       }
     }
-})
+  }
+)
 
 ################################################################################
 #' @inheritParams .simList

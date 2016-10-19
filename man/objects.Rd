@@ -37,13 +37,9 @@ objs(x) <- value
 \item{x}{A \code{simList} object from which to extract element(s) or
 in which to replace element(s).}
 
-\item{...}{see \code{i}.}
-
 \item{value}{Any R object.}
 
-\item{i}{Indices specifying elements to extract or replace.}
-
-\item{j}{see \code{i}.}
+\item{i, j, ...}{Indices specifying elements to extract or replace.}
 
 \item{drop}{not implemented.}
 
