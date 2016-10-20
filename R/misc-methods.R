@@ -680,8 +680,12 @@ setMethod(
 #' @author Eliot McIntire
 sortDotsFirst <- function(obj) {
   dotObjs <- grep("^\\.", names(obj))
-  append(obj[dotObjs][order(names(obj[dotObjs]))],
+  if(length(dotObjs)>0) {
+    append(obj[dotObjs][order(names(obj[dotObjs]))],
          obj[-dotObjs][order(names(obj[-dotObjs]))])
+  } else {
+    obj
+  }
 }
 
 #' Compare module version against SpaDES package version and warn if incompatible
