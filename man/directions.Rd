@@ -39,11 +39,11 @@ of distance-based processes etc. If memory limitation is an issue, maxDistance w
 use down, but with the consequences that there will be a maximum distance returned. This function
 has the potential to use a lot of memory if there are a lot of \code{from} and \code{to} points.
 
-This is meant to be used internally.
+Internal function.
 }
 \details{
-\code{directionFromEachPoint} calls \code{.pointDirection}, which is not intended to be called
-directly by the user.
+\code{directionFromEachPoint} calls \code{.pointDirection}, which is
+not intended to be called directly by the user.
 
 If knowing the which from cell matches with which to cell is important,
 put a column "id" (e.g., starting cell) in the \code{from} matrix.
@@ -60,7 +60,7 @@ dirs1 <- directionFromEachPoint(from = coords, landscape = dirRas)
 require(CircStats)
 dirs1[, "angles"] <- deg(dirs1[,"angles"] \%\% (2*pi))
 indices <- cellFromXY(dirRas,dirs1[, c("x", "y")])
-minDir <- tapply(dirs1[,"angles"], indices, function(x) min(x)) # minimum angle
+minDir <- tapply(dirs1[, "angles"], indices, function(x) min(x)) # minimum angle
 dirRas[] <- as.vector(minDir)
 if (interactive()) {
   clearPlot()
@@ -74,4 +74,5 @@ if (interactive()) {
 \code{\link{distanceFromEachPoint}}, which will also return directions if \code{angles}
 is TRUE.
 }
+\keyword{internal}
 

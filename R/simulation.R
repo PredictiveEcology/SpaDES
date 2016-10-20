@@ -3,28 +3,6 @@ if (getRversion() >= "3.1.0") {
 }
 
 ################################################################################
-#' Default paths to use for a simulation
-#'
-#' Internal function, used during \code{\link{simInit}}.
-#'
-#' @return A named list of paths used in the simulation.
-#'
-#' @docType methods
-#' @keywords internal
-#' @rdname paths
-#'
-#' @author Alex Chubaty
-#'
-.paths <- function() {
-  list(
-    cachePath = getOption("spades.cachePath"),
-    inputPath = getOption("spades.inputPath"),
-    modulePath = getOption("spades.modulePath"),
-    outputPath = getOption("spades.outputPath")
-  )
-}
-
-################################################################################
 #' Determine which modules in a list are unparsed
 #'
 #' Internal function, used during \code{\link{simInit}}.
@@ -673,7 +651,7 @@ setMethod(
     }
 
     # load files in the filelist
-    if (NROW(inputs)) {
+    if (NROW(inputs) | NROW(inputs(sim))) {
       inputs(sim) <- rbind(inputs(sim), inputs)
       if (NROW(
         events(sim)[moduleName == "load" & eventType == "inputs" &
@@ -867,11 +845,14 @@ setMethod(
         # call the module responsible for processing this event
         moduleCall <- paste("doEvent", cur$moduleName, sep = ".")
 
+        # Debug internally in the doEvent?
+        debugDoEvent <- FALSE
+        
         # check the module call for validity
-        if (!(all(debug == FALSE))) {
-          if (length(debug) > 1) print("---------------------------")
+        if (!(all(sapply(debug, identical, FALSE)))) {
+          #if (length(debug) > 1) print("---------------------------")
           for (i in seq_along(debug)) {
-            if (isTRUE(debug[i]) | debug[i] == "current") {
+            if (isTRUE(debug[[i]]) | debug[[i]] == "current") {
               if (NROW(events(sim)) > 0) {
                 evnts1 <- data.frame(current(sim))
                 widths <- str_length(format(evnts1))
@@ -886,17 +867,24 @@ setMethod(
                   sim$.spadesDebugFirst <- FALSE
                 } else {
                   colnames(evnts1) <- NULL
-                  #write.table(evnts1, quote = FALSE)
                   write.table(evnts1, quote = FALSE, row.names = FALSE)
                 }
               }
-            } else if (debug[i] == "simList") {
+            } else if (debug[[i]] == "simList") {
               print(sim)
-            } else if (grepl(debug[i], pattern = "\\(") ) {
-              print(tryCatch(eval(parse(text = debug[i])), error = function(x) ""))
-            } else {
-              print(do.call(debug[i], list(sim)))
+            } else if (grepl(debug[[i]], pattern = "\\(") ) {
+              print(tryCatch(eval(parse(text = debug[[i]])), error = function(x) ""))
+            } else if (any(debug[[i]]==unlist(modules(sim, hidden = TRUE)))) {
+              if (debug[[i]]==cur$moduleName){
+                debugDoEvent <- TRUE
+              }
+            } else if (!any(debug[[i]] == c("step", "browser"))) {
+              print(do.call(debug[[i]], list(sim)))
             }
+            
+            if (debug[[i]] == "step") {
+              readline("Press any key to continue")
+            } 
           }
         }
 
@@ -904,7 +892,7 @@ setMethod(
 
           if (cur$moduleName %in% core) {
               sim <- get(moduleCall)(sim, cur$eventTime,
-                                     cur$eventType, !(debug == FALSE))
+                                     cur$eventType, debugDoEvent)
            } else {
              # for future caching of modules
              # if(FALSE) {
@@ -915,7 +903,7 @@ setMethod(
              # }
               sim <- get(moduleCall,
                          envir = envir(sim))(sim, cur$eventTime,
-                                             cur$eventType, !(debug == FALSE))
+                                             cur$eventType, debugDoEvent)
            }
         } else {
           stop(paste("Invalid module call. The module `", cur$moduleName,
@@ -1278,7 +1266,7 @@ setMethod(
       }
     }
 
-    if (!(all(debug == FALSE))) {
+    if (!(all(sapply(debug, identical, FALSE)))) {
       sim$.spadesDebugFirst <- TRUE
       sim$.spadesDebugWidth <- c(9, 10, 9, 13)
     }

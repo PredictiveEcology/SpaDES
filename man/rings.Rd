@@ -49,8 +49,8 @@ started. Default is FALSE. See Details.}
 \item{...}{Any other argument passed to \code{spread}}
 }
 \value{
-This will return  a \code{data.table} with columns
-as described in \code{spread} when \code{returnIndices = TRUE}.
+This will return  a \code{data.table} with columns as described in
+        \code{spread} when \code{returnIndices = TRUE}.
 }
 \description{
 Identifies the cell numbers of all cells within a ring defined by  minimum
@@ -109,6 +109,7 @@ tends to be faster when there are many starting points. Another difference
 between the two functions is that \code{rings} takes the centre of the pixel
 as the centre of a circle, whereas \code{cir} takes the exact coordinates.
 See example.
+
 \code{rgeos::gBuffer}
 }
 
