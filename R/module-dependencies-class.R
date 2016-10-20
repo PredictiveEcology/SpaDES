@@ -134,7 +134,8 @@ setClass(
     childModules = "character", authors = "person", version = "numeric_version",
     spatialExtent = "Extent", timeframe = "POSIXt", timeunit = "ANY",
     citation = "list", documentation = "list", reqdPkgs = "list",
-    parameters = "data.frame", inputObjects = "data.frame", outputObjects = "data.frame"
+    parameters = "data.frame", inputObjects = "data.frame", outputObjects = "data.frame",
+    useCache = "logical"
   ),
   prototype = list(
     name = character(0), description = character(0), keywords = character(0),
@@ -147,7 +148,8 @@ setClass(
       paramDesc = character(0), stringsAsFactors = FALSE
     ),
     inputObjects = .inputObjects(),
-    outputObjects = .outputObjects()
+    outputObjects = .outputObjects(),
+    useCache = FALSE
   ),
   validity = function(object) {
     if (length(object@name) != 1L) stop("name must be a single character string.")
