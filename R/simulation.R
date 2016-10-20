@@ -906,6 +906,13 @@ setMethod(
               sim <- get(moduleCall)(sim, cur$eventTime,
                                      cur$eventType, !(debug == FALSE))
            } else {
+             # for future caching of modules
+             # if(FALSE) {
+             #   sim <- SpaDES::cache(cachePath(sim), FUN = get(moduleCall,
+             #      envir = envir(sim)), sim = sim,
+             #      eventTime=cur$eventTime, eventType = cur$eventType, debug = FALSE,
+             #      objects = depends(sim)@dependencies[[cur$moduleName]]@inputObjects$objectName)
+             # }
               sim <- get(moduleCall,
                          envir = envir(sim))(sim, cur$eventTime,
                                              cur$eventType, !(debug == FALSE))
