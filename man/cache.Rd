@@ -10,9 +10,10 @@
 \alias{showCache,ANY-method}
 \title{Cache method for simList class objects}
 \usage{
-cache(cacheRepo = NULL, FUN, ..., notOlderThan = NULL)
+cache(cacheRepo = NULL, FUN, ..., notOlderThan = NULL, objects)
 
-\S4method{cache}{ANY}(cacheRepo = NULL, FUN, ..., notOlderThan = NULL)
+\S4method{cache}{ANY}(cacheRepo = NULL, FUN, ..., notOlderThan = NULL,
+  objects)
 
 clearCache(sim, afterDate, beforeDate, cacheRepo, ...)
 
@@ -34,6 +35,10 @@ If both \code{afterDate} and \code{beforeDate} are specified, then all objects b
 \code{beforeDate} will be deleted.}
 
 \item{notOlderThan}{load an artifact from the database only if it was created after notOlderThan.}
+
+\item{objects}{Character vector of objects within the simList that should
+be considered for caching. i.e., only use a subset of
+the simList objects.}
 
 \item{sim}{A \code{simList} simulation object, generally produced by \code{simInit}.}
 

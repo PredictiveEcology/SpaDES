@@ -14,6 +14,9 @@
 #' Normally, a user will access this functionality as an argument in \code{\link{spades}}.
 #'
 #' @inheritParams archivist::cache
+#' @param objects Character vector of objects within the simList that should
+#'                be considered for caching. i.e., only use a subset of
+#'                the simList objects.
 #'
 #' @return Identical to \code{\link[archivist]{cache}}
 #'
@@ -50,7 +53,8 @@
 #' }
 #'
 setGeneric("cache", signature = "...",
-           function(cacheRepo = NULL, FUN, ..., notOlderThan = NULL) {
+           function(cacheRepo = NULL, FUN, ..., notOlderThan = NULL,
+                    objects) {
              archivist::cache(cacheRepo, FUN, ..., notOlderThan)
            })
 
@@ -58,14 +62,18 @@ setGeneric("cache", signature = "...",
 #' @rdname cache
 setMethod(
   "cache",
-  definition = function(cacheRepo, FUN, ..., notOlderThan) {
+  definition = function(cacheRepo, FUN, ..., notOlderThan, objects) {
     tmpl <- list(...)
     if (missing(notOlderThan)) notOlderThan <- NULL
     # These three lines added to original version of cache in archive package
     wh <- which(sapply(tmpl, function(x) is(x, "simList")))
     whFun <- which(sapply(tmpl, function(x) is.function(x)))
     tmpl$.FUN <- format(FUN) # This is changed to allow copying between computers
-    if (length(wh) > 0) tmpl[wh] <- lapply(tmpl[wh], makeDigestible)
+    if(missing(objects)) {
+      if (length(wh) > 0) tmpl[wh] <- lapply(tmpl[wh], makeDigestible)
+    } else {
+      if (length(wh) > 0) tmpl[wh] <- lapply(tmpl[wh], function(xx) makeDigestible(xx, objects))
+    }
     if (length(whFun) > 0) tmpl[whFun] <- lapply(tmpl[whFun], format)
     if (!is.null(tmpl$progress)) if (!is.na(tmpl$progress)) tmpl$progress <- NULL
 
@@ -203,6 +211,9 @@ setMethod(
 #'
 #' @param simList an object of class \code{simList}
 #'
+#' @param objects Optional character vector indicating which objects are to
+#'                be considered while making digestible.
+#'
 #' @return A simplified version of the \code{simList} object, but with no
 #'         reference to any environments
 #'
@@ -215,7 +226,7 @@ setMethod(
 #' @keywords internal
 #' @rdname makeDigestible
 #' @author Eliot McIntire
-setGeneric("makeDigestible", function(simList) {
+setGeneric("makeDigestible", function(simList, objects) {
   standardGeneric("makeDigestible")
 })
 
@@ -223,8 +234,12 @@ setGeneric("makeDigestible", function(simList) {
 setMethod(
   "makeDigestible",
   signature = "simList",
-  definition = function(simList) {
-    envirHash <- (sapply(sort(ls(simList@.envir, all.names = TRUE)), function(x) {
+  definition = function(simList, objects) {
+    objectsToDigest <- sort(ls(simList@.envir, all.names = TRUE))
+    if(!missing(objects)) {
+      objectsToDigest <- objectsToDigest[objectsToDigest %in% objects]
+    }
+    envirHash <- (sapply(objectsToDigest, function(x) {
       if (!(x == ".sessionInfo")) {
         obj <- get(x, envir = envir(simList))
         if (!is(obj, "function")) {

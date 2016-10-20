@@ -6,12 +6,15 @@
 \alias{makeDigestible,simList-method}
 \title{Remove any reference to environments in a \code{simList}}
 \usage{
-makeDigestible(simList)
+makeDigestible(simList, objects)
 
-\S4method{makeDigestible}{simList}(simList)
+\S4method{makeDigestible}{simList}(simList, objects)
 }
 \arguments{
 \item{simList}{an object of class \code{simList}}
+
+\item{objects}{Optional character vector indicating which objects are to
+be considered while making digestible.}
 }
 \value{
 A simplified version of the \code{simList} object, but with no
