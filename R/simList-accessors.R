@@ -1551,6 +1551,7 @@ setReplaceMethod(
 #'
 #' @include simList-class.R
 #' @importFrom stats na.omit
+#' @importFrom archivist showLocalRepo createLocalRepo
 #' @export
 #' @docType methods
 #' @aliases simList-accessors-paths
@@ -1602,6 +1603,11 @@ setReplaceMethod(
     object@paths[is.na(wh)] <- lapply(object@paths[is.na(wh)], function(x) getwd())
 
     names(object@paths) <- c("cachePath", "modulePath", "inputPath", "outputPath")
+    if (is(try(archivist::showLocalRepo(paths(object)$cachePath),
+               silent = TRUE),
+           "try-error"))
+      archivist::createLocalRepo(paths(object)$cachePath)
+
     validObject(object)
     return(object)
 })
