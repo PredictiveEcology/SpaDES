@@ -161,6 +161,7 @@ setMethod(
   signature = c(name = "character", path = "character", version = "character",
                 repo = "character", data = "logical", quiet = "logical"),
   definition = function(name, path, version, repo, data, quiet) {
+
     path <- checkPath(path, create = TRUE)
     checkModule(name, repo)
     if (is.na(version)) version <- getModuleVersion(name, repo)
@@ -179,7 +180,9 @@ setMethod(
                                     defineModuleElement = "childModules")
     #children <- moduleMetadata(name, path)$childModules
     dataList2 <- data.frame(result = character(0), expectedFile = character(0),
-                            actualFile = character(0), checksum = character(0),
+                            actualFile = character(0), checksum.x = character(0),
+                            checksum.y = character(0), algorithm.x = character(0),
+                            algorithm.y = character(0),
                             stringsAsFactors = FALSE)
     if (!is.null(children)) {
       if ( all( nzchar(children) & !is.na(children) ) ) {
@@ -280,13 +283,14 @@ setMethod(
       mutate(renamed = NA, module = module)
     dataDir <- file.path(path, module, "data" )
 
-    if (any(chksums$result == "FAIL")) {
+    browser()
+    if (any(chksums$result == "FAIL") | is.na(any(chksums$result))) {
       setwd(path); on.exit(setwd(cwd), add = TRUE)
 
       files <- sapply(to.dl, function(x) {
         destfile <- file.path(dataDir, basename(x))
         id <- which(chksums$expectedFile == basename(x))
-        if ( chksums$result[id]=="FAIL")  {
+        if (( chksums$result[id]=="FAIL") | is.na(chksums$actualFile[id])) {
           tmpFile <- file.path(tempdir(), "SpaDES_module_data") %>%
             checkPath(create = TRUE) %>%
             file.path(., basename(x))
@@ -463,6 +467,7 @@ setMethod(
   "checksums",
   signature = c(module = "character", path = "character", write = "logical"),
   definition = function(module, path, write, ...) {
+    defaultHashAlgo <- "xxhash64"
     dots <- list(...)
 
     path <- checkPath(path, create = FALSE) %>% file.path(., module, "data")
@@ -472,18 +477,30 @@ setMethod(
       grep("CHECKSUMS.txt", ., value = TRUE, invert = TRUE)
 
     checksumFile <- file.path(path, "CHECKSUMS.txt")
-    
+
     txt <- if (file.info(checksumFile)$size > 0) {
       read.table(checksumFile, header = TRUE, stringsAsFactors = FALSE)
     } else {
       data.frame(file = character(0), checksum = character(0),
                  stringsAsFactors = FALSE)
     }
-    
-    if(is.null(dots$algo)) dots$algo <- "xxhash64"
-    
+
+    if(is.null(dots$algo)) {
+      if(NROW(files)) {
+        dots$algo <- defaultHashAlgo
+      } else {
+        dots$algo <- character()
+      }
+    }
+
     if(!is.null(txt$algorithm)) {
       if(!write) dots$algo <- unique(txt$algorithm)[1]
+    } else {
+      if(NROW(txt)) {
+        txt$algorithm <- defaultHashAlgo
+      } else {
+        txt$algorithm <- character()
+      }
     }
 
     message("Checking local files")
@@ -495,7 +512,6 @@ setMethod(
                       algorithm = dots$algo,
                       stringsAsFactors = FALSE)
 
-
     if (write) {
       write.table(out, checksumFile, eol = "\n", col.names = TRUE, row.names = FALSE)
       return(out)
@@ -505,7 +521,8 @@ setMethod(
         left_join(txt, ., by = "file") %>%
         rename_(expectedFile = "file") %>%
         dplyr::group_by_("expectedFile") %>%
-        mutate(result = 'ifelse(checksum.x!=checksum.y, "FAIL", "OK"') %>%
+        mutate_(result = ~ifelse(checksum.x!=checksum.y, "FAIL", "OK")) %>%
+        #mutate(result = ifelse(checksum.x!=checksum.y, "FAIL", "OK")) %>%
         dplyr::arrange(desc(result)) %>%
         select_("result", "expectedFile", "actualFile", "checksum.x", "checksum.y", "algorithm.x", "algorithm.y") %>%
         filter(row_number() == 1L)
