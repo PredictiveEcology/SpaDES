@@ -63,7 +63,8 @@ functions, specific to simList objects.
 They allow the user a bit of control over what is being cached.
 }
 \details{
-Normally, a user will access this functionality as an argument in \code{\link{spades}}.
+Often, a user will access this functionality as an argument in \code{\link{spades}} or
+other functions in the \code{SpaDES} package.
 }
 \examples{
 \dontrun{

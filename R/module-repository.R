@@ -491,7 +491,7 @@ setMethod(
     message("Finished checking local files")
     #checksums <- digest(files, algo = algo, ...) # uses SpaDES:::digest()
 
-    out <- data.frame(file = basename(files), checksum = checksums, 
+    out <- data.frame(file = basename(files), checksum = checksums,
                       algorithm = dots$algo,
                       stringsAsFactors = FALSE)
 
@@ -505,7 +505,7 @@ setMethod(
         left_join(txt, ., by = "file") %>%
         rename_(expectedFile = "file") %>%
         dplyr::group_by_("expectedFile") %>%
-        mutate(result = ifelse(checksum.x!=checksum.y, "FAIL", "OK")) %>%
+        mutate(result = 'ifelse(checksum.x!=checksum.y, "FAIL", "OK"') %>%
         dplyr::arrange(desc(result)) %>%
         select_("result", "expectedFile", "actualFile", "checksum.x", "checksum.y", "algorithm.x", "algorithm.y") %>%
         filter(row_number() == 1L)
