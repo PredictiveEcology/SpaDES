@@ -286,16 +286,16 @@ setMethod(
       files <- sapply(to.dl, function(x) {
         destfile <- file.path(dataDir, basename(x))
         id <- which(chksums$expectedFile == basename(x))
-        if ( is.na(chksums$actualFile[id]) ) {
+        if ( chksums$result[id]=="FAIL")  {
           tmpFile <- file.path(tempdir(), "SpaDES_module_data") %>%
             checkPath(create = TRUE) %>%
             file.path(., basename(x))
-          message("Downloading data for module ", module, " ...")
+          message("Downloading ",chksums$actualFile[id]," for module ", module, " ...")
           download.file(x, destfile = tmpFile, mode = "wb", quiet = quiet)
           copied <- file.copy(from = tmpFile, to = destfile, overwrite = TRUE)
           destfile
         } else {
-          message("  Download data step skipped for module ", module, ". Local copy exists.")
+          message("  Download data step skipped for ",chksums$actualFile[id]," in module ", module, ". Local copy exists.")
         }
       })
 
@@ -388,9 +388,9 @@ setGeneric("digest", function(file, ...) {
 setMethod(
   "digest",
   signature = c(file = "character"),
-  definition = function(file, ...) {
+  definition = function(file, algo = "xxhash64", ...) {
     sapply(file, function(f) {
-      digest::digest(object = f, file = TRUE, algo = "xxhash64", ...)
+      digest::digest(object = f, file = TRUE, algo = algo, ...)
     }) %>% unname() %>% as.character() # need as.character for empty case
 })
 
@@ -425,6 +425,9 @@ setMethod(
 #'                Module developers should write this file prior to distributing
 #'                their module code, and update accordingly when the data change.
 #'
+#' @param ...     Passed to \code{\link[digest]{digest}}, notably \code{algo}, so
+#'                the digest algorithm can be specified.
+#'
 #' @return A data.frame with columns: result, expectedFile, actualFile, and checksum.
 #'
 #' @include moduleMetadata.R
@@ -440,18 +443,18 @@ setMethod(
 #' modulePath <- file.path("path", "to", "modules")
 #'
 #' ## verify checksums of all data files
-#' checksums(monudleName, modulePath)
+#' checksums(moduleName, modulePath)
 #'
 #' ## write new CHECKSUMS.txt file
 #'
 #' # 1. verify that all data files are present (and no extra files are present)
-#' list.files(file.path(modulePath, moduleName, "data")
+#' list.files(file.path(modulePath, moduleName, "data"))
 #'
 #' # 2. calculate file checksums and write to file (this will overwrite CHECKSUMS.txt)
-#' checksums(monudleName, modulePath, write = TRUE)
+#' checksums(moduleName, modulePath, write = TRUE)
 #' }
 #'
-setGeneric("checksums", function(module, path, write) {
+setGeneric("checksums", function(module, path, write, ...) {
   standardGeneric("checksums")
 })
 
@@ -459,39 +462,52 @@ setGeneric("checksums", function(module, path, write) {
 setMethod(
   "checksums",
   signature = c(module = "character", path = "character", write = "logical"),
-  definition = function(module, path, write) {
+  definition = function(module, path, write, ...) {
+    dots <- list(...)
+
     path <- checkPath(path, create = FALSE) %>% file.path(., module, "data")
     if (!write) stopifnot(file.exists(file.path(path, "CHECKSUMS.txt")))
 
     files <- list.files(path, full.names = TRUE) %>%
       grep("CHECKSUMS.txt", ., value = TRUE, invert = TRUE)
 
-    checksums <- digest(files) # uses SpaDES:::digest()
-
-    out <- data.frame(file = basename(files), checksum = checksums,
-                      stringsAsFactors = FALSE)
-
     checksumFile <- file.path(path, "CHECKSUMS.txt")
-
+    
     txt <- if (file.info(checksumFile)$size > 0) {
       read.table(checksumFile, header = TRUE, stringsAsFactors = FALSE)
     } else {
       data.frame(file = character(0), checksum = character(0),
                  stringsAsFactors = FALSE)
     }
+    
+    if(is.null(dots$algo)) dots$algo <- "xxhash64"
+    
+    if(!is.null(txt$algorithm)) {
+      if(!write) dots$algo <- unique(txt$algorithm)[1]
+    }
+
+    message("Checking local files")
+    checksums <- do.call(digest, args = append(list(file = files), dots))
+    message("Finished checking local files")
+    #checksums <- digest(files, algo = algo, ...) # uses SpaDES:::digest()
+
+    out <- data.frame(file = basename(files), checksum = checksums, 
+                      algorithm = dots$algo,
+                      stringsAsFactors = FALSE)
+
 
     if (write) {
       write.table(out, checksumFile, eol = "\n", col.names = TRUE, row.names = FALSE)
       return(out)
     } else {
       results.df <- out %>%
-        rename_(actualFile = "file") %>%
-        left_join(txt, ., by = "checksum") %>%
+        mutate_(actualFile = "file") %>%
+        left_join(txt, ., by = "file") %>%
         rename_(expectedFile = "file") %>%
         dplyr::group_by_("expectedFile") %>%
-        mutate(result = ifelse(is.na(actualFile), "FAIL", "OK")) %>%
+        mutate(result = ifelse(checksum.x!=checksum.y, "FAIL", "OK")) %>%
         dplyr::arrange(desc(result)) %>%
-        select_("result", "expectedFile", "actualFile", "checksum") %>%
+        select_("result", "expectedFile", "actualFile", "checksum.x", "checksum.y", "algorithm.x", "algorithm.y") %>%
         filter(row_number() == 1L)
 
       return(results.df)
@@ -502,6 +518,6 @@ setMethod(
 setMethod(
   "checksums",
   signature = c(module = "character", path = "character", write = "missing"),
-  definition = function(module, path) {
-    checksums(module, path, write = FALSE)
+  definition = function(module, path, ...) {
+    checksums(module, path, write = FALSE, ...)
 })

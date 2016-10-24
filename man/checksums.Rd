@@ -7,11 +7,11 @@
 \alias{checksums,character,character,missing-method}
 \title{Calculate checksums for a module's data files}
 \usage{
-checksums(module, path, write)
+checksums(module, path, write, ...)
 
-\S4method{checksums}{character,character,logical}(module, path, write)
+\S4method{checksums}{character,character,logical}(module, path, write, ...)
 
-\S4method{checksums}{character,character,missing}(module, path)
+\S4method{checksums}{character,character,missing}(module, path, write, ...)
 }
 \arguments{
 \item{module}{Character string giving the name of the module.}
@@ -22,6 +22,9 @@ checksums(module, path, write)
 Default is \code{FALSE}, as users should not change this file.
 Module developers should write this file prior to distributing
 their module code, and update accordingly when the data change.}
+
+\item{...}{Passed to \code{\link[digest]{digest}}, notably \code{algo}, so
+the digest algorithm can be specified.}
 }
 \value{
 A data.frame with columns: result, expectedFile, actualFile, and checksum.
@@ -54,15 +57,15 @@ moduleName <- "my_module"
 modulePath <- file.path("path", "to", "modules")
 
 ## verify checksums of all data files
-checksums(monudleName, modulePath)
+checksums(moduleName, modulePath)
 
 ## write new CHECKSUMS.txt file
 
 # 1. verify that all data files are present (and no extra files are present)
-list.files(file.path(modulePath, moduleName, "data")
+list.files(file.path(modulePath, moduleName, "data"))
 
 # 2. calculate file checksums and write to file (this will overwrite CHECKSUMS.txt)
-checksums(monudleName, modulePath, write = TRUE)
+checksums(moduleName, modulePath, write = TRUE)
 }
 
 }

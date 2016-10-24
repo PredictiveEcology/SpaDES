@@ -8,7 +8,7 @@
 \usage{
 digest(file, ...)
 
-\S4method{digest}{character}(file, ...)
+\S4method{digest}{character}(file, algo = "xxhash64", ...)
 }
 \arguments{
 \item{file}{Character vector of file paths.}
