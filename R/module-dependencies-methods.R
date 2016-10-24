@@ -166,11 +166,11 @@ setMethod(
   signature(simEdgeList = "data.table"),
   definition = function(simEdgeList) {
     simGraph <- graph_from_data_frame(simEdgeList)
-    M <- shortest.paths(simGraph, mode = "out")
+    M <- distances(simGraph, mode = "out")
     if (nrow(M) > 1) {
       pth <- data.table(from = character(0), to = character(0))
-      for (row in 1L:(nrow(M)-1L)) {
-        for (col in (row+1L):ncol(M)) {
+      for (row in 1L:(nrow(M) - 1L)) {
+        for (col in (row + 1L):ncol(M)) {
           current <- M[row,col]
           partner <- M[col,row]
           if (all((current > 0), !is.infinite(current), (partner > 0),
@@ -179,7 +179,7 @@ setMethod(
                                    from = rownames(M)[row],
                                    to = colnames(M)[col])$vpath[[1]]
             pth1 <- data.frame(from = rownames(M)[pth1],
-                               to = rownames(M)[lead(match(names(pth1), rownames(M)),1)],
+                               to = rownames(M)[lead(match(names(pth1), rownames(M)), 1)],
                                stringsAsFactors = FALSE) %>%
                     na.omit %>% as.data.table()
 
