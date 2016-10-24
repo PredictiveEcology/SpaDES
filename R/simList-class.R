@@ -1,59 +1,4 @@
 ################################################################################
-#' Create empty fileTable for inputs and outputs
-#'
-#' Internal functions.
-#' Returns an empty fileTable to be used with inputs and outputs.
-#'
-#' @param x  Not used (should be missing)
-#'
-#' @return An empty data.frame with structure needed for input/output fileTable.
-#'
-#' @docType methods
-#' @keywords internal
-#' @rdname fileTable
-#'
-setGeneric(".fileTableIn", function(x) {
-  standardGeneric(".fileTableIn")
-})
-
-#' @rdname fileTable
-setMethod(
-  ".fileTableIn",
-  signature = "missing",
-  definition = function() {
-    ft <- data.frame(
-      file = character(0), fun = character(0), package = character(0),
-      objectName = character(0), loadTime = numeric(0), loaded = logical(0),
-      arguments = I(list()), intervals = numeric(0), stringsAsFactors = FALSE
-    )
-    return(ft)
-})
-
-#' @rdname fileTable
-.fileTableInCols <- colnames(.fileTableIn())
-
-#' @rdname fileTable
-setGeneric(".fileTableOut", function(x) {
-  standardGeneric(".fileTableOut")
-})
-
-#' @rdname fileTable
-setMethod(
-  ".fileTableOut",
-  signature = "missing",
-  definition = function() {
-    ft <- data.frame(
-      file = character(0), fun = character(0), package = character(0),
-      objectName = character(0), saveTime = numeric(0), saved = logical(0),
-      arguments = I(list()), stringsAsFactors = FALSE
-    )
-    return(ft)
-})
-
-#' @rdname fileTable
-.fileTableOutCols <- colnames(.fileTableOut())
-
-################################################################################
 #' The \code{simList} class
 #'
 #' Contains the minimum components of a \code{SpaDES} simulation.
@@ -135,10 +80,10 @@ setMethod(
 #'   \code{eventPriority} \tab The priority given to the event. \cr
 #' }
 #'
-#' @include helpers.R module-dependencies-class.R
 #' @aliases .simList
 #' @rdname simList-class
 #' @importFrom data.table as.data.table data.table
+#' @include helpers.R misc-methods.R module-dependencies-class.R
 #'
 #' @references Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{https://www.nostarch.com/artofr.htm}
 #'
@@ -166,7 +111,7 @@ setClass(
     ),
     inputs = .fileTableIn(),
     outputs = .fileTableOut(),
-    paths = list(modulePath = "./", inputPath = "./", outputPath = "./")
+    paths = .paths()
   ),
   validity = function(object) {
     # check for valid sim times
