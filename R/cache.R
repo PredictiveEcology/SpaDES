@@ -1,8 +1,9 @@
 ################################################################################
-#' Cache method for simList class objects
+#' Cache method simLists and for objects and functions in simLists
 #'
 #' Because the \code{simList} has an environment as one of its slots,
-#' the caching mechanism of the archivist package does not work.
+#' the caching mechanism of the archivist package does not work on
+#' simLists nor any functions or objects defined inside a module.
 #' Here, we make a slight tweak to the \code{cache} function.
 #' Specifically, we remove all elements that have an environment as part of
 #' their attributes.
@@ -11,7 +12,8 @@
 #' Thus, only non-function objects are used as part of the \code{digest} call
 #' in the \code{digest} package (used internally in the \code{cache} function).
 #'
-#' Normally, a user will access this functionality as an argument in \code{\link{spades}}.
+#' Often, a user will access this functionality as an argument in \code{\link{spades}} or
+#' other functions in the \code{SpaDES} package.
 #'
 #' @inheritParams archivist::cache
 #'

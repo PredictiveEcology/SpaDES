@@ -8,7 +8,7 @@
 \alias{clearCache,ANY-method}
 \alias{showCache}
 \alias{showCache,ANY-method}
-\title{Cache method for simList class objects}
+\title{Cache method simLists and for objects and functions in simLists}
 \usage{
 cache(cacheRepo = NULL, FUN, ..., notOlderThan = NULL)
 
@@ -48,7 +48,8 @@ Will clear all objects from the \code{cachePath} of the sim object
 }
 \description{
 Because the \code{simList} has an environment as one of its slots,
-the caching mechanism of the archivist package does not work.
+the caching mechanism of the archivist package does not work on
+simLists nor any functions or objects defined inside a module.
 Here, we make a slight tweak to the \code{cache} function.
 Specifically, we remove all elements that have an environment as part of
 their attributes.
