@@ -847,60 +847,77 @@ setMethod(
 
         # Debug internally in the doEvent?
         debugDoEvent <- FALSE
-        
+
         # check the module call for validity
         if (!(all(sapply(debug, identical, FALSE)))) {
           #if (length(debug) > 1) print("---------------------------")
           for (i in seq_along(debug)) {
             if (isTRUE(debug[[i]]) | debug[[i]] == "current") {
-              if (NROW(events(sim)) > 0) {
+              if (NROW(cur) > 0) {
                 evnts1 <- data.frame(current(sim))
                 widths <- str_length(format(evnts1))
-                sim$.spadesDebugWidth <- pmax(widths, sim$.spadesDebugWidth)
-                evnts1[1L,] <- str_pad(format(evnts1), side = "right", sim$.spadesDebugWidth)
+                sim$.spadesDebugWidth <-
+                  pmax(widths, sim$.spadesDebugWidth)
+                evnts1[1L, ] <-
+                  str_pad(format(evnts1), side = "right", sim$.spadesDebugWidth)
 
                 if (sim$.spadesDebugFirst) {
                   evnts2 <- evnts1
-                  evnts2[1L,] <- str_pad(names(evnts1), sim$.spadesDebugWidth)
+                  evnts2[1L:2L, ] <- rbind(
+                    str_pad(names(evnts1), sim$.spadesDebugWidth),
+                    evnts1)
                   cat("This is the current event, printed as it is happening:\n")
-                  write.table(evnts2, quote = FALSE, row.names = FALSE, col.names = FALSE)
+                  write.table(
+                    evnts2,
+                    quote = FALSE,
+                    row.names = FALSE,
+                    col.names = FALSE
+                  )
                   sim$.spadesDebugFirst <- FALSE
                 } else {
                   colnames(evnts1) <- NULL
-                  write.table(evnts1, quote = FALSE, row.names = FALSE)
+                  write.table(evnts1,
+                              quote = FALSE,
+                              row.names = FALSE)
                 }
               }
             } else if (debug[[i]] == "simList") {
               print(sim)
-            } else if (grepl(debug[[i]], pattern = "\\(") ) {
-              print(tryCatch(eval(parse(text = debug[[i]])), error = function(x) ""))
-            } else if (any(debug[[i]]==unlist(modules(sim, hidden = TRUE)))) {
-              if (debug[[i]]==cur$moduleName){
-                debugDoEvent <- TRUE
+            } else if (grepl(debug[[i]], pattern = "\\(")) {
+              print(eval(parse(text = debug[[i]])))
+            } else if (any(debug[[i]] == unlist(modules(sim, hidden = TRUE)))) {
+              if (debug[[i]] == cur$moduleName) {
+                #debugDoEvent <- TRUE
+                debugonce(get(paste0("doEvent.",cur$moduleName), envir = envir(sim)))
+                on.exit(get(paste0("doEvent.",cur$moduleName), envir = envir(sim)))
               }
             } else if (!any(debug[[i]] == c("step", "browser"))) {
               print(do.call(debug[[i]], list(sim)))
             }
-            
+
             if (debug[[i]] == "step") {
               readline("Press any key to continue")
-            } 
+            }
           }
         }
 
         if (cur$moduleName %in% modules(sim, hidden = TRUE)) {
-
           if (cur$moduleName %in% core) {
-              sim <- get(moduleCall)(sim, cur$eventTime,
-                                     cur$eventType, debugDoEvent)
-           } else {
-             sim <- get(moduleCall,
-                         envir = envir(sim))(sim, cur$eventTime,
-                                             cur$eventType, debugDoEvent)
-           }
+            sim <- get(moduleCall)(sim, cur$eventTime,
+                                   cur$eventType, debugDoEvent)
+          } else {
+            sim <- get(moduleCall,
+                       envir = envir(sim))(sim, cur$eventTime,
+                                           cur$eventType, debugDoEvent)
+          }
         } else {
-          stop(paste("Invalid module call. The module `", cur$moduleName,
-                     "` wasn't specified to be loaded."))
+          stop(
+            paste(
+              "Invalid module call. The module `",
+              cur$moduleName,
+              "` wasn't specified to be loaded."
+            )
+          )
         }
 
         # add to list of completed events
