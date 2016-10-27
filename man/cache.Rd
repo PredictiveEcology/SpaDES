@@ -10,9 +10,10 @@
 \alias{showCache,ANY-method}
 \title{Cache method simLists and for objects and functions in simLists}
 \usage{
-cache(cacheRepo = NULL, FUN, ..., notOlderThan = NULL)
+cache(cacheRepo = NULL, FUN, ..., notOlderThan = NULL, algo = "xxhash32")
 
-\S4method{cache}{ANY}(cacheRepo = NULL, FUN, ..., notOlderThan = NULL)
+\S4method{cache}{ANY}(cacheRepo = NULL, FUN, ..., notOlderThan = NULL,
+  algo = "xxhash32")
 
 clearCache(sim, afterDate, beforeDate, cacheRepo, ...)
 
@@ -34,6 +35,11 @@ If both \code{afterDate} and \code{beforeDate} are specified, then all objects b
 \code{beforeDate} will be deleted.}
 
 \item{notOlderThan}{load an artifact from the database only if it was created after notOlderThan.}
+
+\item{algo}{The algorithms to be used; currently available choices are
+    \code{md5}, which is also the default, \code{sha1}, \code{crc32},
+    \code{sha256}, \code{sha512}, \code{xxhash32}, \code{xxhash64} and
+    \code{murmur32}.}
 
 \item{sim}{A \code{simList} simulation object, generally produced by \code{simInit}.}
 

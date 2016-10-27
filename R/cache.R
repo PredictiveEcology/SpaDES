@@ -54,21 +54,23 @@
 #' }
 #'
 setGeneric("cache", signature = "...",
-           function(cacheRepo = NULL, FUN, ..., notOlderThan = NULL) {
-             archivist::cache(cacheRepo, FUN, ..., notOlderThan)
+           function(cacheRepo = NULL, FUN, ..., notOlderThan = NULL,
+                    algo = "xxhash32") {
+             archivist::cache(cacheRepo, FUN, ..., notOlderThan, algo)
            })
 
 #' @export
 #' @rdname cache
 setMethod(
   "cache",
-  definition = function(cacheRepo, FUN, ..., notOlderThan) {
+  definition = function(cacheRepo, FUN, ..., notOlderThan, algo) {
     tmpl <- list(...)
     if (missing(notOlderThan)) notOlderThan <- NULL
     # These three lines added to original version of cache in archive package
     wh <- which(sapply(tmpl, function(x) is(x, "simList")))
     whRas <- which(sapply(tmpl, function(x) is(x, "Raster")))
     whFun <- which(sapply(tmpl, function(x) is.function(x)))
+    #browser()
     if(isS4(FUN)) {
       # Have to extract the correct dispatched method
       firstElems <- strsplit(showMethods(FUN, inherited = TRUE, printTo = FALSE), split = ", ")
@@ -96,7 +98,7 @@ setMethod(
     if (length(whFun) > 0) tmpl[whFun] <- lapply(tmpl[whFun], format)
     if (!is.null(tmpl$progress)) if (!is.na(tmpl$progress)) tmpl$progress <- NULL
 
-    outputHash <- digest::digest(tmpl)
+    outputHash <- digest::digest(tmpl, algo = algo)
     localTags <- showLocalRepo(cacheRepo, "tags")
     isInRepo <- localTags[localTags$tag == paste0("cacheId:", outputHash), , drop = FALSE]
     if (nrow(isInRepo) > 0) {
@@ -117,6 +119,8 @@ setMethod(
     if(isS4(FUN))
       attr(output, "function") <- FUN@generic
 
+    # This is for write conflicts to the SQLite database, i.e., keep trying until it is
+    # written
     written <- FALSE
     while (!written) {
       saved <- try(saveToRepo(output, repoDir = cacheRepo, archiveData = TRUE,

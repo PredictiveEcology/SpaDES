@@ -283,8 +283,7 @@ setMethod(
       mutate(renamed = NA, module = module)
     dataDir <- file.path(path, module, "data" )
 
-    browser()
-    if (any(chksums$result == "FAIL") | is.na(any(chksums$result))) {
+    if (any(chksums$result == "FAIL") | any(is.na(chksums$result))) {
       setwd(path); on.exit(setwd(cwd), add = TRUE)
 
       files <- sapply(to.dl, function(x) {
@@ -467,7 +466,8 @@ setMethod(
   "checksums",
   signature = c(module = "character", path = "character", write = "logical"),
   definition = function(module, path, write, ...) {
-    defaultHashAlgo <- "xxhash64"
+    defaultHashAlgo <- "md5"
+    defaultWriteHashAlgo <- "xxhash64"
     dots <- list(...)
 
     path <- checkPath(path, create = FALSE) %>% file.path(., module, "data")
@@ -487,7 +487,11 @@ setMethod(
 
     if(is.null(dots$algo)) {
       if(NROW(files)) {
-        dots$algo <- defaultHashAlgo
+        if(write) {
+          dots$algo <- defaultWriteHashAlgo
+        } else {
+          dots$algo <- defaultHashAlgo
+        }
       } else {
         dots$algo <- character()
       }
@@ -497,7 +501,7 @@ setMethod(
       if(!write) dots$algo <- unique(txt$algorithm)[1]
     } else {
       if(NROW(txt)) {
-        txt$algorithm <- defaultHashAlgo
+        txt$algorithm <- defaultWriteHashAlgo
       } else {
         txt$algorithm <- character()
       }

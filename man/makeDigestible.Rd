@@ -4,23 +4,32 @@
 \name{makeDigestible}
 \alias{makeDigestible}
 \alias{makeDigestible,simList-method}
-\title{Remove any reference to environments in a \code{simList}}
+\title{Remove any reference to environments or filepaths in objects}
 \usage{
-makeDigestible(simList)
+makeDigestible(object)
 
-\S4method{makeDigestible}{simList}(simList)
+\S4method{makeDigestible}{simList}(object)
 }
 \arguments{
-\item{simList}{an object of class \code{simList}}
+\item{object}{an object to convert to a 'digestible' state}
 }
 \value{
-A simplified version of the \code{simList} object, but with no
-        reference to any environments
+A simplified version of the \code{object} object, but with no
+        reference to any environments, or other session-specific information.
 }
 \description{
-Internal use only. Used when caching a SpaDES run a \code{simList}.
+Using digest::digest will include every detail of an object, including
+environments of functions, including those that are session-specific. Since
+the goal of using digest::digest is not session specific, this function
+attempts to strip all session specific information so that the digest
+works between sessions and operating systems. It is tested under many
+conditions and object types, there are bound to be others that don't
+work correctly.
 }
 \details{
+This is primarily for internal use only. Especially when
+caching a \code{simList}.
+
 This is a derivative of the class \code{simList}, except that all references
 to local environments are removed.
 Specifically, all functions (which are contained within environments) are
