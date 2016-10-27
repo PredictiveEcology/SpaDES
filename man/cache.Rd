@@ -8,12 +8,13 @@
 \alias{clearCache,ANY-method}
 \alias{showCache}
 \alias{showCache,ANY-method}
-\title{Cache method for simList class objects}
+\title{Cache method simLists and for objects and functions in simLists}
 \usage{
-cache(cacheRepo = NULL, FUN, ..., notOlderThan = NULL, objects)
+cache(cacheRepo = NULL, FUN, ..., notOlderThan = NULL, objects,
+  algo = "xxhash32")
 
 \S4method{cache}{ANY}(cacheRepo = NULL, FUN, ..., notOlderThan = NULL,
-  objects)
+  objects, algo = "xxhash32")
 
 clearCache(sim, afterDate, beforeDate, cacheRepo, ...)
 
@@ -40,6 +41,11 @@ If both \code{afterDate} and \code{beforeDate} are specified, then all objects b
 be considered for caching. i.e., only use a subset of
 the simList objects.}
 
+\item{algo}{The algorithms to be used; currently available choices are
+    \code{md5}, which is also the default, \code{sha1}, \code{crc32},
+    \code{sha256}, \code{sha512}, \code{xxhash32}, \code{xxhash64} and
+    \code{murmur32}.}
+
 \item{sim}{A \code{simList} simulation object, generally produced by \code{simInit}.}
 
 \item{afterDate}{Objects cached after this date will be deleted, formatted YYYY-MM-DD.}
@@ -53,7 +59,8 @@ Will clear all objects from the \code{cachePath} of the sim object
 }
 \description{
 Because the \code{simList} has an environment as one of its slots,
-the caching mechanism of the archivist package does not work.
+the caching mechanism of the archivist package does not work on
+simLists nor any functions or objects defined inside a module.
 Here, we make a slight tweak to the \code{cache} function.
 Specifically, we remove all elements that have an environment as part of
 their attributes.
@@ -67,7 +74,8 @@ functions, specific to simList objects.
 They allow the user a bit of control over what is being cached.
 }
 \details{
-Normally, a user will access this functionality as an argument in \code{\link{spades}}.
+Often, a user will access this functionality as an argument in \code{\link{spades}} or
+other functions in the \code{SpaDES} package.
 }
 \examples{
 \dontrun{

@@ -236,7 +236,6 @@ defineModule(sim, list(
 #   - type `init` is required for initialiazation
 
 doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
-  if(debug) browser() # keep this here to allow debugging via spades(debug = '",name,"')
   if (eventType == \"init\") {
     ### check for more detailed object dependencies:
     ### (use `checkObject` or similar)

@@ -1,8 +1,9 @@
 ################################################################################
-#' Cache method for simList class objects
+#' Cache method simLists and for objects and functions in simLists
 #'
 #' Because the \code{simList} has an environment as one of its slots,
-#' the caching mechanism of the archivist package does not work.
+#' the caching mechanism of the archivist package does not work on
+#' simLists nor any functions or objects defined inside a module.
 #' Here, we make a slight tweak to the \code{cache} function.
 #' Specifically, we remove all elements that have an environment as part of
 #' their attributes.
@@ -11,12 +12,14 @@
 #' Thus, only non-function objects are used as part of the \code{digest} call
 #' in the \code{digest} package (used internally in the \code{cache} function).
 #'
-#' Normally, a user will access this functionality as an argument in \code{\link{spades}}.
+#' Often, a user will access this functionality as an argument in \code{\link{spades}} or
+#' other functions in the \code{SpaDES} package.
 #'
 #' @inheritParams archivist::cache
 #' @param objects Character vector of objects within the simList that should
 #'                be considered for caching. i.e., only use a subset of
 #'                the simList objects.
+#' @inheritParams digest::digest
 #'
 #' @return Identical to \code{\link[archivist]{cache}}
 #'
@@ -24,6 +27,7 @@
 #' @export
 #' @importFrom archivist cache loadFromLocalRepo saveToRepo showLocalRepo
 #' @importFrom digest digest
+#' @importFrom methods showMethods selectMethod
 #' @include simList-class.R
 #' @docType methods
 #' @rdname cache
@@ -54,30 +58,54 @@
 #'
 setGeneric("cache", signature = "...",
            function(cacheRepo = NULL, FUN, ..., notOlderThan = NULL,
-                    objects) {
-             archivist::cache(cacheRepo, FUN, ..., notOlderThan)
+                    objects, algo = "xxhash32") {
+             archivist::cache(cacheRepo, FUN, ..., notOlderThan, algo)
            })
 
 #' @export
 #' @rdname cache
 setMethod(
   "cache",
-  definition = function(cacheRepo, FUN, ..., notOlderThan, objects) {
+  definition = function(cacheRepo, FUN, ..., notOlderThan, objects, algo) {
     tmpl <- list(...)
     if (missing(notOlderThan)) notOlderThan <- NULL
     # These three lines added to original version of cache in archive package
     wh <- which(sapply(tmpl, function(x) is(x, "simList")))
+    whRas <- which(sapply(tmpl, function(x) is(x, "Raster")))
     whFun <- which(sapply(tmpl, function(x) is.function(x)))
-    tmpl$.FUN <- format(FUN) # This is changed to allow copying between computers
     if(missing(objects)) {
       if (length(wh) > 0) tmpl[wh] <- lapply(tmpl[wh], makeDigestible)
     } else {
       if (length(wh) > 0) tmpl[wh] <- lapply(tmpl[wh], function(xx) makeDigestible(xx, objects))
     }
+    #browser()
+    if(isS4(FUN)) {
+      # Have to extract the correct dispatched method
+      firstElems <- strsplit(showMethods(FUN, inherited = TRUE, printTo = FALSE), split = ", ")
+      firstElems <- lapply(firstElems, function(x) {
+        y <- strsplit(x, split = "=")
+        unlist(lapply(y, function(z) z[1]))
+      }
+      )
+      sigArgs <- lapply(unique(firstElems), function(x) {
+        FUN@signature %in% x})
+      signat <- unlist(sigArgs[unlist(lapply(sigArgs, function(y) any(y)))])
+
+      methodUsed <- selectMethod(FUN, optional = TRUE, signature =
+                                   sapply(as.list(match.call(FUN,
+                                                             do.call(call, append(list(name = FUN@generic),
+                                                                                  tmpl))))[FUN@signature[signat]],
+                                          class))
+      tmpl$.FUN <- format(methodUsed@.Data)
+    } else {
+      tmpl$.FUN <- format(FUN) # This is changed to allow copying between computers
+    }
+    #browser()
+    if (length(whRas) > 0) tmpl[whRas] <- lapply(tmpl[whRas], makeDigestible)
     if (length(whFun) > 0) tmpl[whFun] <- lapply(tmpl[whFun], format)
     if (!is.null(tmpl$progress)) if (!is.na(tmpl$progress)) tmpl$progress <- NULL
 
-    outputHash <- digest::digest(tmpl)
+    outputHash <- digest::digest(tmpl, algo = algo)
     localTags <- showLocalRepo(cacheRepo, "tags")
     isInRepo <- localTags[localTags$tag == paste0("cacheId:", outputHash), , drop = FALSE]
     if (nrow(isInRepo) > 0) {
@@ -95,7 +123,11 @@ setMethod(
     output <- do.call(FUN, list(...))
     attr(output, "tags") <- paste0("cacheId:", outputHash)
     attr(output, "call") <- ""
+    if(isS4(FUN))
+      attr(output, "function") <- FUN@generic
 
+    # This is for write conflicts to the SQLite database, i.e., keep trying until it is
+    # written
     written <- FALSE
     while (!written) {
       saved <- try(saveToRepo(output, repoDir = cacheRepo, archiveData = TRUE,
@@ -193,9 +225,18 @@ setMethod(
   })
 
 ################################################################################
-#' Remove any reference to environments in a \code{simList}
+#' Remove any reference to environments or filepaths in objects
 #'
-#' Internal use only. Used when caching a SpaDES run a \code{simList}.
+#' Using digest::digest will include every detail of an object, including
+#' environments of functions, including those that are session-specific. Since
+#' the goal of using digest::digest is not session specific, this function
+#' attempts to strip all session specific information so that the digest
+#' works between sessions and operating systems. It is tested under many
+#' conditions and object types, there are bound to be others that don't
+#' work correctly.
+#'
+#' This is primarily for internal use only. Especially when
+#' caching a \code{simList}.
 #'
 #' This is a derivative of the class \code{simList}, except that all references
 #' to local environments are removed.
@@ -209,13 +250,13 @@ setMethod(
 #' The object is then converted to a \code{simList_} which has a \code{.list} slot.
 #' The hashes of the objects are then placed in that \code{.list} slot.
 #'
-#' @param simList an object of class \code{simList}
+#' @param object an object to convert to a 'digestible' state
 #'
 #' @param objects Optional character vector indicating which objects are to
 #'                be considered while making digestible.
 #'
 #' @return A simplified version of the \code{simList} object, but with no
-#'         reference to any environments
+#'         reference to any environments, or other session-specific information.
 #'
 #' @seealso \code{\link[archivist]{cache}}.
 #' @seealso \code{\link[digest]{digest}}.
@@ -226,80 +267,86 @@ setMethod(
 #' @keywords internal
 #' @rdname makeDigestible
 #' @author Eliot McIntire
-setGeneric("makeDigestible", function(simList, objects) {
-  standardGeneric("makeDigestible")
-})
+setGeneric("makeDigestible", function(object, objects) {
+          standardGeneric("makeDigestible")
+      })
 
-#' @rdname makeDigestible
-setMethod(
-  "makeDigestible",
-  signature = "simList",
-  definition = function(simList, objects) {
-    objectsToDigest <- sort(ls(simList@.envir, all.names = TRUE))
-    if(!missing(objects)) {
-      objectsToDigest <- objectsToDigest[objectsToDigest %in% objects]
-    }
-    envirHash <- (sapply(objectsToDigest, function(x) {
-      if (!(x == ".sessionInfo")) {
-        obj <- get(x, envir = envir(simList))
-        if (!is(obj, "function")) {
-          if (is(obj, "Raster")) {
-            # convert Rasters in the simList to some of their metadata.
-            if (is(obj, "RasterStack") | is(obj, "RasterBrick")) {
-              dig <- list(dim(obj), res(obj), crs(obj), extent(obj),
-                          lapply(obj@layers, function(yy) yy@data))
-              if (nchar(obj@filename) > 0) {
-                # if the Raster is on disk, has the first 1e6 characters;
-                # uses SpaDES:::digest on the file
-                dig <- append(dig, digest(file = obj@filename, length = 1e6))
+    #' @rdname makeDigestible
+    setMethod(
+      "makeDigestible",
+      signature = "simList",
+        definition = function(object, objects) {
+          objectsToDigest <- sort(ls(object@.envir, all.names = TRUE))
+          if(!missing(objects)) {
+            objectsToDigest <- objectsToDigest[objectsToDigest %in% objects]
+          }
+          envirHash <- (sapply(objectsToDigest, function(x) {
+          if (!(x == ".sessionInfo")) {
+            obj <- get(x, envir = envir(object))
+            if (!is(obj, "function")) {
+              if (is(obj, "Raster")) {
+                # convert Rasters in the simList to some of their metadata.
+                obj <- makeDigestible(obj)
+                dig <- digest::digest(obj)
+              } else {
+                # convert functions in the simList to their digest.
+                #  functions have environments so are always unique
+                dig <- digest::digest(obj)
               }
             } else {
-              dig <- list(dim(obj), res(obj), crs(obj), extent(obj), obj@data)
-              if (nchar(obj@file@name) > 0) {
-                # if the Raster is on disk, has the first 1e6 characters;
-                # uses SpaDES:::digest on the file
-                dig <- append(dig, digest(file = obj@file@name, length = 1e6))
-              }
+              # for functions, use a character representation via format
+              dig <- digest::digest(format(obj))
             }
-
-            dig <- digest::digest(dig)
           } else {
-            # convert functions in the simList to their digest.
-            #  functions have environments so are always unique
-            dig <- digest::digest(obj)
+            # for .sessionInfo, just keep the major and minor R version
+            dig <- digest::digest(get(x, envir = envir(object))[[1]] %>%
+                                    .[c("major", "minor")])
           }
-        } else {
-          # for functions, use a character representation via format
-          dig <- digest::digest(format(obj))
-        }
-      } else {
-        # for .sessionInfo, just keep the major and minor R version
-        dig <- digest::digest(get(x, envir = envir(simList))[[1]] %>%
-                                .[c("major", "minor")])
+        return(dig)
+      }))
+
+      # Remove the NULL entries in the @.list
+      envirHash <- envirHash[!sapply(envirHash, is.null)]
+      envirHash <- sortDotsFirst(envirHash)
+
+      # Convert to a simList_ to remove the .envir slot
+      object <- as(object, "simList_")
+      # Replace the .list slot with the hashes of the slots
+      object@.list <- list(envirHash)
+
+      # Remove paths as they are system dependent and not relevant for digest
+      #  i.e., if the same file is located in a different place, that is ok
+      object@paths <- list()
+
+      # Sort the params and .list with dots first, to allow Linux and Windows to be compatible
+      object@params <- lapply(object@params, function(x) sortDotsFirst(x))
+
+      return(object)
+    })
+
+setMethod(
+  "makeDigestible",
+  signature = "Raster",
+  definition = function(object) {
+    if (is(object, "RasterStack") | is(object, "RasterBrick")) {
+      dig <- list(dim(object), res(object), crs(object), extent(object),
+                  lapply(object@layers, function(yy) yy@data))
+      if (nchar(object@filename) > 0) {
+        # if the Raster is on disk, has the first 1e6 characters;
+        # uses SpaDES:::digest on the file
+        dig <- append(dig, digest(file = object@filename, length = 1e6))
       }
-      return(dig)
-    }))
-
-    # Remove the NULL entries in the @.list
-    envirHash <- envirHash[!sapply(envirHash, is.null)]
-    envirHash <- sortDotsFirst(envirHash)
-
-    # Convert to a simList_ to remove the .envir slot
-    simList <- as(simList, "simList_")
-    # Replace the .list slot with the hashes of the slots
-    simList@.list <- list(envirHash)
-
-    # Remove paths as they are system dependent and not relevant for digest
-    #  i.e., if the same file is located in a different place, that is ok
-    simList@paths <- list()
-
-    # Sort the params and .list with dots first, to allow Linux and Windows to be compatible
-    simList@params <- lapply(simList@params, function(x) sortDotsFirst(x))
-
-    return(simList)
-  })
-
-
+    } else {
+      dig <- list(dim(object), res(object), crs(object), extent(object), object@data)
+      if (nchar(object@file@name) > 0) {
+        # if the Raster is on disk, has the first 1e6 characters;
+        # uses SpaDES:::digest on the file
+        dig <- append(dig, digest(file = object@file@name, length = 1e6))
+      }
+    }
+    return(dig)
+  }
+)
 
 ################################################################################
 #' Clear erroneous archivist artifacts
