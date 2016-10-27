@@ -23,6 +23,7 @@
 #' @export
 #' @importFrom archivist cache loadFromLocalRepo saveToRepo showLocalRepo
 #' @importFrom digest digest
+#' @importFrom methods showMethods
 #' @include simList-class.R
 #' @docType methods
 #' @rdname cache
@@ -67,6 +68,28 @@ setMethod(
     wh <- which(sapply(tmpl, function(x) is(x, "simList")))
     whFun <- which(sapply(tmpl, function(x) is.function(x)))
     tmpl$.FUN <- format(FUN) # This is changed to allow copying between computers
+    if(isS4(FUN)) {
+      # Have to extract the correct dispatched method
+      firstElems <- strsplit(showMethods(FUN, inherited = TRUE, printTo = FALSE), split = ", ")
+      firstElems <- lapply(firstElems, function(x) {
+            y <- strsplit(x, split = "=")
+            unlist(lapply(y, function(z) z[1]))
+          }
+        )
+      sigArgs <- lapply(unique(firstElems), function(x) {
+        FUN@signature %in% x})
+      signat <- unlist(sigArgs[unlist(lapply(sigArgs, function(y) any(y)))])
+
+      methodUsed <- selectMethod(FUN, optional = TRUE, signature =
+        sapply(as.list(match.call(FUN,
+                                do.call(call, append(list(name = FUN@generic),
+                                                     tmpl))))[FUN@signature[signat]],
+             class))
+      tmpl$.FUN <- format(methodUsed@.Data)
+    } else {
+      tmpl$.FUN <- format(FUN) # This is changed to allow copying between computers
+    }
+    #browser()
     if (length(wh) > 0) tmpl[wh] <- lapply(tmpl[wh], makeDigestible)
     if (length(whFun) > 0) tmpl[whFun] <- lapply(tmpl[whFun], format)
     if (!is.null(tmpl$progress)) if (!is.na(tmpl$progress)) tmpl$progress <- NULL
@@ -89,6 +112,8 @@ setMethod(
     output <- do.call(FUN, list(...))
     attr(output, "tags") <- paste0("cacheId:", outputHash)
     attr(output, "call") <- ""
+    if(isS4(FUN))
+      attr(output, "function") <- FUN@generic
 
     written <- FALSE
     while (!written) {
