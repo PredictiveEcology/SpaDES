@@ -16,6 +16,7 @@
 #' other functions in the \code{SpaDES} package.
 #'
 #' @inheritParams archivist::cache
+#' @inheritParams digest::digest
 #'
 #' @return Identical to \code{\link[archivist]{cache}}
 #'
@@ -66,8 +67,8 @@ setMethod(
     if (missing(notOlderThan)) notOlderThan <- NULL
     # These three lines added to original version of cache in archive package
     wh <- which(sapply(tmpl, function(x) is(x, "simList")))
+    whRas <- which(sapply(tmpl, function(x) is(x, "Raster")))
     whFun <- which(sapply(tmpl, function(x) is.function(x)))
-    tmpl$.FUN <- format(FUN) # This is changed to allow copying between computers
     if(isS4(FUN)) {
       # Have to extract the correct dispatched method
       firstElems <- strsplit(showMethods(FUN, inherited = TRUE, printTo = FALSE), split = ", ")
@@ -91,6 +92,7 @@ setMethod(
     }
     #browser()
     if (length(wh) > 0) tmpl[wh] <- lapply(tmpl[wh], makeDigestible)
+    if (length(whRas) > 0) tmpl[whRas] <- lapply(tmpl[whRas], makeDigestible)
     if (length(whFun) > 0) tmpl[whFun] <- lapply(tmpl[whFun], format)
     if (!is.null(tmpl$progress)) if (!is.na(tmpl$progress)) tmpl$progress <- NULL
 
@@ -212,9 +214,18 @@ setMethod(
   })
 
 ################################################################################
-#' Remove any reference to environments in a \code{simList}
+#' Remove any reference to environments or filepaths in objects
 #'
-#' Internal use only. Used when caching a SpaDES run a \code{simList}.
+#' Using digest::digest will include every detail of an object, including
+#' environments of functions, including those that are session-specific. Since
+#' the goal of using digest::digest is not session specific, this function
+#' attempts to strip all session specific information so that the digest
+#' works between sessions and operating systems. It is tested under many
+#' conditions and object types, there are bound to be others that don't
+#' work correctly.
+#'
+#' This is primarily for internal use only. Especially when
+#' caching a \code{simList}.
 #'
 #' This is a derivative of the class \code{simList}, except that all references
 #' to local environments are removed.
@@ -228,10 +239,10 @@ setMethod(
 #' The object is then converted to a \code{simList_} which has a \code{.list} slot.
 #' The hashes of the objects are then placed in that \code{.list} slot.
 #'
-#' @param simList an object of class \code{simList}
+#' @param object an object to convert to a 'digestible' state
 #'
-#' @return A simplified version of the \code{simList} object, but with no
-#'         reference to any environments
+#' @return A simplified version of the \code{object} object, but with no
+#'         reference to any environments, or other session-specific information.
 #'
 #' @seealso \code{\link[archivist]{cache}}.
 #' @seealso \code{\link[digest]{digest}}.
@@ -242,7 +253,7 @@ setMethod(
 #' @keywords internal
 #' @rdname makeDigestible
 #' @author Eliot McIntire
-setGeneric("makeDigestible", function(simList) {
+setGeneric("makeDigestible", function(object) {
   standardGeneric("makeDigestible")
 })
 
@@ -250,31 +261,15 @@ setGeneric("makeDigestible", function(simList) {
 setMethod(
   "makeDigestible",
   signature = "simList",
-  definition = function(simList) {
-    envirHash <- (sapply(sort(ls(simList@.envir, all.names = TRUE)), function(x) {
+  definition = function(object) {
+    envirHash <- (sapply(sort(ls(object@.envir, all.names = TRUE)), function(x) {
       if (!(x == ".sessionInfo")) {
-        obj <- get(x, envir = envir(simList))
+        obj <- get(x, envir = envir(object))
         if (!is(obj, "function")) {
           if (is(obj, "Raster")) {
             # convert Rasters in the simList to some of their metadata.
-            if (is(obj, "RasterStack") | is(obj, "RasterBrick")) {
-              dig <- list(dim(obj), res(obj), crs(obj), extent(obj),
-                          lapply(obj@layers, function(yy) yy@data))
-              if (nchar(obj@filename) > 0) {
-                # if the Raster is on disk, has the first 1e6 characters;
-                # uses SpaDES:::digest on the file
-                dig <- append(dig, digest(file = obj@filename, length = 1e6))
-              }
-            } else {
-              dig <- list(dim(obj), res(obj), crs(obj), extent(obj), obj@data)
-              if (nchar(obj@file@name) > 0) {
-                # if the Raster is on disk, has the first 1e6 characters;
-                # uses SpaDES:::digest on the file
-                dig <- append(dig, digest(file = obj@file@name, length = 1e6))
-              }
-            }
-
-            dig <- digest::digest(dig)
+            obj <- makeDigestible(obj)
+            dig <- digest::digest(obj)
           } else {
             # convert functions in the simList to their digest.
             #  functions have environments so are always unique
@@ -286,7 +281,7 @@ setMethod(
         }
       } else {
         # for .sessionInfo, just keep the major and minor R version
-        dig <- digest::digest(get(x, envir = envir(simList))[[1]] %>%
+        dig <- digest::digest(get(x, envir = envir(object))[[1]] %>%
                                 .[c("major", "minor")])
       }
       return(dig)
@@ -297,21 +292,43 @@ setMethod(
     envirHash <- sortDotsFirst(envirHash)
 
     # Convert to a simList_ to remove the .envir slot
-    simList <- as(simList, "simList_")
+    object <- as(object, "simList_")
     # Replace the .list slot with the hashes of the slots
-    simList@.list <- list(envirHash)
+    object@.list <- list(envirHash)
 
     # Remove paths as they are system dependent and not relevant for digest
     #  i.e., if the same file is located in a different place, that is ok
-    simList@paths <- list()
+    object@paths <- list()
 
     # Sort the params and .list with dots first, to allow Linux and Windows to be compatible
-    simList@params <- lapply(simList@params, function(x) sortDotsFirst(x))
+    object@params <- lapply(object@params, function(x) sortDotsFirst(x))
 
-    return(simList)
+    return(object)
   })
 
-
+setMethod(
+  "makeDigestible",
+  signature = "Raster",
+  definition = function(object) {
+    if (is(object, "RasterStack") | is(object, "RasterBrick")) {
+      dig <- list(dim(object), res(object), crs(object), extent(object),
+                  lapply(object@layers, function(yy) yy@data))
+      if (nchar(object@filename) > 0) {
+        # if the Raster is on disk, has the first 1e6 characters;
+        # uses SpaDES:::digest on the file
+        dig <- append(dig, digest(file = object@filename, length = 1e6))
+      }
+    } else {
+      dig <- list(dim(object), res(object), crs(object), extent(object), object@data)
+      if (nchar(object@file@name) > 0) {
+        # if the Raster is on disk, has the first 1e6 characters;
+        # uses SpaDES:::digest on the file
+        dig <- append(dig, digest(file = object@file@name, length = 1e6))
+      }
+    }
+    return(dig)
+  }
+)
 
 ################################################################################
 #' Clear erroneous archivist artifacts
