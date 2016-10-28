@@ -6,15 +6,18 @@
 \alias{makeDigestible,simList-method}
 \title{Remove any reference to environments or filepaths in objects}
 \usage{
-makeDigestible(object)
+makeDigestible(object, objects)
 
-\S4method{makeDigestible}{simList}(object)
+\S4method{makeDigestible}{simList}(object, objects)
 }
 \arguments{
 \item{object}{an object to convert to a 'digestible' state}
+
+\item{objects}{Optional character vector indicating which objects are to
+be considered while making digestible.}
 }
 \value{
-A simplified version of the \code{object} object, but with no
+A simplified version of the \code{simList} object, but with no
         reference to any environments, or other session-specific information.
 }
 \description{
