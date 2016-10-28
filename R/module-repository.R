@@ -466,7 +466,7 @@ setMethod(
   "checksums",
   signature = c(module = "character", path = "character", write = "logical"),
   definition = function(module, path, write, ...) {
-    defaultHashAlgo <- "md5"
+    defaultHashAlgo <- "xxhash64"
     defaultWriteHashAlgo <- "xxhash64"
     dots <- list(...)
 
