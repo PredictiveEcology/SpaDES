@@ -8,15 +8,15 @@
 \title{Run a spatial discrete event simulation}
 \usage{
 spades(sim, debug = FALSE, progress = NA, cache, .plotInitialTime = NULL,
-  .saveInitialTime = NULL, notOlderThan, ...)
+  .saveInitialTime = NULL, notOlderThan = NULL, ...)
 
 \S4method{spades}{simList,ANY,ANY,missing}(sim, debug = FALSE,
   progress = NA, cache, .plotInitialTime = NULL, .saveInitialTime = NULL,
-  notOlderThan, ...)
+  notOlderThan = NULL, ...)
 
 \S4method{spades}{ANY,ANY,ANY,logical}(sim, debug = FALSE, progress = NA,
-  cache, .plotInitialTime = NULL, .saveInitialTime = NULL, notOlderThan,
-  ...)
+  cache, .plotInitialTime = NULL, .saveInitialTime = NULL,
+  notOlderThan = NULL, ...)
 }
 \arguments{
 \item{sim}{A \code{simList} simulation object, generally produced by \code{simInit}.}
@@ -40,9 +40,10 @@ parameter for all modules. See Details.}
 \item{.saveInitialTime}{Numeric. Temporarily override the \code{.plotInitialTime}
 parameter for all modules. See Details.}
 
-\item{notOlderThan}{Date. Passed to SpaDES::cache to update the cache. Default is
+\item{notOlderThan}{Date or time. Passed to SpaDES::cache to update the cache. Default is
 NULL, meaning don't update the cache. If \code{Sys.time()} is provided
-then, it will force a recache. Ignored if \code{cache} is FALSE.}
+then, it will force a recache, i.e., remove old value and replace
+with new value. Ignored if \code{cache} is FALSE.}
 
 \item{...}{Any. Can be used to make a unique cache identity, such as "replicate = 1". This
 will be included in the SpaDES::cache call, so will be unique and thus

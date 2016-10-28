@@ -233,9 +233,25 @@ setMethod(
       lastEntry <- max(isInRepo$createdDate)
       lastOne <- order(isInRepo$createdDate, decreasing = TRUE)[1]
       if (is.null(notOlderThan) || (notOlderThan < lastEntry)) {
+        if(grepl(format(FUN)[1], pattern= "function \\(sim, eventTime")) { # very coarse way of determining doEvent call
+          cat("Using cached copy of",cur$eventType,"event in",cur$moduleName,"module\n")
+        }
+
         out <- loadFromLocalRepo(isInRepo$artifact[lastOne],
                                  repoDir = cacheRepo, value = TRUE)
+        if(!is(out, "simList")) {
+          if(length(wh)>0) {
+            simListOut <- list(...)[[wh]]
+            for(i in names(out)) {
+              simListOut[[i]] <- out[[i]]
+            }
+
+            return(simListOut)
+          }
+        }
+
         return(out)
+
       }
       if ((notOlderThan >= lastEntry)) { # flush it if notOlderThan is violated
         rmFromLocalRepo(isInRepo$artifact[lastOne], repoDir = cacheRepo)
@@ -247,11 +263,25 @@ setMethod(
     if(isS4(FUN))
       attr(output, "function") <- FUN@generic
 
+    if(is(output, "simList")) {
+      if(!is.null(outputObjects)) {
+        outputToSave <- mget(outputObjects, envir = envir(output))
+        attr(outputToSave, "tags") <- attr(output, "tags")
+        attr(outputToSave, "call") <- attr(output, "call")
+        if(isS4(FUN))
+          attr(outputToSave, "function") <- attr(output, "function")
+      } else {
+        outputToSave <- output
+      }
+    } else {
+      outputToSave <- output
+    }
+
     # This is for write conflicts to the SQLite database, i.e., keep trying until it is
     # written
     written <- FALSE
     while (!written) {
-      saved <- try(saveToRepo(output, repoDir = cacheRepo, archiveData = TRUE,
+      saved <- try(saveToRepo(outputToSave, repoDir = cacheRepo, archiveData = TRUE,
                               archiveSessionInfo = FALSE,
                               archiveMiniature = FALSE, rememberName = FALSE, silent = TRUE),
                    silent = TRUE)

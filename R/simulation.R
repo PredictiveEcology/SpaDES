@@ -945,7 +945,7 @@ setMethod(
 #'              to the \code{sim} object.
 #'              If \code{"current"} is used, then it will be a compact list of the events
 #'              as they go by.
-#'
+#' @inheritParams spades
 #' @return Returns the modified \code{simList} object.
 #'
 #' @include helpers.R
@@ -961,7 +961,7 @@ setMethod(
 #' @references Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{https://www.nostarch.com/artofr.htm}
 #'
 # igraph exports %>% from magrittr
-setGeneric("doEvent", function(sim, debug) {
+setGeneric("doEvent", function(sim, debug, notOlderThan) {
   standardGeneric("doEvent")
 })
 
@@ -969,7 +969,7 @@ setGeneric("doEvent", function(sim, debug) {
 setMethod(
   "doEvent",
   signature(sim = "simList"),
-  definition = function(sim, debug) {
+  definition = function(sim, debug, notOlderThan) {
     if (class(sim) != "simList") {
       # use inherits()?
       stop("doEvent can only accept a simList object")
@@ -1066,15 +1066,22 @@ setMethod(
                                      cur$eventType, debugDoEvent)
            } else {
              # for future caching of modules
-             # if(FALSE) {
-             #   sim <- SpaDES::cache(cachePath(sim), FUN = get(moduleCall,
-             #      envir = envir(sim)), sim = sim,
-             #      eventTime=cur$eventTime, eventType = cur$eventType, debug = FALSE,
-             #      objects = depends(sim)@dependencies[[cur$moduleName]]@inputObjects$objectName)
-             # }
-              sim <- get(moduleCall,
+             if(isTRUE(params(sim)[[cur$moduleName]]$.useCache)) {
+               moduleSpecificObjects <- c(grep(ls(sim), pattern = cur$moduleName, value = TRUE),
+                                          depends(sim)@dependencies[[cur$moduleName]]@inputObjects$objectName)
+               moduleSpecificOutputObjects <-
+                 depends(sim)@dependencies[[cur$moduleName]]@outputObjects$objectName
+               sim <- Cache(FUN = get(moduleCall,
+                  envir = envir(sim)), sim = sim,
+                  eventTime=cur$eventTime, eventType = cur$eventType, debug = debugDoEvent,
+                  objects = moduleSpecificObjects, notOlderThan = notOlderThan,
+                  outputObjects = moduleSpecificOutputObjects, cacheRepo = cachePath(sim)
+                  )
+             } else {
+               sim <- get(moduleCall,
                          envir = envir(sim))(sim, cur$eventTime,
                                              cur$eventType, debugDoEvent)
+             }
            }
         } else {
           stop(
@@ -1346,9 +1353,10 @@ setMethod(
 #' @param .saveInitialTime Numeric. Temporarily override the \code{.plotInitialTime}
 #'                                  parameter for all modules. See Details.
 #'
-#' @param notOlderThan Date. Passed to SpaDES::cache to update the cache. Default is
+#' @param notOlderThan Date or time. Passed to SpaDES::cache to update the cache. Default is
 #'                     NULL, meaning don't update the cache. If \code{Sys.time()} is provided
-#'                     then, it will force a recache. Ignored if \code{cache} is FALSE.
+#'                     then, it will force a recache, i.e., remove old value and replace
+#'                     with new value. Ignored if \code{cache} is FALSE.
 #'
 #' @param ... Any. Can be used to make a unique cache identity, such as "replicate = 1". This
 #'            will be included in the SpaDES::cache call, so will be unique and thus
@@ -1450,7 +1458,7 @@ setGeneric("spades", function(sim,
                               cache,
                               .plotInitialTime = NULL,
                               .saveInitialTime = NULL,
-                              notOlderThan,
+                              notOlderThan = NULL,
                               ...) {
   standardGeneric("spades")
 })
@@ -1465,6 +1473,7 @@ setMethod(
                         cache,
                         .plotInitialTime,
                         .saveInitialTime,
+                        notOlderThan,
                         ...) {
     if (!is.null(.plotInitialTime)) {
       if (!is.numeric(.plotInitialTime))
@@ -1521,7 +1530,7 @@ setMethod(
       sim$.spadesDebugWidth <- c(9, 10, 9, 13)
     }
     while (time(sim, "second") <= end(sim, "second")) {
-      sim <- doEvent(sim, debug = debug)  # process the next event
+      sim <- doEvent(sim, debug = debug, notOlderThan = notOlderThan)  # process the next event
 
     }
     time(sim) <- end(sim, "second")
@@ -1539,12 +1548,12 @@ setMethod(
                         cache,
                         .plotInitialTime,
                         .saveInitialTime,
-                        notOlderThan,
+                        notOlderThan=NULL,
                         ...) {
     stopifnot(class(sim) == "simList")
 
-    if (missing(notOlderThan))
-      notOlderThan <- NULL
+    # if (missing(notOlderThan))
+    #   notOlderThan <- NULL
 
     if (cache) {
       if (is(try(archivist::showLocalRepo(paths(sim)$cachePath), silent = TRUE)
