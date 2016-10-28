@@ -220,7 +220,8 @@
 #' See example in \code{\link{spades}}, achieved by using \code{cache = TRUE} argument.
 #'
 #' \tabular{ll}{
-#'   \code{\link{cache}} \tab Caches a spades call, but often used as arg in \code{\link{spades}}\cr
+#'   \code{\link{cache}} \tab Caches a function, but often accessed as arg in \code{\link{spades}}\cr
+#'   \code{\link{Cache}} \tab Like cache, but without need to specify cacheRepo\cr
 #'   \code{\link{showCache}} \tab Shows information about the objects in the cache\cr
 #'   \code{\link{clearCache}} \tab Removes objects from the cache\cr
 #'   \code{\link{clearStubArtifacts}} \tab Removes some errors in cached files\cr
