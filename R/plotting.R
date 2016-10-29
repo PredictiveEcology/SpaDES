@@ -402,7 +402,7 @@ setMethod(
 
     # Determine object names that were passed and layer names of each
     scalls <- sys.calls()
-    isDoCall <- grepl("do.call", scalls) & grepl("Plot", scalls) & !grepl("test_that", scalls) # This testthat is a work around
+    isDoCall <- grepl("^do.call", scalls) & grepl("Plot", scalls) & !grepl("test_that", scalls) # This testthat is a work around
                         # A test_that call can be very long, with many function calls, including Plot and do.call, even if
                         #  they don't have anything to do with each other
     dots <- list(...)
@@ -420,7 +420,7 @@ setMethod(
     #  We need to know exactly where they are, so that they can be replotted later, if needed
     if (any(isDoCall)) {
 
-      whFrame <- grep(scalls, pattern = "^do.call")
+      whFrame <- which(isDoCall)
       plotFrame <- sys.frame(whFrame - 1)
       if(is.null(dots$env))
         dots$env <- plotFrame
@@ -770,10 +770,14 @@ setMethod(
     # which ones need replotting etc.
     sim <- list(...)[[1]]
     plotList <- ls(sim@.envir, all.names = TRUE)
-    plotObjects = mget(plotList[sapply(plotList, function(x)
-      is(get(x, envir = envir(sim)), ".spadesPlottables"))], envir(sim)) %>%
-      append(., list(env = envir(sim)))
-    do.call(Plot, plotObjects)
+    plotables <- sapply(plotList, function(x)
+      is(get(x, envir = envir(sim)), ".spadesPlottables"))
+    if(any(plotables)) {
+      plotObjects = mget(plotList[plotables], envir(sim)) %>%
+        append(., list(env = envir(sim)))
+      #browser()
+      do.call(Plot, plotObjects)
+    }
 })
 
 ################################################################################

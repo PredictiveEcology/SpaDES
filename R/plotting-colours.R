@@ -86,6 +86,7 @@ setMethod("getColors",
 #' @author Alex Chubaty
 #'
 #' @examples
+#' \dontrun{
 #'   library(raster)
 #'   library(igraph) # need pipe for one example below
 #'
@@ -138,6 +139,7 @@ setMethod("getColors",
 #'     clearPlot()
 #'     Plot(ras)
 #'   }
+#' }
 setGeneric("setColors<-",
            function(object, ..., n, value) {
              standardGeneric("setColors<-")

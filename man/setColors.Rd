@@ -48,6 +48,7 @@ Returns a Raster with the \code{colortable} slot set to \code{values}.
 \code{setColors} works as a replacement method or a normal function call.
 }
 \examples{
+\dontrun{
   library(raster)
   library(igraph) # need pipe for one example below
 
@@ -100,6 +101,7 @@ Returns a Raster with the \code{colortable} slot set to \code{values}.
     clearPlot()
     Plot(ras)
   }
+}
 }
 \author{
 Alex Chubaty
