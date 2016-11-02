@@ -23,8 +23,11 @@ setMethod("copy",
             sim_ <- sim
             if (objects) {
               sim_@.envir <- new.env(parent = parent.env(envir(sim)))
-              sim_@.envir <- list2env(mget(ls(sim@.envir, all.names = TRUE),
-                                           envir = sim@.envir),
+              objs <- mget(ls(sim@.envir, all.names = TRUE),
+                           envir = sim@.envir)
+              isDataTable <- unlist(lapply(objs, function(x) is(x, "data.table")))
+              objs[isDataTable] <- lapply(objs[isDataTable], function(y) data.table::copy(y))
+              sim_@.envir <- list2env(objs,
                                       envir = sim_@.envir)
             }
             return(sim_)

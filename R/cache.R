@@ -9,15 +9,13 @@
 #' (like \code{\link[raster]{RasterLayer-class}} objects and
 #' \code{\link[ff]{ff}} objects). This version of the \code{cache} function
 #' accomodates those 3 special, though quite common, cases by 1) converting
-#' the any environments into list equivalents, 2) identifying the dispatched
+#' any environments into list equivalents, 2) identifying the dispatched
 #' S4 method (including those made through inheritance) before
 #' \code{\link[digest]{digest}} is called so the correct method is being
 #' cached, and 3) by running \code{\link[digest]{digest}} on the linked
-#' file.
-#'
-#' Because the \code{simList} has an environment as one of its slots,
-#' the caching mechanism of the archivist package does not work on
-#' simLists nor any functions or objects defined inside a module.
+#' file. In the \code{SpaDES} context,
+#' the \code{simList} has an environment as one of its slots, thus using
+#' archivist::cache will not work correctly.
 #'
 #' Some of the details of the changes include:
 #' We remove all elements that have an environment as part of
@@ -185,6 +183,12 @@ setMethod(
         }
       }
     }
+
+    if (is(try(archivist::showLocalRepo(cacheRepo), silent = TRUE)
+           , "try-error"))
+      archivist::createLocalRepo(cacheRepo)
+
+
     whRas <- which(sapply(tmpl, function(x) is(x, "Raster")))
     whFun <- which(sapply(tmpl, function(x) is.function(x)))
     if(length(wh)>0 | exists("simObj")) {
