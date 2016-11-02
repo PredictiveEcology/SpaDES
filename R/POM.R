@@ -333,7 +333,7 @@ setMethod(
           if(!is(outTry, "try-error")) { # success
             keepGoing1 <- FALSE
           } else { # had error
-            warning("objective function returned error on try #",tryNum1)
+            warning("objective function returned error on try #",tryNum1, "Consider changing.")
             if(tryNum1 < NaNRetries) keepGoing1 <- TRUE else keepGoing1 <- FALSE
             tryNum1 <- tryNum1 + 1
           }
@@ -430,6 +430,7 @@ setMethod(
       }
 
 
+      print(params)
       output <- do.call("DEoptim", deoptimArgs)
 
     } else {
