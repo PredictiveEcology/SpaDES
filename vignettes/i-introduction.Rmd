@@ -14,7 +14,7 @@ vignette: >
   %\VignetteIndexEntry{01 Introduction to SpaDES}
   %\VignetteDepends{SpaDES}
   %\VignetteKeyword{discrete event simulation, spatial simulation models}
-  %\usepackage[utf8]{inputenc}
+  %\VignetteEncoding{UTF-8}
 bibliography: bibliography.bib
 ---
 

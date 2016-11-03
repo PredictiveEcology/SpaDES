@@ -13,7 +13,7 @@ vignette: >
   %\VignetteIndexEntry{02 Building modules in SpaDES}
   %\VignetteDepends{ggplot2, igraph, raster, RColorBrewer, SpaDES}
   %\VignetteKeyword{module development}
-  %\usepackage[utf8]{inputenc}
+  %\VignetteEncoding{UTF-8}
 ---
 
 # Introduction

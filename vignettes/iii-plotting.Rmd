@@ -14,7 +14,7 @@ vignette: >
   %\VignetteIndexEntry{03 Plotting with SpaDES}
   %\VignetteDepends{ggplot2, igraph, RColorBrewer, SpaDES}
   %\VignetteKeyword{visualization, plotting, mapping}
-  %\usepackage[utf8]{inputenc}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r initial-clearPlot, eval=TRUE, echo=FALSE, message=FALSE}
