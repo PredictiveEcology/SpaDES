@@ -178,7 +178,7 @@ setMethod(
     files2 <- list()
     children <- .parseModulePartial(filename = file.path(path, name, paste0(name, ".R")),
                                     defineModuleElement = "childModules")
-    #children <- moduleMetadata(name, path)$childModules
+
     dataList2 <- data.frame(result = character(0), expectedFile = character(0),
                             actualFile = character(0), checksum.x = character(0),
                             checksum.y = character(0), algorithm.x = character(0),

@@ -11,7 +11,7 @@
 \S4method{.unparsed}{list}(modules)
 }
 \arguments{
-\item{modules}{A chracter vector specifying the modules to parse.}
+\item{modules}{A character vector specifying the modules to parse.}
 }
 \value{
 The ids of the unparsed list elements.
