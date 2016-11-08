@@ -289,16 +289,17 @@ setMethod(
       files <- sapply(to.dl, function(x) {
         destfile <- file.path(dataDir, basename(x))
         id <- which(chksums$expectedFile == basename(x))
-        if (( chksums$result[id]=="FAIL") | is.na(chksums$actualFile[id])) {
+        if ((chksums$result[id] == "FAIL") | is.na(chksums$actualFile[id])) {
           tmpFile <- file.path(tempdir(), "SpaDES_module_data") %>%
             checkPath(create = TRUE) %>%
             file.path(., basename(x))
-          message("Downloading ",chksums$actualFile[id]," for module ", module, " ...")
+          message("Downloading ", chksums$actualFile[id], " for module ", module, " ...")
           download.file(x, destfile = tmpFile, mode = "wb", quiet = quiet)
           copied <- file.copy(from = tmpFile, to = destfile, overwrite = TRUE)
           destfile
         } else {
-          message("  Download data step skipped for ",chksums$actualFile[id]," in module ", module, ". Local copy exists.")
+          message("  Download data step skipped for ", chksums$actualFile[id],
+                  " in module ", module, ". Local copy exists.")
         }
       })
 
@@ -485,9 +486,9 @@ setMethod(
                  stringsAsFactors = FALSE)
     }
 
-    if(is.null(dots$algo)) {
-      if(NROW(files)) {
-        if(write) {
+    if (is.null(dots$algo)) {
+      if (NROW(files)) {
+        if (write) {
           dots$algo <- defaultWriteHashAlgo
         } else {
           dots$algo <- defaultHashAlgo
@@ -497,10 +498,10 @@ setMethod(
       }
     }
 
-    if(!is.null(txt$algorithm)) {
-      if(!write) dots$algo <- unique(txt$algorithm)[1]
+    if (!is.null(txt$algorithm)) {
+      if (!write) dots$algo <- unique(txt$algorithm)[1]
     } else {
-      if(NROW(txt)) {
+      if (NROW(txt)) {
         txt$algorithm <- defaultWriteHashAlgo
       } else {
         txt$algorithm <- character()
@@ -510,7 +511,6 @@ setMethod(
     message("Checking local files")
     checksums <- do.call(digest, args = append(list(file = files), dots))
     message("Finished checking local files")
-    #checksums <- digest(files, algo = algo, ...) # uses SpaDES:::digest()
 
     out <- data.frame(file = basename(files), checksum = checksums,
                       algorithm = dots$algo,
@@ -525,8 +525,7 @@ setMethod(
         left_join(txt, ., by = "file") %>%
         rename_(expectedFile = "file") %>%
         dplyr::group_by_("expectedFile") %>%
-        mutate_(result = ~ifelse(checksum.x!=checksum.y, "FAIL", "OK")) %>%
-        #mutate(result = ifelse(checksum.x!=checksum.y, "FAIL", "OK")) %>%
+        mutate_(result = ~ifelse(checksum.x != checksum.y, "FAIL", "OK")) %>%
         dplyr::arrange(desc(result)) %>%
         select_("result", "expectedFile", "actualFile", "checksum.x", "checksum.y", "algorithm.x", "algorithm.y") %>%
         filter(row_number() == 1L)
