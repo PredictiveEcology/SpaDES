@@ -117,6 +117,87 @@ setMethod("checkModule",
 })
 
 ################################################################################
+#' Check for the existence of a module locally
+#'
+#' Looks the module path for a module named \code{name}, and checks for existence
+#' of all essential module files listed below.
+#'
+#' \itemize{
+#'   \item \file{data/CHECKSUMS.txt}
+#'   \item \file{name.R}
+#' }
+#'
+#' @param name  Character string giving the module name.
+#'
+#' @param path  Local path to modules directory.
+#'              Default is specified by the global option \code{spades.modulePath}.
+#'
+#' @param version Character specifying the desired module version.
+#'
+#' @return Logical indicating presence of the module (invisibly).
+#'
+#' @export
+#' @rdname checkModuleLocal
+#'
+#' @author Alex Chubaty
+#'
+# igraph exports %>% from magrittr
+setGeneric("checkModuleLocal", function(name, path, version) {
+  standardGeneric("checkModuleLocal")
+})
+
+#' @rdname checkModuleLocal
+setMethod(
+  "checkModuleLocal",
+  signature = c(name = "character", path = "character", version = "character"),
+  definition = function(name, path, version) {
+    if (length(name) > 1) {
+      warning("name contains more than one module. Only the first will be used.")
+      name = name[1]
+    }
+
+    essentialFiles <- c(
+      "data/CHECKSUMS.txt",
+      paste0(name, ".R")
+    ) %>%
+      file.path(path, name, .)
+
+    moduleFiles <- file.path(path, name) %>%
+      list.files(full.names = TRUE, recursive = TRUE) %>%
+      unlist(use.names = FALSE)
+
+    result <- FALSE
+    # check whether any module files exist locally
+    if (length(moduleFiles > 0)) {
+      # check all essential files exist locally
+      if (all(essentialFiles %in% moduleFiles)) {
+        # check that local module version matches that desired
+        # if desired version is NA then we need to download most recent version
+        if (!is.na(version)) {
+          v <- .parseModulePartial(filename = file.path(path, name, paste0(name, ".R")),
+                                 defineModuleElement = "version")
+          result <- ifelse(v == numeric_version(version), TRUE, FALSE)
+        }
+      }
+    }
+
+    return(invisible(result))
+})
+
+#' @rdname checkModuleLocal
+setMethod(
+  "checkModuleLocal",
+  signature = c(name = "character", path = "ANY", version = "ANY"),
+  definition = function(name, path, version) {
+    if (missing(path)) path <- getOption("spades.modulePath")
+    if (missing(version)) version <- NA_character_
+
+    result <- checkModuleLocal(name, path, version)
+    return(invisible(result))
+})
+
+
+################################################################################
 #' Download a module from a SpaDES module GitHub repository
 #'
 #' Download a .zip file of the module and extract (unzip) it to a user-specified location.
@@ -161,18 +242,24 @@ setMethod(
   signature = c(name = "character", path = "character", version = "character",
                 repo = "character", data = "logical", quiet = "logical"),
   definition = function(name, path, version, repo, data, quiet) {
-
     path <- checkPath(path, create = TRUE)
-    checkModule(name, repo)
-    if (is.na(version)) version <- getModuleVersion(name, repo)
 
-    #versionWarning(name, version)
+    # check locally for module. only download if doesn't exist locally.
+    if (!checkModuleLocal(name, path, version)) {
+      # check remotely for module
+      checkModule(name, repo)
+      if (is.na(version)) version <- getModuleVersion(name, repo)
 
-    zip <- paste0("https://raw.githubusercontent.com/", repo,
-                  "/master/modules/", name, "/", name, "_", version, ".zip")
-    localzip <- file.path(path, basename(zip))
-    download.file(zip, destfile = localzip, mode = "wb", quiet = quiet)
-    files <- unzip(localzip, exdir = file.path(path), overwrite = TRUE)
+      #versionWarning(name, version)
+
+      zip <- paste0("https://raw.githubusercontent.com/", repo,
+                    "/master/modules/", name, "/", name, "_", version, ".zip")
+      localzip <- file.path(path, basename(zip))
+      download.file(zip, destfile = localzip, mode = "wb", quiet = quiet)
+      files <- unzip(localzip, exdir = file.path(path), overwrite = TRUE)
+    } else {
+      files <- list.files(file.path(path, name))
+    }
 
     # after download, check for childModules that also require downloading
     files2 <- list()
