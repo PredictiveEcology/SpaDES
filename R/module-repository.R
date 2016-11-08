@@ -97,7 +97,7 @@ setMethod(
     if (length(moduleFiles) == 0) {
       agrep(name, allFiles, max.distance = 0.25, value = TRUE,
             ignore.case = FALSE) %>%
-        strsplit(., split="/") %>%
+        strsplit(., split = "/") %>%
         lapply(., function(x) x[2]) %>%
         unique() %>%
         unlist() %>%
@@ -314,25 +314,20 @@ setMethod(
     wh <- match(chksums$actualFile, chksums$expectedFile) %>% is.na() %>% which()
     if (length(wh)) {
       chksums[wh, "renamed"] <- sapply(wh, function(id) {
-        renamed <- file.rename(
-          from = file.path(dataDir, chksums$actualFile[id]),
-          to = file.path(dataDir, chksums$expectedFile[id])
-        )
+        if (!is.na(chksums$actualFile[id])) {
+          renamed <- file.rename(
+            from = file.path(dataDir, chksums$actualFile[id]),
+            to = file.path(dataDir, chksums$expectedFile[id])
+          )
+        } else {
+          warning("downloadData(", module, "): file ", chksums$expectedFile[id], " wasn't downloaded.", call. = FALSE)
+        }
       })
     }
 
-    # if (any(!chksums$renamed %>% na.omit())) {
-    #   message("Unable to automatically give proper name to downloaded files. ",
-    #           "Check for existence of \n",
-    #           paste(file.path(path, module, "data",
-    #                     chksums$expectedFile[!chksums$renamed] %>% na.omit()),
-    #                           collapse = "\n"),
-    #           "\nfollowing downloads.")
-    # }
-
     # after download, check for childModules that also require downloading
     children <- .parseModulePartial(filename = file.path(path, module, paste0(module, ".R")),
-                                   defineModuleElement = "childModules")
+                                    defineModuleElement = "childModules")
     #children <- moduleMetadata(module, path)$childModules
     if (!is.null(children)) {
       if ( all( nzchar(children) & !is.na(children) ) ) {
