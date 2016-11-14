@@ -7,7 +7,7 @@ if (getRversion() >= "3.1.0") {
 #'
 #' Internal function, used during \code{\link{simInit}}.
 #'
-#' @param modules A chracter vector specifying the modules to parse.
+#' @param modules A character vector specifying the modules to parse.
 #'
 #' @return The ids of the unparsed list elements.
 #'
@@ -20,7 +20,7 @@ if (getRversion() >= "3.1.0") {
 setGeneric(".unparsed",
            function(modules) {
              standardGeneric(".unparsed")
-           })
+})
 
 #' @rdname unparsed
 setMethod(
@@ -31,8 +31,7 @@ setMethod(
       (attr(x, "parsed") == FALSE)
     }) %>% `==`(., TRUE) %>% which()
     return(ids)
-  }
-)
+})
 
 ################################################################################
 #' @return \code{.parseModulePartial} extracts just the individual element
@@ -53,12 +52,9 @@ setMethod(
 #' @author Eliot McIntire
 #'
 setGeneric(".parseModulePartial",
-           function(sim,
-                    modules,
-                    filename,
-                    defineModuleElement) {
+           function(sim, modules, filename, defineModuleElement) {
              standardGeneric(".parseModulePartial")
-           })
+})
 
 #' @rdname parseModule
 setMethod(
@@ -86,8 +82,7 @@ setMethod(
         out
     )
     return(out)
-  }
-)
+})
 
 #' @rdname parseModule
 setMethod(
@@ -108,8 +103,7 @@ setMethod(
                                       defineModuleElement = defineModuleElement)
     }
     return(out)
-  }
-)
+})
 
 ################################################################################
 #' Parse and initialize a module
@@ -243,8 +237,7 @@ setMethod(
       unique()
 
     return(sim)
-  }
-)
+})
 
 ################################################################################
 #' Initialize a new simulation
@@ -436,16 +429,9 @@ setMethod(
 #' }
 #'
 setGeneric("simInit",
-           function(times,
-                    params,
-                    modules,
-                    objects,
-                    paths,
-                    inputs,
-                    outputs,
-                    loadOrder) {
+           function(times, params, modules, objects, paths, inputs, outputs, loadOrder) {
              standardGeneric("simInit")
-           })
+})
 
 #' @rdname simInit
 setMethod(
@@ -768,8 +754,7 @@ setMethod(
     sim$.sessionInfo <- sessionInfo()
 
     return(invisible(sim))
-  }
-)
+})
 
 ## Only deal with objects as character
 #' @rdname simInit
@@ -805,8 +790,7 @@ setMethod(
     sim <- do.call("simInit", args = li)
 
     return(invisible(sim))
-  }
-)
+})
 
 ## Only deal with modules as character vector
 #' @rdname simInit
@@ -921,8 +905,7 @@ setMethod(
     sim <- do.call("simInit", args = li)
 
     return(invisible(sim))
-  }
-)
+})
 
 ################################################################################
 #' Process a simulation event
@@ -1066,17 +1049,19 @@ setMethod(
                                      cur$eventType, debugDoEvent)
            } else {
              # for future caching of modules
-             if(isTRUE(params(sim)[[cur$moduleName]]$.useCache)) {
+             if (isTRUE(params(sim)[[cur$moduleName]]$.useCache)) {
                moduleSpecificObjects <- c(grep(ls(sim), pattern = cur$moduleName, value = TRUE),
                                           depends(sim)@dependencies[[cur$moduleName]]@inputObjects$objectName)
                moduleSpecificOutputObjects <-
                  depends(sim)@dependencies[[cur$moduleName]]@outputObjects$objectName
-               sim <- Cache(FUN = get(moduleCall,
-                  envir = envir(sim)), sim = sim,
-                  eventTime=cur$eventTime, eventType = cur$eventType, debug = debugDoEvent,
-                  objects = moduleSpecificObjects, notOlderThan = notOlderThan,
-                  outputObjects = moduleSpecificOutputObjects, cacheRepo = cachePath(sim)
-                  )
+               sim <- Cache(FUN = get(moduleCall, envir = envir(sim)),
+                            sim = sim,
+                            eventTime = cur$eventTime, eventType = cur$eventType,
+                            debug = debugDoEvent,
+                            objects = moduleSpecificObjects,
+                            notOlderThan = notOlderThan,
+                            outputObjects = moduleSpecificOutputObjects,
+                            cacheRepo = cachePath(sim))
              } else {
                sim <- get(moduleCall,
                          envir = envir(sim))(sim, cur$eventTime,
@@ -1116,8 +1101,7 @@ setMethod(
       }
     }
     return(invisible(sim))
-  }
-)
+})
 
 #' @rdname doEvent
 setMethod(
@@ -1126,8 +1110,7 @@ setMethod(
   definition = function(sim) {
     stopifnot(class(sim) == "simList")
     return(doEvent(sim, debug = FALSE))
-  }
-)
+})
 
 ################################################################################
 #' Schedule a simulation event
@@ -1182,7 +1165,7 @@ setGeneric("scheduleEvent",
                     eventType,
                     eventPriority) {
              standardGeneric("scheduleEvent")
-           })
+})
 
 #' @rdname scheduleEvent
 setMethod(
@@ -1270,8 +1253,7 @@ setMethod(
     }
 
     return(invisible(sim))
-  }
-)
+})
 
 #' @rdname scheduleEvent
 setMethod(
@@ -1296,8 +1278,7 @@ setMethod(
       )
     )
     return(invisible(sim))
-  }
-)
+})
 
 #' @rdname scheduleEvent
 setMethod(
@@ -1321,8 +1302,7 @@ setMethod(
       eventType = eventType,
       eventPriority = .normal()
     )
-  }
-)
+})
 
 ################################################################################
 #' Run a spatial discrete event simulation
@@ -1535,8 +1515,7 @@ setMethod(
     }
     time(sim) <- end(sim, "second")
     return(invisible(sim))
-  }
-)
+})
 
 #' @rdname spades
 setMethod(
@@ -1584,5 +1563,4 @@ setMethod(
         )
       )
     }
-  }
-)
+})

@@ -97,7 +97,7 @@ setMethod(
     if (length(moduleFiles) == 0) {
       agrep(name, allFiles, max.distance = 0.25, value = TRUE,
             ignore.case = FALSE) %>%
-        strsplit(., split="/") %>%
+        strsplit(., split = "/") %>%
         lapply(., function(x) x[2]) %>%
         unique() %>%
         unlist() %>%
@@ -115,6 +115,87 @@ setMethod("checkModule",
             v <- checkModule(name, getOption("spades.moduleRepo"))
             return(v)
 })
+
+################################################################################
+#' Check for the existence of a module locally
+#'
+#' Looks the module path for a module named \code{name}, and checks for existence
+#' of all essential module files listed below.
+#'
+#' \itemize{
+#'   \item \file{data/CHECKSUMS.txt}
+#'   \item \file{name.R}
+#' }
+#'
+#' @param name  Character string giving the module name.
+#'
+#' @param path  Local path to modules directory.
+#'              Default is specified by the global option \code{spades.modulePath}.
+#'
+#' @param version Character specifying the desired module version.
+#'
+#' @return Logical indicating presence of the module (invisibly).
+#'
+#' @export
+#' @rdname checkModuleLocal
+#'
+#' @author Alex Chubaty
+#'
+# igraph exports %>% from magrittr
+setGeneric("checkModuleLocal", function(name, path, version) {
+  standardGeneric("checkModuleLocal")
+})
+
+#' @rdname checkModuleLocal
+setMethod(
+  "checkModuleLocal",
+  signature = c(name = "character", path = "character", version = "character"),
+  definition = function(name, path, version) {
+    if (length(name) > 1) {
+      warning("name contains more than one module. Only the first will be used.")
+      name = name[1]
+    }
+
+    essentialFiles <- c(
+      "data/CHECKSUMS.txt",
+      paste0(name, ".R")
+    ) %>%
+      file.path(path, name, .)
+
+    moduleFiles <- file.path(path, name) %>%
+      list.files(full.names = TRUE, recursive = TRUE) %>%
+      unlist(use.names = FALSE)
+
+    result <- FALSE
+    # check whether any module files exist locally
+    if (length(moduleFiles > 0)) {
+      # check all essential files exist locally
+      if (all(essentialFiles %in% moduleFiles)) {
+        # check that local module version matches that desired
+        # if desired version is NA then we need to download most recent version
+        if (!is.na(version)) {
+          v <- .parseModulePartial(filename = file.path(path, name, paste0(name, ".R")),
+                                 defineModuleElement = "version")
+          result <- ifelse(v == numeric_version(version), TRUE, FALSE)
+        }
+      }
+    }
+
+    return(invisible(result))
+})
+
+#' @rdname checkModuleLocal
+setMethod(
+  "checkModuleLocal",
+  signature = c(name = "character", path = "ANY", version = "ANY"),
+  definition = function(name, path, version) {
+    if (missing(path)) path <- getOption("spades.modulePath")
+    if (missing(version)) version <- NA_character_
+
+    result <- checkModuleLocal(name, path, version)
+    return(invisible(result))
+})
+
 
 ################################################################################
 #' Download a module from a SpaDES module GitHub repository
@@ -161,24 +242,30 @@ setMethod(
   signature = c(name = "character", path = "character", version = "character",
                 repo = "character", data = "logical", quiet = "logical"),
   definition = function(name, path, version, repo, data, quiet) {
-
     path <- checkPath(path, create = TRUE)
-    checkModule(name, repo)
-    if (is.na(version)) version <- getModuleVersion(name, repo)
 
-    #versionWarning(name, version)
+    # check locally for module. only download if doesn't exist locally.
+    if (!checkModuleLocal(name, path, version)) {
+      # check remotely for module
+      checkModule(name, repo)
+      if (is.na(version)) version <- getModuleVersion(name, repo)
 
-    zip <- paste0("https://raw.githubusercontent.com/", repo,
-                  "/master/modules/", name, "/", name, "_", version, ".zip")
-    localzip <- file.path(path, basename(zip))
-    download.file(zip, destfile = localzip, mode = "wb", quiet = quiet)
-    files <- unzip(localzip, exdir = file.path(path), overwrite = TRUE)
+      #versionWarning(name, version)
+
+      zip <- paste0("https://raw.githubusercontent.com/", repo,
+                    "/master/modules/", name, "/", name, "_", version, ".zip")
+      localzip <- file.path(path, basename(zip))
+      download.file(zip, destfile = localzip, mode = "wb", quiet = quiet)
+      files <- unzip(localzip, exdir = file.path(path), overwrite = TRUE)
+    } else {
+      files <- list.files(file.path(path, name))
+    }
 
     # after download, check for childModules that also require downloading
     files2 <- list()
     children <- .parseModulePartial(filename = file.path(path, name, paste0(name, ".R")),
                                     defineModuleElement = "childModules")
-    #children <- moduleMetadata(name, path)$childModules
+
     dataList2 <- data.frame(result = character(0), expectedFile = character(0),
                             actualFile = character(0), checksum.x = character(0),
                             checksum.y = character(0), algorithm.x = character(0),
@@ -289,16 +376,17 @@ setMethod(
       files <- sapply(to.dl, function(x) {
         destfile <- file.path(dataDir, basename(x))
         id <- which(chksums$expectedFile == basename(x))
-        if (( chksums$result[id]=="FAIL") | is.na(chksums$actualFile[id])) {
+        if ((chksums$result[id] == "FAIL") | is.na(chksums$actualFile[id])) {
           tmpFile <- file.path(tempdir(), "SpaDES_module_data") %>%
             checkPath(create = TRUE) %>%
             file.path(., basename(x))
-          message("Downloading ",chksums$actualFile[id]," for module ", module, " ...")
+          message("Downloading ", chksums$actualFile[id], " for module ", module, " ...")
           download.file(x, destfile = tmpFile, mode = "wb", quiet = quiet)
           copied <- file.copy(from = tmpFile, to = destfile, overwrite = TRUE)
           destfile
         } else {
-          message("  Download data step skipped for ",chksums$actualFile[id]," in module ", module, ". Local copy exists.")
+          message("  Download data step skipped for ", chksums$actualFile[id],
+                  " in module ", module, ". Local copy exists.")
         }
       })
 
@@ -313,25 +401,20 @@ setMethod(
     wh <- match(chksums$actualFile, chksums$expectedFile) %>% is.na() %>% which()
     if (length(wh)) {
       chksums[wh, "renamed"] <- sapply(wh, function(id) {
-        renamed <- file.rename(
-          from = file.path(dataDir, chksums$actualFile[id]),
-          to = file.path(dataDir, chksums$expectedFile[id])
-        )
+        if (!is.na(chksums$actualFile[id])) {
+          renamed <- file.rename(
+            from = file.path(dataDir, chksums$actualFile[id]),
+            to = file.path(dataDir, chksums$expectedFile[id])
+          )
+        } else {
+          warning("downloadData(", module, "): file ", chksums$expectedFile[id], " wasn't downloaded.", call. = FALSE)
+        }
       })
     }
 
-    # if (any(!chksums$renamed %>% na.omit())) {
-    #   message("Unable to automatically give proper name to downloaded files. ",
-    #           "Check for existence of \n",
-    #           paste(file.path(path, module, "data",
-    #                     chksums$expectedFile[!chksums$renamed] %>% na.omit()),
-    #                           collapse = "\n"),
-    #           "\nfollowing downloads.")
-    # }
-
     # after download, check for childModules that also require downloading
     children <- .parseModulePartial(filename = file.path(path, module, paste0(module, ".R")),
-                                   defineModuleElement = "childModules")
+                                    defineModuleElement = "childModules")
     #children <- moduleMetadata(module, path)$childModules
     if (!is.null(children)) {
       if ( all( nzchar(children) & !is.na(children) ) ) {
@@ -485,9 +568,9 @@ setMethod(
                  stringsAsFactors = FALSE)
     }
 
-    if(is.null(dots$algo)) {
-      if(NROW(files)) {
-        if(write) {
+    if (is.null(dots$algo)) {
+      if (NROW(files)) {
+        if (write) {
           dots$algo <- defaultWriteHashAlgo
         } else {
           dots$algo <- defaultHashAlgo
@@ -497,10 +580,10 @@ setMethod(
       }
     }
 
-    if(!is.null(txt$algorithm)) {
-      if(!write) dots$algo <- unique(txt$algorithm)[1]
+    if (!is.null(txt$algorithm)) {
+      if (!write) dots$algo <- unique(txt$algorithm)[1]
     } else {
-      if(NROW(txt)) {
+      if (NROW(txt)) {
         txt$algorithm <- defaultWriteHashAlgo
       } else {
         txt$algorithm <- character()
@@ -510,7 +593,6 @@ setMethod(
     message("Checking local files")
     checksums <- do.call(digest, args = append(list(file = files), dots))
     message("Finished checking local files")
-    #checksums <- digest(files, algo = algo, ...) # uses SpaDES:::digest()
 
     out <- data.frame(file = basename(files), checksum = checksums,
                       algorithm = dots$algo,
@@ -525,8 +607,7 @@ setMethod(
         left_join(txt, ., by = "file") %>%
         rename_(expectedFile = "file") %>%
         dplyr::group_by_("expectedFile") %>%
-        mutate_(result = ~ifelse(checksum.x!=checksum.y, "FAIL", "OK")) %>%
-        #mutate(result = ifelse(checksum.x!=checksum.y, "FAIL", "OK")) %>%
+        mutate_(result = ~ifelse(checksum.x != checksum.y, "FAIL", "OK")) %>%
         dplyr::arrange(desc(result)) %>%
         select_("result", "expectedFile", "actualFile", "checksum.x", "checksum.y", "algorithm.x", "algorithm.y") %>%
         filter(row_number() == 1L)
