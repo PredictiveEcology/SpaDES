@@ -10,13 +10,16 @@ distanceFromEachPoint(from, to = NULL, landscape, angles = NA_real_,
   maxDistance = NA_real_, cumulativeFn = NULL, distFn = function(dist)
   1/(1 + dist), cl, ...)
 
-.pointDistance(from, to, angles = NA, maxDistance = NA_real_)
+.pointDistance(from, to, angles = NA, maxDistance = NA_real_,
+  otherFromCols = FALSE)
 }
 \arguments{
-\item{from}{matrix with 2 or 3 columns, x and y, representing x and y coordinates of "from" cell,
-and optional "id" which will be matched with "id" from \code{to}}
+\item{from}{Numeric matrix with 2 or 3 or more columns. They must include x and y,
+representing x and y coordinates of "from" cell. If there is a column
+named "id", it will be "id" from \code{to}, i.e,. specific pair distances.
+All other columns will be included in the return value of the function.}
 
-\item{to}{matrix with 2  or 3 columns (or optionally more, all of which will be returned),
+\item{to}{Numeric matrix with 2  or 3 columns (or optionally more, all of which will be returned),
 x and y, representing x and y coordinates of "to" cells, and
 optional "id" which will be matched with "id" from \code{from}. Default is all cells.}
 

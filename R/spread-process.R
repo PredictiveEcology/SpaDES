@@ -1115,9 +1115,11 @@ setMethod(
 #' use \code{\link[raster]{beginCluster}}, with N being the number of cores to use. See examples in
 #' \code{\link{experiment}}.
 #'
-#' @param from matrix with 2 or 3 columns, x and y, representing x and y coordinates of "from" cell,
-#'             and optional "id" which will be matched with "id" from \code{to}
-#' @param to matrix with 2  or 3 columns (or optionally more, all of which will be returned),
+#' @param from Numeric matrix with 2 or 3 or more columns. They must include x and y,
+#'             representing x and y coordinates of "from" cell. If there is a column
+#'             named "id", it will be "id" from \code{to}, i.e,. specific pair distances.
+#'             All other columns will be included in the return value of the function.
+#' @param to Numeric matrix with 2  or 3 columns (or optionally more, all of which will be returned),
 #'           x and y, representing x and y coordinates of "to" cells, and
 #'           optional "id" which will be matched with "id" from \code{from}. Default is all cells.
 #' @param landscape RasterLayer. optional. This is only used if \code{to} is NULL, in which case
@@ -1181,7 +1183,10 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
                                   maxDistance = NA_real_, cumulativeFn = NULL,
                                   distFn = function(dist) 1/(1 + dist), cl, ...) {
   matched <- FALSE
-  if ("id" %in% colnames(from)) {
+  fromColNames <- colnames(from)
+  otherFromCols <- is.na(match(fromColNames, c("x","y","id")))
+
+  if ("id" %in% fromColNames) {
     ids <- unique(from[, "id"])
   }
   if ("id" %in% colnames(to)) {
@@ -1201,12 +1206,14 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
     if (length(list(...)) > 0) distFnArgs <- append(distFnArgs, list(...))
     xDist <- "dist" %fin% forms
   }
+
   if (!matched) {
     if (NROW(from) > 1) {
       if (is.null(cumulativeFn)) {
         out <- lapply(seq_len(NROW(from)), function(k) {
           out <- .pointDistance(from = from[k, , drop = FALSE], to = to,
-                                angles = angles, maxDistance = maxDistance)
+                                angles = angles, maxDistance = maxDistance,
+                                otherFromCols = otherFromCols)
         })
         out <- do.call(rbind, out)
       } else {
@@ -1221,7 +1228,8 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
 
           for (k in seq_len(NROW(from))) {
             out <- .pointDistance(from = from[k, , drop = FALSE], to = to,
-                                  angles = angles, maxDistance = maxDistance)
+                                  angles = angles, maxDistance = maxDistance,
+                                  otherFromCols = otherFromCols)
             indices <- cellFromXY(landscape, out[, c("x", "y")])
             if (k == 1) {
               if (fromC) distFnArgs <- append(distFnArgs, list(fromCell = fromCell[k]))
@@ -1304,13 +1312,15 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
         }
       }
     } else {
-      out <- .pointDistance(from = from, to = to, angles = angles, maxDistance = maxDistance)
+      out <- .pointDistance(from = from, to = to, angles = angles,
+                            maxDistance = maxDistance, otherFromCols = otherFromCols)
     }
   } else {
     out <- lapply(ids, function(k) {
       .pointDistance(from = from[from[, "id"] == k, , drop = FALSE],
                      to = to[to[, "id"] == k, , drop = FALSE],
-                     angles = angles, maxDistance = maxDistance)
+                     angles = angles, maxDistance = maxDistance,
+                     otherFromCols = otherFromCols)
     })
     out <- do.call(rbind, out)
   }
@@ -1321,7 +1331,7 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
 #' @name .pointDistance
 #' @aliases pointDistance
 #' @keywords internal
-.pointDistance <- function(from, to, angles = NA, maxDistance=NA_real_) {
+.pointDistance <- function(from, to, angles = NA, maxDistance=NA_real_, otherFromCols = FALSE) {
   if (!is.na(maxDistance)) {
     to <- to[(abs(to[,"x"] - from[,"x"]) <= maxDistance)  &
              (abs(to[,"y"] - from[,"y"]) <= maxDistance)  ,]
@@ -1365,6 +1375,11 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
     dists <- cbind(to, dists = dists)
     if (!is.na(maxDistance)) {
       dists <- dists[dists[,"dists"] <= maxDistance,]
+    }
+    if(any(otherFromCols)) {
+      colNums <- seq_len(ncol(dists))
+      dists <- cbind(dists=dists, from[,otherFromCols])
+      colnames(dists)[-colNums] <- colnames(from)[otherFromCols]
     }
     return(dists)
 }
