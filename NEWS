@@ -4,16 +4,18 @@ version 1.3.1.9000
 ==================
 * improved `simInit` debug mechanism -- passing character string of module name will enter into a browser call inside `doEvent`
 * improvements to caching:
-  * improved caching for `Raster*` objects & S4 methods - now it normally persists across sessions
-  * add Cache (upper case) which doesn't require cacheRepo if used within a module, and does not conflict with `archivist::cache`
-  * add caching mechanism at the module-level
-  * caching overview now in cache help: `?cache` for details
+
+    * improved caching for `Raster*` objects & S4 methods - now it normally persists across sessions;
+    * add Cache (upper case) which doesn't require cacheRepo if used within a module, and does not conflict with `archivist::cache`;
+    * add caching mechanism at the module-level;
+    * caching overview now in cache help: `?cache` for details.
+
 * improved documentation
 * new function `getPaths()` to return the list of working dirs from the options
 * new function `setPaths()` as wrapper for setting the options for working dirs; uses `~/SpaDES` as default base path
 * import `fastmatch`, and add `%fin%` as replacement for `%in%`
 * implemented `checkModuleLocal()` to check for presence of module files in the module dir before attempting download from remote module repository
-* distanceFromEachPoint can now take arbitrary columns in either from or to arguments
+* `distanceFromEachPoint` can now take arbitrary columns in either `from` or `to` arguments
 
 version 1.3.1
 =============
@@ -37,6 +39,7 @@ version 1.3.0
     * `Plot` can use character passed to `title` as a title;
     * some additional functionality for plotting of factor rasters, incl. `clickValues`, legends correct for wide variety of types;
     * change `new` arg in `Plot()`. Now it does one plot at a time, not whole device. Use `clearPlot()` to wipe whole device.
+
 * Add `modulesGraph`, showing parent and child module relationships.
 * Add `filesOnly` arg to `shine()`. This can be in preparation for publishing to www.shinyapps.io or other pages. Currently still alpha.
 * Add POM: Pattern Oriented Modeling (#269). A simple interface to a simList object, allowing fitting parameters to data.
