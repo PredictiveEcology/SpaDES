@@ -1587,7 +1587,7 @@ setReplaceMethod(
     N <- 4 # total number of named paths (cache, madule, input, output)
 
     # get named elements and their position in value list
-    wh <- pmatch(c("c", "m", "i", "o"), names(value))
+    wh <- pmatch(names(paths(object)), names(value))
 
     # keep named elements, use unnamed in remaining order:
     #  cache, module, input, output
@@ -1600,9 +1600,9 @@ setReplaceMethod(
     }
 
     object@paths[!is.na(wh)] <- value[na.omit(wh)]
-    object@paths[is.na(wh)] <- lapply(object@paths[is.na(wh)], function(x) getwd())
+    object@paths[is.na(wh)] <- .paths()[is.na(wh)]
 
-    names(object@paths) <- c("cachePath", "modulePath", "inputPath", "outputPath")
+    #names(object@paths) <- c("cachePath", "modulePath", "inputPath", "outputPath")
     if (is(try(archivist::showLocalRepo(paths(object)$cachePath),
                silent = TRUE),
            "try-error"))
