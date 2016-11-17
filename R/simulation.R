@@ -977,7 +977,6 @@ setMethod(
     # catches the situation where no future event is scheduled,
     #  but stop time is not reached
     cur <- sim@current #current(sim, "second")
-    browser()
     if (any(is.na(cur))) {
       time(sim) <- sim@simtimes[["end"]] + 1
     } else {
@@ -1049,7 +1048,6 @@ setMethod(
               sim <- get(moduleCall)(sim, cur[["eventTime"]],
                                      cur[["eventType"]], debugDoEvent)
            } else {
-             #browser()
              # for future caching of modules
              if (isTRUE(sim@params[[cur[["moduleName"]]]]$.useCache)) {
                moduleSpecificObjects <- c(grep(ls(sim), pattern = cur[["moduleName"]], value = TRUE),
@@ -1236,7 +1234,6 @@ setMethod(
 
         # if the event list is empty, set it to consist of newEvent and return;
         # otherwise, add newEvent and re-sort (rekey).
-        browser()
         evnts <- sim@events #events(sim, "second")
         if (NROW(evnts) == 0L) {
           sim@events <- setkey(newEvent, "eventTime", "eventPriority")
