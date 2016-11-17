@@ -152,6 +152,19 @@ setMethod(
       defineModuleItem <-
         grepl(pattern = "defineModule", parsedFile)
 
+      # evaluate the rest of the parsed file
+      eval(parsedFile[!defineModuleItem], envir = envir(sim))
+      
+      # parse any scripts in R subfolder
+      RSubFolder <- file.path(dirname(filename), "R")
+      RScript <- dir(RSubFolder)
+      if (length(RScript) > 0) {
+        for (Rfiles in RScript) {
+          parsedFile <- parse(file.path(RSubFolder, Rfiles))
+          eval(parsedFile, envir = envir(sim))
+        }
+      }
+      
       # evaluate all but inputObjects and outputObjects part of 'defineModule'
       #  This allow user to use params(sim) in their inputObjects
       namesParsedList <-
@@ -185,19 +198,6 @@ setMethod(
           eval(pf[[1]][[3]][inObjs][[1]])
         depends(sim)@dependencies[[i]]@outputObjects <-
           eval(pf[[1]][[3]][outObjs][[1]])
-      }
-
-      # evaluate the rest of the parsed file
-      eval(parsedFile[!defineModuleItem], envir = envir(sim))
-
-      # parse any scripts in R subfolder
-      RSubFolder <- file.path(dirname(filename), "R")
-      RScript <- dir(RSubFolder)
-      if (length(RScript) > 0) {
-        for (Rfiles in RScript) {
-          parsedFile <- parse(file.path(RSubFolder, Rfiles))
-          eval(parsedFile, envir = envir(sim))
-        }
       }
 
       # update parse status of the module
