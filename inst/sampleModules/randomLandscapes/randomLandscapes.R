@@ -31,7 +31,8 @@ defineModule(sim, list(
     defineParameter(".plotInitialTime", "numeric", 0, NA, NA, "time to schedule first plot event"),
     defineParameter(".plotInterval", "numeric", NA_real_, NA, NA, "time interval between plot events"),
     defineParameter(".saveInitialTime", "numeric", NA_real_, NA, NA, "time to schedule first save event"),
-    defineParameter(".saveInterval", "numeric", NA_real_, NA, NA, "time interval between save events")
+    defineParameter(".saveInterval", "numeric", NA_real_, NA, NA, "time interval between save events"),
+    defineParameter(".useCache", "logical", FALSE, c("init", "plot"), NA, "should the module result be cached for future use")
   ),
   inputObjects = bind_rows(
     expectsInput(objectName = NA_character_, objectClass = NA_character_,
