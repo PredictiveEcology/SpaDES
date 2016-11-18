@@ -1589,26 +1589,48 @@ setReplaceMethod(
     N <- 4 # total number of named paths (cache, madule, input, output)
 
     # get named elements and their position in value list
-    wh <- pmatch(names(paths(sim)), names(value))
+    wh <- pmatch(names(sim@paths), names(value)) # always length 4, NA if no name match, number if yes
+    whValueNamed <- which(!is.na(pmatch(names(value), names(sim@paths)))) # length of names of value
+    whValueUnnamed <- rep(TRUE, length(value))
+    if(length(whValueNamed)) whValueUnnamed[whValueNamed] <- FALSE
+
 
     # keep named elements, use unnamed in remaining order:
-    #  cache, module, input, output
+    #  cache, input, module, output
+    # if (length(na.omit(wh)) < length(value)) {
+    #   wh1 <- !(wh[1:length(value)] %in% (1:N)[1:length(value)])
+    #   wh2 <- !((1:N)[1:length(value)] %in% wh[1:length(value)])
+    #   if (length(wh1) < N) wh1 <- c(wh1, rep(FALSE, N - length(wh1)))
+    #   if (length(wh2) < N) wh2 <- c(wh2, rep(FALSE, N - length(wh2)))
+    #   wh[wh1] <- (1:N)[wh2]
+    # }
+
+    # start with .paths()
+    emptyOnes <- unlist(lapply(sim@paths, is.null))
+    if(sum(emptyOnes)>0)
+      sim@paths[emptyOnes] <- .paths()[emptyOnes]
+
+    # override with named ones
+    sim@paths[!is.na(wh)] <- value[na.omit(wh)]
+
+    #sim@paths[is.na(wh)] <- .paths()[is.na(wh)]
+    # keep named elements, use unnamed in remaining order:
+    #  cache, input, module, output
     if (length(na.omit(wh)) < length(value)) {
-      wh1 <- !(wh[1:length(value)] %in% (1:N)[1:length(value)])
-      wh2 <- !((1:N)[1:length(value)] %in% wh[1:length(value)])
-      if (length(wh1) < N) wh1 <- c(wh1, rep(FALSE, N - length(wh1)))
-      if (length(wh2) < N) wh2 <- c(wh2, rep(FALSE, N - length(wh2)))
-      wh[wh1] <- (1:N)[wh2]
+      whichNamed <- which(!is.na(wh))
+      whichUnnamed <- (1:length(sim@paths))
+      if(length(whichNamed)>0) whichUnnamed <- whichUnnamed[-whichNamed]
+      sim@paths[whichUnnamed][seq_len(sum(whValueUnnamed))] <- value[whValueUnnamed]
     }
 
-    sim@paths[!is.na(wh)] <- value[na.omit(wh)]
-    sim@paths[is.na(wh)] <- .paths()[is.na(wh)]
-
     #names(sim@paths) <- c("cachePath", "modulePath", "inputPath", "outputPath")
-    if (is(try(archivist::showLocalRepo(paths(sim)$cachePath),
+    if (is(try(archivist::showLocalRepo(sim@paths$cachePath),
                silent = TRUE),
-           "try-error"))
-      #archivist::createLocalRepo(paths(sim)$cachePath)
+           "try-error")) {
+
+      checkPath(sim@paths$cachePath, create = TRUE)
+      archivist::createLocalRepo(sim@paths$cachePath, force = TRUE)
+    }
 
     validObject(sim)
     return(sim)
