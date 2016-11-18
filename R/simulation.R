@@ -200,19 +200,6 @@ setMethod(
           eval(pf[[1]][[3]][outObjs][[1]])
       }
 
-      # evaluate the rest of the parsed file
-      eval(parsedFile[!defineModuleItem], envir = sim@.envir)
-
-      # parse any scripts in R subfolder
-      RSubFolder <- file.path(dirname(filename), "R")
-      RScript <- dir(RSubFolder)
-      if (length(RScript) > 0) {
-        for (Rfiles in RScript) {
-          parsedFile <- parse(file.path(RSubFolder, Rfiles))
-          eval(parsedFile, envir = sim@.envir)
-        }
-      }
-
       # update parse status of the module
       attributes(modules[[j]]) <- list(parsed = TRUE)
 

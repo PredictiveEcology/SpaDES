@@ -130,6 +130,7 @@ setMethod(
         output[[kLocal]] <- renderUI({
           Params <- params(sim)[[kLocal]]
           lapply(names(Params), function(i) {
+            moduleParams <- sim@depends@dependencies$gameOfLife@parameters[sim@depends@dependencies$gameOfLife@parameters[,"paramName"]==i,]
             if (i %in% c(".plotInitialTime", ".saveInitialTime", ".plotInterval", ".saveInterval")) {
               if (!is.na(params(sim)[[kLocal]][[i]])) {
                 sliderInput(
@@ -146,16 +147,23 @@ setMethod(
               sliderInput(
                 inputId = paste0(kLocal, "$", i),
                 label = i,
-                min = params(sim)[[kLocal]][[i]]*0.5,
-                max = params(sim)[[kLocal]][[i]]*2,
+                min = moduleParams[["min"]][[1]],
+                max = moduleParams[["max"]][[1]],
                 value = params(sim)[[kLocal]][[i]],
-                step = (params(sim)[[kLocal]][[i]]*2 - params(sim)[[kLocal]][[i]]*0.5)/10,
+                step = (moduleParams[["max"]][[1]]-moduleParams[["min"]][[1]])/10,
                 sep = "")
             } else if (is.logical(Params[[i]])) {
               checkboxInput(
                 inputId = paste0(kLocal, "$", i),
                 label = i,
                 value = params(sim)[[kLocal]][[i]])
+            } else if (is.character(Params[[i]])) {
+              selectInput(
+                inputId = paste0(kLocal, "$", i),
+                label = i,
+                multiple = FALSE,
+                choices = moduleParams[["min"]][[1]]
+              )
             }
             # To do make ones for logical, character, functions, text etc.
           })
