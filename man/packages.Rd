@@ -11,7 +11,8 @@ packages(sim)
 \S4method{packages}{.simList}(sim)
 }
 \arguments{
-\item{sim}{A \code{simList} object.}
+\item{sim}{A \code{simList} object from which to extract element(s) or
+in which to replace element(s).}
 }
 \value{
 A sorted character vector of package names.

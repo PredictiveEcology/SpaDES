@@ -81,7 +81,8 @@ timeunits(x)
 \S4method{timeunits}{.simList}(x)
 }
 \arguments{
-\item{x}{A \code{simList} simulation object.}
+\item{x}{A \code{simList} object from which to extract element(s) or
+in which to replace element(s).}
 
 \item{...}{Additional parameters.}
 

@@ -9,16 +9,17 @@
 \alias{simList-accessors-envir}
 \title{Simulation environment}
 \usage{
-envir(object)
+envir(sim)
 
-\S4method{envir}{simList}(object)
+\S4method{envir}{simList}(sim)
 
-envir(object) <- value
+envir(sim) <- value
 
-\S4method{envir}{simList}(object) <- value
+\S4method{envir}{simList}(sim) <- value
 }
 \arguments{
-\item{object}{A \code{simList} simulation object.}
+\item{sim}{A \code{simList} object from which to extract element(s) or
+in which to replace element(s).}
 
 \item{value}{The object to be stored at the slot.}
 }

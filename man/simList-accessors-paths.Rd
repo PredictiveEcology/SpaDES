@@ -25,48 +25,49 @@
 \alias{simList-accessors-paths}
 \title{Specify paths for modules, inputs, and outputs}
 \usage{
-paths(object)
+paths(sim)
 
-\S4method{paths}{.simList}(object)
+\S4method{paths}{.simList}(sim)
 
-paths(object) <- value
+paths(sim) <- value
 
-\S4method{paths}{.simList}(object) <- value
+\S4method{paths}{.simList}(sim) <- value
 
-cachePath(object)
+cachePath(sim)
 
-\S4method{cachePath}{.simList}(object)
+\S4method{cachePath}{.simList}(sim)
 
-cachePath(object) <- value
+cachePath(sim) <- value
 
-\S4method{cachePath}{.simList}(object) <- value
+\S4method{cachePath}{.simList}(sim) <- value
 
-inputPath(object)
+inputPath(sim)
 
-\S4method{inputPath}{.simList}(object)
+\S4method{inputPath}{.simList}(sim)
 
-inputPath(object) <- value
+inputPath(sim) <- value
 
-\S4method{inputPath}{.simList}(object) <- value
+\S4method{inputPath}{.simList}(sim) <- value
 
-outputPath(object)
+outputPath(sim)
 
-\S4method{outputPath}{.simList}(object)
+\S4method{outputPath}{.simList}(sim)
 
-outputPath(object) <- value
+outputPath(sim) <- value
 
-\S4method{outputPath}{.simList}(object) <- value
+\S4method{outputPath}{.simList}(sim) <- value
 
-modulePath(object)
+modulePath(sim)
 
-\S4method{modulePath}{.simList}(object)
+\S4method{modulePath}{.simList}(sim)
 
-modulePath(object) <- value
+modulePath(sim) <- value
 
-\S4method{modulePath}{.simList}(object) <- value
+\S4method{modulePath}{.simList}(sim) <- value
 }
 \arguments{
-\item{object}{A \code{simList} simulation object.}
+\item{sim}{A \code{simList} object from which to extract element(s) or
+in which to replace element(s).}
 
 \item{value}{The object to be stored at the slot.}
 }

@@ -11,13 +11,13 @@
 \alias{currentModule,.simList-method}
 \title{Namespacing within SpaDES}
 \usage{
-.callingModuleName(object)
+.callingModuleName(sim)
 
-\S4method{.callingModuleName}{.simList}(object)
+\S4method{.callingModuleName}{.simList}(sim)
 
-currentModule(object)
+currentModule(sim)
 
-\S4method{currentModule}{.simList}(object)
+\S4method{currentModule}{.simList}(sim)
 
 .callingFrameTimeunit(x)
 
@@ -26,9 +26,8 @@ currentModule(object)
 \S4method{.callingFrameTimeunit}{`NULL`}(x)
 }
 \arguments{
-\item{object}{A \code{simList} simulation object.}
-
-\item{x}{A \code{simList} simulation object.}
+\item{sim}{A \code{simList} object from which to extract element(s) or
+in which to replace element(s).}
 }
 \description{
 \code{.callingModuleName} returns the name of the module that is currently

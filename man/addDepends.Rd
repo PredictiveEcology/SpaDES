@@ -11,7 +11,8 @@
 \S4method{.addDepends}{.simList,.moduleDeps}(sim, x)
 }
 \arguments{
-\item{sim}{A \code{simList} object.}
+\item{sim}{A \code{simList} object from which to extract element(s) or
+in which to replace element(s).}
 
 \item{x}{A named list containing the parameters used to construct a new
 \code{\link{.moduleDeps}} object.}

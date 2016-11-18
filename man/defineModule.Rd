@@ -11,10 +11,10 @@ defineModule(sim, x)
 \S4method{defineModule}{.simList,list}(sim, x)
 }
 \arguments{
-\item{sim}{A \code{simList} object.}
+\item{sim}{A \code{simList} object from which to extract element(s) or
+in which to replace element(s).}
 
-\item{x}{A named list containing the parameters used to construct a new
-\code{\link{.moduleDeps}} object.}
+\item{x}{A list with a number of named elements, refered to as the metadata. See details.}
 }
 \value{
 Updated \code{simList} object.
