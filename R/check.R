@@ -38,16 +38,16 @@ setMethod(
   "checkObject",
   signature(sim = "simList", name = "missing", object = "Raster", layer = "character"),
   definition = function(sim, object, layer, ...) {
-    if (exists(deparse(substitute(object)), envir = envir(sim))) {
+    if (exists(deparse(substitute(object)), envir = sim@.envir)) {
       if (!is.na(match(layer, names(object)))) {
         return(invisible(TRUE))
       } else {
-        message(paste(deparse(substitute(object, env = envir(sim))),
+        message(paste(deparse(substitute(object, env = sim@.envir)),
                       "exists, but", layer, "is not a layer"))
         return(FALSE)
       }
     } else {
-      message(paste(deparse(substitute(object, env = envir(sim))),
+      message(paste(deparse(substitute(object, env = sim@.envir)),
                     "does not exist."))
       return(FALSE)
     }
@@ -59,10 +59,10 @@ setMethod(
   "checkObject",
   signature(sim = "simList", name = "missing", object = "ANY", layer = "missing"),
   definition = function(sim, name, object, ...) {
-    if (exists(deparse(substitute(object)), envir = envir(sim))) {
+    if (exists(deparse(substitute(object)), envir = sim@.envir)) {
       return(invisible(TRUE))
     } else {
-      message(paste(deparse(substitute(object, env = envir(sim))),
+      message(paste(deparse(substitute(object, env = sim@.envir)),
                     "does not exist"))
       return(FALSE)
     }
@@ -74,7 +74,7 @@ setMethod(
   "checkObject",
   signature(sim = "simList", name = "character", object = "missing", layer = "missing"),
   definition = function(sim, name, ...) {
-    if (exists(name, envir = envir(sim))) {
+    if (exists(name, envir = sim@.envir)) {
       return(invisible(TRUE))
     } else {
       simName <- objectNames("spades", "simList", "sim")[[1]]$objs
@@ -89,7 +89,7 @@ setMethod(
   "checkObject",
   signature(sim = "simList", name = "character", object = "missing", layer = "character"),
   definition = function(sim, name, layer, ...) {
-    if (exists(name, envir = envir(sim))) {
+    if (exists(name, envir = sim@.envir)) {
       if (is(sim[[name]],"Raster")) {
         if (!is(sim[[name]][[layer]], "Raster")) {
           message(paste("The object \"", name, "\" exists, but is not
@@ -153,10 +153,10 @@ setMethod(
             path = "character"),
   definition=function(sim, coreModules, coreParams, path, ...) {
 
-    params <- params(sim)
-    modules <- modules(sim, hidden = TRUE)
+    params <- sim@params
+    modules <- sim@modules
     userModules <- modules[-which(coreModules %in% modules)]
-    globalParams <- globals(sim)
+    globalParams <- sim@params$.globals
     allFound <- TRUE
 
     if (length(userModules)) {

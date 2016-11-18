@@ -12,24 +12,25 @@
 \alias{progressType<-,.simList-method}
 \title{Get and set simulation progress bar details}
 \usage{
-progressInterval(object)
+progressInterval(sim)
 
-\S4method{progressInterval}{.simList}(object)
+\S4method{progressInterval}{.simList}(sim)
 
-progressInterval(object) <- value
+progressInterval(sim) <- value
 
-\S4method{progressInterval}{.simList}(object) <- value
+\S4method{progressInterval}{.simList}(sim) <- value
 
-progressType(object)
+progressType(sim)
 
-\S4method{progressType}{.simList}(object)
+\S4method{progressType}{.simList}(sim)
 
-progressType(object) <- value
+progressType(sim) <- value
 
-\S4method{progressType}{.simList}(object) <- value
+\S4method{progressType}{.simList}(sim) <- value
 }
 \arguments{
-\item{object}{A \code{simList} simulation object.}
+\item{sim}{A \code{simList} object from which to extract element(s) or
+in which to replace element(s).}
 
 \item{value}{The object to be stored at the slot.}
 }

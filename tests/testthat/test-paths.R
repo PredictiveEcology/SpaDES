@@ -12,8 +12,9 @@ test_that("paths file does not work correctly", {
                 tempPath)
   mySim <- simInit(times, params, modules, objects = list(), paths)
   expect_equal(paths(mySim),
-               list(cachePath = paths[[2]], modulePath = paths$modulePath,
-                    inputPath = getwd(), outputPath = getwd())
+               list(cachePath = paths[[2]], inputPath = .paths()[["inputPath"]],
+                    modulePath = paths$modulePath,
+                    outputPath = .paths()[["outputPath"]])
               )
 
   # test for non consecutive order, but named
@@ -21,18 +22,20 @@ test_that("paths file does not work correctly", {
                 outputPath = tempPath)
   mySim <- simInit(times, params, modules, objects = list(), paths)
   expect_equal(paths(mySim),
-               list(cachePath = getwd(), modulePath = paths$modulePath,
-                    inputPath = getwd(), outputPath = path.expand(paths[[2]])))
+               list(cachePath = .paths()[["cachePath"]], inputPath = .paths()[["inputPath"]],
+                    modulePath = paths$modulePath, outputPath = path.expand(paths[[2]])))
 
   # test for all unnamed
   paths <- list(tempPath,
-                system.file("sampleModules", package = "SpaDES"),
                 tempPath,
+                system.file("sampleModules", package = "SpaDES"),
                 tempPath)
   mySim <- simInit(times, params, modules, objects = list(), paths)
   expect_equal(paths(mySim),
-               list(cachePath = paths[[1]], modulePath = paths[[2]],
-                    inputPath = paths[[3]], outputPath = paths[[4]]))
+               list(cachePath = paths[[1]],
+                    inputPath = paths[[2]],
+                    modulePath = paths[[3]],
+                    outputPath = paths[[4]]))
 
   # test for all named, non consecutive, using accessors
   paths <- list(cachePath = tempPath,
@@ -41,8 +44,10 @@ test_that("paths file does not work correctly", {
                 inputPath = tempPath)
   mySim <- simInit(times, params, modules, objects = list(), paths)
   expect_equal(paths(mySim),
-               list(cachePath = cachePath(mySim), modulePath = modulePath(mySim),
-                    inputPath = inputPath(mySim), outputPath = outputPath(mySim)))
+               list(cachePath = cachePath(mySim),
+                    inputPath = inputPath(mySim),
+                    modulePath = modulePath(mySim),
+                    outputPath = outputPath(mySim)))
 
   inputPath(mySim) <- tempPath
   expect_equal(inputPath(mySim), tempPath)

@@ -48,7 +48,7 @@
 #'
 #' @section Module-level caching:
 #'
-#' Is the parameter \code{.useCache} is set to TRUE, then the \code{doEvent.moduleName}
+#' If the parameter \code{.useCache} is set to TRUE, then the \code{doEvent.moduleName}
 #' will be cached. That means taht every time that module
 #' is called from within a spades or experiment call, cache will be used. Only
 #' the objects inside the \code{simList} that correspond to the inputObjects of the
@@ -57,6 +57,20 @@
 #'
 #' In general use, module level caching would be mostly useful for modules that have
 #' no stochasticity, such as data-preparation modules, GIS modules etc.
+#'
+#' @section Event-level caching:
+#'
+#' If the parameter \code{.useCache} is set to a character or character vector,
+#' then that or those event(s) will be cached. That means taht every time the event
+#' is called from within a spades or experiment call, cache will be used. Only
+#' the objects inside the \code{simList} that correspond to the inputObjects of the
+#' module and the outputObjects to the module will be assessed for caching
+#' inputs or output, respectively. The fact that all and only the named inputObjects
+#' and outputObjects are cached and returned may be inefficient (i.e., it may
+#' cache more objects than are necessary) for individual events.
+#'
+#' In general use, event-level caching would be mostly useful for events that have
+#' no stochasticity, such as data-preparation events, GIS events etc.
 #'
 #' @section Function-level caching:
 #'
@@ -172,12 +186,12 @@ setMethod(
     wh <- which(sapply(tmpl, function(x) is(x, "simList")))
     if(is.null(cacheRepo)) {
       if(length(wh)>0) {
-        cacheRepo <- cachePath(tmpl[wh])
+        cacheRepo <- tmpl[wh]@paths$cachePath
       } else {
         doEventFrameNum <- grep(sys.calls(), pattern = "^doEvent")[1]
         if(!is.na(doEventFrameNum)) {
-          simObj <- get("sim", envir=sys.frame(doEventFrameNum))
-          cacheRepo <- cachePath(simObj)
+          sim <- get("sim", envir=sys.frame(doEventFrameNum))
+          cacheRepo <- sim@paths$cachePath
         } else {
           stop("Cache requires sim or cacheRepo to be set")
         }
@@ -191,11 +205,11 @@ setMethod(
 
     whRas <- which(sapply(tmpl, function(x) is(x, "Raster")))
     whFun <- which(sapply(tmpl, function(x) is.function(x)))
-    if(length(wh)>0 | exists("simObj")) {
+    if(length(wh)>0 | exists("sim")) {
       if(length(wh)>0) {
         cur <- current(tmpl[[wh]])
       } else {
-        cur <- current(simObj)
+        cur <- current(sim)
       }
     }
     if(is.null(objects)) {
@@ -238,21 +252,26 @@ setMethod(
       lastOne <- order(isInRepo$createdDate, decreasing = TRUE)[1]
       if (is.null(notOlderThan) || (notOlderThan < lastEntry)) {
         if(grepl(format(FUN)[1], pattern= "function \\(sim, eventTime")) { # very coarse way of determining doEvent call
-          cat("Using cached copy of",cur$eventType,"event in",cur$moduleName,"module\n")
+          message("Using cached copy of ",cur$eventType," event in ",cur$moduleName," module")
         }
 
         out <- loadFromLocalRepo(isInRepo$artifact[lastOne],
                                  repoDir = cacheRepo, value = TRUE)
-        if(!is(out, "simList")) {
+        #if(!is(out, "simList")) {
           if(length(wh)>0) {
-            simListOut <- list(...)[[wh]]
-            for(i in names(out)) {
-              simListOut[[i]] <- out[[i]]
-            }
+            simListOut <- out # gets all items except objects in list(...)
+            origEnv <- list(...)[[wh]]@.envir
+            keepFromOrig <- !(ls(origEnv) %fin% ls(out))
+            list2env(mget(ls(origEnv)[keepFromOrig], envir=origEnv), envir=simListOut@.envir)
+
+            #simListOut <- list(...)[[wh]] # original simList
+            #for(i in ls(out)) {
+            #  simListOut[[i]] <- out[[i]]
+            #}
 
             return(simListOut)
           }
-        }
+        #}
 
         return(out)
 
@@ -269,7 +288,9 @@ setMethod(
 
     if(is(output, "simList")) {
       if(!is.null(outputObjects)) {
-        outputToSave <- mget(outputObjects, envir = envir(output))
+        outputToSave <- output
+        outputToSave@.envir <- new.env()
+        list2env(mget(outputObjects, envir = output@.envir), envir=outputToSave@.envir)
         attr(outputToSave, "tags") <- attr(output, "tags")
         attr(outputToSave, "call") <- attr(output, "call")
         if(isS4(FUN))
@@ -332,7 +353,7 @@ setMethod(
   definition = function(sim, afterDate, beforeDate, cacheRepo, ...) {
 
     if(missing(sim) & missing(cacheRepo)) stop("Must provide either sim or cacheRepo")
-    if(missing(cacheRepo)) cacheRepo <- cachePath(sim)
+    if(missing(cacheRepo)) cacheRepo <- sim@paths$cachePath
     if(missing(afterDate)) afterDate = "1970-01-01"
     if(missing(beforeDate)) beforeDate = Sys.Date() + 1
 
@@ -369,7 +390,7 @@ setMethod(
   definition = function(sim, cacheRepo, ...) {
 
     if(missing(sim) & missing(cacheRepo)) stop("Must provide either sim or cacheRepo")
-    if(missing(cacheRepo)) cacheRepo <- cachePath(sim)
+    if(missing(cacheRepo)) cacheRepo <- sim@paths$cachePath
 
     tryCatch(splitTagsLocal(cacheRepo), error = function(x)
       data.frame(artifact = character(), tagKey = character(), tagValue = character(),

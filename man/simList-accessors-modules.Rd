@@ -13,24 +13,25 @@
 \alias{simList-accessors-modules}
 \title{Simulation modules and dependencies}
 \usage{
-modules(object, hidden = FALSE)
+modules(sim, hidden = FALSE)
 
-\S4method{modules}{.simList}(object, hidden = FALSE)
+\S4method{modules}{.simList}(sim, hidden = FALSE)
 
-modules(object) <- value
+modules(sim) <- value
 
-\S4method{modules}{.simList}(object) <- value
+\S4method{modules}{.simList}(sim) <- value
 
-depends(object)
+depends(sim)
 
-\S4method{depends}{.simList}(object)
+\S4method{depends}{.simList}(sim)
 
-depends(object) <- value
+depends(sim) <- value
 
-\S4method{depends}{.simList}(object) <- value
+\S4method{depends}{.simList}(sim) <- value
 }
 \arguments{
-\item{object}{A \code{simList} simulation object.}
+\item{sim}{A \code{simList} object from which to extract element(s) or
+in which to replace element(s).}
 
 \item{hidden}{Logical. If TRUE, show the default core modules.}
 

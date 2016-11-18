@@ -20,38 +20,39 @@
 \alias{simList-accessors-events}
 \title{Simulation event lists}
 \usage{
-events(object, unit)
+events(sim, unit)
 
-\S4method{events}{.simList,character}(object, unit)
+\S4method{events}{.simList,character}(sim, unit)
 
-\S4method{events}{.simList,missing}(object, unit)
+\S4method{events}{.simList,missing}(sim, unit)
 
-events(object) <- value
+events(sim) <- value
 
-\S4method{events}{.simList}(object) <- value
+\S4method{events}{.simList}(sim) <- value
 
-current(object, unit)
+current(sim, unit)
 
-\S4method{current}{.simList,character}(object, unit)
+\S4method{current}{.simList,character}(sim, unit)
 
-\S4method{current}{.simList,missing}(object, unit)
+\S4method{current}{.simList,missing}(sim, unit)
 
-current(object) <- value
+current(sim) <- value
 
-\S4method{current}{.simList}(object) <- value
+\S4method{current}{.simList}(sim) <- value
 
-completed(object, unit)
+completed(sim, unit)
 
-\S4method{completed}{.simList,character}(object, unit)
+\S4method{completed}{.simList,character}(sim, unit)
 
-\S4method{completed}{.simList,missing}(object, unit)
+\S4method{completed}{.simList,missing}(sim, unit)
 
-completed(object) <- value
+completed(sim) <- value
 
-\S4method{completed}{.simList}(object) <- value
+\S4method{completed}{.simList}(sim) <- value
 }
 \arguments{
-\item{object}{A \code{simList} simulation object.}
+\item{sim}{A \code{simList} object from which to extract element(s) or
+in which to replace element(s).}
 
 \item{unit}{Character. One of the time units used in \code{SpaDES}.}
 

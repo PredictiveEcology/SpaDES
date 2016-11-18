@@ -17,13 +17,13 @@
 \alias{simList-accessors-objects}
 \title{Extract or replace an object from the simulation environment}
 \usage{
-objs(x, ...)
+objs(sim, ...)
 
-\S4method{objs}{simList}(x, ...)
+\S4method{objs}{simList}(sim, ...)
 
-objs(x) <- value
+objs(sim) <- value
 
-\S4method{objs}{simList}(x) <- value
+\S4method{objs}{simList}(sim) <- value
 
 \S4method{[[}{simList,ANY,ANY}(x, i, j, ..., drop)
 
@@ -34,10 +34,13 @@ objs(x) <- value
 \S4method{$}{simList}(x, name) <- value
 }
 \arguments{
-\item{x}{A \code{simList} object from which to extract element(s) or
+\item{sim}{A \code{simList} object from which to extract element(s) or
 in which to replace element(s).}
 
 \item{value}{Any R object.}
+
+\item{x}{A \code{simList} object from which to extract element(s) or
+in which to replace element(s).}
 
 \item{i, j, ...}{Indices specifying elements to extract or replace.}
 

@@ -21,40 +21,41 @@
 \alias{simList-accessors-inout}
 \title{Inputs and outputs}
 \usage{
-inputs(object)
+inputs(sim)
 
-\S4method{inputs}{.simList}(object)
+\S4method{inputs}{.simList}(sim)
 
-inputs(object) <- value
+inputs(sim) <- value
 
-\S4method{inputs}{.simList}(object) <- value
+\S4method{inputs}{.simList}(sim) <- value
 
-outputs(object)
+outputs(sim)
 
-\S4method{outputs}{.simList}(object)
+\S4method{outputs}{.simList}(sim)
 
-outputs(object) <- value
+outputs(sim) <- value
 
-\S4method{outputs}{.simList}(object) <- value
+\S4method{outputs}{.simList}(sim) <- value
 
-inputArgs(object)
+inputArgs(sim)
 
-\S4method{inputArgs}{.simList}(object)
+\S4method{inputArgs}{.simList}(sim)
 
-inputArgs(object) <- value
+inputArgs(sim) <- value
 
-\S4method{inputArgs}{.simList}(object) <- value
+\S4method{inputArgs}{.simList}(sim) <- value
 
-outputArgs(object)
+outputArgs(sim)
 
-\S4method{outputArgs}{.simList}(object)
+\S4method{outputArgs}{.simList}(sim)
 
-outputArgs(object) <- value
+outputArgs(sim) <- value
 
-\S4method{outputArgs}{.simList}(object) <- value
+\S4method{outputArgs}{.simList}(sim) <- value
 }
 \arguments{
-\item{object}{A \code{simList} simulation object.}
+\item{sim}{A \code{simList} object from which to extract element(s) or
+in which to replace element(s).}
 
 \item{value}{The object to be stored at the slot. See Details.}
 }

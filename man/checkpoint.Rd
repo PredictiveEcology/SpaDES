@@ -21,21 +21,21 @@ checkpointLoad(file)
 
 .checkpointSave(sim, file)
 
-checkpointFile(object)
+checkpointFile(sim)
 
-\S4method{checkpointFile}{.simList}(object)
+\S4method{checkpointFile}{.simList}(sim)
 
-checkpointFile(object) <- value
+checkpointFile(sim) <- value
 
-\S4method{checkpointFile}{.simList}(object) <- value
+\S4method{checkpointFile}{.simList}(sim) <- value
 
-checkpointInterval(object)
+checkpointInterval(sim)
 
-\S4method{checkpointInterval}{.simList}(object)
+\S4method{checkpointInterval}{.simList}(sim)
 
-checkpointInterval(object) <- value
+checkpointInterval(sim) <- value
 
-\S4method{checkpointInterval}{.simList}(object) <- value
+\S4method{checkpointInterval}{.simList}(sim) <- value
 }
 \arguments{
 \item{sim}{A \code{simList} simulation object.}
@@ -49,8 +49,6 @@ either \code{"init"}, \code{"load"}, or \code{"save"}.}
 will be printed (default \code{debug = FALSE}).}
 
 \item{file}{The checkpoint file.}
-
-\item{object}{A \code{simList} simulation object.}
 
 \item{value}{The object to be stored at the slot.}
 }

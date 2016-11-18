@@ -8,16 +8,17 @@
 \alias{globals<-,.simList-method}
 \title{Get and set simulation globals.}
 \usage{
-globals(object)
+globals(sim)
 
-\S4method{globals}{.simList}(object)
+\S4method{globals}{.simList}(sim)
 
-globals(object) <- value
+globals(sim) <- value
 
-\S4method{globals}{.simList}(object) <- value
+\S4method{globals}{.simList}(sim) <- value
 }
 \arguments{
-\item{object}{A \code{simList} simulation object.}
+\item{sim}{A \code{simList} object from which to extract element(s) or
+in which to replace element(s).}
 
 \item{value}{The object to be stored at the slot.}
 }

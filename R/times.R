@@ -347,7 +347,7 @@ setMethod(
         if (!all(sapply(timesteps, is.na))) {
           return(timesteps[!is.na(timesteps)][[which.max(sapply(
             timesteps[!sapply(timesteps, is.na)], function(ts) {
-              eval(parse(text = paste0("d", ts, "(1)")), envir = envir(sim)) }
+              eval(parse(text = paste0("d", ts, "(1)")), envir = sim@.envir) }
           ))]])
         }
       }
@@ -391,7 +391,7 @@ setMethod(
         if (!all(sapply(timesteps, is.na))) {
           return(timesteps[!is.na(timesteps)][[which.min(sapply(
             timesteps[!sapply(timesteps, is.na)], function(ts) {
-              eval(parse(text = paste0("d", ts, "(1)")), envir = envir(sim)) }
+              eval(parse(text = paste0("d", ts, "(1)")), envir = sim@.envir) }
           ))]])
         }
       }

@@ -10,9 +10,9 @@ doEvent.save <- function(sim, eventTime, eventType, debug = FALSE) {
 
     if (NROW(outputs(sim)) > 0) {
       firstSave <- min(outputs(sim)[, "saveTime"], na.rm = TRUE)
-      attributes(firstSave)$unit <- timeunit(sim)
+      attributes(firstSave)$unit <- sim@simtimes[["timeunit"]]
       sim <- scheduleEvent(sim, firstSave, "save", "spades", .last())
-      sim <- scheduleEvent(sim, end(sim, timeunit(sim)), "save", "end", .last())
+      sim <- scheduleEvent(sim, end(sim, sim@simtimes[["timeunit"]]), "save", "end", .last())
     }
 
   } else if (eventType == "spades") {
@@ -110,7 +110,7 @@ doEvent.save <- function(sim, eventTime, eventType, debug = FALSE) {
 #' }
 saveFiles <- function(sim) {
 
-  curTime <- time(sim, timeunit(sim))
+  curTime <- time(sim, sim@simtimes[["timeunit"]])
   # extract the current module name that called this function
   moduleName <- currentModule(sim)
 
@@ -127,8 +127,8 @@ saveFiles <- function(sim) {
   if (NROW(outputs(sim)[outputs(sim)$saveTime == curTime & is.na(outputs(sim)$saved), "saved"]) > 0) {
     wh <- which(outputs(sim)$saveTime == curTime & is.na(outputs(sim)$saved))
     for (i in wh) {
-      if (exists(outputs(sim)[i, "objectName"], envir = envir(sim))) {
-        args <- append(list(get(outputs(sim)[i, "objectName"], envir = envir(sim)),
+      if (exists(outputs(sim)[i, "objectName"], envir = sim@.envir)) {
+        args <- append(list(get(outputs(sim)[i, "objectName"], envir = sim@.envir),
                             file = outputs(sim)[i, "file"]),
                        outputArgs(sim)[[i]])
         args <- args[!sapply(args, is.null)]
@@ -152,7 +152,7 @@ saveFiles <- function(sim) {
   # Schedule an event for the next time in the saveTime column
   if (any(is.na(outputs(sim)[outputs(sim)$saveTime > curTime, "saved"]))) {
     nextTime <- min(outputs(sim)[is.na(outputs(sim)$saved), "saveTime"], na.rm = TRUE)
-    attributes(nextTime)$unit <- timeunit(sim)
+    attributes(nextTime)$unit <- sim@simtimes[["timeunit"]]
     sim <- scheduleEvent(sim, nextTime, "save", "later", .last())
   }
   return(invisible(sim))

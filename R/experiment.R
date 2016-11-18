@@ -427,8 +427,8 @@ setMethod(
       parallel::clusterEvalQ(cl, {
         lapply(packagesToLoad, library, character.only = TRUE)
       })
-      
-      
+
+
     } else {
       parFun <- "lapply"
       args <- list(X = 1:NROW(factorialExp), FUN = FunDef)

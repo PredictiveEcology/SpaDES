@@ -158,7 +158,7 @@ setMethod("objects",
 #' @family functions to access elements of a \code{simList} object
 #'
 ls.str.simList <- function(name) {
-  ls.str(envir(name))
+  ls.str(name@.envir)
 }
 
 #' export
@@ -185,7 +185,7 @@ setMethod("ls.str",
 #'
 #' Currently, only get and set methods are defined. Subset methods are not.
 #'
-#' @param object A \code{simList} simulation object.
+#' @inheritParams objs
 #'
 #' @param value The object to be stored at the slot.
 #'
@@ -202,21 +202,21 @@ setMethod("ls.str",
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("envir", function(object) {
+setGeneric("envir", function(sim) {
   standardGeneric("envir")
 })
 
 #' @rdname simList-accessors-envir
 setMethod("envir",
           signature = "simList",
-          definition = function(object) {
-            return(object@.envir)
+          definition = function(sim) {
+            return(sim@.envir)
 })
 
 #' @export
 #' @rdname simList-accessors-envir
 setGeneric("envir<-",
-           function(object, value) {
+           function(sim, value) {
              standardGeneric("envir<-")
 })
 
@@ -225,10 +225,10 @@ setGeneric("envir<-",
 #' @rdname simList-accessors-envir
 setReplaceMethod("envir",
                  signature = "simList",
-                 function(object, value) {
+                 function(sim, value) {
                    if (!is.environment(value)) stop("Must be an environment")
-                   object@.envir <- value
-                   return(object)
+                   sim@.envir <- value
+                   return(sim)
 })
 
 ################################################################################
@@ -244,6 +244,8 @@ setReplaceMethod("envir",
 #' \code{objs<-} requires takes a named list of values to be assigned in
 #' the simulation envirment.
 #'
+#' @param sim        A \code{simList} object from which to extract element(s) or
+#'                 in which to replace element(s).
 #' @param x        A \code{simList} object from which to extract element(s) or
 #'                 in which to replace element(s).
 #' @param i,j,...  Indices specifying elements to extract or replace.
@@ -262,7 +264,7 @@ setReplaceMethod("envir",
 #' @aliases simList-accessors-objects
 #' @rdname objects
 #'
-setGeneric("objs", function(x, ...) {
+setGeneric("objs", function(sim, ...) {
   standardGeneric("objs")
 })
 
@@ -270,18 +272,18 @@ setGeneric("objs", function(x, ...) {
 #' @rdname objects
 setMethod("objs",
           signature = "simList",
-          definition = function(x, ...) {
-            w <- lapply(ls(envir(x), ...), function(z) {
-              eval(parse(text = z), envir = envir(x))
+          definition = function(sim, ...) {
+            w <- lapply(ls(sim@.envir, ...), function(z) {
+              eval(parse(text = z), envir = sim@.envir)
             })
-            names(w) <- ls(envir(x), ...)
+            names(w) <- ls(sim@.envir, ...)
             return(w)
 })
 
 #' @export
 #' @rdname objects
 setGeneric("objs<-",
-           function(x, value) {
+           function(sim, value) {
              standardGeneric("objs<-")
 })
 
@@ -292,24 +294,24 @@ setGeneric("objs<-",
 setReplaceMethod(
   "objs",
   signature = "simList",
-  function(x, value) {
+  function(sim, value) {
     if (is.list(value)) {
-     list2env(value, envir = envir(x))
+     list2env(value, envir = sim@.envir)
      newInputs <- data.frame(
        objectName = names(value),
-       loadTime = as.numeric(time(x, "seconds")),
+       loadTime = as.numeric(sim@simtimes[["current"]]),
        loaded = TRUE,
-       stringsAsFactors = FALSE) %>% .fillInputRows(startTime = start(x))
-     inputs(x) <- rbind(inputs(x), newInputs)
+       stringsAsFactors = FALSE) %>% .fillInputRows(startTime = start(sim))
+     inputs(sim) <- rbind(inputs(sim), newInputs)
 
     # lapply(names(value), function(z) {
-    #   x@.envir[[z]] <- value[[z]]
+    #   sim@.envir[[z]] <- value[[z]]
     # })
     } else {
      stop("must provide a named list.")
     }
-    validObject(x)
-    return(x)
+    validObject(sim)
+    return(sim)
 })
 
 ################################################################################
@@ -372,7 +374,7 @@ setReplaceMethod("$", signature(x = "simList", value = "ANY"),
 #'
 #' Currently, only get and set methods are defined. Subset methods are not.
 #'
-#' @param object A \code{simList} simulation object.
+#' @inheritParams objs
 #'
 #' @param value The object to be stored at the slot.
 #'
@@ -391,7 +393,7 @@ setReplaceMethod("$", signature(x = "simList", value = "ANY"),
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("modules", function(object, hidden = FALSE) {
+setGeneric("modules", function(sim, hidden = FALSE) {
   standardGeneric("modules")
 })
 
@@ -399,12 +401,12 @@ setGeneric("modules", function(object, hidden = FALSE) {
 setMethod(
   "modules",
   signature = ".simList",
-  definition = function(object, hidden) {
+  definition = function(sim, hidden) {
     if (hidden) {
-      mods <- object@modules
+      mods <- sim@modules
     } else {
-      hiddenMods <- unlist(object@modules) %in% c("checkpoint", "save", "progress", "load")
-      mods <- object@modules[!hiddenMods]
+      hiddenMods <- unlist(sim@modules) %in% c("checkpoint", "save", "progress", "load")
+      mods <- sim@modules[!hiddenMods]
     }
     return(mods)
 })
@@ -412,7 +414,7 @@ setMethod(
 #' @export
 #' @rdname simList-accessors-modules
 setGeneric("modules<-",
-           function(object, value) {
+           function(sim, value) {
              standardGeneric("modules<-")
 })
 
@@ -421,10 +423,10 @@ setGeneric("modules<-",
 #' @rdname simList-accessors-modules
 setReplaceMethod("modules",
                  signature = ".simList",
-                 function(object, value) {
-                   object@modules <- value
-                   validObject(object)
-                   return(object)
+                 function(sim, value) {
+                   sim@modules <- value
+                   validObject(sim)
+                   return(sim)
 })
 
 ################################################################################
@@ -434,7 +436,7 @@ setReplaceMethod("modules",
 #' @docType methods
 #' @rdname simList-accessors-modules
 #'
-setGeneric("depends", function(object) {
+setGeneric("depends", function(sim) {
   standardGeneric("depends")
 })
 
@@ -442,14 +444,14 @@ setGeneric("depends", function(object) {
 #' @rdname simList-accessors-modules
 setMethod("depends",
           signature(".simList"),
-          definition = function(object) {
-            return(object@depends)
+          definition = function(sim) {
+            return(sim@depends)
 })
 
 #' @export
 #' @rdname simList-accessors-modules
 setGeneric("depends<-",
-           function(object, value) {
+           function(sim, value) {
              standardGeneric("depends<-")
 })
 
@@ -459,10 +461,10 @@ setGeneric("depends<-",
 #' @export
 setReplaceMethod("depends",
                  signature(".simList"),
-                 function(object, value) {
-                   object@depends <- value
-                   validObject(object)
-                   return(object)
+                 function(sim, value) {
+                   sim@depends <- value
+                   validObject(sim)
+                   return(sim)
 })
 
 ################################################################################
@@ -484,7 +486,7 @@ setReplaceMethod("depends",
 #' @rdname namespacing
 #' @author Eliot McIntire
 #'
-setGeneric(".callingModuleName", function(object) {
+setGeneric(".callingModuleName", function(sim) {
   standardGeneric(".callingModuleName")
 })
 
@@ -495,7 +497,7 @@ setGeneric(".callingModuleName", function(object) {
 setMethod(
   ".callingModuleName",
   signature = c(".simList"),
-  definition = function(object) {
+  definition = function(sim) {
     # Only return module name if inside a spades call,
     #  because this only makes sense if there is an "active" module
     sc <- sys.calls()
@@ -516,7 +518,7 @@ setMethod(
 #' @docType methods
 #' @rdname namespacing
 #' @author Eliot McIntire
-setGeneric("currentModule", function(object) {
+setGeneric("currentModule", function(sim) {
   standardGeneric("currentModule")
 })
 
@@ -525,8 +527,8 @@ setGeneric("currentModule", function(object) {
 setMethod(
   "currentModule",
   signature = c(".simList"),
-  definition = function(object) {
-    ret <- object@current$moduleName
+  definition = function(sim) {
+    ret <- sim@current$moduleName
     if(length(ret))
       return(ret)
     else
@@ -539,7 +541,7 @@ setMethod(
 #' \code{params} and \code{P} access the parameter slot in the \code{simList}.
 #' \code{params} has a replace method, so can be used to update a parameter value.
 #'
-#' @param object A \code{simList} simulation object.
+#' @inheritParams objs
 #'
 #' @param value The object to be stored at the slot.
 #'
@@ -567,7 +569,7 @@ setMethod(
 #' @aliases parameters
 #' @rdname params
 #'
-setGeneric("params", function(object) {
+setGeneric("params", function(sim) {
   standardGeneric("params")
 })
 
@@ -575,14 +577,14 @@ setGeneric("params", function(object) {
 #' @rdname params
 setMethod("params",
           signature = ".simList",
-          definition = function(object) {
-            return(object@params)
+          definition = function(sim) {
+            return(sim@params)
 })
 
 #' @export
 #' @rdname params
 setGeneric("params<-",
-           function(object, value) {
+           function(sim, value) {
              standardGeneric("params<-")
 })
 
@@ -592,10 +594,10 @@ setGeneric("params<-",
 #' @export
 setReplaceMethod("params",
                  signature = ".simList",
-                 function(object, value) {
-                   object@params <- value
-                   validObject(object)
-                   return(object)
+                 function(sim, value) {
+                   sim@params <- value
+                   validObject(sim)
+                   return(sim)
 })
 
 #' \code{P} is a concise way to access parameters within a module. It works more like
@@ -617,7 +619,7 @@ setReplaceMethod("params",
 #' @aliases simList-accessors-params
 #' @rdname params
 #'
-setGeneric("P", function(object, module = NULL, param = NULL) {
+setGeneric("P", function(sim, module = NULL, param = NULL) {
   standardGeneric("P")
 })
 
@@ -625,18 +627,18 @@ setGeneric("P", function(object, module = NULL, param = NULL) {
 #' @rdname params
 setMethod("P",
           signature = ".simList",
-          definition = function(object, module, param) {
+          definition = function(sim, module, param) {
             if (is.null(module)) {
-              module <- currentModule(object)
+              module <- currentModule(sim)
             }
             if (!is.na(module)) {
               if (is.null(param)) {
-                return(object@params[[module]])
+                return(sim@params[[module]])
               } else {
-                return(object@params[[module]][[param]])
+                return(sim@params[[module]][[param]])
               }
             } else {
-              return(object@params)
+              return(sim@params)
             }
 })
 
@@ -654,7 +656,7 @@ setMethod("P",
 #' @family functions to access elements of a \code{simList} object
 #' @seealso \code{\link{SpaDES}}, specifically the section 1.2.1 on Simulation Parameters.
 #'
-setGeneric("globals", function(object) {
+setGeneric("globals", function(sim) {
   standardGeneric("globals")
 })
 
@@ -662,14 +664,14 @@ setGeneric("globals", function(object) {
 #' @rdname globals
 setMethod("globals",
           signature = ".simList",
-          definition = function(object) {
-            return(object@params$.globals)
+          definition = function(sim) {
+            return(sim@params$.globals)
 })
 
 #' @export
 #' @rdname globals
 setGeneric("globals<-",
-           function(object, value) {
+           function(sim, value) {
              standardGeneric("globals<-")
 })
 
@@ -679,10 +681,10 @@ setGeneric("globals<-",
 #' @export
 setReplaceMethod("globals",
                  signature = ".simList",
-                 function(object, value) {
-                   object@params$.globals <- value
-                   validObject(object)
-                   return(object)
+                 function(sim, value) {
+                   sim@params$.globals <- value
+                   validObject(sim)
+                   return(sim)
 })
 
 ################################################################################
@@ -703,7 +705,7 @@ setReplaceMethod("globals",
 #'                  params = list(.globals = list(stackName = "landscape")))
 #' parameters(mySim)
 #'
-setGeneric("parameters", function(object, asDF = FALSE) {
+setGeneric("parameters", function(sim, asDF = FALSE) {
   standardGeneric("parameters")
 })
 
@@ -711,15 +713,15 @@ setGeneric("parameters", function(object, asDF = FALSE) {
 #' @rdname params
 setMethod("parameters",
           signature = ".simList",
-          definition = function(object, asDF) {
-            if (any(!unlist(lapply(depends(object)@dependencies, is.null)))) {
+          definition = function(sim, asDF) {
+            if (any(!unlist(lapply(depends(sim)@dependencies, is.null)))) {
               if (asDF) {
-                tmp <- lapply(depends(object)@dependencies,
+                tmp <- lapply(depends(sim)@dependencies,
                               function(x) {
                                 out <- x@parameters})
                 tmp <- do.call(rbind, tmp)
               } else {
-                tmp <- lapply(depends(object)@dependencies,
+                tmp <- lapply(depends(sim)@dependencies,
                               function(x) {
                                 out <- lapply(seq_len(NROW(x@parameters)),
                                               function(y) x@parameters[y,-1])
@@ -740,7 +742,7 @@ setMethod("parameters",
 #' @rdname checkpoint
 #' @family functions to access elements of a \code{simList} object
 #'
-setGeneric("checkpointFile", function(object) {
+setGeneric("checkpointFile", function(sim) {
   standardGeneric("checkpointFile")
 })
 
@@ -748,14 +750,14 @@ setGeneric("checkpointFile", function(object) {
 #' @rdname checkpoint
 setMethod("checkpointFile",
           signature = ".simList",
-          definition = function(object) {
-            return(object@params$.checkpoint$file)
+          definition = function(sim) {
+            return(sim@params$.checkpoint$file)
 })
 
 #' @export
 #' @rdname checkpoint
 setGeneric("checkpointFile<-",
-           function(object, value) {
+           function(sim, value) {
              standardGeneric("checkpointFile<-")
 })
 
@@ -765,10 +767,10 @@ setGeneric("checkpointFile<-",
 #' @export
 setReplaceMethod("checkpointFile",
                  signature = ".simList",
-                 function(object, value) {
-                   object@params$.checkpoint$file <- value
-                   validObject(object)
-                   return(object)
+                 function(sim, value) {
+                   sim@params$.checkpoint$file <- value
+                   validObject(sim)
+                   return(sim)
 })
 
 ################################################################################
@@ -778,7 +780,7 @@ setReplaceMethod("checkpointFile",
 #' @docType methods
 #' @rdname checkpoint
 #'
-setGeneric("checkpointInterval", function(object) {
+setGeneric("checkpointInterval", function(sim) {
   standardGeneric("checkpointInterval")
 })
 
@@ -786,14 +788,14 @@ setGeneric("checkpointInterval", function(object) {
 #' @rdname checkpoint
 setMethod("checkpointInterval",
           signature = ".simList",
-          definition = function(object) {
-            return(object@params$.checkpoint$interval)
+          definition = function(sim) {
+            return(sim@params$.checkpoint$interval)
 })
 
 #' @export
 #' @rdname checkpoint
 setGeneric("checkpointInterval<-",
-           function(object, value) {
+           function(sim, value) {
              standardGeneric("checkpointInterval<-")
 })
 
@@ -803,10 +805,10 @@ setGeneric("checkpointInterval<-",
 #' @export
 setReplaceMethod("checkpointInterval",
                  signature = ".simList",
-                 function(object, value) {
-                   object@params$.checkpoint$interval <- value
-                   validObject(object)
-                   return(object)
+                 function(sim, value) {
+                   sim@params$.checkpoint$interval <- value
+                   validObject(sim)
+                   return(sim)
 })
 
 ################################################################################
@@ -853,7 +855,7 @@ setReplaceMethod("checkpointInterval",
 #'                       # In this example, "chkpnt.RData"
 #' checkpointInterval(mySim) # 10
 #' }
-setGeneric("progressInterval", function(object) {
+setGeneric("progressInterval", function(sim) {
   standardGeneric("progressInterval")
 })
 
@@ -861,14 +863,14 @@ setGeneric("progressInterval", function(object) {
 #' @rdname progress
 setMethod("progressInterval",
           signature = ".simList",
-          definition = function(object) {
-            return(object@params$.progress$interval)
+          definition = function(sim) {
+            return(sim@params$.progress$interval)
 })
 
 #' @export
 #' @rdname progress
 setGeneric("progressInterval<-",
-           function(object, value) {
+           function(sim, value) {
              standardGeneric("progressInterval<-")
 })
 
@@ -878,10 +880,10 @@ setGeneric("progressInterval<-",
 #' @export
 setReplaceMethod("progressInterval",
                  signature = ".simList",
-                 function(object, value) {
-                   object@params$.progress$interval <- value
-                   validObject(object)
-                   return(object)
+                 function(sim, value) {
+                   sim@params$.progress$interval <- value
+                   validObject(sim)
+                   return(sim)
 })
 
 ################################################################################
@@ -891,7 +893,7 @@ setReplaceMethod("progressInterval",
 #' @docType methods
 #' @rdname progress
 #'
-setGeneric("progressType", function(object) {
+setGeneric("progressType", function(sim) {
   standardGeneric("progressType")
 })
 
@@ -899,14 +901,14 @@ setGeneric("progressType", function(object) {
 #' @rdname progress
 setMethod("progressType",
           signature = ".simList",
-          definition = function(object) {
-            return(object@params$.progress$type)
+          definition = function(sim) {
+            return(sim@params$.progress$type)
 })
 
 #' @export
 #' @rdname progress
 setGeneric("progressType<-",
-           function(object, value) {
+           function(sim, value) {
              standardGeneric("progressType<-")
 })
 
@@ -916,10 +918,10 @@ setGeneric("progressType<-",
 #' @export
 setReplaceMethod("progressType",
                  signature = ".simList",
-                 function(object, value) {
-                   object@params$.progress$type <- as.character(value)
-                   validObject(object)
-                   return(object)
+                 function(sim, value) {
+                   sim@params$.progress$type <- as.character(value)
+                   validObject(sim)
+                   return(sim)
 })
 
 ################################################################################
@@ -978,7 +980,7 @@ setReplaceMethod("progressType",
 #'
 #' See the modules vignette for more details (\code{browseVignettes("SpaDES")}).
 #'
-#' @param object A \code{simList} simulation object.
+#' @inheritParams objs
 #'
 #' @param value The object to be stored at the slot. See Details.
 #'
@@ -1054,7 +1056,7 @@ setReplaceMethod("progressType",
 #'
 #' # Clean up after
 #' unlink(tmpdir, recursive = TRUE)
-setGeneric("inputs", function(object) {
+setGeneric("inputs", function(sim) {
   standardGeneric("inputs")
 })
 
@@ -1062,27 +1064,27 @@ setGeneric("inputs", function(object) {
 #' @rdname simList-accessors-inout
 setMethod("inputs",
           signature = ".simList",
-          definition = function(object) {
+          definition = function(sim) {
 
-            simUnit <- timeunit(object)
-            loadTimeUnit <- attr(object@inputs$loadTime, "unit")
+            simUnit <- sim@simtimes[["timeunit"]]
+            loadTimeUnit <- attr(sim@inputs$loadTime, "unit")
             if (is.null(loadTimeUnit)) loadTimeUnit <- simUnit
             out <- if (is.na(pmatch(loadTimeUnit, simUnit)) &
-                       (length(object@inputs$loadTime) > 0)) {
+                       (length(sim@inputs$loadTime) > 0)) {
               # note the above line captures empty loadTime,
               # whereas is.na does not
-              if (any(!is.na(object@inputs$loadTime))) {
-                if (!is.null(object@inputs$loadTime)) {
-                  obj <- data.table::copy(object@inputs) # don't change original object
-                  set(obj, , j = "loadTime", convertTimeunit(obj$loadTime, obj$unit, envir(object)))
-                  #obj[, loadTime := convertTimeunit(loadTime, unit, envir(object))]
+              if (any(!is.na(sim@inputs$loadTime))) {
+                if (!is.null(sim@inputs$loadTime)) {
+                  obj <- data.table::copy(sim@inputs) # don't change original sim
+                  set(obj, , j = "loadTime", convertTimeunit(obj$loadTime, obj$unit, sim@.envir))
+                  #obj[, loadTime := convertTimeunit(loadTime, unit, sim@.envir)]
                   obj[]
                 }
               } else {
-                object@inputs
+                sim@inputs
               }
             } else {
-              object@inputs
+              sim@inputs
             }
 
             return(out)
@@ -1091,7 +1093,7 @@ setMethod("inputs",
 #' @export
 #' @rdname simList-accessors-inout
 setGeneric("inputs<-",
-           function(object, value) {
+           function(sim, value) {
              standardGeneric("inputs<-")
 })
 
@@ -1102,7 +1104,7 @@ setGeneric("inputs<-",
 setReplaceMethod(
   "inputs",
   signature = ".simList",
-  function(object, value) {
+  function(sim, value) {
    if (length(value) > 0) {
      whFactors <- sapply(value, function(x) is.factor(x))
      if (any(whFactors)) {
@@ -1125,59 +1127,59 @@ setReplaceMethod(
 #      setnames(value, old = colnames(value)[na.omit(columns)],
 #                      new = colnames(fileTable)[!is.na(columns)])
 #      columns2 <- pmatch(names(value), names(fileTable))
-#      object@inputs <- rbind(value[,na.omit(columns), drop = FALSE], fileTable[,columns2])
+#      sim@inputs <- rbind(value[,na.omit(columns), drop = FALSE], fileTable[,columns2])
 #      if (any(is.na(columns))) {
-#        object@inputs[,names(fileTable[,is.na(columns)])] <- NA
+#        sim@inputs[,names(fileTable[,is.na(columns)])] <- NA
 #      }
-     object@inputs <- .fillInputRows(value, start(object))
+     sim@inputs <- .fillInputRows(value, start(sim))
    } else {
-     object@inputs <- value
+     sim@inputs <- value
    }
    # Deal with objects and files differently... if files (via inputs arg in simInit)...
      # Deal with file names
      # 2 things: 1. if relative, concatenate inputPath
      #           2. if absolute, don't use inputPath
    if (NROW(value) > 0) {
-     object@inputs[is.na(object@inputs$file), "file"] <- NA
+     sim@inputs[is.na(sim@inputs$file), "file"] <- NA
 
      # If a filename is provided, determine if it is absolute path, if so,
-     # use that, if not, then append it to inputPath(object)
-     object@inputs[!isAbsolutePath(object@inputs$file) & !is.na(object@inputs$file), "file"] <-
-       file.path(inputPath(object),
-                 object@inputs$file[!isAbsolutePath(object@inputs$file) & !is.na(object@inputs$file)])
+     # use that, if not, then append it to inputPath(sim)
+     sim@inputs[!isAbsolutePath(sim@inputs$file) & !is.na(sim@inputs$file), "file"] <-
+       file.path(inputPath(sim),
+                 sim@inputs$file[!isAbsolutePath(sim@inputs$file) & !is.na(sim@inputs$file)])
 
-     if (!all(names(object@inputs) %in% .fileTableInCols)) {
+     if (!all(names(sim@inputs) %in% .fileTableInCols)) {
        stop(paste("input table can only have columns named",
                   paste(.fileTableInCols, collapse = ", ")))
      }
-     if (any(is.na(object@inputs[, "loaded"]))) {
-       if (!all(is.na(object@inputs[, "loadTime"]))) {
-         newTime <- object@inputs[is.na(object@inputs$loaded), "loadTime"]
-         attributes(newTime)$unit <- timeunit(object)
+     if (any(is.na(sim@inputs[, "loaded"]))) {
+       if (!all(is.na(sim@inputs[, "loadTime"]))) {
+         newTime <- sim@inputs[is.na(sim@inputs$loaded), "loadTime"]
+         attributes(newTime)$unit <- sim@simtimes[["timeunit"]]
          for (nT in newTime) {
-           attributes(nT)$unit <- timeunit(object)
-           object <- scheduleEvent(object, nT, "load", "inputs", .first())
+           attributes(nT)$unit <- timeunit(sim)
+           sim <- scheduleEvent(sim, nT, "load", "inputs", .first())
          }
-         toRemove <- duplicated(rbindlist(list(current(object), events(object))),
+         toRemove <- duplicated(rbindlist(list(current(sim), events(sim))),
                                 by = c("eventTime", "moduleName", "eventType"))
          if (any(toRemove)) {
-           if (NROW(current(object)) > 0)
-             toRemove <- toRemove[-seq_len(NROW(current(object)))]
-           events(object) <- events(object)[!toRemove]
+           if (NROW(current(sim)) > 0)
+             toRemove <- toRemove[-seq_len(NROW(current(sim)))]
+           events(sim) <- events(sim)[!toRemove]
          }
 
        } else {
-         object@inputs[is.na(object@inputs$loadTime), "loadTime"] <-
-           time(object, "seconds")
-         newTime <- object@inputs[is.na(object@inputs$loaded), "loadTime"] %>%
+         sim@inputs[is.na(sim@inputs$loadTime), "loadTime"] <-
+           sim@simtimes[["current"]]
+         newTime <- sim@inputs[is.na(sim@inputs$loaded), "loadTime"] %>%
            min(., na.rm = TRUE)
          attributes(newTime)$unit <- "seconds"
-         object <- scheduleEvent(object, newTime, "load", "inputs", .first())
+         sim <- scheduleEvent(sim, newTime, "load", "inputs", .first())
        }
      }
    }
 
-   return(object)
+   return(sim)
 })
 
 ################################################################################
@@ -1305,7 +1307,7 @@ setReplaceMethod(
 #' }
 #' # Clean up after
 #' unlink(tmpdir, recursive = TRUE)
-setGeneric("outputs", function(object) {
+setGeneric("outputs", function(sim) {
   standardGeneric("outputs")
 })
 
@@ -1313,27 +1315,27 @@ setGeneric("outputs", function(object) {
 #' @rdname simList-accessors-inout
 setMethod("outputs",
           signature = ".simList",
-          definition = function(object) {
-            simUnit <- timeunit(object)
-            saveTimeUnit <- attr(object@outputs$saveTime, "unit")
+          definition = function(sim) {
+            simUnit <- sim@simtimes[["timeunit"]]
+            saveTimeUnit <- attr(sim@outputs$saveTime, "unit")
             if (is.null(saveTimeUnit)) saveTimeUnit <- simUnit
 
             out <- if (is.na(pmatch(saveTimeUnit, simUnit)) &
-                       length(object@outputs$saveTime) > 0) {
+                       length(sim@outputs$saveTime) > 0) {
               #note the above line captures empty saveTime,
               # whereas is.na does not
-              if (any(!is.na(object@outputs$saveTime))) {
-                if (!is.null(object@outputs$saveTime)) {
-                  obj <- data.table::copy(object@outputs) # don't change original object
-                  obj[,saveTime := convertTimeunit(saveTime, unit, envir(object))]
+              if (any(!is.na(sim@outputs$saveTime))) {
+                if (!is.null(sim@outputs$saveTime)) {
+                  obj <- data.table::copy(sim@outputs) # don't change original sim
+                  obj[,saveTime := convertTimeunit(saveTime, unit, sim@.envir)]
                   obj[]
                   obj
                 }
               } else {
-                object@outputs
+                sim@outputs
               }
             } else {
-              object@outputs
+              sim@outputs
             }
             return(out)
 })
@@ -1341,7 +1343,7 @@ setMethod("outputs",
 #' @export
 #' @rdname simList-accessors-inout
 setGeneric("outputs<-",
-           function(object, value) {
+           function(sim, value) {
              standardGeneric("outputs<-")
 })
 
@@ -1352,7 +1354,7 @@ setGeneric("outputs<-",
 setReplaceMethod(
   "outputs",
   signature = ".simList",
-  function(object, value) {
+  function(sim, value) {
     if (NROW(value)) {
        if (!is.data.frame(value)) {
          if (!is.list(value)) {
@@ -1361,69 +1363,69 @@ setReplaceMethod(
          value <- data.frame(value, stringsAsFactors = FALSE)
        }
 
-       object@outputs <- .fillOutputRows(value, end(object))
+       sim@outputs <- .fillOutputRows(value, end(sim))
 
        # coerce any factors to the correct class
-       for (col in which(sapply(object@outputs, is.factor))) {
-         object@outputs[,col] <- as(object@outputs[[col]], class(.fileTableOut()[[col]]))
+       for (col in which(sapply(sim@outputs, is.factor))) {
+         sim@outputs[,col] <- as(sim@outputs[[col]], class(.fileTableOut()[[col]]))
        }
 
-       # if saveTime not provided, give it end(object)
-       object@outputs[is.na(object@outputs$saveTime), "saveTime"] <-
-         end(object, timeunit(object))
-       attributes(object@outputs$saveTime)$unit <- timeunit(object)
+       # if saveTime not provided, give it end(sim)
+       sim@outputs[is.na(sim@outputs$saveTime), "saveTime"] <-
+         end(sim, sim@simtimes[["timeunit"]])
+       attributes(sim@outputs$saveTime)$unit <- sim@simtimes[["timeunit"]]
 
        # Deal with file names
        # 3 things: 1. if relative, concatenate outputPath
        #           2. if absolute, don't use outputPath
        #           3. concatenate time to file name in all cases
        # If no filename provided, use the object name
-       object@outputs[is.na(object@outputs$file), "file"] <-
-         paste0(object@outputs$objectName[is.na(object@outputs$file)])
+       sim@outputs[is.na(sim@outputs$file), "file"] <-
+         paste0(sim@outputs$objectName[is.na(sim@outputs$file)])
        # If a filename is provided, determine if it is absolute path, if so,
-       # use that, if not, then append it to outputPath(object)
-       object@outputs[!isAbsolutePath(object@outputs$file), "file"] <-
-         file.path(outputPath(object),
-                   object@outputs$file[!isAbsolutePath(object@outputs$file)])
+       # use that, if not, then append it to outputPath(sim)
+       sim@outputs[!isAbsolutePath(sim@outputs$file), "file"] <-
+         file.path(outputPath(sim),
+                   sim@outputs$file[!isAbsolutePath(sim@outputs$file)])
 
        # If there is no function provided, then use saveRDS, from package base
-       object@outputs[is.na(object@outputs$fun), "fun"] <- "saveRDS"
-       object@outputs[is.na(object@outputs$package), "package"] <- "base"
+       sim@outputs[is.na(sim@outputs$fun), "fun"] <- "saveRDS"
+       sim@outputs[is.na(sim@outputs$package), "package"] <- "base"
 
        # file extension stuff
        fileExts <- .saveFileExtensions()
-       fe <- suppressMessages(inner_join(object@outputs, fileExts)$exts)
-       wh <- !stri_detect_fixed(str = object@outputs$file, pattern = ".") &
+       fe <- suppressMessages(inner_join(sim@outputs, fileExts)$exts)
+       wh <- !stri_detect_fixed(str = sim@outputs$file, pattern = ".") &
          (nchar(fe) > 0)
-       object@outputs[wh, "file"] <- paste0(object@outputs[wh, "file"], ".", fe[wh])
+       sim@outputs[wh, "file"] <- paste0(sim@outputs[wh, "file"], ".", fe[wh])
 
        # If the file name already has a time unit on it,
        # i.e., passed explicitly by user, then don't postpend again
-       txtTimeA <- paste0(attr(object@outputs[, "saveTime"], "unit"))
+       txtTimeA <- paste0(attr(sim@outputs[, "saveTime"], "unit"))
        txtTimeB <- paddedFloatToChar(
-         object@outputs[, "saveTime"],
-         ceiling(log10(end(object, timeunit(object)) + 1))
+         sim@outputs[, "saveTime"],
+         ceiling(log10(end(sim, sim@simtimes[["timeunit"]]) + 1))
        )
        # Add time unit and saveTime to filename, without stripping extension
-       wh <- !stri_detect_fixed(str = object@outputs$file,pattern = txtTimeA)
-       object@outputs[wh, "file"] <- paste0(
-         file_path_sans_ext(object@outputs[wh, "file"]),
+       wh <- !stri_detect_fixed(str = sim@outputs$file,pattern = txtTimeA)
+       sim@outputs[wh, "file"] <- paste0(
+         file_path_sans_ext(sim@outputs[wh, "file"]),
          "_", txtTimeA, txtTimeB[wh],
-         ifelse(nchar(file_ext(object@outputs[wh, "file"])) > 0, ".", ""),
-         ifelse(nchar(file_ext(object@outputs[wh, "file"])) > 0,
-                file_ext(object@outputs[wh, "file"]),
+         ifelse(nchar(file_ext(sim@outputs[wh, "file"])) > 0, ".", ""),
+         ifelse(nchar(file_ext(sim@outputs[wh, "file"])) > 0,
+                file_ext(sim@outputs[wh, "file"]),
                 "")
        )
      } else {
-       object@outputs <- value
+       sim@outputs <- value
      }
 
-     if (!all(.fileTableOutCols %in% names(object@outputs))) {
+     if (!all(.fileTableOutCols %in% names(sim@outputs))) {
        stop(paste("output table must have columns named",
                   paste(.fileTableOutCols, collapse = ", ")))
      }
 
-    return(object)
+    return(sim)
 })
 
 ################################################################################
@@ -1437,7 +1439,7 @@ setReplaceMethod(
 #' @docType methods
 #' @rdname simList-accessors-inout
 #'
-setGeneric("inputArgs", function(object) {
+setGeneric("inputArgs", function(sim) {
   standardGeneric("inputArgs")
 })
 
@@ -1445,14 +1447,14 @@ setGeneric("inputArgs", function(object) {
 #' @rdname simList-accessors-inout
 setMethod("inputArgs",
           signature = ".simList",
-          definition = function(object) {
-            return(object@inputs$args)
+          definition = function(sim) {
+            return(sim@inputs$args)
 })
 
 #' @export
 #' @rdname simList-accessors-inout
 setGeneric("inputArgs<-",
-           function(object, value) {
+           function(sim, value) {
              standardGeneric("inputArgs<-")
 })
 
@@ -1463,17 +1465,17 @@ setGeneric("inputArgs<-",
 setReplaceMethod(
   "inputArgs",
   signature = ".simList",
-  function(object, value) {
+  function(sim, value) {
    if (is.list(value) & !is.data.frame(value)) {
-     object@inputs$args <- value
+     sim@inputs$args <- value
    } else if (is.null(value)) {
-     object@inputs$args <- rep(list(NULL), NROW(inputs(object)))
+     sim@inputs$args <- rep(list(NULL), NROW(inputs(sim)))
    } else {
      stop("value passed to inputArgs() must be a list of named elements")
    }
 
-   validObject(object)
-   return(object)
+   validObject(sim)
+   return(sim)
 })
 
 #' @inheritParams inputs
@@ -1482,7 +1484,7 @@ setReplaceMethod(
 #' @docType methods
 #' @rdname simList-accessors-inout
 #'
-setGeneric("outputArgs", function(object) {
+setGeneric("outputArgs", function(sim) {
   standardGeneric("outputArgs")
 })
 
@@ -1490,14 +1492,14 @@ setGeneric("outputArgs", function(object) {
 #' @rdname simList-accessors-inout
 setMethod("outputArgs",
           signature = ".simList",
-          definition = function(object) {
-            return(object@outputs$arg)
+          definition = function(sim) {
+            return(sim@outputs$arg)
 })
 
 #' @export
 #' @rdname simList-accessors-inout
 setGeneric("outputArgs<-",
-           function(object, value) {
+           function(sim, value) {
              standardGeneric("outputArgs<-")
 })
 
@@ -1508,17 +1510,17 @@ setGeneric("outputArgs<-",
 setReplaceMethod(
   "outputArgs",
   signature = ".simList",
-  function(object, value) {
+  function(sim, value) {
     argName <- .fileTableOutCols[pmatch("arg", .fileTableOutCols)]
    if (is.list(value) & !is.data.frame(value)) {
-     object@outputs[[argName]] = value
+     sim@outputs[[argName]] = value
    } else if (is.null(value)) {
-     object@outputs[[argName]] = rep(list(NULL), NROW(outputs(object)))
+     sim@outputs[[argName]] = rep(list(NULL), NROW(outputs(sim)))
    } else {
      stop("value passed to outputArgs() must be a list of named elements")
    }
-   validObject(object)
-   return(object)
+   validObject(sim)
+   return(sim)
 })
 
 ################################################################################
@@ -1557,7 +1559,7 @@ setReplaceMethod(
 #' @aliases simList-accessors-paths
 #' @rdname simList-accessors-paths
 #'
-setGeneric("paths", function(object) {
+setGeneric("paths", function(sim) {
   standardGeneric("paths")
 })
 
@@ -1565,14 +1567,14 @@ setGeneric("paths", function(object) {
 #' @rdname simList-accessors-paths
 setMethod("paths",
           signature = ".simList",
-          definition = function(object) {
-            return(object@paths)
+          definition = function(sim) {
+            return(sim@paths)
 })
 
 #' @export
 #' @rdname simList-accessors-paths
 setGeneric("paths<-",
-           function(object, value) {
+           function(sim, value) {
              standardGeneric("paths<-")
 })
 
@@ -1583,33 +1585,55 @@ setGeneric("paths<-",
 setReplaceMethod(
   "paths",
   signature = ".simList",
-  function(object, value) {
+  function(sim, value) {
     N <- 4 # total number of named paths (cache, madule, input, output)
 
     # get named elements and their position in value list
-    wh <- pmatch(c("c", "m", "i", "o"), names(value))
+    wh <- pmatch(names(sim@paths), names(value)) # always length 4, NA if no name match, number if yes
+    whValueNamed <- which(!is.na(pmatch(names(value), names(sim@paths)))) # length of names of value
+    whValueUnnamed <- rep(TRUE, length(value))
+    if(length(whValueNamed)) whValueUnnamed[whValueNamed] <- FALSE
+
 
     # keep named elements, use unnamed in remaining order:
-    #  cache, module, input, output
+    #  cache, input, module, output
+    # if (length(na.omit(wh)) < length(value)) {
+    #   wh1 <- !(wh[1:length(value)] %in% (1:N)[1:length(value)])
+    #   wh2 <- !((1:N)[1:length(value)] %in% wh[1:length(value)])
+    #   if (length(wh1) < N) wh1 <- c(wh1, rep(FALSE, N - length(wh1)))
+    #   if (length(wh2) < N) wh2 <- c(wh2, rep(FALSE, N - length(wh2)))
+    #   wh[wh1] <- (1:N)[wh2]
+    # }
+
+    # start with .paths()
+    emptyOnes <- unlist(lapply(sim@paths, is.null))
+    if(sum(emptyOnes)>0)
+      sim@paths[emptyOnes] <- .paths()[emptyOnes]
+
+    # override with named ones
+    sim@paths[!is.na(wh)] <- value[na.omit(wh)]
+
+    #sim@paths[is.na(wh)] <- .paths()[is.na(wh)]
+    # keep named elements, use unnamed in remaining order:
+    #  cache, input, module, output
     if (length(na.omit(wh)) < length(value)) {
-      wh1 <- !(wh[1:length(value)] %in% (1:N)[1:length(value)])
-      wh2 <- !((1:N)[1:length(value)] %in% wh[1:length(value)])
-      if (length(wh1) < N) wh1 <- c(wh1, rep(FALSE, N - length(wh1)))
-      if (length(wh2) < N) wh2 <- c(wh2, rep(FALSE, N - length(wh2)))
-      wh[wh1] <- (1:N)[wh2]
+      whichNamed <- which(!is.na(wh))
+      whichUnnamed <- (1:length(sim@paths))
+      if(length(whichNamed)>0) whichUnnamed <- whichUnnamed[-whichNamed]
+      sim@paths[whichUnnamed][seq_len(sum(whValueUnnamed))] <- value[whValueUnnamed]
     }
 
-    object@paths[!is.na(wh)] <- value[na.omit(wh)]
-    object@paths[is.na(wh)] <- lapply(object@paths[is.na(wh)], function(x) getwd())
-
-    names(object@paths) <- c("cachePath", "modulePath", "inputPath", "outputPath")
-    if (is(try(archivist::showLocalRepo(paths(object)$cachePath),
+    #names(sim@paths) <- c("cachePath", "modulePath", "inputPath", "outputPath")
+    if (is(try(archivist::showLocalRepo(sim@paths$cachePath),
                silent = TRUE),
-           "try-error"))
-      archivist::createLocalRepo(paths(object)$cachePath)
+           "try-error")) {
 
-    validObject(object)
-    return(object)
+      checkPath(sim@paths$cachePath, create = TRUE)
+      archivist::createLocalRepo(sim@paths$cachePath, force = TRUE)
+    }
+
+    validObject(sim)
+    return(sim)
 })
 
 ################################################################################
@@ -1619,7 +1643,7 @@ setReplaceMethod(
 #' @docType methods
 #' @rdname simList-accessors-paths
 #'
-setGeneric("cachePath", function(object) {
+setGeneric("cachePath", function(sim) {
   standardGeneric("cachePath")
 })
 
@@ -1627,14 +1651,14 @@ setGeneric("cachePath", function(object) {
 #' @rdname simList-accessors-paths
 setMethod("cachePath",
           signature = ".simList",
-          definition = function(object) {
-            return(object@paths$cachePath)
+          definition = function(sim) {
+            return(sim@paths$cachePath)
 })
 
 #' @export
 #' @rdname simList-accessors-paths
 setGeneric("cachePath<-",
-           function(object, value) {
+           function(sim, value) {
              standardGeneric("cachePath<-")
 })
 
@@ -1645,10 +1669,10 @@ setGeneric("cachePath<-",
 setReplaceMethod(
   "cachePath",
   signature = ".simList",
-  function(object, value) {
-    object@paths$cachePath <- unname(unlist(value))
-    validObject(object)
-    return(object)
+  function(sim, value) {
+    sim@paths$cachePath <- unname(unlist(value))
+    validObject(sim)
+    return(sim)
 })
 
 ################################################################################
@@ -1658,7 +1682,7 @@ setReplaceMethod(
 #' @docType methods
 #' @rdname simList-accessors-paths
 #'
-setGeneric("inputPath", function(object) {
+setGeneric("inputPath", function(sim) {
   standardGeneric("inputPath")
 })
 
@@ -1666,14 +1690,14 @@ setGeneric("inputPath", function(object) {
 #' @rdname simList-accessors-paths
 setMethod("inputPath",
           signature = ".simList",
-          definition = function(object) {
-            return(object@paths$inputPath)
+          definition = function(sim) {
+            return(sim@paths$inputPath)
 })
 
 #' @export
 #' @rdname simList-accessors-paths
 setGeneric("inputPath<-",
-           function(object, value) {
+           function(sim, value) {
              standardGeneric("inputPath<-")
 })
 
@@ -1684,10 +1708,10 @@ setGeneric("inputPath<-",
 setReplaceMethod(
   "inputPath",
   signature = ".simList",
-  function(object, value) {
-    object@paths$inputPath <- unname(unlist(value))
-    validObject(object)
-    return(object)
+  function(sim, value) {
+    sim@paths$inputPath <- unname(unlist(value))
+    validObject(sim)
+    return(sim)
 })
 
 ################################################################################
@@ -1697,7 +1721,7 @@ setReplaceMethod(
 #' @docType methods
 #' @rdname simList-accessors-paths
 #'
-setGeneric("outputPath", function(object) {
+setGeneric("outputPath", function(sim) {
   standardGeneric("outputPath")
 })
 
@@ -1705,14 +1729,14 @@ setGeneric("outputPath", function(object) {
 #' @rdname simList-accessors-paths
 setMethod("outputPath",
           signature = ".simList",
-          definition = function(object) {
-            return(object@paths$outputPath)
+          definition = function(sim) {
+            return(sim@paths$outputPath)
 })
 
 #' @export
 #' @rdname simList-accessors-paths
 setGeneric("outputPath<-",
-           function(object, value) {
+           function(sim, value) {
              standardGeneric("outputPath<-")
 })
 
@@ -1722,18 +1746,18 @@ setGeneric("outputPath<-",
 #' @export
 setReplaceMethod("outputPath",
                  signature = ".simList",
-                 function(object, value) {
-                   object@paths$outputPath <- unname(unlist(value))
-                   checkPath(object@paths$outputPath, create = TRUE)
-                   if (NROW(outputs(object)) > 0) {
-                     if ("saved" %in% colnames(outputs(object))) {
-                       notYetSaved <- !outputs(object)$saved | is.na(outputs(object)$saved)
-                       outputs(object)$file[notYetSaved] <-
-                         file.path(object@paths$outputPath, basename(outputs(object)$file[notYetSaved]))
+                 function(sim, value) {
+                   sim@paths$outputPath <- unname(unlist(value))
+                   checkPath(sim@paths$outputPath, create = TRUE)
+                   if (NROW(outputs(sim)) > 0) {
+                     if ("saved" %in% colnames(outputs(sim))) {
+                       notYetSaved <- !outputs(sim)$saved | is.na(outputs(sim)$saved)
+                       outputs(sim)$file[notYetSaved] <-
+                         file.path(sim@paths$outputPath, basename(outputs(sim)$file[notYetSaved]))
                      }
                    }
-                   validObject(object)
-                   return(object)
+                   validObject(sim)
+                   return(sim)
 })
 
 ################################################################################
@@ -1743,7 +1767,7 @@ setReplaceMethod("outputPath",
 #' @docType methods
 #' @rdname simList-accessors-paths
 #'
-setGeneric("modulePath", function(object) {
+setGeneric("modulePath", function(sim) {
   standardGeneric("modulePath")
 })
 
@@ -1751,14 +1775,14 @@ setGeneric("modulePath", function(object) {
 #' @rdname simList-accessors-paths
 setMethod("modulePath",
           signature = ".simList",
-          definition = function(object) {
-            return(object@paths$modulePath)
+          definition = function(sim) {
+            return(sim@paths$modulePath)
 })
 
 #' @export
 #' @rdname simList-accessors-paths
 setGeneric("modulePath<-",
-           function(object, value) {
+           function(sim, value) {
              standardGeneric("modulePath<-")
 })
 
@@ -1769,10 +1793,10 @@ setGeneric("modulePath<-",
 setReplaceMethod(
   "modulePath",
   signature = ".simList",
-  function(object, value) {
-    object@paths$modulePath <- unname(unlist(value))
-    validObject(object)
-    return(object)
+  function(sim, value) {
+    sim@paths$modulePath <- unname(unlist(value))
+    validObject(sim)
+    return(sim)
 })
 
 ################################################################################
@@ -1800,7 +1824,7 @@ setReplaceMethod(
 #'    \code{times} \tab List of all simulation times (current, start, end, timeunit).\cr
 #' }
 #'
-#' @param x      A \code{simList} simulation object.
+#' @inheritParams objs
 #'
 #' @param unit   Character. One of the time units used in \code{SpaDES}.
 #'
@@ -1839,8 +1863,8 @@ setMethod(
     if (is.null(mUnit)) {
       mUnit <- NA_character_
     }
-    t <- list(current = time(x, timeunit(x)), start = start(x, timeunit(x)),
-           end = end(x, timeunit(x)), timeunit = timeunit(x))
+    t <- list(current = time(x, x@simtimes[["timeunit"]]), start = start(x, x@simtimes[["timeunit"]]),
+           end = end(x, x@simtimes[["timeunit"]]), timeunit = x@simtimes[["timeunit"]])
     return(t)
 })
 
@@ -1873,9 +1897,9 @@ setReplaceMethod(
      if (is.null(attributes(value$end)$unit))
        attributes(value$end)$unit <- value$timeunit
 
-     x@simtimes$current <- convertTimeunit(value$current, "second", envir(x))
-     x@simtimes$start <- convertTimeunit(value$start, "second", envir(x))
-     x@simtimes$end <- convertTimeunit(value$end, "second", envir(x))
+     x@simtimes$current <- convertTimeunit(value$current, "second", x@.envir)
+     x@simtimes$start <- convertTimeunit(value$start, "second", x@.envir)
+     x@simtimes$end <- convertTimeunit(value$end, "second", x@.envir)
      x@simtimes$timeunit <- value$timeunit
 
      validObject(x)
@@ -1919,7 +1943,7 @@ setMethod(
     if (!is.na(unit)) {
       if (is.na(pmatch("second", unit))) {
         # i.e., if not in same units as simulation
-        t <- convertTimeunit(x@simtimes$current, unit, envir(x))
+        t <- convertTimeunit(x@simtimes$current, unit, x@.envir)
         return(t)
       }
     }
@@ -1942,9 +1966,9 @@ setReplaceMethod(
    signature = ".simList",
    function(x, value) {
      if (is.null(attributes(value)$unit)) {
-       attributes(value)$unit <- timeunit(x)
+       attributes(value)$unit <- x@simtimes[["timeunit"]]
      }
-     x@simtimes$current <- convertTimeunit(value, "second", envir(x))
+     x@simtimes$current <- convertTimeunit(value, "second", x@.envir)
 
      if (!is.numeric(x@simtimes$current)) stop("time must be a numeric")
      if (!any(pmatch(.spadesTimes, attr(x@simtimes$current, "unit")))) {
@@ -1992,7 +2016,7 @@ setMethod(
 
         #if (!str_detect("^seconds?$", pattern = unit)) {
         # i.e., if not in same units as simulation
-        t <- convertTimeunit(x@simtimes$end, unit, envir(x))
+        t <- convertTimeunit(x@simtimes$end, unit, x@.envir)
         return(t)
       }
     }
@@ -2016,9 +2040,9 @@ setReplaceMethod(
   function(x, value) {
     # convert time units, if required
     if (is.null(attributes(value)$unit)) {
-      attributes(value)$unit <- timeunit(x)
+      attributes(value)$unit <- x@simtimes[["timeunit"]]
     }
-    x@simtimes$end <- convertTimeunit(value, "second", envir(x))
+    x@simtimes$end <- convertTimeunit(value, "second", x@.envir)
     validObject(x)
     return(x)
 })
@@ -2058,7 +2082,7 @@ setMethod(
     if (!is.na(unit)) {
       if (is.na(pmatch("second", unit))) {
         # i.e., if not in same units as simulation
-        t <- convertTimeunit(x@simtimes$start, unit, envir(x))
+        t <- convertTimeunit(x@simtimes$start, unit, x@.envir)
         return(t)
       }
     }
@@ -2081,9 +2105,9 @@ setReplaceMethod(
    function(x, value) {
      # convert time units, if required
      if (is.null(attributes(value)$unit)) {
-       attributes(value)$unit <- timeunit(x)
+       attributes(value)$unit <- x@simtimes[["timeunit"]]
      }
-     x@simtimes$start <- convertTimeunit(value, "second", envir(x))
+     x@simtimes$start <- convertTimeunit(value, "second", x@.envir)
      validObject(x)
      return(x)
 })
@@ -2111,7 +2135,7 @@ setMethod(
     out <- if (!is.na(mod)) {
       timeunits(x)[[mod]]
     } else {
-      timeunit(x)
+      x@simtimes[["timeunit"]]
     }
     return(out)
 })
@@ -2189,7 +2213,7 @@ setReplaceMethod(
 #     if (any(str_detect(.spadesTimes, pattern = value), na.rm = TRUE)) {
 #       x@simtimes$timeunit <- value
 #     } else
-    if (checkTimeunit(value, envir = envir(x))) {
+    if (checkTimeunit(value, envir = x@.envir)) {
         x@simtimes$timeunit <- value
     } else {
       x@simtimes$timeunit <- NA_character_
@@ -2267,7 +2291,7 @@ setMethod(
 #'          \code{eventType} \tab A character string for the programmer-defined event type.\cr
 #'        }
 #'
-#' @param object A \code{simList} simulation object.
+#' @inheritParams objs
 #'
 #' @param unit   Character. One of the time units used in \code{SpaDES}.
 #'
@@ -2287,7 +2311,7 @@ setMethod(
 #' @aliases simList-accessors-events
 #' @rdname simList-accessors-events
 #'
-setGeneric("events", function(object, unit) {
+setGeneric("events", function(sim, unit) {
   standardGeneric("events")
 })
 
@@ -2296,24 +2320,24 @@ setGeneric("events", function(object, unit) {
 setMethod(
   "events",
   signature = c(".simList", "character"),
-  definition = function(object, unit) {
+  definition = function(sim, unit) {
 
     out <- if (is.na(pmatch("second", unit)) &
-               (length(object@events$eventTime) > 0)) {
+               (length(sim@events$eventTime) > 0)) {
       #note the above line captures empty eventTime,
       # whereas is.na does not
-      if (any(!is.na(object@events$eventTime))) {
-        if (!is.null(object@events$eventTime)) {
-          obj <- data.table::copy(object@events) # don't change original object
-          obj[, eventTime := convertTimeunit(eventTime, unit, envir(object))]
+      if (any(!is.na(sim@events$eventTime))) {
+        if (!is.null(sim@events$eventTime)) {
+          obj <- data.table::copy(sim@events) # don't change original sim
+          obj[, eventTime := convertTimeunit(eventTime, unit, sim@.envir)]
           obj[]
           obj
         }
       } else {
-        object@events
+        sim@events
       }
     } else {
-      object@events
+      sim@events
     }
 
     return(out)
@@ -2323,15 +2347,15 @@ setMethod(
 #' @rdname simList-accessors-events
 setMethod("events",
           signature = c(".simList", "missing"),
-          definition = function(object, unit) {
-            res <- events(object, timeunit(object))
+          definition = function(sim, unit) {
+            res <- events(sim, sim@simtimes[["timeunit"]])
             return(res)
 })
 
 #' @export
 #' @rdname simList-accessors-events
 setGeneric("events<-",
-           function(object, value) {
+           function(sim, value) {
              standardGeneric("events<-")
 })
 
@@ -2342,20 +2366,20 @@ setGeneric("events<-",
 setReplaceMethod(
   "events",
    signature = ".simList",
-   function(object, value) {
+   function(sim, value) {
      if (!is(value, "data.table")) stop("Event queue must be a data.table")
      if (!identical(names(value), .emptyEventListCols))
        stop("Event queue must be a data.table with columns: ",
             paste(.emptyEventListCols, collapse = ", "), ".")
      if (is.null(attributes(value$eventTime)$unit)) {
-       attributes(value$eventTime)$unit <- timeunit(object)
+       attributes(value$eventTime)$unit <- sim@simtimes[["timeunit"]]
      }
      if (is.na(pmatch("second", attributes(value$eventTime)$unit))) {
-       value[, eventTime := convertTimeunit(eventTime, "second", envir(object))]
+       value[, eventTime := convertTimeunit(eventTime, "second", sim@.envir)]
      }
 
-     object@events <- value
-     return(object)
+     sim@events <- value
+     return(sim)
 })
 
 ################################################################################
@@ -2368,7 +2392,7 @@ setReplaceMethod(
 #' @docType methods
 #' @rdname simList-accessors-events
 #'
-setGeneric("current", function(object, unit) {
+setGeneric("current", function(sim, unit) {
   standardGeneric("current")
 })
 
@@ -2377,21 +2401,21 @@ setGeneric("current", function(object, unit) {
 setMethod(
   "current",
   signature = c(".simList", "character"),
-  definition = function(object, unit) {
-    out <- if (is.na(pmatch("second", unit)) & (length(object@current$eventTime))) {
+  definition = function(sim, unit) {
+    out <- if (is.na(pmatch("second", unit)) & (length(sim@current$eventTime))) {
       # note the above line captures empty eventTime, whereas `is.na` does not
-      if (any(!is.na(object@current$eventTime))) {
-        if (!is.null(object@current$eventTime)) {
-          obj <- data.table::copy(object@current) # don't change original object
-          obj[, eventTime := convertTimeunit(eventTime, unit, envir(object))]
+      if (any(!is.na(sim@current$eventTime))) {
+        if (!is.null(sim@current$eventTime)) {
+          obj <- data.table::copy(sim@current) # don't change original sim
+          obj[, eventTime := convertTimeunit(eventTime, unit, sim@.envir)]
           obj[]
           obj
         }
       } else {
-        object@current
+        sim@current
       }
     } else {
-      object@current
+      sim@current
     }
     return(out)
 })
@@ -2400,15 +2424,15 @@ setMethod(
 #' @rdname simList-accessors-events
 setMethod("current",
           signature = c(".simList", "missing"),
-          definition = function(object, unit) {
-            out <- current(object, timeunit(object))
+          definition = function(sim, unit) {
+            out <- current(sim, sim@simtimes[["timeunit"]])
             return(out)
 })
 
 #' @export
 #' @rdname simList-accessors-events
 setGeneric("current<-",
-           function(object, value) {
+           function(sim, value) {
              standardGeneric("current<-")
 })
 
@@ -2418,14 +2442,14 @@ setGeneric("current<-",
 #' @rdname simList-accessors-events
 setReplaceMethod("current",
                  signature = ".simList",
-                 function(object, value) {
+                 function(sim, value) {
                    if (!is(value, "data.table")) stop("Event queue must be a data.table")
                    if (!identical(names(value), .emptyEventListCols)) {
                      stop("Event queue must be a data.table with columns: ",
                           paste(.emptyEventListCols, collapse = ", "), ".")
                    }
-                   object@current <- value
-                   return(object)
+                   sim@current <- value
+                   return(sim)
 })
 
 ################################################################################
@@ -2438,7 +2462,7 @@ setReplaceMethod("current",
 #' @docType methods
 #' @rdname simList-accessors-events
 #'
-setGeneric("completed", function(object, unit) {
+setGeneric("completed", function(sim, unit) {
   standardGeneric("completed")
 })
 
@@ -2447,21 +2471,21 @@ setGeneric("completed", function(object, unit) {
 setMethod(
   "completed",
   signature = c(".simList", "character"),
-  definition = function(object, unit) {
-    out <- if (is.na(pmatch("second", unit)) & (length(object@completed$eventTime))) {
+  definition = function(sim, unit) {
+    out <- if (is.na(pmatch("second", unit)) & (length(sim@completed$eventTime))) {
       # note the above line captures empty eventTime, whereas `is.na` does not
-      if (any(!is.na(object@completed$eventTime))) {
-        if (!is.null(object@completed$eventTime)) {
-          obj <- data.table::copy(object@completed) # don't change original object
-          obj[, eventTime := convertTimeunit(eventTime, unit, envir(object))]
+      if (any(!is.na(sim@completed$eventTime))) {
+        if (!is.null(sim@completed$eventTime)) {
+          obj <- data.table::copy(sim@completed) # don't change original sim
+          obj[, eventTime := convertTimeunit(eventTime, unit, sim@.envir)]
           obj[]
           obj
         }
       } else {
-        object@completed
+        sim@completed
       }
     } else {
-      object@completed
+      sim@completed
     }
     return(out)
 })
@@ -2470,15 +2494,15 @@ setMethod(
 #' @rdname simList-accessors-events
 setMethod("completed",
           signature = c(".simList", "missing"),
-          definition = function(object, unit) {
-            out <- completed(object, timeunit(object))
+          definition = function(sim, unit) {
+            out <- completed(sim, sim@simtimes[["timeunit"]])
             return(out)
 })
 
 #' @export
 #' @rdname simList-accessors-events
 setGeneric("completed<-",
-           function(object, value) {
+           function(sim, value) {
              standardGeneric("completed<-")
 })
 
@@ -2488,14 +2512,14 @@ setGeneric("completed<-",
 #' @rdname simList-accessors-events
 setReplaceMethod("completed",
                  signature = ".simList",
-                 function(object, value) {
+                 function(sim, value) {
                    if (!is(value, "data.table")) stop("Completed queue must be a data.table")
                    if (!identical(names(value), .emptyEventListCols)) {
                      stop("Event queue must be a data.table with columns, ",
                           paste(.emptyEventListCols, collapse = ", "), ".")
                    }
-                   object@completed <- value
-                   return(object)
+                   sim@completed <- value
+                   return(sim)
 })
 
 ################################################################################
@@ -2504,7 +2528,7 @@ setReplaceMethod("completed",
 #' Internal function.
 #' Adds a \code{\link{.moduleDeps}} object to the simulation dependency list.
 #'
-#' @param sim A \code{simList} object.
+#' @inheritParams objs
 #'
 #' @param x   A named list containing the parameters used to construct a new
 #'            \code{\link{.moduleDeps}} object.
@@ -2543,7 +2567,7 @@ setMethod(
 ################################################################################
 #' Get simulation package dependencies
 #'
-#' @param sim A \code{simList} object.
+#' @inheritParams objs
 #'
 #' @return A sorted character vector of package names.
 #'
@@ -2671,7 +2695,9 @@ setMethod(
 #'                              \code{simList}.\cr
 #' }
 #'
-#' @inheritParams .addDepends
+#' @inheritParams objs
+#'
+#' @param x A list with a number of named elements, refered to as the metadata. See details.
 #'
 #' @return Updated \code{simList} object.
 #'
@@ -2880,7 +2906,7 @@ setMethod(
       lapply(x$childModules, function(y) {
         if (file.exists(file.path(modulePath(sim), y))) {
           z <- y %>% lapply(., `attributes<-`, list(type = "child"))
-          modules(sim) <- append_attr(modules(sim, hidden = TRUE), z)
+          modules(sim) <- append_attr(sim@modules, z)
         } else {
           stop("Module ", y, "(a child module of ", x$name, ") not found in modulePath.")
         }
@@ -3265,7 +3291,7 @@ setMethod(
 #' @rdname params
 #' @export
 #' @inheritParams P
-p <- function(object, module = NULL, param = NULL) {
+p <- function(sim, module = NULL, param = NULL) {
   .Deprecated("P", old = "p")
-  P(object = object, module = module, param = param)
+  P(sim = sim, module = module, param = param)
 }

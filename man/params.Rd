@@ -14,26 +14,27 @@
 \alias{simList-accessors-params}
 \title{Get and set simulation parameters.}
 \usage{
-params(object)
+params(sim)
 
-\S4method{params}{.simList}(object)
+\S4method{params}{.simList}(sim)
 
-params(object) <- value
+params(sim) <- value
 
-\S4method{params}{.simList}(object) <- value
+\S4method{params}{.simList}(sim) <- value
 
-P(object, module = NULL, param = NULL)
+P(sim, module = NULL, param = NULL)
 
-\S4method{P}{.simList}(object, module = NULL, param = NULL)
+\S4method{P}{.simList}(sim, module = NULL, param = NULL)
 
-parameters(object, asDF = FALSE)
+parameters(sim, asDF = FALSE)
 
-\S4method{parameters}{.simList}(object, asDF = FALSE)
+\S4method{parameters}{.simList}(sim, asDF = FALSE)
 
-p(object, module = NULL, param = NULL)
+p(sim, module = NULL, param = NULL)
 }
 \arguments{
-\item{object}{A \code{simList} simulation object.}
+\item{sim}{A \code{simList} object from which to extract element(s) or
+in which to replace element(s).}
 
 \item{value}{The object to be stored at the slot.}
 
