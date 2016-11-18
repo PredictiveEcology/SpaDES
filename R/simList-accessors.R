@@ -185,7 +185,7 @@ setMethod("ls.str",
 #'
 #' Currently, only get and set methods are defined. Subset methods are not.
 #'
-#' @inheritParams objects
+#' @inheritParams objs
 #'
 #' @param value The object to be stored at the slot.
 #'
@@ -245,6 +245,8 @@ setReplaceMethod("envir",
 #' the simulation envirment.
 #'
 #' @param sim        A \code{simList} object from which to extract element(s) or
+#'                 in which to replace element(s).
+#' @param x        A \code{simList} object from which to extract element(s) or
 #'                 in which to replace element(s).
 #' @param i,j,...  Indices specifying elements to extract or replace.
 #' @param name     A literal character string or a \code{\link{name}}.
@@ -372,7 +374,7 @@ setReplaceMethod("$", signature(x = "simList", value = "ANY"),
 #'
 #' Currently, only get and set methods are defined. Subset methods are not.
 #'
-#' @inheritParams objects
+#' @inheritParams objs
 #'
 #' @param value The object to be stored at the slot.
 #'
@@ -539,7 +541,7 @@ setMethod(
 #' \code{params} and \code{P} access the parameter slot in the \code{simList}.
 #' \code{params} has a replace method, so can be used to update a parameter value.
 #'
-#' @inheritParams objects
+#' @inheritParams objs
 #'
 #' @param value The object to be stored at the slot.
 #'
@@ -978,7 +980,7 @@ setReplaceMethod("progressType",
 #'
 #' See the modules vignette for more details (\code{browseVignettes("SpaDES")}).
 #'
-#' @inheritParams objects
+#' @inheritParams objs
 #'
 #' @param value The object to be stored at the slot. See Details.
 #'
@@ -1800,7 +1802,7 @@ setReplaceMethod(
 #'    \code{times} \tab List of all simulation times (current, start, end, timeunit).\cr
 #' }
 #'
-#' @param x      A \code{simList} simulation object.
+#' @inheritParams objs
 #'
 #' @param unit   Character. One of the time units used in \code{SpaDES}.
 #'
@@ -2267,7 +2269,7 @@ setMethod(
 #'          \code{eventType} \tab A character string for the programmer-defined event type.\cr
 #'        }
 #'
-#' @inheritParams objects
+#' @inheritParams objs
 #'
 #' @param unit   Character. One of the time units used in \code{SpaDES}.
 #'
@@ -2504,7 +2506,7 @@ setReplaceMethod("completed",
 #' Internal function.
 #' Adds a \code{\link{.moduleDeps}} object to the simulation dependency list.
 #'
-#' @inheritParams objects
+#' @inheritParams objs
 #'
 #' @param x   A named list containing the parameters used to construct a new
 #'            \code{\link{.moduleDeps}} object.
@@ -2543,7 +2545,7 @@ setMethod(
 ################################################################################
 #' Get simulation package dependencies
 #'
-#' @inheritParams objects
+#' @inheritParams objs
 #'
 #' @return A sorted character vector of package names.
 #'
@@ -2671,7 +2673,9 @@ setMethod(
 #'                              \code{simList}.\cr
 #' }
 #'
-#' @inheritParams .addDepends
+#' @inheritParams objs
+#'
+#' @param x A list with a number of named elements, refered to as the metadata. See details.
 #'
 #' @return Updated \code{simList} object.
 #'
