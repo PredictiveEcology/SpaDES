@@ -48,7 +48,7 @@
 #'
 #' @section Module-level caching:
 #'
-#' Is the parameter \code{.useCache} is set to TRUE, then the \code{doEvent.moduleName}
+#' If the parameter \code{.useCache} is set to TRUE, then the \code{doEvent.moduleName}
 #' will be cached. That means taht every time that module
 #' is called from within a spades or experiment call, cache will be used. Only
 #' the objects inside the \code{simList} that correspond to the inputObjects of the
@@ -57,6 +57,20 @@
 #'
 #' In general use, module level caching would be mostly useful for modules that have
 #' no stochasticity, such as data-preparation modules, GIS modules etc.
+#'
+#' @section Event-level caching:
+#'
+#' If the parameter \code{.useCache} is set to a character or character vector,
+#' then that or those event(s) will be cached. That means taht every time the event
+#' is called from within a spades or experiment call, cache will be used. Only
+#' the objects inside the \code{simList} that correspond to the inputObjects of the
+#' module and the outputObjects to the module will be assessed for caching
+#' inputs or output, respectively. The fact that all and only the named inputObjects
+#' and outputObjects are cached and returned may be inefficient (i.e., it may
+#' cache more objects than are necessary) for individual events.
+#'
+#' In general use, event-level caching would be mostly useful for events that have
+#' no stochasticity, such as data-preparation events, GIS events etc.
 #'
 #' @section Function-level caching:
 #'
@@ -238,7 +252,7 @@ setMethod(
       lastOne <- order(isInRepo$createdDate, decreasing = TRUE)[1]
       if (is.null(notOlderThan) || (notOlderThan < lastEntry)) {
         if(grepl(format(FUN)[1], pattern= "function \\(sim, eventTime")) { # very coarse way of determining doEvent call
-          cat("Using cached copy of",cur$eventType,"event in",cur$moduleName,"module\n")
+          message("Using cached copy of ",cur$eventType," event in ",cur$moduleName," module")
         }
 
         out <- loadFromLocalRepo(isInRepo$artifact[lastOne],

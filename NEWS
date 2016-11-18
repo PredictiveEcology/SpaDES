@@ -7,8 +7,8 @@ version 1.3.1.9000
 
     * improved caching for `Raster*` objects & S4 methods - now it normally persists across sessions;
     * add `Cache` (upper case) which doesn't require `cacheRepo` if used within a module, and does not conflict with `archivist::cache`;
-    * add caching mechanism at the module-level;
     * caching overview now in cache help: `?cache` for details.
+    * add caching mechanisms at the module-level and event-level (via new *.useCache* parameter, which can be logical indicating whole module or character indicating individual events);
 
 * improved documentation
 * new function `getPaths()` to return the list of working dirs from the options

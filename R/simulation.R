@@ -1063,19 +1063,43 @@ setMethod(
                                      cur[["eventType"]], debugDoEvent)
            } else {
              # for future caching of modules
-             if (isTRUE(sim@params[[cur[["moduleName"]]]]$.useCache)) {
-               moduleSpecificObjects <- c(grep(ls(sim), pattern = cur[["moduleName"]], value = TRUE),
-                                          sim@depends@dependencies[[cur[["moduleName"]]]]@inputObjects$objectName)
-               moduleSpecificOutputObjects <-
-                 sim@depends@dependencies[[cur[["moduleName"]]]]@outputObjects$objectName
-               sim <- Cache(FUN = get(moduleCall, envir = sim@.envir),
-                            sim = sim,
-                            eventTime = cur[["eventTime"]], eventType = cur[["eventType"]],
-                            debug = debugDoEvent,
-                            objects = moduleSpecificObjects,
-                            notOlderThan = notOlderThan,
-                            outputObjects = moduleSpecificOutputObjects,
-                            cacheRepo = sim@paths[["cachePath"]])
+             cacheIt <- FALSE
+             a <- sim@params[[cur[["moduleName"]]]]$.useCache
+             if(!is.null(a)) { #.useCache is a parameter
+               if(!identical(FALSE, a)) { #.useCache is not FALSE
+                 if(!isTRUE(a)) { #.useCache is not TRUE
+                   if(cur[["eventType"]] %in% a) {
+                     cacheIt <- TRUE
+                   }
+                 } else {
+                   cacheIt <- TRUE
+                 }
+               }
+             }
+
+
+             # if (!is.null(sim@params[[cur[["moduleName"]]]]$.useCache)) {
+             #   if(!identical(FALSE, sim@params[[cur[["moduleName"]]]]$.useCache)) {
+             #     if(!isTRUE(sim@params[[cur[["moduleName"]]]]$.useCache)) {
+             #       if(cur[["eventType"]] %in% sim@params[[cur[["moduleName"]]]]$.useCache) {
+             #
+             #       }
+             #     }
+             #   }
+             # }
+             if(cacheIt) {
+                 moduleSpecificObjects <- c(grep(ls(sim), pattern = cur[["moduleName"]], value = TRUE),
+                                            na.omit(sim@depends@dependencies[[cur[["moduleName"]]]]@inputObjects$objectName))
+                 moduleSpecificOutputObjects <-
+                   sim@depends@dependencies[[cur[["moduleName"]]]]@outputObjects$objectName
+                 sim <- Cache(FUN = get(moduleCall, envir = sim@.envir),
+                              sim = sim,
+                              eventTime = cur[["eventTime"]], eventType = cur[["eventType"]],
+                              debug = debugDoEvent,
+                              objects = moduleSpecificObjects,
+                              notOlderThan = notOlderThan,
+                              outputObjects = moduleSpecificOutputObjects,
+                              cacheRepo = sim@paths[["cachePath"]])
              } else {
                sim <- get(moduleCall,
                          envir = sim@.envir)(sim, cur[["eventTime"]],
