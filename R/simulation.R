@@ -495,7 +495,7 @@ setMethod(
 
     # create simList object for the simulation
     sim <- new("simList")
-    sim@paths <- paths      ## paths need to be set first
+    paths(sim) <- paths #paths accessor does important stuff
     sim@modules <- modules  ## will be updated below
 
     ## timeunit is needed before all parsing of modules.
@@ -576,7 +576,8 @@ setMethod(
     }
 
     # Get correct time unit now that modules are loaded
-    sim@simtimes[["timeunit"]] <- if (!is.null(times$timeunit)) {
+    timeunit(sim) <- if (!is.null(times$timeunit)) {
+      #sim@simtimes[["timeunit"]] <- if (!is.null(times$timeunit)) {
       times$timeunit
     } else {
       minTimeunit(timeunits)
