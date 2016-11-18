@@ -83,7 +83,7 @@ setMethod(
         numericInput("Steps", "Step size", 1, width = "100px"),
         actionButton("resetSimInit", "Reset"),
         downloadButton('downloadData', 'Download'),
-        sliderInput("simTimes", paste0("Simulated ", timeunit(sim)), sep = "",
+        sliderInput("simTimes", paste0("Simulated ", sim@simtimes[["timeunit"]]), sep = "",
                     start(sim) , end(sim), start(sim)),
         h3("Modules"),
         uiOutput("moduleTabs")
@@ -172,9 +172,9 @@ setMethod(
             params(sim)[[m]][[i]] <- input[[paste0(m, "$", i)]]
         }
       }
-      end(sim) <- pmin(endTime, time(sim, timeunit(sim)) + 1)
+      end(sim) <- pmin(endTime, time(sim, sim@simtimes[["timeunit"]]) + 1)
       if (is.null(v$stop)) {v$stop = "go"}
-      if ((time(sim, timeunit(sim)) < endTime) & (v$stop != "stop")) invalidateLater(0)
+      if ((time(sim, sim@simtimes[["timeunit"]]) < endTime) & (v$stop != "stop")) invalidateLater(0)
       sim <<- spades(sim, debug = debug) # Run spades
     }
 
@@ -189,21 +189,21 @@ setMethod(
           }
         }
       }
-      end(sim) <- time(sim, timeunit(sim)) + input$Steps
+      end(sim) <- time(sim, sim@simtimes[["timeunit"]]) + input$Steps
       sim <<- spades(sim, debug = debug)
     })
 
     simReset <- eventReactive(input$resetSimInit, {
       # Update simInit with values obtained from UI
       clearPlot() # Don't want to use this, but it seems that renderPlot will not allow overplotting
-      rm(list = ls(sim), envir = envir(sim))
+      rm(list = ls(sim), envir = sim@.envir)
       sim <<- simOrig
       for (i in names(simOrig_@.list)) {
         sim[[i]]  <<- simOrig_@.list[[i]]
       }
     })
 
-    v <- reactiveValues(data = NULL, time = time(sim, timeunit(sim)), end = end(sim, timeunit(sim)), sliderUsed = FALSE)
+    v <- reactiveValues(data = NULL, time = time(sim, sim@simtimes[["timeunit"]]), end = end(sim, sim@simtimes[["timeunit"]]), sliderUsed = FALSE)
 
     # Button clicks
     observeEvent(input$oneTimestepSpaDESButton, {
@@ -249,8 +249,8 @@ setMethod(
       } else if (v$data == "reset") {
         simReset()
       }
-      v$time <- time(sim, timeunit(sim))
-      if (time(sim, timeunit(sim)) >= endTime) {
+      v$time <- time(sim, sim@simtimes[["timeunit"]])
+      if (time(sim, sim@simtimes[["timeunit"]]) >= endTime) {
         v$end <- end(sim)
       }
       v$sliderUsed <- FALSE

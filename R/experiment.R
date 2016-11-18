@@ -408,8 +408,8 @@ setMethod(
       dots <- list(...)
       if (is.null(dots$cache)) dots$cache <- FALSE
       if (dots$cache) {
-        if (is(try(archivist::showLocalRepo(paths(sim_)$cachePath), silent = TRUE), "try-error"))
-          archivist::createLocalRepo(paths(sim_)$cachePath)
+        #if (is(try(archivist::showLocalRepo(paths(sim_)$cachePath), silent = TRUE), "try-error"))
+        #  archivist::createLocalRepo(paths(sim_)$cachePath)
       }
       sim3 <- spades(sim_, replicate = ind, ...)
       return(list(sim3, experimentDF))
@@ -427,8 +427,8 @@ setMethod(
       parallel::clusterEvalQ(cl, {
         lapply(packagesToLoad, library, character.only = TRUE)
       })
-      
-      
+
+
     } else {
       parFun <- "lapply"
       args <- list(X = 1:NROW(factorialExp), FUN = FunDef)

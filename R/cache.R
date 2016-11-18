@@ -172,12 +172,12 @@ setMethod(
     wh <- which(sapply(tmpl, function(x) is(x, "simList")))
     if(is.null(cacheRepo)) {
       if(length(wh)>0) {
-        cacheRepo <- cachePath(tmpl[wh])
+        cacheRepo <- tmpl[wh]@paths$cachePath
       } else {
         doEventFrameNum <- grep(sys.calls(), pattern = "^doEvent")[1]
         if(!is.na(doEventFrameNum)) {
-          simObj <- get("sim", envir=sys.frame(doEventFrameNum))
-          cacheRepo <- cachePath(simObj)
+          sim <- get("sim", envir=sys.frame(doEventFrameNum))
+          cacheRepo <- sim@paths$cachePath
         } else {
           stop("Cache requires sim or cacheRepo to be set")
         }
@@ -186,16 +186,16 @@ setMethod(
 
     if (is(try(archivist::showLocalRepo(cacheRepo), silent = TRUE)
            , "try-error"))
-      archivist::createLocalRepo(cacheRepo)
+      #archivist::createLocalRepo(cacheRepo)
 
 
     whRas <- which(sapply(tmpl, function(x) is(x, "Raster")))
     whFun <- which(sapply(tmpl, function(x) is.function(x)))
-    if(length(wh)>0 | exists("simObj")) {
+    if(length(wh)>0 | exists("sim")) {
       if(length(wh)>0) {
         cur <- current(tmpl[[wh]])
       } else {
-        cur <- current(simObj)
+        cur <- current(sim)
       }
     }
     if(is.null(objects)) {
@@ -332,7 +332,7 @@ setMethod(
   definition = function(sim, afterDate, beforeDate, cacheRepo, ...) {
 
     if(missing(sim) & missing(cacheRepo)) stop("Must provide either sim or cacheRepo")
-    if(missing(cacheRepo)) cacheRepo <- cachePath(sim)
+    if(missing(cacheRepo)) cacheRepo <- sim@paths$cachePath
     if(missing(afterDate)) afterDate = "1970-01-01"
     if(missing(beforeDate)) beforeDate = Sys.Date() + 1
 
@@ -369,7 +369,7 @@ setMethod(
   definition = function(sim, cacheRepo, ...) {
 
     if(missing(sim) & missing(cacheRepo)) stop("Must provide either sim or cacheRepo")
-    if(missing(cacheRepo)) cacheRepo <- cachePath(sim)
+    if(missing(cacheRepo)) cacheRepo <- sim@paths$cachePath
 
     tryCatch(splitTagsLocal(cacheRepo), error = function(x)
       data.frame(artifact = character(), tagKey = character(), tagValue = character(),

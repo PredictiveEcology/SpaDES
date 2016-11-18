@@ -117,7 +117,7 @@ setMethod("depsGraph",
               el <- depsEdgeList(sim, plot) %>% .depsPruneEdges()
             }
             core <- c("checkpoint", "save", "progress", "load")
-            m <- modules(sim, hidden = TRUE) %>% unlist()
+            m <- sim@modules %>% unlist()
             v <- unique(c(el$to, el$from, m[-which(m %in% core)]))
             return(graph_from_data_frame(el, vertices = v, directed = TRUE))
 })
@@ -254,17 +254,17 @@ setMethod(".depsLoadOrder",
             if (length(tsort)) {
               loadOrder <- names(simGraph[[tsort,]]) %>% .[!(. %in% "_INPUT_" )]
             } else {
-              modules <- unlist(modules(sim, hidden = TRUE))
-              if (length(modules(sim, hidden = TRUE))) {
+              modules <- unlist(sim@modules)
+              if (length(sim@modules)) {
                 loadOrder <- modules
               } else {
                 loadOrder <- character()
               }
             }
             # make sure modules with no deps get added
-            if (!all(modules(sim, hidden = TRUE) %in% loadOrder)) {
-              ids <- which(modules(sim, hidden = TRUE) %in% loadOrder)
-              noDeps <- unlist(modules(sim, hidden = TRUE))[-ids]
+            if (!all(sim@modules %in% loadOrder)) {
+              ids <- which(sim@modules %in% loadOrder)
+              noDeps <- unlist(sim@modules)[-ids]
               loadOrder <- c(loadOrder, noDeps)
             }
             return(loadOrder)

@@ -84,9 +84,9 @@ setMethod(
     width <- 4500 / as.numeric(width) # fixed at 3 days
 
     # simulation timestep in 'days'
-    ts <- timeunit(sim) %>%
-      inSeconds(envir = envir(sim)) %>%
-      convertTimeunit("day", envir = envir(sim)) %>%
+    ts <- sim@simtimes[["timeunit"]] %>%
+      inSeconds(envir = sim@.envir) %>%
+      convertTimeunit("day", envir = sim@.envir) %>%
       as.numeric()
 
     out <- lapply(modules, function(x) {

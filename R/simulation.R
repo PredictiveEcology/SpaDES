@@ -98,7 +98,7 @@ setMethod(
     for (j in seq_along(modules)) {
       m <- modules[[j]][1]
       filename <-
-        paste(modulePath(sim), "/", m, "/", m, ".R", sep = "")
+        paste(sim@paths[['modulePath']], "/", m, "/", m, ".R", sep = "")
       out[[m]] <- .parseModulePartial(filename = filename,
                                       defineModuleElement = defineModuleElement)
     }
@@ -147,10 +147,23 @@ setMethod(
     for (j in .unparsed(modules)) {
       m <- modules[[j]][1]
       filename <-
-        paste(modulePath(sim), "/", m, "/", m, ".R", sep = "")
+        paste(sim@paths[['modulePath']], "/", m, "/", m, ".R", sep = "")
       parsedFile <- parse(filename)
       defineModuleItem <-
         grepl(pattern = "defineModule", parsedFile)
+
+      # evaluate the rest of the parsed file
+      eval(parsedFile[!defineModuleItem], envir = sim@.envir)
+
+      # parse any scripts in R subfolder
+      RSubFolder <- file.path(dirname(filename), "R")
+      RScript <- dir(RSubFolder)
+      if (length(RScript) > 0) {
+        for (Rfiles in RScript) {
+          parsedFile <- parse(file.path(RSubFolder, Rfiles))
+          eval(parsedFile, envir = sim@.envir)
+        }
+      }
 
       # evaluate all but inputObjects and outputObjects part of 'defineModule'
       #  This allow user to use params(sim) in their inputObjects
@@ -482,8 +495,8 @@ setMethod(
 
     # create simList object for the simulation
     sim <- new("simList")
-    paths(sim) <- paths      ## paths need to be set first
-    modules(sim) <- modules  ## will be updated below
+    sim@paths <- paths      ## paths need to be set first
+    sim@modules <- modules  ## will be updated below
 
     ## timeunit is needed before all parsing of modules.
     ## It could be used within modules within defineParameter statements.
@@ -563,18 +576,18 @@ setMethod(
     }
 
     # Get correct time unit now that modules are loaded
-    timeunit(sim) <- if (!is.null(times$timeunit)) {
+    sim@simtimes[["timeunit"]] <- if (!is.null(times$timeunit)) {
       times$timeunit
     } else {
       minTimeunit(timeunits)
     }
 
-    timestep <- inSeconds(timeunit(sim), sim@.envir)
+    timestep <- inSeconds(sim@simtimes[["timeunit"]], sim@.envir)
     times(sim) <- list(
       current = times$start * timestep,
       start = times$start * timestep,
       end = times$end * timestep,
-      timeunit = timeunit(sim)
+      timeunit = sim@simtimes[["timeunit"]]
     )
 
     # START OF simInit overrides for inputs, then objects
@@ -586,7 +599,7 @@ setMethod(
     sim$.userSuppliedObjNames <- c(objNames, inputs$objectName)
 
     # for now, assign only some core & global params
-    globals(sim) <- params$.globals
+    sim@params$.globals <- params$.globals
 
     # add core module name to the loaded list (loaded with the package)
     modulesLoaded <- append(modulesLoaded, core)
@@ -605,9 +618,9 @@ setMethod(
     all_parsed <- FALSE
     while (!all_parsed) {
       sim <- .parseModule(sim,
-                          modules(sim, hidden = TRUE),
+                          sim@modules,
                           userSuppliedObjNames = sim$.userSuppliedObjNames)
-      if (length(.unparsed(modules(sim, hidden = TRUE))) == 0) {
+      if (length(.unparsed(sim@modules)) == 0) {
         all_parsed <- TRUE
       }
     }
@@ -623,7 +636,7 @@ setMethod(
     # load core modules
     for (c in core) {
       # schedule each module's init event:
-      sim <- scheduleEvent(sim, start(sim, unit = timeunit(sim)),
+      sim <- scheduleEvent(sim, start(sim, unit = sim@simtimes[["timeunit"]]),
                            c, "init", .normal())
     }
 
@@ -646,8 +659,8 @@ setMethod(
 
     # check user-supplied load order
     if (!all(length(loadOrder),
-             all(modules(sim, hidden = TRUE) %in% loadOrder),
-             all(loadOrder %in% modules(sim, hidden = TRUE)))) {
+             all(sim@modules %in% loadOrder),
+             all(loadOrder %in% sim@modules))) {
       loadOrder <- depsGraph(sim, plot = FALSE) %>% .depsLoadOrder(sim, .)
     }
 
@@ -655,7 +668,7 @@ setMethod(
     for (m in loadOrder) {
       # schedule each module's init event:
       sim <-
-        scheduleEvent(sim, start(sim, "seconds"), m, "init", .normal())
+        scheduleEvent(sim, sim@simtimes[["start"]], m, "init", .normal())
 
       ### add module name to the loaded list
       modulesLoaded <- append(modulesLoaded, m)
@@ -709,7 +722,7 @@ setMethod(
       } else {
         newInputs <- data.frame(
           objectName = objNames,
-          loadTime = as.numeric(time(sim, "seconds")),
+          loadTime = as.numeric(sim@simtimes[["current"]]),
           stringsAsFactors = FALSE
         ) %>%
           .fillInputRows(startTime = start(sim))
@@ -739,7 +752,7 @@ setMethod(
           )
         )
         sim@events <-
-          events(sim, "seconds")[eventTime >= start(sim, "seconds")]
+          sim@events[eventTime >= sim@simtimes[["start"]]]
       }
     }
 
@@ -748,7 +761,7 @@ setMethod(
     }
 
     # check the parameters supplied by the user
-    checkParams(sim, core, dotParams, modulePath(sim))
+    checkParams(sim, core, dotParams, sim@paths[['modulePath']])
 
     # keep session info for debugging & checkpointing
     sim$.sessionInfo <- sessionInfo()
@@ -978,11 +991,11 @@ setMethod(
     #  but stop time is not reached
     cur <- sim@current #current(sim, "second")
     if (any(is.na(cur))) {
-      time(sim) <- sim@simtimes[["end"]] + 1
+      sim@simtimes[["current"]] <- sim@simtimes[["end"]] + 1
     } else {
       if (cur[["eventTime"]] <= sim@simtimes[["end"]]) {
         # update current simulated time
-        time(sim) <- cur[["eventTime"]]
+        sim@simtimes[["current"]] <- cur[["eventTime"]]
 
         # call the module responsible for processing this event
         moduleCall <- paste("doEvent", cur[["moduleName"]], sep = ".")
@@ -1027,7 +1040,7 @@ setMethod(
               print(sim)
             } else if (grepl(debug[[i]], pattern = "\\(")) {
               print(eval(parse(text = debug[[i]])))
-            } else if (any(debug[[i]] == unlist(modules(sim, hidden = TRUE)))) {
+            } else if (any(debug[[i]] == unlist(sim@modules))) {
               if (debug[[i]] == cur[["moduleName"]]) {
                 #debugDoEvent <- TRUE
                 debugonce(get(paste0("doEvent.",cur[["moduleName"]]), envir = sim@.envir))
@@ -1043,7 +1056,7 @@ setMethod(
           }
         }
 
-        if (cur[["moduleName"]] %in% modules(sim, hidden = TRUE)) {
+        if (cur[["moduleName"]] %in% sim@modules) {
           if (cur[["moduleName"]] %in% core) {
               sim <- get(moduleCall)(sim, cur[["eventTime"]],
                                      cur[["eventType"]], debugDoEvent)
@@ -1061,7 +1074,7 @@ setMethod(
                             objects = moduleSpecificObjects,
                             notOlderThan = notOlderThan,
                             outputObjects = moduleSpecificOutputObjects,
-                            cacheRepo = cachePath(sim))
+                            cacheRepo = sim@paths[["cachePath"]])
              } else {
                sim <- get(moduleCall,
                          envir = sim@.envir)(sim, cur[["eventTime"]],
@@ -1093,7 +1106,7 @@ setMethod(
         sim@current <- .emptyEventListNA
       } else {
         # update current simulated time and event
-        time(sim) <- end(sim, "seconds") + 1
+        sim@simtimes[["current"]] <- sim@simtimes[["end"]] + 1
         if (NROW(evnts)) {
           sim@events <- rbind(sim@current, sim@events)
           sim@current <- .emptyEventListNA
@@ -1200,11 +1213,12 @@ setMethod(
               attributes(eventTime)$unit <- .callingFrameTimeunit(sim)
               eventTimeInSeconds <- convertTimeunit((
                 eventTime -
-                  convertTimeunit(start(sim), timeunit(sim), sim@.envir)
+                  convertTimeunit(sim@simtimes[["start"]],
+                                  sim@simtimes[["timeunit"]], sim@.envir)
               ),
               "seconds",
               sim@.envir) +
-                time(sim, "seconds") %>%
+                sim@simtimes[["current"]] %>%
                 as.numeric()
             } else {
               eventTimeInSeconds <-
@@ -1535,13 +1549,13 @@ setMethod(
     #   notOlderThan <- NULL
 
     if (cache) {
-      if (is(try(archivist::showLocalRepo(paths(sim)$cachePath), silent = TRUE)
+      if (is(try(archivist::showLocalRepo(sim@paths$cachePath), silent = TRUE)
              , "try-error"))
-        archivist::createLocalRepo(paths(sim)$cachePath)
+        #archivist::createLocalRepo(paths(sim)$cachePath)
 
       return(
         SpaDES::cache(
-          paths(sim)$cachePath,
+          sim@paths$cachePath,
           spades,
           sim = sim,
           debug = debug,

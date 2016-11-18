@@ -2,7 +2,7 @@
 doEvent.progress = function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
     if (interactive()) {
-      tu <- timeunit(sim)
+      tu <- sim@simtimes[["timeunit"]]
       defaults <- list(type = "text", interval = (end(sim, tu) - start(sim, tu))/(end(sim, tu)-start(sim,tu)))
 
       # Check whether a .progress is specified in the simList
@@ -29,7 +29,7 @@ doEvent.progress = function(sim, eventTime, eventType, debug = FALSE) {
       setProgressBar(sim)
 
       # schedule the next save
-      timeNextUpdate <- time(sim, timeunit(sim)) + P(sim, ".progress")$interval
+      timeNextUpdate <- time(sim, sim@simtimes[["timeunit"]]) + P(sim, ".progress")$interval
 
       sim <- scheduleEvent(sim, timeNextUpdate, "progress", "set", .last())
   } else {
@@ -64,7 +64,7 @@ newProgressBar <- function(sim) {
     close(get(".pb", envir = .spadesEnv))
     # rm(.pb, envir = .spadeEnv)
   }
-  tu <- timeunit(sim)
+  tu <- sim@simtimes[["timeunit"]]
   OS <- tolower(Sys.info()["sysname"])
   if (P(sim, ".progress")$type == "graphical") {
     if (OS == "windows") {
@@ -88,7 +88,7 @@ newProgressBar <- function(sim) {
 # @importFrom utils setTxtProgressBar setWinProgressBar
 setProgressBar <- function(sim) {
   OS <- tolower(Sys.info()["sysname"])
-  tu <- timeunit(sim)
+  tu <- sim@simtimes[["timeunit"]]
   pb <- get(".pb", envir = .spadesEnv)
   if (P(sim, ".progress")$type == "graphical") {
     if (OS == "windows") {

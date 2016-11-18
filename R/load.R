@@ -193,7 +193,7 @@ setMethod(
               names(objList) <- filelist$objectName[y]
             }
             if (length(objList) > 0) {
-              list2env(objList, envir = envir(sim))
+              list2env(objList, envir = sim@.envir)
               filelist[y, "loaded"] <- TRUE
               message(filelist[y, "objectName"], " loaded into simList")
             } else {
@@ -213,7 +213,7 @@ setMethod(
             # The actual load call
             if (identical(loadFun[y], "load")) {
               do.call(getFromNamespace(loadFun[y], loadPackage[y]),
-                      args = argument, envir = envir(sim))
+                      args = argument, envir = sim@.envir)
 
             } else {
               sim[[filelist[y, "objectName"]]] <- do.call(getFromNamespace(loadFun[y], loadPackage[y]),
@@ -225,13 +225,13 @@ setMethod(
               message(paste0(
                 filelist[y, "objectName"], " read from ", filelist[y, "file"], " using ", loadFun[y],
                 "(inMemory=", inMemory(sim[[filelist[y, "objectName"]]]), ")",
-                ifelse(filelist[y, "loadTime"] != start(sim, "seconds"),
+                ifelse(filelist[y, "loadTime"] != sim@simtimes[["start"]],
                        paste("\n  at time", filelist[y, "loadTime"]),"")
               ))
             } else {
               message(paste0(
                 filelist[y, "objectName"], " read from ", filelist[y, "file"], " using ", loadFun[y],
-                ifelse(filelist[y, "loadTime"] != start(sim, "seconds"),
+                ifelse(filelist[y, "loadTime"] != sim@simtimes[["start"]],
                        paste("\n   at time", filelist[y, "loadTime"]), "")
               ))
             }

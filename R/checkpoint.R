@@ -93,11 +93,11 @@ checkpointLoad <- function(file) {
   if (file.exists(file) && file.exists(fobj)) {
     simListName <- load(file, envir = .GlobalEnv)
     sim <- get(simListName, envir = .GlobalEnv)
-    load(fobj, envir = envir(sim))
+    load(fobj, envir = sim@.envir)
 
     do.call("RNGkind", as.list(sim$.rng.kind))
     assign(".Random.seed", sim$.rng.state, envir = .GlobalEnv)
-    rm(list = c(".rng.kind", ".rng.state", ".timestamp"), envir = envir(sim))
+    rm(list = c(".rng.kind", ".rng.state", ".timestamp"), envir = sim@.envir)
     return(invisible(TRUE))
   } else {
     return(invisible(FALSE))
@@ -117,7 +117,7 @@ checkpointLoad <- function(file) {
   assign(objectNames("spades", "simList", "sim")[[1]]$objs, sim, envir = tmpEnv)
 
   save(list = ls(tmpEnv, all.names = TRUE), file = file, envir = tmpEnv)
-  save(list = ls(envir(sim), all.names = TRUE), file = fobj, envir = envir(sim))
+  save(list = ls(sim@.envir, all.names = TRUE), file = fobj, envir = sim@.envir)
   invisible(TRUE) # return "success" invisibly
 }
 
