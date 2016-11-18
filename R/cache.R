@@ -257,16 +257,21 @@ setMethod(
 
         out <- loadFromLocalRepo(isInRepo$artifact[lastOne],
                                  repoDir = cacheRepo, value = TRUE)
-        if(!is(out, "simList")) {
+        #if(!is(out, "simList")) {
           if(length(wh)>0) {
-            simListOut <- list(...)[[wh]]
-            for(i in names(out)) {
-              simListOut[[i]] <- out[[i]]
-            }
+            simListOut <- out # gets all items except objects in list(...)
+            origEnv <- list(...)[[wh]]@.envir
+            keepFromOrig <- !(ls(origEnv) %fin% ls(out))
+            list2env(mget(ls(origEnv)[keepFromOrig], envir=origEnv), envir=simListOut@.envir)
+
+            #simListOut <- list(...)[[wh]] # original simList
+            #for(i in ls(out)) {
+            #  simListOut[[i]] <- out[[i]]
+            #}
 
             return(simListOut)
           }
-        }
+        #}
 
         return(out)
 
@@ -283,7 +288,9 @@ setMethod(
 
     if(is(output, "simList")) {
       if(!is.null(outputObjects)) {
-        outputToSave <- mget(outputObjects, envir = envir(output))
+        outputToSave <- output
+        outputToSave@.envir <- new.env()
+        list2env(mget(outputObjects, envir = output@.envir), envir=outputToSave@.envir)
         attr(outputToSave, "tags") <- attr(output, "tags")
         attr(outputToSave, "call") <- attr(output, "call")
         if(isS4(FUN))
