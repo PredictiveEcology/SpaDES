@@ -160,8 +160,8 @@ setMethod(
       RScript <- dir(RSubFolder)
       if (length(RScript) > 0) {
         for (Rfiles in RScript) {
-          parsedFile <- parse(file.path(RSubFolder, Rfiles))
-          eval(parsedFile, envir = sim@.envir)
+          parsedFile1 <- parse(file.path(RSubFolder, Rfiles))
+          eval(parsedFile1, envir = sim@.envir)
         }
       }
 
