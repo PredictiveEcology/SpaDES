@@ -1563,7 +1563,7 @@ setMethod(
     if (cache) {
       if (is(try(archivist::showLocalRepo(sim@paths$cachePath), silent = TRUE)
              , "try-error"))
-        archivist::createLocalRepo(paths(sim)$cachePath)
+        #archivist::createLocalRepo(paths(sim)$cachePath)
 
       return(
         SpaDES::cache(

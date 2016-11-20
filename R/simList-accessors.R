@@ -1627,9 +1627,10 @@ setReplaceMethod(
     if (is(try(archivist::showLocalRepo(sim@paths$cachePath),
                silent = TRUE),
            "try-error")) {
+      #browser()
 
       checkPath(sim@paths$cachePath, create = TRUE)
-      archivist::createLocalRepo(sim@paths$cachePath, force = TRUE)
+      #archivist::createLocalRepo(sim@paths$cachePath, force = TRUE)
     }
 
     validObject(sim)

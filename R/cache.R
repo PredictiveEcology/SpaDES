@@ -199,8 +199,9 @@ setMethod(
     }
 
     if (is(try(archivist::showLocalRepo(cacheRepo), silent = TRUE)
-           , "try-error"))
-      archivist::createLocalRepo(cacheRepo)
+           , "try-error")) {
+      #archivist::createLocalRepo(cacheRepo)
+    }
 
 
     whRas <- which(sapply(tmpl, function(x) is(x, "Raster")))
