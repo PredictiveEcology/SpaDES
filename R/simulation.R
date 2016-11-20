@@ -219,10 +219,13 @@ setMethod(
 
       # If user supplies the needed objects, then test whether all are supplied.
       # If they are all supplied, then skip the .inputObjects code
-      if (!all(sim@depends@dependencies[[i]]@inputObjects$objectName %in% userSuppliedObjNames)) {
-        if (!is.null(sim@.envir$.inputObjects)) {
-          sim <- sim@.envir$.inputObjects(sim)
-          rm(".inputObjects", envir = sim@.envir)
+      if (!is.null(sim@.envir$.inputObjects)) {
+        if (!all(sim@depends@dependencies[[i]]@inputObjects$objectName %in% userSuppliedObjNames)) {
+          if(is.null(sim[[".inputObjectsList"]]))
+            sim[[".inputObjectsList"]] <- list()
+          sim[[".inputObjectsList"]][[modules[[j]]]] <- sim@.envir$.inputObjects
+            #sim <- sim@.envir$.inputObjects(sim)
+            rm(".inputObjects", envir = sim@.envir)
         }
       }
     }
@@ -639,6 +642,7 @@ setMethod(
       params$.progress <- list(type = NA_character_, interval = NA_real_)
     }
 
+    #
     tmp <- list()
     lapply(pnames, function(x) {
       tmp[[x]] <<- updateList(sim@params[[x]], params[[x]])
@@ -750,6 +754,24 @@ setMethod(
 
     # check the parameters supplied by the user
     checkParams(sim, core, dotParams, sim@paths[['modulePath']])
+
+    ## run .inputObjects() from each module file from each module, one at a time,
+    ## and remove it from the simList so next module won't rerun it.
+
+    # If user supplies the needed objects, then test whether all are supplied.
+    # If they are all supplied, then skip the .inputObjects code
+    for(i in modules(sim)) {
+      if (!is.null(sim@.envir[[".inputObjectsList"]][[i]])) {
+        if (!all(sim@depends@dependencies[[i]]@inputObjects$objectName %in%
+               sim$.userSuppliedObjNames)) {
+          sim <- sim@.envir[[".inputObjectsList"]][[i]](sim)
+          #rm(".inputObjects", envir = sim@.envir)
+        }
+      }
+
+    }
+
+
 
     # keep session info for debugging & checkpointing
     sim$.sessionInfo <- sessionInfo()
