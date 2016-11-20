@@ -771,6 +771,8 @@ setMethod(
 
     }
 
+    browser()
+    sim[[".canFuture"]] <- depsEdgeList(mySim)[,unique(to)[!(unique(to) %in% unique(from))]]
 
 
     # keep session info for debugging & checkpointing
