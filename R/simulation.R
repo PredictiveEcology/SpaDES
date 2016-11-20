@@ -771,8 +771,14 @@ setMethod(
 
     }
 
+    sim[[".depsEdgeList"]] <- depsEdgeList(sim)
+    sim[[".canFuture"]] <- as.list(sim[[".depsEdgeList"]][,!(unique(to) %in% unique(from))]) %>%
+      setNames(sim[[".depsEdgeList"]][,unique(to)])
+    sim[[".inFuture"]] <- as.list(rep(FALSE, length(sim[[".canFuture"]]))) %>%
+      setNames(sim[[".depsEdgeList"]][,unique(to)])
+    sim[[".depsEdgeList"]] <-   split(f=sim@.envir$.depsEdgeList[,2,with=FALSE], sim@.envir$.depsEdgeList[,1,with=FALSE])
     browser()
-    sim[[".canFuture"]] <- depsEdgeList(mySim)[,unique(to)[!(unique(to) %in% unique(from))]]
+
 
 
     # keep session info for debugging & checkpointing
@@ -1073,6 +1079,19 @@ setMethod(
               sim <- get(moduleCall)(sim, cur[["eventTime"]],
                                      cur[["eventType"]], debugDoEvent)
            } else {
+             #if(sim[[".canFuture"]][[cur[["moduleName"]]]]) {
+             browser()
+             sim[[".inFuture"]][[cur[["moduleName"]]]] <- TRUE
+
+             sim@.envir[[".inFuture"]][[unique(sim@.envir[[".depsEdgeList"]][[cur[["moduleName"]]]]$from)]]
+
+             sim[[".depsEdgeList"]]
+               a = future(               sim <- get(moduleCall,
+                                                envir = sim@.envir)(sim, cur[["eventTime"]],
+                                                                    cur[["eventType"]], debugDoEvent)
+               )
+
+             #}
              # for future caching of modules
              cacheIt <- FALSE
              a <- sim@params[[cur[["moduleName"]]]]$.useCache
@@ -1087,17 +1106,6 @@ setMethod(
                  }
                }
              }
-
-
-             # if (!is.null(sim@params[[cur[["moduleName"]]]]$.useCache)) {
-             #   if(!identical(FALSE, sim@params[[cur[["moduleName"]]]]$.useCache)) {
-             #     if(!isTRUE(sim@params[[cur[["moduleName"]]]]$.useCache)) {
-             #       if(cur[["eventType"]] %in% sim@params[[cur[["moduleName"]]]]$.useCache) {
-             #
-             #       }
-             #     }
-             #   }
-             # }
              if(cacheIt) {
                  moduleSpecificObjects <- c(grep(ls(sim), pattern = cur[["moduleName"]], value = TRUE),
                                             na.omit(sim@depends@dependencies[[cur[["moduleName"]]]]@inputObjects$objectName))
