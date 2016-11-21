@@ -778,6 +778,9 @@ setMethod(
       setNames(sim[[".depsEdgeList"]][,unique(to)])
     sim[[".depsEdgeList"]] <-   split(f=sim@.envir$.depsEdgeList[,2,with=FALSE], sim@.envir$.depsEdgeList[,1,with=FALSE])
     browser()
+    sim[[".simFuture"]] <- lapply(modules(sim), function(x) list()) %>% setNames(modules(sim))
+    plan(multiprocess)
+    #browser()
 
 
 
@@ -964,6 +967,7 @@ setMethod(
 #'
 #' @include helpers.R
 #' @importFrom data.table data.table rbindlist setkey
+#' @importFrom future plan future value
 # @importFrom utils tail
 #' @export
 #' @keywords internal
@@ -975,7 +979,7 @@ setMethod(
 #' @references Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{https://www.nostarch.com/artofr.htm}
 #'
 # igraph exports %>% from magrittr
-setGeneric("doEvent", function(sim, debug, notOlderThan) {
+setGeneric("doEvent", function(sim, debug, notOlderThan, asynchronous) {
   standardGeneric("doEvent")
 })
 
@@ -983,7 +987,7 @@ setGeneric("doEvent", function(sim, debug, notOlderThan) {
 setMethod(
   "doEvent",
   signature(sim = "simList"),
-  definition = function(sim, debug, notOlderThan) {
+  definition = function(sim, debug, notOlderThan, asynchronous) {
     if (class(sim) != "simList") {
       # use inherits()?
       stop("doEvent can only accept a simList object")
@@ -1079,50 +1083,81 @@ setMethod(
               sim <- get(moduleCall)(sim, cur[["eventTime"]],
                                      cur[["eventType"]], debugDoEvent)
            } else {
-             #if(sim[[".canFuture"]][[cur[["moduleName"]]]]) {
-             browser()
-             sim[[".inFuture"]][[cur[["moduleName"]]]] <- TRUE
 
-             sim@.envir[[".inFuture"]][[unique(sim@.envir[[".depsEdgeList"]][[cur[["moduleName"]]]]$from)]]
+             if(asynchronous) {
+               #if(sim[[".canFuture"]][[cur[["moduleName"]]]]) {
+               #sim[[".inFuture"]][[cur[["moduleName"]]]] <- TRUE
 
-             sim[[".depsEdgeList"]]
-               a = future(               sim <- get(moduleCall,
-                                                envir = sim@.envir)(sim, cur[["eventTime"]],
-                                                                    cur[["eventType"]], debugDoEvent)
-               )
+               upstream <- unique(sim@.envir[[".depsEdgeList"]][[cur[["moduleName"]]]]$from)
 
-             #}
-             # for future caching of modules
-             cacheIt <- FALSE
-             a <- sim@params[[cur[["moduleName"]]]]$.useCache
-             if(!is.null(a)) { #.useCache is a parameter
-               if(!identical(FALSE, a)) { #.useCache is not FALSE
-                 if(!isTRUE(a)) { #.useCache is not TRUE
-                   if(cur[["eventType"]] %in% a) {
+               #if(!is.null(sim@.envir[[".inFuture"]][[upstream]]))
+               lapply(upstream, function(us) {
+                 if(!is.null(sim@.envir[[".simFuture"]][[us]])) {
+                   #if(cur$moduleName == upstream) {
+                   lapply(names(sim@.envir[[".simFuture"]][[us]]), function(usEvent) {
+                     sim1 <<- future::value(sim@.envir[[".simFuture"]][[us]][[usEvent]])
+                     sim@.envir[[".simFuture"]][[us]][[usEvent]] <- NULL
+                     objects2Update <- sim@depends@dependencies[[us]]@outputObjects$objectName
+                     whExist <- unlist(lapply(objects2Update, exists, envir=sim1@.envir))
+                     list2env(mget(objects2Update[whExist], envir=sim1@.envir), envir = sim@.envir)
+                     #setkey(sim@current)
+                     browser()
+
+                     sim@events <- rbindlist(list(sim@events,
+                                                  sim1@events[!sim@events,on=c('eventTime','moduleName','eventType')][!sim@current,on=c('eventTime','moduleName','eventType')]))
+                     setkey(sim@events, eventTime, eventPriority)
+                     NULL
+
+                   })
+
+                 }
+               })
+               # if(!is.null(sim@.envir[[".simFuture"]][[upstream]])) {
+               #   sim <- future::value(sim@.envir[[".simFuture"]][[upstream]])
+               # }
+
+
+               #sim[[".depsEdgeList"]]
+               sim@.envir[[".simFuture"]][[cur$moduleName]][[cur$eventType]] <-
+                 future::future(get(moduleCall, envir = sim@.envir)(sim,
+                                        cur[["eventTime"]],
+                                        cur[["eventType"]],
+                                        debugDoEvent)
+                 )
+             } else {
+               #}
+               # for future caching of modules
+               cacheIt <- FALSE
+               useCache1 <- sim@params[[cur[["moduleName"]]]]$.useCache
+               if(!is.null(useCache1)) { #.useCache is a parameter
+                 if(!identical(FALSE, useCache1)) { #.useCache is not FALSE
+                   if(!isTRUE(useCache1)) { #.useCache is not TRUE
+                     if(cur[["eventType"]] %in% useCache1) {
+                       cacheIt <- TRUE
+                     }
+                   } else {
                      cacheIt <- TRUE
                    }
-                 } else {
-                   cacheIt <- TRUE
                  }
                }
-             }
-             if(cacheIt) {
-                 moduleSpecificObjects <- c(grep(ls(sim), pattern = cur[["moduleName"]], value = TRUE),
-                                            na.omit(sim@depends@dependencies[[cur[["moduleName"]]]]@inputObjects$objectName))
-                 moduleSpecificOutputObjects <-
-                   sim@depends@dependencies[[cur[["moduleName"]]]]@outputObjects$objectName
-                 sim <- Cache(FUN = get(moduleCall, envir = sim@.envir),
-                              sim = sim,
-                              eventTime = cur[["eventTime"]], eventType = cur[["eventType"]],
-                              debug = debugDoEvent,
-                              objects = moduleSpecificObjects,
-                              notOlderThan = notOlderThan,
-                              outputObjects = moduleSpecificOutputObjects,
-                              cacheRepo = sim@paths[["cachePath"]])
-             } else {
-               sim <- get(moduleCall,
-                         envir = sim@.envir)(sim, cur[["eventTime"]],
-                                             cur[["eventType"]], debugDoEvent)
+               if(cacheIt) {
+                   moduleSpecificObjects <- c(grep(ls(sim), pattern = cur[["moduleName"]], value = TRUE),
+                                              na.omit(sim@depends@dependencies[[cur[["moduleName"]]]]@inputObjects$objectName))
+                   moduleSpecificOutputObjects <-
+                     sim@depends@dependencies[[cur[["moduleName"]]]]@outputObjects$objectName
+                   sim <- Cache(FUN = get(moduleCall, envir = sim@.envir),
+                                sim = sim,
+                                eventTime = cur[["eventTime"]], eventType = cur[["eventType"]],
+                                debug = debugDoEvent,
+                                objects = moduleSpecificObjects,
+                                notOlderThan = notOlderThan,
+                                outputObjects = moduleSpecificOutputObjects,
+                                cacheRepo = sim@paths[["cachePath"]])
+               } else {
+                 sim <- get(moduleCall,
+                           envir = sim@.envir)(sim, cur[["eventTime"]],
+                                               cur[["eventType"]], debugDoEvent)
+               }
              }
            }
         } else {
@@ -1396,6 +1431,11 @@ setMethod(
 #'                     then, it will force a recache, i.e., remove old value and replace
 #'                     with new value. Ignored if \code{cache} is FALSE.
 #'
+#' @param asynchronous Logical. If TRUE, spades will spawn events using the future
+#'                     package, allowing for multiple concurrent event evaluation for
+#'                     conditionally independent events. This is still very experimental.
+#'                     Default is FALSE.
+
 #' @param ... Any. Can be used to make a unique cache identity, such as "replicate = 1". This
 #'            will be included in the SpaDES::cache call, so will be unique and thus
 #'            spades will not use a cached copy as long
@@ -1497,6 +1537,7 @@ setGeneric("spades", function(sim,
                               .plotInitialTime = NULL,
                               .saveInitialTime = NULL,
                               notOlderThan = NULL,
+                              asynchronous = FALSE,
                               ...) {
   standardGeneric("spades")
 })
@@ -1512,6 +1553,7 @@ setMethod(
                         .plotInitialTime,
                         .saveInitialTime,
                         notOlderThan,
+                        asynchronous,
                         ...) {
     if (!is.null(.plotInitialTime)) {
       if (!is.numeric(.plotInitialTime))
@@ -1568,7 +1610,8 @@ setMethod(
       sim$.spadesDebugWidth <- c(9, 10, 9, 13)
     }
     while (sim@simtimes[["current"]] <= sim@simtimes[["end"]]) {
-      sim <- doEvent(sim, debug = debug, notOlderThan = notOlderThan)  # process the next event
+      sim <- doEvent(sim, debug = debug, notOlderThan = notOlderThan,
+                     asynchronous = asynchronous)  # process the next event
 
     }
     sim@simtimes[["current"]] <- sim@simtimes[["end"]]
