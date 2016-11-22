@@ -14,6 +14,7 @@ doEvent.save <- function(sim, eventTime, eventType, debug = FALSE) {
       sim <- scheduleEvent(sim, firstSave, "save", "spades", .last())
       sim <- scheduleEvent(sim, end(sim, sim@simtimes[["timeunit"]]), "save", "end", .last())
     }
+    checkPath(sim@paths$outputPath, create = TRUE)
 
   } else if (eventType == "spades") {
     sim <- saveFiles(sim)
