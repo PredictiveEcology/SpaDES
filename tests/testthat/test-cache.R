@@ -1,5 +1,4 @@
 test_that("test cache", {
-
   library(igraph)
   tmpdir <- file.path(tempdir(), "testCache") %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
@@ -27,15 +26,13 @@ test_that("test cache", {
   sims <- experiment(mySim, replicates = 2, cache = TRUE)
   out <- print(showCache(sims[[1]]))
   expect_output(print(out), "cacheId")
-  expect_true(NROW(out)==10) # will become 15 with new experiment caching stuff
+  expect_true(NROW(out) == 10) # will become 15 with new experiment caching stuff
   clearCache(sims[[1]])
   out <- print(showCache(sims[[1]]))
-  expect_true(NROW(out)==0)
-
+  expect_true(NROW(out) == 0)
 })
 
 test_that("test event-level cache", {
-
   library(igraph)
   tmpdir <- file.path(tempdir(), "testCache") %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
@@ -48,7 +45,7 @@ test_that("test event-level cache", {
       # Turn off interactive plotting
       fireSpread = list(.plotInitialTime = NA),
       caribouMovement = list(.plotInitialTime = NA),
-      randomLandscapes = list(.plotInitialTime = NA, .useCache="init")
+      randomLandscapes = list(.plotInitialTime = NA, .useCache = "init")
     ),
     modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
     paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
@@ -60,7 +57,7 @@ test_that("test event-level cache", {
   )
 
   set.seed(1123)
-  expect_true(!grepl(pattern="Using cached copy of init event in randomLandscapes module",
+  expect_true(!grepl(pattern = "Using cached copy of init event in randomLandscapes module",
                      capture_messages(sims <- spades(mySim, notOlderThan = Sys.time()))))
   landscapeObjHash <- digest::digest(object = dropLayer(sims$landscape, "Fires"))
   firesHash <- digest::digest(object = sims$landscape$Fires)
@@ -68,19 +65,17 @@ test_that("test event-level cache", {
   expect_true("6e4707b7c3c99b379e1b8eccd5820e05" %in% firesHash)
 
   mess1 <- capture_messages(sims <- spades(mySim))
-  expect_true(any(grepl(pattern="Using cached copy of init event in randomLandscapes module",
-                     mess1)))
+  expect_true(any(grepl(pattern = "Using cached copy of init event in randomLandscapes module",
+                        mess1)))
   landscapeObjHash <- digest::digest(object = dropLayer(sims$landscape, "Fires"))
   firesHash <- digest::digest(object = sims$landscape$Fires)
   expect_identical("9c95131ca6b1055e6be21353f45ccf39", landscapeObjHash) # cached part is identical
   expect_false("6e4707b7c3c99b379e1b8eccd5820e05" %in% firesHash) # The non cached stuff goes ahead as normal
 
   clearCache(sims)
-
 })
 
 test_that("test module-level cache", {
-
   library(igraph)
   tmpdir <- file.path(tempdir(), "testCache") %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
@@ -95,7 +90,7 @@ test_that("test module-level cache", {
       # Turn off interactive plotting
       fireSpread = list(.plotInitialTime = NA),
       caribouMovement = list(.plotInitialTime = NA),
-      randomLandscapes = list(.plotInitialTime = times$start, .useCache=TRUE)
+      randomLandscapes = list(.plotInitialTime = times$start, .useCache = TRUE)
     ),
     modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
     paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
@@ -108,7 +103,7 @@ test_that("test module-level cache", {
 
   set.seed(1123)
   pdf(tmpfile)
-  expect_true(!grepl(pattern="Using cached copy of init event in randomLandscapes module",
+  expect_true(!grepl(pattern = "Using cached copy of init event in randomLandscapes module",
                      capture_messages(sims <- spades(mySim, notOlderThan = Sys.time()))))
   landscapeObjHash <- digest::digest(object = dropLayer(sims$landscape, "Fires"))
   firesHash <- digest::digest(object = sims$landscape$Fires)
@@ -122,7 +117,7 @@ test_that("test module-level cache", {
   # complete the plot, because plotting isn't cacheable
   pdf(tmpfile)
   mess1 <- capture_messages(sims <- spades(mySim))
-  expect_true(any(grepl(pattern="Using cached copy of init event in randomLandscapes module",
+  expect_true(any(grepl(pattern = "Using cached copy of init event in randomLandscapes module",
                         mess1)))
   landscapeObjHash <- digest::digest(object = dropLayer(sims$landscape, "Fires"))
   firesHash <- digest::digest(object = sims$landscape$Fires)
@@ -132,8 +127,5 @@ test_that("test module-level cache", {
   expect_true(file.info(tmpfile)$size < 10000)
   unlink(tmpfile)
 
-
   clearCache(sims)
-
 })
-

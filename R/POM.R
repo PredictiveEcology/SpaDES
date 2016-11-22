@@ -191,8 +191,7 @@ setGeneric(
 #' @rdname POM
 setMethod(
   "POM",
-  signature(sim = "simList", params = "character", objects = "ANY",
-            objFn = "ANY"),
+  signature(sim = "simList", params = "character", objects = "ANY", objFn = "ANY"),
   definition = function(sim, params, objects, objFn, cl, optimizer,
                         sterr, ..., objFnCompare, optimControl,
                         NaNRetries, logObjFnVals, weights, useLog) {
@@ -204,15 +203,15 @@ setMethod(
     } else {
       clProvided <- TRUE
     }
-    if(!is.null(list(...)$weight)) message("Did you mean to pass 'weight' instead of 'weights'?")
+    if (!is.null(list(...)$weight)) message("Did you mean to pass 'weight' instead of 'weights'?")
 
     on.exit(while (sink.number() > 0) sink(), add = TRUE)
 
-    if(missing(weights)) weights <- rep(1, length(objects))
-    if(!missing(objects))
-      if(length(useLog)<length(objects)) useLog <- rep_len(useLog, length(objects))
+    if (missing(weights)) weights <- rep(1, length(objects))
+    if (!missing(objects))
+      if (length(useLog) < length(objects)) useLog <- rep_len(useLog, length(objects))
 
-    if(is.na(NaNRetries)) NaNRetries <- 1
+    if (is.na(NaNRetries)) NaNRetries <- 1
     paramNames <- lapply(SpaDES::params(sim), names)
     whParams <- lapply(paramNames, function(pn) match(params, pn))
     whModules <- unlist(lapply(whParams, function(mod) any(!is.na(mod))))
@@ -233,7 +232,7 @@ setMethod(
                         whParamsByMod, parallelType, weights, useLog) {
         keepGoing <- TRUE
         tryNum <- 1
-        while(keepGoing) {
+        while (keepGoing) {
           sim_ <- SpaDES::copy(sim)
           whP <- 0
           for (wh in seq_along(whParamsByMod)) {
@@ -261,21 +260,21 @@ setMethod(
               dataObj <- get(names(outputObjects)[[x]])
             }
 
-            if(useLog[x]) {
-              if((outObj <= 0) | (dataObj <= 0)){
+            if (useLog[x]) {
+              if ((outObj <= 0) | (dataObj <= 0)){
                 useLog[x] <- FALSE
                 warning(paste0(names(outputObjects)[x]," or its pattern is zero or negative; not using log"))
               }
 
             }
             if (objFnCompare == "MAD") {
-              if(useLog[x]) {
+              if (useLog[x]) {
                 out <- mean(abs(log(outObj) - log(dataObj)), na.rm = TRUE)
               } else {
                 out <- mean(abs(outObj - dataObj), na.rm = TRUE)
               }
             } else if (objFnCompare == "RMSE") {
-              if(useLog[x]) {
+              if (useLog[x]) {
                 out <- sqrt(mean((log(outObj) - log(dataObj))^2))
               } else {
                 out <- sqrt(mean((outObj - dataObj)^2))
@@ -283,43 +282,41 @@ setMethod(
             } else {
               stop("objFnCompare must be either MAD or RMSE, see help")
             }
-            if(useLog[x]) {
+            if (useLog[x]) {
               dataObjVal <- mean(abs(log(dataObj)), na.rm = TRUE)
             } else{
               dataObjVal <- mean(abs(dataObj), na.rm = TRUE)
             }
-            if(abs(dataObjVal)<1) dataObjVal <- 1
+            if (abs(dataObjVal) < 1) dataObjVal <- 1
             outStandard <- out/dataObjVal
-            out <- list(raw = out, standardized = outStandard,
-                        value = outObj)
+            out <- list(raw = out, standardized = outStandard, value = outObj)
             return(out)
 
           })
           objectiveResStd <- unlist(lapply(objectiveRes, function(x) x[['standardized']]))
           objectiveResW <- objectiveResStd*weights
           sumObj <- sum(objectiveResW)
-          if(is.nan(sumObj)) {
+          if (is.nan(sumObj)) {
             #browser()
-            if(tryNum < NaNRetries) keepGoing <- TRUE else keepGoing <- FALSE
+            if (tryNum < NaNRetries) keepGoing <- TRUE else keepGoing <- FALSE
             tryNum <- tryNum + 1
           } else {
             keepGoing <- FALSE
           }
         }
-        if(!(identical(logObjFnVals,FALSE))) {
-          if(parallelType>0  | (logObjFnVals != "objectiveFnValues.txt"))
+        if (!(identical(logObjFnVals, FALSE))) {
+          if (parallelType > 0 | (logObjFnVals != "objectiveFnValues.txt"))
             sink(file = logObjFnVals, append = TRUE)
-          cat(format(objectiveResW,digits=4), sep ="\t")
+          cat(format(objectiveResW, digits = 4), sep = "\t")
           cat("\n")
-          if(parallelType>0  | (logObjFnVals != "objectiveFnValues.txt"))
+          if (parallelType > 0  | (logObjFnVals != "objectiveFnValues.txt"))
             sink()
-          if(parallelType>0  | (logObjFnVals != "objectiveFnValues.txt"))
-            sink(file = paste0(gsub(logObjFnVals,pattern=".txt",
-                                    replacement = ""),
+          if (parallelType > 0 | (logObjFnVals != "objectiveFnValues.txt"))
+            sink(file = paste0(gsub(logObjFnVals, pattern = ".txt", replacement = ""),
                                "_RawPattern.txt"), append = TRUE)
           cat(format(unlist(lapply(objectiveRes, function(x) x[["value"]])), digits = 4), dep = "\t")
           cat("\n")
-          if(parallelType>0  | (logObjFnVals != "objectiveFnValues.txt"))
+          if (parallelType > 0  | (logObjFnVals != "objectiveFnValues.txt"))
             sink()
 
         }
@@ -328,13 +325,13 @@ setMethod(
       objFn <- function(...) {
         keepGoing1 <- TRUE
         tryNum1 <- 1
-        while(keepGoing1) {
+        while (keepGoing1) {
           outTry <- try(objFn1(...))
-          if(!is(outTry, "try-error")) { # success
+          if (!is(outTry, "try-error")) { # success
             keepGoing1 <- FALSE
           } else { # had error
             warning("objective function returned error on try #",tryNum1, "Consider changing.")
-            if(tryNum1 < NaNRetries) keepGoing1 <- TRUE else keepGoing1 <- FALSE
+            if (tryNum1 < NaNRetries) keepGoing1 <- TRUE else keepGoing1 <- FALSE
             tryNum1 <- tryNum1 + 1
           }
         }
@@ -409,26 +406,24 @@ setMethod(
 
       deoptimArgs$control <- do.call(DEoptim.control, deoptimArgs$control)
 
-      if(!(identical(logObjFnVals,FALSE))) {
-        if(isTRUE(logObjFnVals)) logObjFnVals <- "objectiveFnValues.txt"
+      if (!(identical(logObjFnVals ,FALSE))) {
+        if (isTRUE(logObjFnVals)) logObjFnVals <- "objectiveFnValues.txt"
 
-        if(deoptimArgs$parallelType>0 | (logObjFnVals != "objectiveFnValues.txt"))
+        if (deoptimArgs$parallelType > 0 | (logObjFnVals != "objectiveFnValues.txt"))
           sink(file = logObjFnVals, append = FALSE)
         cat(names(objects), sep = "\t")
         cat("\n")
-        if(deoptimArgs$parallelType>0)
+        if (deoptimArgs$parallelType > 0)
           sink()
-        if(deoptimArgs$parallelType>0 | (logObjFnVals != "objectiveFnValues.txt"))
-          sink(file = paste0(gsub(logObjFnVals,pattern=".txt",
-                                  replacement = ""),
+        if (deoptimArgs$parallelType > 0 | (logObjFnVals != "objectiveFnValues.txt"))
+          sink(file = paste0(gsub(logObjFnVals, pattern = ".txt", replacement = ""),
                              "_RawPattern.txt"), append = FALSE)
 
         cat(names(objects), sep = "\t")
         cat("\n")
-        if(deoptimArgs$parallelType>0 | (logObjFnVals != "objectiveFnValues.txt"))
+        if (deoptimArgs$parallelType > 0 | (logObjFnVals != "objectiveFnValues.txt"))
           sink()
       }
-
 
       print(params)
       output <- do.call("DEoptim", deoptimArgs)
@@ -474,4 +469,4 @@ setMethod(
     }
     output$args <- deoptimArgs
     return(output)
-  })
+})
