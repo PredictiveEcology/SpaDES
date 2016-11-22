@@ -789,17 +789,21 @@ setMethod(
 #' @param fromDev  Numeric. Which device should the replot information be taken from.
 #'                 Default is current device
 #'
+#' @param clearFirst Logical. Should \code{clearPlot} be run before replotting. Default TRUE.
+#'
 #' @export
 #' @include plotting-classes.R
 #' @importFrom grDevices dev.cur
 #' @rdname Plot
 #'
-rePlot <- function(toDev = dev.cur(), fromDev = dev.cur(), ...) {
+rePlot <- function(toDev = dev.cur(), fromDev = dev.cur(), clearFirst = TRUE, ...) {
   if (exists(paste0("spadesPlot", fromDev),envir = .spadesEnv)) {
     currSpadesPlots <- .getSpaDES(paste0("spadesPlot", dev.cur()))
     dev(toDev)
-    clearPlot(toDev)
-    suppressWarnings(Plot(currSpadesPlots$curr, ...))
+    if(clearFirst)
+      clearPlot(toDev)
+    suppressWarnings(Plot(currSpadesPlots$curr,
+                          new = rep(TRUE, length(currSpadesPlots$curr@arr@names)), ...))
   } else {
     stop(
       paste(
