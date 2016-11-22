@@ -84,13 +84,14 @@ setMethod(
         actionButton("resetSimInit", "Reset"),
         downloadButton('downloadData', 'Download'),
         sliderInput("simTimes", paste0("Simulated ", sim@simtimes[["timeunit"]]), sep = "",
-                    start(sim) , end(sim), start(sim)),
+                    start(sim) , end(sim), start(sim), animate = TRUE),
         h3("Modules"),
         uiOutput("moduleTabs")
       ),
       mainPanel(
         tabsetPanel(id = "topTabsetPanel",
-          tabPanel("Preview", plotOutput("spadesPlot", height = "800px")),
+          tabPanel("Preview", uiOutput("lflt")),#leafletOutput('raster_map', width=200, height=200)),
+          #         plotOutput("spadesPlot", height = "800px")),
           tabPanel("Module diagram", uiOutput("moduleDiagramUI")),
           tabPanel("Object diagram", uiOutput("objectDiagramUI")),
           tabPanel("Event diagram", uiOutput("eventDiagramUI")),
@@ -130,17 +131,22 @@ setMethod(
         output[[kLocal]] <- renderUI({
           Params <- params(sim)[[kLocal]]
           lapply(names(Params), function(i) {
-            moduleParams <- sim@depends@dependencies$gameOfLife@parameters[sim@depends@dependencies$gameOfLife@parameters[,"paramName"]==i,]
+            #browser()
+            moduleParams <- sim@depends@dependencies[[kLocal]]@parameters[sim@depends@dependencies[[kLocal]]@parameters[,"paramName"]==i,]
             if (i %in% c(".plotInitialTime", ".saveInitialTime", ".plotInterval", ".saveInterval")) {
-              if (!is.na(params(sim)[[kLocal]][[i]])) {
+              # Check if default value or min or max are NAs... if all NAs, then omit
+              if(any(!is.na(moduleParams[["min"]][[1]]),
+                     !is.na(moduleParams[["max"]][[1]]),
+                     !is.na(params(sim)[[kLocal]][[i]]))) {
+                sliderVal <- if(is.na(params(sim)[[kLocal]][[i]])) {end(sim) + 1} else {params(sim)[[kLocal]][[i]]}
                 sliderInput(
                   inputId = paste0(kLocal, "$", i),
                   label = i,
-                  min = min(start(sim), params(sim)[[kLocal]][[i]]),
-                  max = min(endTime, end(sim)) -
+                  min = min(start(sim), params(sim)[[kLocal]][[i]], na.rm=TRUE),
+                  max = min(endTime+1, end(sim)+1, na.rm=TRUE) -
                     ifelse(i %in% c(".plotInterval", ".saveInterval"), start(sim), 0),
-                  value = params(sim)[[kLocal]][[i]],
-                  step = ((min(endTime, end(sim)) - start(sim))/10) %>% as.numeric(),
+                  value = sliderVal,
+                  step = ((min(endTime+1, end(sim)+1) - start(sim))/10) %>% as.numeric(),
                   sep = "")
               }
             } else if (is.numeric(Params[[i]])) {
@@ -185,6 +191,70 @@ setMethod(
       if ((time(sim, sim@simtimes[["timeunit"]]) < endTime) & (v$stop != "stop")) invalidateLater(0)
       sim <<- spades(sim, debug = debug) # Run spades
     }
+
+    renderUI({
+      plotOutput("moduleDiagram",
+                 height = max(600, (length(modules(sim)) )*100))
+    })
+
+    # Leaflet
+    #for(i in 1:2) {
+      #output[[paste0("raster_map",i)]] = renderLeaflet({get(paste0("map",i))})
+
+      #assign(paste0("reactiveRaster",i),
+      #  reactive({get(paste0("rasStack",i))[[input$simTimes+1]]})
+      #)
+
+    #}
+
+    for(i in 1:2) {
+      output[[paste0("raster_map",i)]] = renderLeaflet({get(paste0("map", i))})
+      #v[[paste0("reactiveRaster",i)]] <- reactive({get(paste0("rasStack",i))[[input$simTimes+1]]})
+    }
+    #
+
+    observeEvent(input$simTimes, {
+      for(i in 1:2) {
+        v[[paste0("reactiveRaster",i)]] <- get(paste0("rasStack",i))[[input$simTimes+1]]
+      }
+    })
+
+    #for(i in 1:2) {
+    #  observe({
+    #    leafletProxy(paste0("raster_map",i)) %>%
+    #      #clearImages() %>%
+    #      addRasterImage(v[[paste0("reactiveRaster",i)]], project = FALSE)
+    #  })
+
+
+    #}
+
+
+    observe({
+      for(i in 1:2) {
+        leafletProxy(paste0("raster_map",i)) %>%
+          #clearImages() %>%
+          addRasterImage(v[[paste0("reactiveRaster",i)]], project = TRUE)
+      }
+    })
+
+
+    output$lflt <- renderUI({
+
+      myTabs1 <- lapply(1:2, function(i) {
+        tabPanel(paste0("rast", i), h4(paste("Outs",i)),
+                 leafletOutput(paste0("raster_map",i), width=100/0.596, height=100/0.596))
+      })
+      do.call(fluidRow, myTabs1)
+
+      # a <- list()
+      # for(i in 1:2)
+      #   a[[i]] <- leafletOutput(paste0("raster_map",1), width=200, height=200)
+      # return(a)
+       }
+      )
+
+
 
     # Needs cleaning up - This should just be a subset of above
     spadesCall <- eventReactive(input$oneTimestepSpaDESButton, {
@@ -245,10 +315,11 @@ setMethod(
       else
         alreadyPlotted <- FALSE
 
+      #browser()
       if (any(alreadyPlotted)) {
-        rePlot()
+        rePlot(clearFirst = FALSE)
       } else {
-        clearPlot() # Don't want to use this, but it seems that renderPlot will not allow overplotting
+        #clearPlot() # Don't want to use this, but it seems that renderPlot will not allow overplotting
       }
       if (is.null(v$data)) return() # catch if no data yet
       if (v$data == "oneTime") {
