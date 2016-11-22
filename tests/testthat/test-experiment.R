@@ -192,11 +192,13 @@ test_that("parallel does not work with experiment function", {
   set.seed(2343)
   seqTime <- system.time(simsSeq <- experiment(mySimFull, params = experimentParams))
 
-  n <- pmin(parallel::detectCores(), 4) # use up to 4 cores
-  beginCluster(n)
-  set.seed(2343)
-  parTime <- system.time(simsPar <- experiment(mySimFull, params = experimentParams))
-  endCluster()
-  expect_equal(attr(simsPar, "experiment"), attr(simsSeq, "experiment"))
-  expect_gt(as.numeric(seqTime)[3], as.numeric(parTime)[3])
+  if (interactive()) {
+    n <- pmin(parallel::detectCores(), 4) # use up to 4 cores
+    beginCluster(n)
+    set.seed(2343)
+    parTime <- system.time(simsPar <- experiment(mySimFull, params = experimentParams))
+    endCluster()
+    expect_equal(attr(simsPar, "experiment"), attr(simsSeq, "experiment"))
+    expect_gt(as.numeric(seqTime)[3], as.numeric(parTime)[3])
+  }
 })

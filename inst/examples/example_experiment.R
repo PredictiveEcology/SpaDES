@@ -87,6 +87,7 @@ if (interactive()) {
   # if all the levels don't make sense. Here, changing parameter values
   # in the fireSpread module won't affect the simulation when the fireSpread
   # module is not loaded:
+
   # library(raster)
   # beginCluster(20) # if you have multiple clusters available, use them here to save time
   sims <- experiment(mySim, replicates = 2, params = experimentParams,

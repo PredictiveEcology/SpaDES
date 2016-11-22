@@ -91,6 +91,7 @@ nx <- 3
 ny <- 4
 
 tmpdir <- file.path(tempdir(), "splitRaster-example")
+dir.create(tmpdir)
 
 y0 <- splitRaster(r, nx, ny, path = file.path(tmpdir, "y0")) # no buffer
 

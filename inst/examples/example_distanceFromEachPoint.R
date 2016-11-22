@@ -26,7 +26,7 @@ all(idwRaster[] == distRas[]) # TRUE
 
 # A more complex example of cumulative inverse distance sums, weighted by the value
 #  of the origin cell
-ras <- raster(extent(0,34, 0,34), res = 1, val = 0)
+ras <- raster(extent(0, 34, 0, 34), res = 1, val = 0)
 rp <- randomPolygons(ras, numTypes = 10)^2
 N <- 15
 cells <- sample(ncell(ras), N)
@@ -35,9 +35,9 @@ distFn <- function(landscape, fromCell, dist) landscape[fromCell] / (1 + dist)
 
 # beginCluster(3) # can do parallel
 dists1 <- distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE],
-               landscape = rp, distFn = distFn, cumulativeFn = `+`)
-
+                                landscape = rp, distFn = distFn, cumulativeFn = `+`)
 # endCluster() # if beginCluster was run
+
 idwRaster <- raster(ras)
 idwRaster[] <- dists1[,"val"]
 if (interactive()) {

@@ -22,9 +22,9 @@ This has been changed to use a temporary directory by default instead, with a pa
 * Windows 7            (local), R 3.3.0, 3.3.1
 
 ### Development R version
-* Debian:testing  (rocker/drd), R 3.4.0 (2016-10-02 r71437)
-* Ubuntu 12.04     (travis-ci), R 3.4.0 (2016-10-07 r71462)
-* Windows           (appveyor), R 3.4.0 (2016-10-07 r71462)
+* Debian:testing  (rocker/drd), R 3.4.0 (2016-11-20 r71670)
+* Ubuntu 12.04     (travis-ci), R 3.4.0 (2016-11-18 r71668)
+* Windows           (appveyor), R 3.4.0 (2016-11-17 r71664)
 * Windows        (win-builder), R 3.4.0 (2016-10-07 r71462)
 
 ## R CMD check results
