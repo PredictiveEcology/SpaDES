@@ -81,17 +81,17 @@ setMethod(
              pmp <- .parseModulePartial(filename = file.path(path,module, paste0(module, ".R")),
                                         defineModuleElement = xx)
              out2 <- try(eval(pmp), silent = TRUE)
-             if(is(out2, "try-error")) {
+             if (is(out2, "try-error")) {
                inner2 <- lapply(pmp, function(yyy) { # pmp is whole rbind statement
                  out4 <- try(eval(yyy), silent = TRUE)
-                 if(is(out4, "try-error")) {
+                 if (is(out4, "try-error")) {
                    yyy <- lapply(yyy, function(yyyyy) { # yyy is whole defineParameter statement
                      out5 <- try(eval(yyyyy), silent = TRUE)
-                     if(is(out5, "try-error")) yyyyy <- deparse(yyyyy)
+                     if (is(out5, "try-error")) yyyyy <- deparse(yyyyy)
                      return(yyyyy)
                     })
                   }
-                 if(is.list(yyy)) yyy <- as.call(yyy)
+                 if (is.list(yyy)) yyy <- as.call(yyy)
                  return(yyy)
                })
                out2 <- as.call(inner2)

@@ -529,10 +529,10 @@ setMethod(
   signature = c(".simList"),
   definition = function(sim) {
     ret <- sim@current$moduleName
-    if(length(ret))
+    if (length(ret))
       return(ret)
     else
-      return(NA)
+      return(NA_character_)
 })
 
 ################################################################################
@@ -1592,7 +1592,7 @@ setReplaceMethod(
     wh <- pmatch(names(sim@paths), names(value)) # always length 4, NA if no name match, number if yes
     whValueNamed <- which(!is.na(pmatch(names(value), names(sim@paths)))) # length of names of value
     whValueUnnamed <- rep(TRUE, length(value))
-    if(length(whValueNamed)) whValueUnnamed[whValueNamed] <- FALSE
+    if (length(whValueNamed)) whValueUnnamed[whValueNamed] <- FALSE
 
 
     # keep named elements, use unnamed in remaining order:
@@ -1607,8 +1607,7 @@ setReplaceMethod(
 
     # start with .paths()
     emptyOnes <- unlist(lapply(sim@paths, is.null))
-    if(sum(emptyOnes)>0)
-      sim@paths[emptyOnes] <- .paths()[emptyOnes]
+    if (sum(emptyOnes) > 0) sim@paths[emptyOnes] <- .paths()[emptyOnes]
 
     # override with named ones
     sim@paths[!is.na(wh)] <- value[na.omit(wh)]
@@ -1619,7 +1618,7 @@ setReplaceMethod(
     if (length(na.omit(wh)) < length(value)) {
       whichNamed <- which(!is.na(wh))
       whichUnnamed <- (1:length(sim@paths))
-      if(length(whichNamed)>0) whichUnnamed <- whichUnnamed[-whichNamed]
+      if (length(whichNamed) > 0) whichUnnamed <- whichUnnamed[-whichNamed]
       sim@paths[whichUnnamed][seq_len(sum(whValueUnnamed))] <- value[whValueUnnamed]
     }
 

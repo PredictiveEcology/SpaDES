@@ -211,15 +211,16 @@ if (interactive()) {
   #  i.e., sim$landscape$Fires
   #  the return value being compared via MAD with propCellBurnedData
   propCellBurnedFn <- function(landscape) {
-    sum(getValues(landscape$Fires)>0) / ncell(landscape$Fires)
+    sum(getValues(landscape$Fires) > 0) / ncell(landscape$Fires)
   }
   # visualize the burned maps of true "data"
   propCellBurnedData <- propCellBurnedFn(outData$landscape)
   clearPlot()
-  if(interactive()) {
+  if (interactive()) {
     Fires <- outData$landscape$Fires # Plot doesn't do well with many nested layers
     Plot(Fires)
   }
+
   # Example 1 - 1 parameter
   # In words, this says, "find the best value of spreadprob such that
   #  the proportion of the area burned in the simulation

@@ -184,13 +184,13 @@ setMethod(
     if (missing(notOlderThan)) notOlderThan <- NULL
     # These three lines added to original version of cache in archive package
     wh <- which(sapply(tmpl, function(x) is(x, "simList")))
-    if(is.null(cacheRepo)) {
-      if(length(wh)>0) {
+    if (is.null(cacheRepo)) {
+      if (length(wh) > 0) {
         cacheRepo <- tmpl[wh]@paths$cachePath
       } else {
         doEventFrameNum <- grep(sys.calls(), pattern = "^doEvent")[1]
-        if(!is.na(doEventFrameNum)) {
-          sim <- get("sim", envir=sys.frame(doEventFrameNum))
+        if (!is.na(doEventFrameNum)) {
+          sim <- get("sim", envir = sys.frame(doEventFrameNum))
           cacheRepo <- sim@paths$cachePath
         } else {
           stop("Cache requires sim or cacheRepo to be set")
@@ -205,20 +205,20 @@ setMethod(
 
     whRas <- which(sapply(tmpl, function(x) is(x, "Raster")))
     whFun <- which(sapply(tmpl, function(x) is.function(x)))
-    if(length(wh)>0 | exists("sim")) {
-      if(length(wh)>0) {
+    if (length(wh) > 0 | exists("sim")) {
+      if (length(wh) > 0) {
         cur <- current(tmpl[[wh]])
       } else {
         cur <- current(sim)
       }
     }
-    if(is.null(objects)) {
+    if (is.null(objects)) {
       if (length(wh) > 0) tmpl[wh] <- lapply(tmpl[wh], makeDigestible)
     } else {
       if (length(wh) > 0) tmpl[wh] <- lapply(tmpl[wh], function(xx) makeDigestible(xx, objects))
     }
 
-    if(isS4(FUN)) {
+    if (isS4(FUN)) {
       # Have to extract the correct dispatched method
       firstElems <- strsplit(showMethods(FUN, inherited = TRUE, printTo = FALSE), split = ", ")
       firstElems <- lapply(firstElems, function(x) {
@@ -230,11 +230,11 @@ setMethod(
         FUN@signature %in% x})
       signat <- unlist(sigArgs[unlist(lapply(sigArgs, function(y) any(y)))])
 
-      methodUsed <- selectMethod(FUN, optional = TRUE, signature =
-                                   sapply(as.list(match.call(FUN,
-                                                             do.call(call, append(list(name = FUN@generic),
-                                                                                  tmpl))))[FUN@signature[signat]],
-                                          class))
+      methodUsed <- selectMethod(FUN, optional = TRUE,
+                                 signature = sapply(as.list(
+                                   match.call(FUN, do.call(call, append(list(name = FUN@generic),
+                                                                        tmpl))))[FUN@signature[signat]],
+                                   class))
       tmpl$.FUN <- format(methodUsed@.Data)
     } else {
       tmpl$.FUN <- format(FUN) # This is changed to allow copying between computers
@@ -251,18 +251,19 @@ setMethod(
       lastEntry <- max(isInRepo$createdDate)
       lastOne <- order(isInRepo$createdDate, decreasing = TRUE)[1]
       if (is.null(notOlderThan) || (notOlderThan < lastEntry)) {
-        if(grepl(format(FUN)[1], pattern= "function \\(sim, eventTime")) { # very coarse way of determining doEvent call
+        if (grepl(format(FUN)[1], pattern = "function \\(sim, eventTime")) {
+          # very coarse way of determining doEvent call
           message("Using cached copy of ",cur$eventType," event in ",cur$moduleName," module")
         }
 
         out <- loadFromLocalRepo(isInRepo$artifact[lastOne],
                                  repoDir = cacheRepo, value = TRUE)
         #if(!is(out, "simList")) {
-          if(length(wh)>0) {
+          if (length(wh) > 0) {
             simListOut <- out # gets all items except objects in list(...)
             origEnv <- list(...)[[wh]]@.envir
             keepFromOrig <- !(ls(origEnv) %fin% ls(out))
-            list2env(mget(ls(origEnv)[keepFromOrig], envir=origEnv), envir=simListOut@.envir)
+            list2env(mget(ls(origEnv)[keepFromOrig], envir = origEnv), envir = simListOut@.envir)
 
             #simListOut <- list(...)[[wh]] # original simList
             #for(i in ls(out)) {
@@ -283,17 +284,17 @@ setMethod(
     output <- do.call(FUN, list(...))
     attr(output, "tags") <- paste0("cacheId:", outputHash)
     attr(output, "call") <- ""
-    if(isS4(FUN))
+    if (isS4(FUN))
       attr(output, "function") <- FUN@generic
 
-    if(is(output, "simList")) {
-      if(!is.null(outputObjects)) {
+    if (is(output, "simList")) {
+      if (!is.null(outputObjects)) {
         outputToSave <- output
         outputToSave@.envir <- new.env()
-        list2env(mget(outputObjects, envir = output@.envir), envir=outputToSave@.envir)
+        list2env(mget(outputObjects, envir = output@.envir), envir = outputToSave@.envir)
         attr(outputToSave, "tags") <- attr(output, "tags")
         attr(outputToSave, "call") <- attr(output, "call")
-        if(isS4(FUN))
+        if (isS4(FUN))
           attr(outputToSave, "function") <- attr(output, "function")
       } else {
         outputToSave <- output
@@ -317,8 +318,8 @@ setMethod(
         TRUE
       }
     }
-    output
-  })
+    return(output)
+})
 
 
 #' @inheritParams spades
@@ -352,10 +353,10 @@ setMethod(
   "clearCache",
   definition = function(sim, afterDate, beforeDate, cacheRepo, ...) {
 
-    if(missing(sim) & missing(cacheRepo)) stop("Must provide either sim or cacheRepo")
-    if(missing(cacheRepo)) cacheRepo <- sim@paths$cachePath
-    if(missing(afterDate)) afterDate = "1970-01-01"
-    if(missing(beforeDate)) beforeDate = Sys.Date() + 1
+    if (missing(sim) & missing(cacheRepo)) stop("Must provide either sim or cacheRepo")
+    if (missing(cacheRepo)) cacheRepo <- sim@paths$cachePath
+    if (missing(afterDate)) afterDate = "1970-01-01"
+    if (missing(beforeDate)) beforeDate = Sys.Date() + 1
 
     objs <- searchInLocalRepo(pattern = list(dateFrom = afterDate, dateTo = beforeDate),
                               repoDir = cacheRepo)
@@ -389,13 +390,14 @@ setMethod(
   "showCache",
   definition = function(sim, cacheRepo, ...) {
 
-    if(missing(sim) & missing(cacheRepo)) stop("Must provide either sim or cacheRepo")
-    if(missing(cacheRepo)) cacheRepo <- sim@paths$cachePath
+    if (missing(sim) & missing(cacheRepo)) stop("Must provide either sim or cacheRepo")
+    if (missing(cacheRepo)) cacheRepo <- sim@paths$cachePath
 
-    tryCatch(splitTagsLocal(cacheRepo), error = function(x)
-      data.frame(artifact = character(), tagKey = character(), tagValue = character(),
-                 createdDate = character()))
-  })
+    tryCatch(splitTagsLocal(cacheRepo), error = function(x) {
+      data.frame(artifact = character(0), tagKey = character(0),
+                 tagValue = character(0), createdDate = character(0))
+    })
+})
 
 ################################################################################
 #' Remove any reference to environments or filepaths in objects
@@ -442,7 +444,7 @@ setMethod(
 #' @author Eliot McIntire
 setGeneric("makeDigestible", function(object, objects) {
           standardGeneric("makeDigestible")
-      })
+})
 
 #' @rdname makeDigestible
 setMethod(
@@ -451,7 +453,7 @@ setMethod(
     definition = function(object, objects) {
 
       objectsToDigest <- sort(ls(object@.envir, all.names = TRUE))
-      if(!missing(objects)) {
+      if (!missing(objects)) {
         objectsToDigest <- objectsToDigest[objectsToDigest %in% objects]
       }
       envirHash <- (sapply(objectsToDigest, function(x) {
@@ -497,7 +499,7 @@ setMethod(
       object@params <- lapply(object@params, function(x) sortDotsFirst(x))
 
       return(object)
-    })
+})
 
 setMethod(
   "makeDigestible",
@@ -521,8 +523,7 @@ setMethod(
       }
     }
     return(dig)
-  }
-)
+})
 
 ################################################################################
 #' Clear erroneous archivist artifacts
@@ -557,8 +558,7 @@ setMethod(
     md5hashInBackpack[toRemove] %>%
       sapply(., rmFromLocalRepo, repoDir = repoDir)
     return(invisible(md5hashInBackpack[toRemove]))
-  })
-
+})
 
 #' @export
 #' @importFrom archivist showLocalRepo rmFromLocalRepo
@@ -568,7 +568,7 @@ setGeneric("cache", signature = "...",
            function(cacheRepo = NULL, FUN, ..., notOlderThan = NULL,
                     objects = NULL, outputObjects = NULL, algo = "xxhash32") {
              archivist::cache(cacheRepo, FUN, ..., notOlderThan, algo)
-           })
+})
 
 #' @export
 #' @rdname cache
@@ -578,4 +578,4 @@ setMethod(
                         outputObjects, algo) {
     Cache(FUN = FUN, ..., notOlderThan = notOlderThan, objects = objects,
           outputObjects = outputObjects, algo = algo, cacheRepo = cacheRepo)
-  })
+})

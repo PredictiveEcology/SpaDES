@@ -1376,7 +1376,7 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
     if (!is.na(maxDistance)) {
       dists <- dists[dists[,"dists"] <= maxDistance,]
     }
-    if(any(otherFromCols)) {
+    if (any(otherFromCols)) {
       colNums <- seq_len(ncol(dists))
       dists <- cbind(dists=dists, from[,otherFromCols])
       colnames(dists)[-colNums] <- colnames(from)[otherFromCols]

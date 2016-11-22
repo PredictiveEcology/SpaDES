@@ -726,7 +726,7 @@ setMethod(
         error = function(x) {
           tryCatch(
             eval(
-              match.call(definition=eval, call=parseTxt)$envir,
+              match.call(definition = eval, call = parseTxt)$envir,
               envir = e
             ),
             error = function(x) { .GlobalEnv }
@@ -1185,7 +1185,7 @@ setMethod(
                                                       "lty", "lwd", "lwd.ticks", "col.ticks", "hadj", "padj")]
         }
 
-        if(xyAxes$x & (isBaseSubPlot & (isNewPlot | isReplot) | wipe)){
+        if (xyAxes$x & (isBaseSubPlot & (isNewPlot | isReplot) | wipe)){
 
           axesArgsX <- append(list(side = 1), axesArgs)
           suppressWarnings(do.call(axis, args = axesArgsX))

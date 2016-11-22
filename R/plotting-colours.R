@@ -379,7 +379,7 @@ setMethod(
     #  too many numbers
     maxNumCols <- 100
 
-    if(isFac) {
+    if (isFac) {
       facLevs <- raster::levels(grobToPlot)[[1]]
       nValues <- NROW(facLevs)
     } else {
@@ -477,7 +477,7 @@ setMethod(
     }
 
     # Here, rescale so it is between 0 and maxNumCols or nValues
-    if(isFac){
+    if (isFac){
       z <- match(z, facLevs$ID)
     } else {
       if (real) {#& (maxz <= maxNumCols) ) {
@@ -490,7 +490,7 @@ setMethod(
         #            (-(maxNumCols / maxz * minz) + 1))
       } else {
         # rescale so that the minimum is 1, not <1:
-        if(nValues>1) {
+        if (nValues > 1) {
           z <- (nValues - 1) /  (maxz - minz) * (z - minz) + 1
         } else {
           z <- (z - minz) + 1
@@ -536,7 +536,7 @@ setMethod(
 
     # if range of values is not within the legend range, then give them NA
     if (minz < 0) z[z < 0] <- 0
-    if(!isFac) {
+    if (!isFac) {
       if (real) {
         if (maxz > maxNumCols) z[z > maxNumCols] <- 0
       } else {
@@ -548,8 +548,8 @@ setMethod(
     z[is.na(z)] <- 1 # max(1, minz)
 
     if (isFac & !is.null(colTable)) {
-      cols <- rep(na.color,length(factorValues)) # changed from max to length to accommodate zeros or factors not starting at 1
-      cols[factorValues-min(factorValues)+1] <- colTable
+      cols <- rep(na.color, length(factorValues)) # changed from max to length to accommodate zeros or factors not starting at 1
+      cols[factorValues - min(factorValues) + 1] <- colTable
     }
     if (length(whichZeroLegend)) {
       cols[whichZeroLegend] <- zero.color

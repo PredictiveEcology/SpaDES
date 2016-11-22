@@ -185,7 +185,7 @@ randomPolygons <- function(ras = raster(extent(0,15,0,15), res = 1, vals = 0),
 #' set.seed(1234)
 #' Ntypes <- 4
 #' ras <- randomPolygons(numTypes = Ntypes)
-#' if(interactive()) {
+#' if (interactive()) {
 #'   clearPlot()
 #'   Plot(ras)
 #' }
@@ -210,7 +210,7 @@ randomPolygons <- function(ras = raster(extent(0,15,0,15), res = 1, vals = 0),
 #' }
 #' rasAgents <- specificNumPerPatch(ras, numPerPatchMap = rasPatches)
 #' rasAgents[is.na(rasAgents)] <- 0
-#' if(interactive()) {
+#' if (interactive()) {
 #'   clearPlot()
 #'   Plot(rasAgents)
 #' }

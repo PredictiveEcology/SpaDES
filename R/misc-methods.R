@@ -680,9 +680,9 @@ setMethod(
 #' @author Eliot McIntire
 sortDotsFirst <- function(obj) {
   dotObjs <- grep("^\\.", names(obj))
-  if(length(dotObjs)>0) {
+  if (length(dotObjs) > 0) {
     append(obj[dotObjs][order(names(obj[dotObjs]))],
-         obj[-dotObjs][order(names(obj[-dotObjs]))])
+           obj[-dotObjs][order(names(obj[-dotObjs]))])
   } else {
     obj
   }
