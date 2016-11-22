@@ -164,17 +164,17 @@ test_that("3 levels of parent and child modules load and show correctly", {
 
   suppressMessages({
     newModule("grandpar1", ".", type = "parent",
-              children = c("child1", "child2", "par1", "par2"))
-    newModule("par1", ".", type = "parent", children = c("child4", "child3"))
-    newModule("par2", ".", type = "parent", children = c("child5", "child6"))
-    newModule("child1", ".")
-    newModule("child3", ".")
-    newModule("child4", ".")
-    newModule("child5", ".")
-    newModule("child6", ".")
+              children = c("child1", "child2", "par1", "par2"), open = FALSE)
+    newModule("par1", ".", type = "parent", children = c("child4", "child3"), open = FALSE)
+    newModule("par2", ".", type = "parent", children = c("child5", "child6"), open = FALSE)
+    newModule("child1", ".", open = FALSE)
+    newModule("child3", ".", open = FALSE)
+    newModule("child4", ".", open = FALSE)
+    newModule("child5", ".", open = FALSE)
+    newModule("child6", ".", open = FALSE)
   })
 
-  suppressMessages(newModule("child2", "."))
+  suppressMessages(newModule("child2", ".", open = FALSE))
   fileName <- 'child2/child2.R'
   xxx <- readLines(fileName)
   xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = "day"')
