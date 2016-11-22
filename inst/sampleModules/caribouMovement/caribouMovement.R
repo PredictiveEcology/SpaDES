@@ -1,7 +1,7 @@
 usesSpaDESVersion <- "1.1.0"
 if (packageVersion("SpaDES") < usesSpaDESVersion) {
-  stop("This caribouMovement module was built with SpaDES version", usesSpaDESVersion,
-       "Please update SpaDES to use this module")
+  stop("This caribouMovement module was built with SpaDES version ", usesSpaDESVersion, ".",
+       " Please update SpaDES to use this module.")
 }
 rm(usesSpaDESVersion)
 
@@ -22,7 +22,7 @@ defineModule(sim, list(
   documentation = list(),
   reqdPkgs = list("grid", "raster", "sp"),
   parameters = rbind(
-    defineParameter("moveInitialTime", "numeric", start(sim)+1, start(sim)+1, end(sim), "time to schedule first movement event"),
+    defineParameter("moveInitialTime", "numeric", start(sim) + 1, start(sim) + 1, end(sim), "time to schedule first movement event"),
     defineParameter("moveInterval", "numeric", 1.0, 1, 1, "time interval between movoment events"),
     defineParameter("N", "numeric", 100L, 10L, 1000L, "initial number of caribou"),
     defineParameter("torus", "logical", FALSE, FALSE, TRUE, "should the map wrap around like a torus?"),
