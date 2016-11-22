@@ -134,7 +134,7 @@ setMethod(
             if (i %in% c(".plotInitialTime", ".saveInitialTime", ".plotInterval", ".saveInterval")) {
               if (!is.na(params(sim)[[kLocal]][[i]])) {
                 sliderInput(
-                  inputId = paste0(kLocal,"$",i),
+                  inputId = paste0(kLocal, "$", i),
                   label = i,
                   min = min(start(sim), params(sim)[[kLocal]][[i]]),
                   max = min(endTime, end(sim)) -
@@ -150,7 +150,7 @@ setMethod(
                 min = moduleParams[["min"]][[1]],
                 max = moduleParams[["max"]][[1]],
                 value = params(sim)[[kLocal]][[i]],
-                step = (moduleParams[["max"]][[1]]-moduleParams[["min"]][[1]])/10,
+                step = (moduleParams[["max"]][[1]] - moduleParams[["min"]][[1]])/10,
                 sep = "")
             } else if (is.logical(Params[[i]])) {
               checkboxInput(
@@ -211,7 +211,8 @@ setMethod(
       }
     })
 
-    v <- reactiveValues(data = NULL, time = time(sim, sim@simtimes[["timeunit"]]), end = end(sim, sim@simtimes[["timeunit"]]), sliderUsed = FALSE)
+    v <- reactiveValues(data = NULL, time = time(sim, sim@simtimes[["timeunit"]]),
+                        end = end(sim, sim@simtimes[["timeunit"]]), sliderUsed = FALSE)
 
     # Button clicks
     observeEvent(input$oneTimestepSpaDESButton, {
