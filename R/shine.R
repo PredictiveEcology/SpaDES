@@ -130,7 +130,7 @@ setMethod(
         output[[kLocal]] <- renderUI({
           Params <- params(sim)[[kLocal]]
           lapply(names(Params), function(i) {
-            moduleParams <- sim@depends@dependencies$gameOfLife@parameters[sim@depends@dependencies$gameOfLife@parameters[,"paramName"]==i,]
+            moduleParams <- sim@depends@dependencies[[kLocal]]@parameters[sim@depends@dependencies[[kLocal]]@parameters[,"paramName"]==i,]
             if (i %in% c(".plotInitialTime", ".saveInitialTime", ".plotInterval", ".saveInterval")) {
               if (!is.na(params(sim)[[kLocal]][[i]])) {
                 sliderInput(
