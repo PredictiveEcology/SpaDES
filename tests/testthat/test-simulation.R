@@ -208,7 +208,7 @@ test_that("simInit with R subfolder scripts", {
     unlink(tmpdir, recursive = TRUE)
   }, add = TRUE)
 
-  newModule("child1", ".")
+  newModule("child1", ".", open = FALSE)
   cat(file = file.path("child1", "R", "script.R"),
       "a <- function(r) {
           r + 1
