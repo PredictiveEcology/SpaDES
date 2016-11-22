@@ -27,9 +27,10 @@ test_that("test checkpointing", {
 
   ## save checkpoints; with load/restore
   set.seed(1234)
-  times <- list(start = 0, end = 1, timeunit = "second")
+  times <- list(start = 0, end = 2, timeunit = "second")
   simB <- simInit(times = times, params = parameters, modules = modules,
                   paths = paths)
+  end(simB) <- 1
   simB <- suppressWarnings(spades(simB))
   rm(simB)
 

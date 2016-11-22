@@ -607,8 +607,7 @@ test_that("setColors is not error-free", {
 
   on.exit({
     setwd(cwd)
-    if(length(dev.list())>0)
-      dev.off()
+    if (length(dev.list()) > 0) dev.off()
     unlink(tmpdir, recursive = TRUE)
   }, add = TRUE)
   set.seed(1234)

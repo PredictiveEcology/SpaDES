@@ -384,7 +384,7 @@ setMethod(
     news <- sapply(new, function(x) x)
     # this covers the case where R thinks that there is nothing, but
     #  there may in fact be something.
-    if(sum(news)>0) {
+    if (sum(news) > 0) {
       if ((length(ls(.spadesEnv)) +
            numLayers(.spadesEnv[[paste0("spadesPlot", dev.cur())]]) - 1) <= sum(news) |
           length(ls(.spadesEnv)) == 0) {
@@ -422,7 +422,7 @@ setMethod(
 
       whFrame <- which(isDoCall)
       plotFrame <- sys.frame(whFrame - 1)
-      if(is.null(dots$env))
+      if (is.null(dots$env))
         dots$env <- plotFrame
         #stop("Currently, Plot can not be called within a do.call. ",
         #     "Try passing a named list of objects to Plot instead.")
@@ -436,10 +436,10 @@ setMethod(
       if (isList) { # perhaps push objects into an environment, if they are only in the list
         env <- sys.frame(whFrame - 1)
         onlyInList <- !unlist(lapply(names(dots), exists, envir = env, inherits = FALSE))
-        if(any(onlyInList)) {
-          assign(paste0("Dev",dev.cur()), new.env(hash = FALSE, parent = .spadesEnv),
+        if (any(onlyInList)) {
+          assign(paste0("Dev", dev.cur()), new.env(hash = FALSE, parent = .spadesEnv),
                  envir = .spadesEnv)
-          dots$env <- list2env(dots, envir = get(paste0("Dev",dev.cur()), envir = .spadesEnv))
+          dots$env <- list2env(dots, envir = get(paste0("Dev", dev.cur()), envir = .spadesEnv))
 
         } else {
           dots$env <- env
@@ -452,12 +452,12 @@ setMethod(
 
     # if user uses col instead of cols
     if (is.null(cols)) {
-      if(!is.null(col)) {
+      if (!is.null(col)) {
         cols <- col
         plotArgs$cols <- cols
       }
     } else {
-      if(!is.null(col)) {
+      if (!is.null(col)) {
         message("cols and col both supplied. Using cols")
       }
     }
@@ -470,64 +470,67 @@ setMethod(
     }
 
     whichSpadesPlottables <- sapply(dotObjs, function(x) {
-      is(x, ".spadesPlottables") })
-    if(!(all(!whichSpadesPlottables) | all(whichSpadesPlottables)))
+      is(x, ".spadesPlottables")
+    })
+
+    if (!(all(!whichSpadesPlottables) | all(whichSpadesPlottables)))
       stop("Can't mix base plots with .spadesPlottables objects in one function call. ",
               "Please call Plot for base plots separately.")
 
     # Create plotObjs object, which is a cleaned up version of the objects passed into Plot
-    if(all(!whichSpadesPlottables) ) { ## if not a .spadesPlottables then it is a pass to plot or points
-      if(!exists(paste0("basePlots_",dev.cur()), envir=.spadesEnv))
-        .assignSpaDES(paste0("basePlots_",dev.cur()), new.env(hash = FALSE, parent = .spadesEnv))
+    if (all(!whichSpadesPlottables) ) { ## if not a .spadesPlottables then it is a pass to plot or points
+      if (!exists(paste0("basePlots_", dev.cur()), envir = .spadesEnv))
+        .assignSpaDES(paste0("basePlots_", dev.cur()), new.env(hash = FALSE, parent = .spadesEnv))
       mc <- match.call(get(plotArgs$plotFn), call(plotArgs$plotFn, quote(...)))
       mcPlot <- match.call(Plot, call = sys.call(whFrame))
       plotArgs$userProvidedPlotFn <- ("plotFn" %in% names(mcPlot))
 
       basePlotDots <- list()
-      for(i in names(mc)[-1])
-        basePlotDots[[i]] <- eval(mc[[i]])
+      for (i in names(mc)[-1]) basePlotDots[[i]] <- eval(mc[[i]])
       plotObjs <- list(list(basePlotDots))
       plotXYArgs <- substitute(list(...))
       xAndY <- c('x','y') %in% names(basePlotDots)
       xAndYLab <- c('xlab','ylab') %in% names(basePlotDots)
       xAndYSum <- sum(xAndY)
-      if(!is.null(basePlotDots$xlab) | !is.null(basePlotDots$ylab)) {
+      if (!is.null(basePlotDots$xlab) | !is.null(basePlotDots$ylab)) {
         plotArgs$axisLabels <- list(c(basePlotDots$xlab, basePlotDots$ylab))
         names(plotArgs$axisLabels[[1]]) <- c('x','y')[xAndYLab]
       } else {
-        plotArgs$axisLabels <- list(unlist(lapply(plotXYArgs[1:xAndYSum+1], deparse)))
+        plotArgs$axisLabels <- list(unlist(lapply(plotXYArgs[1:xAndYSum + 1], deparse)))
       }
 
-      if(is.null(addTo)) {
+      if (is.null(addTo)) {
         addTo <- "basePlot1"
       }
       plotArgs$addTo <- addTo
 
-      if(is.null(mcPlot$axes)) {
+      if (is.null(mcPlot$axes)) {
         plotArgs$axes <- "L"
       }
 
-      if(is.null(plotArgs$title)) {
+      if (is.null(plotArgs$title)) {
         plotArgs$title <- mc$main
       }
-      if(is.null(mcPlot$col)) {
-        if(!any(unlist(lapply(dotObjs, function(x)
-             any(unlist(lapply(c("histogram", "igraph", "communities"), function(y) is(x,y)))))))) #dfault for histogram is NULL
+
+      if (is.null(mcPlot$col)) {
+        if (!any(unlist(lapply(dotObjs, function(x) {
+          any(unlist(lapply(c("histogram", "igraph", "communities"), function(y) is(x,y))))
+        })))) #default for histogram is NULL
           plotArgs$col <- "black"
       }
       plotArgs$main <- ""
       plotObjs[[1]][[1]]$main <- plotArgs$main
       basePlotDots$main <- plotArgs$main
 
-      if(addTo %in% ls(.getSpaDES(paste0("basePlots_",dev.cur())))) {
-        plotObjsName <- paste0(addTo, "_", length(ls(.getSpaDES(paste0("basePlots_",dev.cur()))))+1)
+      if (addTo %in% ls(.getSpaDES(paste0("basePlots_", dev.cur())))) {
+        plotObjsName <- paste0(addTo, "_", length(ls(.getSpaDES(paste0("basePlots_", dev.cur())))) + 1)
 
       } else {
         plotObjsName <- addTo
       }
       names(plotObjs) <- plotObjsName
-      assign(plotObjsName, basePlotDots, envir = .getSpaDES(paste0("basePlots_",dev.cur())))
-      objFrame <- .getSpaDES(paste0("basePlots_",dev.cur()))
+      assign(plotObjsName, basePlotDots, envir = .getSpaDES(paste0("basePlots_", dev.cur())))
+      objFrame <- .getSpaDES(paste0("basePlots_", dev.cur()))
 
     } else { # non base plots
 
@@ -671,7 +674,7 @@ setMethod(
 
           # Check that the extents are equal.
           # If not, then x and y axes are written where necessary.
-          xyAxes <- .xyAxes(sGrob, arr=updated$curr@arr, whPlotFrame)
+          xyAxes <- .xyAxes(sGrob, arr = updated$curr@arr, whPlotFrame)
 
           layerFromPlotObj <- (names(newSpadesPlots@spadesGrobList) %in%
                                   sGrob@plotName)
@@ -681,29 +684,28 @@ setMethod(
           whPlotObj <- which(objNames %in% sGrob@objName)
 
 
-          layerFromPlotObj <- if(length(whLayerFromPO)==0) { FALSE
-          } else if(isSpadesPlotLong[whLayerFromPO]) {
-              FALSE
+          layerFromPlotObj <- if (length(whLayerFromPO) == 0) { FALSE
+          } else if (isSpadesPlotLong[whLayerFromPO]) {
+            FALSE
           } else {
             layerFromPlotObj[whLayerFromPO]
           }
           grobToPlot <- .identifyGrobToPlot(sGrob, plotObjs[whPlotObj],
                                             layerFromPlotObj)
 
-          isPlotFnAddable <- if(!is(grobToPlot, ".spadesPlotObjects")) {
-                                if(is(grobToPlot, ".spadesPlot")) {
-                                  FALSE
-                                } else if(sGrob@plotArgs$userProvidedPlotFn & !isTRUE(grobToPlot[["add"]])) {
-                                  TRUE
-                                } else {
-                                  FALSE
-                                }
-                              } else {
-                                FALSE
-                              }
+          isPlotFnAddable <- if (!is(grobToPlot, ".spadesPlotObjects")) {
+            if (is(grobToPlot, ".spadesPlot")) {
+              FALSE
+            } else if (sGrob@plotArgs$userProvidedPlotFn & !isTRUE(grobToPlot[["add"]])) {
+              TRUE
+            } else {
+              FALSE
+            }
+          } else {
+            FALSE
+          }
 
-
-          if(sGrob@plotArgs$new | is(grobToPlot, "igraph") | #plotArgs$new |
+          if (sGrob@plotArgs$new | is(grobToPlot, "igraph") | #plotArgs$new |
              is(grobToPlot, "histogram") | #is(grobToPlot$x, "histogram") |
                isPlotFnAddable) {# draw a white rectangle to clear plot
 
@@ -718,16 +720,17 @@ setMethod(
             wipe <- FALSE
           }
 
-          sGrob <- .updateGrobGPTextAxis(sGrob, arr=updated$curr@arr, newArr=newArr)
+          sGrob <- .updateGrobGPTextAxis(sGrob, arr = updated$curr@arr, newArr = newArr)
 
-          if(is(grobToPlot, "spatialObjects")) {
-            zMat <- .convertSpatialToPlotGrob(grobToPlot, sGrob, layerFromPlotObj, arr=updated$curr@arr,
-                                              newArr, spadesGrobCounter, subPlots, cols)
+          if (is(grobToPlot, "spatialObjects")) {
+            zMat <- .convertSpatialToPlotGrob(grobToPlot, sGrob, layerFromPlotObj,
+                                              arr = updated$curr@arr, newArr,
+                                              spadesGrobCounter, subPlots, cols)
           } else {
             zMat <- NULL
           }
 
-           # SpatialPointsDataFrame could have a column named color
+          # SpatialPointsDataFrame could have a column named color
           if (is(grobToPlot, "SpatialPointsDataFrame")) {
             if (any(grepl(pattern = "color", colnames(grobToPlot))) & is.null(cols))
               sGrob@plotArgs$cols <- getColors(grobToPlot)
@@ -772,7 +775,7 @@ setMethod(
     plotList <- ls(sim@.envir, all.names = TRUE)
     plotables <- sapply(plotList, function(x)
       is(get(x, envir = sim@.envir), ".spadesPlottables"))
-    if(any(plotables)) {
+    if (any(plotables)) {
       plotObjects = mget(plotList[plotables], sim@.envir) %>%
         append(., list(env = sim@.envir))
       #browser()
@@ -800,8 +803,7 @@ rePlot <- function(toDev = dev.cur(), fromDev = dev.cur(), clearFirst = TRUE, ..
   if (exists(paste0("spadesPlot", fromDev),envir = .spadesEnv)) {
     currSpadesPlots <- .getSpaDES(paste0("spadesPlot", dev.cur()))
     dev(toDev)
-    if(clearFirst)
-      clearPlot(toDev)
+    if (clearFirst) clearPlot(toDev)
     suppressWarnings(Plot(currSpadesPlots$curr,
                           new = rep(TRUE, length(currSpadesPlots$curr@arr@names)), ...))
   } else {

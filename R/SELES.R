@@ -161,13 +161,13 @@ setMethod(
 
 #' @rdname initiateAgents
 setMethod("initiateAgents",
-          signature=c("Raster", "missing", "missing", "ANY", "numeric"),
+          signature = c("Raster", "missing", "missing", "ANY", "numeric"),
           function(map, numAgents, probInit, asSpatialPoints, indices) {
-            if(asSpatialPoints) {
-              if(length(indices>0)) {
-                xys <- xyFromCell(map, indices, spatial=asSpatialPoints)
-                xys@coords <- xys@coords+cbind(runif(length(indices), - res(map)[1]/2, res(map)[1]/2),
-                                     runif(length(indices), - res(map)[2]/2, res(map)[2]/2))
+            if (asSpatialPoints) {
+              if (length(indices > 0)) {
+                xys <- xyFromCell(map, indices, spatial = asSpatialPoints)
+                xys@coords <- xys@coords + cbind(runif(length(indices), -res(map)[1]/2, res(map)[1]/2),
+                                                 runif(length(indices), -res(map)[2]/2, res(map)[2]/2))
                 xys@bbox <- cbind(apply(coordinates(xys), 2, min), apply(coordinates(xys), 2, max))
                 return(xys)
               }

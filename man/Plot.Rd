@@ -29,7 +29,7 @@ Plot(..., new = FALSE, addTo = NULL, gp = gpar(), gpText = gpar(),
   legendText = NULL, pch = 19, title = TRUE, na.color = "#FFFFFF00",
   zero.color = NULL, length = NULL, arr = NULL, plotFn = "plot")
 
-rePlot(toDev = dev.cur(), fromDev = dev.cur(), ...)
+rePlot(toDev = dev.cur(), fromDev = dev.cur(), clearFirst = TRUE, ...)
 }
 \arguments{
 \item{...}{A combination of \code{spatialObjects} or some non-spatial objects.
@@ -128,6 +128,8 @@ Default is current device.}
 
 \item{fromDev}{Numeric. Which device should the replot information be taken from.
 Default is current device}
+
+\item{clearFirst}{Logical. Should \code{clearPlot} be run before replotting. Default TRUE.}
 }
 \value{
 Invisibly returns the \code{.spadesPlot} class object.

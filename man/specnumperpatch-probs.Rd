@@ -32,7 +32,7 @@ library(data.table)
 set.seed(1234)
 Ntypes <- 4
 ras <- randomPolygons(numTypes = Ntypes)
-if(interactive()) {
+if (interactive()) {
   clearPlot()
   Plot(ras)
 }
@@ -57,7 +57,7 @@ if (interactive()) {
 }
 rasAgents <- specificNumPerPatch(ras, numPerPatchMap = rasPatches)
 rasAgents[is.na(rasAgents)] <- 0
-if(interactive()) {
+if (interactive()) {
   clearPlot()
   Plot(rasAgents)
 }

@@ -373,7 +373,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
   # Note: the module developer can use 'sim$.userSuppliedObjNames' in their function below to
   # selectively skip unnecessary steps because the user has provided those inputObjects in the
   # simInit call. e.g.,
-  # if(!('defaultColor' %in% sim$userSuppliedObjNames)) {
+  # if (!('defaultColor' %in% sim$userSuppliedObjNames)) {
   #  defaultColor <- 'red'
   # }
   # ! ----- EDIT BELOW ----- ! #
