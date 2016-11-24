@@ -3,9 +3,9 @@
 #' Currently, this is quite simple. It creates a side bar with the simulation
 #' times, plus a set of tabs, one for each module, with numeric sliders.
 #' Currently, this does not treat NAs correctly. Also, it is slow (shiny is not
-#' built to be fast out of the box). There are two
-#' buttons, one to run the entire spades call, the other to do just one time
-#' step at a time. It can be repeatedly pressed.
+#' built to be fast out of the box).
+#' There are two buttons, one to run the entire spades call, the other to do
+#' just one time step at a time. It can be repeatedly pressed.
 #'
 #' @note Many module parameters are only accessed by modules at the start of a
 #'   model run. So, even if the user changes them mid run, there won't be an
@@ -130,7 +130,7 @@ setMethod(
         output[[kLocal]] <- renderUI({
           Params <- params(sim)[[kLocal]]
           lapply(names(Params), function(i) {
-            moduleParams <- sim@depends@dependencies[[kLocal]]@parameters[sim@depends@dependencies[[kLocal]]@parameters[,"paramName"]==i,]
+            moduleParams <- sim@depends@dependencies[[kLocal]]@parameters[sim@depends@dependencies[[kLocal]]@parameters[, "paramName"] == i,]
             if (i %in% c(".plotInitialTime", ".saveInitialTime", ".plotInterval", ".saveInterval")) {
               if (!is.na(params(sim)[[kLocal]][[i]])) {
                 sliderInput(
@@ -240,10 +240,11 @@ setMethod(
     # Main plot
     output$spadesPlot <- renderPlot({
       curDev <- dev.cur()
-      if (exists(".spadesEnv"))
-        alreadyPlotted <- grepl(ls(.spadesEnv), pattern = paste0("spadesPlot", curDev))
-      else
-        alreadyPlotted <- FALSE
+      alreadyPlotted <- if (exists(".spadesEnv")) {
+        grepl(ls(.spadesEnv), pattern = paste0("spadesPlot", curDev))
+      } else {
+        FALSE
+      }
 
       if (any(alreadyPlotted)) {
         rePlot()
@@ -270,24 +271,22 @@ setMethod(
     })
 
     output$moduleDiagramUI <- renderUI({
-      plotOutput("moduleDiagram",
-                 height = max(600, (length(modules(sim)) )*100))
+      plotOutput("moduleDiagram", height = max(600, length(modules(sim))*100))
     })
 
     output$objectDiagram <- renderDiagrammeR({
-          if (v$time <= start(sim)) {
-            return()
-          } else {
-            objectDiagram(sim)
-          }
+      if (v$time <= start(sim)) {
+        return()
+      } else {
+        objectDiagram(sim)
+      }
     })
 
     output$objectDiagramUI <- renderUI({
       if (v$time <= start(sim)) {
         return()
       } else {
-        DiagrammeROutput("objectDiagram",
-                         height = max(600, length(ls(sim))*30))
+        DiagrammeROutput("objectDiagram", height = max(600, length(ls(sim))*30))
       }
     })
 
@@ -295,7 +294,7 @@ setMethod(
       if (v$time <= start(sim)) {
         return()
       } else {
-        eventDiagram(sim, startDate = "0000-01-01")
+        eventDiagram(sim)
       }
     })
 
@@ -303,16 +302,16 @@ setMethod(
       if (v$time <= start(sim)) {
         return()
       } else {
-        DiagrammeROutput("eventDiagram",
-                         height = max(800, NROW(completed(sim))*25))
+        DiagrammeROutput("eventDiagram", height = max(800, NROW(completed(sim))*25))
       }
     })
 
     output$objectBrowser <- renderDataTable({
       v$time
       dt <- lapply(names(objs(sim)), function(x) {
-            data.frame(Name = x, Class = is(objs(sim)[[x]])[1])}) %>%
-      do.call(args = ., rbind)
+            data.frame(Name = x, Class = is(objs(sim)[[x]])[1])
+      }) %>%
+        do.call(args = ., rbind)
     })
 
     output$objectBrowserUI <- renderUI({
@@ -348,9 +347,7 @@ setMethod(
 
     output$downloadData <- downloadHandler(
       filename = function() { paste("simObj.rds", sep = "") },
-      content = function(file) {
-        saveRDS(sim, file = file)
-      }
+      content = function(file) { saveRDS(sim, file = file) }
     )
   }
 
@@ -367,9 +364,9 @@ setMethod(
     writeLines("library(SpaDES)", con = con)
     pkgs <- unique(unlist(lapply(sim@depends@dependencies,
                          function(x) x@reqdPkgs)))
-    writeLines(paste0(paste0("library(", pkgs,")"), collapse = "\n"),
+    writeLines(paste0(paste0("library(", pkgs, ")"), collapse = "\n"),
                con = con)
-    writeLines("sim <- readRDS(file=\"sim.Rdata\")", con = con)
+    writeLines("sim <- readRDS(file = \"sim.Rdata\")", con = con)
     writeLines("simOrig_ <- as(sim, \"simList_\")", con = con) # convert objects first
     writeLines("simOrig <- sim", con = con) # Not enough because objects are in an environment, so they both change
 
@@ -378,7 +375,7 @@ setMethod(
 
     close(con)
 
-    serverFile <- file.path(shinyAppDir,"server.R", fsep = "/")
+    serverFile <- file.path(shinyAppDir, "server.R", fsep = "/")
     con <- file(serverFile, open = "w+b");
     writeLines("shinyServer(", con = con);
     writeLines(deparse(dput(server)), con = con, sep = "\n");
@@ -398,8 +395,6 @@ setMethod(
             " or, rsconnect::deployApp(\"", dirname(serverFile), "\")")
   } else {
     runApp(list(ui = fluidPage(fluidPageArgs), server = server),
-           launch.browser = getOption("viewer", browseURL),
-           quiet = TRUE
-    )
+           launch.browser = getOption("viewer", browseURL), quiet = TRUE)
   }
 })
