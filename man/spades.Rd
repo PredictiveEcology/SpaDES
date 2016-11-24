@@ -81,22 +81,24 @@ a previous run, even if there is stochasticity internally. Caching is only
 based on the input simList. See also \code{experiment} for the same mechanism,
 but it can be used with replication.
 
-If \code{debug} is specified, it can be Logical or character vector. In all
-cases, something will be printed to the console immediately before each event is
-being executed. If \code{TRUE}, then the event immediately following will be
-printed as it runs (equivalent to current(sim)).
-If a character string, then it can be one
-of the many simList accessors, such as \code{events}, \code{params}, or
-\code{"simList"} (print the entire simList), or any R expression.
-If an R expression
-if will be evaluated with access to the \code{sim}
-object. If this is more than one character string, then all will be
-printed to the screen in their sequence.
+If \code{debug} is specified, it can be a logical or character vector.
+In all cases, something will be printed to the console immediately before each
+event is being executed.
+If \code{TRUE}, then the event immediately following will be printed as it
+runs (equivalent to \code{current(sim)}).
+If a character string, then it can be one of the many \code{simList} accessors,
+such as \code{events}, \code{params}, \code{"simList"} (print the entire simList),
+or any R expression.
+If an R expression it will be evaluated with access to the \code{sim} object.
+If this is more than one character string, then all will be printed to the
+screen in their sequence.
 }
 \note{
 The debug option is primarily intended to facilitate building simulation
-models by the user. Will print additional outputs informing the user of updates
-to the values of various simList slot components.
+models by the user.
+Will print additional outputs informing the user of updates to the values of
+various \code{simList} slot components.
+See \url{https://github.com/PredictiveEcology/SpaDES/wiki/Debugging} for details.
 }
 \examples{
 \dontrun{

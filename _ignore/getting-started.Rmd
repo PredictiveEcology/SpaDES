@@ -267,4 +267,4 @@ spades(mySim)
 
 # Debugging simulations
 
-uoeioeu
+https://github.com/PredictiveEcology/SpaDES/wiki/Debugging
