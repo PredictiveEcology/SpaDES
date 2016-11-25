@@ -963,22 +963,22 @@ setMethod(
     core <- list("checkpoint", "save", "progress", "load")
 
     cur <- sim@current #current(sim, "second")
-    if (NROW(cur) == 0 || any(is.na(cur))) {
+    if (NROW(cur) == 0) {# || any(is.na(cur))) {
       evnts <- sim@events #events(sim, "second")
       # get next event from the queue and remove it from the queue
       if (NROW(evnts)) {
         sim@current <- evnts[1L, ]
         sim@events <- evnts[-1L, ]
       } else {
-        # no more events, return event list of NAs
-        sim@current <- .emptyEventListNA
+        # no more events, return empty event list
+        sim@current <- .emptyEventListObj
       }
     }
 
     # catches the situation where no future event is scheduled,
     #  but stop time is not reached
     cur <- sim@current #current(sim, "second")
-    if (any(is.na(cur))) {
+    if  (NROW(cur) == 0) {# (any(is.na(cur))) {
       sim@simtimes[["current"]] <- sim@simtimes[["end"]] + 1
     } else {
       if (cur[["eventTime"]] <= sim@simtimes[["end"]]) {
@@ -1115,13 +1115,14 @@ setMethod(
           completed <- cur
         }
         sim@completed <- completed
-        sim@current <- .emptyEventListNA
+        # current event completed, replace current with empty
+        sim@current <- .emptyEventListObj
       } else {
         # update current simulated time and event
         sim@simtimes[["current"]] <- sim@simtimes[["end"]] + 1
         if (NROW(evnts)) {
           sim@events <- rbind(sim@current, sim@events)
-          sim@current <- .emptyEventListNA
+          sim@current <- .emptyEventListObj
         }
       }
     }
