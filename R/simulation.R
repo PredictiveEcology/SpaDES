@@ -193,11 +193,16 @@ setMethod(
 
       # do inputObjects and outputObjects
       pf <- parsedFile[defineModuleItem]
+      #browser()
       if (any(inObjs)) {
-        sim@depends@dependencies[[i]]@inputObjects <-
-          eval(pf[[1]][[3]][inObjs][[1]])
-        sim@depends@dependencies[[i]]@outputObjects <-
-          eval(pf[[1]][[3]][outObjs][[1]])
+        sim@depends@dependencies[[i]]@inputObjects <- data.frame(rbindlist(fill = TRUE,
+                                                                list(sim@depends@dependencies[[i]]@inputObjects,
+          eval(pf[[1]][[3]][inObjs][[1]]))))
+      }
+      if (any(outObjs)) {
+        sim@depends@dependencies[[i]]@outputObjects <- data.frame(rbindlist(fill = TRUE,
+                                                                   list(sim@depends@dependencies[[i]]@outputObjects,
+        eval(pf[[1]][[3]][outObjs][[1]]))))
       }
 
       # update parse status of the module
