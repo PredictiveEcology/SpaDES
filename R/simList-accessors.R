@@ -532,7 +532,7 @@ setMethod(
     if (length(ret))
       return(ret)
     else
-      return(NA_character_)
+      return(character(0))
 })
 
 ################################################################################
