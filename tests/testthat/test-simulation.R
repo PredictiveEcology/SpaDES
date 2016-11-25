@@ -189,7 +189,6 @@ test_that("spades calls with different signatures don't work", {
   # test for system time ... in this case, the first time through loop is slow
   #   because of writing cache to disk, not because of spades being slow.
   #   SimList is empty.
-  library(igraph); on.exit(detach("package:igraph"), add = TRUE)
 
   set.seed(42)
 
