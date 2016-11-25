@@ -110,7 +110,6 @@
 #' @export
 #' @importFrom archivist cache loadFromLocalRepo saveToRepo showLocalRepo
 #' @importFrom digest digest
-#' @importFrom methods showMethods selectMethod
 #' @include simList-class.R
 #' @docType methods
 #' @rdname cache
