@@ -532,7 +532,7 @@ setMethod(
     if (length(ret))
       return(ret)
     else
-      return(NA_character_)
+      return(character(0))
 })
 
 ################################################################################
@@ -629,9 +629,9 @@ setMethod("P",
           signature = ".simList",
           definition = function(sim, module, param) {
             if (is.null(module)) {
-              module <- currentModule(sim)
+              module <- sim@current$moduleName
             }
-            if (!is.na(module)) {
+            if (length(module)>0) {
               if (is.null(param)) {
                 return(sim@params[[module]])
               } else {
@@ -2130,8 +2130,8 @@ setMethod(
   ".callingFrameTimeunit",
   signature = c(".simList"),
   definition = function(x) {
-    mod <- currentModule(x)
-    out <- if (!is.na(mod)) {
+    mod <- x@current$moduleName # currentModule(x)
+    out <- if (length(mod)>0) {
       timeunits(x)[[mod]]
     } else {
       x@simtimes[["timeunit"]]

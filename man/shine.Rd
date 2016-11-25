@@ -30,9 +30,9 @@ and will likely not work as desired.}
 Currently, this is quite simple. It creates a side bar with the simulation
 times, plus a set of tabs, one for each module, with numeric sliders.
 Currently, this does not treat NAs correctly. Also, it is slow (shiny is not
-built to be fast out of the box).
-There are two buttons, one to run the entire spades call, the other to do
-just one time step at a time. It can be repeatedly pressed.
+built to be fast out of the box). There are two
+buttons, one to run the entire spades call, the other to do just one time
+step at a time. It can be repeatedly pressed.
 }
 \note{
 Many module parameters are only accessed by modules at the start of a

@@ -21,8 +21,12 @@ The file names will be equal to the object name plus \code{time(sim)} is
 appended at the end.
 The files are saved as \code{.rds} files, meaning, only one object gets
 saved per file.
+
 For objects saved using this function, the module developer must create save
 events that schedule a call to \code{saveFiles}.
+
+If this function is used outside of a module, it will save all files in the
+outputs(sim) that are scheduled to be saved at the current time in the simList.
 
 There are 3 ways to save objects using \code{SpaDES}.
 }
@@ -34,9 +38,9 @@ that is listed in the \code{.saveObjects}.
 
 
 Using the \code{outputs} slot in the \code{\link{simInit}} call.
-See second example in \code{\link{simInit}}.
+See example in \code{\link{simInit}}.
 This can be convenient because it gives overall control of many modules at a
-time, and there is an implicit scheduling that gets created during the
+time, and it gets automatically scheduled during the
 \code{\link{simInit}} call.
 }
 
@@ -45,16 +49,18 @@ time, and there is an implicit scheduling that gets created during the
 
 Using the \code{saveFiles} function inside a module.
 This must be accompanied by a \code{.saveObjects} list element in the
-\code{params} slot in the \code{\link{simInit}} call.
+\code{params} slot in the \code{\link{simList}}.
 Usually a module developer will create this method for future users of
 their module.
 }
 
-\section{3. User saving}{
+\section{3. Custom saving}{
 
 
-A user can save any object at any time inside their module.
-This is the least modular approach.
+A module developer can save any object at any time inside their module, using
+standard R functions for saving R objects (e.g., \code{save} or \code{saveRDS}).
+This is the least modular approach, as it will happen whether a module user
+wants it or not.
 }
 \examples{
 \dontrun{

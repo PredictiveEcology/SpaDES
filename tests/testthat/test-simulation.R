@@ -189,10 +189,21 @@ test_that("spades calls with different signatures don't work", {
   # test for system time ... in this case, the first time through loop is slow
   #   because of writing cache to disk, not because of spades being slow.
   #   SimList is empty.
+
+  set.seed(42)
+
+  times <- list(start = 0.0, end = 0, timeunit = "year")
+  params <- list(
+    .globals = list(burnStats = "npixelsburned", stackName = "landscape"),
+    randomLandscapes = list(nx=20, ny=20)
+  )
+  modules <- list("randomLandscapes", "fireSpread")
+  paths <- list(modulePath = system.file("sampleModules", package = "SpaDES"))
+
   for (i in 1:2) {
-    a <- simInit()
+    a <- simInit(times, params, modules, paths=paths)
     paths(a)$cachePath <- file.path(tempdir(), "cache") %>% checkPath(create = TRUE)
-    assign(paste0("st", i), system.time(spades(a, cache = TRUE)))
+    assign(paste0("st", i), system.time(spades(a, cache = TRUE, .plotInitialTime = NA)))
   }
   expect_gt(st1[1], st2[1])
   file.remove(dir(paths(a)$cachePath, full.names = TRUE, recursive = TRUE))
