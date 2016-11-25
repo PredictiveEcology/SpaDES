@@ -37,7 +37,6 @@
 #'
 NULL
 
-#' @importFrom methods loadMethod
 .onLoad <- function(libname, pkgname) {
   tmpdir <- file.path(tempdir(), "SpaDES")
   ## set options using the approach used by devtools
