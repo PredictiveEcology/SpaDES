@@ -1008,15 +1008,15 @@ setMethod(
               if (NROW(cur) > 0) {
                 evnts1 <- data.frame(current(sim))
                 widths <- str_length(format(evnts1))
-                sim$.spadesDebugWidth <-
-                  pmax(widths, sim$.spadesDebugWidth)
+                sim@.envir[[".spadesDebugWidth"]] <-
+                  pmax(widths, sim@.envir[[".spadesDebugWidth"]])
                 evnts1[1L, ] <-
-                  str_pad(format(evnts1), side = "right", sim$.spadesDebugWidth)
+                  str_pad(format(evnts1), side = "right", sim@.envir[[".spadesDebugWidth"]])
 
-                if (sim$.spadesDebugFirst) {
+                if (sim@.envir[[".spadesDebugFirst"]]) {
                   evnts2 <- evnts1
                   evnts2[1L:2L, ] <- rbind(
-                    str_pad(names(evnts1), sim$.spadesDebugWidth),
+                    str_pad(names(evnts1), sim@.envir[[".spadesDebugWidth"]]),
                     evnts1)
                   cat("This is the current event, printed as it is happening:\n")
                   write.table(
@@ -1025,7 +1025,7 @@ setMethod(
                     row.names = FALSE,
                     col.names = FALSE
                   )
-                  sim$.spadesDebugFirst <- FALSE
+                  sim@.envir[[".spadesDebugFirst"]] <- FALSE
                 } else {
                   colnames(evnts1) <- NULL
                   write.table(evnts1,
@@ -1060,7 +1060,7 @@ setMethod(
            } else {
              # for future caching of modules
              cacheIt <- FALSE
-             a <- sim@params[[cur[["moduleName"]]]]$.useCache
+             a <- sim@params[[cur[["moduleName"]]]][[".useCache"]]
              if (!is.null(a)) { #.useCache is a parameter
                if (!identical(FALSE, a)) { #.useCache is not FALSE
                  if (!isTRUE(a)) { #.useCache is not TRUE
@@ -1074,28 +1074,28 @@ setMethod(
              }
 
 
-             # if (!is.null(sim@params[[cur[["moduleName"]]]]$.useCache)) {
-             #   if (!identical(FALSE, sim@params[[cur[["moduleName"]]]]$.useCache)) {
-             #     if (!isTRUE(sim@params[[cur[["moduleName"]]]]$.useCache)) {
-             #       if (cur[["eventType"]] %in% sim@params[[cur[["moduleName"]]]]$.useCache) {
+             # if (!is.null(sim@params[[cur[["moduleName"]]]][[".useCache"]])) {
+             #   if (!identical(FALSE, sim@params[[cur[["moduleName"]]]][[".useCache"]])) {
+             #     if (!isTRUE(sim@params[[cur[["moduleName"]]]][[".useCache"]])) {
+             #       if (cur[["eventType"]] %in% sim@params[[cur[["moduleName"]]]][[".useCache"]]) {
              #
              #       }
              #     }
              #   }
              # }
              if (cacheIt) {
-                 moduleSpecificObjects <- c(grep(ls(sim), pattern = cur[["moduleName"]], value = TRUE),
-                                            na.omit(sim@depends@dependencies[[cur[["moduleName"]]]]@inputObjects$objectName))
-                 moduleSpecificOutputObjects <-
-                   sim@depends@dependencies[[cur[["moduleName"]]]]@outputObjects$objectName
-                 sim <- Cache(FUN = get(moduleCall, envir = sim@.envir),
-                              sim = sim,
-                              eventTime = cur[["eventTime"]], eventType = cur[["eventType"]],
-                              debug = debugDoEvent,
-                              objects = moduleSpecificObjects,
-                              notOlderThan = notOlderThan,
-                              outputObjects = moduleSpecificOutputObjects,
-                              cacheRepo = sim@paths[["cachePath"]])
+               objNam <- sim@depends@dependencies[[cur[["moduleName"]]]]@outputObjects$objectName
+               moduleSpecificObjects <- c(grep(ls(sim), pattern = cur[["moduleName"]], value = TRUE),
+                                          na.omit(objNam))
+               moduleSpecificOutputObjects <- objNam
+               sim <- Cache(FUN = get(moduleCall, envir = sim@.envir),
+                            sim = sim,
+                            eventTime = cur[["eventTime"]], eventType = cur[["eventType"]],
+                            debug = debugDoEvent,
+                            objects = moduleSpecificObjects,
+                            notOlderThan = notOlderThan,
+                            outputObjects = moduleSpecificOutputObjects,
+                            cacheRepo = sim@paths[["cachePath"]])
              } else {
                sim <- get(moduleCall,
                          envir = sim@.envir)(sim, cur[["eventTime"]],
@@ -1274,6 +1274,7 @@ setMethod(
         if (NROW(evnts) == 0L) {
           sim@events <- setkey(newEvent, "eventTime", "eventPriority")
         } else {
+          #browser(expr=time(sim)>3)
           sim@events <- rbindlist(list(evnts, newEvent)) %>%
             setkey("eventTime", "eventPriority")
         }
@@ -1544,8 +1545,8 @@ setMethod(
     }
 
     if (!(all(sapply(debug, identical, FALSE)))) {
-      sim$.spadesDebugFirst <- TRUE
-      sim$.spadesDebugWidth <- c(9, 10, 9, 13)
+      sim@.envir[[".spadesDebugFirst"]] <- TRUE
+      sim@.envir[[".spadesDebugWidth"]] <- c(9, 10, 9, 13)
     }
     while (sim@simtimes[["current"]] <= sim@simtimes[["end"]]) {
       sim <- doEvent(sim, debug = debug, notOlderThan = notOlderThan)  # process the next event
