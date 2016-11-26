@@ -1276,7 +1276,7 @@ setMethod(
         #   eventPriority = eventPriority
         # )
 
-        newEvent <- .singleEventListDT
+        newEvent <- data.table::copy(.singleEventListDT)
         newEventList <- list(
           eventTime = eventTimeInSeconds,
           moduleName = moduleName,
@@ -1297,7 +1297,7 @@ setMethod(
             for(i in 1:.numColsEventList) {
               set(.eventsDT[[nrowEvnts+2]], ,i, c(evnts[[i]], newEvent[[i]]))
             }
-            sim@events <- .eventsDT[[nrowEvnts+1]] %>%
+            sim@events <- .eventsDT[[nrowEvnts+2]] %>%
               setkey("eventTime", "eventPriority")
           } else {
             sim@events <- rbindlist(list(evnts, newEvent)) %>%
