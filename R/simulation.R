@@ -972,7 +972,11 @@ setMethod(
       evnts <- sim@events #events(sim, "second")
       # get next event from the queue and remove it from the queue
       if (NROW(evnts)) {
-        sim@current <- evnts[1L, ]
+
+        # Next two lines much faster than sim@current <- evnts[1L,]!
+        for(i in 1:.numColsEventList) set(.currentEventDT, 1L, i, evnts[[i]][[1]])
+        sim@current <- .currentEventDT
+
         sim@events <- evnts[-1L, ]
       } else {
         # no more events, return empty event list

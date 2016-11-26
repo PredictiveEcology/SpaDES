@@ -2,6 +2,7 @@
 % Please edit documentation in R/helpers.R
 \docType{methods}
 \name{.emptyEventList}
+\alias{.currentEventDT}
 \alias{.emptyEventList}
 \alias{.emptyEventList,missing,missing,missing,missing-method}
 \alias{.emptyEventList,numeric,character,character,numeric-method}
@@ -9,6 +10,7 @@
 \alias{.emptyEventListDT}
 \alias{.emptyEventListNA}
 \alias{.emptyEventListObj}
+\alias{.numColsEventList}
 \alias{.singleEventListDT}
 \title{Blank (template) event list}
 \format{An object of class \code{data.table} (inherits from \code{data.frame}) with 0 rows and 4 columns.}
@@ -29,6 +31,10 @@
 .emptyEventListObj
 
 .emptyEventListNA
+
+.currentEventDT
+
+.numColsEventList
 }
 \arguments{
 \item{eventTime}{The time the event is to occur.}

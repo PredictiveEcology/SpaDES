@@ -78,6 +78,12 @@ setMethod(
 #' @rdname emptyEventList
 .emptyEventListNA <- .emptyEventList(NA_integer_, NA_character_, NA_character_, NA_integer_)
 
+#' @rdname emptyEventList
+.currentEventDT <- .emptyEventList(numeric(1), character(1), character(1), numeric(1))
+
+#' @rdname emptyEventList
+.numColsEventList <- length(.emptyEventListCols)
+
 
 ################################################################################
 #' Default (empty) metadata
