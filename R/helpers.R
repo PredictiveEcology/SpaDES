@@ -82,7 +82,7 @@ setMethod(
 .currentEventDT <- .emptyEventList(numeric(1), character(1), character(1), numeric(1))
 
 #' @rdname emptyEventList
-.eventsDT <- lapply(1:100, function(i) {
+.eventsDT <- lapply(0:99, function(i) {
   data.table(eventTime = integer(i), moduleName = character(i),
              eventType = character(i), eventPriority = numeric(i))
 })

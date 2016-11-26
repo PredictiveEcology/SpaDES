@@ -977,10 +977,10 @@ setMethod(
         if(nrowEvnts<.lengthEventsDT) {
           for(i in 1:.numColsEventList) {
             set(.currentEventDT, 1L, i, evnts[[i]][[1]])
-            set(.eventsDT[[nrowEvnts-1]], ,i, evnts[[i]][-1])
+            set(.eventsDT[[nrowEvnts]], ,i, evnts[[i]][-1])
           }
           sim@current <- .currentEventDT
-          sim@events <- .eventsDT[[nrowEvnts-1]]
+          sim@events <- .eventsDT[[nrowEvnts]]
         } else {
           # above replaces these two lines
           sim@current <- evnts[1L, ]
@@ -1295,7 +1295,7 @@ setMethod(
           # This is faster than rbindlist below. So, use for smaller event queues
           if(nrowEvnts<.lengthEventsDT) {
             for(i in 1:.numColsEventList) {
-              set(.eventsDT[[nrowEvnts+1]], ,i, c(evnts[[i]], newEvent[[i]]))
+              set(.eventsDT[[nrowEvnts+2]], ,i, c(evnts[[i]], newEvent[[i]]))
             }
             sim@events <- .eventsDT[[nrowEvnts+1]] %>%
               setkey("eventTime", "eventPriority")
@@ -1601,9 +1601,9 @@ setMethod(
     #   notOlderThan <- NULL
 
     if (cache) {
-      if (is(try(archivist::showLocalRepo(sim@paths$cachePath), silent = TRUE)
-             , "try-error"))
-        archivist::createLocalRepo(paths(sim)$cachePath)
+      # if (is(try(archivist::showLocalRepo(sim@paths$cachePath), silent = TRUE)
+      #        , "try-error"))
+      #   archivist::createLocalRepo(paths(sim)$cachePath)
 
       return(
         SpaDES::cache(
