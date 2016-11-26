@@ -163,16 +163,17 @@ test_that("simList test all signatures", {
   # inputs
   filelist <- data.frame(
     files = dir(file.path(mapPath), full.names = TRUE, pattern = "tif")[1:2],
-    functions = "raster",
-    package = "raster",
+    functions = "rasterToMemory",
+    package = "SpaDES",
     loadTime = c(0, 3),
     stringsAsFactors = FALSE
   )
+
   if (require(rgdal)) {
     on.exit(detach("package:rgdal"), add = TRUE)
 
     # objects
-    layers <- lapply(filelist$files, raster)
+    layers <- lapply(filelist$files, rasterToMemory)
     DEM <- layers[[1]]
     forestAge <- layers[[2]]
     objects <- list(DEM = "DEM", forestAge = "forestAge")
@@ -221,7 +222,7 @@ test_that("simList test all signatures", {
                             warning = function(w) { FALSE })
       argsTested[[i]] <- names(li)
     }
-    expect_equal(sum(errors, na.rm = TRUE), 176) # needs paths and params,
+    expect_equal(sum(errors, na.rm = TRUE), 192) # needs paths and params,
                          # many defaults are fine
     setwd(origWd)
   }
