@@ -980,7 +980,7 @@ setMethod(
             set(.eventsDT[[nrowEvnts]], ,i, evnts[[i]][-1])
           }
           sim@current <- .currentEventDT
-          sim@events <- .eventsDT[[nrowEvnts]]
+          sim@events <- data.table::copy(.eventsDT[[nrowEvnts]])
         } else {
           # above replaces these two lines
           sim@current <- evnts[1L, ]
@@ -1121,6 +1121,7 @@ setMethod(
         }
 
         # add to list of completed events
+        #browser()
         compl <- sim@completed # completed(sim, "second")
         if (NROW(compl)) {
           completed <- list(compl, cur) %>%
@@ -1129,7 +1130,7 @@ setMethod(
             completed <- tail(completed, n = getOption("spades.nCompleted"))
           }
         } else {
-          completed <- cur
+          completed <- data.table::copy(cur)
         }
         sim@completed <- completed
         # current event completed, replace current with empty
@@ -1297,7 +1298,7 @@ setMethod(
             for(i in 1:.numColsEventList) {
               set(.eventsDT[[nrowEvnts+2]], ,i, c(evnts[[i]], newEvent[[i]]))
             }
-            sim@events <- .eventsDT[[nrowEvnts+2]] %>%
+            sim@events <- data.table::copy(.eventsDT[[nrowEvnts+2]]) %>%
               setkey("eventTime", "eventPriority")
           } else {
             sim@events <- rbindlist(list(evnts, newEvent)) %>%
