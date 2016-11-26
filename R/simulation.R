@@ -974,7 +974,7 @@ setMethod(
       if (nrowEvnts) {
 
         # Next block  much faster than sim@current <- evnts[1L,]!
-        if(nrowEvnt<.lengthEventsDT) {
+        if(nrowEvnts<.lengthEventsDT) {
           for(i in 1:.numColsEventList) {
             set(.currentEventDT, 1L, i, evnts[[i]][[1]])
             set(.eventsDT[[nrowEvnts-1]], ,i, evnts[[i]][-1])
@@ -1288,16 +1288,16 @@ setMethod(
         # if the event list is empty, set it to consist of newEvent and return;
         # otherwise, add newEvent and re-sort (rekey).
         evnts <- sim@events #events(sim, "second")
-        nrowEvnt <- NROW(evnts)
-        if (nrowEvnt == 0L) {
+        nrowEvnts <- NROW(evnts)
+        if (nrowEvnts == 0L) {
           sim@events <- setkey(newEvent, "eventTime", "eventPriority")
         } else {
           # This is faster than rbindlist below. So, use for smaller event queues
-          if(nrowEvnt<.lengthEventsDT) {
+          if(nrowEvnts<.lengthEventsDT) {
             for(i in 1:.numColsEventList) {
-              set(.eventsDT[[nrowEvnt+1]], ,i, c(evnts[[i]], newEvent[[i]]))
+              set(.eventsDT[[nrowEvnts+1]], ,i, c(evnts[[i]], newEvent[[i]]))
             }
-            sim@events <- .eventsDT[[nrowEvnt+1]] %>%
+            sim@events <- .eventsDT[[nrowEvnts+1]] %>%
               setkey("eventTime", "eventPriority")
           } else {
             sim@events <- rbindlist(list(evnts, newEvent)) %>%
