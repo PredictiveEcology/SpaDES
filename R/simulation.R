@@ -193,7 +193,6 @@ setMethod(
 
       # do inputObjects and outputObjects
       pf <- parsedFile[defineModuleItem]
-      #browser()
       if (any(inObjs)) {
         sim@depends@dependencies[[i]]@inputObjects <- data.frame(rbindlist(fill = TRUE,
                                                                 list(sim@depends@dependencies[[i]]@inputObjects,
@@ -971,13 +970,22 @@ setMethod(
     if (NROW(cur) == 0) {# || any(is.na(cur))) {
       evnts <- sim@events #events(sim, "second")
       # get next event from the queue and remove it from the queue
-      if (NROW(evnts)) {
+      nrowEvnts <- NROW(evnts)
+      if (nrowEvnts) {
 
-        # Next two lines much faster than sim@current <- evnts[1L,]!
-        for(i in 1:.numColsEventList) set(.currentEventDT, 1L, i, evnts[[i]][[1]])
-        sim@current <- .currentEventDT
-
-        sim@events <- evnts[-1L, ]
+        # Next block  much faster than sim@current <- evnts[1L,]!
+        if(nrowEvnt<.lengthEventsDT) {
+          for(i in 1:.numColsEventList) {
+            set(.currentEventDT, 1L, i, evnts[[i]][[1]])
+            set(.eventsDT[[nrowEvnts-1]], ,i, evnts[[i]][-1])
+          }
+          sim@current <- .currentEventDT
+          sim@events <- .eventsDT[[nrowEvnts-1]]
+        } else {
+          # above replaces these two lines
+          sim@current <- evnts[1L, ]
+          sim@events <- evnts[-1L, ]
+        }
       } else {
         # no more events, return empty event list
         sim@current <- .emptyEventListObj
@@ -1261,22 +1269,41 @@ setMethod(
         }
         attributes(eventTimeInSeconds)$unit <- "second"
 
-        newEvent <- .emptyEventList(
+        # newEvent <- .emptyEventList(
+        #   eventTime = eventTimeInSeconds,
+        #   moduleName = moduleName,
+        #   eventType = eventType,
+        #   eventPriority = eventPriority
+        # )
+
+        newEvent <- .singleEventListDT
+        newEventList <- list(
           eventTime = eventTimeInSeconds,
           moduleName = moduleName,
           eventType = eventType,
           eventPriority = eventPriority
         )
+        for(i in 1:.numColsEventList) set(newEvent, , i, newEventList[[i]])
 
         # if the event list is empty, set it to consist of newEvent and return;
         # otherwise, add newEvent and re-sort (rekey).
         evnts <- sim@events #events(sim, "second")
-        if (NROW(evnts) == 0L) {
+        nrowEvnt <- NROW(evnts)
+        if (nrowEvnt == 0L) {
           sim@events <- setkey(newEvent, "eventTime", "eventPriority")
         } else {
-          #browser(expr=time(sim)>3)
-          sim@events <- rbindlist(list(evnts, newEvent)) %>%
-            setkey("eventTime", "eventPriority")
+          # This is faster than rbindlist below. So, use for smaller event queues
+          if(nrowEvnt<.lengthEventsDT) {
+            for(i in 1:.numColsEventList) {
+              set(.eventsDT[[nrowEvnt+1]], ,i, c(evnts[[i]], newEvent[[i]]))
+            }
+            sim@events <- .eventsDT[[nrowEvnt+1]] %>%
+              setkey("eventTime", "eventPriority")
+          } else {
+            sim@events <- rbindlist(list(evnts, newEvent)) %>%
+              setkey("eventTime", "eventPriority")
+          }
+
         }
       }
     } else {
