@@ -200,7 +200,7 @@ test_that("simList test all signatures", {
     origWd <- getwd()
     setwd(system.file("sampleModules", package = "SpaDES"))
 
-    errors <- logical()
+    successes <- logical()
     argsTested <- list()
     for (i in 1:256) {
       li <- list(
@@ -217,12 +217,14 @@ test_that("simList test all signatures", {
                     "outputs", "loadOrder")
       names(li) <- argNames
       li <- li[!sapply(li, is.null)]
-      errors[i] <- tryCatch(is(do.call(simInit, args = li), "simList"),
-                            error = function(e) { FALSE },
-                            warning = function(w) { FALSE })
+      successes[i] <- tryCatch(
+        is(do.call(simInit, args = li), "simList"),
+        error = function(e) { FALSE },
+        warning = function(w) { FALSE }
+      )
       argsTested[[i]] <- names(li)
     }
-    expect_equal(sum(errors, na.rm = TRUE), 192) # needs paths and params,
+    expect_equal(sum(successes, na.rm = TRUE), 192) # needs paths and params,
                          # many defaults are fine
     setwd(origWd)
   }
