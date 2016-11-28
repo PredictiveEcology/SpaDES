@@ -25,10 +25,6 @@
 #' @rdname emptyEventList
 #'
 #' @author Alex Chubaty
-setGeneric(".emptyEventList", function(eventTime, moduleName, eventType, eventPriority) {
-  standardGeneric(".emptyEventList")
-})
-
 #' @rdname emptyEventList
 #' @importFrom data.table data.table
 .emptyEventListDT <- data.table(eventTime = integer(0L), moduleName = character(0L),
@@ -38,6 +34,11 @@ setGeneric(".emptyEventList", function(eventTime, moduleName, eventType, eventPr
 #' @importFrom data.table data.table
 .singleEventListDT <- data.table(eventTime = integer(1L), moduleName = character(1L),
                                  eventType = character(1L), eventPriority = numeric(1L))
+
+#' @rdname emptyEventList
+setGeneric(".emptyEventList", function(eventTime, moduleName, eventType, eventPriority) {
+  standardGeneric(".emptyEventList")
+})
 
 #' @rdname emptyEventList
 #' @importFrom data.table set copy
@@ -91,7 +92,7 @@ setMethod(
 .numColsEventList <- length(.emptyEventListCols)
 
 #' @rdname emptyEventList
-.lengthEventsDT <- length(.eventsDT)+1
+.lengthEventsDT <- length(.eventsDT) + 1
 
 ################################################################################
 #' Default (empty) metadata
@@ -147,10 +148,12 @@ setMethod(
 #' @param functionCall A character string identifying the function name to be
 #' searched in the call stack. Default is "simInit"
 #'
-#' @docType methods
-#' @rdname findObjects
-#' @name findObjects
 #' @author Eliot McIntire
+#' @docType methods
+#' @keywords internal
+#' @name findObjects
+#' @rdname findObjects
+#'
 .findObjects <- function(objects, functionCall = "simInit") {
   scalls <- sys.calls()
   grep1 <- grep(as.character(scalls), pattern = functionCall)
@@ -158,9 +161,7 @@ setMethod(
     tryCatch(
       is(parse(text = x), "expression"),
       error = function(y) { NA })
-  })], na.rm = TRUE)-1, 1)
+  })], na.rm = TRUE) - 1, 1)
   # Convert character strings to their objects
   lapply(objects, function(x) get(x, envir = sys.frames()[[grep1]]))
 }
-
-

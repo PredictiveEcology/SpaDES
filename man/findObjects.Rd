@@ -22,4 +22,5 @@ environments by searching the call stack.
 \author{
 Eliot McIntire
 }
+\keyword{internal}
 
