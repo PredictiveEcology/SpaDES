@@ -14,7 +14,7 @@ test_that("simList object initializes correctly", {
   w <- getOption("width")
   options(width = 100L)
   out <- utils::capture.output(show(mySim))
-  expect_equal(length(out), 79)
+  expect_equal(length(out), 81)
   options(width = w); rm(w)
 
   ### SLOT .envir
@@ -188,7 +188,6 @@ test_that("simList test all signatures", {
 
     # parameters
     parameters <- list(
-      .globals = list(stackName = "landscape"),
       caribouMovement = list(.plotInitialTime = NA),
       randomLandscapes = list(.plotInitialTime = NA, nx = 20, ny = 20)
     )
@@ -196,13 +195,11 @@ test_that("simList test all signatures", {
     # loadOrder
     loadOrder <- c("randomLandscapes", "caribouMovement", "fireSpread")
 
-    # In order in the simulation.R
-    origWd <- getwd()
-    setwd(system.file("sampleModules", package = "SpaDES"))
-
-    successes <- logical()
-    argsTested <- list()
-    for (i in 1:256) {
+    # test all argument combinations to simInit
+    N <- 256L
+    successes <- logical(N)
+    argsTested <- vector("list", length = N)
+    for (i in 1L:N) {
       li <- list(
         {if (i %% 2 ^ 1 == 0) times = times},
         {if (ceiling(i/2) %% 2 == 0) params = parameters},
@@ -224,8 +221,8 @@ test_that("simList test all signatures", {
       )
       argsTested[[i]] <- names(li)
     }
+
     expect_equal(sum(successes, na.rm = TRUE), 192) # needs paths and params,
-                         # many defaults are fine
-    setwd(origWd)
+                                                    # many defaults are fine
   }
 })

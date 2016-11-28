@@ -13,7 +13,7 @@ e.g., \code{Plot}.}
 
 \item{e}{Environment in which the function (e.g., \code{Plot}) was called.}
 
-\item{eminus1}{Environment. The parent of \code{e}.}
+\item{eminus1}{The parent environment of \code{e}.}
 }
 \value{
 A list of length 2, with names \code{objs} and \code{envs} giving the

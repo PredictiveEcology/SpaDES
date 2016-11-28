@@ -10,13 +10,9 @@ defineModule(sim, list(
   description = "Generate RasterStack of random maps representative of a forest landscape (DEM, forestAge, forestCover, habitatQuality, percentPine). Requires a global simulation parameter `stackName` be set.",
   keywords = c("random map", "random landscape"),
   childModules = character(),
-  authors = c(person(c("Alex", "M"), "Chubaty",
-                     email = "alexander.chubaty@canada.ca",
-                     role = c("aut", "cre")),
-            person(c("Eliot", "J", "B"), "McIntire",
-                   email = "eliot.mcintire@canada.ca",
-                   role = c("aut", "cre"))),
-  version = numeric_version("1.1.0"),
+  authors = c(person(c("Alex", "M"), "Chubaty", email = "alexander.chubaty@canada.ca", role = c("aut", "cre")),
+            person(c("Eliot", "J", "B"), "McIntire", email = "eliot.mcintire@canada.ca", role = c("aut", "cre"))),
+  version = numeric_version("1.4.0"),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
   timeframe = as.POSIXlt(c(NA, NA)),
   timeunit = "year",
@@ -24,7 +20,7 @@ defineModule(sim, list(
   documentation = list(),
   reqdPkgs = list("raster", "RColorBrewer", "tkrplot", "RandomFields"),
   parameters = rbind(
-    defineParameter("stackName", "character", "randomLandscape", NA, NA, "name of the RasterStack"),
+    defineParameter("stackName", "character", "landscape", NA, NA, "name of the RasterStack"),
     defineParameter("nx", "numeric", 100L, 10L, 500L, "size of map (number of pixels) in the x dimension"),
     defineParameter("ny", "numeric", 100L, 10L, 500L, "size of map (number of pixels) in the y dimension"),
     defineParameter("inRAM", "logical", FALSE, TRUE, FALSE, "should the raster be stored in memory?"),
@@ -40,7 +36,7 @@ defineModule(sim, list(
                  other = NA_character_)
   ),
   outputObjects = bind_rows(
-    createsOutput(objectName = globals(sim)$stackName, objectClass = "RasterStack",
+    createsOutput(objectName = P(sim, "randomLandscapes")$stackName, objectClass = "RasterStack",
                   desc = NA_character_, other = NA_character_)
   )
 ))
@@ -52,23 +48,18 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug = FALSE) {
     sim <- sim$randomLandscapesInit(sim)
 
     # schedule the next events
-    sim <- scheduleEvent(sim, P(sim)$.plotInitialTime,
-                         "randomLandscapes", "plot", .last())
-    sim <- scheduleEvent(sim, P(sim)$.saveInitialTime,
-                         "randomLandscapes", "save", .last()+1)
-
+    sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, "randomLandscapes", "plot", .last())
+    sim <- scheduleEvent(sim, P(sim)$.saveInitialTime, "randomLandscapes", "save", .last() + 1)
   } else if (eventType == "plot") {
     # do stuff for this event
-    Plot(sim[[globals(sim)$stackName]])
+    Plot(sim[[P(sim)$stackName]])
 
   } else if (eventType == "save") {
     # do stuff for this event
     sim <- saveFiles(sim)
 
     # schedule the next event
-    sim <- scheduleEvent(sim, time(sim) + P(sim)$.saveInterval,
-                         "randomLandscapes", "save", .last()+1)
-
+    sim <- scheduleEvent(sim, time(sim) + P(sim)$.saveInterval, "randomLandscapes", "save", .last() + 1)
   } else {
     warning(
       paste("Undefined event type: \'", events(sim)[1, "eventType", with = FALSE],
@@ -93,9 +84,9 @@ randomLandscapesInit <- function(sim) {
 
   # Make dummy maps for testing of models
   DEM <- gaussMap(template, scale = 300, var = 0.03, speedup = speedup, inMemory = inMemory)
-  DEM[] <- round(getValues(DEM),1)*1000
+  DEM[] <- round(getValues(DEM), 1)*1000
   forestAge <- gaussMap(template, scale = 10, var = 0.1, speedup = speedup, inMemory = inMemory)
-  forestAge[] <- round(getValues(forestAge),1)*20
+  forestAge[] <- round(getValues(forestAge), 1)*20
   percentPine <- gaussMap(template, scale = 50, var = 1, speedup = speedup, inMemory = inMemory)
   percentPine[] <- round(getValues(percentPine), 1)
 
@@ -104,7 +95,7 @@ randomLandscapesInit <- function(sim) {
   percentPine <- percentPine/maxValue(percentPine)*100
 
   # Make layers that are derived from other layers
-  habitatQuality <- (DEM+10 + (forestAge+2.5)*10)/100
+  habitatQuality <- (DEM + 10 + (forestAge + 2.5)*10)/100
   habitatQuality <- habitatQuality/maxValue(habitatQuality)
 
   # Stack them into a single stack and assign to global env
@@ -115,6 +106,6 @@ randomLandscapesInit <- function(sim) {
                               forestAge = brewer.pal(9,"BuGn"),
                               habitatQuality = brewer.pal(8,"Spectral"),
                               percentPine = brewer.pal(9,"Greens"))
-  sim[[globals(sim)$stackName]] <- mapStack
+  sim[[P(sim)$stackName]] <- mapStack
   return(invisible(sim))
 }

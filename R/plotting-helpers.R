@@ -648,7 +648,7 @@ setMethod(
 #'
 #' @param e  Environment in which the function (e.g., \code{Plot}) was called.
 #'
-#' @param eminus1  Environment. The parent of \code{e}.
+#' @param eminus1  The parent environment of \code{e}.
 #'
 #' @return A list of length 2, with names \code{objs} and \code{envs} giving the
 #' standardized representation (i.e., replacing \code{[[]]} with \code{$}
@@ -797,15 +797,18 @@ setMethod(
       .spadesEnv[[paste0("dev", dev.cur())]] <- new.env(parent = emptyenv())
     }
 
-    if (is(get(deparse(rev(elems)[[1]]), envir = envs), "simList")) { # If it is a simList
+    tmp <- get(deparse(rev(elems)[[1]]), envir = envs) ## the sim object
+    if (is(tmp, "simList")) {
       useElem <- 1
-      if (length(rev(elems)[-1]) > 1) { # If the user is passing a sub-element to say a Raster Stack
-        if (is(get(deparse(rev(elems)[[2]]), envir = envs), "RasterStack")) { # Only Raster Stack implemented yet
+      # If the user is passing a sub-element to say a Raster Stack
+      if (length(rev(elems)[-1]) > 1) {
+        # Only RasterStack implemented yet
+        if (is(get(deparse(rev(elems)[[2]]), envir = envir(tmp)), "RasterStack")) {
           useElem <- 2
         }
       }
       changeObjEnv(deparse(elems[[useElem]]),
-                   fromEnv = envir(get(deparse(rev(elems)[[1]]), envir = envs)),
+                   fromEnv = envir(tmp),
                    toEnv = .spadesEnv[[paste0("dev", dev.cur())]])
     } else {
       ## if it is NOT a simList.
@@ -1856,7 +1859,7 @@ setMethod(
             thin = fastshp::thin(xyOrd[, 1], xyOrd[, 2],
                                  tolerance = speedupScale * speedup)
           )
-          #thinned[, groups:= rep(1:NROW(idLength), idLength$V1)]
+          #thinned[, groups := rep(1:NROW(idLength), idLength$V1)]
           #idLength <- thinned[, sum(thin),by = groups]
           xyOrd <- xyOrd[thinned$thin, ]
         } else {

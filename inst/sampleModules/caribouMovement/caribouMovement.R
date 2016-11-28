@@ -11,10 +11,8 @@ defineModule(sim, list(
   description = "Simulate caribou movement via correlated random walk.",
   keywords = c("caribou", "individual based movement model", "correlated random walk"),
   childModules = character(),
-  authors = c(person(c("Eliot", "J", "B"), "McIntire",
-                     email = "eliot.mcintire@canada.ca",
-                     role = c("aut", "cre"))),
-  version = numeric_version("1.1.0"),
+  authors = c(person(c("Eliot", "J", "B"), "McIntire", email = "eliot.mcintire@canada.ca", role = c("aut", "cre"))),
+  version = numeric_version("1.4.0"),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
   timeframe = as.POSIXlt(c(NA, NA)),
   timeunit = "month",
@@ -22,6 +20,7 @@ defineModule(sim, list(
   documentation = list(),
   reqdPkgs = list("grid", "raster", "sp"),
   parameters = rbind(
+    defineParameter("stackName", "character", "landscape", NA, NA, "name of the RasterStack"),
     defineParameter("moveInitialTime", "numeric", start(sim) + 1, start(sim) + 1, end(sim), "time to schedule first movement event"),
     defineParameter("moveInterval", "numeric", 1.0, 1, 1, "time interval between movoment events"),
     defineParameter("N", "numeric", 100L, 10L, 1000L, "initial number of caribou"),
@@ -32,11 +31,11 @@ defineModule(sim, list(
     defineParameter(".saveInterval", "numeric", NA_real_, -Inf, Inf, "time interval between save events")
   ),
   inputObjects = bind_rows(
-    expectsInput(objectName = globals(sim)$stackName, objectClass = "RasterStack",
+    expectsInput(objectName = P(sim, "caribouMovement")$stackName, objectClass = "RasterStack",
                  desc = "layername = \"habitatQuality\"", sourceURL = NA_character_)
   ),
   outputObjects = bind_rows(
-    createsOutput(objectName = globals(sim)$stackName, objectClass = "RasterStack",
+    createsOutput(objectName = P(sim, "caribouMovement")$stackName, objectClass = "RasterStack",
                   desc = "layername = \"habitatQuality\""),
     createsOutput(objectName = "caribou", objectClass = "SpatialPointsDataFrame",
                   desc = NA_character_)
@@ -48,7 +47,7 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
     ### check for more detailed object dependencies:
     ### (use `checkObject` or similar)
-    checkObject(sim, name = globals(sim)$stackName, layer = "habitatQuality")
+    checkObject(sim, name = P(sim)$stackName, layer = "habitatQuality")
 
     # do stuff for this event
     sim <- sim$caribouMovementInit(sim)
@@ -72,7 +71,7 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug = FALSE) {
                          "caribouMovement", "move")
   } else if (eventType == "plot.init") {
     # do stuff for this event
-    Plot(sim$caribou, addTo = paste("sim", globals(sim)$stackName,
+    Plot(sim$caribou, addTo = paste("sim", P(sim)$stackName,
                                     "habitatQuality", sep = "$"),
          new = FALSE, size = 0.2, pch = 19, gp = gpar(cex = 0.6))
 
@@ -82,7 +81,7 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug = FALSE) {
                          "caribouMovement", "plot", .last())
   } else if (eventType == "plot") {
     # do stuff for this event
-    Plot(sim$caribou, addTo = paste("sim", globals(sim)$stackName,
+    Plot(sim$caribou, addTo = paste("sim", P(sim)$stackName,
                                     "habitatQuality", sep = "$"),
          new = FALSE, pch = 19, size = 0.2, gp = gpar(cex = 0.6))
     Plot(sim$caribou, new = FALSE, pch = 19, size = 0.1, gp = gpar(cex = 0.6))
@@ -111,10 +110,10 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug = FALSE) {
 
 ## event functions
 caribouMovementInit <- function(sim) {
-  yrange <- c(ymin(sim[[globals(sim)$stackName]]),
-              ymax(sim[[globals(sim)$stackName]]))
-  xrange <- c(xmin(sim[[globals(sim)$stackName]]),
-              xmax(sim[[globals(sim)$stackName]]))
+  yrange <- c(ymin(sim[[P(sim)$stackName]]),
+              ymax(sim[[P(sim)$stackName]]))
+  xrange <- c(xmin(sim[[P(sim)$stackName]]),
+              xmax(sim[[P(sim)$stackName]]))
 
   # initialize caribou agents
   N <- P(sim)$N
@@ -136,11 +135,11 @@ caribouMovementInit <- function(sim) {
 
 caribouMovementMove <- function(sim) {
   # crop any caribou that went off maps
-  sim$caribou <- crop(sim$caribou, sim[[globals(sim)$stackName]])
+  sim$caribou <- crop(sim$caribou, sim[[P(sim)$stackName]])
   if (length(sim$caribou) == 0) stop("All agents are off map")
 
   # find out what pixels the individuals are on now
-  ex <- sim[[globals(sim)$stackName]][["habitatQuality"]][sim$caribou]
+  ex <- sim[[P(sim)$stackName]][["habitatQuality"]][sim$caribou]
 
   # step length is a function of current cell's habitat quality
   sl <- 0.25/ex
@@ -149,7 +148,7 @@ caribouMovementMove <- function(sim) {
   sd <- 30 # could be specified globally in params
 
   sim$caribou <- move("crw", agent = sim$caribou,
-                      extent = extent(sim[[globals(sim)$stackName]]),
+                      extent = extent(sim[[P(sim)$stackName]]),
                       stepLength = ln, stddev = sd, lonlat = FALSE,
                       torus = P(sim)$torus)
 
