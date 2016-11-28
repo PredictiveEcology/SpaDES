@@ -25,8 +25,9 @@
 #' @rdname emptyEventList
 #'
 #' @author Alex Chubaty
-#' @rdname emptyEventList
 #' @importFrom data.table data.table
+#' @name emptyEventList
+#' @rdname emptyEventList
 .emptyEventListDT <- data.table(eventTime = integer(0L), moduleName = character(0L),
                                 eventType = character(0L), eventPriority = numeric(0L))
 
