@@ -1294,7 +1294,7 @@ setMethod(
           sim@events <- setkey(newEvent, "eventTime", "eventPriority")
         } else {
           # This is faster than rbindlist below. So, use for smaller event queues
-          if(nrowEvnts<.lengthEventsDT) {
+          if(nrowEvnts < .lengthEventsDT) {
             for(i in 1:.numColsEventList) {
               set(.eventsDT[[nrowEvnts+2]], ,i, c(evnts[[i]], newEvent[[i]]))
             }
