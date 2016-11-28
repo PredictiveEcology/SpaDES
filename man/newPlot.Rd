@@ -2,16 +2,23 @@
 % Please edit documentation in R/plotting-other.R
 \docType{methods}
 \name{newPlot}
+\alias{dev.useRSGD}
 \alias{newPlot}
 \title{Open a new plotting window}
 \usage{
 newPlot(noRStudioGD = TRUE, ...)
+
+dev.useRSGD(useRSGD = FALSE)
 }
 \arguments{
 \item{noRStudioGD}{Logical Passed to dev.new. Default is TRUE to avoid using
 RStudio graphics device, which is slow.}
 
 \item{...}{Additional arguments.}
+
+\item{useRSGD}{Logical indicating whether the default device should be the
+RStudio graphic device, or the platform default (\code{quartz})
+on macOS; \code{windows} on Windows; \code{x11} on others, e.g., Linux).}
 }
 \description{
 Open a new plotting window
@@ -19,6 +26,9 @@ Open a new plotting window
 \note{
 \code{\link{dev.new}} is supposed to be the correct way to open a new
 window in a platform-generic way; however, doesn't work in RStudio (#116).
+Use \code{dev.useRSGD(FALSE)} to avoid RStudio for the remainder of this session,
+and \code{dev.useRSGD(TRUE)} to use the Rstudio graphics device.
+(This sets the default device uvia the \code{device} option.)
 }
 \author{
 Eliot McIntire and Alex Chubaty

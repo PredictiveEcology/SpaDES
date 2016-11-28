@@ -188,7 +188,6 @@ clickValues <- function(n = 1) {
 #' @docType methods
 #' @importFrom grDevices dev.cur
 #' @include plotting-classes.R
-#' @author Eliot McIntire
 #' @rdname spadesMouseClicks
 clickExtent <- function(devNum = NULL, plot.it = TRUE) {
 
@@ -221,15 +220,14 @@ clickExtent <- function(devNum = NULL, plot.it = TRUE) {
   }
 }
 
-#' @export
-#' @include environment.R
-#' @include plotting-classes.R
 #' @docType methods
-#' @author Eliot McIntire
-#' @rdname spadesMouseClicks
+#' @export
 #' @importFrom grid grid.layout grid.locator unit
 #' @importFrom grDevices dev.cur
 # igraph exports %>% from magrittr
+#' @include environment.R
+#' @include plotting-classes.R
+#' @rdname spadesMouseClicks
 clickCoordinates <- function(n = 1) {
   dc <- dev.cur()
 
@@ -239,34 +237,31 @@ clickCoordinates <- function(n = 1) {
                "clearPlot() or change device to",
                "one that has objects from a call to Plot()."))
   }
-  gl <- grid.layout(nrow = arr$curr@arr@rows*3+2,
-                    ncol = arr$curr@arr@columns*3+2,
+  gl <- grid.layout(nrow = arr$curr@arr@rows*3 + 2,
+                    ncol = arr$curr@arr@columns*3 + 2,
                     widths = arr$curr@arr@layout$wdth,
                     heights = arr$curr@arr@layout$ht)
 
   grepNullsW <- grep("null$", gl$widths)
   grepNpcsW <- grep("npc$", gl$widths)
-  #nulls <- as.numeric(unlist(strsplit(as.character(gl$widths)[grepNullsW], "null") ))
   nulls <- as.character(gl$widths)[grepNullsW] %>%
     strsplit(., "null") %>%
-    unlist %>%
-    as.numeric
-  #npcs <- as.numeric(unlist(strsplit(as.character(gl$widths)[grepNpcsW], "npc") ))
+    unlist() %>%
+    as.numeric()
   npcs <- as.character(gl$widths)[grepNpcsW] %>%
     strsplit(., "npc") %>%
-    unlist %>%
-    as.numeric
+    unlist() %>%
+    as.numeric()
   remaining <- 1 - sum(npcs)
   npcForNulls <- nulls * remaining / sum(nulls)
   widthNpcs <- c(npcs, npcForNulls)[order(c(grepNpcsW, grepNullsW))]
 
   grepNullsH <- grep("null$", gl$heights)
   grepNpcsH <- grep("npc$", gl$heights)
-  #nulls <- as.numeric(unlist(strsplit(as.character(gl$heights)[grepNullsH], "null") ))
   nulls <- as.character(gl$heights)[grepNullsH] %>%
     strsplit(., "null") %>%
-    unlist %>%
-    as.numeric
+    unlist() %>%
+    as.numeric()
   #npcs <- as.numeric(unlist(strsplit(as.character(gl$heights)[grepNpcsH], "npc") ))
   npcs <- as.character(gl$heights)[grepNpcsH] %>%
     strsplit(., "npc") %>%
@@ -322,12 +317,12 @@ clickCoordinates <- function(n = 1) {
 #'
 #' @param gl An object created by a call to \code{grid.locator}.
 #'
-#' @export
-#' @include plotting-classes.R
-#' @author Eliot McIntire
 #' @docType methods
-#' @rdname spadesMouseClicks
+#' @export
 #' @importFrom grid seekViewport grid.locator convertX convertY
+#' @include plotting-classes.R
+#' @keywords internal
+#' @rdname spadesMouseClicks
 .clickCoord <- function(X, n = 1, gl = NULL) {
   pts <- data.frame(x = NA_real_, y = NA_real_, stringsAsFactors = FALSE)
   seekViewport(X, recording = FALSE)
@@ -397,10 +392,18 @@ dev <- function(x, ...) {
 #'
 #' @param noRStudioGD Logical Passed to dev.new. Default is TRUE to avoid using
 #'                    RStudio graphics device, which is slow.
+#'
+#' @param useRSGD     Logical indicating whether the default device should be the
+#'                    RStudio graphic device, or the platform default (\code{quartz})
+#'                    on macOS; \code{windows} on Windows; \code{x11} on others, e.g., Linux).
+#'
 #' @param ...         Additional arguments.
 #'
 #' @note \code{\link{dev.new}} is supposed to be the correct way to open a new
 #' window in a platform-generic way; however, doesn't work in RStudio (#116).
+#' Use \code{dev.useRSGD(FALSE)} to avoid RStudio for the remainder of this session,
+#' and \code{dev.useRSGD(TRUE)} to use the Rstudio graphics device.
+#' (This sets the default device uvia the \code{device} option.)
 #'
 #' @seealso \code{\link{dev}}.
 #'
@@ -412,6 +415,21 @@ dev <- function(x, ...) {
 #' @rdname newPlot
 newPlot <- function(noRStudioGD = TRUE, ...) {
   dev.new(noRStudioGD = TRUE, ...)
+}
+
+#' @export
+#' @rdname newPlot
+dev.useRSGD <- function(useRSGD = FALSE) {
+  if (isTRUE(useRSGD)) {
+    options(device = "RStudioGD")
+  } else {
+    if (Sys.info()["sysname"] == "Darwin")
+      options(device = "quartz")
+    else if (Sys.info()["sysname"] == "Windows")
+      options(device = "windows")
+    else (Sys.info()["sysname"] == "Linux")
+      options(device = "x11")
+  }
 }
 
 assign(".parOrig", envir = .spadesEnv,
@@ -444,4 +462,6 @@ assign(".parOrig", envir = .spadesEnv,
                             "mar", "mex", "mfcol", "mfg", "mfrow", "mgp", "mkh", "new", "oma",
                             "omd", "omi", "pch", "pin", "plt", "ps", "pty", "smo", "srt",
                             "tck", "tcl", "usr", "xaxp", "xaxs", "xaxt", "xpd", "yaxp", "yaxs",
-                            "yaxt", "ylbias")))
+                            "yaxt", "ylbias")
+))
+
