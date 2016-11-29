@@ -390,11 +390,14 @@ Plot(caribou)
 
 The built-in RStudio plot window is particularly slow.
 It is recommended to always create a new plotting device whenever real simulations are being done and they will be substantially faster.
-This may change in a future version of RStudio.
-Until then, we have created a function, `dev(x)` which will add devices up to the number in the parenthesis, or switch to that device if it is already open.
+
+Until this is fixed in RStudio, we have created a function, `dev(x)` which will add devices up to the number in the parenthesis, or switch to that device if it is already open.
 If an RStudio plot has not been called, `dev()` will create a new device outside RStudio.
 `dev()` can also be used with a number, as in `dev(x=4)` and this function will activate that device, if already exists, or open up all devices required in sequence from current device to `x`.
 Since RStudio uses 2 and 3 (for the png), a call to `dev(4)` will either create 3 new devices (device numbers 2, 3 and 4 because device number 1 is never used in R), or 1 new device if plotting to RStudio has already occurred.
+
+To set the default graphics device to avoid using the RStudio one, use `dev.useRSGD(FALSE)`, which sets the `device` option for your platform in order to bypass the RStudio graphics device.
+To reset thi back to the RSTudio device, use `dev.useRSGD(TRUE)`.
 
 # Interacting with plots
 

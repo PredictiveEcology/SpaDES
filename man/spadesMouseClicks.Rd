@@ -58,11 +58,6 @@ clicked on and passes this plot name and the clicked coordinates to \code{.click
 }
 \author{
 Eliot McIntire
-
-Eliot McIntire
-
-Eliot McIntire
-
-Eliot McIntire
 }
+\keyword{internal}
 
