@@ -147,13 +147,13 @@
 #'   # simply for trying something out, or putting into production code
 #'   # (e.g., publication, decision support, etc.)
 #'   params(mySim)$randomLandscapes$.useCache <- TRUE
-#'   system.time(randomSim <- spades(SpaDES::copy(mySim), .plotInitialTime = NA,
+#'   system.time(randomSim <- spades(Copy(mySim), .plotInitialTime = NA,
 #'                                  notOlderThan = Sys.time(), debug = TRUE))
 #'
 #'   # user  system elapsed
 #'   # 1.26    0.25    7.00
 #'   # Vastly faster
-#'   system.time(randomSimCached <- spades(SpaDES::copy(mySim), .plotInitialTime = NA,
+#'   system.time(randomSimCached <- spades(Copy(mySim), .plotInitialTime = NA,
 #'                                  debug = TRUE))
 #'    # user  system elapsed
 #'    # 0.22    0.00    0.24

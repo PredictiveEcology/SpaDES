@@ -5,22 +5,33 @@
 #' it is not possible to simply copy an object with an assignment operator:
 #' the two objects will share the same objects. As one simList object changes
 #' so will the other. when this is not the desired behaviour, use this function.
+#' NOTE: use capital C, to limit confusion with \code{data.table::copy()}
+#'
+#'
 #'
 #' @param sim  A \code{simList} object.
 #' @param objects  Whether the objects contained within the simList environment
 #'                 should be copied. Default = TRUE, which may be slow.
+#' @param queues Logical. Should the events queues (\code{events},
+#'               \code{current}, \code{completed}) be deep copied via
+#'               \code{data.table::copy}
 #' @export
 #' @docType methods
-#' @rdname copy
-setGeneric("copy", function(sim, objects = TRUE) {
-  standardGeneric("copy")
+#' @rdname Copy
+setGeneric("Copy", function(sim, objects, queues) {
+  standardGeneric("Copy")
 })
 
-#' @rdname copy
-setMethod("copy",
-          signature(sim = "simList", objects = "logical"),
-          definition = function(sim, objects) {
+#' @rdname Copy
+setMethod("Copy",
+          signature(sim = "simList", objects = "logical", queues = "logical"),
+          definition = function(sim, objects, queues) {
             sim_ <- sim
+            if(queues) {
+              sim_@events <- data.table::copy(sim@events)
+              sim_@completed <- data.table::copy(sim@completed)
+              sim_@current <- data.table::copy(sim@current)
+            }
             if (objects) {
               sim_@.envir <- new.env(parent = parent.env(sim@.envir))
               objs <- mget(ls(sim@.envir, all.names = TRUE),
@@ -33,10 +44,18 @@ setMethod("copy",
             return(sim_)
 })
 
-#' @rdname copy
-setMethod("copy",
-          signature(sim = "simList", objects = "missing"),
+#' @rdname Copy
+setMethod("Copy",
+          signature(sim = "simList", objects = "missing", queues = "missing"),
           definition = function(sim) {
-            sim_ <- copy(sim, objects = TRUE)
+            sim_ <- Copy(sim, objects = TRUE, queues = TRUE)
             return(sim_)
 })
+
+# @rdname params
+# @export
+# @inheritParams P
+# copy <- function(sim, objects = TRUE) {
+#   .Deprecated("Copy", old = "copy")
+#   Copy(sim = sim, objects = objects)
+# }

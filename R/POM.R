@@ -233,7 +233,7 @@ setMethod(
         keepGoing <- TRUE
         tryNum <- 1
         while (keepGoing) {
-          sim_ <- SpaDES::copy(sim)
+          sim_ <- Copy(sim)
           whP <- 0
           for (wh in seq_along(whParamsByMod)) {
             whP <- whP + 1

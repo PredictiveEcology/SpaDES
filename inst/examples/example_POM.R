@@ -98,7 +98,7 @@ if (interactive()) {
                       NPattern, propCellBurnedData, caribouFn, propCellBurnedFn) { # data
 
     # make a copy of simList because it will possibly be altered by spades call
-    sim1 <- SpaDES::copy(sim)
+    sim1 <- Copy(sim)
 
     # take the parameters and assign them to simList
     params(sim1)$fireSpread$spreadprob <- pars[1]

@@ -197,6 +197,7 @@ setMethod(
                         dirPrefix, substrLength, saveExperiment,
                         experimentFile, clearSimEnv, notOlderThan, cl, ...) {
 
+    #sim <- Copy(sim, objects = FALSE, queues = TRUE)
     if (missing(params)) params <- list()
     if (missing(modules)) modules <- list(unlist(SpaDES::modules(sim)))
     if (missing(inputs)) inputs <- list()
@@ -292,7 +293,7 @@ setMethod(
         paramValues <- paramValues[notNA]
       }
 
-      sim_ <- copy(sim)
+      sim_ <- Copy(sim)
       experimentDF <- data.frame(module = character(0),
                                  param = character(0),
                                  val = I(list()),
