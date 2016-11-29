@@ -11,7 +11,7 @@ sim$ras <- raster(x=extent(0,N,0,N), res=1)
 sim$ras[] = sim$landscapeDT$test
 
 
-landscapeDT = copy(sim$landscapeDT)
+landscapeDT = data.table::copy(sim$landscapeDT)
 ras <- raster(x=extent(0,N,0,N), res=1)
 ras[] = -sim$landscapeDT$test
 
@@ -41,7 +41,7 @@ index=sample(N^2, 5); print(index)
 # Note - exact same time, meaning no copying is happening
 microbenchmark(times=2000,
                new=changeValDT(sim, index=index, val=index),
-               old=#{landscape <- getGlobal("landscape"); 
+               old=#{landscape <- getGlobal("landscape");
                 landscapeDT[index,hello:=index],
                alt=changeValDTNoSim(sim, index=index, val=index)
                # assignGlobal("landscape")}

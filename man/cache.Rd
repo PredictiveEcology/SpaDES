@@ -183,10 +183,10 @@ mySim <- simInit(times=list(start=0.0, end=5.0),
 
   # This functionality can be achieved within a spades call
   # compare caching ... run once to create cache
-  system.time(outSim <- spades(copy(mySim), cache = TRUE, notOlderThan = Sys.time(),
+  system.time(outSim <- spades(Copy(mySim), cache = TRUE, notOlderThan = Sys.time(),
                                .plotInitialTime = NA))
   # compare... second time is fast
-  system.time(outSimCached <- spades(copy(mySim), cache = TRUE, .plotInitialTime = NA))
+  system.time(outSimCached <- spades(Copy(mySim), cache = TRUE, .plotInitialTime = NA))
   all.equal(outSim, outSimCached)
 
   # Function caching

@@ -89,7 +89,7 @@ test_that("saving csv files does not work correctly", {
    expect_true(identical(df1, newObj))
 
    # Confirm that arguments are actually being passed in by changing row.names to TRUE
-   sim2 <- copy(sim)
+   sim2 <- Copy(sim)
    outputArgs(sim2)[[6]] <- list(row.names = TRUE)
    sim2 <- spades(sim2)
    outputs(sim2)
