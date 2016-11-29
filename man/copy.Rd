@@ -5,6 +5,7 @@
 \alias{Copy}
 \alias{Copy,simList,logical,logical-method}
 \alias{Copy,simList,missing,missing-method}
+\alias{copy}
 \title{Copy a simList object}
 \usage{
 Copy(sim, objects, queues)
@@ -12,6 +13,8 @@ Copy(sim, objects, queues)
 \S4method{Copy}{simList,logical,logical}(sim, objects, queues)
 
 \S4method{Copy}{simList,missing,missing}(sim)
+
+copy(sim, objects = TRUE)
 }
 \arguments{
 \item{sim}{A \code{simList} object.}

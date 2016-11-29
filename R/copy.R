@@ -52,9 +52,9 @@ setMethod("Copy",
             return(sim_)
 })
 
-#' @rdname params
+#' @rdname Copy
 #' @export
-#' @inheritParams P
+#' @inheritParams Copy
 copy <- function(sim, objects = TRUE) {
    #.Deprecated("Copy", old = "copy")
    Copy(sim = sim, objects = objects)

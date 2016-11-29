@@ -28,11 +28,11 @@ stored in the \code{simList} object.
 }
 \seealso{
 Other functions to access elements of a \code{simList} object: \code{\link{.addDepends}},
-  \code{\link{copy}}, \code{\link{doEvent.checkpoint}},
-  \code{\link{envir}}, \code{\link{events}},
-  \code{\link{globals}}, \code{\link{inputs}},
-  \code{\link{ls.str.simList}}, \code{\link{modules}},
-  \code{\link{objs}}, \code{\link{packages}},
+  \code{\link{doEvent.checkpoint}}, \code{\link{envir}},
+  \code{\link{events}}, \code{\link{globals}},
+  \code{\link{inputs}}, \code{\link{ls.str.simList}},
+  \code{\link{modules}}, \code{\link{objs}},
+  \code{\link{packages}}, \code{\link{params}},
   \code{\link{paths}}, \code{\link{progressInterval}},
   \code{\link{times}}
 }
