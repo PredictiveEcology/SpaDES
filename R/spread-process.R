@@ -930,11 +930,11 @@ setMethod(
       return(allCells)
     }
 
-    spre <- raster(landscape)
-    spre[] <- 0
+    #spre <- raster(landscape)
+    landscape[] <- 0
     if (allowOverlap | returnDistances) {
       if (returnDistances & !allowOverlap) {
-        spre[spreads[,"indices"]] <- spreads[,"dists"]
+        landscape[spreads[,"indices"]] <- spreads[,"dists"]
       } else {
         spreadsDT <- data.table(spreads);
         if (returnDistances & allowOverlap) {
@@ -944,15 +944,15 @@ setMethod(
         } else {
            pixVal <- spreadsDT[, sum(id), by = indices]
         }
-        spre[pixVal$indices] <- pixVal$V1;
+        landscape[pixVal$indices] <- pixVal$V1;
       }
     } else {
-      spre[wh] <- spreads[wh]
+      landscape[wh] <- spreads[wh]
       if (exists("potentials"))
         if (NROW(potentials) > 0)
-          spre[potentials[, 1L]] <- spreads[potentials[, 2L]]
+          landscape[potentials[, 1L]] <- spreads[potentials[, 2L]]
     }
-    return(spre)
+    return(landscape)
   }
 )
 
