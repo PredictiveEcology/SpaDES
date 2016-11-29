@@ -34,7 +34,7 @@
 #' @rdname emptyEventList
 #' @importFrom data.table data.table
 .singleEventListDT <- data.table(eventTime = integer(1L), moduleName = character(1L),
-                                 eventType = character(1L), eventPriority = numeric(1L))
+                          eventType = character(1L), eventPriority = numeric(1L))
 
 #' @rdname emptyEventList
 setGeneric(".emptyEventList", function(eventTime, moduleName, eventType, eventPriority) {
@@ -72,28 +72,45 @@ setMethod(
 })
 
 #' @rdname emptyEventList
-.emptyEventListCols <- colnames(.emptyEventList())
+.emptyEventListObj <- .emptyEventList()
+
+.refreshEventQueues <- function() {
+  assignInMyNamespace(".lengthEventsDT", length(.eventsDT) + 1)
+
+  assignInMyNamespace(".eventsDT", lapply(0:99, function(i) {
+    data.table(eventTime = integer(i), moduleName = character(i),
+               eventType = character(i), eventPriority = numeric(i))
+  }))
+  assignInMyNamespace(".singleEventListDT", data.table(eventTime = integer(1L), moduleName = character(1L),
+                                                       eventType = character(1L), eventPriority = numeric(1L)))
+  assignInMyNamespace(".currentEventDT",.emptyEventList(numeric(1), character(1), character(1), numeric(1)))
+
+}
+
 
 #' @rdname emptyEventList
-.emptyEventListObj <- .emptyEventList()
+.emptyEventListCols <- colnames(.emptyEventList())
+
 
 #' @rdname emptyEventList
 .emptyEventListNA <- .emptyEventList(NA_integer_, NA_character_, NA_character_, NA_integer_)
 
 #' @rdname emptyEventList
-.currentEventDT <- .emptyEventList(numeric(1), character(1), character(1), numeric(1))
+.currentEventDT <- list()#.emptyEventList(numeric(1), character(1), character(1), numeric(1))
 
 #' @rdname emptyEventList
-.eventsDT <- lapply(0:99, function(i) {
-  data.table(eventTime = integer(i), moduleName = character(i),
-             eventType = character(i), eventPriority = numeric(i))
-})
+.eventsDT <- list()#lapply(0:99, function(i) {
+#  data.table(eventTime = integer(i), moduleName = character(i),
+#             eventType = character(i), eventPriority = numeric(i))
+#})
 
 #' @rdname emptyEventList
 .numColsEventList <- length(.emptyEventListCols)
 
 #' @rdname emptyEventList
 .lengthEventsDT <- length(.eventsDT) + 1
+
+.refreshEventQueues()
 
 ################################################################################
 #' Default (empty) metadata
