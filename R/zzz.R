@@ -47,7 +47,7 @@ NULL
     spades.lowMemory = FALSE,
     spades.modulePath = file.path(tmpdir, "modules"),
     spades.moduleRepo = "PredictiveEcology/SpaDES-modules",
-    spades.nCompleted = 1000L,
+    spades.nCompleted = 10000L,
     spades.outputPath = file.path(tmpdir, "outputs"),
     spades.tolerance = .Machine$double.eps^0.5
   )
