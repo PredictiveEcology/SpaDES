@@ -29,9 +29,9 @@
 
 \\S4method{.emptyEventList}{missing,missing,missing,missing}()
 
-.emptyEventListCols
-
 .emptyEventListObj
+
+.emptyEventListCols
 
 .emptyEventListNA
 

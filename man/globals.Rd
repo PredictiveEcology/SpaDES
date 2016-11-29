@@ -29,11 +29,11 @@ in which to replace element(s).}
 \code{\link{SpaDES}}, specifically the section 1.2.1 on Simulation Parameters.
 
 Other functions to access elements of a \code{simList} object: \code{\link{.addDepends}},
-  \code{\link{doEvent.checkpoint}}, \code{\link{envir}},
-  \code{\link{events}}, \code{\link{inputs}},
-  \code{\link{ls.simList}}, \code{\link{ls.str.simList}},
-  \code{\link{modules}}, \code{\link{objs}},
-  \code{\link{packages}}, \code{\link{params}},
+  \code{\link{copy}}, \code{\link{doEvent.checkpoint}},
+  \code{\link{envir}}, \code{\link{events}},
+  \code{\link{inputs}}, \code{\link{ls.simList}},
+  \code{\link{ls.str.simList}}, \code{\link{modules}},
+  \code{\link{objs}}, \code{\link{packages}},
   \code{\link{paths}}, \code{\link{progressInterval}},
   \code{\link{times}}
 }
