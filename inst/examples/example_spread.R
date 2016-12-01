@@ -234,7 +234,7 @@ if (interactive()) {
 ## within the spreading (i.e., cells with and without successes)
 dev();
 seed <- sample(1e6,1)
-seed <- 651883
+#seed <- 576534
 set.seed(seed); print(seed)
 maxSizes <- rlnorm(10, meanlog = 3.5, sdlog = 2)
 fires <- spread(hab, loci = startCells, 1, persistence = 0,
