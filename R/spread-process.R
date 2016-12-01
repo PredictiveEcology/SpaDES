@@ -287,7 +287,7 @@ setGeneric("spread", function(landscape, loci = NA_real_,
                               stopRule = NA, stopRuleBehavior = "includeRing",
                               allowOverlap = FALSE,
                               asymmetry = NA_real_, asymmetryAngle = NA_real_,
-                              quick = FALSE, neighProbs = NULL,
+                              quick = FALSE, neighProbs = NULL, exactSizes = NULL,
                               ...) {
   standardGeneric("spread")
 })
@@ -315,7 +315,7 @@ setMethod(
                         returnDistances, mapID, id, plot.it, spreadProbLater,
                         spreadState, circle, circleMaxRadius, stopRule,
                         stopRuleBehavior, allowOverlap, asymmetry, asymmetryAngle,
-                        quick, neighProbs,
+                        quick, neighProbs, exactSizes,
                         ...) {
 
     if (!is.null(mapID)) {
@@ -668,7 +668,7 @@ setMethod(
           }
           if ( any( (size + len) > maxSize & size <= maxSize) ) {
             whichID <- which(size + len > maxSize)
-            toRm <- (size + len)[whichID] - maxSize[whichID]
+            toRm <- (size + len)[whichID] - maxSize[whichID] # remove some active cells, if more than maxSize
             for (i in 1:length(whichID)) {
               if (allowOverlap | returnDistances) {
                 thisID <- which(potentials[, 3L] == whichID[i])
@@ -846,6 +846,15 @@ setMethod(
         events <- NULL
       }
 
+      if(!is.null(exactSizes)){
+        browser()
+        tooSmall <- tabulate(spreads, length(maxSize)) < maxSize
+        inactive <- tabulate(spreads[events], length(maxSize))==0
+        if(any(tooSmall & inactive)) {
+          events <- c(loci[tooSmall & inactive], events)
+        }
+      }
+
       # drop or keep loci
       if (is.na(persistence) | persistence == 0L) {
         loci <- NULL
@@ -873,7 +882,7 @@ setMethod(
           Plot(plotCur)
         }
       }
-      loci <- c(loci, events)
+      loci <- c(loci, events) # new loci list for next while loop, concat of persistent and new events
     }
 
     # Convert the data back to raster
