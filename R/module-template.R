@@ -37,7 +37,25 @@
 #' create the other files.
 #'
 #' All files will be created within a subfolder named \code{name} within the
-#' \code{path}.
+#' \code{path}:
+#'
+#' \itemize{
+#'   \item \code{path/}
+#'     \itemize{
+#'       \item \code{name/}
+#'       \item \code{R/               # contains additional module R scripts}
+#'       \item \code{data/            # directory for all included data}
+#'       \itemize{
+#'         \item \code{CHECKSUMS.txt  # contains checksums for data files}
+#'       }
+#'       \item \code{tests/           # contains unit tests for module code}
+#'       \item \code{citation.bib     # bibtex citation for the module}
+#'       \item \code{LICENSE.txt      # describes module's legal usage}
+#'       \item \code{README.txt       # provide overview of key aspects}
+#'       \item \code{name.R           # module code file (incl. metadata)}
+#'       \item \code{name.Rmd         # documentation, usage info, etc.}
+#'     }
+#' }
 #'
 #' @param name  Character string specfying the name of the new module.
 #'
@@ -64,8 +82,8 @@
 #'
 #' @note On Windows there is currently a bug in RStudio that prevents the editor
 #' from opening when \code{file.edit} is called.
-#' Similarly, in RStudio on OS X / macOS, there is an issue opening files where
-#' they are opened in an overlayed window rather than a new tab.
+#' Similarly, in RStudio on macOS, there is an issue opening files where they
+#' are opened in an overlayed window rather than a new tab.
 #' \code{file.edit} does work if the user types it at the command prompt.
 #' A message with the correct lines to copy and paste is provided.
 #'

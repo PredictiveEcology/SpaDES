@@ -64,15 +64,16 @@ A module consists of a collection of files and folders that ...
 ```
 /moduleRepository
   |_ moduleName/
-      |_ R/                     # A folder for optional R scripts, parsed in `simInit`
-      |_ data/
-          |_ CHECKSUMS.txt
-      |_ citation.bib           # properly formatted bibtex citation for the module
-      |_ LICENSE.txt            # license file describing the allowed usage etc. of the module
-      |_ README.txt             # incl. module metadata in addition to version change info, etc.
-      |_ moduleName.R           # the actual module code file, incl. module metadata
-      |_ moduleName.Rmd         # longform documentation and usage info, etc.
-      |_ moduleName_x.y.z.zip   # zip archive of previous module versions
+      |_ R/                     # contains additional module R scripts
+      |_ data/                  # directory for all included data
+          |_ CHECKSUMS.txt      # contains checksums for data files
+      |_ tests/                 # contains unit tests for module code
+      |_ citation.bib           # bibtex citation for the module
+      |_ LICENSE.txt            # describes module's legal usage
+      |_ README.txt             # provide overview of key aspects
+      |_ moduleName.R           # module code file (incl. metadata)
+      |_ moduleName.Rmd         # documentation, usage info, etc.
+      |_ moduleName_x.y.z.zip   # zip archive of previous versions
 ```
 
 ## Module code file (`moduleName.R`)
