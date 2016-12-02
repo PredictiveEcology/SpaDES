@@ -932,6 +932,7 @@ setMethod(
 
     #spre <- raster(landscape)
     landscape[] <- 0
+    landscape@legend@colortable <- logical(0) # remove color table
     if (allowOverlap | returnDistances) {
       if (returnDistances & !allowOverlap) {
         landscape[spreads[,"indices"]] <- spreads[,"dists"]
