@@ -343,7 +343,7 @@ setMethod(
     }
 
     if (any(!is.na(maxSize))) {
-      msEqZero <- maxSize<=0.5
+      msEqZero <- maxSize<1
       if(any(msEqZero)) {
         loci <- loci[!msEqZero]
         maxSize <- maxSize[!msEqZero]
@@ -870,8 +870,6 @@ setMethod(
             numRetries <- numRetries + needPersist
 
             keepLoci <- spreads[loci] %fin% which(tooSmall & inactive)
-            print(numRetries)
-            print(n)
             events <- c(loci[keepLoci], events)
           }
         }

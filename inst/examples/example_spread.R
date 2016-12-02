@@ -2,7 +2,7 @@ library(raster)
 library(RColorBrewer)
 
 # Make random forest cover map
-emptyRas <- raster(extent(0, 1e2, 0, 1e2), res = 1)
+emptyRas <- raster(extent(0, 1e3, 0, 1e3), res = 1)
 hab <- randomPolygons(emptyRas, numTypes = 40)
 names(hab) <- "hab"
 mask <- raster(emptyRas)
@@ -22,7 +22,7 @@ if (interactive()) {
 }
 
 # initiate 10 fires
-startCells <- as.integer(sample(1:ncell(emptyRas),10))
+startCells <- as.integer(sample(1:ncell(emptyRas),100))
 fires <- spread(hab, loci = startCells, 0.235, persistence = 0, numNeighs = 2,
                 mask=NULL, maxSize = 1e8, directions=8, iterations=1e6, id = TRUE)
 
@@ -236,11 +236,12 @@ dev();
 seed <- sample(1e6,1)
 #seed <- 576534
 set.seed(seed); print(seed)
-maxSizes <- rlnorm(10, meanlog = 3.5, sdlog = 2)
+maxSizes <- rexp(length(startCells), rate = 1/500)
 fires <- spread(hab, loci = startCells, 1, persistence = 0,
                 neighProbs = c(0.5, 0.5, 0.5)/1.5,
                 mask=NULL, maxSize = maxSizes, directions=8,
                 iterations=1e6, id = TRUE, plot.it = FALSE, exactSizes = TRUE);
 table(fires[fires>0][]) < floor(maxSizes);
-Plot(fires, new=TRUE, cols = c("red", "yellow"),
+clearPlot();Plot(fires, new=TRUE, cols = c("red", "yellow"),
                               zero.color = "white")
+Plot(hist(table(fires[][fires[]>0])), title = "fire size distribution")
