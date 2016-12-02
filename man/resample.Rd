@@ -6,7 +6,14 @@
 \usage{
 resample(x, ...)
 }
+\arguments{
+\item{x}{Either a vector of one or more elements from which to choose,
+    or a positive integer.  See \sQuote{Details.}}
+
+\item{...}{Passed to \code{\link[base]{sample}}}
+}
 \description{
-From \code{\link[base]{sample}} help file.
+A version of sample that doesn't have awkward behaviour
+when length x is 1. Taked dirctly from \code{\link[base]{sample}} help file.
 }
 
