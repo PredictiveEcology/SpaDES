@@ -671,7 +671,7 @@ setMethod(
                 thisID <- which(spreads[potentials[, 1L]] == whichID[i])
               }
 
-              potentials <- potentials[-sample(thisID, toRm[i]), , drop = FALSE]
+              potentials <- potentials[-resample(thisID, toRm[i]), , drop = FALSE]
             }
             events <- potentials[, 2L]
           }
@@ -1529,3 +1529,4 @@ directionFromEachPoint <- function(from, to = NULL, landscape) {
 `%fin%` <- function(x, table) {
   fmatch(x, table, nomatch = 0L) > 0L
 }
+

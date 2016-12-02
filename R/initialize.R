@@ -232,8 +232,8 @@ specificNumPerPatch <- function(patches, numPerPatchTable = NULL, numPerPatchMap
     stop("need numPerPatchMap or numPerPatchTable")
   }
 
-  resample2 <- function(x, ...) x[sample.int(length(x), ...)]
-  dt3 <- dt2[, list(cells = resample2(wh, unique(num.in.pop))), by = "pops"]
+  #resample2 <- function(x, ...) x[sample.int(length(x), ...)]
+  dt3 <- dt2[, list(cells = resample(wh, unique(num.in.pop))), by = "pops"]
   dt3$ids <- rownames(dt3)
 
   al <- raster(extent(patches), res = res(patches), vals = 0)

@@ -849,3 +849,10 @@ setPaths <- function(cachePath, inputPath, modulePath, outputPath) {
 
   lapply(.paths(), checkPath, create = TRUE)
 }
+
+
+#' Resample
+#'
+#' From \code{\link[base]{sample}} help file.
+#'
+resample <- function(x, ...) x[sample.int(length(x), ...)]
