@@ -1185,7 +1185,7 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
                                   distFn = function(dist) 1/(1 + dist), cl, ...) {
   matched <- FALSE
   fromColNames <- colnames(from)
-  otherFromCols <- is.na(match(fromColNames, c("x","y","id")))
+  otherFromCols <- is.na(match(fromColNames, c("x", "y", "id")))
 
   if ("id" %in% fromColNames) {
     ids <- unique(from[, "id"])
@@ -1222,8 +1222,8 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
         #  inside each cluster and outside, or "within and between clusters".
         #  This is the outer one.
         #  The inner one is the one defined by the user argument.
-        outerCumFun <- function(x, from, fromCell, landscape, to, angles, maxDistance, distFnArgs,
-                                fromC, toC, xDist, cumulativeFn, distFn) {
+        outerCumFun <- function(x, from, fromCell, landscape, to, angles, maxDistance,
+                                distFnArgs, fromC, toC, xDist, cumulativeFn, distFn) {
 
           cumVal <- rep_len(0, NROW(to))
 
@@ -1328,14 +1328,14 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
   return(out)
 }
 
-#' @rdname distances
-#' @name .pointDistance
 #' @aliases pointDistance
 #' @keywords internal
-.pointDistance <- function(from, to, angles = NA, maxDistance=NA_real_, otherFromCols = FALSE) {
+#' @name .pointDistance
+#' @rdname distances
+.pointDistance <- function(from, to, angles = NA, maxDistance = NA_real_, otherFromCols = FALSE) {
   if (!is.na(maxDistance)) {
     to <- to[(abs(to[,"x"] - from[,"x"]) <= maxDistance)  &
-             (abs(to[,"y"] - from[,"y"]) <= maxDistance)  ,]
+             (abs(to[,"y"] - from[,"y"]) <= maxDistance), ]
   }
 
   # It is about 2x faster to use the compiled C routine from raster package
@@ -1379,7 +1379,7 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
     }
     if (any(otherFromCols)) {
       colNums <- seq_len(ncol(dists))
-      dists <- cbind(dists=dists, from[,otherFromCols])
+      dists <- cbind(dists=dists, from[, otherFromCols])
       colnames(dists)[-colNums] <- colnames(from)[otherFromCols]
     }
     return(dists)
