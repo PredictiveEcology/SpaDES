@@ -17,14 +17,16 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @param var      Spatial variance.
 #'
-#' @param speedup  An index of how much faster than normal to generate maps.
+#' @param speedup  An numeric value indicating how much faster than 'normal'
+#'                 to generate maps. It may be necessary to give a value larger
+#'                 than 1 for large maps. Default is 1.
 #'
 #' @param inMemory Should the RasterLayer be forced to be in memory?
 #'                 Default \code{FALSE}.
 #'
 #' @param ... Additional arguments to \code{raster}.
 #'
-#' @return A raster map of extent \code{ext} with a Gaussian random pattern.
+#' @return A raster map with same extent as \code{x}, with a Gaussian random pattern.
 #'
 #' @seealso \code{\link{RFsimulate}} and \code{\link{extent}}
 #'
@@ -45,7 +47,7 @@ if (getRversion() >= "3.1.0") {
 #' Plot(map1)
 #' }
 #'
-gaussMap <- function(x, scale = 10, var = 1, speedup = 10, inMemory = FALSE, ...) {
+gaussMap <- function(x, scale = 10, var = 1, speedup = 1, inMemory = FALSE, ...) {
   RFoptions(spConform = FALSE)
   ext <- extent(x)
   resol <- res(x)

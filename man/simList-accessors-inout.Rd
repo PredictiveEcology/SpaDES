@@ -64,10 +64,14 @@ Returns or sets the value(s) of the \code{input} or \code{output} slots
 in the \code{simList} object.
 }
 \description{
-These functions are one of two mechanisms to add the information about which
+These functions are one of three mechanisms to add the information about which
 input files to load in a \code{spades} call and the information about which
-output files to save.
-The other way is to pass them as arguments to a \code{simInit} call.
+output files to save. 1) As arguments to a \code{simInit} call. Specifically, \code{inputs}
+or \code{outputs}. See \code{?simInit}. 2) With the \code{inputs(simList)} or \code{outputs(simList)}
+function call.
+3) By adding a function called \code{.inputObjects} inside a module, which will be executed
+during the \code{simInit} call. This last way is the most "modular" way to create
+default data sets for your model. See below for more details.
 
 \code{inputArgs} and \code{outputArgs} are ways to specify any
 arguments that are needed for file loading and file saving. This
@@ -82,7 +86,7 @@ The automatic file type handling only adds the correct extension from a given
 \code{fun} and \code{package}. It does not do the inverse, from a given extension find the
 correct \code{fun} and \code{package}.
 }
-\section{inputs}{
+\section{inputs function or argument in \code{simInit}}{
 
 
 \code{inputs} accepts a data.frame, with up to 7 columns.
@@ -129,7 +133,31 @@ if not specified.
 See the modules vignette for more details (\code{browseVignettes("SpaDES")}).
 }
 
-\section{outputs}{
+\section{\code{.inputObjects} function placed inside module}{
+
+
+Any code placed inside a function called \code{.inputObjects} will be run during
+the simInit for the purpose of creating
+any objects required by this module, i.e., objects  identified in the inputObjects
+element of defineModule.
+This is useful if there is something required before simulation to produce the module
+object dependencies, including such things as downloading default datasets, e.g.,
+\code{downloadData('LCC2005', modulePath(sim))}.
+Nothing should be created here that does not create an named object in inputObjects.
+Any other initiation procedures should be put in the "init" eventType of the doEvent function.
+Note: the module developer can use 'sim$.userSuppliedObjNames' inside the function to
+selectively skip unnecessary steps because the user has provided those inputObjects in the
+simInit call. e.g., the following code would look to see if the user had passed \code{defaultColor}
+into during \code{simInit}. If the user had done this, then this function would not override
+that value with 'red'. If the user has not passed in a value for \code{defaultColor}, then
+the module will get it here:
+
+\code{if (!('defaultColor' \%in\% sim$.userSuppliedObjNames)) \{
+ sim$defaultColor <- 'red'
+\}}
+}
+
+\section{outputs function or argument in \code{simInit}}{
 
 
 \code{outputs} accepts a data.frame similar to the \code{inputs} data.frame, but

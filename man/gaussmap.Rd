@@ -5,7 +5,7 @@
 \alias{gaussMap}
 \title{Produce a \code{raster} of a random Gaussian process.}
 \usage{
-gaussMap(x, scale = 10, var = 1, speedup = 10, inMemory = FALSE, ...)
+gaussMap(x, scale = 10, var = 1, speedup = 1, inMemory = FALSE, ...)
 }
 \arguments{
 \item{x}{A spatial object (e.g., a \code{RasterLayer}).}
@@ -14,7 +14,9 @@ gaussMap(x, scale = 10, var = 1, speedup = 10, inMemory = FALSE, ...)
 
 \item{var}{Spatial variance.}
 
-\item{speedup}{An index of how much faster than normal to generate maps.}
+\item{speedup}{An numeric value indicating how much faster than 'normal'
+to generate maps. It may be necessary to give a value larger
+than 1 for large maps. Default is 1.}
 
 \item{inMemory}{Should the RasterLayer be forced to be in memory?
 Default \code{FALSE}.}
@@ -22,7 +24,7 @@ Default \code{FALSE}.}
 \item{...}{Additional arguments to \code{raster}.}
 }
 \value{
-A raster map of extent \code{ext} with a Gaussian random pattern.
+A raster map with same extent as \code{x}, with a Gaussian random pattern.
 }
 \description{
 This is a wrapper for the \code{RFsimulate} function in the RandomFields
