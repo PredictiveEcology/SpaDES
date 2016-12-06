@@ -850,12 +850,13 @@ setPaths <- function(cachePath, inputPath, modulePath, outputPath) {
   lapply(.paths(), checkPath, create = TRUE)
 }
 
-
 #' Resample
 #'
-#' A version of sample that doesn't have awkward behaviour
-#' when length x is 1. Taked dirctly from \code{\link[base]{sample}} help file.
+#' A version of sample that doesn't have awkward behaviour when \code{length(x) == 1}.
+#' Adapted directly from the \code{\link[base]{sample}} help file.
+#'
 #' @inheritParams base::sample
+#'
 #' @param ... Passed to \code{\link[base]{sample}}
 #'
 resample <- function(x, ...) x[sample.int(length(x), ...)]

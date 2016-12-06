@@ -13,7 +13,7 @@ resample(x, ...)
 \item{...}{Passed to \code{\link[base]{sample}}}
 }
 \description{
-A version of sample that doesn't have awkward behaviour
-when length x is 1. Taked dirctly from \code{\link[base]{sample}} help file.
+A version of sample that doesn't have awkward behaviour when \code{length(x) == 1}.
+Adapted directly from the \code{\link[base]{sample}} help file.
 }
 
