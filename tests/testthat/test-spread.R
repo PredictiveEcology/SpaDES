@@ -636,15 +636,18 @@ test_that("rings and cir", {
                   includeBehavior = "includeRing")
   dists2 <- distanceFromPoints(hab, coordinates(caribou))
   dists3 <- cir(landscape = hab, loci = loci, minRadius = 0, maxRadius = ncol(hab),
-                includeBehavior = "includePixels", allowOverlap = FALSE, returnIndices = FALSE,
-                closest = TRUE, returnDistances = TRUE)
+                includeBehavior = "includePixels", allowOverlap = FALSE,
+                returnIndices = FALSE, closest = TRUE, returnDistances = TRUE)
   if (interactive()) Plot(dists1, dists2, dists3, new = TRUE)
   diffDists12 <- abs(dists1 - dists2)
   diffDists23 <- abs(dists2 - dists3)
   tabs12 <- table(round(getValues(diffDists12)))
   tabs23 <- table(round(getValues(diffDists23)))
-  expect_true(tabs12[names(tabs12) == 0]/ncell(diffDists12) > 0.99) # This tests that the two approaches are 99% similar
-  expect_true(tabs23[names(tabs23) == 0]/ncell(diffDists23) > 0.99) # This tests that the two approaches are 99% similar
+
+  # This tests that the two approaches are 99% similar
+  expect_true(tabs12[names(tabs12) == 0]/ncell(diffDists12) > 0.99)
+  expect_true(tabs23[names(tabs23) == 0]/ncell(diffDists23) > 0.99)
+
   if (interactive()) Plot(diffDists12, diffDists23, new = TRUE)
 
   skip("Below here is just benchmarking, not testing")
@@ -657,8 +660,8 @@ test_that("rings and cir", {
                     includeBehavior = "includeRing"),
     dists2 <- distanceFromPoints(hab, coordinates(caribou)),
     dists3 <- cir(landscape = hab, loci = loci, minRadius = 0, maxRadius = ncol(hab),
-                  includeBehavior = "includePixels", allowOverlap = FALSE, returnIndices = FALSE,
-                  closest = TRUE, returnDistances = TRUE)
+                  includeBehavior = "includePixels", allowOverlap = FALSE,
+                  returnIndices = FALSE, closest = TRUE, returnDistances = TRUE)
   )
 })
 
@@ -1135,18 +1138,30 @@ test_that("multi-core version of distanceFromEachPoints does not work correctly"
     N <- 50
     coords <- cbind(x = round(stats::runif(N, xmin(hab), xmax(hab))) + 0.5,
                     y = round(stats::runif(N, xmin(hab), xmax(hab))) + 0.5)
-    dfep <- distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE], landscape = hab, cumulativeFn = `+`)
-    system.time({cl1 <- makeCluster(1, rscript_args = "--vanilla --no-environ")
-       clusterEvalQ(cl1, {library(SpaDES)})})
-    system.time(dfepCluster <- distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE],
-                                                     landscape = hab, cumulativeFn = `+`,
-                                                     cl = cl1))
+    dfep <- distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE],
+                                  landscape = hab, cumulativeFn = `+`)
+
+    ## using parallel package cluster
+    system.time({
+      cl1 <- makeCluster(1, rscript_args = "--vanilla --no-environ")
+      clusterEvalQ(cl1, {library(SpaDES)})
+    })
+    system.time(
+      dfepCluster <- distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE],
+                                           landscape = hab, cumulativeFn = `+`,
+                                           cl = cl1)
+    )
     stopCluster(cl1)
     expect_true(all.equal(dfep, dfepCluster))
-    system.time({beginCluster(1)})
-    system.time(dfepCluster2 <- distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE],
-                                                      landscape = hab, cumulativeFn = `+`,
-                                                      cl = cl1))
+
+    ## using raster package cluster
+    system.time({
+      beginCluster(1)
+    })
+    system.time(
+      dfepCluster2 <- distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE],
+                                            landscape = hab, cumulativeFn = `+`)
+    )
     endCluster()
     expect_true(all.equal(dfep, dfepCluster2))
   }
