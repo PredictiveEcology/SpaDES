@@ -67,12 +67,10 @@ setMethod(
   ),
   definition = function(filename, defineModuleElement) {
     parsedFile <- parse(filename)
-    defineModuleItem <-
-      grepl(pattern = "defineModule", parsedFile)
+    defineModuleItem <- grepl(pattern = "defineModule", parsedFile)
     pf <- parsedFile[defineModuleItem]
 
-    namesParsedList <-
-      names(parsedFile[defineModuleItem][[1]][[3]])
+    namesParsedList <- names(parsedFile[defineModuleItem][[1]][[3]])
 
     element <- (namesParsedList == defineModuleElement)
     out <- pf[[1]][[3]][element][[1]]
@@ -149,8 +147,7 @@ setMethod(
       filename <-
         paste(sim@paths[['modulePath']], "/", m, "/", m, ".R", sep = "")
       parsedFile <- parse(filename)
-      defineModuleItem <-
-        grepl(pattern = "defineModule", parsedFile)
+      defineModuleItem <- grepl(pattern = "defineModule", parsedFile)
 
       # evaluate the rest of the parsed file
       eval(parsedFile[!defineModuleItem], envir = sim@.envir)
@@ -167,8 +164,7 @@ setMethod(
 
       # evaluate all but inputObjects and outputObjects part of 'defineModule'
       #  This allow user to use params(sim) in their inputObjects
-      namesParsedList <-
-        names(parsedFile[defineModuleItem][[1]][[3]])
+      namesParsedList <- names(parsedFile[defineModuleItem][[1]][[3]])
       inObjs <- (namesParsedList == "inputObjects")
       outObjs <- (namesParsedList == "outputObjects")
       pf <- parsedFile[defineModuleItem]

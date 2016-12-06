@@ -4,21 +4,27 @@
 \name{packages}
 \alias{packages}
 \alias{packages,.simList-method}
-\title{Get simulation package dependencies}
+\alias{packages,missing-method}
+\title{Get module or simulation package dependencies}
 \usage{
-packages(sim)
+packages(sim, ...)
 
-\S4method{packages}{.simList}(sim)
+\S4method{packages}{.simList}(sim, ...)
+
+\S4method{packages}{missing}(sim, ...)
 }
 \arguments{
-\item{sim}{A \code{simList} object from which to extract element(s) or
-in which to replace element(s).}
+\item{sim}{A \code{simList} object.}
+
+\item{...}{Additional arguments.
+Currently only \code{module}, specifying the name of a module,
+and \code{filename}, specifying a module filename, are supported.}
 }
 \value{
 A sorted character vector of package names.
 }
 \description{
-Get simulation package dependencies
+Get module or simulation package dependencies
 }
 \author{
 Alex Chubaty

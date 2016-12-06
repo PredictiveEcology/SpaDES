@@ -142,6 +142,20 @@ test_that("simList object initializes correctly", {
   pkgs <- c("grid", "methods", "RandomFields", "raster", "RColorBrewer", "sp",
             "SpaDES", "tkrplot")
   expect_equal(sort(packages(mySim)), sort(pkgs))
+
+  reqdPkgs <- lapply(modules, function(m) {
+    mfile <- file.path(system.file("sampleModules", package = "SpaDES"), m, paste0(m, ".R"))
+    packages(filename = mfile)
+  }) %>% unlist() %>% unique() %>% sort()
+  expect_equal(sort(reqdPkgs), sort(pkgs))
+
+  mdir <- getOption("spades.modulePath")
+  options(spades.modulePath = system.file("sampleModules", package = "SpaDES"))
+  on.exit(options(spades.modulePath = mdir), add = TRUE)
+  reqdPkgs <- lapply(modules, function(m) packages(module = m)) %>%
+    unlist() %>% unique() %>% sort()
+  expect_equal(sort(reqdPkgs), sort(pkgs))
+
   rm(mySim)
 })
 

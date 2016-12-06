@@ -244,7 +244,7 @@ setReplaceMethod("envir",
 #' \code{objs<-} requires takes a named list of values to be assigned in
 #' the simulation envirment.
 #'
-#' @param sim        A \code{simList} object from which to extract element(s) or
+#' @param sim      A \code{simList} object from which to extract element(s) or
 #'                 in which to replace element(s).
 #' @param x        A \code{simList} object from which to extract element(s) or
 #'                 in which to replace element(s).
@@ -631,7 +631,7 @@ setMethod("P",
             if (is.null(module)) {
               module <- sim@current$moduleName
             }
-            if (length(module)>0) {
+            if (length(module) > 0) {
               if (is.null(param)) {
                 return(sim@params[[module]])
               } else {
@@ -2130,8 +2130,8 @@ setMethod(
   ".callingFrameTimeunit",
   signature = c(".simList"),
   definition = function(x) {
-    mod <- x@current$moduleName # currentModule(x)
-    out <- if (length(mod)>0) {
+    mod <- x@current$moduleName
+    out <- if (length(mod) > 0) {
       timeunits(x)[[mod]]
     } else {
       x@simtimes[["timeunit"]]
@@ -2338,7 +2338,6 @@ setMethod(
     } else {
       sim@events
     }
-
     return(out)
 })
 
@@ -2564,9 +2563,13 @@ setMethod(
 })
 
 ################################################################################
-#' Get simulation package dependencies
+#' Get module or simulation package dependencies
 #'
-#' @inheritParams objs
+#' @param sim  A \code{simList} object.
+#'
+#' @param ...  Additional arguments.
+#'             Currently only \code{module}, specifying the name of a module,
+#'             and \code{filename}, specifying a module filename, are supported.
 #'
 #' @return A sorted character vector of package names.
 #'
@@ -2579,7 +2582,7 @@ setMethod(
 #' @author Alex Chubaty
 #'
 # igraph exports %>% from magrittr
-setGeneric("packages", function(sim) {
+setGeneric("packages", function(sim, ...) {
   standardGeneric("packages")
 })
 
@@ -2588,11 +2591,33 @@ setGeneric("packages", function(sim) {
 setMethod(
   "packages",
   signature(sim = ".simList"),
-  definition = function(sim) {
+  definition = function(sim, ...) {
     pkgs <- lapply(depends(sim)@dependencies, function(x) {
         x@reqdPkgs
       }) %>% unlist() %>% append("SpaDES") %>% unique() %>% sort()
     return(pkgs)
+})
+
+#' @export
+#' @rdname packages
+setMethod(
+  "packages",
+  signature(sim = "missing"),
+  definition = function(sim, ...) {
+    args <- list(...)
+    if (!is.null(args$filename)) {
+      pkgs <- .parseModulePartial(filename = args$filename,
+                                  defineModuleElement = "reqdPkgs") %>%
+        unlist() %>% append("SpaDES") %>% unique() %>% sort()
+      return(pkgs)
+    } else if (!is.null(args$module)) {
+      f <- file.path(getOption('spades.modulePath'), args$module, paste0(args$module, ".R"))
+      pkgs <- .parseModulePartial(filename = f, defineModuleElement = "reqdPkgs") %>%
+        unlist() %>% append("SpaDES") %>% unique() %>% sort()
+      return(pkgs)
+    } else {
+      stop("one of sim, modules, or filename must be supplied.")
+    }
 })
 
 ################################################################################
