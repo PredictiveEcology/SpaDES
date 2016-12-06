@@ -79,7 +79,7 @@ this function will automatically use that cluster. It is always a good
 idea to stop the cluster when finished, using \code{\link{endCluster}}.
 }
 \examples{
-require(raster)
+library(raster)
 
 # an example with dimensions:
 # nrow = 77

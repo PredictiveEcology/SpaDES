@@ -57,7 +57,7 @@ coords <- cbind(x = round(runif(N, xmin(dirRas), xmax(dirRas)))+0.5,
                 id = 1:N)
 
 dirs1 <- directionFromEachPoint(from = coords, landscape = dirRas)
-require(CircStats)
+library(CircStats)
 dirs1[, "angles"] <- deg(dirs1[,"angles"] \%\% (2*pi))
 indices <- cellFromXY(dirRas,dirs1[, c("x", "y")])
 minDir <- tapply(dirs1[, "angles"], indices, function(x) min(x)) # minimum angle

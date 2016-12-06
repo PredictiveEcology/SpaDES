@@ -31,7 +31,7 @@ To use the average of cell values, or do another computation, use
 \code{\link[raster]{mosaic}}.
 }
 \examples{
-require(raster)
+library(raster)
 
 # an example with dimensions:
 # nrow = 77

@@ -60,7 +60,7 @@ test_that("spread produces legal RasterLayer", {
 })
 
 test_that("spread stopRule does not work correctly", {
-  require(raster); on.exit(detach("package:raster"), add = TRUE)
+  library(raster); on.exit(detach("package:raster"), add = TRUE)
 
   a <- raster(extent(0,1e2,0,1e2), res = 1)
   hab <- gaussMap(a, speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
@@ -302,8 +302,8 @@ test_that("spread stopRule does not work correctly", {
 })
 
 test_that("asymmetry doesn't work properly", {
-  require(CircStats); on.exit(detach("package:CircStats"), add = TRUE)
-  require(raster); on.exit(detach("package:raster"), add = TRUE)
+  library(CircStats); on.exit(detach("package:CircStats"), add = TRUE)
+  library(raster); on.exit(detach("package:raster"), add = TRUE)
 
   a <- raster(extent(0, 1e2, 0, 1e2), res = 1)
   hab <- gaussMap(a, speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
@@ -367,7 +367,7 @@ test_that("asymmetry doesn't work properly", {
 test_that("spread benchmarking", {
   skip("This is just benchmarking, not testing")
 
-  require(raster); on.exit(detach("package:raster"), add = TRUE)
+  library(raster); on.exit(detach("package:raster"), add = TRUE)
 
   a <- raster(extent(0,1e2,0,1e2), res = 1)
   hab <- gaussMap(a, speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
@@ -444,7 +444,7 @@ test_that("spread benchmarking", {
                  dists2 = distanceFromPoints(circs, xy = xy))
   if (interactive()) Plot(dists, dists2, new = TRUE)
 
-  require(raster); on.exit(detach("package:raster"), add = TRUE)
+  library(raster); on.exit(detach("package:raster"), add = TRUE)
 
   a <- raster(extent(0,436,0,296), res = 1)
   hab <- gaussMap(a,speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
@@ -533,10 +533,10 @@ test_that("spread benchmarking", {
 })
 
 test_that("rings and cir", {
-  require(sp)
-  require(raster)
-  require(fpCompare)
-  require(data.table)
+  library(sp)
+  library(raster)
+  library(fpCompare)
+  library(data.table)
 
   on.exit({
     detach("package:data.table")
@@ -663,8 +663,8 @@ test_that("rings and cir", {
 })
 
 test_that("distanceFromPoints does not work correctly", {
-  require(raster); on.exit(detach("package:raster"), add = TRUE)
-  require(fpCompare); on.exit(detach("package:fpCompare"), add = TRUE)
+  library(raster); on.exit(detach("package:raster"), add = TRUE)
+  library(fpCompare); on.exit(detach("package:fpCompare"), add = TRUE)
   library(data.table); on.exit(detach("package:data.table"), add = TRUE)
 
   hab <- raster(extent(0, 1e2, 0, 1e2), res = 1)
@@ -965,8 +965,8 @@ test_that("distanceFromPoints does not work correctly", {
 
 test_that("simple cir does not work correctly", {
   set.seed(1234)
-  require(raster); on.exit(detach("package:raster"), add = TRUE)
-  require(fpCompare); on.exit(detach("package:fpCompare"), add = TRUE)
+  library(raster); on.exit(detach("package:raster"), add = TRUE)
+  library(fpCompare); on.exit(detach("package:fpCompare"), add = TRUE)
 
   hab <- raster(extent(0,1e1,0,1e1), res = 1)
 
@@ -1071,8 +1071,8 @@ test_that("wrap does not work correctly", {
 })
 
 test_that("cir angles arg doesn't work", {
-  require(raster); on.exit(detach("package:raster"), add = TRUE)
-  require(fpCompare); on.exit(detach("package:fpCompare"), add = TRUE)
+  library(raster); on.exit(detach("package:raster"), add = TRUE)
+  library(fpCompare); on.exit(detach("package:fpCompare"), add = TRUE)
   Ras <- raster(extent(0, 100, 0, 100), res = 1)
   Ras[] <- 0
   N <- 2
@@ -1126,8 +1126,8 @@ test_that("multi-core version of distanceFromEachPoints does not work correctly"
   skip_on_appveyor()
 
   if (interactive()) {
-    require(raster); on.exit(detach("package:raster"), add = TRUE)
-    require(parallel); on.exit(detach("package:parallel"), add = TRUE)
+    library(raster); on.exit(detach("package:raster"), add = TRUE)
+    library(parallel); on.exit(detach("package:parallel"), add = TRUE)
 
     hab <- randomPolygons(raster(extent(0, 1e2, 0, 1e2)), res = 1)
 
