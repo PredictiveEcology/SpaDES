@@ -138,8 +138,8 @@ See the modules vignette for more details (\code{browseVignettes("SpaDES")}).
 
 Any code placed inside a function called \code{.inputObjects} will be run during
 the simInit for the purpose of creating
-any objects required by this module, i.e., objects  identified in the inputObjects
-element of defineModule.
+any objects required by this module, i.e., objects  identified in the \code{inputObjects}
+element of \code{defineModule}.
 This is useful if there is something required before simulation to produce the module
 object dependencies, including such things as downloading default datasets, e.g.,
 \code{downloadData('LCC2005', modulePath(sim))}.
