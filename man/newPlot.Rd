@@ -17,7 +17,7 @@ RStudio graphics device, which is slow.}
 \item{...}{Additional arguments.}
 
 \item{useRSGD}{Logical indicating whether the default device should be the
-RStudio graphic device, or the platform default (\code{quartz})
+RStudio graphic device, or the platform default (\code{quartz}
 on macOS; \code{windows} on Windows; \code{x11} on others, e.g., Linux).}
 }
 \description{
