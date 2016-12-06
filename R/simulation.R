@@ -1277,9 +1277,8 @@ setMethod(
         #   eventPriority = eventPriority
         # )
 
-        #browser()
-        newEvent <- .singleEventListDT
-        #newEvent <- data.table::copy(.singleEventListDT)
+        #newEvent <- .singleEventListDT
+        newEvent <- data.table::copy(.singleEventListDT)
         newEventList <- list(
           eventTime = eventTimeInSeconds,
           moduleName = moduleName,
