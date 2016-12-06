@@ -821,7 +821,94 @@ setMethod("openModules",
           definition = function(name) {
             mods <- unlist(modules(name))
             openModules(name = mods, path = modulePath(name))
-          })
+})
+
+################################################################################
+#' Create a copy of an existing module
+#'
+#' @param from  The name of the module to copy.
+#'
+#' @param to    The name of the copy.
+#'
+#' @param path  The path to a local module directory. Defaults to the path set by
+#'              the \code{spades.modulePath} option. See \code{\link{setPaths}}.
+#'
+#' @param ...   Additional arguments to \code{file.copy}, e.g., \code{overwrite = TRUE}.
+#'
+#' @return Invisible logical indicating success (\code{TRUE}) or failure (\code{FALSE}).
+#'
+#' @author Alex Chubaty
+#' @export
+#' @docType methods
+#' @rdname copyModule
+#'
+#' @examples
+#' \dontrun{copyModule(from, to)}
+#'
+setGeneric("copyModule", function(from, to, path, ...) {
+  standardGeneric("copyModule")
+})
+
+#' @export
+#' @rdname copyModule
+setMethod("copyModule",
+          signature = c(from = "character", to = "character", path = "character"),
+          definition = function(from, to, path, ...) {
+            if (!dir.exists(to)) {
+              dir.create(file.path(path, to))
+              dir.create(file.path(path, to, "data"))
+              dir.create(file.path(path, to, "tests"))
+              dir.create(file.path(path, to, "tests", "testthat"))
+            }
+
+            files <- dir(file.path(path, from), full.names = TRUE, recursive = TRUE)
+
+            ## files in base dir
+            ids <- which(basename(dirname(files)) == from)
+            result <- file.copy(from = files[ids],
+                                to = file.path(path, "gameOfLifeError"), ...)
+            result <- c(result, file.rename(from = file.path(path, "gameOfLifeError", paste0(from, ".R")),
+                                            to = file.path(path, "gameOfLifeError", paste0(to, ".R"))))
+            result <- c(result, file.rename(from = file.path(path, "gameOfLifeError", paste0(from, ".Rmd")),
+                                            to = file.path(path, "gameOfLifeError", paste0(to, ".Rmd"))))
+            if (file.exists(file.path(path, "gameOfLifeError", paste0(from, ".pdf")))) {
+              result <- c(result, file.rename(from = file.path(path, "gameOfLifeError", paste0(from, ".pdf")),
+                                              to = file.path(path, "gameOfLifeError", paste0(to, ".pdf"))))
+            }
+
+            ## files in "data" dir
+            ids <- which(basename(dirname(files)) == "data")
+            if (length(ids) > 0) {
+              result <- c(result, file.copy(from = files[ids],
+                                to = file.path(path, "gameOfLifeError", "data"), ...))
+            }
+
+            ## files in "tests" dir
+            ids <- which(basename(dirname(files)) == "test")
+            if (length(ids) > 0) {
+              result <- c(result, file.copy(from = files[ids],
+                                            to = file.path(path, "gameOfLifeError", "tests"), ...))
+            }
+
+            ## files in "testthat" subdir
+            ids <- which(basename(dirname(files)) == "testthat")
+            if (length(ids) > 0) {
+              result <- c(result, file.copy(from = files[ids],
+                                            to = file.path(path, "gameOfLifeError", "tests", "testthat"), ...))
+            }
+
+            if (!all(result)) warning("some module files could not be copied.")
+
+            return(invisible(all(result)))
+})
+
+#' @export
+#' @rdname copyModule
+setMethod("copyModule",
+          signature = c(from = "character", to = "character", path = "missing"),
+          definition = function(from, to, ...) {
+            copyModule(from, to, path = getOption('spades.modulePath'), ...)
+})
 
 ################################################################################
 #' Create a zip archive of a module subdirectory
