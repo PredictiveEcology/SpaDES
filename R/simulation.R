@@ -474,7 +474,7 @@ setMethod(
       lapply(., `attributes<-`, list(parsed = FALSE))
 
     # core modules
-    core <- list("checkpoint", "save", "progress", "load")
+    core <- .coreModules() %>% unname()
 
     # parameters for core modules
     dotParamsReal <- list(".saveInterval",
@@ -965,7 +965,7 @@ setMethod(
     }
 
     # core modules
-    core <- list("checkpoint", "save", "progress", "load")
+    core <- .coreModules() %>% unname()
 
     cur <- sim@current #current(sim, "second")
     if (NROW(cur) == 0) {# || any(is.na(cur))) {

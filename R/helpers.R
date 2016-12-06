@@ -1,4 +1,20 @@
 ################################################################################
+#' Named list of core \code{SpaDES} modules
+#'
+#' Internal function.
+#'
+#' @return Returns a named list of the core modules.
+#'
+#' @author Alex Chubaty
+#' @docType methods
+#' @keywords internal
+#' @name .coreModules
+#' @rdname coreModules
+.coreModules <- function() {
+  list(checkpoint = "checkpoint", save = "save", progress = "progress", load = "load")
+}
+
+################################################################################
 #' Blank (template) event list
 #'
 #' Internal function called from \code{spades}, returning an empty event list.

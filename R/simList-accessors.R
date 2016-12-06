@@ -405,7 +405,7 @@ setMethod(
     if (hidden) {
       mods <- sim@modules
     } else {
-      hiddenMods <- unlist(sim@modules) %in% c("checkpoint", "save", "progress", "load")
+      hiddenMods <- unlist(sim@modules) %in% (.coreModules() %>% unname() %>% unlist())
       mods <- sim@modules[!hiddenMods]
     }
     return(mods)

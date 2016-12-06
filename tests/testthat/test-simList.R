@@ -1,5 +1,5 @@
 test_that("simList object initializes correctly", {
-  defaults <- list("checkpoint", "save", "progress", "load")
+  defaults <- .coreModules() %>% unname()
   times <- list(start = 0.0, end = 10)
   params <- list(
     .globals = list(burnStats = "npixelsburned", stackName = "landscape")
