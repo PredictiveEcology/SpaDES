@@ -42,9 +42,3 @@ times(mySim) # See timeunits for each module and overall model timeunit
 dev() # to open a new plot device for faster plotting
 spades(mySim)
 ```
-
-Module groups can also be used to simplify the download of multiple modules:
-
-```{r module-group-dl, eval=FALSE}
-downloadModule("SpaDES_sampleModules")
-```
