@@ -51,8 +51,13 @@ Download a .zip file of the module and extract (unzip) it to a user-specified lo
 \details{
 Currently only works with a public GitHub repository, where modules are in
 a \code{modules} directory in the root tree on the \code{master} branch.
+}
+\note{
+\code{downloadModule} uses the \code{GITHUB_PAT} environment variable
+if a value is set. This alleviates 403 errors caused by too-frequent downloads.
+Generate a GitHub personal access token at \url{https://github.com/settings/tokens}.
 
-NOTE: the default is to overwrite any existing files in the case of a conflict.
+The default is to overwrite any existing files in the case of a conflict.
 }
 \author{
 Alex Chubaty

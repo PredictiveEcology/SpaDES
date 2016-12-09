@@ -5,7 +5,7 @@
 .*\.toc$
 ^_ignore$
 ^_push_vignettes\.sh$
-\.travis\.yml
+^\.travis\.yml$
 ^appveyor\.yml$
 CONTRIBUTING\.md
 cran-comments\.md
