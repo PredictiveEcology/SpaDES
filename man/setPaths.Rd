@@ -2,12 +2,15 @@
 % Please edit documentation in R/misc-methods.R
 \name{setPaths}
 \alias{.paths}
+\alias{getPaths}
 \alias{setPaths}
 \title{Get and set default working directories}
 \usage{
 .paths()
 
 setPaths(cachePath, inputPath, modulePath, outputPath)
+
+getPaths()
 }
 \arguments{
 \item{cachePath}{The default local directory in which to cache simulation outputs.

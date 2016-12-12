@@ -850,6 +850,12 @@ setPaths <- function(cachePath, inputPath, modulePath, outputPath) {
   lapply(.paths(), checkPath, create = TRUE)
 }
 
+#' @export
+#' @rdname setPaths
+getPaths <- function() {
+  return(.paths())
+}
+
 #' Resample
 #'
 #' A version of sample that doesn't have awkward behaviour when \code{length(x) == 1}.
