@@ -805,7 +805,6 @@ setMethod(
 #' \code{setPaths} is invoked for the side effect of setting these directories.
 #'
 #' @author Alex Chubaty
-#' @export
 #' @keywords internal
 #' @name setPaths
 #' @rdname setPaths

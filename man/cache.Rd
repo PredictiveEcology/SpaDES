@@ -104,13 +104,13 @@ Cache (capital C) is a short cut to using SpaDES::cache as it
 can be called from inside a SpaDES module without
 specifying the \code{cacheRepo}. SpaDES will use the cacheRepo from a call
 to \code{cachePath(sim)}, taking the sim from the call stack. Similarly, if no
-\code{cacheRepo} is specified, then it will use \cache{.paths()$cachePath}, which
-will, by default, be a temporary session with no persistence between R sessions! To
-persist between sessions, use \code{SpaDES::setPaths()} every session.
+\code{cacheRepo} is specified, then it will use \code{getPaths()$cachePath}, which
+will, by default, be a temporary location with no persistence between R sessions!
+To persist between sessions, use \code{SpaDES::setPaths()} every session.
 
-Cache (capital C) is also defined so that it is not confused with the
-archivist::cache function which will not work in a SpaDES context. If
-a user would like to use \code{cache} (lower case C), then it must be
+\code{Cache} (uppercase C) is also defined so that it is not confused with the
+\code{archivist::cache} function which will not work in a SpaDES context.
+If a user would like to use \code{cache} (lowercase c), then it must be
 always prefixed with \code{SpaDES::cache(  )} so that it does not accidentally
 call the achivist package version of cache.
 }
