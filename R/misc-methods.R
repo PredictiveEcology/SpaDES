@@ -812,10 +812,10 @@ setMethod(
 #' @examples
 #' \dontrun{
 #' getPaths()                       ## returns the current default working paths
-#' setPaths(cachePath = tempdir())  ## sets the cachePath
-#' setPaths(inputPath = tempdir())  ## sets the inputPath
-#' setPaths(modulePath = tempdir()) ## sets the modulePath
-#' setPaths(outputPath = tempdir()) ## sets the outputPath
+#' setPaths(cachePath = tempdir())  ## sets custom cachePath with other paths default
+#' setPaths(inputPath = tempdir())  ## sets custom inputPath with other paths default
+#' setPaths(modulePath = tempdir()) ## sets custom modulePath with other paths default
+#' setPaths(outputPath = tempdir()) ## sets custom outputPath with other paths default
 #' }
 #'
 .paths <- function() {
