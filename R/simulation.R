@@ -849,27 +849,17 @@ setMethod(
                         inputs,
                         outputs,
                         loadOrder) {
-    li <-
-      lapply(names(match.call()[-1]), function(x)
-        eval(parse(text = x)))
+    li <- lapply(names(match.call()[-1]), function(x) eval(parse(text = x)))
     names(li) <- names(match.call())[-1]
 
-    if (missing(times))
-      li$times <- list(start = 0, end = 10)
-    if (missing(params))
-      li$params <- list()
-    if (missing(modules))
-      li$modules <- list()
-    if (missing(objects))
-      li$objects <- list()
-    if (missing(paths))
-      li$paths <- .paths()
-    if (missing(inputs))
-      li$inputs <- as.data.frame(NULL)
-    if (missing(outputs))
-      li$outputs <- as.data.frame(NULL)
-    if (missing(loadOrder))
-      li$loadOrder <- character(0)
+    if (missing(times)) li$times <- list(start = 0, end = 10)
+    if (missing(params)) li$params <- list()
+    if (missing(modules)) li$modules <- list()
+    if (missing(objects)) li$objects <- list()
+    if (missing(paths)) li$paths <- .paths()
+    if (missing(inputs)) li$inputs <- as.data.frame(NULL)
+    if (missing(outputs)) li$outputs <- as.data.frame(NULL)
+    if (missing(loadOrder)) li$loadOrder <- character(0)
 
     expectedClasses <- c("list",
                          "list",

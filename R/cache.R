@@ -197,7 +197,7 @@ setMethod(
           sim <- get("sim", envir = sys.frame(doEventFrameNum))
           cacheRepo <- sim@paths$cachePath
         } else {
-          cacheRepo <- SpaDES::.paths()$cachePath
+          cacheRepo <- SpaDES::getPaths()$cachePath
           #stop("Cache requires sim or cacheRepo to be set")
         }
       }

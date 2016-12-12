@@ -8,9 +8,9 @@
 \usage{
 .paths()
 
-setPaths(cachePath, inputPath, modulePath, outputPath)
-
 getPaths()
+
+setPaths(cachePath, inputPath, modulePath, outputPath)
 }
 \arguments{
 \item{cachePath}{The default local directory in which to cache simulation outputs.
@@ -34,7 +34,7 @@ Wrapper functions to access the packages options for default working directories
 }
 \examples{
 \dontrun{
-setPaths()                       ## returns the current default working paths
+getPaths()                       ## returns the current default working paths
 setPaths(cachePath = tempdir())  ## sets the cachePath
 setPaths(inputPath = tempdir())  ## sets the inputPath
 setPaths(modulePath = tempdir()) ## sets the modulePath

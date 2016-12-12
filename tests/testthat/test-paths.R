@@ -12,9 +12,9 @@ test_that("paths file does not work correctly", {
                 tempPath)
   mySim <- simInit(times, params, modules, objects = list(), paths)
   expect_equal(paths(mySim),
-               list(cachePath = paths[[2]], inputPath = .paths()[["inputPath"]],
+               list(cachePath = paths[[2]], inputPath = getPaths()[["inputPath"]],
                     modulePath = paths$modulePath,
-                    outputPath = .paths()[["outputPath"]])
+                    outputPath = getPaths()[["outputPath"]])
               )
 
   # test for non consecutive order, but named
@@ -22,7 +22,7 @@ test_that("paths file does not work correctly", {
                 outputPath = tempPath)
   mySim <- simInit(times, params, modules, objects = list(), paths)
   expect_equal(paths(mySim),
-               list(cachePath = .paths()[["cachePath"]], inputPath = .paths()[["inputPath"]],
+               list(cachePath = getPaths()[["cachePath"]], inputPath = getPaths()[["inputPath"]],
                     modulePath = paths$modulePath, outputPath = path.expand(paths[[2]])))
 
   # test for all unnamed
