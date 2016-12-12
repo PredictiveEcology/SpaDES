@@ -41,7 +41,6 @@ test_that("Plot 1 is not error-free", {
 
   # Test speedup > 0.1 for SpatialPoints
   clearPlot()
-  #expect_that(Plot(caribou87654, speedup = 2))
   expect_silent(Plot(caribou87654, speedup = 2))
 
   # can add a plot to the plotting window
@@ -944,8 +943,8 @@ test_that("Plot lists", {
   )
   ras1 <- ras2 <- ras3 <- ras4 <- rasOrig
   a <- list(); for (i in 1:4) a[[paste0("ras", i)]] <- get(paste0("ras", i))
-  Sr1 <- Polygon(cbind(c(2, 4, 4, 1, 2), c(2, 3, 5, 4, 2))*20 - 50)
-  Sr2 <- Polygon(cbind(c(5, 4, 2, 5), c(2, 3, 2, 2))*20 - 50)
+  Sr1 <- Polygon(cbind(c(2, 4, 4, 1, 2), c(2, 3, 5, 4, 2)) * 20 - 50)
+  Sr2 <- Polygon(cbind(c(5, 4, 2, 5), c(2, 3, 2, 2)) * 20 - 50)
   Srs1 <- Polygons(list(Sr1), "s1")
   Srs2 <- Polygons(list(Sr2), "s2")
   SpP <- SpatialPolygons(list(Srs1, Srs2), 1:2)

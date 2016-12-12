@@ -64,16 +64,10 @@ rasterizeReduced <- function(reduced, fullRaster, plotCol, mapcode = names(fullR
   } else {
     setkeyv(reduced, mapcode)
   }
-  fullRasterVals <- data.table(getValues(fullRaster))# %>% data.frame()
+  fullRasterVals <- data.table(getValues(fullRaster))
   setnames(fullRasterVals, 1, new = mapcode)
-  fullRasterVals <- fullRasterVals[, row_number := 1L:.N] # %>% mutate(row_number = 1L:nrow(.)) %>% data.table
-#   if (!is.null(key(fullRasterVals))){
-#     if (key(fullRasterVals) != mapcode) {
-#       setkeyv(fullRasterVals, mapcode)
-#     }
-#   } else {
+  fullRasterVals <- fullRasterVals[, row_number := 1L:.N]
   setkeyv(fullRasterVals, mapcode)
-  #  }
 
   BsumVec <- reduced[fullRasterVals]
   BsumVec[is.na(get(plotCol)), c(plotCol) := NA]

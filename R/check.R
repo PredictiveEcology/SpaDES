@@ -90,7 +90,7 @@ setMethod(
   signature(sim = "simList", name = "character", object = "missing", layer = "character"),
   definition = function(sim, name, layer, ...) {
     if (exists(name, envir = sim@.envir)) {
-      if (is(sim[[name]],"Raster")) {
+      if (is(sim[[name]], "Raster")) {
         if (!is(sim[[name]][[layer]], "Raster")) {
           message(paste("The object \"", name, "\" exists, but is not
                         a Raster, so layer is ignored", sep = ""))
@@ -151,8 +151,7 @@ setMethod(
   "checkParams",
   signature(sim = "simList", coreModules = "list", coreParams = "list",
             path = "character"),
-  definition=function(sim, coreModules, coreParams, path, ...) {
-
+  definition = function(sim, coreModules, coreParams, path, ...) {
     params <- sim@params
     modules <- sim@modules
     userModules <- modules[-which(coreModules %in% modules)]
@@ -206,7 +205,7 @@ setMethod(
                              readLines(paste(path, "/", uM, "/", uM, ".R", sep = "")),
                              value = TRUE) %>%
           strsplit(., " ") %>%
-          unlist(lapply(., function(x) { x[nchar(x) > 0] } )) %>%
+          unlist(lapply(., function(x) x[nchar(x) > 0] )) %>%
           grep("globals\\(sim\\)\\$", ., value = TRUE) %>%
           gsub(",", "", .) %>%
           gsub("\\)\\)", "", .) %>%
@@ -234,7 +233,7 @@ setMethod(
                                              sep = "")),
                              value = TRUE) %>%
           gsub(paste0("^.*params\\(sim\\)\\$", uM, "\\$"), "", .) %>%
-          gsub("[!\"#$%&\'()*+,/:;<=>?@[\\^`{|}~-].*$","", .) %>%
+          gsub("[!\"#$%&\'()*+,/:;<=>?@[\\^`{|}~-].*$", "", .) %>%
           gsub("]*", "", .) %>%
           gsub(" *", "", .) %>%
           unique(.) %>%

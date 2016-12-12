@@ -79,8 +79,8 @@ setMethod("updateList",
           definition = function(x, y) {
             if (any(is.null(names(x)), is.null(names(y)))) {
               # If one of the lists is empty, then just return the other, unchanged
-              if (length(y)==0) return(x)
-              if (length(x)==0) return(y)
+              if (length(y) == 0) return(x)
+              if (length(x) == 0) return(y)
               stop("All elements in lists x,y must be named.")
             } else {
               x[names(y)] <- y
@@ -213,7 +213,7 @@ setMethod(
         if ( is.null(repos) | any(repos == "") ) {
           repos <- "https://cran.rstudio.com"
         }
-        installed <- unname(installed.packages()[,"Package"])
+        installed <- unname(installed.packages()[, "Package"])
         toInstall <- packageList[packageList %in% installed]
         install.packages(toInstall, repos = repos)
       }
@@ -412,12 +412,12 @@ setMethod("checkPath",
 #' paddedFloatToChar(1.25, padL = 3, padR = 5)
 #'
 # igraph exports %>% from magrittr
-paddedFloatToChar <- function(x, padL = ceiling(log10(x+1)), padR = 3, pad = "0") {
+paddedFloatToChar <- function(x, padL = ceiling(log10(x + 1)), padR = 3, pad = "0") {
   xIC <- x %/% 1 %>%
-    format(., trim = TRUE, digits = 5,scientific = FALSE) %>%
+    format(., trim = TRUE, digits = 5, scientific = FALSE) %>%
     str_pad(., pad = pad, width = padL, side = "left")
   xf <- x %% 1
-  xFC <- ifelse(xf %==% 0 , "" ,
+  xFC <- ifelse(xf %==% 0, "",
     strsplit(format(xf, digits = padR, scientific = FALSE), split = "\\.")[[1]][2] %>%
       str_pad(., width = padR, side = "right", pad = pad) %>%
       paste0(".", .))
@@ -483,49 +483,49 @@ setMethod(
 setMethod("rndstr",
           signature(n = "numeric", len = "numeric", characterFirst = "missing"),
           definition = function(n, len) {
-            rndstr(n=n, len=len, characterFirst=TRUE)
+            rndstr(n = n, len = len, characterFirst = TRUE)
 })
 
 #' @rdname rndstr
 setMethod("rndstr",
           signature(n = "numeric", len = "missing", characterFirst = "logical"),
           definition = function(n, characterFirst) {
-            rndstr(n=n, len=8, characterFirst=characterFirst)
+            rndstr(n = n, len = 8, characterFirst = characterFirst)
 })
 
 #' @rdname rndstr
 setMethod("rndstr",
           signature(n = "missing", len = "numeric", characterFirst = "logical"),
           definition = function(len, characterFirst) {
-            rndstr(n=1, len=len, characterFirst=characterFirst)
+            rndstr(n = 1, len = len, characterFirst = characterFirst)
 })
 
 #' @rdname rndstr
 setMethod("rndstr",
           signature(n = "numeric", len = "missing", characterFirst = "missing"),
           definition = function(n) {
-            rndstr(n=n, len=8, characterFirst=TRUE)
+            rndstr(n = n, len = 8, characterFirst = TRUE)
 })
 
 #' @rdname rndstr
 setMethod("rndstr",
           signature(n = "missing", len = "numeric", characterFirst = "missing"),
           definition = function(len) {
-            rndstr(n=1, len=len, characterFirst=TRUE)
+            rndstr(n = 1, len = len, characterFirst = TRUE)
 })
 
 #' @rdname rndstr
 setMethod("rndstr",
           signature(n = "missing", len = "missing", characterFirst = "logical"),
           definition = function(characterFirst) {
-            rndstr(n=1, len=8, characterFirst=characterFirst)
+            rndstr(n = 1, len = 8, characterFirst = characterFirst)
 })
 
 #' @rdname rndstr
 setMethod("rndstr",
           signature(n = "missing", len = "missing", characterFirst = "missing"),
           definition = function(n, len, characterFirst) {
-            rndstr(n=1, len=8, characterFirst=TRUE)
+            rndstr(n = 1, len = 8, characterFirst = TRUE)
 })
 
 ################################################################################
@@ -821,10 +821,10 @@ setMethod(
 #'
 .paths <- function() {
   list(
-    cachePath = getOption('spades.cachePath'),
-    inputPath = getOption('spades.inputPath'),
-    modulePath = getOption('spades.modulePath'),
-    outputPath = getOption('spades.outputPath')
+    cachePath = getOption("spades.cachePath"),
+    inputPath = getOption("spades.inputPath"),
+    modulePath = getOption("spades.modulePath"),
+    outputPath = getOption("spades.outputPath")
   )
 }
 
@@ -839,10 +839,10 @@ setPaths <- function(cachePath, inputPath, modulePath, outputPath) {
     outputPath <- "~/SpaDES/outputs"
   }
 
-  if (missing(cachePath)) cachePath <- getOption('spades.cachePath')
-  if (missing(inputPath)) inputPath <- getOption('spades.inputPath')
-  if (missing(modulePath)) modulePath <- getOption('spades.modulePath')
-  if (missing(outputPath)) outputPath <- getOption('spades.outputPath')
+  if (missing(cachePath)) cachePath <- getOption("spades.cachePath")
+  if (missing(inputPath)) inputPath <- getOption("spades.inputPath")
+  if (missing(modulePath)) modulePath <- getOption("spades.modulePath")
+  if (missing(outputPath)) outputPath <- getOption("spades.outputPath")
 
   options(spades.cachePath = cachePath, spades.inputPath = inputPath,
           spades.modulePath = modulePath, spades.outputPath = outputPath)

@@ -64,7 +64,7 @@ setMethod(
       return(invisible())
     }
     devActive <- dev.cur()
-    if (devActive == 1) { return(invisible()) }
+    if (devActive == 1) return(invisible())
     dev(dev)
     grid.newpage()
     plot.new()
@@ -84,7 +84,7 @@ setMethod("clearPlot",
 #' @export
 #' @rdname clearPlot
 setMethod("clearPlot",
-          signature = c("missing","logical", "ANY"),
+          signature = c("missing", "logical", "ANY"),
           definition =  function(removeData, force) {
             clearPlot(dev = dev.cur(), removeData = removeData, force = force)
 })
@@ -92,7 +92,7 @@ setMethod("clearPlot",
 #' @export
 #' @rdname clearPlot
 setMethod("clearPlot",
-          signature = c("missing","missing"),
+          signature = c("missing", "missing"),
           definition =  function(dev, removeData, force) {
             clearPlot(dev.cur(), removeData = TRUE, force = force)
 })
@@ -158,17 +158,17 @@ setMethod("clearPlot",
 clickValues <- function(n = 1) {
   coords <- clickCoordinates(n = n)
   objLay <- strsplit(coords$map, "\\$")
-  objNames <- sapply(objLay, function(x) { x[1] })
-  layNames <- sapply(objLay, function(x) { x[2] })
+  objNames <- sapply(objLay, function(x) x[1])
+  layNames <- sapply(objLay, function(x) x[2])
   for (i in 1:n) {
     ras1 <- eval(parse(text = objNames[i]), envir = coords$envir[[i]])
     if (!is.na(layNames[i])) {
       coords$coords$value <- sapply(seq_len(n), function(i) {
-        ras1[[layNames[i]]][cellFromXY(ras1[[layNames[i]]], coords$coords[i,1:2])]
+        ras1[[layNames[i]]][cellFromXY(ras1[[layNames[i]]], coords$coords[i, 1:2])]
       })
     } else {
       coords$coords$value <- sapply(seq_len(n), function(i) {
-        ras1[cellFromXY(ras1,coords$coords[i,1:2])]
+        ras1[cellFromXY(ras1, coords$coords[i, 1:2])]
       })
     }
   }
@@ -237,8 +237,8 @@ clickCoordinates <- function(n = 1) {
                "clearPlot() or change device to",
                "one that has objects from a call to Plot()."))
   }
-  gl <- grid.layout(nrow = arr$curr@arr@rows*3 + 2,
-                    ncol = arr$curr@arr@columns*3 + 2,
+  gl <- grid.layout(nrow = arr$curr@arr@rows * 3 + 2,
+                    ncol = arr$curr@arr@columns * 3 + 2,
                     widths = arr$curr@arr@layout$wdth,
                     heights = arr$curr@arr@layout$ht)
 
@@ -262,7 +262,6 @@ clickCoordinates <- function(n = 1) {
     strsplit(., "null") %>%
     unlist() %>%
     as.numeric()
-  #npcs <- as.numeric(unlist(strsplit(as.character(gl$heights)[grepNpcsH], "npc") ))
   npcs <- as.character(gl$heights)[grepNpcsH] %>%
     strsplit(., "npc") %>%
     unlist() %>%
@@ -464,4 +463,3 @@ assign(".parOrig", envir = .spadesEnv,
                             "tck", "tcl", "usr", "xaxp", "xaxs", "xaxt", "xpd", "yaxp", "yaxs",
                             "yaxt", "ylbias")
 ))
-

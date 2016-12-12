@@ -9,7 +9,7 @@ test_that("numerical-comparisons: inRange handles various inputs", {
   expect_error(inRange("non-numeric"), "x must be numeric.")
 
   # inputs for a & b
-  expect_error(inRange( 0.5, 1, 0))
+  expect_error(inRange(0.5, 1, 0))
   expect_error(inRange(-0.5, NA_integer_, 1))
   expect_error(inRange(-0.5, NA_real_, 1))
   expect_error(inRange(-0.5, 0, NA_integer_))

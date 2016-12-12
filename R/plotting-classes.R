@@ -22,7 +22,7 @@ setAs(from = "list", to = "gpar", function(from) {
     gp1 <- gpar(from[[1]][[1]])
     if (length(from[[1]]) > 1) {
       for (i in 2:length(from[[1]])) {
-        gp1 <- gpar(sapply(gp1, function(x) { x }), from[[1]][[i]])
+        gp1 <- gpar(sapply(gp1, function(x) x), from[[1]][[i]])
       }
     }
     names(gp1) <- names(from[[1]])

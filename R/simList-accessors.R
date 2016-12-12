@@ -47,8 +47,8 @@ setMethod(
     ### objects loaded
     out[[11]] <- capture.output(cat(">> Objects Loaded:\n"))
 
-    out[[12]] <- if (NROW(inputs(object)[na.omit(inputs(object)$loaded == TRUE),])) {
-      capture.output(print(inputs(object)[na.omit(inputs(object)$loaded == TRUE),]))
+    out[[12]] <- if (NROW(inputs(object)[na.omit(inputs(object)$loaded == TRUE), ])) {
+      capture.output(print(inputs(object)[na.omit(inputs(object)$loaded == TRUE), ]))
     }
     out[[13]] <- capture.output(cat("\n"))
 
@@ -71,10 +71,10 @@ setMethod(
       USE.NAMES = TRUE, SIMPLIFY = FALSE
     )
     if (length(p)) {
-      q = do.call(rbind, p)
-      q = q[order(q$Module, q$Parameter),]
+      q <- do.call(rbind, p)
+      q <- q[order(q$Module, q$Parameter), ]
     } else {
-      q = cbind(Module = list(), Parameter = list())
+      q <- cbind(Module = list(), Parameter = list())
     }
     out[[17]] <- capture.output(cat(">> Parameters:\n"))
     out[[18]] <- capture.output(print(q, row.names = FALSE))
@@ -504,7 +504,7 @@ setMethod(
     st <- grepl(sc, pattern = "moduleCall")
     if (any(st)) {
       mod <- strsplit(
-        eval(parse(text = "moduleCall"), envir = sys.frame(which(st)[1]-1)),
+        eval(parse(text = "moduleCall"), envir = sys.frame(which(st)[1] - 1)),
         split = "\\.")[[1]][2]
     } else {
       mod <- NULL
@@ -718,7 +718,8 @@ setMethod("parameters",
               if (asDF) {
                 tmp <- lapply(depends(sim)@dependencies,
                               function(x) {
-                                out <- x@parameters})
+                                out <- x@parameters
+                       })
                 tmp <- do.call(rbind, tmp)
               } else {
                 tmp <- lapply(depends(sim)@dependencies,
@@ -726,7 +727,8 @@ setMethod("parameters",
                                 out <- lapply(seq_len(NROW(x@parameters)),
                                               function(y) x@parameters[y,-1])
                                 names(out) <- x@parameters$paramName
-                                out})
+                                out
+                       })
               }
             } else {
               tmp <- NULL
@@ -1134,7 +1136,7 @@ setReplaceMethod(
    if (length(value) > 0) {
      whFactors <- sapply(value, function(x) is.factor(x))
      if (any(whFactors)) {
-       value[,whFactors] <- sapply(value[,whFactors], as.character)
+       value[, whFactors] <- sapply(value[, whFactors], as.character)
      }
 
      if (!is.data.frame(value)) {
@@ -1353,7 +1355,7 @@ setMethod("outputs",
               if (any(!is.na(sim@outputs$saveTime))) {
                 if (!is.null(sim@outputs$saveTime)) {
                   obj <- data.table::copy(sim@outputs) # don't change original sim
-                  obj[,saveTime := convertTimeunit(saveTime, unit, sim@.envir)]
+                  obj[, saveTime := convertTimeunit(saveTime, unit, sim@.envir)]
                   obj[]
                   obj
                 }
@@ -1393,7 +1395,7 @@ setReplaceMethod(
 
        # coerce any factors to the correct class
        for (col in which(sapply(sim@outputs, is.factor))) {
-         sim@outputs[,col] <- as(sim@outputs[[col]], class(.fileTableOut()[[col]]))
+         sim@outputs[, col] <- as(sim@outputs[[col]], class(.fileTableOut()[[col]]))
        }
 
        # if saveTime not provided, give it end(sim)
@@ -1433,7 +1435,7 @@ setReplaceMethod(
          ceiling(log10(end(sim, sim@simtimes[["timeunit"]]) + 1))
        )
        # Add time unit and saveTime to filename, without stripping extension
-       wh <- !stri_detect_fixed(str = sim@outputs$file,pattern = txtTimeA)
+       wh <- !stri_detect_fixed(str = sim@outputs$file, pattern = txtTimeA)
        sim@outputs[wh, "file"] <- paste0(
          file_path_sans_ext(sim@outputs[wh, "file"]),
          "_", txtTimeA, txtTimeB[wh],
@@ -1539,9 +1541,9 @@ setReplaceMethod(
   function(sim, value) {
     argName <- .fileTableOutCols[pmatch("arg", .fileTableOutCols)]
    if (is.list(value) & !is.data.frame(value)) {
-     sim@outputs[[argName]] = value
+     sim@outputs[[argName]] <- value
    } else if (is.null(value)) {
-     sim@outputs[[argName]] = rep(list(NULL), NROW(outputs(sim)))
+     sim@outputs[[argName]] <- rep(list(NULL), NROW(outputs(sim)))
    } else {
      stop("value passed to outputArgs() must be a list of named elements")
    }
@@ -2033,13 +2035,11 @@ setMethod(
 #' @rdname simList-accessors-times
 setMethod(
   "end",
-  signature=c(".simList", "character"),
+  signature = c(".simList", "character"),
   definition = function(x, unit) {
 
     if (!is.na(unit)) {
       if (is.na(pmatch("second", unit))) {
-
-        #if (!str_detect("^seconds?$", pattern = unit)) {
         # i.e., if not in same units as simulation
         t <- convertTimeunit(x@simtimes$end, unit, x@.envir)
         return(t)

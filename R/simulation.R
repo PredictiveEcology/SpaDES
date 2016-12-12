@@ -96,7 +96,7 @@ setMethod(
     for (j in seq_along(modules)) {
       m <- modules[[j]][1]
       filename <-
-        paste(sim@paths[['modulePath']], "/", m, "/", m, ".R", sep = "")
+        paste(sim@paths[["modulePath"]], "/", m, "/", m, ".R", sep = "")
       out[[m]] <- .parseModulePartial(filename = filename,
                                       defineModuleElement = defineModuleElement)
     }
@@ -750,7 +750,7 @@ setMethod(
     }
 
     # check the parameters supplied by the user
-    checkParams(sim, core, dotParams, sim@paths[['modulePath']])
+    checkParams(sim, core, dotParams, sim@paths[["modulePath"]])
 
     # keep session info for debugging & checkpointing
     sim$.sessionInfo <- sessionInfo()
@@ -971,13 +971,12 @@ setMethod(
       if (nrowEvnts) {
 
         # Next block  much faster than sim@current <- sim@events[1L,]!
-        if(nrowEvnts < .lengthEventsDT) {
-          for(i in 1:.numColsEventList) {
+        if (nrowEvnts < .lengthEventsDT) {
+          for (i in 1:.numColsEventList) {
             set(.currentEventDT, 1L, i, sim@events[[i]][[1]])
-            set(.eventsDT[[nrowEvnts]], ,i, sim@events[[i]][-1])
+            set(.eventsDT[[nrowEvnts]], , i, sim@events[[i]][-1])
           }
           sim@current <- .currentEventDT
-          #sim@events <- data.table::copy(.eventsDT[[nrowEvnts]])
           sim@events <- .eventsDT[[nrowEvnts]]
         } else {
           # above replaces these two lines
@@ -993,7 +992,7 @@ setMethod(
     # catches the situation where no future event is scheduled,
     #  but stop time is not reached
     cur <- sim@current #current(sim, "second")
-    if  (NROW(cur) == 0) {# (any(is.na(cur))) {
+    if  (NROW(cur) == 0) {
       sim@simtimes[["current"]] <- sim@simtimes[["end"]] + 1
     } else {
       if (cur[["eventTime"]] <= sim@simtimes[["end"]]) {
@@ -1008,7 +1007,6 @@ setMethod(
 
         # check the module call for validity
         if (!(all(sapply(debug, identical, FALSE)))) {
-          #if (length(debug) > 1) print("---------------------------")
           for (i in seq_along(debug)) {
             if (isTRUE(debug[[i]]) | debug[[i]] == "current") {
               if (NROW(cur) > 0) {
@@ -1046,8 +1044,8 @@ setMethod(
             } else if (any(debug[[i]] == unlist(sim@modules))) {
               if (debug[[i]] == cur[["moduleName"]]) {
                 #debugDoEvent <- TRUE
-                debugonce(get(paste0("doEvent.",cur[["moduleName"]]), envir = sim@.envir))
-                on.exit(get(paste0("doEvent.",cur[["moduleName"]]), envir = sim@.envir))
+                debugonce(get(paste0("doEvent.", cur[["moduleName"]]), envir = sim@.envir))
+                on.exit(get(paste0("doEvent.", cur[["moduleName"]]), envir = sim@.envir))
               }
             } else if (!any(debug[[i]] == c("step", "browser"))) {
               print(do.call(debug[[i]], list(sim)))
@@ -1067,9 +1065,12 @@ setMethod(
              # for future caching of modules
              cacheIt <- FALSE
              a <- sim@params[[cur[["moduleName"]]]][[".useCache"]]
-             if (!is.null(a)) { #.useCache is a parameter
-               if (!identical(FALSE, a)) { #.useCache is not FALSE
-                 if (!isTRUE(a)) { #.useCache is not TRUE
+             if (!is.null(a)) {
+               #.useCache is a parameter
+               if (!identical(FALSE, a)) {
+                 #.useCache is not FALSE
+                 if (!isTRUE(a)) {
+                   #.useCache is not TRUE
                    if (cur[["eventType"]] %in% a) {
                      cacheIt <- TRUE
                    }
@@ -1298,19 +1299,14 @@ setMethod(
           sim@events <- newEvent #%>% setkey("eventTime", "eventPriority")
         } else {
           # This is faster than rbindlist below. So, use for smaller event queues
-          if(nrowEvnts < .lengthEventsDT) {
-            for(i in 1:.numColsEventList) {
-              set(.eventsDT[[nrowEvnts+2]], ,i, c(sim@events[[i]], newEvent[[i]]))
+          if (nrowEvnts < .lengthEventsDT) {
+            for (i in 1:.numColsEventList) {
+              set(.eventsDT[[nrowEvnts + 2]], , i, c(sim@events[[i]], newEvent[[i]]))
             }
-            #browser()
-            sim@events <- .eventsDT[[nrowEvnts+2]]#%>%
-            #sim@events <- data.table::copy(.eventsDT[[nrowEvnts+2]]) %>%
-            #setkey(sim@events, "eventTime", "eventPriority")
+            sim@events <- .eventsDT[[nrowEvnts + 2]]
           } else {
-            sim@events <- rbindlist(list(sim@events, newEvent)) #%>%
-              #setkey("eventTime", "eventPriority")
+            sim@events <- rbindlist(list(sim@events, newEvent))
           }
-
         }
         setkey(sim@events, "eventTime", "eventPriority")
 
@@ -1568,14 +1564,13 @@ setMethod(
         progress <- "graphical"
       }
       if (is.numeric(progress)) {
-        sim@params$.progress$interval <-
-          (end(sim, tu) - start(sim, tu)) / progress
+        sim@params$.progress$interval <- (end(sim, tu) - start(sim, tu)) / progress
         progress <- "graphical"
       }
 
       if (!is.na(pmatch(progress, "graphical"))) {
         sim@params$.progress$type <- "graphical"
-      } else if (!is.na(pmatch(progress , "text"))) {
+      } else if (!is.na(pmatch(progress, "text"))) {
         sim@params$.progress$type <- "text"
       }
 

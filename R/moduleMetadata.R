@@ -78,14 +78,16 @@ setMethod(
       "documentation", "reqdPkgs", "parameters", "inputObjects", "outputObjects")
     metadata <- lapply(defineModuleListItems,
            function(xx) {
-             pmp <- .parseModulePartial(filename = file.path(path,module, paste0(module, ".R")),
+             pmp <- .parseModulePartial(filename = file.path(path, module, paste0(module, ".R")),
                                         defineModuleElement = xx)
              out2 <- try(eval(pmp), silent = TRUE)
              if (is(out2, "try-error")) {
-               inner2 <- lapply(pmp, function(yyy) { # pmp is whole rbind statement
+               inner2 <- lapply(pmp, function(yyy) {
+                 # pmp is whole rbind statement
                  out4 <- try(eval(yyy), silent = TRUE)
                  if (is(out4, "try-error")) {
-                   yyy <- lapply(yyy, function(yyyyy) { # yyy is whole defineParameter statement
+                   yyy <- lapply(yyy, function(yyyyy) {
+                     # yyy is whole defineParameter statement
                      out5 <- try(eval(yyyyy), silent = TRUE)
                      if (is(out5, "try-error")) yyyyy <- deparse(yyyyy)
                      return(yyyyy)

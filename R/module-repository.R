@@ -32,11 +32,11 @@ setMethod(
   definition = function(name, repo) {
     if (length(name) > 1) {
       warning("name contains more than one module. Only the first will be used.")
-      name = name[1]
+      name <- name[1]
     }
     moduleFiles <- checkModule(name, repo)
-    zipFiles <- grep(paste0(name,"_+.+.zip"), moduleFiles, value = TRUE) # moduleName_....zip only
-    zipFiles <- grep(file.path(name,"data"), zipFiles, invert = TRUE, value = TRUE) # remove any zip in data folder
+    zipFiles <- grep(paste0(name, "_+.+.zip"), moduleFiles, value = TRUE) # moduleName_....zip only
+    zipFiles <- grep(file.path(name, "data"), zipFiles, invert = TRUE, value = TRUE) # remove any zip in data folder
     # all zip files is not correct behaviour, only
     versions <- strsplit(zipFiles, "_") %>%
       unlist() %>%
@@ -86,11 +86,11 @@ setMethod(
   definition = function(name, repo) {
     if (length(name) > 1) {
       warning("name contains more than one module. Only the first will be used.")
-      name = name[1]
+      name <- name[1]
     }
     apiurl <- paste0("https://api.github.com/repos/", repo, "/git/trees/master?recursive=1")
     ua <- user_agent(getOption("spades.useragent"))
-    pat <- Sys.getenv('GITHUB_PAT')
+    pat <- Sys.getenv("GITHUB_PAT")
     request <- if (identical(pat, "")) {
       GET(apiurl, ua)
     } else {
@@ -159,7 +159,7 @@ setMethod(
   definition = function(name, path, version) {
     if (length(name) > 1) {
       warning("name contains more than one module. Only the first will be used.")
-      name = name[1]
+      name <- name[1]
     }
 
     essentialFiles <- c(
@@ -268,7 +268,7 @@ setMethod(
 
       ##download.file(zip, destfile = localzip, mode = "wb", quiet = quiet)
       ua <- user_agent(getOption("spades.useragent"))
-      pat <- Sys.getenv('GITHUB_PAT')
+      pat <- Sys.getenv("GITHUB_PAT")
       request <- if (identical(pat, "")) {
         GET(zip, ua, write_disk(localzip))
       } else {
@@ -375,7 +375,7 @@ setMethod(
   definition = function(module, path, quiet) {
     cwd <- getwd()
     path <- checkPath(path, create = FALSE)
-    urls <- .parseModulePartial(filename = file.path(path, module, paste0(module,".R")),
+    urls <- .parseModulePartial(filename = file.path(path, module, paste0(module, ".R")),
                                 defineModuleElement = "inputObjects")$sourceURL
     if (is.call(urls)) {
       # This is the case where it can't evaluate the .parseModulePartial because of a reference

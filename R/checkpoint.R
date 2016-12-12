@@ -35,7 +35,7 @@
 #' @docType methods
 #' @rdname checkpoint
 #'
-doEvent.checkpoint = function(sim, eventTime, eventType, debug = FALSE) {
+doEvent.checkpoint <- function(sim, eventTime, eventType, debug = FALSE) {
   ### determine whether to use checkpointing
   ### default is not to use checkpointing if unspecified
   ### - this default is set when a new simList object is initialized
@@ -120,4 +120,3 @@ checkpointLoad <- function(file) {
   save(list = ls(sim@.envir, all.names = TRUE), file = fobj, envir = sim@.envir)
   invisible(TRUE) # return "success" invisibly
 }
-

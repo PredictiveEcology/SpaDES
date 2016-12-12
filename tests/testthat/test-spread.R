@@ -702,18 +702,19 @@ test_that("distanceFromPoints does not work correctly", {
   library(microbenchmark); on.exit(detach("package:microbenchmark"), add = TRUE)
 
   loci <- cellFromXY(hab, xy = coords)
-  distsCir =  dists7 <- cir(coords, landscape = hab, maxRadius = 30, minRadius = 0, returnDistances = TRUE)
-  distsRings =  dists8 <- rings(loci = loci, landscape = hab, maxRadius = 30, minRadius = 0,
-                                allowOverlap = TRUE, returnIndices = TRUE)
+  distsCir <-  dists7 <- cir(coords, landscape = hab, maxRadius = 30,
+                             minRadius = 0, returnDistances = TRUE)
+  distsRings <-  dists8 <- rings(loci = loci, landscape = hab, maxRadius = 30,
+                                 minRadius = 0, allowOverlap = TRUE, returnIndices = TRUE)
 
-  hab <- raster(extent(0,1e2,0,1e2), res = 1)
+  hab <- raster(extent(0, 1e2, 0, 1e2), res = 1)
   hab <- gaussMap(hab,speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
   names(hab) = "hab"
   hab2 <- hab > 0
   N <- 10
-  coords = cbind(x = stats::runif(N, xmin(hab), xmax(hab)),
+  coords <- cbind(x = stats::runif(N, xmin(hab), xmax(hab)),
                  y = stats::runif(N, xmin(hab), xmax(hab)))
-  indices = 1:ncell(hab)
+  indices <- 1:ncell(hab)
 
   microbenchmark(
     times = 3,
@@ -740,7 +741,7 @@ test_that("distanceFromPoints does not work correctly", {
     for (numLoci in round(exp(nLoci))) {
       b <- as.character(numLoci)
       results[[a]][[b]] <- list()
-      hab <- raster(extent(0,numPix,0,numPix), res = 1)
+      hab <- raster(extent(0, numPix, 0, numPix), res = 1)
       N <- numLoci
       coords <- cbind(x = stats::runif(N, xmin(hab), xmax(hab)),
                       y = stats::runif(N, xmin(hab), xmax(hab)))
@@ -760,12 +761,12 @@ test_that("distanceFromPoints does not work correctly", {
   }
 
   numPix <- 3300
-  hab <- raster(extent(0,numPix,0,numPix), res = 1)
+  hab <- raster(extent(0, numPix, 0, numPix), res = 1)
   N <- 200#numLoci
-  coords = cbind(x = stats::runif(N, xmin(hab), xmax(hab)),
-                 y = stats::runif(N, xmin(hab), xmax(hab)))
+  coords <- cbind(x = stats::runif(N, xmin(hab), xmax(hab)),
+                  y = stats::runif(N, xmin(hab), xmax(hab)))
   a <- Sys.time()
-  dfep20Cum <- distanceFromEachPoint(coords[,c("x", "y"),drop = FALSE], landscape = hab,
+  dfep20Cum <- distanceFromEachPoint(coords[, c("x", "y"),drop = FALSE], landscape = hab,
                                      cumulativeFn = `+`, maxDistance = 50)
   b <- Sys.time()
   cir20 <- cir(coords = coords[, c("x", "y")], landscape = hab, maxRadius = 50,
@@ -778,7 +779,7 @@ test_that("distanceFromPoints does not work correctly", {
 
   cells <- cellFromXY(hab, cir20[,c("x", "y")])
   cir20DT <- data.table(cir20, cells, key = "cells")
-  idw <- cir20DT[, list(idw = sum(1/sqrt(1 + dists))), by = cells]
+  idw <- cir20DT[, list(idw = sum(1 / sqrt(1 + dists))), by = cells]
   distsRas <- raster(hab)
   distsRas[] <- 0
   distsRas[idw$cells] <- idw$idw
@@ -832,8 +833,8 @@ test_that("distanceFromPoints does not work correctly", {
 
     hab <- raster(extent(0, 1e3, 0, 1e3), res = 1, val = 0)
   N <- 10
-  coords = cbind(x = stats::runif(N, xmin(hab), xmax(hab)),
-                 y = stats::runif(N, xmin(hab), xmax(hab)))
+  coords <- cbind(x = stats::runif(N, xmin(hab), xmax(hab)),
+                  y = stats::runif(N, xmin(hab), xmax(hab)))
   coords <- cbind(coords, id = cellFromXY(hab,coords))
 
   microbenchmark(times = 2,
@@ -929,13 +930,13 @@ test_that("distanceFromPoints does not work correctly", {
   }
 
   TEST <- TRUE
-  count = 0
-  tmp = data.frame(len = numeric(), size1 = numeric(), j = numeric(), oneClump = logical())
+  count <- 0
+  tmp <- data.frame(len = numeric(), size1 = numeric(), j = numeric(), oneClump = logical())
   while (TEST) {
     size1 <- sample(1.1^(2:10*8),1)
     hab <- raster(extent(0,size1,0,size1), res = 1)
     N <- 1
-    radius = ncol(hab)/5
+    radius <- ncol(hab)/5
     caribou <- SpatialPoints(coords = cbind(x = round(stats::runif(N, xmin(hab), xmax(hab))) + 0.5,
                                             y = round(stats::runif(N, xmin(hab), xmax(hab))) + 0.5))
     count <- count + 1

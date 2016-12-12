@@ -225,7 +225,9 @@ setMethod(
       objects <- NULL
     }
 
-    range01 <- function(x, ...){(x - min(x, ...)) / (max(x, ...) - min(x, ...))}
+    range01 <- function(x, ...) {
+      (x - min(x, ...)) / (max(x, ...) - min(x, ...))
+    }
 
     if (missing(objFn)) {
       objFn1 <- function(par, objects, sim, whModules, whParams,
@@ -261,9 +263,10 @@ setMethod(
             }
 
             if (useLog[x]) {
-              if ((outObj <= 0) | (dataObj <= 0)){
+              if ((outObj <= 0) | (dataObj <= 0)) {
                 useLog[x] <- FALSE
-                warning(paste0(names(outputObjects)[x]," or its pattern is zero or negative; not using log"))
+                warning(paste0(names(outputObjects)[x],
+                               " or its pattern is zero or negative; not using log"))
               }
 
             }
@@ -293,11 +296,10 @@ setMethod(
             return(out)
 
           })
-          objectiveResStd <- unlist(lapply(objectiveRes, function(x) x[['standardized']]))
-          objectiveResW <- objectiveResStd*weights
+          objectiveResStd <- unlist(lapply(objectiveRes, function(x) x[["standardized"]]))
+          objectiveResW <- objectiveResStd * weights
           sumObj <- sum(objectiveResW)
           if (is.nan(sumObj)) {
-            #browser()
             if (tryNum < NaNRetries) keepGoing <- TRUE else keepGoing <- FALSE
             tryNum <- tryNum + 1
           } else {
@@ -327,10 +329,10 @@ setMethod(
         tryNum1 <- 1
         while (keepGoing1) {
           outTry <- try(objFn1(...))
-          if (!is(outTry, "try-error")) { # success
+          if (!is(outTry, "try-error")) {
             keepGoing1 <- FALSE
-          } else { # had error
-            warning("objective function returned error on try #",tryNum1, "Consider changing.")
+          } else {
+            warning("objective function returned error on try #", tryNum1, "Consider changing.")
             if (tryNum1 < NaNRetries) keepGoing1 <- TRUE else keepGoing1 <- FALSE
             tryNum1 <- tryNum1 + 1
           }
@@ -370,9 +372,8 @@ setMethod(
                       "parallelType = 1. See examples."))
         deoptimArgs$control$parallelType <- 3
         deoptimArgs$cl <- cl
-        #deoptimArgs$control$parallelType <- 1
       }
-      deoptimArgs$control$NP <- 10*length(lowerRange)
+      deoptimArgs$control$NP <- 10 * length(lowerRange)
       deoptimArgs$control$steptol <- 3
       if (!is.null(optimControl)) {
         deoptimArgs$control[names(optimControl)] <- optimControl
@@ -406,7 +407,7 @@ setMethod(
 
       deoptimArgs$control <- do.call(DEoptim.control, deoptimArgs$control)
 
-      if (!(identical(logObjFnVals ,FALSE))) {
+      if (!(identical(logObjFnVals, FALSE))) {
         if (isTRUE(logObjFnVals)) logObjFnVals <- "objectiveFnValues.txt"
 
         if (deoptimArgs$parallelType > 0 | (logObjFnVals != "objectiveFnValues.txt"))
@@ -435,7 +436,6 @@ setMethod(
 
       if (optimizer == "genoud") {
         if (!is.null(cl)) {
-          #do.call(DEoptim.control, list(parallelType=3))
           deoptimArgs <- append(deoptimArgs,
                                 list(control = DEoptim.control(parallelType = 3),
                                      cl = cl))

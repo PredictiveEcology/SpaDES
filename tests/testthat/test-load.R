@@ -38,10 +38,10 @@ test_that("test-load.R: loading inputs does not work correctly", {
     functions = "raster",
     package = "raster",
     loadTime = c(0, 3),
-    stringsAsFactors=FALSE
+    stringsAsFactors = FALSE
   )
   inputs(mySim) <- inputs
-  expect_equal(inputs(mySim)[,c("file", "fun", "package", "loadTime")], inputs)
+  expect_equal(inputs(mySim)[, c("file", "fun", "package", "loadTime")], inputs)
   expect_equal(fileName(inputs(mySim)$file), inputs(mySim)$objectName)
   expect_equal(inputs(mySim)$loaded, rep(NA, NROW(inputs(mySim))))
 
@@ -49,10 +49,10 @@ test_that("test-load.R: loading inputs does not work correctly", {
   inputs  <- data.frame(
     files = dir(file.path(mapPath), full.names = TRUE, pattern = "tif")[1:2],
     loadTime = c(0, 3),
-    stringsAsFactors=FALSE
+    stringsAsFactors = FALSE
   )
   inputs(mySim) <- inputs
-  expect_equal(inputs(mySim)[,c("file", "loadTime")], inputs)
+  expect_equal(inputs(mySim)[, c("file", "loadTime")], inputs)
   expect_equal(fileName(inputs(mySim)$file), inputs(mySim)$objectName)
   expect_equal(inputs(mySim)$loaded, rep(NA, NROW(inputs(mySim))))
 
@@ -60,10 +60,10 @@ test_that("test-load.R: loading inputs does not work correctly", {
   inputs  <- data.frame(
     files = dir(file.path(mapPath), full.names = TRUE, pattern = "tif")[1:2],
     objectName = c("rasDEM", "rasForestAge"),
-    stringsAsFactors=FALSE
+    stringsAsFactors = FALSE
   )
   inputs(mySim) <- inputs
-  expect_equal(inputs(mySim)[,c("file", "objectName")], inputs)
+  expect_equal(inputs(mySim)[, c("file", "objectName")], inputs)
   expect_equal(inputs(mySim)$objectName, inputs$objectName)
   expect_equal(inputs(mySim)$loaded, rep(NA, NROW(inputs(mySim))))
 
@@ -88,7 +88,7 @@ test_that("test-load.R: loading inputs does not work correctly", {
       functions = "raster",
       package = "raster",
       loadTime = 3,
-      stringsAsFactors=FALSE
+      stringsAsFactors = FALSE
     )
     mySim <- simInit(times = times, params = parameters, modules = modules,
                      paths = paths, inputs = inputs)
@@ -100,7 +100,7 @@ test_that("test-load.R: loading inputs does not work correctly", {
       files = dir(file.path(mapPath), full.names = TRUE, pattern = "tif")[1:2],
       functions = "raster",
       package = "raster",
-      loadTime = c(0,3),
+      loadTime = c(0, 3),
       stringsAsFactors = FALSE
     )
     mySim <- simInit(times = times, params = parameters, modules = modules,
@@ -190,8 +190,8 @@ test_that("test-load.R: passing objects to simInit does not work correctly", {
   # test object passing directly
   if (require(rgdal, quietly = TRUE)) {
     on.exit(detach("package:rgdal"), add = TRUE)
-    filelist = data.frame(
-      files = dir(file.path(mapPath),full.names = TRUE, pattern = "tif")[1:2],
+    filelist <- data.frame(
+      files = dir(file.path(mapPath), full.names = TRUE, pattern = "tif")[1:2],
       functions = "raster",
       package = "raster",
       stringsAsFactors = FALSE
@@ -230,14 +230,14 @@ test_that("test-load.R: passing objects to simInit does not work correctly", {
     # pass both inputs and objects
     objects <- c("DEM")
     sim5 <- simInit(times = times, params = parameters, modules = modules,
-                    paths = paths, objects = objects, inputs = filelist[-1,])
+                    paths = paths, objects = objects, inputs = filelist[-1, ])
     expect_true(all(c("DEM", "forestAge") %in% ls(sim5)))
     rm(sim5)
 
     # pass both inputs (at non-start time) and objects
     # test object passing directly
-    filelist = data.frame(
-      files = dir(file.path(mapPath),full.names = TRUE, pattern = "tif")[2],
+    filelist <- data.frame(
+      files = dir(file.path(mapPath), full.names = TRUE, pattern = "tif")[2],
       functions = "raster",
       package = "raster",
       loadTime = 1,
@@ -260,7 +260,7 @@ test_that("test-load.R: passing nearly empty file to simInit does not work corre
   # test object passing directly
   if (require(rgdal, quietly = TRUE)) {
     on.exit(detach("package:rgdal"), add = TRUE)
-      filelist = data.frame(
+      filelist <- data.frame(
       files = dir(file.path(mapPath), full.names = TRUE, pattern = "tif")[1:2],
       functions = "raster",
       package = "raster",

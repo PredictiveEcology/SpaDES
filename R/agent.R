@@ -54,13 +54,13 @@ setMethod("heading",
           definition = function(from, to) {
             to <- coordinates(to)
             from <- coordinates(from)
-            ys <- to[,2] - from[,2]
-            xs <- to[,1] - from[,1]
-            heading <- deg(atan((xs) / (ys)))
+            ys <- to[, 2] - from[, 2]
+            xs <- to[, 1] - from[, 1]
+            heading <- deg(atan(xs / ys))
             ys <- (ys < 0)
             heading[(ys) & (xs) < 0] <- heading[(ys) & (xs) < 0] - 180
             heading[(ys) & (xs) > 0] <- heading[(ys) & (xs) > 0] + 180
-            return(heading%%360)
+            return(heading %% 360)
 })
 
 #' @export

@@ -60,7 +60,7 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug = FALSE) {
     sim <- scheduleEvent(sim, P(sim)$.plotInitialTime,
                          "caribouMovement", "plot.init", .last())
     sim <- scheduleEvent(sim, P(sim)$.saveInitialTime,
-                         "caribouMovement", "save", .last()+1)
+                         "caribouMovement", "save", .last() + 1)
   } else if (eventType == "move") {
     # do stuff for this event
     sim <- sim$caribouMovementMove(sim)
@@ -97,12 +97,12 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug = FALSE) {
     # schedule the next event
     sim <- scheduleEvent(sim, time(sim) +
                            P(sim)$.saveInterval,
-                         "caribouMovement", "save", .last()+1)
+                         "caribouMovement", "save", .last() + 1)
 
   } else {
     warning(paste(
       "Undefined event type: \'", events(sim)[1, "eventType", with = FALSE],
-      "\' in module \'", events(sim)[1,"moduleName", with = FALSE],"\'", sep = ""
+      "\' in module \'", events(sim)[1, "moduleName", with = FALSE], "\'", sep = ""
     ))
   }
   return(invisible(sim))
@@ -118,12 +118,12 @@ caribouMovementInit <- function(sim) {
   # initialize caribou agents
   N <- P(sim)$N
   IDs <- as.character(1:N)
-  sex <- sample(c("female", "male"), N, replace=TRUE)
-  age <- round(rnorm(N, mean=8, sd=3))
+  sex <- sample(c("female", "male"), N, replace = TRUE)
+  age <- round(rnorm(N, mean = 8, sd = 3))
   x1 <- rep(0, N)
   y1 <- rep(0, N)
-  starts <- cbind(x = runif(N, xrange[1],xrange[2]),
-                  y = runif(N, yrange[1],yrange[2]))
+  starts <- cbind(x = runif(N, xrange[1], xrange[2]),
+                  y = runif(N, yrange[1], yrange[2]))
 
   # create the caribou agent object
   sim$caribou <- SpatialPointsDataFrame(coords = starts,
@@ -142,7 +142,7 @@ caribouMovementMove <- function(sim) {
   ex <- sim[[P(sim)$stackName]][["habitatQuality"]][sim$caribou]
 
   # step length is a function of current cell's habitat quality
-  sl <- 0.25/ex
+  sl <- 0.25 / ex
 
   ln <- rlnorm(length(ex), sl, 0.02) # log normal step length
   sd <- 30 # could be specified globally in params

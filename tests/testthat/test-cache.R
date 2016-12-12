@@ -61,16 +61,16 @@ test_that("test event-level cache", {
   set.seed(1123)
   expect_true(!grepl(pattern = "Using cached copy of init event in randomLandscapes module",
                      capture_messages(sims <- spades(mySim, notOlderThan = Sys.time()))))
-  landscapeObjHash <- digest::digest(object = dropLayer(sims$landscape, "Fires"), algo="xxhash64")
-  firesHash <- digest::digest(object = sims$landscape$Fires, algo="xxhash64")
+  landscapeObjHash <- digest::digest(object = dropLayer(sims$landscape, "Fires"), algo = "xxhash64")
+  firesHash <- digest::digest(object = sims$landscape$Fires, algo = "xxhash64")
   expect_identical("290afe2cf904d4f5", landscapeObjHash)
   expect_true("4e6e705cb7e50920" %in% firesHash)
 
   mess1 <- capture_messages(sims <- spades(mySim))
   expect_true(any(grepl(pattern = "Using cached copy of init event in randomLandscapes module",
                         mess1)))
-  landscapeObjHash <- digest::digest(object = dropLayer(sims$landscape, "Fires"), algo="xxhash64")
-  firesHash <- digest::digest(object = sims$landscape$Fires, algo="xxhash64")
+  landscapeObjHash <- digest::digest(object = dropLayer(sims$landscape, "Fires"), algo = "xxhash64")
+  firesHash <- digest::digest(object = sims$landscape$Fires, algo = "xxhash64")
   expect_identical("290afe2cf904d4f5", landscapeObjHash) # cached part is identical
   expect_false("4e6e705cb7e50920" %in% firesHash) # The non cached stuff goes ahead as normal
 
@@ -86,7 +86,7 @@ test_that("test module-level cache", {
   tmpfile <- tempfile(fileext = ".pdf")
 
   # Example of changing parameter values
-  times = list(start = 0.0, end = 1.0, timeunit = "year")
+  times <- list(start = 0.0, end = 1.0, timeunit = "year")
   mySim <- simInit(
     times = times,
     params = list(
@@ -109,8 +109,8 @@ test_that("test module-level cache", {
   pdf(tmpfile)
   expect_true(!grepl(pattern = "Using cached copy of init event in randomLandscapes module",
                      capture_messages(sims <- spades(mySim, notOlderThan = Sys.time()))))
-  landscapeObjHash <- digest::digest(object = dropLayer(sims$landscape, "Fires"), algo="xxhash64")
-  firesHash <- digest::digest(object = sims$landscape$Fires, algo="xxhash64")
+  landscapeObjHash <- digest::digest(object = dropLayer(sims$landscape, "Fires"), algo = "xxhash64")
+  firesHash <- digest::digest(object = sims$landscape$Fires, algo = "xxhash64")
   expect_identical("290afe2cf904d4f5", landscapeObjHash)
   expect_true("4e6e705cb7e50920" %in% firesHash)
   dev.off()
@@ -123,8 +123,8 @@ test_that("test module-level cache", {
   mess1 <- capture_messages(sims <- spades(mySim))
   expect_true(any(grepl(pattern = "Using cached copy of init event in randomLandscapes module",
                         mess1)))
-  landscapeObjHash <- digest::digest(object = dropLayer(sims$landscape, "Fires"), algo="xxhash64")
-  firesHash <- digest::digest(object = sims$landscape$Fires, algo="xxhash64")
+  landscapeObjHash <- digest::digest(object = dropLayer(sims$landscape, "Fires"), algo = "xxhash64")
+  firesHash <- digest::digest(object = sims$landscape$Fires, algo = "xxhash64")
   expect_identical("290afe2cf904d4f5", landscapeObjHash) # cached part is identical
   expect_false("4e6e705cb7e50920" %in% firesHash) # The non cached stuff goes ahead as normal
   dev.off()

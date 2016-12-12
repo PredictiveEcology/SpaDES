@@ -152,7 +152,7 @@ if (interactive()) {
   # Fires <- lapply(sims, function(x) x$landscape$Fires) %>% stack
   Fires <- lapply(landscapeFiles, function(x) readRDS(x)$Fires) %>% stack()
   Fires[Fires > 0] <- 1 # convert to 1s and 0s
-  fireProb <- sum(Fires)/nlayers(Fires) # sum them and convert to probability
+  fireProb <- sum(Fires) / nlayers(Fires) # sum them and convert to probability
   if (interactive()) Plot(fireProb, new = TRUE)
 
   # Example 9 - Pass in inputs, i.e., input data objects taken from disk
@@ -178,10 +178,11 @@ if (interactive()) {
   # Varying inputs files - This could be combined with params, modules, replicates also
   outputPath(mySimInputs) <- file.path(tmpdir, "example9")
   sims <- experiment(mySimInputs,
-                     inputs = lapply(landscapeFiles,function(filenames) {
+                     inputs = lapply(landscapeFiles, function(filenames) {
                        data.frame(file = filenames, loadTime = 0,
                                   objectName = "landscape",
-                                  stringsAsFactors = FALSE) })
+                                  stringsAsFactors = FALSE)
+                     })
    )
 
   # load in experimental design object
@@ -212,7 +213,7 @@ if (interactive()) {
 
   # Example 12 - pass in objects
   experimentObj <- list(landscape = lapply(landscapeFiles, readRDS) %>%
-                                    setNames(paste0("landscape",1:2)))
+                                    setNames(paste0("landscape", 1:2)))
   # Pass in this list of landscape objects
   sims <- experiment(mySimNoRL, objects = experimentObj)
 

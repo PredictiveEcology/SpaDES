@@ -1,14 +1,14 @@
 #' @importFrom stats na.omit
-doEvent.progress = function(sim, eventTime, eventType, debug = FALSE) {
+doEvent.progress <- function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
     if (interactive()) {
       tu <- sim@simtimes[["timeunit"]]
-      defaults <- list(type = "text", interval = (end(sim, tu) - start(sim, tu))/(end(sim, tu)-start(sim,tu)))
+      defaults <- list(type = "text", interval = (end(sim, tu) - start(sim, tu)) / (end(sim, tu) - start(sim, tu)))
 
       # Check whether a .progress is specified in the simList
       if ( is.null(P(sim, ".progress")$type) &&
              is.null(P(sim, ".progress")$interval) ) {
-        params(sim)[[".progress"]] = defaults
+        params(sim)[[".progress"]] <- defaults
       } else {
         ids <- na.omit(match(names(P(sim, ".progress")), c("type", "interval")))
         params(sim)[[".progress"]][names(defaults)[-ids]] <- defaults[-ids]
@@ -62,7 +62,6 @@ doEvent.progress = function(sim, eventTime, eventType, debug = FALSE) {
 newProgressBar <- function(sim) {
   if (exists(".pb", envir = .spadesEnv)) {
     close(get(".pb", envir = .spadesEnv))
-    # rm(.pb, envir = .spadeEnv)
   }
   tu <- sim@simtimes[["timeunit"]]
   OS <- tolower(Sys.info()["sysname"])
@@ -74,7 +73,7 @@ newProgressBar <- function(sim) {
       pb <- tkProgressBar(min = start(sim, tu), max = end(sim, tu),
                           initial = start(sim, tu))
     }
-  } else if (P(sim, ".progress")$type == "shiny"){
+  } else if (P(sim, ".progress")$type == "shiny") {
     ## see http://shiny.rstudio.com/articles/progress.html
     stop("shiny progress bar not yet implemented")
   } else  if (P(sim, ".progress")$type == "text") {

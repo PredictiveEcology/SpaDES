@@ -65,7 +65,7 @@ if (interactive()) {
 if (interactive()) plot(r) # may require a call to `dev()` if using RStudio
 
 # the split raster:
-layout(mat = matrix(seq_len(nx*ny), ncol = nx, nrow = ny))
+layout(mat = matrix(seq_len(nx * ny), ncol = nx, nrow = ny))
 plotOrder <- c(4, 8, 12, 3, 7, 11, 2, 6, 10, 1, 5, 9)
 if (interactive()) invisible(lapply(y0[plotOrder], plot))
 

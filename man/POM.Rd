@@ -281,7 +281,8 @@ if (interactive()) {
   #   - pass data that will be used internally for objective function
   objFnEx <- function(pars, # param values
                       sim, # simList object
-                      NPattern, propCellBurnedData, caribouFn, propCellBurnedFn) { # data
+                      NPattern, propCellBurnedData, caribouFn, propCellBurnedFn) {
+    ### data
 
     # make a copy of simList because it will possibly be altered by spades call
     sim1 <- Copy(sim)

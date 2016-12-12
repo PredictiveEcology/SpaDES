@@ -5,6 +5,7 @@
 .*\.toc$
 ^_ignore$
 ^_push_vignettes\.sh$
+^\.lintr$
 ^\.travis\.yml$
 ^appveyor\.yml$
 CONTRIBUTING\.md

@@ -3,7 +3,7 @@ test_that("downloadModule downloads and unzips a single module", {
       tolower(Sys.info()[["sysname"]]) == "darwin") skip("On Travis OSX")
   skip_on_cran()
 
-  if (Sys.info()['sysname'] == "Windows") {
+  if (Sys.info()["sysname"] == "Windows") {
     options(download.file.method = "auto")
   } else {
     options(download.file.method = "curl", download.file.extra = "-L")
@@ -31,7 +31,7 @@ test_that("downloadModule downloads and unzips a parent module", {
       tolower(Sys.info()[["sysname"]]) == "darwin") skip("On Travis OSX")
   skip_on_cran()
 
-  if (Sys.info()['sysname'] == "Windows") {
+  if (Sys.info()["sysname"] == "Windows") {
     options(download.file.method = "auto")
   } else {
     options(download.file.method = "curl")
@@ -58,7 +58,7 @@ test_that("downloadData downloads and unzips module data", {
       tolower(Sys.info()[["sysname"]]) == "darwin") skip("On Travis OSX")
   skip_on_cran()
 
-  if (Sys.info()['sysname'] == "Windows") {
+  if (Sys.info()["sysname"] == "Windows") {
     options(download.file.method = "auto")
   } else {
     options(download.file.method = "curl", download.file.extra = "-L")

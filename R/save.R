@@ -117,13 +117,12 @@ doEvent.save <- function(sim, eventTime, eventType, debug = FALSE) {
 #'
 #' }
 saveFiles <- function(sim) {
-
   curTime <- time(sim, sim@simtimes[["timeunit"]])
   # extract the current module name that called this function
   moduleName <- sim@current[["moduleName"]]
-  if(length(moduleName)==0) {
-    moduleName = "save" #modules(sim)
-    if(NROW(outputs(sim)[outputs(sim)$saveTime == curTime,])) {
+  if (length(moduleName) == 0) {
+    moduleName <- "save"
+    if (NROW(outputs(sim)[outputs(sim)$saveTime == curTime, ])) {
       outputs(sim)[outputs(sim)$saveTime == curTime, "saved"] <- NA
     }
   }
@@ -138,7 +137,6 @@ saveFiles <- function(sim) {
     # from dplyr does not do as expected
     outputs(sim) <- data.frame(unique(data.table(outputs(sim)),
                                       by = c("objectName", "saveTime", "file", "fun", "package", "arguments")))
-    #outputs(sim) <- distinct(outputs(sim), objectName, saveTime, file, fun, package, arguments)
   }
 
   if (NROW(outputs(sim)[outputs(sim)$saveTime == curTime & is.na(outputs(sim)$saved), "saved"]) > 0) {
@@ -183,12 +181,12 @@ saveFiles <- function(sim) {
 #' @rdname loadFiles
 .saveFileExtensions <- function() {
   .sFE <- data.frame(matrix(ncol = 3, byrow = TRUE, c(
-    "rds", "saveRDS", "base" ,
-    "txt", "write.table", "utils" ,
-    "csv", "write.csv", "utils" ,
+    "rds", "saveRDS", "base",
+    "txt", "write.table", "utils",
+    "csv", "write.csv", "utils",
     "grd", "writeRaster", "raster"
   )), stringsAsFactors = FALSE)
   setnames(.sFE, new = c("exts", "fun", "package"), old = paste0("X", 1:3))
-  .sFE <- .sFE[order(.sFE$package, .sFE$fun),]
+  .sFE <- .sFE[order(.sFE$package, .sFE$fun), ]
   return(.sFE)
 }
