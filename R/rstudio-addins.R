@@ -10,11 +10,11 @@ addin_copyModule <- function() {
   ui <- miniPage(
     gadgetTitleBar("Copy an existing module"),
     miniContentPanel(
-      textInput('fromName', 'Module name:', width = '100%'),
-      textInput('toName', 'New module name:', width = '100%'),
-      textInput('filePath', 'Module directory path:',
+      textInput("fromName", "Module name:", width = "100%"),
+      textInput("toName", "New module name:", width = "100%"),
+      textInput("filePath", "Module directory path:",
                 value = normalizePath(getOption("spades.modulePath"), winslash = "/", mustWork = FALSE),
-                width = '100%')
+                width = "100%")
     )
   )
 
@@ -27,7 +27,7 @@ addin_copyModule <- function() {
     })
   }
 
-  runGadget(ui, server, viewer = dialogViewer('Copy an existing SpaDES module'))
+  runGadget(ui, server, viewer = dialogViewer("Copy an existing SpaDES module"))
 }
 
 #' Rstudio addin to create a new module
@@ -42,14 +42,14 @@ addin_newModule <- function() {
   ui <- miniPage(
     gadgetTitleBar("Create a new module"),
     miniContentPanel(
-      textInput('moduleName', 'Module name:', width = '100%'),
-      textInput('filePath', 'Module directory path:',
+      textInput("moduleName", "Module name:", width = "100%"),
+      textInput("filePath", "Module directory path:",
                 value = normalizePath(getOption("spades.modulePath"), winslash = "/", mustWork = FALSE),
-                width = '100%'),
-      selectInput('moduleType', 'Module type:', list('child', 'parent'), 'child'),
+                width = "100%"),
+      selectInput("moduleType", "Module type:", list("child", "parent"), "child"),
       conditionalPanel(
         condition = "input.moduleType == 'parent'",
-        textInput('childModules', 'Child module names (comma separated):', width = '100%')
+        textInput("childModules", "Child module names (comma separated):", width = "100%")
       )
     )
   )
@@ -70,5 +70,5 @@ addin_newModule <- function() {
     })
   }
 
-  runGadget(ui, server, viewer = dialogViewer('Create new SpaDES module'))
+  runGadget(ui, server, viewer = dialogViewer("Create new SpaDES module"))
 }

@@ -175,7 +175,7 @@ test_that("3 levels of parent and child modules load and show correctly", {
   })
 
   suppressMessages(newModule("child2", ".", open = FALSE))
-  fileName <- 'child2/child2.R'
+  fileName <- "child2/child2.R"
   xxx <- readLines(fileName)
   xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = "day"')
   cat(xxx1, file = fileName, sep = "\n")
@@ -203,5 +203,5 @@ test_that("3 levels of parent and child modules load and show correctly", {
   expect_true(length(unique(mg$communities$member)) == 3)
   expect_true(any(communities(mg$communities)[['1']] %in% "grandpar1"))
   expect_true(identical(communities(mg$communities)[['1']],
-                        c("grandpar1","par1", "par2", "child1", "child2")))
+                        c("grandpar1", "par1", "par2", "child1", "child2")))
 })

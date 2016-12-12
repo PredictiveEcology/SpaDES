@@ -63,7 +63,7 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug = FALSE) {
   } else {
     warning(
       paste("Undefined event type: \'", events(sim)[1, "eventType", with = FALSE],
-            "\' in module \'", events(sim)[1, "moduleName", with = FALSE] , "\'", sep = "")
+            "\' in module \'", events(sim)[1, "moduleName", with = FALSE], "\'", sep = "")
     )
   }
   return(invisible(sim))
@@ -79,33 +79,34 @@ randomLandscapesInit <- function(sim) {
   # Give dimensions of dummy raster
   nx <- P(sim)$nx
   ny <- P(sim)$ny
-  template <- raster(nrows = ny, ncols = nx, xmn = -nx/2, xmx = nx/2, ymn = -ny/2, ymx = ny/2)
-  speedup <- max(1, nx/5e2)
+  template <- raster(nrows = ny, ncols = nx, xmn = -nx / 2, xmx = nx / 2,
+                     ymn = -ny / 2, ymx = ny / 2)
+  speedup <- max(1, nx / 5e2)
 
   # Make dummy maps for testing of models
   DEM <- gaussMap(template, scale = 300, var = 0.03, speedup = speedup, inMemory = inMemory)
-  DEM[] <- round(getValues(DEM), 1)*1000
+  DEM[] <- round(getValues(DEM), 1) * 1000
   forestAge <- gaussMap(template, scale = 10, var = 0.1, speedup = speedup, inMemory = inMemory)
-  forestAge[] <- round(getValues(forestAge), 1)*20
+  forestAge[] <- round(getValues(forestAge), 1) * 20
   percentPine <- gaussMap(template, scale = 50, var = 1, speedup = speedup, inMemory = inMemory)
   percentPine[] <- round(getValues(percentPine), 1)
 
   # Scale them as needed
-  forestAge <- forestAge/maxValue(forestAge)*100
-  percentPine <- percentPine/maxValue(percentPine)*100
+  forestAge <- forestAge / maxValue(forestAge) * 100
+  percentPine <- percentPine / maxValue(percentPine) * 100
 
   # Make layers that are derived from other layers
-  habitatQuality <- (DEM + 10 + (forestAge + 2.5)*10)/100
-  habitatQuality <- habitatQuality/maxValue(habitatQuality)
+  habitatQuality <- (DEM + 10 + (forestAge + 2.5) * 10) / 100
+  habitatQuality <- habitatQuality / maxValue(habitatQuality)
 
   # Stack them into a single stack and assign to global env
   mapStack <- stack(DEM, forestAge, habitatQuality, percentPine)
   names(mapStack) <- c("DEM", "forestAge", "habitatQuality", "percentPine")
 
   setColors(mapStack) <- list(DEM = grDevices::terrain.colors(100),
-                              forestAge = brewer.pal(9,"BuGn"),
-                              habitatQuality = brewer.pal(8,"Spectral"),
-                              percentPine = brewer.pal(9,"Greens"))
+                              forestAge = brewer.pal(9, "BuGn"),
+                              habitatQuality = brewer.pal(8, "Spectral"),
+                              percentPine = brewer.pal(9, "Greens"))
   sim[[P(sim)$stackName]] <- mapStack
   return(invisible(sim))
 }

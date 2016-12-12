@@ -70,21 +70,21 @@ setMethod(
       buffer <- c(buffer, buffer)
     }
     if (buffer[1] < 1) {
-      buffer[1] <- ceiling((buffer[1]*(xmax(r) - xmin(r))/nx)/xres(r))
+      buffer[1] <- ceiling((buffer[1] * (xmax(r) - xmin(r)) / nx) / xres(r))
     }
     if (buffer[2] < 1) {
-      buffer[2] <- ceiling((buffer[2]*(ymax(r) - ymin(r))/ny)/yres(r))
+      buffer[2] <- ceiling((buffer[2] * (ymax(r) - ymin(r)) / ny) / yres(r))
     }
 
     ext <- extent(r)
-    extents <- vector("list", length = nx*ny)
+    extents <- vector("list", length = nx * ny)
     n <- 1L
     for (i in seq_len(nx) - 1L) {
       for (j in seq_len(ny) - 1L) {
-        x0 <- ext@xmin + i*((ext@xmax - ext@xmin) / nx) - buffer[1]*xres(r)
-        x1 <- ext@xmin + (i + 1L)*((ext@xmax - ext@xmin) / nx) + buffer[1]*xres(r)
-        y0 <- ext@ymin + j*((ext@ymax - ext@ymin) / ny) - buffer[2]*yres(r)
-        y1 <- ext@ymin + (j + 1L)*((ext@ymax - ext@ymin) / ny) + buffer[2]*yres(r)
+        x0 <- ext@xmin + i * ((ext@xmax - ext@xmin) / nx) - buffer[1] * xres(r)
+        x1 <- ext@xmin + (i + 1L) * ((ext@xmax - ext@xmin) / nx) + buffer[1] * xres(r)
+        y0 <- ext@ymin + j * ((ext@ymax - ext@ymin) / ny) - buffer[2] * yres(r)
+        y1 <- ext@ymin + (j + 1L) * ((ext@ymax - ext@ymin) / ny) + buffer[2] * yres(r)
         extents[[n]] <- extent(x0, x1, y0, y1)
         n <- n + 1L
       }

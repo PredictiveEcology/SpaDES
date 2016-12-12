@@ -42,8 +42,8 @@ setMethod(
     xmaxExtent <- sapply(x, xmax) %>% unique() %>% sort()
     yminExtent <- sapply(x, ymin) %>% unique() %>% sort()
     ymaxExtent <- sapply(x, ymax) %>% unique() %>% sort()
-    xBuffer <- unique((xmaxExtent[-length(xmaxExtent)] - xminExtent[-1])/2)
-    yBuffer <- unique((ymaxExtent[-length(ymaxExtent)] - yminExtent[-1])/2)
+    xBuffer <- unique( (xmaxExtent[-length(xmaxExtent)] - xminExtent[-1]) / 2)
+    yBuffer <- unique( (ymaxExtent[-length(ymaxExtent)] - yminExtent[-1]) / 2)
 
     for (i in seq_along(x)) {
       r <- x[[i]]

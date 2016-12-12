@@ -120,39 +120,39 @@ library(sp)
 set.seed(1642)
 
 # circle centred
-Ras <- raster(extent(0, 15, 0, 15), res = 1, val = 0)
-middleCircle <- cir(Ras)
-Ras[middleCircle[, "indices"]] <- 1
+ras <- raster(extent(0, 15, 0, 15), res = 1, val = 0)
+middleCircle <- cir(ras)
+ras[middleCircle[, "indices"]] <- 1
 circlePoints <- SpatialPoints(middleCircle[, c("x", "y")])
 if (interactive()) {
   clearPlot()
-  Plot(Ras)
-  Plot(circlePoints, addTo = "Ras")
+  Plot(ras)
+  Plot(circlePoints, addTo = "ras")
 }
 
 # circles non centred
-Ras <- randomPolygons(Ras, numTypes = 4)
+ras <- randomPolygons(ras, numTypes = 4)
 N <- 2
-agent <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(Ras), xmax(Ras)),
-                                      y = stats::runif(N, xmin(Ras), xmax(Ras))))
+agent <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(ras), xmax(ras)),
+                                      y = stats::runif(N, xmin(ras), xmax(ras))))
 
-cirs <- cir(Ras, agent, maxRadius = 15, simplify = TRUE)
+cirs <- cir(ras, agent, maxRadius = 15, simplify = TRUE)
 cirsSP <- SpatialPoints(coords = cirs[, c("x", "y")])
-cirsRas <- raster(Ras)
+cirsRas <- raster(ras)
 cirsRas[] <- 0
 cirsRas[cirs[, "indices"]] <- 1
 
 if (interactive()) {
   clearPlot()
-  Plot(Ras)
-  Plot(cirsRas, addTo = "Ras", cols = c("transparent", "#00000055"))
-  Plot(agent, addTo = "Ras")
-  Plot(cirsSP, addTo = "Ras")
+  Plot(ras)
+  Plot(cirsRas, addTo = "ras", cols = c("transparent", "#00000055"))
+  Plot(agent, addTo = "ras")
+  Plot(cirsSP, addTo = "ras")
 }
 
 # Example comparing rings and cir
-a <- raster(extent(0,30,0,30), res = 1)
-hab <- gaussMap(a, speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
+a <- raster(extent(0, 30, 0, 30), res = 1)
+hab <- gaussMap(a, speedup = 1) # if raster is large (>1e6 pixels) use speedup > 1
 radius <- 4
 N <- 2
 coords <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(hab), xmax(hab)),
@@ -179,11 +179,11 @@ if (interactive()) {
 }
 
 a <- raster(extent(0, 100, 0, 100), res = 1)
-hab <- gaussMap(a,speedup = 1)
+hab <- gaussMap(a, speedup = 1)
 cirs <- cir(hab, coords, maxRadius = 44, minRadius = 0)
 ras1 <- raster(hab)
 ras1[] <- 0
-cirsOverlap <- data.table(cirs)[,list(sumIDs = sum(id)),by = indices]
+cirsOverlap <- data.table(cirs)[, list(sumIDs = sum(id)), by = indices]
 ras1[cirsOverlap$indices] <- cirsOverlap$sumIDs
 if (interactive()) {
   clearPlot()
@@ -191,12 +191,12 @@ if (interactive()) {
 }
 
 # Provide a specific set of angles
-Ras <- raster(extent(0, 330, 0, 330), res = 1)
-Ras[] <- 0
+ras <- raster(extent(0, 330, 0, 330), res = 1)
+ras[] <- 0
 N <- 2
-coords <- cbind(x = stats::runif(N, xmin(Ras), xmax(Ras)),
-                y = stats::runif(N, xmin(Ras), xmax(Ras)))
-circ <- cir(Ras, coords, angles = seq(0, 2*pi, length.out = 21),
+coords <- cbind(x = stats::runif(N, xmin(ras), xmax(ras)),
+                y = stats::runif(N, xmin(ras), xmax(ras)))
+circ <- cir(ras, coords, angles = seq(0, 2 * pi, length.out = 21),
             maxRadius = 200, minRadius = 0, returnIndices = FALSE,
             allowOverlap = TRUE, returnAngles = TRUE)
 }

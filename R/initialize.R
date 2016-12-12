@@ -51,14 +51,14 @@ gaussMap <- function(x, scale = 10, var = 1, speedup = 1, inMemory = FALSE, ...)
   RFoptions(spConform = FALSE)
   ext <- extent(x)
   resol <- res(x)
-  nc <- (ext@xmax - ext@xmin)/resol[1]
-  nr <- (ext@ymax - ext@ymin)/resol[2]
+  nc <- (ext@xmax - ext@xmin) / resol[1]
+  nr <- (ext@ymax - ext@ymin) / resol[2]
   wholeNumsCol <- .findFactors(nc)
   wholeNumsRow <- .findFactors(nr)
-  ncSpeedup <- wholeNumsCol[which.min(abs(wholeNumsCol - nc/speedup))]
-  nrSpeedup <- wholeNumsRow[which.min(abs(wholeNumsRow - nr/speedup))]
-  speedupEffectiveCol <- nc/ncSpeedup
-  speedupEffectiveRow <- nr/nrSpeedup
+  ncSpeedup <- wholeNumsCol[which.min(abs(wholeNumsCol - nc / speedup))]
+  nrSpeedup <- wholeNumsRow[which.min(abs(wholeNumsRow - nr / speedup))]
+  speedupEffectiveCol <- nc / ncSpeedup
+  speedupEffectiveRow <- nr / nrSpeedup
 
   model <- RMexp(scale = scale, var = var)
   if (inMemory) {
@@ -142,7 +142,7 @@ gaussMap <- function(x, scale = 10, var = 1, speedup = 1, inMemory = FALSE, ...)
 #'   Plot(aHist)
 #' }
 #'
-randomPolygons <- function(ras = raster(extent(0,15,0,15), res = 1, vals = 0),
+randomPolygons <- function(ras = raster(extent(0, 15, 0, 15), res = 1, vals = 0),
                            numTypes = 2, ...) {
   args <- list(...)
   if (any(c("p", "A", "speedup", "minpatch") %in% names(args))) {
@@ -196,7 +196,6 @@ randomPolygons <- function(ras = raster(extent(0,15,0,15), res = 1, vals = 0),
 #' patchDT <- data.table(pops = 1:Ntypes, num.in.pop = c(1, 3, 5, 7))
 #' rasAgents <- specificNumPerPatch(ras, patchDT)
 #' rasAgents[is.na(rasAgents)] <- 0
-#' #Plot(rasAgents)
 #'
 #' library(testthat)
 #' expect_true(all(unname(table(ras[rasAgents])) == patchDT$num.in.pop))
@@ -234,7 +233,6 @@ specificNumPerPatch <- function(patches, numPerPatchTable = NULL, numPerPatchMap
     stop("need numPerPatchMap or numPerPatchTable")
   }
 
-  #resample2 <- function(x, ...) x[sample.int(length(x), ...)]
   dt3 <- dt2[, list(cells = resample(wh, unique(num.in.pop))), by = "pops"]
   dt3$ids <- rownames(dt3)
 

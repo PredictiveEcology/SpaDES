@@ -22,14 +22,14 @@ if (interactive()) {
 }
 
 # initiate 10 fires
-startCells <- as.integer(sample(1:ncell(emptyRas),10))
+startCells <- as.integer(sample(1:ncell(emptyRas), 10))
 fires <- spread(hab, loci = startCells, 0.235, 0, NULL, 1e8, 8, 1e6, id = TRUE)
 
 #set colors of raster, including a transparent layer for zeros
-setColors(fires, 10) <- c("transparent", brewer.pal(8,"Reds")[5:8])
+setColors(fires, 10) <- c("transparent", brewer.pal(8, "Reds")[5:8])
 if (interactive()) {
   Plot(fires)
-  Plot(fires,addTo = "hab")
+  Plot(fires, addTo = "hab")
 
   #alternatively, set colors using cols= in the Plot function
   clearPlot()
@@ -37,11 +37,11 @@ if (interactive()) {
   Plot(fires) # default color range makes zero transparent.
   # Instead, to give a color to the zero values, use \code{zero.color=}
   Plot(fires, addTo = "hab",
-       cols = colorRampPalette(c("orange","darkred"))(10))
+       cols = colorRampPalette(c("orange", "darkred"))(10))
   hab2 <- hab
   Plot(hab2)
   Plot(fires, addTo = "hab2", zero.color = "white",
-     cols = colorRampPalette(c("orange","darkred"))(10))
+     cols = colorRampPalette(c("orange", "darkred"))(10))
   # or overplot the original (NOTE: legend stays at original values)
   Plot(fires, cols = topo.colors(10))
 }
@@ -140,7 +140,7 @@ if (interactive()) Plot(squares)
 #    stopRule in place, spreadProb = 1
 stopRule2 <- function(landscape) sum(landscape) > 200
 squashedDiamonds <- spread(hab > 0, spreadProb = 1,
-                           loci = (ncell(hab) - ncol(hab))/2 + c(4, -4),
+                           loci = (ncell(hab) - ncol(hab)) / 2 + c(4, -4),
                            directions = 4, id = TRUE, stopRule = stopRule2)
 if (interactive()) {
   clearPlot()
@@ -152,11 +152,11 @@ stopRule2 <- function(landscape) sum(landscape) > 200
 seed <- sample(1e4, 1)
 set.seed(seed)
 circlish <- spread(hab > 0, spreadProb = 0.23,
-                   loci = (ncell(hab) - ncol(hab))/2 + c(4, -4),
+                   loci = (ncell(hab) - ncol(hab)) / 2 + c(4, -4),
                    directions = 8, id = TRUE, circle = TRUE)#, stopRule = stopRule2)
 set.seed(seed)
 regularCA <- spread(hab > 0, spreadProb = 0.23,
-                    loci = (ncell(hab) - ncol(hab))/2 + c(4, -4),
+                    loci = (ncell(hab) - ncol(hab)) / 2 + c(4, -4),
                     directions = 8, id = TRUE)#, stopRule = stopRule2)
 if (interactive()) {
   clearPlot()
@@ -167,8 +167,8 @@ if (interactive()) {
 # complex stopRule
 ####################
 
-initialLoci <- sample(seq_len(ncell(hab)), 2)#(ncell(hab) - ncol(hab))/2 + c(4, -4)
-endSizes <- seq_along(initialLoci)*200
+initialLoci <- sample(seq_len(ncell(hab)), 2)
+endSizes <- seq_along(initialLoci) * 200
 
 # Can be a function of landscape, id, and/or any other named
 #   variable passed into spread
@@ -208,7 +208,7 @@ set.seed(3113)
 initialLoci <- as.integer(sample(1:ncell(hab), 10))
 
 # using "landscape", "id", and a variable passed in
-maxVal <- rep(500,length(initialLoci))
+maxVal <- rep(500, length(initialLoci))
 
 # define stopRule
 stopRule2 <- function(landscape, id, maxVal) sum(landscape) > maxVal[id]

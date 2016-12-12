@@ -27,7 +27,7 @@ setMethod("Copy",
           signature(sim = "simList", objects = "logical", queues = "logical"),
           definition = function(sim, objects, queues) {
             sim_ <- sim
-            if(queues) {
+            if (queues) {
               sim_@events <- data.table::copy(sim@events)
               sim_@completed <- data.table::copy(sim@completed)
               sim_@current <- data.table::copy(sim@current)

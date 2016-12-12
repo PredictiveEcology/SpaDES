@@ -86,14 +86,14 @@ setMethod(
     hasNames <- names(agent) %in% c("x1", "y1")
     n <- length(agent)
 
-    if (sum(hasNames)<2) { # doesn't have both x1 and y1
+    if (sum(hasNames) < 2) {
         stop("SpatialPointsDataFrame needs x1 and y1 columns with previous location")
     }
 
     agentHeading <- heading(cbind(x = agent$x1, y = agent$y1), agent)
     rndDir <- rnorm(n, agentHeading, stddev)
     rndDir[rndDir > 180] <- rndDir[rndDir > 180] - 360
-    rndDir[rndDir <= 180 & rndDir<(-180)] <- 360 + rndDir[rndDir <= 180 & rndDir < (-180)]
+    rndDir[rndDir <= 180 & rndDir < (-180)] <- 360 + rndDir[rndDir <= 180 & rndDir < (-180)]
 
     agent@data[, c("x1", "y1")] <- coordinates(agent)
     agent@coords <- cbind(
@@ -102,7 +102,7 @@ setMethod(
     )
 
     if (torus) {
-      return(wrap(X=agent, bounds = extent, withHeading = TRUE))
+      return(wrap(X = agent, bounds = extent, withHeading = TRUE))
     } else {
       return(agent)
     }

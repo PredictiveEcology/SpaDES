@@ -32,11 +32,11 @@ setMethod(
   definition = function(name, repo) {
     if (length(name) > 1) {
       warning("name contains more than one module. Only the first will be used.")
-      name = name[1]
+      name <- name[1]
     }
     moduleFiles <- checkModule(name, repo)
-    zipFiles <- grep(paste0(name,"_+.+.zip"), moduleFiles, value = TRUE) # moduleName_....zip only
-    zipFiles <- grep(file.path(name,"data"), zipFiles, invert = TRUE, value = TRUE) # remove any zip in data folder
+    zipFiles <- grep(paste0(name, "_+.+.zip"), moduleFiles, value = TRUE) # moduleName_....zip only
+    zipFiles <- grep(file.path(name, "data"), zipFiles, invert = TRUE, value = TRUE) # remove any zip in data folder
     # all zip files is not correct behaviour, only
     versions <- strsplit(zipFiles, "_") %>%
       unlist() %>%
@@ -68,11 +68,11 @@ setMethod("getModuleVersion",
 #'              Default is \code{"PredictiveEcology/SpaDES-modules"}, which is
 #'              specified by the global option \code{spades.moduleRepo}.
 #'
-#' @importFrom httr content GET stop_for_status
+#' @importFrom httr config content GET stop_for_status user_agent
 #' @export
 #' @rdname checkModule
 #'
-#' @author Eliot McIntire
+#' @author Eliot McIntire and Alex Chubaty
 #'
 # igraph exports %>% from magrittr
 setGeneric("checkModule", function(name, repo) {
@@ -86,11 +86,17 @@ setMethod(
   definition = function(name, repo) {
     if (length(name) > 1) {
       warning("name contains more than one module. Only the first will be used.")
-      name = name[1]
+      name <- name[1]
     }
-    apiurl <- paste0("https://api.github.com/repos/", repo,
-                     "/git/trees/master?recursive=1")
-    request <- GET(apiurl)
+    apiurl <- paste0("https://api.github.com/repos/", repo, "/git/trees/master?recursive=1")
+    ua <- user_agent(getOption("spades.useragent"))
+    pat <- Sys.getenv("GITHUB_PAT")
+    request <- if (identical(pat, "")) {
+      GET(apiurl, ua)
+    } else {
+      message("Using GitHub PAT from envvar GITHUB_PAT")
+      GET(apiurl, ua, config = list(config(token = pat)))
+    }
     stop_for_status(request)
     allFiles <- unlist(lapply(content(request)$tree, "[", "path"), use.names = FALSE)
     moduleFiles <- grep(paste0("^modules/", name), allFiles, value = TRUE)
@@ -153,7 +159,7 @@ setMethod(
   definition = function(name, path, version) {
     if (length(name) > 1) {
       warning("name contains more than one module. Only the first will be used.")
-      name = name[1]
+      name <- name[1]
     }
 
     essentialFiles <- c(
@@ -196,7 +202,6 @@ setMethod(
     return(invisible(result))
 })
 
-
 ################################################################################
 #' Download a module from a SpaDES module GitHub repository
 #'
@@ -205,7 +210,11 @@ setMethod(
 #' Currently only works with a public GitHub repository, where modules are in
 #' a \code{modules} directory in the root tree on the \code{master} branch.
 #'
-#' NOTE: the default is to overwrite any existing files in the case of a conflict.
+#' @note \code{downloadModule} uses the \code{GITHUB_PAT} environment variable
+#' if a value is set. This alleviates 403 errors caused by too-frequent downloads.
+#' Generate a GitHub personal access token at \url{https://github.com/settings/tokens}.
+#'
+#' @note The default is to overwrite any existing files in the case of a conflict.
 #'
 #' @inheritParams getModuleVersion
 #'
@@ -226,7 +235,8 @@ setMethod(
 #'    whether it was downloaded or not, whether it was renamed (because there
 #'    was a local copy that had the wrong file name).
 #'
-# @importFrom utils unzip download.file
+# @importFrom utils download.file unzip
+#' @importFrom httr config GET stop_for_status user_agent write_disk
 #' @export
 #' @rdname downloadModule
 #'
@@ -255,7 +265,18 @@ setMethod(
       zip <- paste0("https://raw.githubusercontent.com/", repo,
                     "/master/modules/", name, "/", name, "_", version, ".zip")
       localzip <- file.path(path, basename(zip))
-      download.file(zip, destfile = localzip, mode = "wb", quiet = quiet)
+
+      ##download.file(zip, destfile = localzip, mode = "wb", quiet = quiet)
+      ua <- user_agent(getOption("spades.useragent"))
+      pat <- Sys.getenv("GITHUB_PAT")
+      request <- if (identical(pat, "")) {
+        GET(zip, ua, write_disk(localzip))
+      } else {
+        message("Using GitHub PAT from envvar GITHUB_PAT")
+        GET(zip, ua, config = list(config(token = pat)), write_disk(localzip))
+      }
+      stop_for_status(request)
+
       files <- unzip(localzip, exdir = file.path(path), overwrite = TRUE)
     } else {
       files <- list.files(file.path(path, name))
@@ -354,7 +375,7 @@ setMethod(
   definition = function(module, path, quiet) {
     cwd <- getwd()
     path <- checkPath(path, create = FALSE)
-    urls <- .parseModulePartial(filename = file.path(path, module, paste0(module,".R")),
+    urls <- .parseModulePartial(filename = file.path(path, module, paste0(module, ".R")),
                                 defineModuleElement = "inputObjects")$sourceURL
     if (is.call(urls)) {
       # This is the case where it can't evaluate the .parseModulePartial because of a reference

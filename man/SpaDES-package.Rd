@@ -496,6 +496,9 @@ found with \code{file.path(find.package("SpaDES"), "sampleModules")}
   \item \code{spades.tolerance}: The default tolerance value used for floating
     point number comparisons. Default \code{.Machine$double.eps^0.5}.
 
+  \item \code{spades.useragent}: The default user agent to use for downloading
+    modules from GitHub.com. Default \code{"http://github.com/PredictiveEcology/SpaDES"}.
+
 }
 }
 \author{

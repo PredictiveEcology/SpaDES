@@ -38,7 +38,7 @@ test_that("experiment does not work correctly", {
   exptVals <- expt$expVals
 
   expect_equal(NROW(exptDesign), 4)
-  expect_equal(exptVals[exptVals$module == "caribouMovement","val"] %>% unlist(),
+  expect_equal(exptVals[exptVals$module == "caribouMovement", "val"] %>% unlist(),
                c(rep(caribouNums, 2)))
   expect_equal(exptVals$modules %>% unique(),
                "randomLandscapes,caribouMovement,fireSpread")
@@ -53,7 +53,7 @@ test_that("experiment does not work correctly", {
                           exptVals %>% dplyr::filter(module == mods[[y]] &
                                                        param == params[[y]] &
                                                        expLevel == x) %>%
-                          dplyr::select(val) %>% unlist() )
+                          dplyr::select(val) %>% unlist())
     })
   })
 
@@ -134,11 +134,11 @@ test_that("experiment does not work correctly", {
 
   # Test that the only difference is their objects, which we can pass back in manually
   list2env(mget(ls(sims[[1]]), envir = envir(sims[[1]])), envir = envir(sims2[[1]]))
-  expect_equal(sims[[1]], sims2[[1]] )
+  expect_equal(sims[[1]], sims2[[1]])
 
   # Test object passing in
   experimentObj <- list(landscape = lapply(landscapeFiles, readRDS) %>%
-                          setNames(paste0("landscape",1:2)))
+                          setNames(paste0("landscape", 1:2)))
   # Pass in this list of landscape objects
   set.seed(1232)
   sims3 <- experiment(mySimNoRL, objects = experimentObj)

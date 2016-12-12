@@ -866,35 +866,35 @@ setMethod("copyModule",
             ## files in base dir
             ids <- which(basename(dirname(files)) == from)
             result <- file.copy(from = files[ids],
-                                to = file.path(path, "gameOfLifeError"), ...)
-            result <- c(result, file.rename(from = file.path(path, "gameOfLifeError", paste0(from, ".R")),
-                                            to = file.path(path, "gameOfLifeError", paste0(to, ".R"))))
-            result <- c(result, file.rename(from = file.path(path, "gameOfLifeError", paste0(from, ".Rmd")),
-                                            to = file.path(path, "gameOfLifeError", paste0(to, ".Rmd"))))
-            if (file.exists(file.path(path, "gameOfLifeError", paste0(from, ".pdf")))) {
-              result <- c(result, file.rename(from = file.path(path, "gameOfLifeError", paste0(from, ".pdf")),
-                                              to = file.path(path, "gameOfLifeError", paste0(to, ".pdf"))))
+                                to = file.path(path, to), ...)
+            result <- c(result, file.rename(from = file.path(path, to, paste0(from, ".R")),
+                                            to = file.path(path, to, paste0(to, ".R"))))
+            result <- c(result, file.rename(from = file.path(path, to, paste0(from, ".Rmd")),
+                                            to = file.path(path, to, paste0(to, ".Rmd"))))
+            if (file.exists(file.path(path, to, paste0(from, ".pdf")))) {
+              result <- c(result, file.rename(from = file.path(path, to, paste0(from, ".pdf")),
+                                              to = file.path(path, to, paste0(to, ".pdf"))))
             }
 
             ## files in "data" dir
             ids <- which(basename(dirname(files)) == "data")
             if (length(ids) > 0) {
               result <- c(result, file.copy(from = files[ids],
-                                to = file.path(path, "gameOfLifeError", "data"), ...))
+                                to = file.path(path, to, "data"), ...))
             }
 
             ## files in "tests" dir
             ids <- which(basename(dirname(files)) == "test")
             if (length(ids) > 0) {
               result <- c(result, file.copy(from = files[ids],
-                                            to = file.path(path, "gameOfLifeError", "tests"), ...))
+                                            to = file.path(path, to, "tests"), ...))
             }
 
             ## files in "testthat" subdir
             ids <- which(basename(dirname(files)) == "testthat")
             if (length(ids) > 0) {
               result <- c(result, file.copy(from = files[ids],
-                                            to = file.path(path, "gameOfLifeError", "tests", "testthat"), ...))
+                                            to = file.path(path, to, "tests", "testthat"), ...))
             }
 
             if (!all(result)) warning("some module files could not be copied.")

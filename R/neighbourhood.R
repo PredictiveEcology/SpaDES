@@ -94,8 +94,8 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
                     include = FALSE, target = NULL, numCol = NULL, numCell = NULL,
                     match.adjacent = FALSE, cutoff.for.data.table = 1e4,
                     torus = FALSE, id = NULL) {
-  to = NULL
-  J = NULL
+  to <- NULL
+  J <- NULL
   cells <- as.integer(cells)
 
   if (is.null(numCol) | is.null(numCell)) {
@@ -171,7 +171,7 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
     if (!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = numToCells))
   } else {
     adj <- data.table(from = fromCells, to = toCells)
-    if (!is.null(id)) set(adj, , "id", rep.int(id, times = numToCells)) #adj[,id:=rep.int(id, times = 4)]
+    if (!is.null(id)) set(adj, , "id", rep.int(id, times = numToCells))
   }
 
   if (useMatrix) {
@@ -217,7 +217,7 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
       whLefRig <- (adj[, "from"] %% numCol + adj[, "to"] %% numCol) == 1
       adj[whLefRig, "to"] <- adj[whLefRig, "to"] + numCol*(adj[whLefRig, "from"] - adj[whLefRig, "to"])
       whBotTop <- ((adj[, "to"] - 1) %% numCell + 1) != adj[, "to"]
-      adj[whBotTop, "to"] <- adj[whBotTop, "to"] + sign(adj[whBotTop, "from"] - adj[whBotTop, "to"])*numCell
+      adj[whBotTop, "to"] <- adj[whBotTop, "to"] + sign(adj[whBotTop, "from"] - adj[whBotTop, "to"]) * numCell
       if (pairs) {
         return(adj)
       } else {
@@ -279,11 +279,11 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
       if (!pairs) {
         whLefRig <- (from %% numCol + adj$to %% numCol) == 1
         toWhLefRig <- adj$to[whLefRig]
-        set(adj, which(whLefRig), "to", toWhLefRig + numCol*(from[whLefRig] - toWhLefRig))
+        set(adj, which(whLefRig), "to", toWhLefRig + numCol * (from[whLefRig] - toWhLefRig))
         whBotTop <- ((adj$to - 1) %% numCell + 1) != adj$to
         toWhBotTop <- adj$to[whBotTop]
         set(adj, which(whBotTop), "to", toWhBotTop +
-              as.integer(sign(from[whBotTop] - toWhBotTop)*numCell))
+              as.integer(sign(from[whBotTop] - toWhBotTop) * numCell))
 
         if (match.adjacent) {
           adj <- unique(adj$to)
@@ -292,11 +292,11 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
       } else {
         whLefRig <- (adj$from %% numCol + adj$to %% numCol) == 1
         toWhLefRig <- adj$to[whLefRig]
-        set(adj, which(whLefRig), "to", toWhLefRig + numCol*(adj$from[whLefRig] - toWhLefRig))
+        set(adj, which(whLefRig), "to", toWhLefRig + numCol * (adj$from[whLefRig] - toWhLefRig))
         whBotTop <- ((adj$to - 1) %% numCell + 1) != adj$to
         toWhBotTop <- adj$to[whBotTop]
         set(adj, which(whBotTop), "to", toWhBotTop +
-              as.integer(sign(adj$from[whBotTop] - toWhBotTop)*numCell))
+              as.integer(sign(adj$from[whBotTop] - toWhBotTop) * numCell))
       }
       return(as.matrix(adj))
     }
@@ -405,7 +405,7 @@ adj <- compiler::cmpfun(adj.raw)
 #'@example inst/examples/example_cir.R
 #'
 setGeneric("cir", function(landscape, coords, loci,
-                           maxRadius = ncol(landscape)/4, minRadius = maxRadius,
+                           maxRadius = ncol(landscape) / 4, minRadius = maxRadius,
                            allowOverlap = TRUE, allowDuplicates = FALSE,
                            includeBehavior = "includePixels", returnDistances = FALSE,
                            angles = NA_real_,
@@ -459,7 +459,11 @@ setMethod(
                         returnAngles, returnIndices,
                         closest, simplify) {
     ncells <- ncell(landscape)
-    middleCell <- if (identical(ncells/2, floor(ncells/2))) ncells/2 - ncol(landscape)/2 else round(ncells/2)
+    middleCell <- if (identical(ncells / 2, floor(ncells / 2))) {
+      ncells / 2 - ncol(landscape) / 2
+    } else {
+      round(ncells / 2)
+    }
     coords <- xyFromCell(landscape, middleCell)
     cir(landscape, coords = coords, maxRadius = maxRadius, minRadius = minRadius,
         allowOverlap = allowOverlap, allowDuplicates = allowDuplicates,
@@ -499,15 +503,15 @@ setMethod(
   moreThanOne <- NROW(coords) > 1
 
   equalRadii <- TRUE
-  if (suppliedAngles) { # if provided with angles, then problem is easier
+  if (suppliedAngles) {
+    # if provided with angles, then problem is easier
     seqNumInd <- seq_len(NROW(coords))
-    maxRadius <- c(seq(minRadius, maxRadius, by = max(0.68, 0.75 - maxRadius/3e3)), maxRadius)
+    maxRadius <- c(seq(minRadius, maxRadius, by = max(0.68, 0.75 - maxRadius / 3e3)), maxRadius)
     numAngles <- length(angles)
     rads <- rep(rep(maxRadius, each = numAngles), NROW(coords))
     x <- kronecker(coords[, "x"], c(cos(angles) %o% maxRadius), "+")
     y <- kronecker(coords[, "y"], c(sin(angles) %o% maxRadius), "+")
     id <- rep(rep(seqNumInd, each = numAngles), each = length(maxRadius))
-
   } else {
     if (moreThanOne) {
       # create an index sequence for the number of individuals
@@ -525,8 +529,8 @@ setMethod(
         maxRadiusList <- lapply(seqNumInd, function(x) {
           ## 0.75 was the maximum that worked with 1e4 pixels, 1e2 maxRadius
           ## 0.66 was the maximum that worked with 4e6 pixels, 1.3e3 maxRadius
-          #browser(expr=x>55)
-          a <- seq(minRadius[x], maxRadius[x], by = max(0.68, 0.75 - maxRadius[x]/3e3))
+          #browser(expr = x > 55)
+          a <- seq(minRadius[x], maxRadius[x], by = max(0.68, 0.75 - maxRadius[x] / 3e3))
           if (a[length(a)] != maxRadius[x]) a <- c(a, maxRadius[x])
           a
         })
@@ -537,7 +541,7 @@ setMethod(
           lengths <- unlist(lapply(maxRadiusList, length))
           maxLen <- max(lengths)
           maxRadius <- do.call(cbind, lapply(seq_along(maxRadiusList), function(y) {
-            c(maxRadiusList[[y]],rep(NA_real_,maxLen-lengths[y]))}
+            c(maxRadiusList[[y]], rep(NA_real_, maxLen - lengths[y]))}
           ))
         }
       }
@@ -545,14 +549,13 @@ setMethod(
       seqNumInd <- 1
       if (any((minRadius != maxRadius))) {
         ## 0.66 was the maximum that worked with 4e6 pixels, 1.3e3 maxRadius
-        a <- seq(minRadius, maxRadius, by = max(0.68, 0.75 - maxRadius/3e3))
+        a <- seq(minRadius, maxRadius, by = max(0.68, 0.75 - maxRadius / 3e3))
         if (a[length(a)] != maxRadius) a <- c(a, maxRadius)
         maxRadius <- a
       }
     }
 
-
-    numAngles <- ceiling((maxRadius/scaleRaster)*2.6*pi) + 1
+    numAngles <- ceiling((maxRadius / scaleRaster) * 2.6 * pi) + 1
 
     if (moreThanOne) {
       if (is.matrix(numAngles)) {
@@ -590,20 +593,20 @@ setMethod(
     angles <- if (all(is.na(angles))) {
       if (!is.null(dim(numAngles))) {
         if (equalRadii)
-          rep(unlist(lapply(numAngles[,1], function(na) seq_len(na)*(pi*2/na))), ncol(numAngles))
+          rep(unlist(lapply(numAngles[, 1], function(na) seq_len(na) * (pi * 2 / na))), ncol(numAngles))
         else
-          unlist(lapply(na.omit(as.vector(numAngles)), function(na) seq_len(na)*(pi*2/na)))
+          unlist(lapply(na.omit(as.vector(numAngles)), function(na) seq_len(na) * (pi * 2 / na)))
       } else {
-        unlist(lapply(numAngles, function(na) seq.int(na)*(pi*2/na)))
+        unlist(lapply(numAngles, function(na) seq.int(na) * (pi * 2 / na)))
       }
     } else {
       rep(angles, length(numAngles))
     }
-    x <- cos(angles)*rads + xs
-    y <- sin(angles)*rads + ys
+    x <- cos(angles) * rads + xs
+    y <- sin(angles) * rads + ys
   }
 
-  indices <- as.integer(cellFromXY(landscape, cbind(x,y)))
+  indices <- as.integer(cellFromXY(landscape, cbind(x, y)))
 
   if (moreThanOne & allowOverlap & !closest) {
     MAT <- data.table(id, indices, rads, angles, x = x, y = y)
@@ -642,10 +645,10 @@ setMethod(
     } else {
       if (equalRadii)
         # 0.71 is the sqrt of 1, so keep
-        MAT2 <- MAT[MAT[, "rads"] >= (maxRad - 0.71) | MAT[, "rads"] <= (minRad + 0.71),, drop = FALSE]
+        MAT2 <- MAT[MAT[, "rads"] >= (maxRad - 0.71) | MAT[, "rads"] <= (minRad + 0.71), , drop = FALSE]
       else {
         # 0.71 is the sqrt of 1, so keep
-        MAT2 <- MAT[MAT[, "rads"] >= (MAT[, "maxRad"] - 0.71) | MAT[, "rads"] <= (MAT[, "minRad"] + 0.71),, drop = FALSE]
+        MAT2 <- MAT[MAT[, "rads"] >= (MAT[, "maxRad"] - 0.71) | MAT[, "rads"] <= (MAT[, "minRad"] + 0.71), , drop = FALSE]
       }
     } #  only pixels that are in inner or outer ring of pixels
 
@@ -687,16 +690,16 @@ setMethod(
       d <- d[, -which(colnames(d) == "angles"), drop = FALSE]
       MAT <- MAT[, -which(colnames(MAT) == "angles"), drop = FALSE]
     } else {
-      d[,"angles"] <- (pi/2 - d[,"angles"]) %% (2*pi)# convert to geographic
-      MAT[,"angles"] <- pi/2 -  MAT[,"angles", drop = FALSE] %% (2*pi)# convert to geographic
+      d[,"angles"] <- (pi / 2 - d[, "angles"]) %% (2 * pi)# convert to geographic
+      MAT[,"angles"] <- pi / 2 -  MAT[, "angles", drop = FALSE] %% (2 * pi)# convert to geographic
     }
 
     if (returnDistances) {
       wh <- na.omit(match("rads", colnames(d)))
-      if (length(wh) > 0) MAT <- d[, -wh, drop = FALSE] #c("id", "indices", "dists", "x", "y")
+      if (length(wh) > 0) MAT <- d[, -wh, drop = FALSE]
     } else if (closest) {
       wh <- na.omit(match(c("rads", "dists"), colnames(d)))
-      if (length(wh) > 0) MAT <- d[, -wh, drop = FALSE] #c("id", "indices", "x", "y")
+      if (length(wh) > 0) MAT <- d[, -wh, drop = FALSE]
     } else {
       if (equalRadii)
         MATinterior <- MAT[MAT[, "rads"] < (maxRad - 0.71) & MAT[, "rads"] > (minRad + 0.71), , drop = FALSE]
@@ -709,9 +712,7 @@ setMethod(
   } else {
     if (!returnAngles) {
       MAT <- MAT[, -which(colnames(MAT) == "angles"), drop = FALSE]
-    } #else {
-      #MAT[,"angles"] <- pi/2 -  MAT[,"angles"] %% (2*pi)# convert to geographic
-    #}
+    }
     MAT <- MAT[, -which(colnames(MAT) == "rads"), drop = FALSE]
   }
   if (!returnIndices) {
@@ -726,15 +727,14 @@ setMethod(
     } else {
       MAT <- data.table(MAT, key = "indices")
       if (!returnDistances) {
-        MAT <- MAT[,sum(id),by=indices]
+        MAT <- MAT[, sum(id), by = indices]
       } else {
-        MAT <- MAT[,sum(1/dists),by=indices]
+        MAT <- MAT[, sum(1 / dists), by = indices]
       }
       ras[MAT$indices] <- MAT$V1
     }
     return(ras)
   }
-
   return(MAT)
 })
 

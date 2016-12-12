@@ -29,8 +29,8 @@ defineModule(sim, list(
     defineParameter("persistprob", "numeric", 0.00, 0, 1, "probability of fire persisting in a pixel"),
     defineParameter("returnInterval", "numeric", 1.0, 1.0, 1.0, "fire return interval"),
     defineParameter("spreadprob", "numeric", 0.225, 0.05, 0.5, "probability of fire spreading into a pixel"),
-    defineParameter("startTime", "numeric", start(sim)+1, 0, end(sim), "time of initial fire ignition"),
-    defineParameter(".plotInitialTime", "numeric", start(sim), start(sim), end(sim)+1, "time to schedule first plot event"),
+    defineParameter("startTime", "numeric", start(sim) + 1, 0, end(sim), "time of initial fire ignition"),
+    defineParameter(".plotInitialTime", "numeric", start(sim), start(sim), end(sim) + 1, "time to schedule first plot event"),
     defineParameter(".plotInterval", "numeric", 1, 1, 1, "time interval between plot events"),
     defineParameter(".saveInitialTime", "numeric", NA_real_, NA, NA, "time to schedule first save event"),
     defineParameter(".saveInterval", "numeric", NA_real_, NA, NA, "time interval between save events")
@@ -88,16 +88,16 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug = FALSE) {
     # do stuff for this event
     setColors(sim[[P(sim)$stackName]], n = c(Fires = 10)) <- list(
       DEM = grDevices::terrain.colors(10),
-      forestAge = brewer.pal(9,"BuGn"),
-      habitatQuality = brewer.pal(8,"Spectral"),
-      percentPine = brewer.pal(9,"Greens"),
+      forestAge = brewer.pal(9, "BuGn"),
+      habitatQuality = brewer.pal(8, "Spectral"),
+      percentPine = brewer.pal(9, "Greens"),
       Fires = c("white", rev(heat.colors(9)))
     )
 
     clearPlot()
     Plot(sim[[P(sim)$stackName]],
          legendRange = list(0:maxValue(sim[[P(sim)$stackName]]$DEM), 0:100,
-                            c(0,1), 0:100, 0:10))
+                            c(0, 1), 0:100, 0:10))
 
     # schedule the next event
     sim <- scheduleEvent(sim, time(sim) + P(sim)$.plotInterval,
@@ -115,11 +115,11 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug = FALSE) {
 
     # schedule the next event
     sim <- scheduleEvent(sim, time(sim) + P(sim)$.saveInterval,
-                         "fireSpread", "save", .last()+1)
+                         "fireSpread", "save", .last() + 1)
   } else {
     warning(paste(
       "Undefined event type: \'", events(sim)[1, "eventType", with = FALSE],
-      "\' in module \'", events(sim)[1, "moduleName", with = FALSE],"\'",
+      "\' in module \'", events(sim)[1, "moduleName", with = FALSE], "\'",
       sep = ""
     ))
   }

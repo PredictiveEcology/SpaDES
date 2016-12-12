@@ -179,7 +179,7 @@ setReplaceMethod(
   signature("RasterLayer", "missing", "character"),
   function(object, ..., value) {
     if (!raster::is.factor(object)) {
-      n <- round((maxValue(object) - minValue(object))) + 1
+      n <- round(maxValue(object) - minValue(object)) + 1
     } else {
       n <- length(value)
     }
@@ -405,7 +405,7 @@ setMethod(
           # one more color than needed:
           #   assume bottom is NA
           if (isFac) {
-            factorValues <- grobToPlot@data@attributes[[1]][,1] %>%
+            factorValues <- grobToPlot@data@attributes[[1]][, 1] %>%
               unique() %>% na.omit() %>% sort()
             if (length(factorValues) == length(colTable)) {
               colTable[seq.int(length(factorValues))]

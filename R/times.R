@@ -46,7 +46,7 @@ setMethod("dyears",
 })
 
 yearsInSeconds <- as.numeric(dyears(1)) # 31557600L
-attributes(yearsInSeconds)$unit = "second"
+attributes(yearsInSeconds)$unit <- "second"
 
 
 #' @inheritParams dyears
@@ -139,11 +139,11 @@ hoursInSeconds <- as.numeric(dhour(1))    # 3600L
 daysInSeconds <- as.numeric(dday(1))      # 86400L
 weeksInSeconds <- as.numeric(dweek(1))    # 606876.92307692
 monthsInSeconds <- as.numeric(dmonth(1))  # 2629800L
-attributes(secondsInSeconds)$unit = "second"
-attributes(hoursInSeconds)$unit = "second"
-attributes(daysInSeconds)$unit = "second"
-attributes(weeksInSeconds)$unit = "second"
-attributes(monthsInSeconds)$unit = "second"
+attributes(secondsInSeconds)$unit <- "second"
+attributes(hoursInSeconds)$unit <- "second"
+attributes(daysInSeconds)$unit <- "second"
+attributes(weeksInSeconds)$unit <- "second"
+attributes(monthsInSeconds)$unit <- "second"
 
 ################################################################################
 #' Convert time units
@@ -290,7 +290,8 @@ setMethod(
             time <- time * inSeconds(timeUnit, envir) / inSeconds(unit, envir)
           attr(time, "unit") <- unit
         }
-      } else { # if timeunit is NA
+      } else {
+        # if timeunit is NA
         time <- 0
         attr(time, "unit") <- unit
       }
@@ -347,8 +348,8 @@ setMethod(
         if (!all(sapply(timesteps, is.na))) {
           return(timesteps[!is.na(timesteps)][[which.max(sapply(
             timesteps[!sapply(timesteps, is.na)], function(ts) {
-              eval(parse(text = paste0("d", ts, "(1)")), envir = sim@.envir) }
-          ))]])
+              eval(parse(text = paste0("d", ts, "(1)")), envir = sim@.envir)
+          }))]])
         }
       }
     }

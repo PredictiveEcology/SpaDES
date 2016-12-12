@@ -12,7 +12,7 @@ test_that("saving files does not work correctly", {
     randomLandscapes = list(.plotInitialTime = NA, nx = 20, ny = 20))
 
   outputs <- data.frame(
-    expand.grid(objectName = c("caribou","landscape"),
+    expand.grid(objectName = c("caribou", "landscape"),
                 saveTime = 1:2,
                 stringsAsFactors = FALSE)
   )
@@ -28,13 +28,13 @@ test_that("saving files does not work correctly", {
   mySim <- spades(mySim)
 
   # test spades-level mechanism
-  expect_true(file.exists(file.path(savePath,"caribou_month1.rds")))
-  expect_true(file.exists(file.path(savePath,"landscape_month2.rds")))
-  expect_false(file.exists(file.path(savePath,"landscape_month3.rds")))
+  expect_true(file.exists(file.path(savePath, "caribou_month1.rds")))
+  expect_true(file.exists(file.path(savePath, "landscape_month2.rds")))
+  expect_false(file.exists(file.path(savePath, "landscape_month3.rds")))
 
   # test module-level mechanism
-  expect_true(file.exists(file.path(savePath,"caribou_month3.rds")))
-  expect_true(file.exists(file.path(savePath,"caribou_month5.rds")))
+  expect_true(file.exists(file.path(savePath, "caribou_month3.rds")))
+  expect_true(file.exists(file.path(savePath, "caribou_month5.rds")))
 
   outputs <- data.frame(
     expand.grid(objectName = c("caribou", "landscape")),
@@ -52,8 +52,8 @@ test_that("saving files does not work correctly", {
   mySim <- spades(mySim)
 
   # test that if no save times are stated, then it is at end time
-  expect_true(file.exists(file.path(savePath,"caribou_month7.rds")))
-  expect_true(file.exists(file.path(savePath,"landscape_month7.rds")))
+  expect_true(file.exists(file.path(savePath, "caribou_month7.rds")))
+  expect_true(file.exists(file.path(savePath, "landscape_month7.rds")))
   rm(mySim)
 })
 
@@ -64,16 +64,16 @@ test_that("saving csv files does not work correctly", {
    on.exit({
      detach("package:igraph")
      unlink(savePath, recursive = TRUE)
-    }, add = TRUE)
+   }, add = TRUE)
 
    tempObj <- 1:10
-   tempObj2 <- paste("val",1:10)
+   tempObj2 <- paste("val", 1:10)
    df1 <- data.frame(col1 = tempObj, col2 = tempObj2)
    sim <- simInit(objects = c("tempObj", "tempObj2", "df1"),
                   paths = list(outputPath = savePath))
-   outputs(sim) = data.frame(
-        objectName = c(rep("tempObj",2), rep("tempObj2", 3), "df1"),
-        saveTime = c(c(1,4), c(2,6,7), end(sim)),
+   outputs(sim) <- data.frame(
+        objectName = c(rep("tempObj", 2), rep("tempObj2", 3), "df1"),
+        saveTime = c(c(1, 4), c(2, 6, 7), end(sim)),
         fun = c(rep("saveRDS", 5), "write.csv"),
         package = c(rep("base", 5), "utils"),
         stringsAsFactors = FALSE)

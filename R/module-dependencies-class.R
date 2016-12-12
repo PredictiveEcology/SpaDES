@@ -163,8 +163,8 @@ setClass(
     }
 
     # data.frame checking
-    if (length(object@inputObjects)<1L) stop("input object name and class must be specified, or NA.")
-    if (length(object@outputObjects)<1L) stop("output object name and class must be specified, or NA.")
+    if (length(object@inputObjects) < 1L) stop("input object name and class must be specified, or NA.")
+    if (length(object@outputObjects) < 1L) stop("output object name and class must be specified, or NA.")
     if ( !all(c("objectName", "objectClass", "other") %in% colnames(object@inputObjects)) ) {
       stop("input object data.frame must use colnames objectName, objectClass, and other.")
     }

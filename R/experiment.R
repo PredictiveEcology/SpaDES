@@ -201,7 +201,9 @@ setMethod(
     if (missing(params)) params <- list()
     if (missing(modules)) modules <- list(unlist(SpaDES::modules(sim)))
     if (missing(inputs)) inputs <- list()
-    if (missing(objects)) {objects <- list() } else if (length(objects) == 1) {
+    if (missing(objects)) {
+      objects <- list()
+    } else if (length(objects) == 1) {
       objects <- unlist(objects, recursive = FALSE)
     }
 
@@ -219,7 +221,7 @@ setMethod(
       factorsTmp <- if (NROW(paramsTmp) > 0) {
         # unlist(params[paramsTmp], recursive = FALSE)
         lapply(params[paramsTmp], function(z) {
-          lapply(z, function(y) { seq_along(y) })
+          lapply(z, function(y) seq_along(y) )
         }) %>% unlist(recursive = FALSE)
       } else {
         params
@@ -236,7 +238,7 @@ setMethod(
 
       factorialExpInner <- expand.grid(factorsTmp, stringsAsFactors = FALSE)
 
-      modulesShort <- paste(modules[[x]],collapse = ",")
+      modulesShort <- paste(modules[[x]], collapse = ",")
       if (NROW(factorialExpInner) > 0 ) {
         if (any(!(names(factorialExpInner) %in% c("object", "input")))) {
           factorialExpInner[["modules"]] <- x
@@ -268,7 +270,7 @@ setMethod(
         sapply(function(x) x[2])
       param[is.na(param)] <- ""
 
-      paramValues <- factorialExp[ind,]
+      paramValues <- factorialExp[ind, ]
 
       whNotExpLevel <- which(colnames(paramValues) != "expLevel")
       if (length(whNotExpLevel) < length(paramValues)) {
@@ -318,8 +320,8 @@ setMethod(
                   param = if (!(mod[x] %in% c("input", "object"))) param[x] else NA,
                   val = if (!(mod[x] %in% c("input", "object"))) I(list(val)) else list(NA),
                   modules = paste0(unlist(modules[factorialExp[ind, "modules"]]), collapse = ","),
-                  input = if ((mod[x] %in% c("input"))) inputs[[factorialExp[ind, "input"]]] else NA,
-                  object = if ((mod[x] %in% c("object"))) names(objects)[[factorialExp[ind, "object"]]] else NA,
+                  input = if (mod[x] %in% c("input")) inputs[[factorialExp[ind, "input"]]] else NA,
+                  object = if (mod[x] %in% c("object")) names(objects)[[factorialExp[ind, "object"]]] else NA,
                   expLevel = factorialExp[ind, "expLevel"],
                   stringsAsFactors = FALSE
                 )),
@@ -340,8 +342,8 @@ setMethod(
 
         if ("modules" %in% names(factorialExp)) {
           if (!identical(sort(unlist(modules[factorialExp[ind, "modules"]])),
-                         sort(unlist(SpaDES::modules(sim))))) { # test if modules are different from sim,
-            #  if yes, rerun simInit
+                         sort(unlist(SpaDES::modules(sim))))) {
+            # test if modules are different from sim; if yes, rerun simInit
             sim_ <- simInit(params = params(sim_),
                             modules = as.list(unlist(modules[factorialExp[ind, "modules"]])),
                             times = append(lapply(times(sim_)[2:3], as.numeric), times(sim_)[4]),
@@ -462,10 +464,11 @@ setMethod(
       save(experiment, file = file.path(outputPath(sim), experimentFile))
     }
     attr(sims, "experiment") <- experiment
-    if (clearSimEnv) {sims <- lapply(sims, function(x) {
-      rm(list = ls(envir(x)), envir = envir(x))
-      x
-    })
+    if (clearSimEnv) {
+      sims <- lapply(sims, function(x) {
+        rm(list = ls(envir(x)), envir = envir(x))
+        x
+      })
     }
     return(invisible(sims))
 })

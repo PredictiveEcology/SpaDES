@@ -25,7 +25,7 @@
 #'
 #' @author Eliot McIntire
 transitions <- function(p, agent) {
-    coordinates(agent)[which(p==0),] <- NA
+    coordinates(agent)[which(p == 0), ] <- NA
     return(agent)
 }
 
@@ -155,7 +155,7 @@ setMethod(
   function(map, numAgents, probInit, asSpatialPoints) {
     vals <- getValues(probInit)
     wh <- sample(1:ncell(probInit), numAgents, replace = asSpatialPoints,
-                 prob = vals/sum(vals))
+                 prob = vals / sum(vals))
     initiateAgents(map, indices = wh, asSpatialPoints = asSpatialPoints)
 })
 
@@ -166,8 +166,8 @@ setMethod("initiateAgents",
             if (asSpatialPoints) {
               if (length(indices > 0)) {
                 xys <- xyFromCell(map, indices, spatial = asSpatialPoints)
-                xys@coords <- xys@coords + cbind(runif(length(indices), -res(map)[1]/2, res(map)[1]/2),
-                                                 runif(length(indices), -res(map)[2]/2, res(map)[2]/2))
+                xys@coords <- xys@coords + cbind(runif(length(indices), -res(map)[1] / 2, res(map)[1] / 2),
+                                                 runif(length(indices), -res(map)[2] / 2, res(map)[2] / 2))
                 xys@bbox <- cbind(apply(coordinates(xys), 2, min), apply(coordinates(xys), 2, max))
                 return(xys)
               }
@@ -262,12 +262,12 @@ probInit <- function(map, p = NULL, absolute = NULL) {
     probInit <- raster(extent(map), nrows = nrow(map), ncols = ncol(map),
                        crs = crs(map))
     p <- rep(p, length.out = ncell(map))
-    probInit <- setValues(probInit, p/(sum(p)*(1 - absolute) + 1*(absolute)))
+    probInit <- setValues(probInit, p / (sum(p) * (1 - absolute) + 1 * (absolute)))
 
   } else if (is(p, "RasterLayer")) {
-    probInit <- p/(cellStats(p, sum)*(1 - absolute) + 1*(absolute))
+    probInit <- p / (cellStats(p, sum) * (1 - absolute) + 1 * (absolute))
   } else if (is(map, "SpatialPolygonsDataFrame")) {
-    probInit <- p/sum(p)
+    probInit <- p / sum(p)
   } else {
     stop("Error initializing probability map: bad inputs")
   }

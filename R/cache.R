@@ -232,7 +232,8 @@ setMethod(
       }
       )
       sigArgs <- lapply(unique(firstElems), function(x) {
-        FUN@signature %in% x})
+        FUN@signature %in% x
+      })
       signat <- unlist(sigArgs[unlist(lapply(sigArgs, function(y) any(y)))])
 
       methodUsed <- selectMethod(FUN, optional = TRUE,
@@ -258,7 +259,7 @@ setMethod(
       if (is.null(notOlderThan) || (notOlderThan < lastEntry)) {
         if (grepl(format(FUN)[1], pattern = "function \\(sim, eventTime")) {
           # very coarse way of determining doEvent call
-          message("Using cached copy of ",cur$eventType," event in ",cur$moduleName," module")
+          message("Using cached copy of ", cur$eventType, " event in ", cur$moduleName, " module")
         }
 
         out <- loadFromLocalRepo(isInRepo$artifact[lastOne],
@@ -280,17 +281,16 @@ setMethod(
         #}
 
         return(out)
-
       }
-      if ((notOlderThan >= lastEntry)) { # flush it if notOlderThan is violated
+      if (notOlderThan >= lastEntry) {
+        # flush it if notOlderThan is violated
         rmFromLocalRepo(isInRepo$artifact[lastOne], repoDir = cacheRepo)
       }
     }
     output <- do.call(FUN, list(...))
     attr(output, "tags") <- paste0("cacheId:", outputHash)
     attr(output, "call") <- ""
-    if (isS4(FUN))
-      attr(output, "function") <- FUN@generic
+    if (isS4(FUN)) attr(output, "function") <- FUN@generic
 
     if (is(output, "simList")) {
       if (!is.null(outputObjects)) {
@@ -360,8 +360,8 @@ setMethod(
 
     if (missing(sim) & missing(cacheRepo)) stop("Must provide either sim or cacheRepo")
     if (missing(cacheRepo)) cacheRepo <- sim@paths$cachePath
-    if (missing(afterDate)) afterDate = "1970-01-01"
-    if (missing(beforeDate)) beforeDate = Sys.Date() + 1
+    if (missing(afterDate)) afterDate <- "1970-01-01"
+    if (missing(beforeDate)) beforeDate <- Sys.Date() + 1
 
     objs <- searchInLocalRepo(pattern = list(dateFrom = afterDate, dateTo = beforeDate),
                               repoDir = cacheRepo)
@@ -557,7 +557,7 @@ setGeneric("clearStubArtifacts", function(repoDir = NULL) {
 setMethod(
   "clearStubArtifacts",
   definition = function(repoDir) {
-    md5hashInBackpack = showLocalRepo(repoDir = repoDir)$md5hash
+    md5hashInBackpack <- showLocalRepo(repoDir = repoDir)$md5hash
     listFiles <- dir(file.path(repoDir, "gallery")) %>% strsplit(".rda") %>% unlist()
     toRemove <- !(md5hashInBackpack %in% listFiles)
     md5hashInBackpack[toRemove] %>%

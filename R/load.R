@@ -22,7 +22,7 @@ if (getRversion() >= "3.1.0") {
     "txt", "read.table", "utils",
     "asc", "raster", "raster")),
     stringsAsFactors = FALSE)
-  colnames(.fE) = c("exts", "fun", "package")
+  colnames(.fE) <- c("exts", "fun", "package")
   return(.fE)
 }
 
@@ -144,11 +144,8 @@ setMethod(
   "loadFiles",
   signature(sim = "simList", filelist = "missing"),
   definition = function(sim, ...) {
-
     # Pull .fileExtensions() into function so that scoping is faster
-    .fileExts = .fileExtensions()
-    #usedIntervals <- FALSE # This is for a speed reason later on.
-    #Whether or not intervals for loading files are defined
+    .fileExts <- .fileExtensions()
 
     if (NROW(inputs(sim)) != 0) {
       inputs(sim) <- .fillInputRows(inputs(sim), start(sim))
@@ -158,10 +155,10 @@ setMethod(
       arguments <- inputArgs(sim)
       # Check if arguments is a named list; the name may be concatenated
       # with the "arguments", separated by a ".". This will extract that.
-      if ((length(arguments) > 0) & (!is.null(names(arguments)))) {
+      if ((length(arguments) > 0) & !is.null(names(arguments))) {
         names(arguments) <- sapply(strsplit(
           names(filelist)[pmatch("arguments", names(filelist))], ".", fixed = TRUE),
-          function(x) { x[-1] }
+          function(x) x[-1]
         )
       }
 
@@ -180,10 +177,10 @@ setMethod(
         loadPackage <- filelist$package
         loadFun <- filelist$fun
         for (y in which(cur)) {
-          #y <- which(cur)[x]
-          nam = names(arguments[y])
+          nam <- names(arguments[y])
 
-          if (is.na(filelist$file[y])) { # i.e., only for objects
+          if (is.na(filelist$file[y])) {
+            # i.e., only for objects
             objList <- list()
             if (exists(filelist$objectName[y])) {
               objList <- list(get(filelist$objectName[y]))
@@ -201,12 +198,13 @@ setMethod(
                       "To correctly transfer it to the simList, it should be ",
                       "in the search path.")
             }
-          } else { # for files
+          } else {
+            # for files
             if (!is.null(nam)) {
-              argument <- list(unname(unlist(arguments[y])), filelist[y,"file"])
+              argument <- list(unname(unlist(arguments[y])), filelist[y, "file"])
               names(argument) <- c(nam, names(formals(getFromNamespace(loadFun[y], loadPackage[y])))[1])
             } else {
-              argument <- list(filelist[y,"file"])
+              argument <- list(filelist[y, "file"])
               names(argument) <- names(formals(getFromNamespace(loadFun[y], loadPackage[y])))[1]
             }
 
@@ -226,7 +224,7 @@ setMethod(
                 filelist[y, "objectName"], " read from ", filelist[y, "file"], " using ", loadFun[y],
                 "(inMemory=", inMemory(sim[[filelist[y, "objectName"]]]), ")",
                 ifelse(filelist[y, "loadTime"] != sim@simtimes[["start"]],
-                       paste("\n  at time", filelist[y, "loadTime"]),"")
+                       paste("\n  at time", filelist[y, "loadTime"]), "")
               ))
             } else {
               message(paste0(
@@ -241,7 +239,7 @@ setMethod(
         if (!is.na(match("intervals", names(filelist)))) {
           if (any(!is.na(filelist[filelist$loaded, "intervals"]))) {
 
-            newFilelist <- filelist[(filelist$loaded & !is.na(filelist$intervals)),]
+            newFilelist <- filelist[(filelist$loaded & !is.na(filelist$intervals)), ]
             newFilelist[, c("loadTime", "loaded", "intervals")] <-
               data.frame(curTime + newFilelist$intervals, NA, NA_real_)
             filelist <- rbind(filelist, newFilelist)

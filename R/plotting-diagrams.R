@@ -392,7 +392,7 @@ setMethod(
     e <- edges(e)
 
     if (plot) {
-      vs <- c(15,0)[(names(V(grph)) %in% parents) + 1]
+      vs <- c(15, 0)[(names(V(grph)) %in% parents) + 1]
       dots <- list(...)
       if ("title" %in% names(dots)) {
         Plot(grps, grph - e, vertex.size = vs, plotFn = "plot", axes = FALSE, ...)

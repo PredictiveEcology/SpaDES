@@ -31,6 +31,9 @@
 #'   \item \code{spades.tolerance}: The default tolerance value used for floating
 #'     point number comparisons. Default \code{.Machine$double.eps^0.5}.
 #'
+#'   \item \code{spades.useragent}: The default user agent to use for downloading
+#'     modules from GitHub.com. Default \code{"http://github.com/PredictiveEcology/SpaDES"}.
+#'
 #' }
 #' @docType package
 #' @name SpaDES-package
@@ -49,7 +52,8 @@ NULL
     spades.moduleRepo = "PredictiveEcology/SpaDES-modules",
     spades.nCompleted = 10000L,
     spades.outputPath = file.path(tmpdir, "outputs"),
-    spades.tolerance = .Machine$double.eps^0.5
+    spades.tolerance = .Machine$double.eps ^ 0.5,
+    spades.useragent = "http://github.com/PredictiveEcology/SpaDES"
   )
   toset <- !(names(opts.spades) %in% names(opts))
   if (any(toset)) options(opts.spades[toset])

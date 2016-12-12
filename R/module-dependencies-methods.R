@@ -49,13 +49,13 @@ setMethod(
 
     lapply(deps@dependencies, function(x) {
       if (!is.null(x)) {
-        z.in <- as.data.table(x@inputObjects)[,.(objectName, objectClass)]
-        z.out <- as.data.table(x@outputObjects)[,.(objectName, objectClass)]
+        z.in <- as.data.table(x@inputObjects)[, .(objectName, objectClass)]
+        z.out <- as.data.table(x@outputObjects)[, .(objectName, objectClass)]
         z.in$module <- z.out$module <- x@name
-        if (!all(is.na(z.in[,objectName]), is.na(z.in[, objectClass]))) {
+        if (!all(is.na(z.in[, objectName]), is.na(z.in[, objectClass]))) {
           sim.in <<- rbindlist(list(sim.in, z.in), use.names = TRUE)
         }
-        if (!all(is.na(z.out[,1:2]), is.na(z.out[, objectClass]))) {
+        if (!all(is.na(z.out[, 1:2]), is.na(z.out[, objectClass]))) {
           sim.out <<- rbindlist(list(sim.out, z.out), use.names = TRUE)
         }
       }
@@ -67,11 +67,11 @@ setMethod(
 
     if ((nrow(sim.in)) && (nrow(sim.out))) {
       dx <- sim.out[sim.in, nomatch = NA_character_, allow.cartesian = TRUE]
-      dx[is.na(module), module:="_INPUT_"]
-      DT <- dx[,list(from = module, to = i.module,
-                     objName = objectName, objClass = i.objectClass)]
+      dx[is.na(module), module := "_INPUT_"]
+      DT <- dx[, list(from = module, to = i.module,
+                      objName = objectName, objClass = i.objectClass)]
 
-      if (plot) { DT <- DT[!duplicated(DT[, 1:2, with = FALSE]),] }
+      if (plot) DT <- DT[!duplicated(DT[, 1:2, with = FALSE]), ]
     } else {
       DT <- data.table(from = character(0), to = character(0),
                        objName = character(0), objClass = character(0))
@@ -171,8 +171,8 @@ setMethod(
       pth <- data.table(from = character(0), to = character(0))
       for (row in 1L:(nrow(M) - 1L)) {
         for (col in (row + 1L):ncol(M)) {
-          current <- M[row,col]
-          partner <- M[col,row]
+          current <- M[row, col]
+          partner <- M[col, row]
           if (all((current > 0), !is.infinite(current), (partner > 0),
                   !is.infinite(partner))) {
             pth1 <- shortest_paths(simGraph,
@@ -187,7 +187,7 @@ setMethod(
                                    from = colnames(M)[col],
                                    to = rownames(M)[row])$vpath[[1]]
             pth2 <- data.frame(from = rownames(M)[pth2],
-                               to = rownames(M)[lead(match(names(pth2), rownames(M)),1)],
+                               to = rownames(M)[lead(match(names(pth2), rownames(M)), 1)],
                                stringsAsFactors = FALSE) %>%
                     na.omit %>% as.data.table()
 
@@ -252,7 +252,7 @@ setMethod(".depsLoadOrder",
             # only works if simGraph is acyclic!
             tsort <- topo_sort(simGraph, "out")
             if (length(tsort)) {
-              loadOrder <- names(simGraph[[tsort,]]) %>% .[!(. %in% "_INPUT_" )]
+              loadOrder <- names(simGraph[[tsort, ]]) %>% .[!(. %in% "_INPUT_" )]
             } else {
               modules <- unlist(sim@modules)
               if (length(sim@modules)) {
@@ -269,5 +269,3 @@ setMethod(".depsLoadOrder",
             }
             return(loadOrder)
 })
-
-

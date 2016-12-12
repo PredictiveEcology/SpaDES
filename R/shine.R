@@ -82,9 +82,9 @@ setMethod(
         actionButton("oneTimestepSpaDESButton", label = textOutput("StepActionButton")),
         numericInput("Steps", "Step size", 1, width = "100px"),
         actionButton("resetSimInit", "Reset"),
-        downloadButton('downloadData', 'Download'),
+        downloadButton("downloadData", "Download"),
         sliderInput("simTimes", paste0("Simulated ", sim@simtimes[["timeunit"]]), sep = "",
-                    start(sim) , end(sim), start(sim)),
+                    start(sim), end(sim), start(sim)),
         h3("Modules"),
         uiOutput("moduleTabs")
       ),
@@ -125,12 +125,13 @@ setMethod(
 
     # Sliders in module tabs
     for (k in unlist(modules(sim))) {
-      local({ # local is needed because it must force evaluation, avoid lazy evaluation
+      local({
+        # local is needed because it must force evaluation, avoid lazy evaluation
         kLocal <- k
         output[[kLocal]] <- renderUI({
           Params <- params(sim)[[kLocal]]
           lapply(names(Params), function(i) {
-            moduleParams <- sim@depends@dependencies[[kLocal]]@parameters[sim@depends@dependencies[[kLocal]]@parameters[, "paramName"] == i,]
+            moduleParams <- sim@depends@dependencies[[kLocal]]@parameters[sim@depends@dependencies[[kLocal]]@parameters[, "paramName"] == i, ]
             if (i %in% c(".plotInitialTime", ".saveInitialTime", ".plotInterval", ".saveInterval")) {
               if (!is.na(params(sim)[[kLocal]][[i]])) {
                 sliderInput(
@@ -140,7 +141,7 @@ setMethod(
                   max = min(endTime, end(sim)) -
                     ifelse(i %in% c(".plotInterval", ".saveInterval"), start(sim), 0),
                   value = params(sim)[[kLocal]][[i]],
-                  step = ((min(endTime, end(sim)) - start(sim))/10) %>% as.numeric(),
+                  step = ((min(endTime, end(sim)) - start(sim)) / 10) %>% as.numeric(),
                   sep = "")
               }
             } else if (is.numeric(Params[[i]])) {
@@ -150,7 +151,7 @@ setMethod(
                 min = moduleParams[["min"]][[1]],
                 max = moduleParams[["max"]][[1]],
                 value = params(sim)[[kLocal]][[i]],
-                step = (moduleParams[["max"]][[1]] - moduleParams[["min"]][[1]])/10,
+                step = (moduleParams[["max"]][[1]] - moduleParams[["min"]][[1]]) / 10,
                 sep = "")
             } else if (is.logical(Params[[i]])) {
               checkboxInput(
@@ -171,7 +172,7 @@ setMethod(
       })
     }
 
-    spadesCallFull <- function() {#eventReactive(input$fullSpaDESButton, {
+    spadesCallFull <- function() {
       # Update simInit with values obtained from UI
       mods <- unlist(modules(sim))
       for (m in mods) {
@@ -181,7 +182,7 @@ setMethod(
         }
       }
       end(sim) <- pmin(endTime, time(sim, sim@simtimes[["timeunit"]]) + 1)
-      if (is.null(v$stop)) {v$stop = "go"}
+      if (is.null(v$stop)) v$stop <- "go"
       if ((time(sim, sim@simtimes[["timeunit"]]) < endTime) & (v$stop != "stop")) invalidateLater(0)
       sim <<- spades(sim, debug = debug) # Run spades
     }
@@ -271,7 +272,7 @@ setMethod(
     })
 
     output$moduleDiagramUI <- renderUI({
-      plotOutput("moduleDiagram", height = max(600, length(modules(sim))*100))
+      plotOutput("moduleDiagram", height = max(600, length(modules(sim)) * 100))
     })
 
     output$objectDiagram <- renderDiagrammeR({
@@ -286,7 +287,7 @@ setMethod(
       if (v$time <= start(sim)) {
         return()
       } else {
-        DiagrammeROutput("objectDiagram", height = max(600, length(ls(sim))*30))
+        DiagrammeROutput("objectDiagram", height = max(600, length(ls(sim)) * 30))
       }
     })
 
@@ -302,7 +303,7 @@ setMethod(
       if (v$time <= start(sim)) {
         return()
       } else {
-        DiagrammeROutput("eventDiagram", height = max(800, NROW(completed(sim))*25))
+        DiagrammeROutput("eventDiagram", height = max(800, NROW(completed(sim)) * 25))
       }
     })
 
@@ -346,18 +347,18 @@ setMethod(
     })
 
     output$downloadData <- downloadHandler(
-      filename = function() { paste("simObj.rds", sep = "") },
-      content = function(file) { saveRDS(sim, file = file) }
+      filename = function() paste("simObj.rds", sep = ""),
+      content = function(file) saveRDS(sim, file = file)
     )
   }
 
   if (filesOnly) {
-    shinyAppDir <- file.path(tempdir() , "shinyApp")
+    shinyAppDir <- file.path(tempdir(), "shinyApp")
     checkPath(shinyAppDir, create = TRUE)
-    globalFile <- file.path(shinyAppDir,"global.R", fsep = "/")
+    globalFile <- file.path(shinyAppDir, "global.R", fsep = "/")
     saveRDS(sim, file = file.path(shinyAppDir, "sim.Rdata"))
     con <- file(globalFile, open = "w+b");
-    writeLines(paste("debug <-",debug), con = con)
+    writeLines(paste("debug <-", debug), con = con)
     writeLines("library(DiagrammeR)", con = con)
     #writeLines("library(igraph)", con = con)
     writeLines("library(DT)", con = con)
@@ -383,7 +384,7 @@ setMethod(
     close(con)
     serverFile <- gsub(x = serverFile, pattern = "\\\\", "/")
 
-    uiFile <- file.path(shinyAppDir,"ui.R", fsep = "/")
+    uiFile <- file.path(shinyAppDir, "ui.R", fsep = "/")
     con <- file(uiFile, open = "w+b");
     writeLines("fluidPage(", con = con);
     writeLines(deparse(dput(fluidPageArgs)), con = con, sep = "\n");

@@ -21,22 +21,22 @@
 #' # Approximate area under density curve
 #' sum(density*2*pi/500)
 #'
-dwrpnorm2 <- function(theta, mu, rho, sd=1, acc=1e-05, tol=acc) {
+dwrpnorm2 <- function(theta, mu, rho, sd = 1, acc = 1e-05, tol = acc) {
   if (missing(rho)) {
-    rho <- exp(-sd^2/2)
+    rho <- exp(-sd ^ 2 / 2)
   }
   if (rho < 0 | rho > 1)
     stop("rho must be between 0 and 1")
   var <- -2 * log(rho)
   term <- function(theta, mu, var, k) {
-    1/sqrt(var * 2 * pi) * exp(-((theta - mu + 2 * pi * k)^2)/(2 * var))
+    1 / sqrt(var * 2 * pi) * exp(-((theta - mu + 2 * pi * k) ^ 2) / (2 * var))
   }
   k <- 0
   Next <- term(theta, mu, var, k)
   Last <- Next
   delta <- rep(1, length(Last))
   while (any(delta > tol)) {
-    keep = delta>tol
+    keep <- delta > tol
     k <- k + 1
     Last[keep] <- Next[keep]
     Next[keep] <- Last[keep] + term(theta[keep], mu[keep], var, k) +

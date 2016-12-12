@@ -218,7 +218,7 @@ setMethod(
       })
     }
 
-    names(plotObjects) <- sapply(objs,function(x)
+    names(plotObjects) <- sapply(objs, function(x)
       x$objs)
 
     if (!is.null(suppliedNames)) {
@@ -230,8 +230,8 @@ setMethod(
 
     lNamesPlotObj <- layerNames(plotObjects)
 
-    isSpadesPlot <- sapply(plotObjects, function(x) { is(x, ".spadesPlot") })
-    isStack <- sapply(plotObjects, function(x) { is(x, "RasterStack") })
+    isSpadesPlot <- sapply(plotObjects, function(x) is(x, ".spadesPlot"))
+    isStack <- sapply(plotObjects, function(x) is(x, "RasterStack"))
 
     # Stacks are like lists in that they are a single object, with many
     # layers.  Plot must treat these as any other layers, except that
@@ -240,7 +240,6 @@ setMethod(
     # Plot(stack1, layerB) would have two objects, but maybe 5 layers,
     # if the stack had 4 layers in it.
     isSpadesPlotLong <- rep(isSpadesPlot, numberLayers)
-    #isRasterLong <- rep(isRaster, numberLayers)
     isStackLong <- rep(isStack, numberLayers)
     isSpatialObjects <- rep(isSpatialObjects, numberLayers)
 
@@ -633,7 +632,7 @@ setMethod(
   definition = function(from, to) {
     SpatialLines(lapply(seq_len(length(from)), function(x) {
       Lines(list(Line(
-        coords = rbind(coordinates(from)[x,], coordinates(to)[x,])
+        coords = rbind(coordinates(from)[x, ], coordinates(to)[x, ])
       )), ID = x)
     }), proj4string = crs(from))
 })
@@ -729,7 +728,7 @@ setMethod(
               match.call(definition = eval, call = parseTxt)$envir,
               envir = e
             ),
-            error = function(x) { .GlobalEnv }
+            error = function(x) .GlobalEnv
           )
         }
       )
@@ -771,7 +770,7 @@ setMethod(
       elems[[i]] <- as.name(eval(elems[[i]], envir = eminus1))
     }
     parseTxt <- parse(text = deparse(parseTxt[[2]]))[[1]]
-    i = i + 1
+    i <- i + 1
   }
 
   deparsedTxt <- deparse(parseTxt)
@@ -786,7 +785,7 @@ setMethod(
   if (is(eval(parse(text = deparsedTxt), envir = envs), "environment")) {
     envs <- eval(parse(text = deparsedTxt), envir = envs)
   } else {
-    if (!lastOneDone) { elems[[i]] <- parseTxt }
+    if (!lastOneDone) elems[[i]] <- parseTxt
   }
   if (exists("callEnv", inherits = FALSE)) {
     envs <- callEnv
@@ -857,7 +856,7 @@ objectNames <- function(calledFrom = "Plot",
   scalls <- sys.calls()
   # Extract from the sys.calls only the function "calledFrom"
   frameCalledFrom <- which(sapply(scalls, function(x) {
-    grepl(x, pattern = paste0("^", calledFrom,"$"))[1]
+    grepl(x, pattern = paste0("^", calledFrom, "$"))[1]
   }))
   e <- sys.frame(frameCalledFrom[1])
   eminus1 <- sys.frame(frameCalledFrom - 1)
@@ -865,7 +864,6 @@ objectNames <- function(calledFrom = "Plot",
   if (nchar(argName) == 0) {
     callNamedArgs <- as.character(substitute(list(...), env = e))[-1]
   } else {
-    #  callNamedArgs <- as.character(substitute(parse(text = argName)))[-1]
     callNamedArgs <- as.character(substitute(parse(text = sim), env = e))[-1]
   }
   objs <- lapply(callNamedArgs, .parseArgs, e, eminus1)
@@ -945,7 +943,7 @@ setMethod(
                                skipSample = pR$skipSample)
     } else if (is(grobToPlot, "SpatialPoints")) {
       if (!is.null(sGrob@plotArgs$zoomExtent)) {
-        grobToPlot <- crop(grobToPlot,sGrob@plotArgs$zoomExtent)
+        grobToPlot <- crop(grobToPlot, sGrob@plotArgs$zoomExtent)
       }
       # This handles SpatialPointsDataFrames with column "color"
       if (any(grepl(pattern = "color", colnames(grobToPlot))) & is.null(cols))
@@ -955,17 +953,15 @@ setMethod(
                    cols = sGrob@plotArgs$cols, real = FALSE)
     } else if (is(grobToPlot, "SpatialPolygons")) {
       if (!is.null(sGrob@plotArgs$zoomExtent)) {
-        grobToPlot <- crop(grobToPlot,sGrob@plotArgs$zoomExtent)
+        grobToPlot <- crop(grobToPlot, sGrob@plotArgs$zoomExtent)
       }
-      #z <- grobToPlot
       zMat <- list(z = grobToPlot, minz = 0, maxz = 0,
                    cols = sGrob@plotArgs$cols, real = FALSE)
 
     } else if (is(grobToPlot, "SpatialLines")) {
       if (!is.null(sGrob@plotArgs$zoomExtent)) {
-        grobToPlot <- crop(grobToPlot,sGrob@plotArgs$zoomExtent)
+        grobToPlot <- crop(grobToPlot, sGrob@plotArgs$zoomExtent)
       }
-      #z <- grobToPlot
       zMat <- list(z = grobToPlot, minz = 0, maxz = 0,
                    cols = sGrob@plotArgs$cols, real = FALSE)
     }
@@ -1072,7 +1068,8 @@ setMethod(
                         vps, nonPlotArgs) {
     seekViewport(subPlots, recording = FALSE)
 
-    if (is.list(grobToPlot)) {  # THis is for base plot calls... the grobToPlot is a call i.e,. a name
+    if (is.list(grobToPlot)) {
+      # This is for base plot calls... the grobToPlot is a call i.e,. a name
       # Because base plotting is not set up to overplot,
       # must plot a white rectangle
       par(fig = gridFIG())
@@ -1084,7 +1081,7 @@ setMethod(
         a <- try(seekViewport(subPlots, recording = FALSE))
       } else {
         # plot y and x axes should use deparse(substitute(...)) names
-        if (!identical(FALSE,sGrob@plotArgs$axes)) {
+        if (!identical(FALSE, sGrob@plotArgs$axes)) {
           if (!is.na(sGrob@plotArgs$axisLabels["x"])) {
             sGrob@plotArgs$xlab <- sGrob@plotArgs$axisLabels["x"]
           } else {
@@ -1140,7 +1137,7 @@ setMethod(
         # The actuall plot calls for base plotting
         if (is(grobToPlot, "igraph")) {
           # this next is a work around that I can't understand
-          if (names(dev.cur())=="null device") {
+          if (names(dev.cur()) == "null device") {
             plot(1, type = "n", axes = FALSE, xlab = "", ylab = "")
             clearPlot()
           }
@@ -1188,19 +1185,17 @@ setMethod(
                                                       "lty", "lwd", "lwd.ticks", "col.ticks", "hadj", "padj")]
         }
 
-        if (xyAxes$x & (isBaseSubPlot & (isNewPlot | isReplot) | wipe)){
-
+        if (xyAxes$x & (isBaseSubPlot & (isNewPlot | isReplot) | wipe)) {
           axesArgsX <- append(list(side = 1), axesArgs)
           suppressWarnings(do.call(axis, args = axesArgsX))
         }
         if (xyAxes$y & (isBaseSubPlot & (isNewPlot | isReplot) | wipe)) {
-          axesArgsY <- append(list(side=2), axesArgs)
+          axesArgsY <- append(list(side = 2), axesArgs)
           suppressWarnings(do.call(axis, args = axesArgsY))
         }
       }
-
-
-    } else { # This is for Rasters and Sp objects only
+    } else {
+      # This is for Rasters and Sp objects only
       # Extract legend text if the raster is a factored raster
       if (is.null(legendText)) {
         if (is.null(sGrob@plotArgs$legendTxt)) {
@@ -1253,7 +1248,7 @@ setMethod(
     if (!identical(FALSE, sGrob@plotArgs$title) & (isBaseSubPlot & (isNewPlot | isReplot))) {
       plotName <- if (isTRUE(sGrob@plotArgs$title)) sGrob@plotName else sGrob@plotArgs$title
       a <- try(seekViewport(paste0("outer",subPlots), recording = FALSE))
-      suppressWarnings(grid.text(plotName, name = "title", y = 1.08-is.list(grobToPlot)*0.02, vjust = 0.5, # tweak... not good practice. Should find original reason why this is not same y for rasters and all others
+      suppressWarnings(grid.text(plotName, name = "title", y = 1.08 - is.list(grobToPlot) * 0.02, vjust = 0.5, # tweak... not good practice. Should find original reason why this is not same y for rasters and all others
                                  gp = sGrob@plotArgs$gpText))#, vp = vps$wholeVp$children[[paste0("outer",subPlots)]]))
       a <- try(seekViewport(subPlots, recording = FALSE))
     }
@@ -1285,8 +1280,8 @@ setMethod(
   signature = c(".spadesGrob"),
   definition = function(sGrob, subPlots, legendRange,
                         grobToPlot, plotArgs, nColumns, whPlotObj) {
-    seekViewport(paste0("outer",subPlots), recording = FALSE)
-    grid.rect(x = 0, width = unit(1 + is(grobToPlot, "Raster")*0.20/(nColumns/2), "npc"),
+    seekViewport(paste0("outer", subPlots), recording = FALSE)
+    grid.rect(x = 0, width = unit(1 + is(grobToPlot, "Raster") * 0.20 / (nColumns / 2), "npc"),
               gp = gpar(fill = "white", col = "white"), just = "left")
     plotArgsByPlot <- lapply(plotArgs, function(x) {
       if (is.list(x)) {
@@ -1392,7 +1387,7 @@ setMethod(
 
     # Does it already exist on the plot device or not
     #browser(expr=names(grobNamesi@layerName)=="ras1")
-    if (nchar(grobNamesi@layerName) > 0) {# means it is in a raster
+    if (nchar(grobNamesi@layerName) > 0) { # means it is in a raster
       if (takeFromPlotObj) {
         grobToPlot <- unlist(toPlot[[1]], recursive = FALSE)[[grobNamesi@layerName]]
       } else {
@@ -1438,11 +1433,11 @@ setMethod(
                            takeFromPlotObj, arr, speedup, newArr) {
 
   if (is.null(zoomExtent)) {
-    zoom <- extent(grobToPlot)#extent(0,1,0,1)
+    zoom <- extent(grobToPlot)
     npixels <- ncell(grobToPlot)
   } else {
     zoom <- zoomExtent
-    npixels <- ncell(crop(grobToPlot,zoom))
+    npixels <- ncell(crop(grobToPlot, zoom))
   }
   if (is.null(legendRange)) {
     legendRange <- NA
@@ -1830,12 +1825,12 @@ setMethod(
   definition = function(grobToPlot, col, size,
                         legend, gp = gpar(), pch, speedup, name, vp, ...) {
     speedupScale <- 40
-    speedupScale = if (grepl(proj4string(grobToPlot), pattern = "longlat")) {
+    speedupScale <- if (grepl(proj4string(grobToPlot), pattern = "longlat")) {
       pointDistance(
         p1 = c(xmax(extent(grobToPlot)), ymax(extent(grobToPlot))),
         p2 = c(xmin(extent(grobToPlot)), ymin(extent(grobToPlot))),
         lonlat = TRUE
-      ) / (4.8e5*speedupScale)
+      ) / (4.8e5 * speedupScale)
     } else {
       max(ymax(extent(grobToPlot)) - ymin(extent(grobToPlot)),
           xmax(extent(grobToPlot)) - xmin(extent(grobToPlot))) /
@@ -2082,7 +2077,7 @@ setMethod(
                                  tolerance = speedupScale * speedup)
           )
           thinned[, groups := rep(1:NROW(idLength), idLength$V1)]
-          idLength <- thinned[, sum(thin),by = groups]
+          idLength <- thinned[, sum(thin), by = groups]
           xyOrd <- xyOrd[thinned$thin, ]
         } else {
           message(
@@ -2155,12 +2150,11 @@ setMethod(
             lastIDs <- cumsum(idLength)
 
             # Ensure first and last points of each line are kept:
-            thinned[c(1,lastIDs + 1)[-(1 + length(lastIDs))]] <- TRUE
+            thinned[c(1, lastIDs + 1)[-(1 + length(lastIDs))]] <- TRUE
             thinned[lastIDs] <- TRUE
           }
-          xy <- xy[thinned,]
-          idLength <-
-            tapply(thinned, rep(1:length(idLength), idLength), sum)
+          xy <- xy[thinned, ]
+          idLength <- tapply(thinned, rep(1:length(idLength), idLength), sum)
         } else {
           message(
             paste(
@@ -2257,7 +2251,7 @@ setMethod(
 
   wdth <- unit.c(unit(0.2, "null"),
                  unit(rep(c(0.875, vS.w, 0.875), columns),
-                      rep(c("null","npc", "null"), columns)),
+                      rep(c("null", "npc", "null"), columns)),
                  unit(0.2, "null"))
 
   # calculate the visualSqueeze for the height (i.e., vS.h)
@@ -2336,8 +2330,7 @@ setMethod(
     lapply(sgl[[x]][[1]]@isSpatialObjects, function(z) {
       if (z == TRUE) {
         # for spatial objects
-        apply(bbox(extents[[x]]),1,function(y)
-          diff(range(y)))
+        apply(bbox(extents[[x]]), 1, function(y) diff(range(y)))
       } else {
         # for non spatial objects
         c(2, 2)
@@ -2357,10 +2350,8 @@ setMethod(
     # makes equal scale
     yrange <- extents[[extentInd]]@ymax - extents[[extentInd]]@ymin
     if (yrange > 0) {
-      if (abs((yrange /
-               (extents[[extentInd]]@xmax - extents[[extentInd]]@xmin)) -
-              (biggestDims[1] / biggestDims[2]))
-          > (getOption("spades.tolerance"))) {
+      if (abs((yrange / (extents[[extentInd]]@xmax - extents[[extentInd]]@xmin)) -
+              (biggestDims[1] / biggestDims[2])) > (getOption("spades.tolerance"))) {
         dimensionRatio <- arr@layout$wdthUnits * arr@ds[1] /
           (arr@layout$htUnits * arr@ds[2])
         plotScaleRatio <-
@@ -2387,32 +2378,24 @@ setMethod(
       addY <- extents[[extentInd]]@ymin * 0.05
     }
     # end equal scale
-    plotVps[[nam[extentInd]]] <- viewport(clip = "on",
-                                          name = nam[extentInd],
-                                          layout.pos.col = lpc,
-                                          layout.pos.row = lpr,
-                                          xscale = c(extents[[extentInd]]@xmin - addX, extents[[extentInd]]@xmax +
-                                                       addX),
-                                          yscale = c(extents[[extentInd]]@ymin - addY, extents[[extentInd]]@ymax +
-                                                       addY)
-    )
-    #if(sgl[[1]][[1]]@plotArgs$axes) {
-    plotVps[[paste0("outer",nam[extentInd])]] <- viewport(#clip = "on",
-      name = paste0("outer",nam[extentInd]),
+    plotVps[[nam[extentInd]]] <- viewport(
+      clip = "on",
+      name = nam[extentInd],
       layout.pos.col = lpc,
       layout.pos.row = lpr,
-      xscale = c(extents[[extentInd]]@xmin - addX, extents[[extentInd]]@xmax +
-                   addX),
-      yscale = c(extents[[extentInd]]@ymin - addY, extents[[extentInd]]@ymax +
-                   addY)
+      xscale = c(extents[[extentInd]]@xmin - addX, extents[[extentInd]]@xmax + addX),
+      yscale = c(extents[[extentInd]]@ymin - addY, extents[[extentInd]]@ymax + addY)
     )
-    #}
+    plotVps[[paste0("outer", nam[extentInd])]] <- viewport(#clip = "on",
+      name = paste0("outer", nam[extentInd]),
+      layout.pos.col = lpc,
+      layout.pos.row = lpr,
+      xscale = c(extents[[extentInd]]@xmin - addX, extents[[extentInd]]@xmax + addX),
+      yscale = c(extents[[extentInd]]@ymin - addY, extents[[extentInd]]@ymax + addY)
+    )
   }
 
-  #if (newArr) {
   wholeVp <- vpTree(topVp, do.call(vpList, plotVps))
-  #} #else {
-  #wholeVp <- do.call(vpList, plotVps)
-  #}
+
   return(list(wholeVp = wholeVp, extents = extents))
 }

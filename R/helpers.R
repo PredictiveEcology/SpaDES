@@ -99,7 +99,7 @@ setMethod(
   }))
   assignInMyNamespace(".singleEventListDT", data.table(eventTime = integer(1L), moduleName = character(1L),
                                                        eventType = character(1L), eventPriority = numeric(1L)))
-  assignInMyNamespace(".currentEventDT",.emptyEventList(numeric(1), character(1), character(1), numeric(1)))
+  assignInMyNamespace(".currentEventDT", .emptyEventList(numeric(1), character(1), character(1), numeric(1)))
 
 }
 
@@ -112,13 +112,10 @@ setMethod(
 .emptyEventListNA <- .emptyEventList(NA_integer_, NA_character_, NA_character_, NA_integer_)
 
 #' @rdname emptyEventList
-.currentEventDT <- list()#.emptyEventList(numeric(1), character(1), character(1), numeric(1))
+.currentEventDT <- list()
 
 #' @rdname emptyEventList
-.eventsDT <- list()#lapply(0:99, function(i) {
-#  data.table(eventTime = integer(i), moduleName = character(i),
-#             eventType = character(i), eventPriority = numeric(i))
-#})
+.eventsDT <- list()
 
 #' @rdname emptyEventList
 .numColsEventList <- length(.emptyEventListCols)
@@ -192,9 +189,7 @@ setMethod(
   scalls <- sys.calls()
   grep1 <- grep(as.character(scalls), pattern = functionCall)
   grep1 <- pmax(min(grep1[sapply(scalls[grep1], function(x) {
-    tryCatch(
-      is(parse(text = x), "expression"),
-      error = function(y) { NA })
+    tryCatch(is(parse(text = x), "expression"), error = function(y) NA)
   })], na.rm = TRUE) - 1, 1)
   # Convert character strings to their objects
   lapply(objects, function(x) get(x, envir = sys.frames()[[grep1]]))

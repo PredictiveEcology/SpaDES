@@ -776,7 +776,7 @@ setMethod(
     plotables <- sapply(plotList, function(x)
       is(get(x, envir = sim@.envir), ".spadesPlottables"))
     if (any(plotables)) {
-      plotObjects = mget(plotList[plotables], sim@.envir) %>%
+      plotObjects <- mget(plotList[plotables], sim@.envir) %>%
         append(., list(env = sim@.envir))
       #browser()
       do.call(Plot, plotObjects)
