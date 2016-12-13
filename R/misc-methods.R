@@ -281,7 +281,7 @@ setMethod("normPath",
               gsub("^[.]", paste0(getwd()), .) %>%
               gsub("\\\\", "//", .) %>%
               gsub("//", "/", .) %>%
-              gsub("/$", "", .)
+              gsub("/$", "", .) # nolint
 })
 
 #' @export
@@ -837,10 +837,10 @@ getPaths <- function() {
 #' @export
 #' @rdname setPaths
 setPaths <- function(cachePath, inputPath, modulePath, outputPath) {
-  if (missing(cachePath)) cachePath <- "~/SpaDES/cache"
-  if (missing(inputPath)) inputPath <- "~/SpaDES/inputs"
-  if (missing(modulePath)) modulePath <- "~/SpaDES/modules"
-  if (missing(outputPath)) outputPath <- "~/SpaDES/outputs"
+  if (missing(cachePath)) cachePath <- "~/SpaDES/cache"     # nolint
+  if (missing(inputPath)) inputPath <- "~/SpaDES/inputs"    # nolint
+  if (missing(modulePath)) modulePath <- "~/SpaDES/modules" # nolint
+  if (missing(outputPath)) outputPath <- "~/SpaDES/outputs" # nolint
 
   options(spades.cachePath = cachePath, spades.inputPath = inputPath,
           spades.modulePath = modulePath, spades.outputPath = outputPath)

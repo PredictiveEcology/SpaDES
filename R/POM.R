@@ -278,9 +278,9 @@ setMethod(
               }
             } else if (objFnCompare == "RMSE") {
               if (useLog[x]) {
-                out <- sqrt(mean((log(outObj) - log(dataObj))^2))
+                out <- sqrt(mean((log(outObj) - log(dataObj)) ^ 2))
               } else {
-                out <- sqrt(mean((outObj - dataObj)^2))
+                out <- sqrt(mean((outObj - dataObj) ^ 2))
               }
             } else {
               stop("objFnCompare must be either MAD or RMSE, see help")
@@ -291,7 +291,7 @@ setMethod(
               dataObjVal <- mean(abs(dataObj), na.rm = TRUE)
             }
             if (abs(dataObjVal) < 1) dataObjVal <- 1
-            outStandard <- out/dataObjVal
+            outStandard <- out / dataObjVal
             out <- list(raw = out, standardized = outStandard, value = outObj)
             return(out)
 

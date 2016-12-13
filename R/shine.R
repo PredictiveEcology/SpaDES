@@ -193,7 +193,7 @@ setMethod(
       mods <- unlist(modules(sim))
       for (m in mods) {
         for (i in names(params(sim)[[m]])) {
-          if (!is.null(input[[paste0(m, "$", i)]])) {# only if it is not null
+          if (!is.null(input[[paste0(m, "$", i)]])) {
             params(sim)[[m]][[i]] <- input[[paste0(m, "$", i)]]
           }
         }

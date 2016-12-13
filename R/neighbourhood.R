@@ -541,8 +541,8 @@ setMethod(
           lengths <- unlist(lapply(maxRadiusList, length))
           maxLen <- max(lengths)
           maxRadius <- do.call(cbind, lapply(seq_along(maxRadiusList), function(y) {
-            c(maxRadiusList[[y]], rep(NA_real_, maxLen - lengths[y]))}
-          ))
+            c(maxRadiusList[[y]], rep(NA_real_, maxLen - lengths[y]))
+          }))
         }
       }
     } else {
@@ -576,7 +576,6 @@ setMethod(
       }
     } else {
       id <- as.integer(rep(coords[, "id"], times = nAngles))
-      #id <- coords[, "id"]
     }
 
     # create vector of radius for the number of points that will be done for each individual circle
@@ -584,7 +583,6 @@ setMethod(
       rads <- rep.int(maxRadius, times = numAngles)
     else
       rads <- rep.int(na.omit(as.vector(maxRadius)), times = na.omit(as.vector(numAngles)))
-
 
     # extract the individuals' current coords
     xs <- rep.int(coords[, "x"], times = nAngles)
@@ -970,17 +968,17 @@ setMethod(
     }
   }
 
-  aCir = cir(landscape, coords = coords, minRadius = minRadius, maxRadius = maxRadius,
-             returnAngles = TRUE, returnDistances = TRUE,
-             allowOverlap = allowOverlap, allowDuplicates = TRUE,
-             angles = angles, returnIndices = returnIndices)
+  aCir <- cir(landscape, coords = coords, minRadius = minRadius, maxRadius = maxRadius,
+              returnAngles = TRUE, returnDistances = TRUE,
+              allowOverlap = allowOverlap, allowDuplicates = TRUE,
+              angles = angles, returnIndices = returnIndices)
 
   if (!is.null(stopRule)) {
     forms <- names(formals(stopRule))
     fromC <- "fromCell" %in% forms
     if (fromC) fromCell <- cellFromXY(landscape, coordinates(coords))
     toC <- "toCell" %in% forms
-    if (toC) toCell <- cellFromXY(landscape, to[,c("x", "y")])
+    if (toC) toCell <- cellFromXY(landscape, to[, c("x", "y")])
     land <- "landscape" %in% forms
     listArgs <- if (land) list(landscape = landscape[aCir[, "indices"]]) else NULL
     if (length(list(...)) > 0) listArgs <- append(listArgs, list(...))
@@ -989,19 +987,19 @@ setMethod(
     #landscape <- landscape[aCir[,"indices"]]
 
     a <- cbind(aCir, stop = do.call(stopRule, args = listArgs))
-    a <- cbind(a, stopDist = a[, "stop"]*a[,"dists"])
-    a[a[,"stop"] %==% 0,"stopDist"] <- maxRadius #
+    a <- cbind(a, stopDist = a[, "stop"] * a[, "dists"])
+    a[a[, "stop"] %==% 0, "stopDist"] <- maxRadius #
 
-    sortedUniqAngles <- sort(unique(a[,"angles"]))
-    dxx <- lapply(sort(unique(a[,"id"])), function(id) {
+    sortedUniqAngles <- sort(unique(a[, "angles"]))
+    dxx <- lapply(sort(unique(a[, "id"])), function(id) {
       aID <- a[a[, "id"] == id,, drop = FALSE]
       b <- tapply(aID[, "stopDist"], aID[, "angles"], min, na.rm = TRUE)
       d1 <- lapply(sortedUniqAngles, function(x) {
         a1 <- aID[aID[, "angles"] %==% x , , drop = FALSE]
         if (includeBehavior == "excludePixels")
-          a1[a1[,"dists"] %<<% b[as.numeric(names(b)) %==% x], , drop = FALSE]
+          a1[a1[, "dists"] %<<% b[as.numeric(names(b)) %==% x], , drop = FALSE]
         else
-          a1[a1[,"dists"] %<=% b[as.numeric(names(b)) %==% x], , drop = FALSE]
+          a1[a1[, "dists"] %<=% b[as.numeric(names(b)) %==% x], , drop = FALSE]
       })
       do.call(rbind,d1)
     })
@@ -1010,4 +1008,3 @@ setMethod(
     d2xx[, -whDrop, drop = FALSE]
   }
 })
-

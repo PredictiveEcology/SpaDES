@@ -127,7 +127,8 @@ saveFiles <- function(sim) {
     }
   }
 
-  if (moduleName != "save") { # i.e., .a module driven save event
+  if (moduleName != "save") {
+    # i.e., a module driven save event
     toSave <- lapply(params(sim), function(y) return(y$.saveObjects))[[moduleName]] %>%
       data.frame(objectName = ., saveTime = curTime, file = ., stringsAsFactors = FALSE)
     toSave <- .fillOutputRows(toSave)

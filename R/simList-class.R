@@ -175,7 +175,7 @@ setAs(from = "simList_", to = "simList", def = function(from) {
   x <- as(as(from, ".simList"), "simList")
   #x@.envir <- as.environment(from@.list)
   x@.envir <- new.env(new.env(parent = emptyenv()))
-  list2env(from@.list, envir=x@.envir)
+  list2env(from@.list, envir = x@.envir)
   return(x)
 })
 

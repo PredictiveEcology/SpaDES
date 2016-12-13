@@ -198,8 +198,10 @@ setReplaceMethod(
      whValNamed <- names(value)[i] %in% names(n)
      whNNamed <- names(n) %in% names(value)[i]
      nFull <- n
-     if (length(n) != length(i)) { # not enough n values}
-       if (sum(nchar(names(n)) == 0) > 0) { # are there unnamed ones
+     if (length(n) != length(i)) {
+       # not enough n values
+       if (sum(nchar(names(n)) == 0) > 0) {
+         # are there unnamed ones
          nFull <- rep(n[!whNNamed], length.out = length(i))
          nFull[whValNamed] <- n[whNNamed]
          names(nFull)[whValNamed] <- names(n)[whNNamed]
@@ -209,7 +211,7 @@ setReplaceMethod(
      }
 
      for (x in i) {
-       if ((x %in% i[whValNamed])) {
+       if (x %in% i[whValNamed]) {
          setColors(object[[names(value)[x]]], ..., n = nFull[[names(value)[x]]]) <- value[[names(value)[x]]]
        } else {
          setColors(object[[names(value)[x]]], ..., n = nFull[x]) <- value[[names(value)[x]]]
@@ -621,7 +623,7 @@ setMethod(
   # num.breaks <- max(max.breaks, min.breaks)
   low.ramp <- ramp1(min.breaks)
   high.ramp <- ramp2(max.breaks)
-  if (min.breaks == 1) { low.ramp <- mid.color }
+  if (min.breaks == 1) low.ramp <- mid.color
 
   # now create a combined ramp from the higher values of "low.ramp" and
   # the lower values of "high.ramp", with the longer one using all values

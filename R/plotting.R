@@ -433,7 +433,8 @@ setMethod(
       whFrame <- grep(scalls, pattern = "^Plot")
       dotObjs <- dots
 
-      if (isList) { # perhaps push objects into an environment, if they are only in the list
+      if (isList) {
+        # perhaps push objects into an environment, if they are only in the list
         env <- sys.frame(whFrame - 1)
         onlyInList <- !unlist(lapply(names(dots), exists, envir = env, inherits = FALSE))
         if (any(onlyInList)) {
@@ -478,7 +479,8 @@ setMethod(
               "Please call Plot for base plots separately.")
 
     # Create plotObjs object, which is a cleaned up version of the objects passed into Plot
-    if (all(!whichSpadesPlottables) ) { ## if not a .spadesPlottables then it is a pass to plot or points
+    if (all(!whichSpadesPlottables) ) {
+      ## if not a .spadesPlottables then it is a pass to plot or points
       if (!exists(paste0("basePlots_", dev.cur()), envir = .spadesEnv))
         .assignSpaDES(paste0("basePlots_", dev.cur()), new.env(hash = FALSE, parent = .spadesEnv))
       mc <- match.call(get(plotArgs$plotFn), call(plotArgs$plotFn, quote(...)))
@@ -489,12 +491,12 @@ setMethod(
       for (i in names(mc)[-1]) basePlotDots[[i]] <- eval(mc[[i]])
       plotObjs <- list(list(basePlotDots))
       plotXYArgs <- substitute(list(...))
-      xAndY <- c('x','y') %in% names(basePlotDots)
-      xAndYLab <- c('xlab','ylab') %in% names(basePlotDots)
+      xAndY <- c("x", "y") %in% names(basePlotDots)
+      xAndYLab <- c("xlab", "ylab") %in% names(basePlotDots)
       xAndYSum <- sum(xAndY)
       if (!is.null(basePlotDots$xlab) | !is.null(basePlotDots$ylab)) {
         plotArgs$axisLabels <- list(c(basePlotDots$xlab, basePlotDots$ylab))
-        names(plotArgs$axisLabels[[1]]) <- c('x','y')[xAndYLab]
+        names(plotArgs$axisLabels[[1]]) <- c("x", "y")[xAndYLab]
       } else {
         plotArgs$axisLabels <- list(unlist(lapply(plotXYArgs[1:xAndYSum + 1], deparse)))
       }
@@ -563,7 +565,7 @@ setMethod(
       if (!tryCatch(
         addTo %in%
           unlist(layerNames(get(paste0("spadesPlot", dev.cur()), envir = .spadesEnv))),
-        error = function(x) { FALSE }))
+        error = function(x) FALSE))
         {
           plotArgs$addTo <- NULL
         }
@@ -778,7 +780,6 @@ setMethod(
     if (any(plotables)) {
       plotObjects <- mget(plotList[plotables], sim@.envir) %>%
         append(., list(env = sim@.envir))
-      #browser()
       do.call(Plot, plotObjects)
     }
 })
@@ -800,7 +801,7 @@ setMethod(
 #' @rdname Plot
 #'
 rePlot <- function(toDev = dev.cur(), fromDev = dev.cur(), clearFirst = TRUE, ...) {
-  if (exists(paste0("spadesPlot", fromDev),envir = .spadesEnv)) {
+  if (exists(paste0("spadesPlot", fromDev), envir = .spadesEnv)) {
     currSpadesPlots <- .getSpaDES(paste0("spadesPlot", dev.cur()))
     dev(toDev)
     if (clearFirst) clearPlot(toDev)

@@ -88,7 +88,7 @@ setMethod(
       warning("name contains more than one module. Only the first will be used.")
       name <- name[1]
     }
-    apiurl <- paste0("https://api.github.com/repos/", repo, "/git/trees/master?recursive=1")
+    apiurl <- paste0("https://api.github.com/repos/", repo, "/git/trees/master?recursive=1") # nolint
     ua <- user_agent(getOption("spades.useragent"))
     pat <- Sys.getenv("GITHUB_PAT")
     request <- if (identical(pat, "")) {
@@ -263,7 +263,7 @@ setMethod(
       #versionWarning(name, version)
 
       zip <- paste0("https://raw.githubusercontent.com/", repo,
-                    "/master/modules/", name, "/", name, "_", version, ".zip")
+                    "/master/modules/", name, "/", name, "_", version, ".zip") # nolint
       localzip <- file.path(path, basename(zip))
 
       ##download.file(zip, destfile = localzip, mode = "wb", quiet = quiet)
@@ -320,7 +320,7 @@ setMethod(
   definition = function(name) {
     files <- downloadModule(name, path = getOption("spades.modulePath"),
                             version = NA_character_,
-                            repo = getOption('spades.moduleRepo'),
+                            repo = getOption("spades.moduleRepo"),
                             data = FALSE, quiet = FALSE)
     return(invisible(files))
 })

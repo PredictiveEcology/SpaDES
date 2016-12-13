@@ -725,7 +725,7 @@ setMethod("parameters",
                 tmp <- lapply(depends(sim)@dependencies,
                               function(x) {
                                 out <- lapply(seq_len(NROW(x@parameters)),
-                                              function(y) x@parameters[y,-1])
+                                              function(y) x@parameters[y, -1])
                                 names(out) <- x@parameters$paramName
                                 out
                        })
@@ -2637,7 +2637,7 @@ setMethod(
         unlist() %>% append("SpaDES") %>% unique() %>% sort()
       return(pkgs)
     } else if (!is.null(args$module)) {
-      f <- file.path(getOption('spades.modulePath'), args$module, paste0(args$module, ".R"))
+      f <- file.path(getOption("spades.modulePath"), args$module, paste0(args$module, ".R"))
       pkgs <- .parseModulePartial(filename = f, defineModuleElement = "reqdPkgs") %>%
         unlist() %>% append("SpaDES") %>% unique() %>% sort()
       return(pkgs)
@@ -2942,7 +2942,7 @@ setMethod(
 
     ## check that documentation actually exists locally
     docs <- sapply(x$documentation, na.omit) %>%
-      (function(x) { if (length(x)) character(0) else as.character(x) })
+      (function(x) if (length(x)) character(0) else as.character(x))
     if (length(docs)) {
       lapply(docs, function(y) {
         if (!file.exists(file.path(modulePath(sim), y))) {
@@ -3219,20 +3219,19 @@ setMethod(
 .fillInputRows <- function(inputDF, startTime) {
   factorCols <- sapply(inputDF, is.factor)
   if (any(factorCols)) {
-    inputDF[,factorCols] <- sapply(inputDF[,factorCols], as.character)
+    inputDF[, factorCols] <- sapply(inputDF[, factorCols], as.character)
   }
-  fileTable <- .fileTableInCols
+  #fileTable <- .fileTableInCols ## not used??
   needRenameArgs <- grepl(names(inputDF), pattern = "arg[s]?$")
   if (any(needRenameArgs)) {
-    colnames(inputDF)[needRenameArgs] <-
-      .fileTableInCols[pmatch("arg", .fileTableInCols)]
+    colnames(inputDF)[needRenameArgs] <- .fileTableInCols[pmatch("arg", .fileTableInCols)]
   }
   columns <- pmatch(.fileTableInCols, names(inputDF))
   setnames(inputDF, old = colnames(inputDF)[na.omit(columns)],
            new = .fileTableInCols[!is.na(columns)])
-  columns2 <- pmatch(names(inputDF), .fileTableInCols)
+  #columns2 <- pmatch(names(inputDF), .fileTableInCols) ## not used??
   if (any(is.na(columns))) {
-    inputDF[,.fileTableInCols[is.na(columns)]] <- NA
+    inputDF[, .fileTableInCols[is.na(columns)]] <- NA
   }
 
   if (any(is.na(inputDF[, "loadTime"]))) {
@@ -3255,7 +3254,7 @@ setMethod(
 
   objectsOnly <- is.na(inputDF[, "file"])
   if (!all(objectsOnly)) {
-    inputDF2 <- inputDF[!objectsOnly,]
+    inputDF2 <- inputDF[!objectsOnly, ]
     if (any(is.na(inputDF2[, "fun"]))) {
       .fileExts <- .fileExtensions()
       fl <- inputDF2$file
@@ -3269,7 +3268,7 @@ setMethod(
       exts <- match(fileExt(fl), .fileExts[, "exts"])
       inputDF2$package[is.na(inputDF2$package)]  <- .fileExts[exts, "package"]
     }
-    inputDF[!objectsOnly,] <- inputDF2
+    inputDF[!objectsOnly, ] <- inputDF2
   }
   return(inputDF)
 }
@@ -3290,11 +3289,11 @@ setMethod(
   columns <- pmatch(.fileTableOutCols, names(outputDF))
   setnames(outputDF, old = colnames(outputDF)[na.omit(columns)],
            new = .fileTableOutCols[!is.na(columns)])
-  columns2 <- pmatch(names(outputDF), .fileTableOutCols)
+  #columns2 <- pmatch(names(outputDF), .fileTableOutCols)
   #object@outputs <- rbind(outputDF[,na.omit(columns), drop = FALSE], .fileTableOut()[,columns2])
 
   if (any(is.na(columns))) {
-    outputDF[,.fileTableOutCols[is.na(columns)]] <- NA
+    outputDF[, .fileTableOutCols[is.na(columns)]] <- NA
   }
   if (any(is.na(outputDF[, "saveTime"]))) {
     outputDF[is.na(outputDF$saveTime), "saveTime"] <- endTime

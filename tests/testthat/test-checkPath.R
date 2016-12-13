@@ -19,8 +19,8 @@ test_that("checkPath: normPath consistency", {
                 ".//aaa//zzz/",
                 ".\\aaa\\zzz",
                 ".\\aaa\\zzz\\",
-                paste0(tmpdir, "/aaa/zzz"),
-                paste0(tmpdir, "/aaa/zzz/"),
+                paste0(tmpdir, "/aaa/zzz"), # nolint
+                paste0(tmpdir, "/aaa/zzz/"), # nolint
                 file.path(tmpdir, "aaa", "zzz"))
 
   checked <- normPath(paths)
@@ -54,8 +54,8 @@ test_that("checkPath: checkPath consistency", {
                 ".//aaa//zzz/",
                 ".\\aaa\\zzz",
                 ".\\aaa\\zzz\\",
-                paste0(tmpdir, "/aaa/zzz"),
-                paste0(tmpdir, "/aaa/zzz/"),
+                paste0(tmpdir, "/aaa/zzz"), # nolint
+                paste0(tmpdir, "/aaa/zzz/"), # nolint
                 file.path(tmpdir, "aaa", "zzz"))
 
   checked <- lapply(paths, checkPath, create = FALSE)

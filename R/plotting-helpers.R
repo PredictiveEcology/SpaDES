@@ -257,7 +257,7 @@ setMethod(
     names(lN)[isSpadesPlotLong] <- layerNames(plotObjects)[isSpadesPlotLong]
 
     # Create long version of environments
-    lEnvs <- rep(sapply(objs, function(x) { x$envs }), numberLayers)
+    lEnvs <- rep(sapply(objs, function(x) x$envs), numberLayers)
 
     plotArgs <- .makeList(plotArgs, length(lN))
 
@@ -687,7 +687,7 @@ setMethod(
               match.call(definition = eval, call = parseTxt)$envir,
               envir = e
             ),
-            error = function(x) { .GlobalEnv }
+            error = function(x) .GlobalEnv
           )
         }
       )
@@ -764,7 +764,7 @@ setMethod(
     # then this is likely then name we want to keep:
     isChar <- tryCatch(
       is(eval(elems[[i]], envir = eminus1), "character"),
-      error = function(x) { FALSE }
+      error = function(x) FALSE
     )
     if (isChar) {
       elems[[i]] <- as.name(eval(elems[[i]], envir = eminus1))
@@ -1209,7 +1209,7 @@ setMethod(
           legendText
       }
 
-      if (!isBaseSubPlot ) {#| isReplot) {
+      if (!isBaseSubPlot ) {
         sGrob@plotArgs$legendTxt <- NULL
       }
 
@@ -1234,12 +1234,12 @@ setMethod(
       suppressWarnings(do.call(.plotGrob, args = plotGrobCall))
 
       if (any(unlist(xyAxes)) & (isBaseSubPlot & (isNewPlot | isReplot) | wipe)) {
-        seekViewport(paste0("outer",subPlots), recording = FALSE)
+        seekViewport(paste0("outer", subPlots), recording = FALSE)
         if (xyAxes$x & (isBaseSubPlot & (isNewPlot | isReplot) | wipe)) {
-          grid.xaxis(name = "xaxis", gp = sGrob@plotArgs$gpAxis)#, vp = vps$wholeVp$children[[paste0("outer",subPlots)]])
+          grid.xaxis(name = "xaxis", gp = sGrob@plotArgs$gpAxis)
         }
         if (xyAxes$y & (isBaseSubPlot & (isNewPlot | isReplot) | wipe)) {
-          grid.yaxis(name = "yaxis", gp = sGrob@plotArgs$gpAxis, vp = vps$wholeVp$children[[paste0("outer",subPlots)]])
+          grid.yaxis(name = "yaxis", gp = sGrob@plotArgs$gpAxis, vp = vps$wholeVp$children[[paste0("outer", subPlots)]])
         }
         seekViewport(subPlots, recording = FALSE)
       }
@@ -1247,9 +1247,13 @@ setMethod(
     # print Title on plot
     if (!identical(FALSE, sGrob@plotArgs$title) & (isBaseSubPlot & (isNewPlot | isReplot))) {
       plotName <- if (isTRUE(sGrob@plotArgs$title)) sGrob@plotName else sGrob@plotArgs$title
-      a <- try(seekViewport(paste0("outer",subPlots), recording = FALSE))
-      suppressWarnings(grid.text(plotName, name = "title", y = 1.08 - is.list(grobToPlot) * 0.02, vjust = 0.5, # tweak... not good practice. Should find original reason why this is not same y for rasters and all others
-                                 gp = sGrob@plotArgs$gpText))#, vp = vps$wholeVp$children[[paste0("outer",subPlots)]]))
+      a <- try(seekViewport(paste0("outer", subPlots), recording = FALSE))
+      suppressWarnings(grid.text(plotName, name = "title",
+                                 y = 1.08 - is.list(grobToPlot) * 0.02,
+                                 vjust = 0.5, # tweak... not good practice.
+                                              # Should find original reason why this is
+                                              # not same y for rasters and all others
+                                 gp = sGrob@plotArgs$gpText))
       a <- try(seekViewport(subPlots, recording = FALSE))
     }
     return(sGrob)
@@ -1335,14 +1339,14 @@ setMethod(
       # pipe won't work here :S
       sGrob@plotArgs$gpText$cex <- max(
         0.6,
-        min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3)
+        min(1.2, sqrt(prod(arr@ds) / prod(arr@columns, arr@rows)) * 0.3)
       )
     }
     if (is.null(sGrob@plotArgs$gpAxis$cex) | newArr) {
       # pipe won't work here :S
       sGrob@plotArgs$gpAxis$cex <- max(
         0.6,
-        min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3)
+        min(1.2, sqrt(prod(arr@ds) / prod(arr@columns, arr@rows)) * 0.3)
       )
     }
     return(sGrob)
@@ -1380,14 +1384,13 @@ setMethod(
   ".identifyGrobToPlot",
   signature = c(".spadesGrob", "list"),
   function(grobNamesi, toPlot, takeFromPlotObj) {
-    # get the object name associated with this grob
+    ## get the object name associated with this grob
 
-    if (length(toPlot) == 0)
-      takeFromPlotObj <- FALSE
+    if (length(toPlot) == 0) takeFromPlotObj <- FALSE
 
     # Does it already exist on the plot device or not
-    #browser(expr=names(grobNamesi@layerName)=="ras1")
-    if (nchar(grobNamesi@layerName) > 0) { # means it is in a raster
+    if (nchar(grobNamesi@layerName) > 0) {
+      # means it is in a raster
       if (takeFromPlotObj) {
         grobToPlot <- unlist(toPlot[[1]], recursive = FALSE)[[grobNamesi@layerName]]
       } else {
@@ -1405,7 +1408,6 @@ setMethod(
         grobToPlot <- eval(parse(text = grobNamesi@objName), grobNamesi@envir)
       }
     }
-    #}
     return(grobToPlot)
 })
 
@@ -1551,7 +1553,6 @@ setMethod(
 
     # For overplots
     for (plots in newNames[overplots]) {
-
       # update only those plotArgs that have changed.
       curr$curr@spadesGrobList[[plots]][[1]]@plotArgs[names(whichParamsChanged[[plots]])[whichParamsChanged[[plots]]]] <-
         newSP@spadesGrobList[[plots]][[1]]@plotArgs[names(whichParamsChanged[[plots]])[whichParamsChanged[[plots]]]]
@@ -1571,14 +1572,10 @@ setMethod(
         # change the name of the plotName to the parent object
         curr$curr@spadesGrobList[[addToPlotsNames[plots]]][[names(addToPlotsNames[plots])]]@plotName <-
           curr$curr@spadesGrobList[[addToPlotsNames[plots]]][[1]]@plotName
-        needPlotting[[addToPlotsNames[plots]]][[names(addToPlotsNames[plots])]] <-
-          TRUE
-        isReplot[[addToPlotsNames[plots]]][[names(addToPlotsNames[plots])]] <-
-          FALSE
-        isBaseLayer[[addToPlotsNames[plots]]][[names(addToPlotsNames[plots])]] <-
-          FALSE
-        isNewPlot[[addToPlotsNames[plots]]][[names(addToPlotsNames[plots])]] <-
-          FALSE
+        needPlotting[[addToPlotsNames[plots]]][[names(addToPlotsNames[plots])]] <- TRUE
+        isReplot[[addToPlotsNames[plots]]][[names(addToPlotsNames[plots])]] <- FALSE
+        isBaseLayer[[addToPlotsNames[plots]]][[names(addToPlotsNames[plots])]] <- FALSE
+        isNewPlot[[addToPlotsNames[plots]]][[names(addToPlotsNames[plots])]] <- FALSE
       }
     }
 
@@ -1608,16 +1605,16 @@ setMethod(
     return(list(
       curr = newSP, whichParamsChanged = NULL,
       needPlotting = lapply(newSP@spadesGrobList, function(x) {
-        lapply(x, function(y) { TRUE })
+        lapply(x, function(y) TRUE)
       }),
       isReplot = lapply(newSP@spadesGrobList, function(x) {
-        lapply(x, function(y) { FALSE })
+        lapply(x, function(y) FALSE)
       }),
       isNewPlot = lapply(newSP@spadesGrobList, function(x) {
-        lapply(x, function(y) { TRUE })
+        lapply(x, function(y) TRUE)
       }),
       isBaseLayer = lapply(newSP@spadesGrobList, function(x) {
-        lapply(x, function(y) { TRUE })
+        lapply(x, function(y) TRUE)
       })
     ))
   })
@@ -1693,7 +1690,6 @@ setMethod(
         dev.new(height = 8, width = 10)
       }
 
-
       col.by.row <- data.frame(matrix(ncol = 2, nrow = nPlots))
 
       col.by.row[, 1] <- ceiling(nPlots / (1:nPlots))
@@ -1701,10 +1697,10 @@ setMethod(
 
       # wh.best <- which.min(abs(apply(col.by.row, 1, function(x) { x[1]/x[2] }) - ds.dimensionRatio))
       # rewritten for clarity/brevity with pipes below
-      wh.best <- apply(col.by.row, 1, function(x) { x[1] / x[2] }) %>%
+      wh.best <- apply(col.by.row, 1, function(x) x[1] / x[2]) %>%
         `-`(., ds.dimensionRatio) %>%
-        abs %>%
-        which.min
+        abs() %>%
+        which.min()
 
       columns <- col.by.row[wh.best, 1]
       rows <- col.by.row[wh.best, 2]
@@ -1880,7 +1876,7 @@ setMethod(
       grobToPlot = grobToPlot,
       children = gList(
         pointsGrob(
-          x = xyOrd[,1], y = xyOrd[,2],
+          x = xyOrd[, 1], y = xyOrd[, 2],
           pch = pch, size = size
         )
       ),
@@ -2018,7 +2014,7 @@ setMethod(
   definition = function(grobToPlot, col, size,
                         legend, gp = gpar(), pch, speedup, name, vp, ...) {
 
-    speedupScale = if (grepl(proj4string(grobToPlot), pattern = "longlat")) {
+    speedupScale <- if (grepl(proj4string(grobToPlot), pattern = "longlat")) {
       pointDistance(
         p1 = c(xmax(extent(grobToPlot)), ymax(extent(grobToPlot))),
         p2 = c(xmin(extent(grobToPlot)), ymin(extent(grobToPlot))),
@@ -2026,8 +2022,7 @@ setMethod(
       ) / 1.2e10
     } else {
       max(ymax(extent(grobToPlot)) - ymin(extent(grobToPlot)),
-          xmax(extent(grobToPlot)) - xmin(extent(grobToPlot))) /
-        2.4e4
+          xmax(extent(grobToPlot)) - xmin(extent(grobToPlot))) / 2.4e4
     }
     # For speed of plotting
     xy <- lapply(1:length(grobToPlot), function(i) {

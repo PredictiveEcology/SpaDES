@@ -177,22 +177,22 @@ test_that("3 levels of parent and child modules load and show correctly", {
   suppressMessages(newModule("child2", ".", open = FALSE))
   fileName <- "child2/child2.R"
   xxx <- readLines(fileName)
-  xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = "day"')
+  xxx1 <- gsub(xxx, pattern = "timeunit = 'year'", replacement = "timeunit = 'day'")
   cat(xxx1, file = fileName, sep = "\n")
 
-  fileName <- 'child3/child3.R'
+  fileName <- "child3/child3.R"
   xxx <- readLines(fileName)
-  xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = "week"')
+  xxx1 <- gsub(xxx, pattern = "timeunit = 'year'", replacement = "timeunit = 'week'")
   cat(xxx1, file = fileName, sep = "\n")
 
-  fileName <- 'child5/child5.R'
+  fileName <- "child5/child5.R"
   xxx <- readLines(fileName)
-  xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = "second"')
+  xxx1 <- gsub(xxx, pattern = "timeunit = 'year'", replacement = "timeunit = 'second'")
   cat(xxx1, file = fileName, sep = "\n")
 
-  fileName <- 'par1/par1.R'
+  fileName <- "par1/par1.R"
   xxx <- readLines(fileName)
-  xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = "month"')
+  xxx1 <- gsub(xxx, pattern = "timeunit = 'year'", replacement = "timeunit = 'month'")
   cat(xxx1, file = fileName, sep = "\n")
 
   mySim <- simInit(modules = list("grandpar1"), paths = list(modulePath = "."))

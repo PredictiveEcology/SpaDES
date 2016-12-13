@@ -145,7 +145,7 @@ setMethod(
     for (j in .unparsed(modules)) {
       m <- modules[[j]][1]
       filename <-
-        paste(sim@paths[['modulePath']], "/", m, "/", m, ".R", sep = "")
+        paste(sim@paths[["modulePath"]], "/", m, "/", m, ".R", sep = "")
       parsedFile <- parse(filename)
       defineModuleItem <- grepl(pattern = "defineModule", parsedFile)
 
@@ -635,8 +635,7 @@ setMethod(
     pnames <-
       unique(c(paste0(".", core[-omit]), names(sim@params)))
 
-    if ((is.null(params$.progress)) ||
-        (any(is.na(params$.progress)))) {
+    if (is.null(params$.progress) || any(is.na(params$.progress))) {
       params$.progress <- list(type = NA_character_, interval = NA_real_)
     }
 
@@ -1276,7 +1275,7 @@ setMethod(
           eventType = eventType,
           eventPriority = eventPriority
         )
-        for(i in 1:.numColsEventList) set(newEvent, , i, newEventList[[i]])
+        for (i in 1:.numColsEventList) set(newEvent, , i, newEventList[[i]])
 
         # if the event list is empty, set it to consist of newEvent and return;
         # otherwise, add newEvent and re-sort (rekey).
@@ -1623,7 +1622,7 @@ setMethod(
           sim,
           debug = debug,
           progress = progress,
-          .plotInitialTime = .plotInitialTime ,
+          .plotInitialTime = .plotInitialTime,
           .saveInitialTime = .saveInitialTime
         )
       )

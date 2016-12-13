@@ -245,31 +245,32 @@ test_that("adj.R results not identical to adjacent", {
                         if (ma) {
                           #browser(expr=!isTRUE(all.equal(adjDT, adj2)))
 
-                          expect_equivalent(adjDT, adj2, info = paste0("ma=",ma, ", dirs=",dirs, ", sortTF=",sortTF,
-                                                                  ", incl=",incl,", is.null(ids)=",is.null(ids),
-                                                                  ", prs=",prs))
+                          expect_equivalent(adjDT, adj2, info = paste0("ma=", ma, ", dirs=", dirs, ", sortTF=", sortTF,
+                                                                  ", incl=", incl, ", is.null(ids)=", is.null(ids),
+                                                                  ", prs=", prs))
                           #numTests <<- numTests+1
                         } else {
-                          expect_equivalent(unique(sort(adjDT[,"to"])), sort(adj2))
+                          expect_equivalent(unique(sort(adjDT[, "to"])), sort(adj2))
                           #numTests <<- numTests+1
                         }
                       } else {
-                        colOrd <- if (is.null(ids)) 1:2 else c(2,3,1)
+                        colOrd <- if (is.null(ids)) 1:2 else c(2, 3, 1)
                         if (ma) {
                           if (!sortTF) {
-                            expect_equivalent(adjDT, adj2[,colOrd])
+                            expect_equivalent(adjDT, adj2[, colOrd])
                             #numTests <<- numTests+1
                           } else {
-                            expect_equivalent(adjDT, adj2[order(adj2[,"from"], adj2[,"to"]),colOrd])
+                            expect_equivalent(adjDT, adj2[order(adj2[, "from"], adj2[, "to"]), colOrd])
                             #numTests <<- numTests+1
                           }
                         } else {
-                          if (!sortTF) {# if match.adjacent is FALSE, and sort is FALSE, then they mostly don't match
-                            #if(adjDT[order(adjDT[,"from"], adjDT[,"to"]),]==adjDT)
-                             if (sum((adjDT - adj2[,colOrd])^2) == 0) {
-                               expect_equivalent(adjDT, adj2[,colOrd])
+                          if (!sortTF) {
+                            # if match.adjacent is FALSE, and sort is FALSE, then they mostly don't match
+                             if (sum((adjDT - adj2[, colOrd]) ^ 2) == 0) {
+                               expect_equivalent(adjDT, adj2[, colOrd])
                              } else {
-                               expect_gt(sum((adjDT - adj2[,colOrd])^2), 0) # sum of squared difference should be positive
+                               # sum of squared difference should be positive
+                               expect_gt(sum((adjDT - adj2[, colOrd]) ^ 2), 0)
                                #numTests <<- numTests+1
                              }
                           }
@@ -312,27 +313,27 @@ test_that("errors in adj are not correct", {
 
 test_that("adj.R: torus does not work as expected", {
   # test data.table and matrix
-  for (i in c(100,1)) {
+  for (i in c(100, 1)) {
     # a corner
     a <- raster::raster(raster::extent(0, 4, 0, 4), res = 1)
     s <- 4
     newCells <- adj(a, s, directions = 4, sort = TRUE, cutoff.for.data.table = i,
                     match.adjacent = TRUE, pairs = FALSE, torus = TRUE)
-    expect_identical(sort(as.numeric(newCells)), c(1,3, 8,16))
+    expect_identical(sort(as.numeric(newCells)), c(1, 3, 8, 16))
 
     # a corner
     a <- raster::raster(raster::extent(0, 4, 0, 4), res = 1)
     s <- 1
-    newCells <- adj(a, s, directions = 4, sort = TRUE,cutoff.for.data.table = i,
+    newCells <- adj(a, s, directions = 4, sort = TRUE, cutoff.for.data.table = i,
                     match.adjacent = TRUE, pairs = FALSE, torus = TRUE)
-    expect_identical(sort(as.numeric(newCells)), c(2, 4,5, 13))
+    expect_identical(sort(as.numeric(newCells)), c(2, 4, 5, 13))
 
     # a side
     a <- raster::raster(raster::extent(0, 4, 0, 4), res = 1)
     s <- 12
     newCells <- adj(a, s, directions = 4, sort = TRUE, cutoff.for.data.table = i,
                     match.adjacent = TRUE, pairs = FALSE, torus = TRUE)
-    expect_identical(sort(as.numeric(newCells)), c(8, 9,11, 16))
+    expect_identical(sort(as.numeric(newCells)), c(8, 9, 11, 16))
 
     # a corner
     a <- raster::raster(raster::extent(0, 4, 0, 4), res = 1)
@@ -351,7 +352,7 @@ test_that("adj.R: torus does not work as expected", {
     # a corner with 8 neighbours
     a <- raster::raster(raster::extent(0, 4, 0, 4), res = 1)
     s <- 1
-    newCells <- adj(a, s, directions = 8, sort = TRUE,cutoff.for.data.table = i,
+    newCells <- adj(a, s, directions = 8, sort = TRUE, cutoff.for.data.table = i,
                     match.adjacent = TRUE, pairs = FALSE, torus = TRUE)
     expect_identical(sort(as.numeric(newCells)), c(2, 4, 5, 6, 8, 13, 14, 16))
 

@@ -81,7 +81,7 @@ test_that("Plot 1 is not error-free", {
   N <- 1000
   cx <- 0
   cy <- 0
-  a <- seq(0, 2*pi, length.out = N)
+  a <- seq(0, 2 * pi, length.out = N)
   x <- cx + r * cos(a)
   y <- cy + r * sin(a)
   Sr1 <- sp::Polygon(cbind(x, y))
@@ -200,7 +200,7 @@ test_that("Unit tests for image content is not error-free", {
 
   ncol <- 3
   nrow <- 4
-  N <- ncol*nrow
+  N <- ncol * nrow
   nLevels <- 4
 
   # Test legend with a factor raster
@@ -458,7 +458,7 @@ test_that("Plot 2 is not error-free", {
   png(file = "test.png", width = 400, height = 300)
   clearPlot()
   spplot(r, colorkey = FALSE, interpolate = FALSE,
-         col.regions = colorRampPalette(c('black', 'red'))(30))
+         col.regions = colorRampPalette(c("black", "red"))(30))
   dev.off()
 
   png(file = "test.png", width = 400, height = 300)
@@ -501,7 +501,7 @@ test_that("Plot 2 is not error-free", {
 
   # 0 <= vals <= 1
   r1 <- r - min(getValues(r), na.rm = TRUE)
-  r1 <- r1/max(getValues(r1), na.rm = TRUE)
+  r1 <- r1 / max(getValues(r1), na.rm = TRUE)
   clearPlot()
   Plot(r1, new = TRUE)# Expect legend from exactly 0 to exactly 1
 
@@ -528,7 +528,7 @@ test_that("Plot 2 is not error-free", {
   Plot(r1, new = TRUE, zero.color = "black") # black zeros, some scattered
 
   # black zeros, plus legend -10 to 40
-  Plot(r1, new = TRUE, zero.color = "black", legendRange = c(-10,40))
+  Plot(r1, new = TRUE, zero.color = "black", legendRange = c(-10, 40))
 
   # 0, 1, 2, 3, 4, 5, 6
   r1 <- raster(ncol = 30, nrow = 30)
@@ -550,9 +550,9 @@ test_that("Plot 2 is not error-free", {
   r1 <- raster(ncol = 30, nrow = 30)
   r1[] <- sample(31:40, replace = TRUE, size = 900)
   Plot(r1, new = TRUE)
-  Plot(r1, new = TRUE, legendRange = c(0,40)) # legend frmo 0 to 40, mostly green
+  Plot(r1, new = TRUE, legendRange = c(0, 40)) # legend frmo 0 to 40, mostly green
   Plot(r1, new = TRUE, zero.color = "black") # no black
-  Plot(r1, new = TRUE, zero.color = "black", legendRange = c(35,40)) # lots of white, legend from 35 to 40
+  Plot(r1, new = TRUE, zero.color = "black", legendRange = c(35, 40)) # lots of white, legend from 35 to 40
 
   pixelGroupMap <- raster(xmn = 50, xmx = 50 + 3 * 100,
                           ymn = 50, ymx = 50 + 3 * 100,
@@ -580,7 +580,7 @@ test_that("Plot 2 is not error-free", {
 
   # zero.color on Integer numbers should work - expect BLACK both in legend and in a few cells
   r1 <- r - 1000
-  r1 <- round(r1/300, 0)
+  r1 <- round(r1 / 300, 0)
   clearPlot()
   Plot(r1, new = TRUE, zero.color = "black")
 
@@ -775,9 +775,9 @@ test_that("Plot with base is not error-free", {
   clearPlot()
   Plot(rnorm(10), addTo = "hist", ylab = "test")
   a <- hist(rnorm(10), plot = FALSE)
-  Plot(a, addTo = "histogram", axes = "L", col = "#33EEAA33", xlim = c(-3,3))
+  Plot(a, addTo = "histogram", axes = "L", col = "#33EEAA33", xlim = c(-3, 3))
   a <- hist(rnorm(100), plot = FALSE)
-  Plot(a, addTo = "histogram", axes = FALSE, col = paste0("#1133FF","33"), xlim = c(-3,3), xlab = "", ylab = "")
+  Plot(a, addTo = "histogram", axes = FALSE, col = paste0("#1133FF", "33"), xlim = c(-3, 3), xlab = "", ylab = "")
   ras2 <- raster(ras)
   ras2[] <- sample(1:8)
   Plot(ras2)
@@ -786,7 +786,7 @@ test_that("Plot with base is not error-free", {
   suppressMessages(Plot(rnorm(10), ylab = "hist", new = TRUE))
   Plot(ras2)
   Plot(rnorm(10), ylab = "hist")
-  ras <- ras^2
+  ras <- ras ^ 2
   Plot(ras, new = TRUE, cols = "Reds")
   Plot(rnorm(10), ylab = "hist", new = TRUE, addTo = "hist")
   Plot(ras, new = TRUE, cols = "Reds", addTo = "ras2")
@@ -854,7 +854,7 @@ test_that("Plot messages and warnings and errors", {
 
   library(raster); on.exit(detach("package:raster"), add = TRUE)
 
-  rasOrig <- raster(extent(0, 40, 0, 20), vals = sample(1:8,replace = TRUE, size = 800), res = 1)
+  rasOrig <- raster(extent(0, 40, 0, 20), vals = sample(1:8, replace = TRUE, size = 800), res = 1)
   ras <- rasOrig
   expect_error(Plot(ras, rnorm(10)), "Can't mix base plots with .spadesPlottables")
 })

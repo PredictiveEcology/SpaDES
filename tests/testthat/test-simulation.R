@@ -21,7 +21,7 @@ test_that("simulation runs with simInit and spades", {
   expect_equivalent(end(mySim), 10.0)
 
   # sim results ## NOTE upcoming version of RandomFields completely changes the values!!!
-  if (packageVersion('RandomFields') >= "3.1.20") {
+  if (packageVersion("RandomFields") >= "3.1.20") {
     burnedLast <- c(1435, 1044, 1531, 844, 1093, 1379, 2026, 1181, 469, 1381)
 
     pos_x <- c(33.2872398995189, -17.3422621469692, 8.75313234185035,
@@ -195,13 +195,13 @@ test_that("spades calls with different signatures don't work", {
   times <- list(start = 0.0, end = 0, timeunit = "year")
   params <- list(
     .globals = list(burnStats = "npixelsburned", stackName = "landscape"),
-    randomLandscapes = list(nx=20, ny=20)
+    randomLandscapes = list(nx = 20, ny = 20)
   )
   modules <- list("randomLandscapes", "fireSpread")
   paths <- list(modulePath = system.file("sampleModules", package = "SpaDES"))
 
   for (i in 1:2) {
-    a <- simInit(times, params, modules, paths=paths)
+    a <- simInit(times, params, modules, paths = paths)
     paths(a)$cachePath <- file.path(tempdir(), "cache") %>% checkPath(create = TRUE)
     assign(paste0("st", i), system.time(spades(a, cache = TRUE, .plotInitialTime = NA)))
   }

@@ -392,8 +392,8 @@ setMethod(
         if (!all(sapply(timesteps, is.na))) {
           return(timesteps[!is.na(timesteps)][[which.min(sapply(
             timesteps[!sapply(timesteps, is.na)], function(ts) {
-              eval(parse(text = paste0("d", ts, "(1)")), envir = sim@.envir) }
-          ))]])
+              eval(parse(text = paste0("d", ts, "(1)")), envir = sim@.envir)
+          }))]])
         }
       }
     }
@@ -411,7 +411,7 @@ setMethod(
       keep <- rep(TRUE, length(keep))
     }
     tu <- unlist(lapply(sim[keep], function(xtime)
-      as.numeric(eval(parse(text = paste0("d",xtime,"(1)"))))))
+      as.numeric(eval(parse(text = paste0("d", xtime, "(1)"))))))
 
     return(sim[keep][which.min(tu)])
 })

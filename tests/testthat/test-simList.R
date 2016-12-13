@@ -215,14 +215,14 @@ test_that("simList test all signatures", {
     argsTested <- vector("list", length = N)
     for (i in 1L:N) {
       li <- list(
-        {if (i %% 2 ^ 1 == 0) times = times},
-        {if (ceiling(i/2) %% 2 == 0) params = parameters},
-        {if (ceiling(i/4) %% 2 == 0) modules = modules},
-        {if (ceiling(i/8) %% 2 == 0) objects = objects},
-        {if (ceiling(i/16) %% 2 == 0) paths = paths},
-        {if (ceiling(i/32) %% 2 == 0) inputs = filelist},
-        {if (ceiling(i/64) %% 2 == 0) outputs = outputs},
-        {if (ceiling(i/128) %% 2 == 0) loadOrder = loadOrder}
+        {if (i %% 2 ^ 1 == 0) times = times},                   # nolint
+        {if (ceiling(i / 2) %% 2 == 0) params = parameters},    # nolint
+        {if (ceiling(i / 4) %% 2 == 0) modules = modules},      # nolint
+        {if (ceiling(i / 8) %% 2 == 0) objects = objects},      # nolint
+        {if (ceiling(i / 16) %% 2 == 0) paths = paths},         # nolint
+        {if (ceiling(i / 32) %% 2 == 0) inputs = filelist},     # nolint
+        {if (ceiling(i / 64) %% 2 == 0) outputs = outputs},     # nolint
+        {if (ceiling(i / 128) %% 2 == 0) loadOrder = loadOrder} # nolint
       )
       argNames <- c("times", "params", "modules", "objects", "paths", "inputs",
                     "outputs", "loadOrder")

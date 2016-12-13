@@ -78,7 +78,7 @@ test_that("timeunit works correctly", {
     text = paste0("d", minTimeunit(mySim), "(1)")))),
     min(sapply(depends(mySim)@dependencies[whNotNA],
                function(x) {
-                 eval(parse(text = paste0("d", x@timeunit,"(1)")))
+                 eval(parse(text = paste0("d", x@timeunit, "(1)")))
                }
     )))
   expect_equal(as.numeric(inSeconds(NA_character_)), 0)
@@ -90,7 +90,7 @@ test_that("timeunit works correctly", {
 
   exampleTime <- 1:10
   attributes(exampleTime)$unit <- "hour"
-  expect_equal(as.numeric(convertTimeunit(exampleTime)), 1:10*3600)
+  expect_equal(as.numeric(convertTimeunit(exampleTime)), 1:10 * 3600)
 
   mySim <- simInit()
   expect_equal(maxTimeunit(mySim), NA_character_)
@@ -99,11 +99,10 @@ test_that("timeunit works correctly", {
                  spadesTimes())
 
   expect_equal(as.numeric(dNA()), 0)
-  expect_equal(as.numeric(dhour(1)), 60*60)
-  expect_equal(as.numeric(dday(1)), 60*60*24)
-  expect_equal(as.numeric(dweeks(1)), 60*60*24*365.25/52)
-
-  expect_equal(as.numeric(dweek(1)), 60*60*24*365.25/52)
+  expect_equal(as.numeric(dhour(1)), 60 * 60)
+  expect_equal(as.numeric(dday(1)), 60 * 60 * 24)
+  expect_equal(as.numeric(dweeks(1)), 60 * 60 * 24 * 365.25 / 52)
+  expect_equal(as.numeric(dweek(1)), 60 * 60 * 24 * 365.25 / 52)
 })
 
 test_that("timeunits with child and parent modules work correctly", {
@@ -128,27 +127,27 @@ test_that("timeunits with child and parent modules work correctly", {
   })
 
   suppressMessages(newModule("child2", ".", open = FALSE))
-  fileName <- 'child2/child2.R'
+  fileName <- "child2/child2.R"
   xxx <- readLines(fileName)
-  xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = "day"')
+  xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = "day"') # nolint
   cat(xxx1, file = fileName, sep = "\n")
 
-  fileName <- 'child3/child3.R'
+  fileName <- "child3/child3.R"
   xxx <- readLines(fileName)
-  xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = "week"')
+  xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = "week"') # nolint
   cat(xxx1, file = fileName, sep = "\n")
 
-  fileName <- 'child5/child5.R'
+  fileName <- "child5/child5.R"
   xxx <- readLines(fileName)
-  xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = "second"')
+  xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = "second"') # nolint
   cat(xxx1, file = fileName, sep = "\n")
 
-  fileName <- 'par1/par1.R'
+  fileName <- "par1/par1.R"
   xxx <- readLines(fileName)
-  xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = "month"')
+  xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = "month"') # nolint
   cat(xxx1, file = fileName, sep = "\n")
 
-  mySim <- simInit(modules = list("grandpar1","par1"), paths = list(modulePath = "."))
+  mySim <- simInit(modules = list("grandpar1", "par1"), paths = list(modulePath = "."))
   expect_equal(timeunit(mySim), "month")
 
   # If only listing the one module and it is a parent, then use it regardless of whether
@@ -156,7 +155,7 @@ test_that("timeunits with child and parent modules work correctly", {
   mySim <- simInit(modules = list("grandpar1"), paths = list(modulePath = "."))
   expect_equal(timeunit(mySim), "year")
 
-  fileName <- 'grandpar1/grandpar1.R'
+  fileName <- "grandpar1/grandpar1.R"
   xxx <- readLines(fileName)
   xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = "hour"')
   cat(xxx1, file = fileName, sep = "\n")
@@ -172,9 +171,9 @@ test_that("timeunits with child and parent modules work correctly", {
   suppressMessages(
     newModule("grandpar1", ".", type = "parent", children = c("child1", "child2", "par1"), open = FALSE)
   )
-  fileName <- 'grandpar1/grandpar1.R'
+  fileName <- "grandpar1/grandpar1.R"
   xxx <- readLines(fileName)
-  xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = NA')
+  xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = "timeunit = NA") # nolint
   cat(xxx1, file = fileName, sep = "\n")
 
   # If parent has NA for timeunit, then take smallest of children
@@ -184,15 +183,15 @@ test_that("timeunits with child and parent modules work correctly", {
   suppressMessages(
     newModule("grandpar2", ".", type = "parent", children = c("child1", "child6", "par1"), open = FALSE)
   )
-  fileName <- 'grandpar2/grandpar2.R'
+  fileName <- "grandpar2/grandpar2.R"
   xxx <- readLines(fileName)
-  xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = NA')
+  xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = "timeunit = NA") # nolint
   cat(xxx1, file = fileName, sep = "\n")
 
   suppressMessages(newModule("child6", ".", open = FALSE))
-  fileName <- 'child6/child6.R'
+  fileName <- "child6/child6.R"
   xxx <- readLines(fileName)
-  xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = NA')
+  xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = "timeunit = NA") # nolint
   cat(xxx1, file = fileName, sep = "\n")
 
   # If parent has NA for timeunit, then take smallest of children

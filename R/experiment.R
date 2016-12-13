@@ -333,7 +333,7 @@ setMethod(
             l = list(
               experimentDF,
               data.frame(modules = paste0(unlist(modules[factorialExp[ind, "modules"]]), collapse = ","),
-                         expLevel = factorialExp[ind,"expLevel"],
+                         expLevel = factorialExp[ind, "expLevel"],
                          stringsAsFactors = FALSE
               )),
             use.names = TRUE,
@@ -391,7 +391,8 @@ setMethod(
         }
       }
       newOutputPath <- file.path(paths(sim_)$outputPath, dirName) %>%
-        gsub(pattern = "/$", replacement = "") %>% gsub(pattern = "//", replacement = "/")
+        gsub(pattern = "/$", replacement = "") %>%  # nolint
+        gsub(pattern = "//", replacement = "/")
       if (!dir.exists(newOutputPath)) dir.create(newOutputPath, recursive = TRUE)
       paths(sim_)$outputPath <- newOutputPath
       if (NROW(outputs(sim_))) {
