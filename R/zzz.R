@@ -74,15 +74,15 @@ NULL
   ## if temp session dir is being used, ensure it gets reset each session
   tmpdir <- file.path(tempdir(), "SpaDES")
   if (getOption("spades.cachePath") == file.path(tmpdir, "cache")) {
-    options(spades.modulePath = NULL)
+    options(spades.cachePath = NULL)
   }
   if (getOption("spades.inputPath") == file.path(tmpdir, "inputs")) {
-    options(spades.modulePath = NULL)
+    options(spades.inputPath = NULL)
   }
   if (getOption("spades.modulePath") == file.path(tmpdir, "modules")) {
     options(spades.modulePath = NULL)
   }
   if (getOption("spades.outputPath") == file.path(tmpdir, "outputs")) {
-    options(spades.modulePath = NULL)
+    options(spades.outputPath = NULL)
   }
 }
