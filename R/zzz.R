@@ -5,18 +5,18 @@
 #' \itemize{
 #'   \item \code{spades.cachePath}: The default local directory in which to
 #'   cache simulation outputs.
-#'   Default is a temporary directory (typically \code{/tmp/SpaDES/cache}).
+#'   Default is a temporary directory (typically \code{/tmp/RtmpXXX/SpaDES/cache}).
 #'
 #'   \item \code{spades.inputPath}: The default local directory in which to
 #'   look for simulation inputs.
-#'   Default is a temporary directory (typically \code{/tmp/SpaDES/inputs}).
+#'   Default is a temporary directory (typically \code{/tmp/RtmpXXX/SpaDES/inputs}).
 #'
 #'   \item \code{spades.lowMemory}: If true, some functions will use more memory
 #'     efficient (but slower) algorithms. Default \code{FALSE}.
 #'
 #'   \item \code{spades.modulePath}: The default local directory where modules
 #'     and data will be downloaded and stored.
-#'     Default is a temporary directory (typically \code{/tmp/SpaDES/modules}).
+#'     Default is a temporary directory (typically \code{/tmp/RtmpXXX/SpaDES/modules}).
 #'
 #'   \item \code{spades.moduleRepo}: The default GitHub repository to use when
 #'     downloading modules. Default \code{"PredictiveEcology/SpaDES-modules"}.
@@ -26,7 +26,7 @@
 #'
 #'   \item \code{spades.outputPath}: The default local directory in which to
 #'   save simulation outputs.
-#'   Default is a temporary directory (typically \code{/tmp/SpaDES/outputs}).
+#'   Default is a temporary directory (typically \code{/tmp/RtmpXXX/SpaDES/outputs}).
 #'
 #'   \item \code{spades.tolerance}: The default tolerance value used for floating
 #'     point number comparisons. Default \code{.Machine$double.eps^0.5}.
@@ -71,8 +71,18 @@ NULL
 }
 
 .onUnload <- function(libpath) {
+  ## if temp session dir is being used, ensure it gets reset each session
   tmpdir <- file.path(tempdir(), "SpaDES")
-  if (getOption("spades.modulePath") == file.path(tmpdir)) {
+  if (getOption("spades.cachePath") == file.path(tmpdir, "cache")) {
+    options(spades.modulePath = NULL)
+  }
+  if (getOption("spades.inputPath") == file.path(tmpdir, "inputs")) {
+    options(spades.modulePath = NULL)
+  }
+  if (getOption("spades.modulePath") == file.path(tmpdir, "modules")) {
+    options(spades.modulePath = NULL)
+  }
+  if (getOption("spades.outputPath") == file.path(tmpdir, "outputs")) {
     options(spades.modulePath = NULL)
   }
 }

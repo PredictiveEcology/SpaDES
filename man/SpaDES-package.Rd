@@ -470,18 +470,18 @@ found with \code{file.path(find.package("SpaDES"), "sampleModules")}
 \itemize{
   \item \code{spades.cachePath}: The default local directory in which to
   cache simulation outputs.
-  Default is a temporary directory (typically \code{/tmp/SpaDES/cache}).
+  Default is a temporary directory (typically \code{/tmp/RtmpXXX/SpaDES/cache}).
 
   \item \code{spades.inputPath}: The default local directory in which to
   look for simulation inputs.
-  Default is a temporary directory (typically \code{/tmp/SpaDES/inputs}).
+  Default is a temporary directory (typically \code{/tmp/RtmpXXX/SpaDES/inputs}).
 
   \item \code{spades.lowMemory}: If true, some functions will use more memory
     efficient (but slower) algorithms. Default \code{FALSE}.
 
   \item \code{spades.modulePath}: The default local directory where modules
     and data will be downloaded and stored.
-    Default is a temporary directory (typically \code{/tmp/SpaDES/modules}).
+    Default is a temporary directory (typically \code{/tmp/RtmpXXX/SpaDES/modules}).
 
   \item \code{spades.moduleRepo}: The default GitHub repository to use when
     downloading modules. Default \code{"PredictiveEcology/SpaDES-modules"}.
@@ -491,7 +491,7 @@ found with \code{file.path(find.package("SpaDES"), "sampleModules")}
 
   \item \code{spades.outputPath}: The default local directory in which to
   save simulation outputs.
-  Default is a temporary directory (typically \code{/tmp/SpaDES/outputs}).
+  Default is a temporary directory (typically \code{/tmp/RtmpXXX/SpaDES/outputs}).
 
   \item \code{spades.tolerance}: The default tolerance value used for floating
     point number comparisons. Default \code{.Machine$double.eps^0.5}.
