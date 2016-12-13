@@ -74,38 +74,61 @@ r_check_args: "--as-cran"
 warnings_are_errors: true
 
 r_binary_packages:
+  - archivist
+  - bit
+  - bitops
   - chron
   - CircStats
   - colorspace
   - data.table
   - DEoptim
+  - DiagrammeR
   - dichromat
   - digest
   - dplyr
+  - DT
+  - ff
+  - ffbase
+  - fpCompare
   - ggplot2
   - gtable
+  - htmltools
+  - htmlwidgets
+  - httpuv
   - httr
   - igraph
+  - influenceR
   - knitr
   - labeling
   - latticeExtra
   - lubridate
   - magrittr
+  - miniUI
   - munsell
+  - plogR
   - proto
+  - R.methodsS3
+  - R.oo
+  - R.utils
   - RandomFields
   - raster
   - RColorBrewer
   - Rcpp
+  - RCurl
   - reshape
   - rgdal
+  - RSQLite
   - scales
   - secr
+  - shiny
   - snow
+  - sourcetools
   - sp
   - stringr
   - testthat
+  - tibble
   - tkrplot
+  - visNetwork
   - xts
   - zoo
 
