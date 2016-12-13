@@ -1263,7 +1263,7 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
         parFunFun <- function(x) {
           # this is a slightly tweaked version of outerCumFun, doing all calls
           do.call(outerCumFun, append(list(x = x, from = fromList[[x]],
-                                           if (fromC) fromCell = fromCellList[[x]]),
+                                           if (fromC) fromCell = fromCellList[[x]]), # nolint
                                       outerCumFunArgs))
         }
 
