@@ -732,6 +732,9 @@ While it may be useful for modules to exhibit indirect dependence on each other 
 
 Code for new modules can be developed quickly using the template generator function `newModule`(also available as an Rstudio addin) which accepts as arguments the name of the new module, a directory path in which to create the new module, and a logical indicating whether to open the newly created module code file for editing.
 
+Module developers can set the `devtools.desc.author` option (*e.g.*, in their `.Rprofile` to automatically supply a deafult module author).
+See `package?devtools` for more details.
+
 ```{r create-new-module, eval=FALSE, echo=TRUE, message=FALSE}
 # create a new module called "randomLandscape" in the "custom-modules" subdirectory
 # and open the resulting file immediately for editing.

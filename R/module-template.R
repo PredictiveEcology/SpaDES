@@ -220,7 +220,8 @@ defineModule(sim, list(
   name = \"", name, "\",
   description = \"insert module description here\",
   keywords = c(\"insert key words here\"),
-  authors = c(person(c(\"First\", \"Middle\"), \"Last\", email=\"email@example.com\", role=c(\"aut\", \"cre\"))),
+  authors = ", getOption("devtools.desc.author",
+                         "c(person(c(\"First\", \"Middle\"), \"Last\", email = \"email@example.com\", role = c(\"aut\", \"cre\")))"), ",
   childModules = ", children_char, ",
   version = numeric_version(\"", as.character(packageVersion("SpaDES")), "\"),
   ", if (type == "child") "spatialExtent = raster::extent(rep(NA_real_, 4)),
@@ -273,7 +274,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
     # schedule future event(s)
 
     # e.g.,
-    #sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, \"", name, "\", \"plot\")
+    #sim <- scheduleEvent(sim, time(sim) + P(sim)$.plotInterval, \"", name, "\", \"plot\")
 
     # ! ----- STOP EDITING ----- ! #
   } else if (eventType == \"save\") {
@@ -286,7 +287,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
     # schedule future event(s)
 
     # e.g.,
-    # sim <- scheduleEvent(sim, time(sim) + increment, \"", name, "\", \"save\")
+    # sim <- scheduleEvent(sim, time(sim) + P(sim)$.saveInterval, \"", name, "\", \"save\")
 
     # ! ----- STOP EDITING ----- ! #
   } else if (eventType == \"event1\") {
