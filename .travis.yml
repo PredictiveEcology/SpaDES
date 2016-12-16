@@ -73,6 +73,11 @@ r_check_args: "--as-cran"
 
 warnings_are_errors: true
 
+addons:
+  apt:
+    packages:
+      - libgdal1-dev
+
 r_binary_packages:
   - chron
   - CircStats
