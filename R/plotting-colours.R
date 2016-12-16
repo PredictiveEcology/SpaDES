@@ -446,7 +446,11 @@ setMethod(
       cols <- if (nValues > length(cols)) {
         colorRampPalette(cols)(nValues)
       } else if (nValues < length(cols)) {
-        cols[minz:maxz + max(0, 1 - minz)]
+        if((minz + nValues - 1)  > length(cols)) { # there are enough colors, but they don't start at 1
+          cols[minz:maxz - minz + 1 + max(0, 1 - minz)]
+        } else {
+          cols[minz:maxz + max(0, 1 - minz)]
+        }
       } else {
         cols
       }
