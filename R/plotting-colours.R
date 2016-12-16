@@ -59,8 +59,8 @@ setMethod("getColors",
 ################################################################################
 #' Set colours for plotting Raster* objects.
 #'
-#' \code{setColors} works as a replacement method or a normal function call. This
-#' function can accept RColorBrewer colors by name. See example.
+#' \code{setColors} works as a replacement method or a normal function call.
+#' This function can accept RColorBrewer colors by name. See example.
 #'
 #' @param object     A \code{Raster*} object.
 #'
@@ -141,14 +141,14 @@ setMethod("getColors",
 #'     clearPlot()
 #'     Plot(ras)
 #'   }
-#'   
+#'
 #'   # Use RColorBrewer colors
 #'   setColors(ras) <- "Reds"
 #'   if (interactive()) {
 #'     clearPlot()
 #'     Plot(ras)
 #'   }
-#'   
+#'
 #' }
 setGeneric("setColors<-",
            function(object, ..., n, value) {
@@ -192,8 +192,6 @@ setReplaceMethod(
     } else {
       pal <- colorRampPalette(value, alpha = TRUE, ...)
       object@legend@colortable <- pal(n)
-      
-      
     }
     if (!is.character(object@legend@colortable)) stop("setColors needs color character values")
     return(object)
@@ -366,7 +364,7 @@ setMethod(
         cols <- colorTable
       }
     }
-  z <- getValues(grobToPlot)
+    z <- getValues(grobToPlot)
 
     # If minValue is defined, then use it, otherwise, calculate them.
     #  This is different than maxz because of the sampleRegular.
@@ -375,7 +373,7 @@ setMethod(
     #  so, use the metadata version of minValue, but use the max(z) to
     #  accomodate cases where there are too many legend values for the
     # number of raster values.
-  #if(!raster::is.factor(grobToPlot)) {
+  #if (!raster::is.factor(grobToPlot)) {
     if (any(is.na(legendRange))) {
       if (!exists("minz")) {
         minz <- suppressWarnings(min(z, na.rm = TRUE))
@@ -466,14 +464,13 @@ setMethod(
       if (is.character(cols) & (length(cols) == 1)) {
         if (cols %in% rownames(brewer.pal.info)) {
           suppressWarnings(cols <- brewer.pal(nValues, cols))
-        #} else {
-        #  warning("Color not recognized. Try RColorBrewer or default R colors")
         }
       }
       cols <- if (nValues > length(cols)) {
         colorRampPalette(cols)(nValues)
       } else if (nValues < length(cols)) {
-        if((minz + nValues - 1)  > length(cols)) { # there are enough colors, but they don't start at 1
+        if ((minz + nValues - 1)  > length(cols)) {
+          # there are enough colors, but they don't start at 1
           cols[minz:maxz - minz + 1 + max(0, 1 - minz)]
         } else {
           cols[minz:maxz + max(0, 1 - minz)]
@@ -510,7 +507,7 @@ setMethod(
     }
 
     # Here, rescale so it is between 0 and maxNumCols or nValues
-    if (isFac){
+    if (isFac) {
       z <- match(z, facLevs$ID)
     } else {
       if (real) {#& (maxz <= maxNumCols) ) {
