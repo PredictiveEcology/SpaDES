@@ -93,7 +93,7 @@ Returns a Raster with the \code{colortable} slot set to \code{values}.
     Plot(ras)
   }
 
-  # if a factor rastere, and not enough labels are provided, then a warning
+  # if a factor raster, and not enough labels are provided, then a warning
   #   will be given, and colors will be interpolated
   #   The level called purple is not purple, but interpolated betwen red and yellow
   ras <- setColors(ras, c("red", "yellow"))

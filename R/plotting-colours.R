@@ -131,7 +131,7 @@ setMethod("getColors",
 #'     Plot(ras)
 #'   }
 #'
-#'   # if a factor rastere, and not enough labels are provided, then a warning
+#'   # if a factor raster, and not enough labels are provided, then a warning
 #'   #   will be given, and colors will be interpolated
 #'   #   The level called purple is not purple, but interpolated betwen red and yellow
 #'   ras <- setColors(ras, c("red", "yellow"))
@@ -551,7 +551,7 @@ setMethod(
 
     if (isFac & !is.null(colTable)) {
       cols <- rep(na.color, length(factorValues)) # changed from max to length to accommodate zeros or factors not starting at 1
-      cols[factorValues - min(factorValues) + 1] <- colTable
+      cols[seq_along(facLevs$ID) - min(factorValues) + 1] <- colTable
     }
     if (length(whichZeroLegend)) {
       cols[whichZeroLegend] <- zero.color
