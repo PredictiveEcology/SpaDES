@@ -168,20 +168,28 @@ setReplaceMethod(
     if (raster::is.factor(object)) {
       if (n != NROW(object@data@attributes[[1]])) {
         message("Number of colors not equal number of values: interpolating")
-        pal <- colorRampPalette(value, alpha = TRUE, ...)
         n <- NROW(object@data@attributes[[1]])
+      }
+    }
+    rcolbrewInfo <- RColorBrewer::brewer.pal.info
+    if(value %in% row.names(rcolbrewInfo)) {
+      if(n > rcolbrewInfo[value,"maxcolors"]) {
+        ntmp <- rcolbrewInfo[value,"maxcolors"]
+      } else {
+        ntmp <- n
+      }
+      value <- RColorBrewer::brewer.pal(ntmp , value)
+    } 
+    if (raster::is.factor(object)) {
+      if (n != NROW(object@data@attributes[[1]])) {
+        #message("Number of colors not equal number of values: interpolating")
+        #pal <- colorRampPalette(value, alpha = TRUE, ...)
+        #n <- NROW(object@data@attributes[[1]])
         object@legend@colortable <- pal(n)
       } else {
         object@legend@colortable <- value
       }
     } else {
-      rcolbrewInfo <- RColorBrewer::brewer.pal.info
-      if (value %in% row.names(rcolbrewInfo)) {
-        if (n > rcolbrewInfo[value,"maxcolors"]) {
-          ntmp <- rcolbrewInfo[value,"maxcolors"]
-        }
-        value <- RColorBrewer::brewer.pal(ntmp , value)
-      }
       pal <- colorRampPalette(value, alpha = TRUE, ...)
       object@legend@colortable <- pal(n)
     }
