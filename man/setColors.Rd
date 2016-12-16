@@ -45,7 +45,8 @@ of RasterLayers in \code{x}.}
 Returns a Raster with the \code{colortable} slot set to \code{values}.
 }
 \description{
-\code{setColors} works as a replacement method or a normal function call.
+\code{setColors} works as a replacement method or a normal function call. This
+function can accept RColorBrewer colors by name. See example.
 }
 \examples{
 \dontrun{
@@ -101,6 +102,14 @@ Returns a Raster with the \code{colortable} slot set to \code{values}.
     clearPlot()
     Plot(ras)
   }
+  
+  # Use RColorBrewer colors
+  setColors(ras) <- "Reds"
+  if (interactive()) {
+    clearPlot()
+    Plot(ras)
+  }
+  
 }
 }
 \author{

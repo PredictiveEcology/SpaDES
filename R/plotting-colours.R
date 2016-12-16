@@ -59,7 +59,8 @@ setMethod("getColors",
 ################################################################################
 #' Set colours for plotting Raster* objects.
 #'
-#' \code{setColors} works as a replacement method or a normal function call.
+#' \code{setColors} works as a replacement method or a normal function call. This
+#' function can accept RColorBrewer colors by name. See example.
 #'
 #' @param object     A \code{Raster*} object.
 #'
@@ -76,6 +77,7 @@ setMethod("getColors",
 #'
 #' @export
 #' @importFrom grDevices colorRampPalette
+#' @importFrom RColorBrewer brewer.pal brewer.pal.info
 #' @docType methods
 #' @aliases setColours
 #' @rdname setColors
@@ -139,6 +141,14 @@ setMethod("getColors",
 #'     clearPlot()
 #'     Plot(ras)
 #'   }
+#'   
+#'   # Use RColorBrewer colors
+#'   setColors(ras) <- "Reds"
+#'   if (interactive()) {
+#'     clearPlot()
+#'     Plot(ras)
+#'   }
+#'   
 #' }
 setGeneric("setColors<-",
            function(object, ..., n, value) {
@@ -165,8 +175,17 @@ setReplaceMethod(
         object@legend@colortable <- value
       }
     } else {
+      rcolbrewInfo <- RColorBrewer::brewer.pal.info
+      if(value %in% row.names(rcolbrewInfo)) {
+        if(n > rcolbrewInfo[value,"maxcolors"]) {
+          ntmp <- rcolbrewInfo[value,"maxcolors"]
+        }
+        value <- RColorBrewer::brewer.pal(ntmp , value)
+      } 
       pal <- colorRampPalette(value, alpha = TRUE, ...)
       object@legend@colortable <- pal(n)
+      
+      
     }
     if (!is.character(object@legend@colortable)) stop("setColors needs color character values")
     return(object)
