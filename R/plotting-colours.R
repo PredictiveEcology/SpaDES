@@ -172,14 +172,14 @@ setReplaceMethod(
       }
     }
     rcolbrewInfo <- RColorBrewer::brewer.pal.info
-    if(value %in% row.names(rcolbrewInfo)) {
-      if(n > rcolbrewInfo[value,"maxcolors"]) {
-        ntmp <- rcolbrewInfo[value,"maxcolors"]
+    if (value %in% row.names(rcolbrewInfo)) {
+      if (n > rcolbrewInfo[value, "maxcolors"]) {
+        ntmp <- rcolbrewInfo[value, "maxcolors"]
       } else {
         ntmp <- n
       }
       value <- RColorBrewer::brewer.pal(ntmp , value)
-    } 
+    }
     if (raster::is.factor(object)) {
       if (n != NROW(object@data@attributes[[1]])) {
         #message("Number of colors not equal number of values: interpolating")

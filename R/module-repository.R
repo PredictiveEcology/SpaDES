@@ -614,7 +614,7 @@ setMethod(
     }
 
     message("Checking local files")
-    if(length(txt$file)) {
+    if (length(txt$file)) {
       filesToCheck <- files[basename(files) %in% txt$file]
     } else {
       filesToCheck <- character(0)
