@@ -242,7 +242,7 @@ setMethod(
               #.useCache is not FALSE
               if (!isTRUE(a)) {
                 #.useCache is not TRUE
-                if (cur[["eventType"]] %in% a) {
+                if (".inputObjects" %in% a) {
                   cacheIt <- TRUE
                 }
               } else {
