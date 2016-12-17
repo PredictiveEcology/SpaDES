@@ -395,12 +395,14 @@ setMethod(
       setwd(path); on.exit(setwd(cwd), add = TRUE)
 
       files <- sapply(to.dl, function(x) {
-        destfile <- file.path(dataDir, basename(x))
-        id <- which(chksums$expectedFile == basename(x))
+        xFile <- gsub("[[:punct:]]", "_", basename(x))
+        destfile <- file.path(dataDir, xFile)
+        id <- which(chksums$expectedFile == xFile)
+        if(length(id)==0) stop("Currently downloadData requires that basename(sourceURL) name and local filename are the same")
         if ((chksums$result[id] == "FAIL") | is.na(chksums$actualFile[id])) {
           tmpFile <- file.path(tempdir(), "SpaDES_module_data") %>%
             checkPath(create = TRUE) %>%
-            file.path(., basename(x))
+            file.path(., xFile)
           message("Downloading ", chksums$actualFile[id], " for module ", module, " ...")
           download.file(x, destfile = tmpFile, mode = "wb", quiet = quiet)
           copied <- file.copy(from = tmpFile, to = destfile, overwrite = TRUE)
@@ -619,7 +621,7 @@ setMethod(
     }
     checksums <- do.call(digest, args = append(list(file = filesToCheck), dots))
     message("Finished checking local files")
-    
+
     out <- data.frame(file = basename(filesToCheck), checksum = checksums,
                       algorithm = dots$algo,
                       stringsAsFactors = FALSE)
