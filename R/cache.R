@@ -190,7 +190,7 @@ setMethod(
     wh <- which(sapply(tmpl, function(x) is(x, "simList")))
     if (is.null(cacheRepo)) {
       if (length(wh) > 0) {
-        cacheRepo <- tmpl[wh]@paths$cachePath
+        cacheRepo <- tmpl[wh][[1]]@paths$cachePath # just take the first simList, if there are >1
       } else {
         doEventFrameNum <- grep(sys.calls(), pattern = "^doEvent")[1]
         if (!is.na(doEventFrameNum)) {
