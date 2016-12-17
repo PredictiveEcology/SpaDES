@@ -920,6 +920,8 @@ setMethod("copyModule",
 #' @param name    Character string giving the module name.
 #' @param path    A file path to a directory containing the module subdirectory.
 #' @param version The module version.
+#' @param data    Logical. If \code{TRUE}, then the data subfolder will be included in the zip.
+#'                Default is \code{FALSE}.
 #' @param ...     Additional arguments to \code{\link{zip}}:
 #'                e.g., add \code{"-q"} using \code{flags="-q -r9X"}
 #'                (the default flags are \code{"-r9X"}).
@@ -929,7 +931,7 @@ setMethod("copyModule",
 #' @export
 #' @rdname zipModule
 #'
-setGeneric("zipModule", function(name, path, version, ...) {
+setGeneric("zipModule", function(name, path, version, data=FALSE, ...) {
   standardGeneric("zipModule")
 })
 
@@ -939,7 +941,7 @@ setGeneric("zipModule", function(name, path, version, ...) {
 setMethod(
   "zipModule",
   signature = c(name = "character", path = "character", version = "character"),
-  definition = function(name, path, version, ...) {
+  definition = function(name, path, version, data, ...) {
     path <- checkPath(path, create = FALSE)
     callingWd <- getwd()
     on.exit(setwd(callingWd), add = TRUE)
@@ -949,6 +951,8 @@ setMethod(
 
     allFiles <- dir(path = file.path(name), recursive = TRUE, full.names = TRUE)
     allFiles <- grep(paste0(name, "_+.+.zip"), allFiles, value = TRUE, invert = TRUE) # moduleName_....zip only
+    if(!data) 
+      allFiles <- grep(file.path(name, "data"),  allFiles, invert = TRUE, value = TRUE)
 
     zip(zipFileName, files = allFiles)#, extras = c("-x"), ...)
     file.copy(zipFileName, to = paste0(name, "/", zipFileName), overwrite = TRUE)
@@ -959,28 +963,28 @@ setMethod(
 #' @export
 setMethod("zipModule",
           signature = c(name = "character", path = "missing", version = "character"),
-          definition = function(name, version, ...) {
-            zipModule(name = name, path = ".", version = version, ...)
+          definition = function(name, version, data, ...) {
+            zipModule(name = name, path = ".", version = version, data = data, ...)
 })
 
 #' @export
 #' @rdname zipModule
 setMethod("zipModule",
           signature = c(name = "character", path = "missing", version = "missing"),
-          definition = function(name, ...) {
+          definition = function(name, data, ...) {
             vers <- .parseModulePartial(filename = file.path(path, name, paste0(name,".R")),
                                         defineModuleElement = "version") %>% as.character
             #vers <- moduleMetadata(name, ".")$version %>% as.character
-            zipModule(name = name, path = ".", version = vers, ...)
+            zipModule(name = name, path = ".", version = vers, data = data, ...)
 })
 
 #' @export
 #' @rdname zipModule
 setMethod("zipModule",
           signature = c(name = "character", path = "character", version = "missing"),
-          definition = function(name, path, ...) {
+          definition = function(name, path, data, ...) {
             vers <- .parseModulePartial(filename = file.path(path, name, paste0(name,".R")),
                                         defineModuleElement = "version") %>% as.character
             #vers <- moduleMetadata(name, path)$version %>% as.character
-            zipModule(name = name, path = path, version = vers, ...)
+            zipModule(name = name, path = path, version = vers, data = data, ...)
 })
