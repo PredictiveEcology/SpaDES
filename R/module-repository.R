@@ -395,7 +395,7 @@ setMethod(
       setwd(path); on.exit(setwd(cwd), add = TRUE)
 
       files <- sapply(to.dl, function(x) {
-        xFile <- gsub("[[:punct:]]", "_", basename(x))
+        xFile <- gsub("[?!]", "_", basename(x))
         destfile <- file.path(dataDir, xFile)
         id <- which(chksums$expectedFile == xFile)
         if(length(id)==0) stop("Currently downloadData requires that basename(sourceURL) name and local filename are the same")
