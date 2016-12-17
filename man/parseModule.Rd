@@ -17,10 +17,10 @@
 \S4method{.parseModulePartial}{simList,list,missing,character}(sim, modules,
   defineModuleElement)
 
-.parseModule(sim, modules, userSuppliedObjNames = NULL)
+.parseModule(sim, modules, userSuppliedObjNames = NULL, notOlderThan, ...)
 
 \S4method{.parseModule}{simList,list}(sim, modules,
-  userSuppliedObjNames = NULL)
+  userSuppliedObjNames = NULL, notOlderThan, ...)
 }
 \arguments{
 \item{sim}{A \code{simList} simulation object.}
@@ -37,6 +37,10 @@ indicating the names of objects that user has passed
 into simInit via objects or inputs.
 If all module inputObject dependencies are provided by user,
 then the \code{.inputObjects} code will be skipped.}
+
+\item{notOlderThan}{Passed to \code{Cache} that may be used for .inputObjects function call.}
+
+\item{...}{All \code{simInit} parameters.}
 }
 \value{
 \code{.parseModulePartial} extracts just the individual element
