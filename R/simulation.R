@@ -117,6 +117,8 @@ setMethod(
 #'                             into simInit via objects or inputs.
 #'                             If all module inputObject dependencies are provided by user,
 #'                             then the \code{.inputObjects} code will be skipped.
+#' @param notOlderThan Passed to \code{Cache} that may be used for .inputObjects function call.
+#' @param ... All \code{simInit} parameters.
 #'
 #' @return A \code{simList} simulation object.
 #'
@@ -130,7 +132,7 @@ setMethod(
 #' @author Alex Chubaty
 #'
 setGeneric(".parseModule",
-           function(sim, modules, userSuppliedObjNames = NULL) {
+           function(sim, modules, userSuppliedObjNames = NULL, notOlderThan, ...) {
              standardGeneric(".parseModule")
            })
 
@@ -138,7 +140,7 @@ setGeneric(".parseModule",
 setMethod(
   ".parseModule",
   signature(sim = "simList", modules = "list"),
-  definition = function(sim, modules, userSuppliedObjNames) {
+  definition = function(sim, modules, userSuppliedObjNames, notOlderThan, ...) {
     all_children <- list()
     children <- list()
     parent_ids <- integer()
@@ -186,6 +188,13 @@ setMethod(
           sim@params[[m]][[deps$paramName[x]]] <- deps$default[[x]]
         }
       }
+      # override immediately with user supplied values
+      pars <- list(...)$params
+      if(!is.null(pars[[m]])) {
+        if(length(pars[[m]])>0) {
+          sim@params[[m]][names(pars[[m]])] <- pars[[m]]
+        }
+      }
 
       # do inputObjects and outputObjects
       pf <- parsedFile[defineModuleItem]
@@ -219,10 +228,43 @@ setMethod(
 
       # If user supplies the needed objects, then test whether all are supplied.
       # If they are all supplied, then skip the .inputObjects code
+      cacheIt <- FALSE
       if (!all(sim@depends@dependencies[[i]]@inputObjects$objectName %in% userSuppliedObjNames)) {
         if (!is.null(sim@.envir$.inputObjects)) {
-          sim <- sim@.envir$.inputObjects(sim)
-          rm(".inputObjects", envir = sim@.envir)
+          a <- sim@params[[m]][[".useCache"]]
+          if (!is.null(a)) {
+            if(length(list(...)$params)) {  # user supplied values
+              b <- list(...)$params[[i]]$.useCache
+              if(!is.null(b)) a <- b
+            }
+            #.useCache is a parameter
+            if (!identical(FALSE, a)) {
+              #.useCache is not FALSE
+              if (!isTRUE(a)) {
+                #.useCache is not TRUE
+                if (cur[["eventType"]] %in% a) {
+                  cacheIt <- TRUE
+                }
+              } else {
+                cacheIt <- TRUE
+              }
+            }
+          }
+
+          if(cacheIt) {
+            message("Using cached copy of .inputObjects for", m)
+            objNam <- sim@depends@dependencies[[i]]@outputObjects$objectName
+            moduleSpecificObjects <- c(grep(ls(sim), pattern = m, value = TRUE),
+                                       na.omit(objNam))
+            moduleSpecificOutputObjects <- objNam
+            sim <- Cache(FUN = sim@.envir$.inputObjects, sim = sim,
+                         objects = moduleSpecificObjects,
+                         notOlderThan = notOlderThan,
+                         outputObjects = moduleSpecificOutputObjects)
+          } else {
+            sim <- sim@.envir$.inputObjects(sim)
+            rm(".inputObjects", envir = sim@.envir)
+          }
         }
       }
     }
@@ -335,6 +377,13 @@ setMethod(
 #'                   which to load the modules. If not specified, the module
 #'                   load order will be determined automatically.
 #'
+#' @param notOlderThan A time, as in from \code{Sys.time()}. This is passed into
+#'                     the \code{Cache} function that wraps \code{.inputObjects}.
+#'                     If the module has a parameter, \code{.useCache} and it is
+#'                     \code{TRUE}, then the \code{.inputObjects} will be cached.
+#'                     Passing the current time into to \code{notOlderThan} will cause the
+#'                     Cache to be refreshed, i.e., rerun.
+#'
 #' @return A \code{simList} simulation object, pre-initialized from values
 #' specified in the arguments supplied.
 #'
@@ -429,7 +478,8 @@ setMethod(
 #' }
 #'
 setGeneric("simInit",
-           function(times, params, modules, objects, paths, inputs, outputs, loadOrder) {
+           function(times, params, modules, objects, paths, inputs, outputs, loadOrder,
+                    notOlderThan = NULL) {
              standardGeneric("simInit")
 })
 
@@ -453,7 +503,8 @@ setMethod(
                         paths,
                         inputs,
                         outputs,
-                        loadOrder) {
+                        loadOrder,
+                        notOlderThan) {
     paths <- lapply(paths, checkPath, create = TRUE)
 
     objNames <- names(objects)
@@ -607,7 +658,9 @@ setMethod(
     while (!all_parsed) {
       sim <- .parseModule(sim,
                           sim@modules,
-                          userSuppliedObjNames = sim$.userSuppliedObjNames)
+                          userSuppliedObjNames = sim$.userSuppliedObjNames,
+                          notOlderThan = notOlderThan, params = params,
+                          objects = objects, paths = paths)
       if (length(.unparsed(sim@modules)) == 0) {
         all_parsed <- TRUE
       }
@@ -778,7 +831,8 @@ setMethod(
                         paths,
                         inputs,
                         outputs,
-                        loadOrder) {
+                        loadOrder,
+                        notOlderThan) {
     li <-
       lapply(names(match.call()[-1]), function(x)
         eval(parse(text = x)))
@@ -814,7 +868,8 @@ setMethod(
                         paths,
                         inputs,
                         outputs,
-                        loadOrder) {
+                        loadOrder,
+                        notOlderThan) {
     li <-
       lapply(names(match.call()[-1]), function(x)
         eval(parse(text = x)))
@@ -847,7 +902,8 @@ setMethod(
                         paths,
                         inputs,
                         outputs,
-                        loadOrder) {
+                        loadOrder,
+                        notOlderThan) {
     li <- lapply(names(match.call()[-1]), function(x) eval(parse(text = x)))
     names(li) <- names(match.call())[-1]
 
