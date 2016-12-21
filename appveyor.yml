@@ -42,7 +42,7 @@ branches:
 clone_depth: 5
 
 build_script:
-  - travis-tool.sh r_binary_install archivist chron CircStats data.table DEoptim DiagrammeR digest dplyr DT ff ffbase fpCompare ggplot2 gridBase httr igraph knitr lazyeval lubridate R.utils RandomFields RandomFieldsUtils raster RColorBrewer shiny sp stringi stringr
+  - travis-tool.sh r_binary_install archivist chron CircStats covr data.table DEoptim DiagrammeR digest dplyr DT ff ffbase fpCompare ggplot2 gridBase httr igraph knitr lazyeval lubridate R.utils RandomFields RandomFieldsUtils raster RColorBrewer shiny sp stringi stringr
   - travis-tool.sh install_deps
 
 test_script:
