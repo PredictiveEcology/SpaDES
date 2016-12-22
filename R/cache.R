@@ -99,9 +99,15 @@
 #' @param cacheRepo	A repository used for storing cached objects. This is optional
 #'                  if \code{Cache} is used inside a SpaDES module.
 #'
-#' @param makeCopy Logical. Indicate if
+#' @param makeCopy Logical. If TRUE, a copy of the downloaded files will be stored in the cacheRepo/gallery.
+#'                 This allow to recover a copy faster than running the function if files are not found locally.
+#'                 Only work when cache run for the first time for now.
 #'
-#' @param sideEffect
+#' @param sideEffect A logical argument indicating if downloaded files are found locally using
+#'                   filename and checksum. When absent, files are recover from the copy stored in cacheRepo/gallery.
+#'
+#' @param quick A logical argument indicating if checksum should be made on file (FALSE) or on character string
+#'              representing the combination of the filename and its size (TRUE). Default is TRUE
 #'
 #' @inheritParams digest::digest
 #'
