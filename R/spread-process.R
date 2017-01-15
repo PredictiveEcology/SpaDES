@@ -287,7 +287,7 @@ setGeneric("spread", function(landscape, loci = NA_real_,
                               stopRule = NA, stopRuleBehavior = "includeRing",
                               allowOverlap = FALSE,
                               asymmetry = NA_real_, asymmetryAngle = NA_real_,
-                              quick = FALSE,
+                              quick = FALSE, neighProbs = NULL,
                               ...) {
   standardGeneric("spread")
 })
@@ -309,12 +309,13 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 setMethod(
   "spread",
   signature(landscape = "RasterLayer"),
-  definition = function(landscape, loci, spreadProb, persistence, mask, maxSize,
+  definition = function(landscape, loci, spreadProb, persistence,
+                        mask, maxSize,
                         directions, iterations, lowMemory, returnIndices,
                         returnDistances, mapID, id, plot.it, spreadProbLater,
                         spreadState, circle, circleMaxRadius, stopRule,
                         stopRuleBehavior, allowOverlap, asymmetry, asymmetryAngle,
-                        quick,
+                        quick, neighProbs,
                         ...) {
 
     if (!is.null(mapID)) {
@@ -519,21 +520,34 @@ setMethod(
     }
 
     noMaxSize <- all(maxSize >= ncells) # will be used to omit testing for maxSize
-
+    if(is.null(neighProbs)) {
+      numNeighs <- NULL
+    }
     # while there are active cells
     while (length(loci) & (n <= iterations) ) {
+      if(!is.null(neighProbs)) {
+        numNeighs <- sample.int(length(neighProbs),
+                                size = length(loci),
+                                replace = TRUE,
+                                prob=neighProbs)
+      }
+
       # identify neighbours
       if (allowOverlap | returnDistances) {
-        whActive <- spreads[, "active"] == 1 # spreads carries over
-        potentials <- adj(landscape, loci, directions, pairs = TRUE, id = spreads[whActive, "id"])
-        spreads[whActive, "active"] <- 0
+        whActive <- spreads[,"active"] == 1 # spreads carries over
+        potentials <- adj(landscape, loci, directions, pairs = TRUE,
+                          id = spreads[whActive, "id"], numNeighs = numNeighs)
+        spreads[whActive,"active"] <- 0
         potentials <- cbind(potentials, active = 1)
       } else {
         if (id | returnIndices | circle) {
-          potentials <- adj(landscape, loci, directions, pairs = TRUE)
+          #potentials <- adj(landscape, loci, directions, pairs = TRUE)
+          potentials <- adj(landscape, loci, directions, pairs = TRUE,
+                                numNeighs = numNeighs)
         } else {
           # must pad the first column of potentials
-          potentials <- cbind(NA, adj(landscape, loci, directions, pairs = FALSE))
+          potentials <- cbind(NA, adj(landscape, loci, directions, pairs = FALSE,
+                                      numNeighs=numNeighs))
         }
       }
 
@@ -607,7 +621,7 @@ setMethod(
       #if(integerProbs) {
       #  potentials <- potentials[as.logical(spreadProbs), , drop = FALSE]
       #} else if (any(spreadProbs < 1)) {
-        potentials <- potentials[runif(NROW(potentials)) <= spreadProbs, , drop = FALSE]
+      potentials <- potentials[runif(NROW(potentials)) <= spreadProbs, , drop = FALSE]
       #}
       potentials <- potentials[sample.int(NROW(potentials)), , drop = FALSE] # random ordering so not always same
       if (!allowOverlap) { # here is where allowOverlap and returnDistances are different

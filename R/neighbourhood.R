@@ -93,9 +93,9 @@ if (getRversion() >= "3.1.0") {
 adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
                     include = FALSE, target = NULL, numCol = NULL, numCell = NULL,
                     match.adjacent = FALSE, cutoff.for.data.table = 1e4,
-                    torus = FALSE, id = NULL) {
-  to <- NULL
-  J <- NULL
+                    torus = FALSE, id = NULL, numNeighs = NULL) {
+  to = NULL
+  J = NULL
   cells <- as.integer(cells)
 
   if (is.null(numCol) | is.null(numCell)) {
@@ -129,6 +129,7 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
   }
 
   toCells <- if (directions == 8) {
+
     if (match.adjacent)
       if (include)
         c(cells, topl, lef, botl, topr, rig, botr, top, bot)
@@ -163,6 +164,17 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
         c(topl, topr, botl, botr)
   } else {
     stop("directions must be 4 or 8 or \'bishop\'")
+  }
+
+  if(!is.null(numNeighs)) {
+    lenCells <- length(cells)
+    if(length(numNeighs)==1) numNeighs <- rep(numNeighs, lenCells)
+    ind <- unlist(sampleV(1:(directions+include), size=numNeighs))
+    minusVal <- lenCells - rep.int(seq_along(cells), numNeighs)
+    indFull2 <- ind * lenCells - minusVal
+
+    toCells <- toCells[indFull2]
+    fromCells <- fromCells[indFull2]
   }
 
   useMatrix <- (length(cells) < cutoff.for.data.table)
@@ -229,7 +241,7 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
         return(adj)
       }
     }
-  } else {
+  } else { # use data.table
     #################################################
     # Remove all cells that are not target cells, if target is a vector of cells
     if (!is.null(target)) {
@@ -1008,3 +1020,7 @@ setMethod(
     d2xx[, -whDrop, drop = FALSE]
   }
 })
+
+
+
+sampleV <- Vectorize("sample", "size", SIMPLIFY = FALSE)

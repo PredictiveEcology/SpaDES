@@ -22,8 +22,9 @@ if (interactive()) {
 }
 
 # initiate 10 fires
-startCells <- as.integer(sample(1:ncell(emptyRas), 10))
-fires <- spread(hab, loci = startCells, 0.235, 0, NULL, 1e8, 8, 1e6, id = TRUE)
+startCells <- as.integer(sample(1:ncell(emptyRas),10))
+fires <- spread(hab, loci = startCells, 0.235, persistence = 0, numNeighs = 2,
+                mask=NULL, maxSize = 1e8, directions=8, iterations=1e6, id = TRUE)
 
 #set colors of raster, including a transparent layer for zeros
 setColors(fires, 10) <- c("transparent", brewer.pal(8, "Reds")[5:8])
@@ -226,3 +227,15 @@ if (interactive()) {
   clearPlot()
   Plot(overlapEvents)
 }
+
+
+## Using alternative algorithm, not probabilistic diffusion
+## Will give exactly correct sizes, yet still with variability
+## within the spreading (i.e., cells with and without successes)
+dev();
+set.seed(123)
+fires <- spread(hab, loci = startCells, 1, persistence = 0,
+                neighProbs = c(0.5, 0.5, 0.5)/1.5,
+                mask=NULL, maxSize = c(50,20), directions=8,
+                iterations=1e6, id = TRUE, plot.it = FALSE);
+print(seed);table(fires[fires>0][]); Plot(fires, new=TRUE, cols = c("red", "blue"))
