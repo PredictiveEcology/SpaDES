@@ -351,8 +351,9 @@ setMethod(
     }
 
     if (spreadStateExists) {
-      loci <- loci[!(loci %fin% spreadState[, indices])] # keep these for later
-      initialLoci <- loci
+      loci <- spreadState[active==TRUE, indices]
+      #loci <- loci[!(loci %fin% spreadState[, indices])] # keep these for later
+      initialLoci <- unique(spreadState$initialLocus)
     } else {
       initialLoci <- loci
     }
@@ -379,8 +380,13 @@ setMethod(
     ncells <- ncell(landscape)
 
     if (allowOverlap | returnDistances) {
-      spreads <- cbind(initialLocus = initialLoci, indices = initialLoci,
-                       id = 1:length(loci), active = 1)
+      if (spreadStateExists) {
+        spreads <- as.matrix(spreadState[,list(initialLocus, indices, id, active)])
+        
+      } else {
+        spreads <- cbind(initialLocus = initialLoci, indices = initialLoci,
+                         id = 1:length(loci), active = 1)
+      }
     } else {
       if (lowMemory) {
         # create vector of 0s called spreads, which corresponds to the indices
@@ -447,8 +453,12 @@ setMethod(
 
     if (!allowOverlap & !returnDistances) {
       if (id | returnIndices) {
-        # give values to spreads vector at initialLoci
-        spreads[loci] <- 1L:length(loci)
+        if (spreadStateExists) {
+          spreads[spreadState$indices] <- spreadState$id
+        } else {
+          # give values to spreads vector at initialLoci
+          spreads[loci] <- 1L:length(loci)
+        }
       } else {
         spreads[loci] <- n
       }
@@ -488,8 +498,6 @@ setMethod(
     # Mask spreadProbLater and spreadProb
     if (is(mask, "Raster")) {
       spreadProbLater[mask[] == 1L] <- 0L
-    }
-    if (is(mask, "Raster")) {
       spreadProb[mask[] == 1L] <- 0L
     }
 
@@ -497,11 +505,11 @@ setMethod(
       if (allowOverlap | returnDistances) {
         stop("Using spreadState with either allowOverlap = TRUE or returnDistances = TRUE is not implemented")
       } else {
-        if (sum(colnames(spreadState) %fin% c("indices", "id", "active", "initialLocus")) == 4) {
-          spreads[loci] <- spreads[loci] + spreadState[, max(id)] # reassign old ones
-          spreads[spreadState[, indices]] <- spreadState[, id]
-          loci <- c(spreadState[active == TRUE, indices], loci) %>% na.omit()
-        } else {
+        if (sum(colnames(spreadState) %fin% c("indices", "id", "active", "initialLocus")) != 4) {
+        #   spreads[loci] <- spreads[loci] + spreadState[, max(id)] # reassign old ones
+        #   spreads[spreadState[, indices]] <- spreadState[, id]
+        #   loci <- c(spreadState[active == TRUE, indices], loci) %>% na.omit()
+        # } else {
           stop("spreadState must have at least columns: ",
                "indices, id, active, and initialLocus.")
         }
@@ -888,7 +896,7 @@ setMethod(
       }
 
       if (plot.it) {
-        if (n == 2) clearPlot()
+        if (n == 2 & !spreadStateExists) clearPlot()
         if (allowOverlap | returnDistances) {
           spreadsDT <- data.table(spreads);
           hab2 <- landscape;
@@ -903,7 +911,7 @@ setMethod(
         }
       }
       loci <- c(loci, events) # new loci list for next while loop, concat of persistent and new events
-    }
+    } # end of while loop
 
     # Convert the data back to raster
     if (!allowOverlap & !returnDistances) {
@@ -944,18 +952,20 @@ setMethod(
         allCells <- data.table(spreads[, keepCols]) # change column order to match non allowOverlap
         set(allCells, , j = "active", as.logical(allCells$active))
       } else {
-        allCells <- rbindlist(list(completed, active))
+        setkeyv(completed, c("id","indices"))
+        setkeyv(active, c("id","indices"))
+        allCells <- completed[active, active:=TRUE] #rbindlist(list(completed, active))
         initEventID <- allCells[indices %fin% initialLoci, id]
         if (!all(is.na(initialLoci))) {
           dtToJoin <- data.table(id = sort(initEventID), initialLocus = initialLoci)
         } else {
           dtToJoin <- data.table(id = numeric(0), initialLocus = numeric(0))
         }
-        if (spreadStateExists) {
-          spreadStateInitialLoci <- spreadState[, list(id = unique(id),
-                                                       initialLocus = unique(initialLocus))]
-          dtToJoin <- rbindlist(list(spreadStateInitialLoci, dtToJoin))
-        }
+        #if (spreadStateExists) {
+        #  spreadStateInitialLoci <- spreadState[, list(id = unique(id),
+        #                                               initialLocus = unique(initialLocus))]
+        #  dtToJoin <- rbindlist(list(spreadStateInitialLoci, dtToJoin))
+        #}
         setkeyv(dtToJoin, "id")
         setkeyv(allCells, "id")
 
