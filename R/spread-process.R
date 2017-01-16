@@ -540,32 +540,38 @@ setMethod(
     if(is.null(neighProbs)) {
       numNeighs <- NULL
     }
-    numRetries <- rep(0, length(loci))
+
+    numRetries <- rep(0, length(initialLoci))
     # while there are active cells
     while (length(loci) & (n <= iterations) ) {
       if(!is.null(neighProbs)) {
-        numNeighs <- sample.int(length(neighProbs),
-                                size = length(loci),
-                                replace = TRUE,
-                                prob=neighProbs)
+        numNeighs <- if(is.list(neighProbs)) {
+          unlist(lapply(neighProbs, function(x) {
+            sample.int(length(x), size = 1, replace = TRUE, prob = x)
+          })) 
+        } else {
+          sample.int(length(neighProbs), size = length(loci),
+                                replace = TRUE, prob=neighProbs)
+        }
       }
 
       # identify neighbours
+      
       if (allowOverlap | returnDistances) {
         whActive <- spreads[,"active"] == 1 # spreads carries over
         potentials <- adj(landscape, loci, directions, pairs = TRUE,
-                          id = spreads[whActive, "id"], numNeighs = numNeighs)
+                          id = spreads[whActive, "id"])#, numNeighs = numNeighs)
         spreads[whActive,"active"] <- 0
         potentials <- cbind(potentials, active = 1)
       } else {
         if (id | returnIndices | circle) {
           #potentials <- adj(landscape, loci, directions, pairs = TRUE)
-          potentials <- adj(landscape, loci, directions, pairs = TRUE,
-                                numNeighs = numNeighs)
+          potentials <- adj(landscape, loci, directions, pairs = TRUE)#,
+                                #numNeighs = numNeighs)
         } else {
           # must pad the first column of potentials
-          potentials <- cbind(NA, adj(landscape, loci, directions, pairs = FALSE,
-                                      numNeighs=numNeighs))
+          potentials <- cbind(NA, adj(landscape, loci, directions, pairs = FALSE))
+                                      #numNeighs=numNeighs))
         }
       }
 
@@ -590,7 +596,26 @@ setMethod(
                           d[, "active"] == 1, , drop = FALSE][, -lastCol, drop = FALSE]
 
       } else {
-        potentials <- potentials[spreads[potentials[, 2L]] == 0L, , drop = FALSE]
+        keep <- spreads[potentials[, 2L]] == 0L
+        potentials <- potentials[keep, , drop = FALSE]
+      }
+      
+      if (!is.null(neighProbs)) {
+        aaa <- split(seq_along(potentials[,"to"]), potentials[, "from"]);
+        if(length(aaa) != length(numNeighs)) {
+          activeCellContinue <- loci %in% unique(potentials[,"from"])
+          numNeighs <- numNeighs[activeCellContinue]
+        }
+        
+        tmpA <- unlist(lapply(aaa, length))
+        tmpB <- which(tmpA<numNeighs)
+        if(length(tmpB)>0)
+          numNeighs[tmpB] <- unname(tmpA[tmpB])
+        
+        numNeighsKeep <- unlist(lapply(seq_along(aaa), function(x) resample(aaa[[x]],size=numNeighs[x])))
+        potentials <- potentials[numNeighsKeep,,drop=FALSE]
+        #microbenchmark(unname(unlist(tapply(seq_along(potentials[,"to"]), potentials[, "from"], function(x) sample(x, size = 2)))),
+        #potentials <- data.table(potentials) %>% .[,list(to=sample(to,size=2)),by=from] %>% as.matrix())
       }
 
       if (n == 2) {
