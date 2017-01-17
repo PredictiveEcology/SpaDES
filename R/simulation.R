@@ -233,7 +233,8 @@ setMethod(
         if (!is.null(sim@.envir$.inputObjects)) {
           a <- sim@params[[m]][[".useCache"]]
           if (!is.null(a)) {
-            if(length(list(...)$params)) {  # user supplied values
+            if(".useCache" %in% names(list(...)$params)) {  # user supplied values
+              #browser()
               b <- list(...)$params[[i]]$.useCache
               if(!is.null(b)) a <- b
             }
