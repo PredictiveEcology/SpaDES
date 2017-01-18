@@ -99,6 +99,16 @@
 #' @param cacheRepo	A repository used for storing cached objects. This is optional
 #'                  if \code{Cache} is used inside a SpaDES module.
 #'
+#' @param makeCopy Logical. If TRUE, a copy of the downloaded files will be stored in the cacheRepo/gallery.
+#'                 This allow to recover a copy faster than running the function if files are not found locally.
+#'                 Only work when cache run for the first time for now.
+#'
+#' @param sideEffect A logical argument indicating if downloaded files are found locally using
+#'                   filename and checksum. When absent, files are recover from the copy stored in cacheRepo/gallery.
+#'
+#' @param quick A logical argument indicating if checksum should be made on file (FALSE) or on character string
+#'              representing the combination of the filename and its size (TRUE). Default is TRUE
+#'
 #' @inheritParams digest::digest
 #'
 #' @return As with \code{\link[archivist]{cache}}, the return is either the return
@@ -173,7 +183,7 @@
 setGeneric("Cache", signature = "...",
            function(FUN, ..., notOlderThan = NULL,
                     objects = NULL, outputObjects = NULL, algo = "xxhash32",
-                    cacheRepo = NULL) {
+                    cacheRepo = NULL, sideEffect= FALSE, makeCopy = FALSE, quick) {
              archivist::cache(cacheRepo, FUN, ..., notOlderThan, algo)
 })
 
@@ -182,10 +192,13 @@ setGeneric("Cache", signature = "...",
 setMethod(
   "Cache",
   definition = function(FUN, ..., notOlderThan, objects, outputObjects,
-                        algo, cacheRepo = NULL) {
+                        algo, cacheRepo = NULL, sideEffect= FALSE, makeCopy = FALSE, quick) {
     tmpl <- list(...)
-
+    browser()
     if (missing(notOlderThan)) notOlderThan <- NULL
+
+    if (missing(quick)) quick <- TRUE
+
     # These three lines added to original version of cache in archive package
     wh <- which(sapply(tmpl, function(x) is(x, "simList")))
     if (is.null(cacheRepo)) {
@@ -221,6 +234,7 @@ setMethod(
       if (length(wh) > 0) tmpl[wh] <- lapply(tmpl[wh], function(xx) makeDigestible(xx, objects))
     }
 
+
     if (isS4(FUN)) {
       # Have to extract the correct dispatched method
       firstElems <- strsplit(showMethods(FUN, inherited = TRUE, printTo = FALSE), split = ", ")
@@ -247,7 +261,18 @@ setMethod(
     if (length(whRas) > 0) tmpl[whRas] <- lapply(tmpl[whRas], makeDigestible)
     if (length(whFun) > 0) tmpl[whFun] <- lapply(tmpl[whFun], format)
     if (!is.null(tmpl$progress)) if (!is.na(tmpl$progress)) tmpl$progress <- NULL
+    #0
+    currentdirList <- dir(cacheRepo)
+    currentFileList <- currentdirList[ !file.info(file.path(cacheRepo,currentdirList))$isdir ]
+    if (quick){
+      sizeCurrentFiles <- lapply(currentFileList, function(x) {list(x, file.info(x)[,"size"])})
+      cacheCurrentFiles <- lapply(sizeCurrentFiles, function(x) {digest::digest(x, algo = algo)})
+    } else {
+      cacheCurrentFiles <- lapply(currentFileList, function(x) {digest::digest(file = file.path(cacheRepo,x), algo = algo)})
+    }
+    names(cacheCurrentFiles)<-currentFileList
 
+    #1
     outputHash <- digest::digest(tmpl, algo = algo)
     localTags <- showLocalRepo(cacheRepo, "tags")
     isInRepo <- localTags[localTags$tag == paste0("cacheId:", outputHash), , drop = FALSE]
@@ -262,6 +287,22 @@ setMethod(
 
         out <- loadFromLocalRepo(isInRepo$artifact[lastOne],
                                  repoDir = cacheRepo, value = TRUE)
+
+        if (sideEffect){
+          cachedFileNames <- sub(":.*", "", attributes(out)$cacheFileList)
+          repoFrom = file.path(cacheRepo, "gallery")
+          for (i in 1:length(cachedFileNames)){
+            if(!file.exists(file.path(cacheRepo, cachedFileNames[i]))) {
+              file.copy(file.path(cacheRepo, cachedFileNames[i]), repoFrom)
+            } else {
+              currentFilesize <- paste0(names(cacheCurrentFiles), ":", cacheCurrentFiles)
+              if (attributes(out)$cacheFileList[i] != currentFilesize[i]) {
+                file.copy(file.path(cacheRepo, currentFileNames[i]), repoFrom)
+              }
+            }
+          }
+        }
+
         #if(!is(out, "simList")) {
           if (length(wh) > 0) {
             simListOut <- out # gets all items except objects in list(...)
@@ -276,6 +317,7 @@ setMethod(
 
             return(simListOut)
           }
+
         #}
 
         return(out)
@@ -288,6 +330,9 @@ setMethod(
     output <- do.call(FUN, list(...))
     attr(output, "tags") <- paste0("cacheId:", outputHash)
     attr(output, "call") <- ""
+    #0
+    attr(output, "cacheFileList") <- paste0(names(cacheCurrentFiles), ":", cacheCurrentFiles)
+    #1
     if (isS4(FUN)) attr(output, "function") <- FUN@generic
 
     if (is(output, "simList")) {
@@ -297,6 +342,9 @@ setMethod(
         list2env(mget(outputObjects, envir = output@.envir), envir = outputToSave@.envir)
         attr(outputToSave, "tags") <- attr(output, "tags")
         attr(outputToSave, "call") <- attr(output, "call")
+        #0
+        attr(outputToSave, "endFileList") <- attr(output, "endFileList")
+        #1
         if (isS4(FUN))
           attr(outputToSave, "function") <- attr(output, "function")
       } else {
@@ -320,6 +368,15 @@ setMethod(
       } else {
         TRUE
       }
+    }
+    if (makeCopy){
+      endFileList <- dir(cacheRepo)
+      dwdFile <- setdiff(endFileList, currentdirList)
+      repoTo = file.path(cacheRepo, "gallery")
+      for (i in 1:length(output$paths)){
+        file.copy(output$paths[i], repoTo)
+      }
+
     }
     return(output)
 })

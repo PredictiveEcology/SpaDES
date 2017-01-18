@@ -96,6 +96,7 @@ Collate:
     'agent.R'
     'SELES.R'
     'cache.R'
+    'cache_test.R'
     'check.R'
     'checkpoint.R'
     'copy.R'
