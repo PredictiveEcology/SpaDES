@@ -2,7 +2,7 @@
 title: "03 Plotting with `SpaDES`"
 author:
   - "Eliot J. B. McIntire"
-date: '`r format(Sys.Date(), format = "%B %d %Y")`'
+date: '`r strftime(Sys.Date(), "%B %d %Y")`'
 output:
   rmarkdown::html_vignette:
     fig_width: 7
