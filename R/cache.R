@@ -192,7 +192,7 @@ setMethod(
       if (length(wh) > 0) {
         cacheRepo <- tmpl[wh][[1]]@paths$cachePath # just take the first simList, if there are >1
       } else {
-        doEventFrameNum <- grep(sys.calls(), pattern = "^doEvent")[1]
+        doEventFrameNum <- grep(sys.calls(), pattern = "(^doEvent)|(^.parseModule)")[1]
         if (!is.na(doEventFrameNum)) {
           sim <- get("sim", envir = sys.frame(doEventFrameNum))
           cacheRepo <- sim@paths$cachePath
