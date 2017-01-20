@@ -478,3 +478,7 @@ NULL
 
 #' @import utils
 NULL
+
+#'@importFrom Rcpp evalCpp
+#'@useDynLib SpaDES
+NULL
