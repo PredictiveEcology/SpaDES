@@ -1022,5 +1022,3 @@ setMethod(
 })
 
 
-
-sampleV <- Vectorize("sample", "size", SIMPLIFY = FALSE)

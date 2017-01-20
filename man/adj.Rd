@@ -9,12 +9,12 @@
 adj.raw(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
   include = FALSE, target = NULL, numCol = NULL, numCell = NULL,
   match.adjacent = FALSE, cutoff.for.data.table = 10000, torus = FALSE,
-  id = NULL)
+  id = NULL, numNeighs = NULL)
 
 adj(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
   include = FALSE, target = NULL, numCol = NULL, numCell = NULL,
   match.adjacent = FALSE, cutoff.for.data.table = 10000, torus = FALSE,
-  id = NULL)
+  id = NULL, numNeighs = NULL)
 }
 \arguments{
 \item{x}{Raster* object for which adjacency will be calculated.}

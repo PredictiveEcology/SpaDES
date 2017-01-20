@@ -13,7 +13,8 @@ spread(landscape, loci = NA_real_, spreadProb = 0.23, persistence = 0,
   id = FALSE, plot.it = FALSE, spreadProbLater = NA_real_,
   spreadState = NA, circle = FALSE, circleMaxRadius = NA_real_,
   stopRule = NA, stopRuleBehavior = "includeRing", allowOverlap = FALSE,
-  asymmetry = NA_real_, asymmetryAngle = NA_real_, quick = FALSE, ...)
+  asymmetry = NA_real_, asymmetryAngle = NA_real_, quick = FALSE,
+  neighProbs = NULL, exactSizes = NULL, ...)
 
 \S4method{spread}{RasterLayer}(landscape, loci = NA_real_,
   spreadProb = 0.23, persistence = 0, mask = NA, maxSize = 100000000L,
@@ -23,7 +24,8 @@ spread(landscape, loci = NA_real_, spreadProb = 0.23, persistence = 0,
   spreadProbLater = NA_real_, spreadState = NA, circle = FALSE,
   circleMaxRadius = NA_real_, stopRule = NA,
   stopRuleBehavior = "includeRing", allowOverlap = FALSE,
-  asymmetry = NA_real_, asymmetryAngle = NA_real_, quick = FALSE, ...)
+  asymmetry = NA_real_, asymmetryAngle = NA_real_, quick = FALSE,
+  neighProbs = NULL, exactSizes = NULL, ...)
 }
 \arguments{
 \item{landscape}{A \code{RasterLayer} object. This defines the possible locations
@@ -300,7 +302,7 @@ library(raster)
 library(RColorBrewer)
 
 # Make random forest cover map
-emptyRas <- raster(extent(0, 1e2, 0, 1e2), res = 1)
+emptyRas <- raster(extent(0, 1e3, 0, 1e3), res = 1)
 hab <- randomPolygons(emptyRas, numTypes = 40)
 names(hab) <- "hab"
 mask <- raster(emptyRas)
@@ -320,8 +322,9 @@ if (interactive()) {
 }
 
 # initiate 10 fires
-startCells <- as.integer(sample(1:ncell(emptyRas), 10))
-fires <- spread(hab, loci = startCells, 0.235, 0, NULL, 1e8, 8, 1e6, id = TRUE)
+startCells <- as.integer(sample(1:ncell(emptyRas),100))
+fires <- spread(hab, loci = startCells, 0.235, persistence = 0, numNeighs = 2,
+                mask=NULL, maxSize = 1e8, directions=8, iterations=1e6, id = TRUE)
 
 #set colors of raster, including a transparent layer for zeros
 setColors(fires, 10) <- c("transparent", brewer.pal(8, "Reds")[5:8])
@@ -335,13 +338,13 @@ if (interactive()) {
   Plot(fires) # default color range makes zero transparent.
   # Instead, to give a color to the zero values, use \\code{zero.color=}
   Plot(fires, addTo = "hab",
-       cols = colorRampPalette(c("orange", "darkred"))(10))
+       cols = colorRampPalette(c("orange","darkred"))(10), zero.color = "transparent")
   hab2 <- hab
   Plot(hab2)
-  Plot(fires, addTo = "hab2", zero.color = "white",
-     cols = colorRampPalette(c("orange", "darkred"))(10))
+  Plot(fires, addTo = "hab2", zero.color = "transparent",
+     cols = colorRampPalette(c("orange","darkred"))(10))
   # or overplot the original (NOTE: legend stays at original values)
-  Plot(fires, cols = topo.colors(10))
+  Plot(fires, cols = topo.colors(10), new=TRUE, zero.color = "white")
 }
 
 ####################
@@ -524,6 +527,24 @@ if (interactive()) {
   clearPlot()
   Plot(overlapEvents)
 }
+
+
+## Using alternative algorithm, not probabilistic diffusion
+## Will give exactly correct sizes, yet still with variability
+## within the spreading (i.e., cells with and without successes)
+dev();
+seed <- sample(1e6,1)
+#seed <- 576534
+set.seed(seed); print(seed)
+maxSizes <- rexp(length(startCells), rate = 1/500)
+fires <- spread(hab, loci = startCells, 1, persistence = 0,
+                neighProbs = c(0.5, 0.5, 0.5)/1.5,
+                mask=NULL, maxSize = maxSizes, directions=8,
+                iterations=1e6, id = TRUE, plot.it = FALSE, exactSizes = TRUE);
+table(fires[fires>0][]) < floor(maxSizes);
+clearPlot();Plot(fires, new=TRUE, cols = c("red", "yellow"),
+                              zero.color = "white")
+Plot(hist(table(fires[][fires[]>0])), title = "fire size distribution")
 }
 \author{
 Eliot McIntire

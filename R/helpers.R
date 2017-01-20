@@ -194,3 +194,12 @@ setMethod(
   # Convert character strings to their objects
   lapply(objects, function(x) get(x, envir = sys.frames()[[grep1]]))
 }
+
+#' Vectorized version of \code{sample} using \code{Vectorize}
+#'
+#' Intended for internal use only. \code{size} is vectorized.
+#' @return A random perumtation, as in \code{sample}, but with \code{size} vectorized.
+#' @keywords internal
+#' @inheritParams base::sample
+#'
+sampleV <- Vectorize("sample", "size", SIMPLIFY = FALSE)

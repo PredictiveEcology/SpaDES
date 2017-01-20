@@ -382,7 +382,7 @@ setMethod(
     if (allowOverlap | returnDistances) {
       if (spreadStateExists) {
         spreads <- as.matrix(spreadState[,list(initialLocus, indices, id, active)])
-        
+
       } else {
         spreads <- cbind(initialLocus = initialLoci, indices = initialLoci,
                          id = 1:length(loci), active = 1)
@@ -548,7 +548,7 @@ setMethod(
         numNeighs <- if(is.list(neighProbs)) {
           unlist(lapply(neighProbs, function(x) {
             sample.int(length(x), size = 1, replace = TRUE, prob = x)
-          })) 
+          }))
         } else {
           sample.int(length(neighProbs), size = length(loci),
                                 replace = TRUE, prob=neighProbs)
@@ -556,7 +556,7 @@ setMethod(
       }
 
       # identify neighbours
-      
+
       if (allowOverlap | returnDistances) {
         whActive <- spreads[,"active"] == 1 # spreads carries over
         potentials <- adj(landscape, loci, directions, pairs = TRUE,
@@ -599,19 +599,19 @@ setMethod(
         keep <- spreads[potentials[, 2L]] == 0L
         potentials <- potentials[keep, , drop = FALSE]
       }
-      
+
       if (!is.null(neighProbs)) {
         aaa <- split(seq_along(potentials[,"to"]), potentials[, "from"]);
         if(length(aaa) != length(numNeighs)) {
           activeCellContinue <- loci %in% unique(potentials[,"from"])
           numNeighs <- numNeighs[activeCellContinue]
         }
-        
+
         tmpA <- unlist(lapply(aaa, length))
         tmpB <- which(tmpA<numNeighs)
         if(length(tmpB)>0)
           numNeighs[tmpB] <- unname(tmpA[tmpB])
-        
+
         numNeighsKeep <- unlist(lapply(seq_along(aaa), function(x) resample(aaa[[x]],size=numNeighs[x])))
         potentials <- potentials[numNeighsKeep,,drop=FALSE]
         #microbenchmark(unname(unlist(tapply(seq_along(potentials[,"to"]), potentials[, "from"], function(x) sample(x, size = 2)))),
@@ -1599,5 +1599,3 @@ directionFromEachPoint <- function(from, to = NULL, landscape) {
   fmatch(x, table, nomatch = 0L) > 0L
 }
 
-
-resample <- function(x, ...) x[sample.int(length(x), ...)]
