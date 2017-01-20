@@ -641,6 +641,9 @@ setMethod(
             }
             potentials <- d[, !(colnames(d) %fin% c("x", "y")), drop = FALSE]
             potentials <- potentials[(d[, "dists"] %<=% cMR), , drop = FALSE]
+            # whKeep <- (d[, "dists"] %<=% cMR)
+            # potentials <- potentials[whKeep, , drop = FALSE]
+            # potentials[,"dists"] <- d[whKeep, !(colnames(d) %fin% c("x", "y")), drop = TRUE]
           }
         }
 
@@ -1201,14 +1204,26 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
   }
 
   if (!matched) {
-    if (NROW(from) > 1) {
+    nrowFrom <- NROW(from)
+    if (nrowFrom > 1) {
       if (is.null(cumulativeFn)) {
-        out <- lapply(seq_len(NROW(from)), function(k) {
-          out <- .pointDistance(from = from[k, , drop = FALSE], to = to,
-                                angles = angles, maxDistance = maxDistance,
-                                otherFromCols = otherFromCols)
-        })
-        out <- do.call(rbind, out)
+        if((any(otherFromCols) | isTRUE(angles))  ) {
+        #if(TRUE) {
+          out <- lapply(seq_len(nrowFrom), function(k) {
+             out <- .pointDistance(from = from[k, , drop = FALSE], to = to,
+                                   angles = angles, maxDistance = maxDistance,
+                                   otherFromCols = otherFromCols)
+           })
+          out <- do.call(rbind, out)
+        } else {
+        #browser()
+          maxDistance2 <- if(is.na(maxDistance)) Inf else maxDistance
+          out <- pointDistance3(fromX = from[, "x"], toX = to[, "x"],
+                              fromY = from[, "y"], toY = to[, "y"],
+                              maxDistance = maxDistance2)
+        }
+          #browser()
+        #if(!all.equal(out2, out)) stop("Not all equal")
       } else {
         # if there is a cluster, then there are two levels of cumulative function,
         #  inside each cluster and outside, or "within and between clusters".
@@ -1219,7 +1234,7 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
 
           cumVal <- rep_len(0, NROW(to))
 
-          for (k in seq_len(NROW(from))) {
+          for (k in seq_len(nrowFrom)) {
             out <- .pointDistance(from = from[k, , drop = FALSE], to = to,
                                   angles = angles, maxDistance = maxDistance,
                                   otherFromCols = otherFromCols)
@@ -1269,8 +1284,8 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
 
         if (!is.null(cl)) {
           parFun <- "clusterApply"
-          seqLen <- seq_len(min(NROW(from), length(cl)))
-          inds <- rep(seq_along(cl), length.out = NROW(from))
+          seqLen <- seq_len(min(nrowFrom, length(cl)))
+          inds <- rep(seq_along(cl), length.out = nrowFrom)
           fromList <- lapply(seqLen, function(ind) {
             from[inds == ind, , drop = FALSE]
           })
@@ -1332,13 +1347,28 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
   # It is about 2x faster to use the compiled C routine from raster package
     #m1 <- to[, c("x", "y"), drop = FALSE]
     #m2 <- from[, c("x", "y"), drop = FALSE]
-    dists <- sqrt((to[, "x"] - from[, "x"]) ^ 2 + (to[, "y"] - from[, "y"]) ^ 2)
-    if (!is.na(angles)) {
-      m1 <- to[, c("x", "y"), drop = FALSE]
-      m2 <- from[, c("x", "y"), drop = FALSE]
-      angls <- .pointDirection(m1, m2)
-      dists <- cbind(dists = dists, angles = angls)
-    }
+  #browser()
+  #microbenchmark::microbenchmark(times = 1e2, {
+   #dists <- sqrt((to[, "x"] - from[, "x"]) ^ 2 + (to[, "y"] - from[, "y"]) ^ 2)
+  #  dists1 <- bSugar(to[,"x"], from[,"x"], to[,"y"], from[,"y"]),
+  #  dists2 <- b8(to[,"x"], from[,"x"], to[,"y"], from[,"y"]),
+  #  dists3 <- b(to[,"x"], from[,"x"], to[,"y"], from[,"y"]),
+  #  cvers <- {
+       #m1 <- to[, c("x", "y"), drop = FALSE]
+       #m2 <- from[, c("x", "y"), drop = FALSE]
+
+  #     dists <- .Call("distanceToNearestPoint",
+  #                    to[, c("x", "y"), drop = FALSE], from[, c("x", "y"), drop = FALSE],
+  #                    as.integer(0), PACKAGE = "raster")
+  #  }
+
+  #)
+    # if (!is.na(angles)) {
+    #   m1 <- to[, c("x", "y"), drop = FALSE]
+    #   m2 <- from[, c("x", "y"), drop = FALSE]
+    #   angls <- .pointDirection(m1, m2)
+    #   dists <- cbind(dists = dists, angles = angls)
+    # }
 
   # This is experimental C++ routine
   ##m1 <- to[, c("x", "y"), drop = FALSE]
@@ -1364,7 +1394,14 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
     #   dists <- cbind(dists = dists, angles = angles)
     # }
 
-    dists <- cbind(to, dists = dists)
+    #dists <- cbind(to, dists = dists)
+#  }, {
+    #dists <- pointDistance2(to[,"x"], from[,"x"], to[,"y"], from[,"y"])
+  #browser()
+    dists <- pointDistance2(to, from)
+    #  }
+#  )
+
     if (!is.na(maxDistance)) {
       dists <- dists[dists[, "dists"] <= maxDistance, ]
     }
@@ -1374,6 +1411,7 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
       colnames(dists)[-colNums] <- colnames(from)[otherFromCols]
     }
     return(dists)
+
 }
 
 #' Calculate matched point directions
@@ -1471,8 +1509,8 @@ directionFromEachPoint <- function(from, to = NULL, landscape) {
   if (is.null(to))
     to <- xyFromCell(landscape, 1:ncell(landscape))
   if (!matched) {
-    if (NROW(from) > 1) {
-      out <- lapply(seq_len(NROW(from)), function(k) {
+    if (nrowFrom > 1) {
+      out <- lapply(seq_len(nrowFrom), function(k) {
         out <- .pointDirection(from = from[k, , drop = FALSE], to = to)
         cbind(out, id = ids[k])
       })
