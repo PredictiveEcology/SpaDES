@@ -71,6 +71,7 @@ Imports:
     RandomFields (>= 3.1.24),
     raster,
     RColorBrewer,
+    Rcpp (>= 0.12.8),
     rstudioapi (>= 0.5),
     shiny (>= 0.13),
     stats,
@@ -78,7 +79,8 @@ Imports:
     stringi,
     stringr,
     utils
-Remotes:
+LinkingTo: Rcpp
+Remotes: 
     s-u/fastshp,
     MangoTheCat/visualTest
 License: GPL-3
@@ -93,6 +95,7 @@ Collate:
     'helpers.R'
     'simList-class.R'
     'POM.R'
+    'RcppExports.R'
     'agent.R'
     'SELES.R'
     'cache.R'
