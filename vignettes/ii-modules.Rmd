@@ -2,7 +2,7 @@
 title: "02 Building modules in `SpaDES`"
 author:
   - "Alex M. Chubaty"
-date: '`r format(Sys.Date(), format="%B %d %Y")`'
+date: '`r strftime(Sys.Date(), "%B %d %Y")`'
 output:
   rmarkdown::html_vignette:
     number_sections: yes

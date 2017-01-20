@@ -3,7 +3,7 @@ title: "01 Introduction to `SpaDES`"
 author:
   - "Alex M. Chubaty"
   - "Eliot J. B. McIntire"
-date: "`r format(Sys.Date(), format='%B %d %Y')`"
+date: "`r strftime(Sys.Date(), '%B %d %Y')`"
 output:
   rmarkdown::html_vignette:
     number_sections: yes

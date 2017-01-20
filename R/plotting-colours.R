@@ -172,7 +172,7 @@ setReplaceMethod(
       }
     }
     rcolbrewInfo <- RColorBrewer::brewer.pal.info
-    if (value %in% row.names(rcolbrewInfo)) {
+    if ((value %in% row.names(rcolbrewInfo))[1]) {
       if (n > rcolbrewInfo[value, "maxcolors"]) {
         ntmp <- rcolbrewInfo[value, "maxcolors"]
       } else {

@@ -805,7 +805,7 @@ test_that("Plot with base is not error-free", {
   orig <- switch(Sys.info()["sysname"],
                  Darwin = "F3B5A64A8C0FF049",
                  Linux = "F3B42E4A8C0FF0C9",
-                 Windows = "F3B4264A8C8FF0C9"
+                 Windows = "F3B4264A8C8FF04B"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
 
@@ -998,7 +998,7 @@ test_that("Plot lists", {
   orig <- switch(Sys.info()["sysname"],
                  Darwin = "8F62630DCC8DF05B",
                  Linux = "876272A9CC8DF05E",
-                 Windows = "87737289CC99F04E"
+                 Windows = "8773738D8C89F04E"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.02))
 })
