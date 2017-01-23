@@ -628,6 +628,7 @@ setGeneric("P", function(sim, module = NULL, param = NULL) {
 setMethod("P",
           signature = ".simList",
           definition = function(sim, module, param) {
+            #browser()
             if (is.null(module)) {
               module <- sim@current$moduleName
             }
@@ -638,6 +639,16 @@ setMethod("P",
                 return(sim@params[[module]][[param]])
               }
             } else {
+              inSimInit <- grep(sys.calls(), pattern=".parseModule")
+              if(any(inSimInit)) {
+                module <- get("m", sys.frame(grep(sys.calls(), pattern=".parseModule")[2]))
+                if (is.null(param)) {
+                  return(sim@params[[module]])
+                } else {
+                  return(sim@params[[module]][[param]])
+                }
+              }
+              
               return(sim@params)
             }
 })
