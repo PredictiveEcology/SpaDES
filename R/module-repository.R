@@ -614,7 +614,7 @@ setMethod(
     }
 
     message("Checking local files")
-    if (length(txt$file)) {
+    if (length(txt$file) & length(files)) {
       filesToCheck <- files[basename(files) %in% txt$file]
     } else {
       filesToCheck <- character(0)
@@ -622,9 +622,15 @@ setMethod(
     checksums <- do.call(digest, args = append(list(file = filesToCheck), dots))
     message("Finished checking local files")
 
-    out <- data.frame(file = basename(filesToCheck), checksum = checksums,
-                      algorithm = dots$algo,
-                      stringsAsFactors = FALSE)
+    if(length(filesToCheck)) {
+      out <- data.frame(file = basename(filesToCheck), checksum = checksums,
+                        algorithm = dots$algo,
+                        stringsAsFactors = FALSE)
+    } else {
+      out <- data.frame(file = character(0), checksum = character(0),
+                        algorithm = character(0),
+                        stringsAsFactors = FALSE)
+    }
 
     if (write) {
       write.table(out, checksumFile, eol = "\n", col.names = TRUE, row.names = FALSE)
