@@ -221,39 +221,34 @@ sampleV <- Vectorize("sample", "size", SIMPLIFY = FALSE)
 #'               the search path, i.e., all others will be removed.
 #' @rdname modifySearchPath
 .modifySearchPath <- function(pkgs, removeOthers = FALSE) {
-
   pkgs <- c("SpaDES", pkgs)
-  pkgs <- grep(pkgs, pattern=.spadesEnv$corePackages, invert = TRUE, value = TRUE)
+  pkgs <- grep(pkgs, pattern = .spadesEnv$corePackages, invert = TRUE, value = TRUE)
   pkgPositions <- pmatch(paste0("package:",unlist(pkgs)), search())
   # Find all packages that are not in the first sequence after .GlobalEnv
-  whNotAtTop <- !((seq_along(pkgPositions)+1) %in% pkgPositions)
-  if(any(whNotAtTop)) {
-    if(removeOthers) {
+  whNotAtTop <- !((seq_along(pkgPositions) + 1) %in% pkgPositions)
+  if (any(whNotAtTop)) {
+    if (removeOthers) {
       pkgs <- setdiff(search(), pkgs)
-      pkgs <- grep(pkgs, pattern=.spadesEnv$corePackages, invert = TRUE, value = TRUE)
+      pkgs <- grep(pkgs, pattern = .spadesEnv$corePackages, invert = TRUE, value = TRUE)
       whRm <- seq_along(pkgs)
     } else {
-      whRm <- which(pkgPositions>min(which(whNotAtTop)))
+      whRm <- which(pkgPositions > min(which(whNotAtTop)))
       whAdd <- which(is.na(pkgPositions))
     }
 
-    if(length(whRm)>0) { # i.e,. ones that need reordering
+    if (length(whRm) > 0) { # i.e,. ones that need reordering
       suppressWarnings(
         lapply(unique(gsub(pkgs, pattern = "package:", replace = "")[whRm]), function(pack) {
-          try(detach(paste0("package:",pack), character.only = TRUE), silent=TRUE)
+          try(detach(paste0("package:", pack), character.only = TRUE), silent = TRUE)
         })
       )
     }
-    if(!removeOthers) {
-      if(length(c(whAdd,whRm))) {
+    if (!removeOthers) {
+      if (length(c(whAdd, whRm))) {
         suppressMessages(
-          lapply(
-            rev(pkgs[c(whAdd, whRm)]),
-            function(pack) {
-              try(
-                attachNamespace(pack), silent=TRUE
-              )
-            })
+          lapply(rev(pkgs[c(whAdd, whRm)]), function(pack) {
+              try(attachNamespace(pack), silent = TRUE)
+          })
         )
       }
     }
