@@ -252,7 +252,7 @@ setMethod(
           }
 
           if(cacheIt) {
-            message("Using cached copy of .inputObjects for", m)
+            message("Using cached copy of .inputObjects for ", m)
             objNam <- sim@depends@dependencies[[i]]@outputObjects$objectName
             moduleSpecificObjects <- c(grep(ls(sim), pattern = m, value = TRUE),
                                        na.omit(objNam))
@@ -262,6 +262,9 @@ setMethod(
                          notOlderThan = notOlderThan,
                          outputObjects = moduleSpecificOutputObjects)
           } else {
+            message("Running .inputObjects for ", m)
+            .modifySearchOrder(pkgs = sim@depends@dependencies[[i]]@reqdPkgs,
+                               curSearch = search())
             sim <- sim@.envir$.inputObjects(sim)
             rm(".inputObjects", envir = sim@.envir)
           }
@@ -505,6 +508,13 @@ setMethod(
                         outputs,
                         loadOrder,
                         notOlderThan) {
+
+    # For namespacing of each module; keep a snapshot of the search path
+    .spadesEnv$searchPath <- search()
+    on.exit({
+      .modifySearchOrder(.spadesEnv$searchPath, search())
+    })
+
     paths <- lapply(paths, checkPath, create = TRUE)
 
     objNames <- names(objects)
@@ -1057,15 +1067,15 @@ setMethod(
               if (NROW(cur) > 0) {
                 evnts1 <- data.frame(current(sim))
                 widths <- str_length(format(evnts1))
-                sim@.envir[[".spadesDebugWidth"]] <-
-                  pmax(widths, sim@.envir[[".spadesDebugWidth"]])
+                .spadesEnv[[".spadesDebugWidth"]] <-
+                  pmax(widths, .spadesEnv[[".spadesDebugWidth"]])
                 evnts1[1L, ] <-
-                  str_pad(format(evnts1), side = "right", sim@.envir[[".spadesDebugWidth"]])
+                  str_pad(format(evnts1), side = "right", .spadesEnv[[".spadesDebugWidth"]])
 
-                if (sim@.envir[[".spadesDebugFirst"]]) {
+                if (.spadesEnv[[".spadesDebugFirst"]]) {
                   evnts2 <- evnts1
                   evnts2[1L:2L, ] <- rbind(
-                    str_pad(names(evnts1), sim@.envir[[".spadesDebugWidth"]]),
+                    str_pad(names(evnts1), .spadesEnv[[".spadesDebugWidth"]]),
                     evnts1)
                   cat("This is the current event, printed as it is happening:\n")
                   write.table(
@@ -1074,7 +1084,7 @@ setMethod(
                     row.names = FALSE,
                     col.names = FALSE
                   )
-                  sim@.envir[[".spadesDebugFirst"]] <- FALSE
+                  .spadesEnv[[".spadesDebugFirst"]] <- FALSE
                 } else {
                   colnames(evnts1) <- NULL
                   write.table(evnts1,
@@ -1135,6 +1145,11 @@ setMethod(
              #     }
              #   }
              # }
+
+             # This is to create a namespaced module call
+             .modifySearchOrder(sim@depends@dependencies[[cur[["moduleName"]]]]@reqdPkgs,
+                                search())
+
              if (cacheIt) {
                objNam <- sim@depends@dependencies[[cur[["moduleName"]]]]@outputObjects$objectName
                moduleSpecificObjects <- c(grep(ls(sim), pattern = cur[["moduleName"]], value = TRUE),
@@ -1149,9 +1164,11 @@ setMethod(
                             outputObjects = moduleSpecificOutputObjects,
                             cacheRepo = sim@paths[["cachePath"]])
              } else {
+
                sim <- get(moduleCall,
-                         envir = sim@.envir)(sim, cur[["eventTime"]],
-                                             cur[["eventType"]], debugDoEvent)
+                          envir = sim@.envir)(sim, cur[["eventTime"]],
+                                              cur[["eventType"]], debugDoEvent)
+
              }
            }
         } else {
@@ -1575,6 +1592,11 @@ setMethod(
     # The event queues are not uncopied data.tables, for speed during simulation
     #  Must, therefore, break connection between spades calls
     .refreshEventQueues()
+    .spadesEnv$searchPath <- search()
+
+    on.exit({
+      .modifySearchOrder(.spadesEnv$searchPath, search())
+    })
 
     if (!is.null(.plotInitialTime)) {
       if (!is.numeric(.plotInitialTime))
@@ -1626,8 +1648,8 @@ setMethod(
     }
 
     if (!(all(sapply(debug, identical, FALSE)))) {
-      sim@.envir[[".spadesDebugFirst"]] <- TRUE
-      sim@.envir[[".spadesDebugWidth"]] <- c(9, 10, 9, 13)
+      .spadesEnv[[".spadesDebugFirst"]] <- TRUE
+      .spadesEnv[[".spadesDebugWidth"]] <- c(9, 10, 9, 13)
     }
     while (sim@simtimes[["current"]] <= sim@simtimes[["end"]]) {
       sim <- doEvent(sim, debug = debug, notOlderThan = notOlderThan)  # process the next event
