@@ -208,35 +208,55 @@ sampleV <- Vectorize("sample", "size", SIMPLIFY = FALSE)
 #'
 #' Intended for internal use only. It modifies the search path (i.e., \code{search()})
 #' such that the packages required by the current module are placed first in the
-#' search path.
+#' search path. Note, several "core" packages are not touched; or more specifically,
+#' they will remain in the search path, but may move down if packages are rearranged.
+#' The current
+#' set of these core packages used by SpaDES can be found here:
+#' \code{SpaDES:::.spadesEnv$corePackages}
 #'
 #' @return Nothing. This is used for its side effects, which are "severe".
 #' @keywords internal
 #' @param pkgs The packages that are to be placed at the beginning of the seach path
-#' @param curSearch The current search path, i.e., a call to \code{search()}
-#' @rdname modifySearchOrder
-.modifySearchOrder <- function(pkgs, curSearch) {
+#' @param removeOthers Logical. If \code{TRUE}, then only the packages in \code{pkgs} will remain in
+#'               the search path, i.e., all others will be removed.
+#' @rdname modifySearchPath
+.modifySearchPath <- function(pkgs, removeOthers = FALSE) {
+
   pkgs <- c("SpaDES", pkgs)
   pkgs <- grep(pkgs, pattern=.spadesEnv$corePackages, invert = TRUE, value = TRUE)
-  positions <- pmatch(paste0("package:",unlist(pkgs)), curSearch)
+  pkgPositions <- pmatch(paste0("package:",unlist(pkgs)), search())
   # Find all packages that are not in the first sequence after .GlobalEnv
-  wh1 <- !((seq_along(positions)+1) %in% positions)
-  if(any(wh1)) {
-    wh <- which(positions>min(which(wh1)))
-    suppressWarnings(
-      lapply(pkgs[wh], function(pack) {
-        try(detach(paste0("package:",pack), character.only = TRUE))
-      })
-    )
-    suppressMessages(
-      lapply(
-        rev(pkgs[wh]),
-        function(pack) {
-          try(
-            attachNamespace(pack)
-            )
-          })
-    )
+  whNotAtTop <- !((seq_along(pkgPositions)+1) %in% pkgPositions)
+  if(any(whNotAtTop)) {
+    if(removeOthers) {
+      pkgs <- setdiff(search(), pkgs)
+      pkgs <- grep(pkgs, pattern=.spadesEnv$corePackages, invert = TRUE, value = TRUE)
+      whRm <- seq_along(pkgs)
+    } else {
+      whRm <- which(pkgPositions>min(which(whNotAtTop)))
+      whAdd <- which(is.na(pkgPositions))
+    }
+
+    if(length(whRm)>0) { # i.e,. ones that need reordering
+      suppressWarnings(
+        lapply(unique(gsub(pkgs, pattern = "package:", replace = "")[whRm]), function(pack) {
+          try(detach(paste0("package:",pack), character.only = TRUE))
+        })
+      )
+    }
+    if(!removeOthers) {
+      if(length(c(whAdd,whRm))) {
+        suppressMessages(
+          lapply(
+            rev(pkgs[c(whAdd, whRm)]),
+            function(pack) {
+              try(
+                attachNamespace(pack)
+              )
+            })
+        )
+      }
+    }
   }
 }
 

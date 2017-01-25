@@ -263,8 +263,7 @@ setMethod(
                          outputObjects = moduleSpecificOutputObjects)
           } else {
             message("Running .inputObjects for ", m)
-            .modifySearchOrder(pkgs = sim@depends@dependencies[[i]]@reqdPkgs,
-                               curSearch = search())
+            .modifySearchPath(pkgs = sim@depends@dependencies[[i]]@reqdPkgs)
             sim <- sim@.envir$.inputObjects(sim)
             rm(".inputObjects", envir = sim@.envir)
           }
@@ -282,7 +281,7 @@ setMethod(
       unique()
 
     return(sim)
-})
+  })
 
 ################################################################################
 #' Initialize a new simulation
@@ -484,7 +483,7 @@ setGeneric("simInit",
            function(times, params, modules, objects, paths, inputs, outputs, loadOrder,
                     notOlderThan = NULL) {
              standardGeneric("simInit")
-})
+           })
 
 #' @rdname simInit
 setMethod(
@@ -512,7 +511,7 @@ setMethod(
     # For namespacing of each module; keep a snapshot of the search path
     .spadesEnv$searchPath <- search()
     on.exit({
-      .modifySearchOrder(.spadesEnv$searchPath, search())
+      .modifySearchPath(.spadesEnv$searchPath, removeOthers = TRUE)
     })
 
     paths <- lapply(paths, checkPath, create = TRUE)
@@ -1147,8 +1146,8 @@ setMethod(
              # }
 
              # This is to create a namespaced module call
-             .modifySearchOrder(sim@depends@dependencies[[cur[["moduleName"]]]]@reqdPkgs,
-                                search())
+             .modifySearchPath(sim@depends@dependencies[[cur[["moduleName"]]]]@reqdPkgs,
+                                removeOthers = FALSE)
 
              if (cacheIt) {
                objNam <- sim@depends@dependencies[[cur[["moduleName"]]]]@outputObjects$objectName
@@ -1595,7 +1594,7 @@ setMethod(
     .spadesEnv$searchPath <- search()
 
     on.exit({
-      .modifySearchOrder(.spadesEnv$searchPath, search())
+      .modifySearchPath(.spadesEnv$searchPath, removeOthers=TRUE)
     })
 
     if (!is.null(.plotInitialTime)) {
