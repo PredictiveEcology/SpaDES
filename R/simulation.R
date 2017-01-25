@@ -263,6 +263,8 @@ setMethod(
                          outputObjects = moduleSpecificOutputObjects)
           } else {
             message("Running .inputObjects for ", m)
+            .modifySearchOrder(pkgs = sim@depends@dependencies[[i]]@reqdPkgs,
+                               curSearch = search())
             sim <- sim@.envir$.inputObjects(sim)
             rm(".inputObjects", envir = sim@.envir)
           }
@@ -506,6 +508,13 @@ setMethod(
                         outputs,
                         loadOrder,
                         notOlderThan) {
+
+    # For namespacing of each module; keep a snapshot of the search path
+    .spadesEnv$searchPath <- search()
+    on.exit({
+      .modifySearchOrder(.spadesEnv$searchPath, search())
+    })
+
     paths <- lapply(paths, checkPath, create = TRUE)
 
     objNames <- names(objects)
