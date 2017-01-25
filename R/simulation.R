@@ -252,7 +252,7 @@ setMethod(
           }
 
           if(cacheIt) {
-            message("Using cached copy of .inputObjects for", m)
+            message("Using cached copy of .inputObjects for ", m)
             objNam <- sim@depends@dependencies[[i]]@outputObjects$objectName
             moduleSpecificObjects <- c(grep(ls(sim), pattern = m, value = TRUE),
                                        na.omit(objNam))
@@ -262,6 +262,7 @@ setMethod(
                          notOlderThan = notOlderThan,
                          outputObjects = moduleSpecificOutputObjects)
           } else {
+            message("Running .inputObjects for ", m)
             sim <- sim@.envir$.inputObjects(sim)
             rm(".inputObjects", envir = sim@.envir)
           }
