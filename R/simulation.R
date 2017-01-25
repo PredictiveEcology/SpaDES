@@ -1057,15 +1057,15 @@ setMethod(
               if (NROW(cur) > 0) {
                 evnts1 <- data.frame(current(sim))
                 widths <- str_length(format(evnts1))
-                sim@.envir[[".spadesDebugWidth"]] <-
-                  pmax(widths, sim@.envir[[".spadesDebugWidth"]])
+                .spadesEnv[[".spadesDebugWidth"]] <-
+                  pmax(widths, .spadesEnv[[".spadesDebugWidth"]])
                 evnts1[1L, ] <-
-                  str_pad(format(evnts1), side = "right", sim@.envir[[".spadesDebugWidth"]])
+                  str_pad(format(evnts1), side = "right", .spadesEnv[[".spadesDebugWidth"]])
 
-                if (sim@.envir[[".spadesDebugFirst"]]) {
+                if (.spadesEnv[[".spadesDebugFirst"]]) {
                   evnts2 <- evnts1
                   evnts2[1L:2L, ] <- rbind(
-                    str_pad(names(evnts1), sim@.envir[[".spadesDebugWidth"]]),
+                    str_pad(names(evnts1), .spadesEnv[[".spadesDebugWidth"]]),
                     evnts1)
                   cat("This is the current event, printed as it is happening:\n")
                   write.table(
@@ -1074,7 +1074,7 @@ setMethod(
                     row.names = FALSE,
                     col.names = FALSE
                   )
-                  sim@.envir[[".spadesDebugFirst"]] <- FALSE
+                  .spadesEnv[[".spadesDebugFirst"]] <- FALSE
                 } else {
                   colnames(evnts1) <- NULL
                   write.table(evnts1,
@@ -1154,9 +1154,11 @@ setMethod(
                             outputObjects = moduleSpecificOutputObjects,
                             cacheRepo = sim@paths[["cachePath"]])
              } else {
+
                sim <- get(moduleCall,
-                         envir = sim@.envir)(sim, cur[["eventTime"]],
-                                             cur[["eventType"]], debugDoEvent)
+                          envir = sim@.envir)(sim, cur[["eventTime"]],
+                                              cur[["eventType"]], debugDoEvent)
+
              }
            }
         } else {
@@ -1636,8 +1638,8 @@ setMethod(
     }
 
     if (!(all(sapply(debug, identical, FALSE)))) {
-      sim@.envir[[".spadesDebugFirst"]] <- TRUE
-      sim@.envir[[".spadesDebugWidth"]] <- c(9, 10, 9, 13)
+      .spadesEnv[[".spadesDebugFirst"]] <- TRUE
+      .spadesEnv[[".spadesDebugWidth"]] <- c(9, 10, 9, 13)
     }
     while (sim@simtimes[["current"]] <= sim@simtimes[["end"]]) {
       sim <- doEvent(sim, debug = debug, notOlderThan = notOlderThan)  # process the next event
