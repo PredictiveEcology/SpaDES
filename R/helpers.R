@@ -194,3 +194,50 @@ setMethod(
   # Convert character strings to their objects
   lapply(objects, function(x) get(x, envir = sys.frames()[[grep1]]))
 }
+
+#' Vectorized version of \code{sample} using \code{Vectorize}
+#'
+#' Intended for internal use only. \code{size} is vectorized.
+#' @return A random perumtation, as in \code{sample}, but with \code{size} vectorized.
+#' @keywords internal
+#' @inheritParams base::sample
+#'
+sampleV <- Vectorize("sample", "size", SIMPLIFY = FALSE)
+
+#' Modify package order in search path
+#'
+#' Intended for internal use only. It modifies the search path (i.e., \code{search()})
+#' such that the packages required by the current module are placed first in the
+#' search path.
+#'
+#' @return Nothing. This is used for its side effects, which are "severe".
+#' @keywords internal
+#' @param pkgs The packages that are to be placed at the beginning of the seach path
+#' @param curSearch The current search path, i.e., a call to \code{search()}
+#' @rdname modifySearchOrder
+.modifySearchOrder <- function(pkgs, curSearch) {
+  pkgs <- c("SpaDES", pkgs)
+  pkgs <- grep(pkgs, pattern=.spadesEnv$corePackages, invert = TRUE, value = TRUE)
+  positions <- pmatch(paste0("package:",unlist(pkgs)), curSearch)
+  # Find all packages that are not in the first sequence after .GlobalEnv
+  wh1 <- !((seq_along(positions)+1) %in% positions)
+  if(any(wh1)) {
+    wh <- which(positions>min(which(wh1)))
+    suppressWarnings(
+      lapply(pkgs[wh], function(pack) {
+        try(detach(paste0("package:",pack), character.only = TRUE))
+      })
+    )
+    suppressMessages(
+      lapply(
+        rev(pkgs[wh]),
+        function(pack) {
+          try(
+            attachNamespace(pack)
+            )
+          })
+    )
+  }
+}
+
+.spadesEnv$corePackages <- ".GlobalEnv|Autoloads|base|rstudio|devtools_shims|methods|utils|graphics|datasets|stats"

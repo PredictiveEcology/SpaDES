@@ -1135,6 +1135,11 @@ setMethod(
              #     }
              #   }
              # }
+
+             # This is to create a namespaced module call
+             .modifySearchOrder(sim@depends@dependencies[[cur[["moduleName"]]]]@reqdPkgs,
+                                search())
+
              if (cacheIt) {
                objNam <- sim@depends@dependencies[[cur[["moduleName"]]]]@outputObjects$objectName
                moduleSpecificObjects <- c(grep(ls(sim), pattern = cur[["moduleName"]], value = TRUE),
@@ -1575,6 +1580,11 @@ setMethod(
     # The event queues are not uncopied data.tables, for speed during simulation
     #  Must, therefore, break connection between spades calls
     .refreshEventQueues()
+    .spadesEnv$searchPath <- search()
+
+    on.exit({
+      .modifySearchOrder(.spadesEnv$searchPath, search())
+    })
 
     if (!is.null(.plotInitialTime)) {
       if (!is.numeric(.plotInitialTime))
