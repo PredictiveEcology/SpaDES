@@ -11,9 +11,7 @@ randomPolygons(ras = raster(extent(0, 15, 0, 15), res = 1, vals = 0),
 \arguments{
 \item{ras}{A raster that whose extent will be used for the randomPolygons}
 
-\item{numTypes}{Numeric value. The number of unique polygon types to use.
-This will be overridden by \code{p}, \code{A} or
-\code{minpatch}, if any of these are vectors.}
+\item{numTypes}{Numeric value. The number of unique polygon types to use.}
 
 \item{...}{Other arguments passed to spread. No known uses currently.}
 }
@@ -45,10 +43,6 @@ if (interactive()) {
   Plot(aHist)
 }
 
-}
-\references{
-Saura, S. and Martinez-Millan, J. (2000) Landscape patterns simulation with a
-modified random clusters method. Landscape Ecology, 15, 661--678.
 }
 \seealso{
 \code{\link{spread}} and \code{\link{raster}}

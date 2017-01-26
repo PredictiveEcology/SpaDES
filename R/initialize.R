@@ -102,8 +102,6 @@ gaussMap <- function(x, scale = 10, var = 1, speedup = 1, inMemory = FALSE, ...)
 #' @param ras A raster that whose extent will be used for the randomPolygons
 #'
 #' @param numTypes Numeric value. The number of unique polygon types to use.
-#'                 This will be overridden by \code{p}, \code{A} or
-#'                 \code{minpatch}, if any of these are vectors.
 #'
 #' @param ...      Other arguments passed to spread. No known uses currently.
 #'
@@ -117,9 +115,6 @@ gaussMap <- function(x, scale = 10, var = 1, speedup = 1, inMemory = FALSE, ...)
 #' @export
 #' @docType methods
 #' @rdname randomPolygons
-#'
-#' @references Saura, S. and Martinez-Millan, J. (2000) Landscape patterns simulation with a
-#' modified random clusters method. Landscape Ecology, 15, 661--678.
 #'
 #' @examples
 #' set.seed(1234)
