@@ -225,6 +225,18 @@ if (getRversion() >= "3.1.0") {
 #'              \code{inRange}) will be skipped. This should only be used if there is no
 #'              concern about checking to ensure that inputs are legal.
 #'
+#' @param neighProbs A numeric vector, whose sum is 1. It indicates the probabilities an individual
+#'                   spread iteration spreading to \code{1:length(neighProbs)} neighbours.
+#'
+#' @param exactSizes Logical. If TRUE, then the \code{maxSize} will be treated as exact sizes,
+#'                   i.e., the spread events will continue until they are
+#'                   \code{floor(maxSize)}. This is overridden by \code{iterations}, but
+#'                   if \code{iterations} is run, and individual events haven't reached
+#'                   \code{maxSize}, then the returned \code{data.table} will still have
+#'                   at least one active cell per event that did not achieve \code{maxSize},
+#'                   so that the events can continue if passed into \code{spread} with
+#'                   \code{spreadState}.
+#'
 #' @param ...           Additional named vectors or named list of named vectors
 #'                      required for \code{stopRule}. These
 #'                      vectors should be as long as required e.g., length
@@ -287,7 +299,7 @@ setGeneric("spread", function(landscape, loci = NA_real_,
                               stopRule = NA, stopRuleBehavior = "includeRing",
                               allowOverlap = FALSE,
                               asymmetry = NA_real_, asymmetryAngle = NA_real_,
-                              quick = FALSE, neighProbs = NULL, exactSizes = NULL,
+                              quick = FALSE, neighProbs = NULL, exactSizes = FALSE,
                               ...) {
   standardGeneric("spread")
 })
@@ -606,7 +618,8 @@ setMethod(
       }
 
       if (!is.null(neighProbs)) {
-        # This block is the data.table way of doing the neighProbs -- seems slower under early tests
+        # This commented block is the data.table way of doing the neighProbs -- ]
+        # seems slower under early tests, because of the on the fly creation of a data.table
         # bbb <- data.table(potentials)
         # numNeighsAvailable <- bbb[,.N,by="from"]$N
         # if(length(numNeighsAvailable) != length(numNeighs)) {
@@ -618,7 +631,7 @@ setMethod(
         #   numNeighs[anyTooSmall] <- unname(numNeighsAvailable[anyTooSmall])
         # }
         # potentials <- as.matrix(bbb[,list(to=resample(to,numNeighs[.GRP])),by="from"])
-        
+
         aaa <- split(seq_along(potentials[,"to"]), potentials[, "from"]);
         if(length(aaa) != length(numNeighs)) {
           activeCellContinue <- loci %in% unique(potentials[,"from"])
@@ -633,7 +646,7 @@ setMethod(
         numNeighsKeep <- unlist(lapply(seq_along(aaa), function(x) resample(aaa[[x]],
                                                                             size=numNeighs[x])))
         potentials <- potentials[numNeighsKeep,,drop=FALSE]
-        
+
       }
 
       if (n == 2) {
@@ -913,10 +926,10 @@ setMethod(
         events <- NULL
       }
 
-      if(!is.null(exactSizes)){
+      if(exactSizes) {
         if(all(numRetries < 10)) {
           if(spreadStateExists) {
-            tooSmall <- tabulate(spreads[c(spreadState[!keepers]$indices, spreadsIndices)], 
+            tooSmall <- tabulate(spreads[c(spreadState[!keepers]$indices, spreadsIndices)],
                                  length(maxSize)) < maxSize
           } else {
             tooSmall <- tabulate(spreads, length(maxSize)) < maxSize

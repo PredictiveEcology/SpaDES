@@ -238,7 +238,7 @@ sampleV <- Vectorize("sample", "size", SIMPLIFY = FALSE)
 
     if (length(whRm) > 0) { # i.e,. ones that need reordering
       suppressWarnings(
-        lapply(unique(gsub(pkgs, pattern = "package:", replace = "")[whRm]), function(pack) {
+        lapply(unique(gsub(pkgs, pattern = "package:", replacement = "")[whRm]), function(pack) {
           try(detach(paste0("package:", pack), character.only = TRUE), silent = TRUE)
         })
       )

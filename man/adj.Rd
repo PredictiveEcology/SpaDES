@@ -54,6 +54,10 @@ faster with large numbers of cells.}
 Default is FALSE.}
 
 \item{id}{numeric If not NULL, then function will return "id" column. Default NULL.}
+
+\item{numNeighs}{A numeric scalar, indicating how many neighbours to return. Must be
+less than or equal to \code{directions}; which neighbours are random
+with equal probabilities.}
 }
 \value{
 a matrix of one or two columns, from and to.

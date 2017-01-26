@@ -67,6 +67,10 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @param id numeric If not NULL, then function will return "id" column. Default NULL.
 #'
+#' @param numNeighs A numeric scalar, indicating how many neighbours to return. Must be
+#'                  less than or equal to \code{directions}; which neighbours are random
+#'                  with equal probabilities.
+#'
 #' @return a matrix of one or two columns, from and to.
 #'
 #' @seealso \code{\link[raster]{adjacent}}

@@ -57,7 +57,8 @@ test_that("spread produces legal RasterLayer", {
                    spreadState = fires)
   expect_true(all(fires2[, unique(id)] %in% fires[, unique(id)]))
   expect_true(all(fires[, unique(id)] %in% fires2[, unique(id)]))
-  expect_true(all(fires2[, length(initialLocus), by = id][, V1] == c(5, 14, 10, 16, 1, 39, 16, 18, 28, 1)))
+  expect_true(all(fires2[, length(initialLocus), by = id][, V1] ==
+                    c(7L, 7L, 6L, 8L, 1L, 33L, 13L, 15L, 24L, 1L)))
 })
 
 test_that("spread stopRule does not work correctly", {
@@ -184,7 +185,7 @@ test_that("spread stopRule does not work correctly", {
   # Test for circles using maxDist
   set.seed(543345)
   numCircs <- 4
-  #  set.seed(53432)
+  set.seed(53432)
   stopRule2 <- function(landscape) sum(landscape) > maxVal
   startCells <- as.integer(sample(1:ncell(hab), numCircs))
 

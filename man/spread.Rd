@@ -14,7 +14,7 @@ spread(landscape, loci = NA_real_, spreadProb = 0.23, persistence = 0,
   spreadState = NA, circle = FALSE, circleMaxRadius = NA_real_,
   stopRule = NA, stopRuleBehavior = "includeRing", allowOverlap = FALSE,
   asymmetry = NA_real_, asymmetryAngle = NA_real_, quick = FALSE,
-  neighProbs = NULL, exactSizes = NULL, ...)
+  neighProbs = NULL, exactSizes = FALSE, ...)
 
 \S4method{spread}{RasterLayer}(landscape, loci = NA_real_,
   spreadProb = 0.23, persistence = 0, mask = NA, maxSize = 100000000L,
@@ -25,7 +25,7 @@ spread(landscape, loci = NA_real_, spreadProb = 0.23, persistence = 0,
   circleMaxRadius = NA_real_, stopRule = NA,
   stopRuleBehavior = "includeRing", allowOverlap = FALSE,
   asymmetry = NA_real_, asymmetryAngle = NA_real_, quick = FALSE,
-  neighProbs = NULL, exactSizes = NULL, ...)
+  neighProbs = NULL, exactSizes = FALSE, ...)
 }
 \arguments{
 \item{landscape}{A \code{RasterLayer} object. This defines the possible locations
@@ -135,6 +135,18 @@ that describes which way the \code{asymmetry} is.}
 \item{quick}{Logical. If TRUE, then several potentially time consuming checking (such as
 \code{inRange}) will be skipped. This should only be used if there is no
 concern about checking to ensure that inputs are legal.}
+
+\item{neighProbs}{A numeric vector, whose sum is 1. It indicates the probabilities an individual
+spread iteration spreading to \code{1:length(neighProbs)} neighbours.}
+
+\item{exactSizes}{Logical. If TRUE, then the \code{maxSize} will be treated as exact sizes,
+i.e., the spread events will continue until they are
+\code{floor(maxSize)}. This is overridden by \code{iterations}, but
+if \code{iterations} is run, and individual events haven't reached
+\code{maxSize}, then the returned \code{data.table} will still have
+at least one active cell per event that did not achieve \code{maxSize},
+so that the events can continue if passed into \code{spread} with
+\code{spreadState}.}
 
 \item{...}{Additional named vectors or named list of named vectors
 required for \code{stopRule}. These
