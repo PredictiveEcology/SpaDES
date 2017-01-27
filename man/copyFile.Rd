@@ -3,32 +3,32 @@
 \docType{methods}
 \name{copyFile}
 \alias{copyFile}
-\title{Copy a file using Robocopy on Windows and rsync on linux}
+\title{Copy a file using Robocopy on Windows and rsync on Linux/macOS}
 \usage{
 copyFile(from = NULL, to = NULL, useRobocopy = TRUE, overwrite = TRUE,
   delDestination = FALSE, create = TRUE, silent = FALSE)
 }
 \arguments{
-\item{from}{The source file}
+\item{from}{The source file.}
 
-\item{to}{The new file}
+\item{to}{The new file.}
 
-\item{useRobocopy}{For Windows, this will use a system call to Robocopy
-which appears to be much
-faster than the internal \code{file.copy} function. Uses /MIR flag.}
+\item{useRobocopy}{For Windows, this will use a system call to \code{Robocopy}
+which appears to be much faster than the internal \code{file.copy} function.
+Uses \code{/MIR} flag. Default \code{TRUE}.}
 
 \item{overwrite}{Passed to \code{file.copy}}
 
-\item{delDestination}{Logical, whether the destination should have any files deleted, if they don't exist
-in the source. This is /purge}
+\item{delDestination}{Logical, whether the destination should have any files deleted,
+if they don't exist in the source. This is \code{/purge}.}
 
-\item{create}{Passed to \code{checkLazyDir}}
+\item{create}{Passed to \code{checkLazyDir}.}
 
-\item{silent}{Should a progress be printed}
+\item{silent}{Should a progress be printed.}
 }
 \description{
-This will copy an individual file faster Robocopy in Windows and rsync in Linux.
-The function will default to \code{file.copy} (which is slow).
+This will copy an individual file faster using \code{Robocopy} on Windows,
+and using \code{rsync} on macOS and Linux.
 }
 \author{
 Eliot McIntire

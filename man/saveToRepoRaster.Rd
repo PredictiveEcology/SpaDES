@@ -3,16 +3,15 @@
 \docType{methods}
 \name{saveToRepoRaster}
 \alias{saveToRepoRaster}
-\title{Alternative to saveToRepo for rasters}
+\title{Alternative to \code{archivist::saveToRepo} for rasters}
 \usage{
-saveToRepoRaster(obj, cacheRepo = NULL, tags = NULL,
+saveToRepoRaster(obj, repoDir = NULL, tags = NULL,
   compareRasterFileLength = 1e+06, ...)
 }
 \arguments{
 \item{obj}{The raster object to save to the repository.}
 
-\item{cacheRepo}{A repository used for storing cached objects. This is optional
-if \code{Cache} is used inside a SpaDES module.}
+\item{repoDir}{Character denoting an existing directory in which an artifact will be saved.}
 
 \item{tags}{Optional character vector of tags. Passed to \code{saveToRepo}.}
 
@@ -27,9 +26,9 @@ Default 1e6. Passed to \code{saveToRepoRaster}.}
 A raster object and its file backing will be passed to the archivist repository.
 }
 \description{
-Rasters are sometimes file-based, so the normal save mechanism doesn't work. This function creates an
-explicit save of the file that is backing the raster, in addition to saving the object metadata in
-the archivist repository database.
+Rasters are sometimes file-based, so the normal save mechanism doesn't work.
+This function creates an explicit save of the file that is backing the raster,
+in addition to saving the object metadata in the \code{archivist} repository database.
 }
 \author{
 Eliot McIntire

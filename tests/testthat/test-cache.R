@@ -138,7 +138,7 @@ test_that("test file-backed raster caching", {
   #if((getRversion() > "3.3.2"))
   library(igraph)
   library(raster)
-  tmpdir <- file.path(tempdir(), "testCache", fsep = "\\")
+  tmpdir <- file.path(tempdir(), "testCache", fsep = "/")
   checkPath(tmpdir, create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
   tmpfile <- tempfile(fileext = ".pdf")
@@ -158,24 +158,23 @@ test_that("test file-backed raster caching", {
   expect_true(tmpRasterfile == a@file@name)
   aa <- Cache(randomPolyToDisk, tmpdir, cacheRepo = tmpdir)
   # confirm that the raster has the new filename in the cachePath
-  expect_false(tmpRasterfile == file.path(tmpdir, "rasters", basename(tmpRasterfile), fsep = "\\"))
+  expect_false(tmpRasterfile == file.path(tmpdir, "rasters", basename(tmpRasterfile), fsep = "/"))
   expect_true(grepl(pattern = basename(tmpRasterfile),
-                    dir(file.path(tmpdir, "rasters", fsep = "\\"))))
+                    dir(file.path(tmpdir, "rasters", fsep = "/"))))
 
   # Caching a raster as an input works
-  rasterTobinary <- function(raster){
-    ceiling(raster[] / (mean(raster[])+1))
+  rasterTobinary <- function(raster) {
+    ceiling(raster[] / (mean(raster[]) + 1))
   }
   nOT <- Sys.time()
-  for(i in 1:2) {
-    assign(paste0("b",i), system.time(
-      assign(paste0("a",i), Cache(rasterTobinary, aa, cacheRepo = tmpdir, notOlderThan = nOT))
+  for (i in 1:2) {
+    assign(paste0("b", i), system.time(
+      assign(paste0("a", i), Cache(rasterTobinary, aa, cacheRepo = tmpdir, notOlderThan = nOT))
     ))
-    Sys.sleep(0.5)
+    Sys.sleep(1.0)
   }
   # test that they are identical
-  expect_equal(a1,a2)
+  expect_equal(a1, a2)
   # confirm that the second one was obtained through reading from Cache... much faster than writing
-  expect_true(b1[1]>b2[1])
-
+  expect_true(b1[1] > b2[1])
 })

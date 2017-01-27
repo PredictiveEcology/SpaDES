@@ -56,8 +56,8 @@ return. This is only relevant for \code{simList} objects}
     \code{sha256}, \code{sha512}, \code{xxhash32}, \code{xxhash64} and
     \code{murmur32}.}
 
-\item{cacheRepo}{A repository used for storing cached objects. This is optional
-if \code{Cache} is used inside a SpaDES module.}
+\item{cacheRepo}{A repository used for storing cached objects.
+This is optional if \code{Cache} is used inside a SpaDES module.}
 
 \item{compareRasterFileLength}{Numeric. Optional. When there are Rasters, that
 have file-backed storage, this is passed to the length arg in \code{digest}
@@ -186,10 +186,10 @@ to
 }
 \examples{
 \dontrun{
-mySim <- simInit(times=list(start=0.0, end=5.0),
-                 params=list(.globals=list(stackName="landscape", burnStats = "testStats")),
-                 modules=list("randomLandscapes", "fireSpread"),
-                 paths=list(modulePath=system.file("sampleModules", package="SpaDES")))
+mySim <- simInit(times = list(start = 0.0, end = 5.0),
+                 params = list(.globals = list(stackName = "landscape", burnStats = "testStats")),
+                 modules = list("randomLandscapes", "fireSpread"),
+                 paths = list(modulePath = system.file("sampleModules", package = "SpaDES")))
 
   # This functionality can be achieved within a spades call
   # compare caching ... run once to create cache
