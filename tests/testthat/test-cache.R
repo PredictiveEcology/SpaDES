@@ -2,6 +2,7 @@ test_that("test cache", {
   library(igraph)
   tmpdir <- file.path(tempdir(), "testCache") %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
+  try(clearCache(cacheRepo = tmpdir), silent=TRUE)
 
   # Example of changing parameter values
   mySim <- simInit(
@@ -38,6 +39,7 @@ test_that("test event-level cache", {
   library(igraph)
   tmpdir <- file.path(tempdir(), "testCache") %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
+  try(clearCache(cacheRepo = tmpdir), silent=TRUE)
 
   # Example of changing parameter values
   mySim <- simInit(
@@ -61,7 +63,7 @@ test_that("test event-level cache", {
   set.seed(1123)
   expect_true(!grepl(pattern = "Using cached copy of init event in randomLandscapes module",
                      capture_messages(sims <- spades(Copy(mySim), notOlderThan = Sys.time()))))
-  landscapeObjHash <- digest::digest(object = dropLayer(sims$landscape, "Fires"), algo = "xxhash64")
+  landscapeObjHash <- digest::digest(object = raster::dropLayer(sims$landscape, "Fires"), algo = "xxhash64")
   firesHash <- digest::digest(object = sims$landscape$Fires, algo = "xxhash64")
   expect_identical("290afe2cf904d4f5", landscapeObjHash)
   expect_true("4e6e705cb7e50920" %in% firesHash)
@@ -69,7 +71,7 @@ test_that("test event-level cache", {
   mess1 <- capture_messages(sims <- spades(Copy(mySim)))
   expect_true(any(grepl(pattern = "Using cached copy of init event in randomLandscapes module",
                         mess1)))
-  landscapeObjHash <- digest::digest(object = dropLayer(sims$landscape, "Fires"), algo = "xxhash64")
+  landscapeObjHash <- digest::digest(object = raster::dropLayer(sims$landscape, "Fires"), algo = "xxhash64")
   firesHash <- digest::digest(object = sims$landscape$Fires, algo = "xxhash64")
   expect_identical("290afe2cf904d4f5", landscapeObjHash) # cached part is identical
   expect_false("4e6e705cb7e50920" %in% firesHash) # The non cached stuff goes ahead as normal
@@ -84,6 +86,7 @@ test_that("test module-level cache", {
   tmpdir <- file.path(tempdir(), "testCache") %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
   tmpfile <- tempfile(fileext = ".pdf")
+  try(clearCache(cacheRepo = tmpdir), silent=TRUE)
 
   # Example of changing parameter values
   times <- list(start = 0.0, end = 1.0, timeunit = "year")
@@ -142,6 +145,7 @@ test_that("test file-backed raster caching", {
   checkPath(tmpdir, create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
   tmpRasterfile <- tempfile(tmpdir = tempdir(), fileext = ".tif")
+  try(clearCache(cacheRepo = tmpdir), silent=TRUE)
 
   nOT <- Sys.time()
 
@@ -170,10 +174,11 @@ test_that("test file-backed raster caching", {
     assign(paste0("b", i), system.time(
       assign(paste0("a", i), Cache(rasterTobinary, aa, cacheRepo = tmpdir, notOlderThan = nOT))
     ))
-    Sys.sleep(1.0)
+    nOT <- Sys.time() - 100
   }
   # test that they are identical
   expect_equal(a1, a2)
+
   # confirm that the second one was obtained through reading from Cache... much faster than writing
   expect_true(b1[1] > b2[1])
 })

@@ -314,7 +314,7 @@ library(raster)
 library(RColorBrewer)
 
 # Make random forest cover map
-emptyRas <- raster(extent(0, 1e3, 0, 1e3), res = 1)
+emptyRas <- raster(extent(0, 1e2, 0, 1e2), res = 1)
 hab <- randomPolygons(emptyRas, numTypes = 40)
 names(hab) <- "hab"
 mask <- raster(emptyRas)
@@ -390,7 +390,7 @@ burned <- fires[active == FALSE]
 burnedMap <- rasterizeReduced(burned, fullRas, "id", "indices")
 if (interactive()) {
   clearPlot()
-  Plot(burnedMap)
+  Plot(burnedMap, new=TRUE)
 }
 
 ####################
@@ -554,9 +554,11 @@ fires <- spread(hab, loci = startCells, 1, persistence = 0,
                 mask=NULL, maxSize = maxSizes, directions=8,
                 iterations=1e6, id = TRUE, plot.it = FALSE, exactSizes = TRUE);
 table(fires[fires>0][]) < floor(maxSizes);
-clearPlot();Plot(fires, new=TRUE, cols = c("red", "yellow"),
-                              zero.color = "white")
-Plot(hist(table(fires[][fires[]>0])), title = "fire size distribution")
+if(interactive()) {
+  clearPlot();Plot(fires, new=TRUE, cols = c("red", "yellow"),
+                                zero.color = "white")
+  Plot(hist(table(fires[][fires[]>0])), title = "fire size distribution")
+}
 }
 \author{
 Eliot McIntire
