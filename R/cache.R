@@ -317,7 +317,7 @@ setMethod(
     written <- FALSE
     while (!written) {
       if(is(outputToSave, "Raster")) {
-        saved <- saveToRepoRaster(outputToSave, repoDir = cacheRepo, archiveData = TRUE,
+        saved <- saveToRepoRaster(outputToSave, cacheRepo = cacheRepo, archiveData = TRUE,
                                 archiveSessionInfo = FALSE,
                                 archiveMiniature = FALSE, rememberName = FALSE, silent = TRUE)#,
                  #    silent = TRUE)
