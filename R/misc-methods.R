@@ -218,8 +218,8 @@ setMethod(
         install.packages(toInstall, repos = repos)
       }
 
-      loaded <- sapply(packageList, require, character.only = TRUE, quiet = TRUE,
-                       warn.conflicts = FALSE)
+      loaded <- suppressMessages(sapply(packageList, require, character.only = TRUE, quiet = TRUE,
+                       warn.conflicts = FALSE))
 
       if (!quiet) {
         message(paste("Loaded", length(which(loaded == TRUE)), "of",
