@@ -102,7 +102,7 @@
 #' @param compareRasterFileLength Numeric. Optional. When there are Rasters, that
 #'        have file-backed storage, this is passed to the length arg in \code{digest}
 #'        when determining if the Raster file is already in the database.
-#'        Default 1e6. Passed to \code{saveToRepoRaster}.
+#'        Default 1e6. Passed to \code{prepareFileBackedRaster}.
 #'
 #' @inheritParams digest::digest
 #'
@@ -223,9 +223,11 @@ setMethod(
     }
 
     if (is.null(objects)) {
-      if (length(wh) > 0) tmpl[wh] <- lapply(tmpl[wh], makeDigestible)
+      if (length(wh) > 0) tmpl[wh] <- lapply(tmpl[wh], makeDigestible,
+                                             compareRasterFileLength = compareRasterFileLength)
     } else {
-      if (length(wh) > 0) tmpl[wh] <- lapply(tmpl[wh], function(xx) makeDigestible(xx, objects))
+      if (length(wh) > 0) tmpl[wh] <- lapply(tmpl[wh], function(xx) makeDigestible(xx, objects,
+                                                                                   compareRasterFileLength=compareRasterFileLength))
     }
 
     if (isS4(FUN)) {
@@ -251,7 +253,8 @@ setMethod(
       tmpl$.FUN <- format(FUN) # This is changed to allow copying between computers
     }
 
-    if (length(whRas) > 0) tmpl[whRas] <- lapply(tmpl[whRas], makeDigestible)
+    if (length(whRas) > 0) tmpl[whRas] <- lapply(tmpl[whRas], makeDigestible,
+                                                 compareRasterFileLength = compareRasterFileLength)
     if (length(whFun) > 0) tmpl[whFun] <- lapply(tmpl[whFun], format)
     if (!is.null(tmpl$progress)) if (!is.na(tmpl$progress)) tmpl$progress <- NULL
 
@@ -316,17 +319,20 @@ setMethod(
     # This is for write conflicts to the SQLite database, i.e., keep trying until it is
     # written
     written <- FALSE
+    if (is(outputToSave, "Raster")) {
+      outputToSave <- prepareFileBackedRaster(outputToSave, repoDir = cacheRepo)#, archiveData = TRUE,
+      output <- outputToSave
+      #archiveSessionInfo = FALSE,
+      #archiveMiniature = FALSE, rememberName = FALSE, silent = TRUE)
+    }
     while (!written) {
-     if (is(outputToSave, "Raster")) {
-        saved <- saveToRepoRaster(outputToSave, repoDir = cacheRepo, archiveData = TRUE,
-                                  archiveSessionInfo = FALSE,
-                                  archiveMiniature = FALSE, rememberName = FALSE, silent = TRUE)
-      } else {
-        saved <- try(saveToRepo(outputToSave, repoDir = cacheRepo, archiveData = TRUE,
-                                archiveSessionInfo = FALSE,
-                                archiveMiniature = FALSE, rememberName = FALSE, silent = TRUE),
-                     silent = TRUE)
-      }
+
+      saved <- try(saveToRepo(outputToSave, repoDir = cacheRepo, archiveData = TRUE,
+                                 archiveSessionInfo = FALSE,
+                                 archiveMiniature = FALSE, rememberName = FALSE, silent = TRUE),
+                      silent = TRUE)
+
+      # This is for simultaneous write conflicts. SQLite on Windows can't handle them.
       written <- if (is(saved, "try-error")) {
         Sys.sleep(0.05)
         FALSE
@@ -443,6 +449,7 @@ setMethod(
 #'
 #' @param objects Optional character vector indicating which objects are to
 #'                be considered while making digestible.
+#' @inheritParams Cache
 #'
 #' @return A simplified version of the \code{simList} object, but with no
 #'         reference to any environments, or other session-specific information.
@@ -456,7 +463,8 @@ setMethod(
 #' @keywords internal
 #' @rdname makeDigestible
 #' @author Eliot McIntire
-setGeneric("makeDigestible", function(object, objects) {
+setGeneric("makeDigestible", function(object, objects,
+                                      compareRasterFileLength = 1e6) {
           standardGeneric("makeDigestible")
 })
 
@@ -464,7 +472,7 @@ setGeneric("makeDigestible", function(object, objects) {
 setMethod(
   "makeDigestible",
   signature = "simList",
-    definition = function(object, objects) {
+    definition = function(object, objects, compareRasterFileLength) {
 
       objectsToDigest <- sort(ls(object@.envir, all.names = TRUE))
       if (!missing(objects)) {
@@ -476,7 +484,8 @@ setMethod(
             if (!is(obj, "function")) {
               if (is(obj, "Raster")) {
                 # convert Rasters in the simList to some of their metadata.
-                obj <- makeDigestible(obj)
+                obj <- makeDigestible(obj,
+                                      compareRasterFileLength = compareRasterFileLength)
                 dig <- digest::digest(obj)
               } else {
                 # convert functions in the simList to their digest.
@@ -518,22 +527,22 @@ setMethod(
 setMethod(
   "makeDigestible",
   signature = "Raster",
-  definition = function(object) {
+  definition = function(object, compareRasterFileLength) {
 
     if (is(object, "RasterStack") | is(object, "RasterBrick")) {
       dig <- list(dim(object), res(object), crs(object), extent(object),
                   lapply(object@layers, function(yy) yy@data))
       if (nchar(object@filename) > 0) {
-        # if the Raster is on disk, has the first 1e6 characters;
+        # if the Raster is on disk, has the first compareRasterFileLength characters;
         # uses SpaDES:::digest on the file
-        dig <- append(dig, digest(file = object@filename, length = 1e6))
+        dig <- append(dig, digest(file = object@filename, length = compareRasterFileLength))
       }
     } else {
       dig <- list(dim(object), res(object), crs(object), extent(object), object@data)
       if (nchar(object@file@name) > 0) {
-        # if the Raster is on disk, has the first 1e6 characters;
+        # if the Raster is on disk, has the first compareRasterFileLength characters;
         # uses SpaDES:::digest on the file
-        dig <- append(dig, digest(file = object@file@name, length = 1e6))
+        dig <- append(dig, digest(file = object@file@name, length = compareRasterFileLength))
       }
     }
     return(dig)
@@ -607,23 +616,20 @@ setMethod(
 #'
 #' @param repoDir Character denoting an existing directory in which an artifact will be saved.
 #'
-#' @param tags Optional character vector of tags. Passed to \code{saveToRepo}.
-#'
 #' @param ... pass to \code{archivist::saveToRepo}
 #'
 #' @return A raster object and its file backing will be passed to the archivist repository.
 #'
 #' @importFrom digest digest
-#' @importFrom archivist saveToRepo
 #' @importFrom raster filename
 #'
 #' @docType methods
 #' @author Eliot McIntire
-#' @rdname saveToRepoRaster
+#' @rdname prepareFileBackedRaster
 #'
-saveToRepoRaster <- function(obj, repoDir = NULL, tags = NULL,
+prepareFileBackedRaster <- function(obj, repoDir = NULL, #tags = NULL,
                              compareRasterFileLength = 1e6, ...) {
-  dots <- list(...)
+
   if (!inMemory(obj)) {
     curFilename <- normalizePath(filename(obj), winslash = "/")
 
@@ -664,8 +670,7 @@ saveToRepoRaster <- function(obj, repoDir = NULL, tags = NULL,
     saveFilename <- slot(slot(obj, "file"), "name")
   }
 
-  saveToRepo(obj, repoDir = repoDir,
-             userTags = c(paste0("class:", is(obj)), paste0("filename:", saveFilename)))
+  return(obj)
 }
 
 #' Copy a file using Robocopy on Windows and rsync on Linux/macOS

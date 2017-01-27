@@ -62,7 +62,7 @@ This is optional if \code{Cache} is used inside a SpaDES module.}
 \item{compareRasterFileLength}{Numeric. Optional. When there are Rasters, that
 have file-backed storage, this is passed to the length arg in \code{digest}
 when determining if the Raster file is already in the database.
-Default 1e6. Passed to \code{saveToRepoRaster}.}
+Default 1e6. Passed to \code{prepareFileBackedRaster}.}
 
 \item{sim}{A \code{simList} simulation object, generally produced by \code{simInit}.}
 
