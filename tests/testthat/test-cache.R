@@ -146,17 +146,17 @@ test_that("test file-backed raster caching", {
 
   nOT <- Sys.time()
 
-  randomPolyToDisk <- function(tmpdir) {
+  randomPolyToDisk <- function(tmpdir, tmpRasterfile) {
     r <- randomPolygons(numTypes = 30)
     writeRaster(r, tmpRasterfile, overwrite = TRUE)
     r <- raster(tmpRasterfile)
     r
   }
 
-  a <- randomPolyToDisk(tmpdir)
+  a <- randomPolyToDisk(tmpdir, tmpRasterfile)
   # confirm that the raster has the given tmp filename
   expect_true(tmpRasterfile == a@file@name)
-  aa <- Cache(randomPolyToDisk, tmpdir, cacheRepo = tmpdir)
+  aa <- Cache(randomPolyToDisk, tmpdir, tmpRasterfile, cacheRepo = tmpdir)
   # confirm that the raster has the new filename in the cachePath
   expect_false(tmpRasterfile == file.path(tmpdir, "rasters", basename(tmpRasterfile), fsep = "/"))
   expect_true(grepl(pattern = basename(tmpRasterfile),
