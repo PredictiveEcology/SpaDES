@@ -53,7 +53,7 @@
 #' @section Module-level caching:
 #'
 #' If the parameter \code{.useCache} is set to TRUE, then the \code{doEvent.moduleName}
-#' will be cached. That means taht every time that module
+#' will be cached. That means that every time that module
 #' is called from within a spades or experiment call, cache will be used. Only
 #' the objects inside the \code{simList} that correspond to the inputObjects of the
 #' module and the outputObjects to the module will be assessed for caching
@@ -65,7 +65,7 @@
 #' @section Event-level caching:
 #'
 #' If the parameter \code{.useCache} is set to a character or character vector,
-#' then that or those event(s) will be cached. That means taht every time the event
+#' then that or those event(s) will be cached. That means that every time the event
 #' is called from within a spades or experiment call, cache will be used. Only
 #' the objects inside the \code{simList} that correspond to the inputObjects of the
 #' module and the outputObjects to the module will be assessed for caching
@@ -113,7 +113,8 @@
 #' @note In general, it is expected that caching will only be used when stochasticity
 #' is not relevant, or if a user has achieved sufficient stochasticity (e.g., via
 #' sufficient number of calls to \code{experiment}) such that no new explorations
-#' of stochastic outcomes are required.
+#' of stochastic outcomes are required. It will also be very useful in a
+#' reproducible work flow
 #'
 #' @seealso \code{\link[archivist]{cache}}.
 #' @export

@@ -34,7 +34,7 @@ test_that("test cache", {
 
 test_that("test event-level cache", {
   #if((getRversion() > "3.3.2"))
-  skip("Not working on R devel")
+  #skip("Not working on R devel")
   library(igraph)
   tmpdir <- file.path(tempdir(), "testCache") %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
@@ -141,7 +141,6 @@ test_that("test file-backed raster caching", {
   tmpdir <- file.path(tempdir(), "testCache", fsep = "/")
   checkPath(tmpdir, create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
-  tmpfile <- tempfile(fileext = ".pdf")
   tmpRasterfile <- tempfile(tmpdir = tempdir(), fileext = ".tif")
 
   nOT <- Sys.time()
