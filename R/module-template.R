@@ -951,10 +951,10 @@ setMethod(
 
     allFiles <- dir(path = file.path(name), recursive = TRUE, full.names = TRUE)
     allFiles <- grep(paste0(name, "_+.+.zip"), allFiles, value = TRUE, invert = TRUE) # moduleName_....zip only
-    if(!data) 
+    if (!data)
       allFiles <- grep(file.path(name, "data"),  allFiles, invert = TRUE, value = TRUE)
 
-    zip(zipFileName, files = allFiles)#, extras = c("-x"), ...)
+    zip(zipFileName, files = allFiles, ...)#, extras = c("-x"), ...)
     file.copy(zipFileName, to = paste0(name, "/", zipFileName), overwrite = TRUE)
     file.remove(zipFileName)
 })
