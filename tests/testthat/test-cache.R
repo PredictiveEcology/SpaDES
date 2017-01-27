@@ -192,6 +192,7 @@ test_that("test file-backed raster caching", {
     ))
     nOT <- Sys.time() - 100
   }
+
   # test that they are identical
   expect_equal(a1, a2)
 
