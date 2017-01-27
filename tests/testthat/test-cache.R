@@ -138,7 +138,7 @@ test_that("test file-backed raster caching", {
   #if((getRversion() > "3.3.2"))
   library(igraph)
   library(raster)
-  tmpdir <- file.path(tempdir(), "testCache", fsep = "/")
+  tmpdir <- file.path(tempdir(), "testCache", fsep = "\\")
   checkPath(tmpdir, create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
   tmpRasterfile <- tempfile(tmpdir = tempdir(), fileext = ".tif")
@@ -157,9 +157,9 @@ test_that("test file-backed raster caching", {
   expect_true(tmpRasterfile == a@file@name)
   aa <- Cache(randomPolyToDisk, tmpdir, tmpRasterfile, cacheRepo = tmpdir)
   # confirm that the raster has the new filename in the cachePath
-  expect_false(tmpRasterfile == file.path(tmpdir, "rasters", basename(tmpRasterfile), fsep = "/"))
-  expect_true(grepl(pattern = basename(tmpRasterfile),
-                    dir(file.path(tmpdir, "rasters", fsep = "/"))))
+  expect_false(tmpRasterfile == file.path(tmpdir, "rasters", basename(tmpRasterfile), fsep = "\\"))
+  expect_true(any(grepl(pattern = basename(tmpRasterfile),
+                    dir(file.path(tmpdir, "rasters", fsep = "\\")))))
 
   # Caching a raster as an input works
   rasterTobinary <- function(raster) {
