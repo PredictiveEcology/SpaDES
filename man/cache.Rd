@@ -13,10 +13,11 @@
 \title{Cache method that accomodates environments, S4 methods, Rasters}
 \usage{
 Cache(FUN, ..., notOlderThan = NULL, objects = NULL, outputObjects = NULL,
-  algo = "xxhash32", cacheRepo = NULL)
+  algo = "xxhash32", cacheRepo = NULL, compareRasterFileLength = 1e+06)
 
 \S4method{Cache}{ANY}(FUN, ..., notOlderThan = NULL, objects = NULL,
-  outputObjects = NULL, algo = "xxhash32", cacheRepo = NULL)
+  outputObjects = NULL, algo = "xxhash32", cacheRepo = NULL,
+  compareRasterFileLength = 1e+06)
 
 clearCache(sim, afterDate, beforeDate, cacheRepo, ...)
 
@@ -57,6 +58,11 @@ return. This is only relevant for \code{simList} objects}
 
 \item{cacheRepo}{A repository used for storing cached objects. This is optional
 if \code{Cache} is used inside a SpaDES module.}
+
+\item{compareRasterFileLength}{Numeric. Optional. When there are Rasters, that
+have file-backed storage, this is passed to the length arg in \code{digest}
+when determining if the Raster file is already in the database.
+Default 1e6. Passed to \code{saveToRepoRaster}.}
 
 \item{sim}{A \code{simList} simulation object, generally produced by \code{simInit}.}
 

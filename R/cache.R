@@ -99,6 +99,11 @@
 #' @param cacheRepo	A repository used for storing cached objects. This is optional
 #'                  if \code{Cache} is used inside a SpaDES module.
 #'
+#' @param compareRasterFileLength Numeric. Optional. When there are Rasters, that
+#'        have file-backed storage, this is passed to the length arg in \code{digest}
+#'        when determining if the Raster file is already in the database.
+#'        Default 1e6. Passed to \code{saveToRepoRaster}.
+#'
 #' @inheritParams digest::digest
 #'
 #' @return As with \code{\link[archivist]{cache}}, the return is either the return
@@ -173,7 +178,7 @@
 setGeneric("Cache", signature = "...",
            function(FUN, ..., notOlderThan = NULL,
                     objects = NULL, outputObjects = NULL, algo = "xxhash32",
-                    cacheRepo = NULL) {
+                    cacheRepo = NULL, compareRasterFileLength = 1e6) {
              archivist::cache(cacheRepo, FUN, ..., notOlderThan, algo)
 })
 
@@ -182,7 +187,7 @@ setGeneric("Cache", signature = "...",
 setMethod(
   "Cache",
   definition = function(FUN, ..., notOlderThan, objects, outputObjects,
-                        algo, cacheRepo = NULL) {
+                        algo, cacheRepo, compareRasterFileLength) {
     tmpl <- list(...)
 
     if (missing(notOlderThan)) notOlderThan <- NULL
@@ -215,6 +220,7 @@ setMethod(
         cur <- current(sim)
       }
     }
+
     if (is.null(objects)) {
       if (length(wh) > 0) tmpl[wh] <- lapply(tmpl[wh], makeDigestible)
     } else {
@@ -310,10 +316,17 @@ setMethod(
     # written
     written <- FALSE
     while (!written) {
-      saved <- try(saveToRepo(outputToSave, repoDir = cacheRepo, archiveData = TRUE,
-                              archiveSessionInfo = FALSE,
-                              archiveMiniature = FALSE, rememberName = FALSE, silent = TRUE),
-                   silent = TRUE)
+      if(is(outputToSave, "Raster")) {
+        saved <- saveToRepoRaster(outputToSave, repoDir = cacheRepo, archiveData = TRUE,
+                                archiveSessionInfo = FALSE,
+                                archiveMiniature = FALSE, rememberName = FALSE, silent = TRUE)#,
+                 #    silent = TRUE)
+      } else {
+        saved <- try(saveToRepo(outputToSave, repoDir = cacheRepo, archiveData = TRUE,
+                                archiveSessionInfo = FALSE,
+                                archiveMiniature = FALSE, rememberName = FALSE, silent = TRUE),
+                     silent = TRUE)
+      }
       written <- if (is(saved, "try-error")) {
         Sys.sleep(0.05)
         FALSE
@@ -581,3 +594,141 @@ setMethod(
     Cache(FUN = FUN, ..., notOlderThan = notOlderThan, objects = objects,
           outputObjects = outputObjects, algo = algo, cacheRepo = cacheRepo)
 })
+
+
+#' Alternative to saveToRepo for rasters
+#'
+#' Rasters are sometimes file-based, so the normal save mechanism doesn't work. This function creates an
+#' explicit save of the file that is backing the raster, in addition to saving the object metadata in
+#' the archivist repository database.
+#'
+#' @param obj The raster object to save to the repository.
+#'
+#' @inheritParams Cache
+#'
+#' @param tags Optional character vector of tags. Passed to \code{saveToRepo}.
+#'
+#' @param ... pass to \code{archivist::saveToRepo}
+#'
+#' @return A raster object and its file backing will be passed to the archivist repository.
+#'
+#' @importFrom digest digest
+#' @importFrom archivist saveToRepo
+#' @importFrom raster filename
+#'
+#' @docType methods
+#' @author Eliot McIntire
+#' @rdname saveToRepoRaster
+saveToRepoRaster <- function(obj, cacheRepo=NULL, tags=NULL,
+                             compareRasterFileLength=1e6, ...) {
+
+  dots <- list(...)
+  if (!inMemory(obj)) {
+    curFilename <- normalizePath(filename(obj), winslash = "/")
+
+    saveFilename <- file.path(cacheRepo, "rasters", basename(curFilename)) %>%
+      normalizePath(., winslash = "/", mustWork=FALSE)
+
+    if (saveFilename!=curFilename) {
+      shouldCopy <- TRUE
+      if (file.exists(saveFilename)) {
+        if (!(compareRasterFileLength==Inf)) {
+          if (digest(file = saveFilename, length=compareRasterFileLength) ==
+              digest(file = curFilename, length=compareRasterFileLength)) {
+            shouldCopy <- FALSE
+          }
+        } else {
+          shouldCopy = TRUE
+        }
+      }
+      if (shouldCopy) {
+        pathExists <- file.exists(dirname(saveFilename))
+        if (!pathExists) dir.create(dirname(saveFilename))
+        if(saveFilename %>% grepl(., pattern=".grd$")) {
+          copyFile(to = saveFilename, overwrite = TRUE,
+                   from = curFilename)
+          griFilename <- sub(saveFilename, pattern=".grd$", replacement = ".gri")
+          curGriFilename <- sub(curFilename, pattern=".grd$", replacement = ".gri")
+          copyFile(to = griFilename, overwrite = TRUE,
+                   from = curGriFilename)
+          #           file.copy(to = griFilename, overwrite = TRUE,
+          #                     recursive = FALSE, copy.mode = TRUE,
+          #                     from = curGriFilename)
+        } else {
+          suppressWarnings(copyFile(to = saveFilename, overwrite = TRUE,
+                   from = curFilename, silent = TRUE))
+        }
+      }
+      slot(slot(obj, "file"), "name") <- saveFilename
+    }
+  } else {
+    saveFilename <- slot(slot(obj, "file"), "name")
+  }
+
+  saveToRepo(obj, repoDir = cacheRepo,
+             userTags = c(paste0("class:", is(obj)),
+                          paste0("filename:", saveFilename)
+             ))
+
+}
+
+#' Copy a file using Robocopy on Windows and rsync on linux
+#'
+#' This will copy an individual file faster Robocopy in Windows and rsync in Linux.
+#' The function will default to \code{file.copy} (which is slow).
+#'
+#' @param from The source file
+#'
+#' @param to The new file
+#'
+#' @param useRobocopy For Windows, this will use a system call to Robocopy
+#'        which appears to be much
+#'        faster than the internal \code{file.copy} function. Uses /MIR flag.
+#'
+#' @param overwrite Passed to \code{file.copy}
+#'
+#' @param delDestination Logical, whether the destination should have any files deleted, if they don't exist
+#' in the source. This is /purge
+#'
+#' @param create Passed to \code{checkLazyDir}
+#'
+#' @param silent Should a progress be printed
+#'
+#' @docType methods
+#' @author Eliot McIntire
+#' @rdname copyFile
+copyFile <- function(from=NULL, to=NULL, useRobocopy=TRUE,
+                     overwrite=TRUE, delDestination=FALSE,
+                     #copyRasterFile=TRUE, clearRepo=TRUE,
+                     create=TRUE, silent=FALSE) {
+
+  origDir <- getwd()
+  if(!dir.exists(to)) to <- dirname(to) # extract just the directory part
+  os <- tolower(Sys.info()[["sysname"]])
+  if(os=="windows") {
+    if(useRobocopy) {
+      if(silent){
+        system(paste0("robocopy ","/purge"[delDestination]," /ETA /NDL /NFL /NJH /NJS ",
+                      normalizePath(dirname(from), winslash = "\\"),
+                      "\\ ", normalizePath(to, winslash = "\\"),
+                      " ", basename(from)))
+      } else {
+        system(paste0("robocopy ","/purge"[delDestination]," /ETA ", normalizePath(dirname(from), winslash = "\\"),
+                      "\\ ", normalizePath(to, winslash = "\\"),
+                      " ", basename(from)))
+        #         system(paste0("robocopy /E ","/purge"[delDestination]," /ETA ", normalizePath(fromDir, winslash = "\\"),
+        #                       "\\ ", normalizePath(toDir, winslash = "\\"), "\\"))
+      }
+    } else {
+      file.copy(from = from, to = to, overwrite=overwrite, recursive = FALSE)
+    }
+  } else if(os=="linux" | os == "darwin") {
+    if(silent){
+      system(paste0("rsync -aP ","--delete "[delDestination], from, " ", to,"/"))
+    } else {
+      system(paste0("rsync -avP ","--delete "[delDestination], from, " ", to, "/"))
+    }
+  }
+  setwd(origDir)
+  return(invisible(to))
+}
