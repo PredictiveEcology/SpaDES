@@ -65,15 +65,22 @@ test_that("test event-level cache", {
                      capture_messages(sims <- spades(Copy(mySim), notOlderThan = Sys.time()))))
   landscapeObjHash <- digest::digest(object = raster::dropLayer(sims$landscape, "Fires"), algo = "xxhash64")
   firesHash <- digest::digest(object = sims$landscape$Fires, algo = "xxhash64")
-  expect_identical("290afe2cf904d4f5", landscapeObjHash)
-  expect_true("4e6e705cb7e50920" %in% firesHash)
+
+  # R-devel as of Jan 28, 2017 has a different hash than all other versions (2nd hash below)
+  expect_true(any(c("290afe2cf904d4f5", "d0f083241c8906cf") %in% landscapeObjHash))
+  expect_true(any(c("4e6e705cb7e50920", "475350ebfbccea5c") %in% firesHash))
+  #expect_identical("4e6e705cb7e50920",firesHash)
+  #expect_true("4e6e705cb7e50920" %in% firesHash)
 
   mess1 <- capture_messages(sims <- spades(Copy(mySim)))
   expect_true(any(grepl(pattern = "Using cached copy of init event in randomLandscapes module",
                         mess1)))
   landscapeObjHash <- digest::digest(object = raster::dropLayer(sims$landscape, "Fires"), algo = "xxhash64")
   firesHash <- digest::digest(object = sims$landscape$Fires, algo = "xxhash64")
-  expect_identical("290afe2cf904d4f5", landscapeObjHash) # cached part is identical
+  #expect_identical("290afe2cf904d4f5", landscapeObjHash) # cached part is identical
+
+  # R-devel as of Jan 28, 2017 has a different hash than all other versions (2nd hash below)
+  expect_true(any(c("290afe2cf904d4f5", "d0f083241c8906cf") %in% landscapeObjHash))
   expect_false("4e6e705cb7e50920" %in% firesHash) # The non cached stuff goes ahead as normal
 
   clearCache(sims)
@@ -114,8 +121,13 @@ test_that("test module-level cache", {
                      capture_messages(sims <- spades(Copy(mySim), notOlderThan = Sys.time()))))
   landscapeObjHash <- digest::digest(object = raster::dropLayer(sims$landscape, "Fires"), algo = "xxhash64")
   firesHash <- digest::digest(object = sims$landscape$Fires, algo = "xxhash64")
-  expect_identical("290afe2cf904d4f5", landscapeObjHash)
-  expect_true("4e6e705cb7e50920" %in% firesHash)
+  #expect_identical("290afe2cf904d4f5", landscapeObjHash)
+
+  # R-devel as of Jan 28, 2017 has a different hash than all other versions (2nd hash below)
+  expect_true(any(c("290afe2cf904d4f5", "d0f083241c8906cf") %in% landscapeObjHash))
+  expect_true(any(c("4e6e705cb7e50920", "475350ebfbccea5c") %in% firesHash))
+  #expect_identical("4e6e705cb7e50920",firesHash)
+  #expect_true("4e6e705cb7e50920" %in% firesHash)
   dev.off()
   expect_true(file.info(tmpfile)$size > 20000)
   unlink(tmpfile)
@@ -128,7 +140,10 @@ test_that("test module-level cache", {
                         mess1)))
   landscapeObjHash <- digest::digest(object = raster::dropLayer(sims$landscape, "Fires"), algo = "xxhash64")
   firesHash <- digest::digest(object = sims$landscape$Fires, algo = "xxhash64")
-  expect_identical("290afe2cf904d4f5", landscapeObjHash) # cached part is identical
+  #expect_identical("290afe2cf904d4f5", landscapeObjHash) # cached part is identical
+
+  # R-devel as of Jan 28, 2017 has a different hash than all other versions (2nd hash below)
+  expect_true(any(c("290afe2cf904d4f5", "d0f083241c8906cf") %in% landscapeObjHash))
   expect_false("4e6e705cb7e50920" %in% firesHash) # The non cached stuff goes ahead as normal
   dev.off()
   expect_true(file.info(tmpfile)$size < 10000)
@@ -162,9 +177,9 @@ test_that("test file-backed raster caching", {
   aa <- Cache(randomPolyToDisk, tmpdir, tmpRasterfile, cacheRepo = tmpdir)
   # confirm that the raster has the new filename in the cachePath
   expect_false(identical(strsplit(tmpRasterfile, split = "[\\/]"),
-               strsplit(file.path(tmpdir, "rasters", basename(tmpRasterfile)), split = "[\\/]")))
+                         strsplit(file.path(tmpdir, "rasters", basename(tmpRasterfile)), split = "[\\/]")))
   expect_true(any(grepl(pattern = basename(tmpRasterfile),
-                    dir(file.path(tmpdir, "rasters")))))
+                        dir(file.path(tmpdir, "rasters")))))
 
   # Caching a raster as an input works
   rasterTobinary <- function(raster) {
