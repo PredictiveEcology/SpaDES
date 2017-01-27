@@ -255,4 +255,4 @@ sampleV <- Vectorize("sample", "size", SIMPLIFY = FALSE)
   }
 }
 
-.spadesEnv$corePackages <- ".GlobalEnv|Autoloads|base|methods|utils|graphics|datasets|stats|grDevices"
+.spadesEnv$corePackages <- ".GlobalEnv|Autoloads|base|methods|utils|graphics|datasets|stats"

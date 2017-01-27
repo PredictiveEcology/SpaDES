@@ -170,10 +170,10 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
     stop("directions must be 4 or 8 or \'bishop\'")
   }
 
-  if(!is.null(numNeighs)) {
+  if (!is.null(numNeighs)) {
     lenCells <- length(cells)
-    if(length(numNeighs)==1) numNeighs <- rep(numNeighs, lenCells)
-    ind <- unlist(sampleV(1:(directions+include), size=numNeighs))
+    if (length(numNeighs) == 1) numNeighs <- rep(numNeighs, lenCells)
+    ind <- unlist(sampleV(1:(directions + include), size = numNeighs))
     minusVal <- lenCells - rep.int(seq_along(cells), numNeighs)
     indFull2 <- ind * lenCells - minusVal
 
@@ -191,8 +191,6 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
   }
 
   if (useMatrix) {
-
-    ################################################
     # Remove all cells that are not target cells, if target is a vector of cells
     if (!is.null(target)) {
       adj <- adj[na.omit(adj[, "to"] %in% target), , drop = FALSE]
@@ -245,8 +243,8 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
         return(adj)
       }
     }
-  } else { # use data.table
-    #################################################
+  } else {
+    ## use data.table
     # Remove all cells that are not target cells, if target is a vector of cells
     if (!is.null(target)) {
       set(adj, , "ord", seq_len(NROW(adj)))
@@ -1008,10 +1006,10 @@ setMethod(
 
     sortedUniqAngles <- sort(unique(a[, "angles"]))
     dxx <- lapply(sort(unique(a[, "id"])), function(id) {
-      aID <- a[a[, "id"] == id,, drop = FALSE]
+      aID <- a[a[, "id"] == id, , drop = FALSE]
       b <- tapply(aID[, "stopDist"], aID[, "angles"], min, na.rm = TRUE)
       d1 <- lapply(sortedUniqAngles, function(x) {
-        a1 <- aID[aID[, "angles"] %==% x , , drop = FALSE]
+        a1 <- aID[aID[, "angles"] %==% x, , drop = FALSE]
         if (includeBehavior == "excludePixels")
           a1[a1[, "dists"] %<<% b[as.numeric(names(b)) %==% x], , drop = FALSE]
         else
