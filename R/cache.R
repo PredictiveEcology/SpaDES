@@ -375,8 +375,7 @@ setMethod(
 
     objs <- searchInLocalRepo(pattern = list(dateFrom = afterDate, dateTo = beforeDate),
                               repoDir = cacheRepo)
-    lapply(objs,
-           function(hash) rmFromLocalRepo(hash, cacheRepo))
+    rmFromLocalRepo(objs, cacheRepo, many=TRUE)
   })
 
 #' \code{showCache} and \code{clearCache} are wrappers around \code{archivist} package
