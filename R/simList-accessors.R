@@ -648,7 +648,7 @@ setMethod("P",
                   return(sim@params[[module]][[param]])
                 }
               }
-              
+
               return(sim@params)
             }
 })
@@ -3348,10 +3348,3 @@ setMethod(
   return(outputDF)
 }
 
-#' @rdname params
-#' @export
-#' @inheritParams P
-p <- function(sim, module = NULL, param = NULL) {
-  .Deprecated("P", old = "p")
-  P(sim = sim, module = module, param = param)
-}

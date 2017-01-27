@@ -4,7 +4,6 @@
 \name{params}
 \alias{P}
 \alias{P,.simList-method}
-\alias{p}
 \alias{parameters}
 \alias{parameters,.simList-method}
 \alias{params}
@@ -29,8 +28,6 @@ P(sim, module = NULL, param = NULL)
 parameters(sim, asDF = FALSE)
 
 \S4method{parameters}{.simList}(sim, asDF = FALSE)
-
-p(sim, module = NULL, param = NULL)
 }
 \arguments{
 \item{sim}{A \code{simList} object from which to extract element(s) or

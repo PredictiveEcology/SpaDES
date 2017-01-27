@@ -32,6 +32,7 @@ version 1.3.1.9000
 * improve module template to auto fill module author info using `devtools.desc.author` option if set.
 * zipModule now has `data` argument, allowing data to be omitted from zipped module.
 * minor bugfixes for unusual cases
+* removed `p` from deprecation. Use `params` or `P` instead.
 
 version 1.3.1
 =============
