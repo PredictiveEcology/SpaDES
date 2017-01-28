@@ -390,7 +390,7 @@ burned <- fires[active == FALSE]
 burnedMap <- rasterizeReduced(burned, fullRas, "id", "indices")
 if (interactive()) {
   clearPlot()
-  Plot(burnedMap, new=TRUE)
+  Plot(burnedMap, new = TRUE)
 }
 
 ####################
@@ -548,16 +548,16 @@ dev();
 seed <- sample(1e6,1)
 #seed <- 576534
 set.seed(seed); print(seed)
-maxSizes <- rexp(length(startCells), rate = 1/500)
+maxSizes <- rexp(length(startCells), rate = 1 / 500)
 fires <- spread(hab, loci = startCells, 1, persistence = 0,
-                neighProbs = c(0.5, 0.5, 0.5)/1.5,
-                mask=NULL, maxSize = maxSizes, directions=8,
-                iterations=1e6, id = TRUE, plot.it = FALSE, exactSizes = TRUE);
-table(fires[fires>0][]) < floor(maxSizes);
-if(interactive()) {
-  clearPlot();Plot(fires, new=TRUE, cols = c("red", "yellow"),
-                                zero.color = "white")
-  Plot(hist(table(fires[][fires[]>0])), title = "fire size distribution")
+                neighProbs = c(0.5, 0.5, 0.5) / 1.5,
+                mask = NULL, maxSize = maxSizes, directions = 8,
+                iterations = 1e6, id = TRUE, plot.it = FALSE, exactSizes = TRUE);
+table(fires[fires > 0][]) < floor(maxSizes);
+if (interactive()) {
+  clearPlot()
+  Plot(fires, new = TRUE, cols = c("red", "yellow"), zero.color = "white")
+  Plot(hist(table(fires[][fires[] > 0])), title = "fire size distribution")
 }
 }
 \author{

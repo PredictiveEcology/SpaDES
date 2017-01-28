@@ -326,11 +326,10 @@ setMethod(
       #archiveMiniature = FALSE, rememberName = FALSE, silent = TRUE)
     }
     while (!written) {
-
-      saved <- try(saveToLocalRepo(outputToSave, repoDir = cacheRepo, archiveData = TRUE,
-                                 archiveSessionInfo = FALSE,
-                                 archiveMiniature = FALSE, rememberName = FALSE, silent = TRUE),
-                      silent = TRUE)
+      saved <- try(saveToLocalRepo(outputToSave, repoDir = cacheRepo,
+                                   archiveData = TRUE, archiveSessionInfo = FALSE,
+                                   archiveMiniature = FALSE, rememberName = FALSE, silent = TRUE),
+                   silent = TRUE)
 
       # This is for simultaneous write conflicts. SQLite on Windows can't handle them.
       written <- if (is(saved, "try-error")) {
@@ -373,7 +372,6 @@ setGeneric("clearCache", function(sim, afterDate, beforeDate, cacheRepo, ...) {
 setMethod(
   "clearCache",
   definition = function(sim, afterDate, beforeDate, cacheRepo, ...) {
-
     if (missing(sim) & missing(cacheRepo)) stop("Must provide either sim or cacheRepo")
     if (missing(cacheRepo)) cacheRepo <- sim@paths$cachePath
     if (missing(afterDate)) afterDate <- "1970-01-01"
@@ -381,7 +379,7 @@ setMethod(
 
     objs <- searchInLocalRepo(pattern = list(dateFrom = afterDate, dateTo = beforeDate),
                               repoDir = cacheRepo)
-    rmFromLocalRepo(objs, cacheRepo, many=TRUE)
+    rmFromLocalRepo(objs, cacheRepo, many = TRUE)
   })
 
 #' \code{showCache} and \code{clearCache} are wrappers around \code{archivist} package
@@ -409,7 +407,6 @@ setGeneric("showCache", function(sim, cacheRepo, ...) {
 setMethod(
   "showCache",
   definition = function(sim, cacheRepo, ...) {
-
     if (missing(sim) & missing(cacheRepo)) stop("Must provide either sim or cacheRepo")
     if (missing(cacheRepo)) cacheRepo <- sim@paths$cachePath
 
@@ -603,7 +600,6 @@ setMethod(
           outputObjects = outputObjects, algo = algo, cacheRepo = cacheRepo)
 })
 
-
 #' Alternative to \code{archivist::saveToRepo} for rasters
 #'
 #' Rasters are sometimes file-based, so the normal save mechanism doesn't work.
@@ -627,9 +623,7 @@ setMethod(
 #' @author Eliot McIntire
 #' @rdname prepareFileBackedRaster
 #'
-prepareFileBackedRaster <- function(obj, repoDir = NULL, #tags = NULL,
-                             compareRasterFileLength = 1e6, ...) {
-
+prepareFileBackedRaster <- function(obj, repoDir = NULL, compareRasterFileLength = 1e6, ...) {
   if (!inMemory(obj)) {
     curFilename <- normalizePath(filename(obj), winslash = "/")
 

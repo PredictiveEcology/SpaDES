@@ -2,7 +2,7 @@ test_that("test cache", {
   library(igraph)
   tmpdir <- file.path(tempdir(), "testCache") %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
-  try(clearCache(cacheRepo = tmpdir), silent=TRUE)
+  try(clearCache(cacheRepo = tmpdir), silent = TRUE)
 
   # Example of changing parameter values
   mySim <- simInit(
@@ -39,7 +39,7 @@ test_that("test event-level cache", {
   library(igraph)
   tmpdir <- file.path(tempdir(), "testCache") %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
-  try(clearCache(cacheRepo = tmpdir), silent=TRUE)
+  try(clearCache(cacheRepo = tmpdir), silent = TRUE)
 
   # Example of changing parameter values
   mySim <- simInit(
@@ -93,7 +93,7 @@ test_that("test module-level cache", {
   tmpdir <- file.path(tempdir(), "testCache") %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
   tmpfile <- tempfile(fileext = ".pdf")
-  try(clearCache(cacheRepo = tmpdir), silent=TRUE)
+  try(clearCache(cacheRepo = tmpdir), silent = TRUE)
 
   # Example of changing parameter values
   times <- list(start = 0.0, end = 1.0, timeunit = "year")
@@ -156,11 +156,10 @@ test_that("test file-backed raster caching", {
   #if((getRversion() > "3.3.2"))
   library(igraph)
   library(raster)
-  tmpdir <- file.path(tempdir(), "testCache")#, fsep = "\\")
-  tmpdir <- checkPath(tmpdir, create = TRUE)
+  tmpdir <- file.path(tempdir(), "testCache") %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
   tmpRasterfile <- tempfile(tmpdir = tmpdir, fileext = ".tif")
-  try(clearCache(cacheRepo = tmpdir), silent=TRUE)
+  try(clearCache(cacheRepo = tmpdir), silent = TRUE)
 
   nOT <- Sys.time()
 
@@ -173,7 +172,8 @@ test_that("test file-backed raster caching", {
 
   a <- randomPolyToDisk(tmpdir, tmpRasterfile)
   # confirm that the raster has the given tmp filename
-  expect_identical(strsplit(tmpRasterfile, split = "[\\/]") , strsplit(a@file@name, split = "[\\/]"))
+  expect_identical(strsplit(tmpRasterfile, split = "[\\/]"),
+                   strsplit(a@file@name, split = "[\\/]"))
   aa <- Cache(randomPolyToDisk, tmpdir, tmpRasterfile, cacheRepo = tmpdir)
   # confirm that the raster has the new filename in the cachePath
   expect_false(identical(strsplit(tmpRasterfile, split = "[\\/]"),
