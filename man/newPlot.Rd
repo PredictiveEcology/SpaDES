@@ -27,7 +27,7 @@ Open a new plotting window
 \code{\link{dev.new}} is supposed to be the correct way to open a new
 window in a platform-generic way; however, doesn't work in RStudio (#116).
 Use \code{dev.useRSGD(FALSE)} to avoid RStudio for the remainder of this session,
-and \code{dev.useRSGD(TRUE)} to use the Rstudio graphics device.
+and \code{dev.useRSGD(TRUE)} to use the RStudio graphics device.
 (This sets the default device uvia the \code{device} option.)
 }
 \author{

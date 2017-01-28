@@ -1,9 +1,9 @@
 ################################################################################
 #' Open a file for editing
 #'
-#' Rstudio's \code{file.edit} behaves differently than \code{utils::file.edit}.
+#' RStudio's \code{file.edit} behaves differently than \code{utils::file.edit}.
 #' The workaround is to have the user manually open the file if they are using
-#' Rstudio, as suggested in the Rstudio support ticket at
+#' RStudio, as suggested in the RStudio support ticket at
 #' \url{https://support.rstudio.com/hc/en-us/community/posts/206011308-file-edit-vs-utils-file-edit}.
 #'
 #' @param file  Character string giving the file path to open.
@@ -152,7 +152,7 @@ setMethod(
       newModuleTests(name = name, path = path, open = open)
     }
 
-    ### Make Rmarkdown file for module documentation
+    ### Make R Markdown file for module documentation
     newModuleDocumentation(name = name, path = path, open = open, type = type, children = children)
 })
 
@@ -438,7 +438,7 @@ setMethod(
     filenameLICENSE <- file.path(nestedPath, "LICENSE")
     filenameREADME <- file.path(nestedPath, "README.txt")
 
-    ### Make Rmarkdown file for module documentation
+    ### Make R Markdown file for module documentation
     cat(
 "---
 title: \"", name, "\"
@@ -454,11 +454,11 @@ Provide an overview of what the module does / how to use the module.
 Module documentation should be written so that others can use your module.
 This is a template for module documentation, and should be changed to reflect your module.
 
-## RMarkdown
+## R Markdown
 
-RMarkdown syntax allows R code, outputs, and figures to be rendered in the documentation.
+R Markdown syntax allows R code, outputs, and figures to be rendered in the documentation.
 
-For help writing in RMarkdown, see http://rmarkdown.rstudio.com/.
+For help writing in R Markdown, see http://rmarkdown.rstudio.com/.
 
 # Usage
 
@@ -548,7 +548,7 @@ where to download data, etc.",
         file = filenameREADME, fill = FALSE, sep = "")
 
     if (open) {
-      # use tryCatch: Rstudio bug causes file open to fail on Windows (#209)
+      # use tryCatch: RStudio bug causes file open to fail on Windows (#209)
       openModules(basename(filenameRmd), nestedPath)
 
       # tryCatch(file.edit(filenameRmd), error = function(e) {

@@ -123,7 +123,7 @@ setMethod("clearPlot",
 #'
 #' These functions use \code{grid.locator}. The primary two user-level functions are
 #' \code{clickValues} and \code{clickExtent}. These functions automatically select
-#' the correct viewport (i.e., map) where the mouse clicks occured so the user
+#' the correct viewport (i.e., map) where the mouse clicks occurred so the user
 #' does not have to manually specify which map is being clicked on.
 #' This works for \code{Raster*}, \code{SpatialPoints*}, and \code{SpatialPolygons*} objects.
 #'
@@ -401,7 +401,7 @@ dev <- function(x, ...) {
 #' @note \code{\link{dev.new}} is supposed to be the correct way to open a new
 #' window in a platform-generic way; however, doesn't work in RStudio (#116).
 #' Use \code{dev.useRSGD(FALSE)} to avoid RStudio for the remainder of this session,
-#' and \code{dev.useRSGD(TRUE)} to use the Rstudio graphics device.
+#' and \code{dev.useRSGD(TRUE)} to use the RStudio graphics device.
 #' (This sets the default device uvia the \code{device} option.)
 #'
 #' @seealso \code{\link{dev}}.

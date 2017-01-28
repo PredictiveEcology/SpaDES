@@ -2,12 +2,12 @@
 % Please edit documentation in R/rstudio-addins.R
 \name{addin_newModule}
 \alias{addin_newModule}
-\title{Rstudio addin to create a new module}
+\title{RStudio addin to create a new module}
 \usage{
 addin_newModule()
 }
 \description{
-Rstudio addin to create a new module
+RStudio addin to create a new module
 }
 \author{
 Alex Chubaty

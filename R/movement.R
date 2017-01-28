@@ -53,8 +53,8 @@ move <- function(hypothesis = "crw", ...) {
 #'                    If \code{FALSE} coordinates represent planar ('Euclidean')
 #'                    space (e.g. units of meters)
 #'
-#' @return A SpatialPointsDataFrame object with updated spatial position defined by a
-#'   single occurence of step length(s) and turn angle(s).
+#' @return A SpatialPointsDataFrame object with updated spatial position defined
+#'         by a single occurrence of step length(s) and turn angle(s).
 #'
 #' @seealso \code{\link{pointDistance}}
 #'

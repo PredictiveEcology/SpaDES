@@ -36,7 +36,7 @@ new extent. Default \code{TRUE}.}
 \description{
 These functions use \code{grid.locator}. The primary two user-level functions are
 \code{clickValues} and \code{clickExtent}. These functions automatically select
-the correct viewport (i.e., map) where the mouse clicks occured so the user
+the correct viewport (i.e., map) where the mouse clicks occurred so the user
 does not have to manually specify which map is being clicked on.
 This works for \code{Raster*}, \code{SpatialPoints*}, and \code{SpatialPolygons*} objects.
 }

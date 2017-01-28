@@ -43,12 +43,12 @@ Plotting features within `SpaDES` are built using the `grid` package, though it 
 
 Building spatial simulation models often involves reusing various model components, often having to re-implement similar functionality in multiple simulation frameworks (*i.e*, in different programming languages).
 When various components of a simulation model become fragmented across multiple platforms, it becomes increasingly difficult to link these various components, and often solutions for this problem are idiosyncratic and specific to the model being implemented.
-As a result, developing general insights into complex computational models has, in the field of ecology at least, been hampered by modellers' typically developing models from scratch [@Thiele:2015oi].
+As a result, developing general insights into complex computational models has, in the field of ecology at least, been hampered by modellers' typically developing models from scratch [@Thiele2015].
 
 `SpaDES` is a generic simulation platform that can be used to create new model components quickly.
 It also provides a framework to link with existing simulation models, so that an already well described and mature model, *e.g.*, Landis-II [@Scheller:2007em], can be used with *de novo* components.
 Alternatively one could use several *de novo* models and several existing models in combination.
-This approach requires a platform that allows for modular reuse of model components (herein called 'modules') as hypotheses that can be evaluated and tested in various ways, as advocated by @Thiele:2015oi.
+This approach requires a platform that allows for modular reuse of model components (herein called 'modules') as hypotheses that can be evaluated and tested in various ways, as advocated by @Thiele2015.
 
 When beginning development of this package, we sought a general simulation platform at least the following characteristics:
 
@@ -80,7 +80,7 @@ Thus, these tests show that poorly written code can be slow, in any language.
 Another major criticism of `R` is its high memory footprint.
 It's true that similar structures take up less memory in `C` than in `R`.
 However, there are various simple optimizations for `R` code, such as explicitly pre-allocating memory to objects, that can drastically improve performance.
-In cases were further improvements are required, the `Rcpp` package [@Eddelbuettel:2011rcpp; @Eddelbuettel:2013rcpp] allows easy writing of low memory footprint `C++` code that can then be called in `R`.
+In cases were further improvements are required, the `Rcpp` package [@Eddelbuettel:2011Rcpp; @Eddelbuettel:2013Rcpp] allows easy writing of low memory footprint `C++` code that can then be called in `R`.
 Likewise, numerous upgrades to R, including minimizing object copying since `R` version `3.0`, and extremely powerful user developed packages, like `data.table` and `dplyr` are eliminating many of these concerns.
 
 [^julia]: http://julialang.org
@@ -155,7 +155,7 @@ Historically, simulation models were built separately from the analysis of input
 On the input data side, this effectively broke the linkage between data (*e.g.*, from field or satellites) and the simulation.
 This has the undesired effect of creating the appearance of reduced uncertainty in simulation model predictions, by breaking correlations between parameter estimates (that invariably occur in analyses of real data), or simply by passing an incorrectly specified parameter uncertainty to a simulation model.
 
-Conversely, on the data output side, numerous tools, such as optimization (*e.g.*, pattern oriented modeling @Grimm:2005sc) or statistical analyses could not directly interact with the simulation model, unless a specific extension was built for that purpose.
+Conversely, on the data output side, numerous tools, such as optimization [*e.g.*, pattern oriented modeling @Grimm2005science] or statistical analyses could not directly interact with the simulation model, unless a specific extension was built for that purpose.
 In `R`, those tools already exist and are robust.
 Thus, validation, calibration, and verification of simulation models can become rolled into the simulation model itself, facilitating understanding of models' forecasting performance and thus their predictive capacity.
 All of these enhance transparency and reproducibility, both desired properties for scientific studies.
@@ -271,7 +271,7 @@ Plotting methods using `Plot` are optimized for speed and are much faster than t
 # Simulation experiments
 
 Running multiple simulations with different parameter values is a critical part of sensitivity and robustness analysis, simulation experiments, optimization, and pattern oriented modelling.
-Likewise, greater understanding and evaluation of models and their uncertainty requires simulation replication and repetition [@Grimm:2005bk; @Thiele:2015oi].
+Likewise, greater understanding and evaluation of models and their uncertainty requires simulation replication and repetition [@Grimm:2005book; @Thiele2015].
 Using `R` as a common platform for data, simulation, and analyses we can do all of these easily and directly as part of our `SpaDES` simulation without breaking the linkages between model and analysis.
 This workflow facilitates and enhances the use of ensemble and consensus modelling, and studies of cumulative effects.
 
@@ -300,7 +300,7 @@ sims <- experiment(mySim, replicates = 2)
 attr(sims, "experiment")$expDesign # shows 2 replicates of same experiment
 ```
 
-# Additonal resources
+# Additional resources
 
 ## `SpaDES` documentation and vignettes
 

@@ -1,4 +1,4 @@
-#' Rstudio addin to copy an existing module
+#' RStudio addin to copy an existing module
 #'
 #' @importFrom miniUI gadgetTitleBar miniContentPanel miniPage
 #' @importFrom shiny dialogViewer observeEvent reactive runGadget selectInput textInput stopApp
@@ -30,7 +30,7 @@ addin_copyModule <- function() {
   runGadget(ui, server, viewer = dialogViewer("Copy an existing SpaDES module"))
 }
 
-#' Rstudio addin to create a new module
+#' RStudio addin to create a new module
 #'
 #' @importFrom miniUI gadgetTitleBar miniContentPanel miniPage
 #' @importFrom shiny conditionalPanel dialogViewer observeEvent reactive runGadget selectInput textInput stopApp

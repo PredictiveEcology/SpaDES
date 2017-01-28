@@ -48,8 +48,8 @@ side of the map, as determined by the \code{extent} argument.
 Default \code{FALSE}.}
 }
 \value{
-A SpatialPointsDataFrame object with updated spatial position defined by a
-  single occurence of step length(s) and turn angle(s).
+A SpatialPointsDataFrame object with updated spatial position defined
+        by a single occurrence of step length(s) and turn angle(s).
 }
 \description{
 Wrapper for selecting different animal movement methods.
