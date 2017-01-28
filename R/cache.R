@@ -327,7 +327,7 @@ setMethod(
     }
     while (!written) {
 
-      saved <- try(saveToRepo(outputToSave, repoDir = cacheRepo, archiveData = TRUE,
+      saved <- try(saveToLocalRepo(outputToSave, repoDir = cacheRepo, archiveData = TRUE,
                                  archiveSessionInfo = FALSE,
                                  archiveMiniature = FALSE, rememberName = FALSE, silent = TRUE),
                       silent = TRUE)
