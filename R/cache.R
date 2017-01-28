@@ -118,7 +118,7 @@
 #'
 #' @seealso \code{\link[archivist]{cache}}.
 #' @export
-#' @importFrom archivist cache loadFromLocalRepo saveToRepo showLocalRepo
+#' @importFrom archivist cache loadFromLocalRepo saveToLocalRepo showLocalRepo
 #' @importFrom digest digest
 #' @include simList-class.R
 #' @docType methods
