@@ -99,12 +99,12 @@
 #' @param cacheRepo	A repository used for storing cached objects. This is optional
 #'                  if \code{Cache} is used inside a SpaDES module.
 #'
-#' @param makeCopy Logical. If TRUE, a copy of the downloaded files will be stored in the cacheRepo/gallery.
+#' @param makeCopy A logical argument indicating if a copy of the downloaded files should be stored in the cacheRepo/gallery directory.
 #'                 This allow to recover a copy faster than running the function if files are not found locally.
 #'                 Only work when cache run for the first time for now.
 #'
 #' @param sideEffect A logical argument indicating if downloaded files are found locally using
-#'                   filename and checksum. When absent, files are recover from the copy stored in cacheRepo/gallery.
+#'                   filename and checksum. When absent, files are recovered from the copy stored in cacheRepo/gallery.
 #'
 #' @param quick A logical argument indicating if checksum should be made on file (FALSE) or on character string
 #'              representing the combination of the filename and its size (TRUE). Default is TRUE
@@ -124,6 +124,8 @@
 #' @export
 #' @importFrom archivist cache loadFromLocalRepo saveToRepo showLocalRepo
 #' @importFrom digest digest
+#' @importFrom utils unzip
+#' @importFrom tools file_ext
 #' @include simList-class.R
 #' @docType methods
 #' @rdname cache
@@ -196,9 +198,7 @@ setMethod(
     tmpl <- list(...)
     browser()
     if (missing(notOlderThan)) notOlderThan <- NULL
-
     if (missing(quick)) quick <- TRUE
-
     # These three lines added to original version of cache in archive package
     wh <- which(sapply(tmpl, function(x) is(x, "simList")))
     if (is.null(cacheRepo)) {
@@ -263,9 +263,11 @@ setMethod(
     if (!is.null(tmpl$progress)) if (!is.na(tmpl$progress)) tmpl$progress <- NULL
     #0
     currentdirList <- dir(cacheRepo)
-    currentFileList <- currentdirList[ !file.info(file.path(cacheRepo,currentdirList))$isdir ]
+    currentFileList <- currentdirList[ !file.info(file.path(cacheRepo,currentdirList))$isdir |
+                          (file.info(file.path(cacheRepo,currentdirList))$isdir  &
+                             !file.size(file.path(cacheRepo,currentdirList))==0 )]
     if (quick){
-      sizeCurrentFiles <- lapply(currentFileList, function(x) {list(x, file.info(x)[,"size"])})
+      sizeCurrentFiles <- lapply(currentFileList, function(x) {list(x, file.size(file.path(cacheRepo,x)))})
       cacheCurrentFiles <- lapply(sizeCurrentFiles, function(x) {digest::digest(x, algo = algo)})
     } else {
       cacheCurrentFiles <- lapply(currentFileList, function(x) {digest::digest(file = file.path(cacheRepo,x), algo = algo)})
@@ -287,22 +289,50 @@ setMethod(
 
         out <- loadFromLocalRepo(isInRepo$artifact[lastOne],
                                  repoDir = cacheRepo, value = TRUE)
-
+    #0
         if (sideEffect){
           cachedFileNames <- sub(":.*", "", attributes(out)$cacheFileList)
+          currentFilesize <- paste0(names(cacheCurrentFiles), ":", cacheCurrentFiles)
           repoFrom = file.path(cacheRepo, "gallery")
           for (i in 1:length(cachedFileNames)){
-            if(!file.exists(file.path(cacheRepo, cachedFileNames[i]))) {
-              file.copy(file.path(cacheRepo, cachedFileNames[i]), repoFrom)
-            } else {
-              currentFilesize <- paste0(names(cacheCurrentFiles), ":", cacheCurrentFiles)
-              if (attributes(out)$cacheFileList[i] != currentFilesize[i]) {
-                file.copy(file.path(cacheRepo, currentFileNames[i]), repoFrom)
+            if(file.exists(file.path(cacheRepo, cachedFileNames[i]))) {
+              # check if cache hash is the same as current hash file
+              if (!(attributes(out)$cacheFileList[i] %in% currentFilesize)){
+                  if(file.exists(file.path(repoFrom, cachedFileNames[i]))){
+                    file.copy(file.path(repoFrom, cachedFileNames[i]), cacheRepo, overwrite = TRUE)
+                  }else{
+                    do.call(FUN, list(...))
+                    if (makeCopy){
+                      repoTo = file.path(cacheRepo, "gallery")
+                      finf <- file.info(file.path(cacheRepo, cachedFileNames[i]), extra_cols = FALSE)
+                      rownames(finf)<-cachedFileNames[i]
+                      fcopy<-finf[which(finf[,"mtime"] != finf[,"ctime"]) &
+                                difftime(Sys.time(), finf[,"mtime"], units = "days") < 1 , 1:4]
+                      file.copy(file.path(cacheRepo,rownames(fcopy)), repoTo)
+                    }
+                  }
+              }
+            }else{
+              # check if downloaded files are found ondisk
+              if(file.exists(file.path(repoFrom, cachedFileNames[i]))){
+                # if yes, get the copy from disk
+                file.copy(file.path(repoFrom, cachedFileNames[i]), cacheRepo)
+              }else{
+                # if no copy are not found and cache don't match, re-download.
+                do.call(FUN, list(...))
+                if (makeCopy){
+                  repoTo = file.path(cacheRepo, "gallery")
+                  finf <- file.info(file.path(cacheRepo, cachedFileNames[i]), extra_cols = FALSE)
+                  rownames(finf)<-cachedFileNames[i]
+                  fcopy<-finf[which(finf[,"mtime"] != finf[,"ctime"]) &
+                                difftime(Sys.time(), finf[,"mtime"], units = "days") < 1 , 1:4]
+                  file.copy(file.path(cacheRepo,rownames(fcopy)), repoTo)
+                }
               }
             }
           }
         }
-
+      #1
         #if(!is(out, "simList")) {
           if (length(wh) > 0) {
             simListOut <- out # gets all items except objects in list(...)
@@ -330,9 +360,29 @@ setMethod(
     output <- do.call(FUN, list(...))
     attr(output, "tags") <- paste0("cacheId:", outputHash)
     attr(output, "call") <- ""
+
     #0
+    if (makeCopy){
+      endFileList <- dir(cacheRepo)
+      dwdFile <- setdiff(endFileList, currentdirList)
+      repoTo = file.path(cacheRepo, "gallery")
+      for (i in 1:length(dwdFile)){
+        file.copy(file.path(cacheRepo,dwdFile[i]), repoTo)
+      }
+    }
+    currentFileList <- dwdFile[ !file.info(file.path(cacheRepo,dwdFile))$isdir |
+                                         (file.info(file.path(cacheRepo,dwdFile))$isdir  &
+                                            !file.size(file.path(cacheRepo,dwdFile))==0 )]
+    if (quick){
+      sizeCurrentFiles <- lapply(currentFileList, function(x) {list(x, file.size(file.path(cacheRepo,x)))})
+      cacheCurrentFiles <- lapply(sizeCurrentFiles, function(x) {digest::digest(x, algo = algo)})
+    }else{
+      cacheCurrentFiles <- lapply(currentFileList, function(x) {digest::digest(file = file.path(cacheRepo,x), algo = algo)})
+    }
+    names(cacheCurrentFiles)<-currentFileList
     attr(output, "cacheFileList") <- paste0(names(cacheCurrentFiles), ":", cacheCurrentFiles)
     #1
+
     if (isS4(FUN)) attr(output, "function") <- FUN@generic
 
     if (is(output, "simList")) {
@@ -369,15 +419,7 @@ setMethod(
         TRUE
       }
     }
-    if (makeCopy){
-      endFileList <- dir(cacheRepo)
-      dwdFile <- setdiff(endFileList, currentdirList)
-      repoTo = file.path(cacheRepo, "gallery")
-      for (i in 1:length(output$paths)){
-        file.copy(output$paths[i], repoTo)
-      }
 
-    }
     return(output)
 })
 
