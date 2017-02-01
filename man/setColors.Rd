@@ -2,15 +2,15 @@
 % Please edit documentation in R/plotting-colours.R
 \docType{methods}
 \name{setColors<-}
-\alias{setColors}
-\alias{setColors,RasterLayer,character,missing-method}
-\alias{setColors,RasterLayer,character,numeric-method}
 \alias{setColors<-}
-\alias{setColors<-,Raster,missing,list-method}
-\alias{setColors<-,RasterLayer,missing,character-method}
-\alias{setColors<-,RasterLayer,numeric,character-method}
-\alias{setColors<-,RasterStack,numeric,list-method}
 \alias{setColours}
+\alias{setColors<-,RasterLayer,numeric,character-method}
+\alias{setColors<-,RasterLayer,missing,character-method}
+\alias{setColors<-,RasterStack,numeric,list-method}
+\alias{setColors<-,Raster,missing,list-method}
+\alias{setColors}
+\alias{setColors,RasterLayer,character,numeric-method}
+\alias{setColors,RasterLayer,character,missing-method}
 \title{Set colours for plotting Raster* objects.}
 \usage{
 setColors(object, ..., n) <- value
@@ -112,11 +112,10 @@ This function can accept RColorBrewer colors by name. See example.
 
 }
 }
-\author{
-Alex Chubaty
-}
 \seealso{
 \code{\link[RColorBrewer]{brewer.pal}},
          \code{\link[grDevices]{colorRampPalette}}.
 }
-
+\author{
+Alex Chubaty
+}

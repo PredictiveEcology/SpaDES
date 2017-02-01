@@ -371,12 +371,11 @@ if (interactive()) {
 }
 
 }
-\author{
-Eliot McIntire
-}
 \seealso{
 \code{\link{clearPlot}}, \code{\link{gpar}}, \code{\link{raster}},
 \code{\link{par}}, \code{\link{SpatialPolygons}}, \code{\link{grid.polyline}},
 \code{\link{ggplot}}, \code{\link{dev}}
 }
-
+\author{
+Eliot McIntire
+}

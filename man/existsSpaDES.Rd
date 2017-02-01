@@ -24,4 +24,3 @@ Internal function. Simple wrapper for \code{\link{exists}}.
 Alex Chubaty
 }
 \keyword{internal}
-

@@ -3,8 +3,8 @@
 \docType{methods}
 \name{minTimeunit}
 \alias{minTimeunit}
-\alias{minTimeunit,list-method}
 \alias{minTimeunit,simList-method}
+\alias{minTimeunit,list-method}
 \title{Determine the smallest timeunit in a simulation}
 \usage{
 minTimeunit(sim)
@@ -27,4 +27,3 @@ When modules have different timeunit, SpaDES automatically takes the smallest
 \author{
 Eliot McIntire
 }
-

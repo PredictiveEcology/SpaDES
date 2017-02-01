@@ -117,6 +117,7 @@ Packages are loaded during this call.
                              \code{simList}.\cr
 }
 }
+
 \examples{
 \dontrun{
   # a default version of the defineModule is created with a call to newModule
@@ -172,4 +173,3 @@ Packages are loaded during this call.
 \author{
 Alex Chubaty
 }
-

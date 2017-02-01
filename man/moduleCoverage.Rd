@@ -55,10 +55,9 @@ To accurately test your module, the test filename must follw the format
  unlink(tmpdir, recursive = TRUE)
 }
 }
-\author{
-Yong Luo
-}
 \seealso{
 \code{\link{newModule}}.
 }
-
+\author{
+Yong Luo
+}

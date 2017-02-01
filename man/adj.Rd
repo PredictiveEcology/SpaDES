@@ -2,8 +2,8 @@
 % Please edit documentation in R/neighbourhood.R
 \docType{methods}
 \name{adj.raw}
-\alias{adj}
 \alias{adj.raw}
+\alias{adj}
 \title{Fast `adjacent` function, and Just In Time compiled version}
 \usage{
 adj.raw(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
@@ -99,10 +99,9 @@ adj.new <- adj(numCol = numCol, numCell = numCell, cells = sam, directions = 8,
   include = TRUE)
 
 }
-\author{
-Eliot McIntire
-}
 \seealso{
 \code{\link[raster]{adjacent}}
 }
-
+\author{
+Eliot McIntire
+}

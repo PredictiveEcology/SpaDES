@@ -3,6 +3,10 @@
 \docType{data}
 \name{spadesMaps}
 \alias{spadesMaps}
+\alias{spadesMaps}
+\alias{spadesMaps}
+\alias{spadesMaps}
+\alias{spadesMaps}
 \title{Dummy maps included with \code{SpaDES}}
 \format{raster}
 \description{
@@ -22,4 +26,3 @@ Use \code{system.file(package="SpaDES", "maps")} to locate the \code{maps} direc
 \code{percentPine.tif}: rescaled to percentages.
 }
 \keyword{maps}
-

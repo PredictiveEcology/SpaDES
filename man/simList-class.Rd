@@ -2,10 +2,10 @@
 % Please edit documentation in R/simList-class.R
 \docType{class}
 \name{.simList-class}
-\alias{.simList}
 \alias{.simList-class}
-\alias{simList}
+\alias{.simList}
 \alias{simList-class}
+\alias{simList}
 \title{The \code{simList} class}
 \description{
 Contains the minimum components of a \code{SpaDES} simulation.
@@ -63,6 +63,7 @@ environment are provided, and can be used on the
 \code{.envir} slot: \code{$}, \code{[[}, \code{ls},
 \code{ls.str}, \code{objs}. See examples.}
 }}
+
 \note{
 The \code{simList} class extends the \code{.simList} superclass by adding
 a slot \code{.envir} to store the simulation environment containing references
@@ -102,10 +103,10 @@ Each event is represented by a \code{\link{data.table}} row consisting of:
   \code{eventPriority} \tab The priority given to the event. \cr
 }
 }
-\author{
-Alex Chubaty and Eliot McIntire
-}
+
 \references{
 Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{https://www.nostarch.com/artofr.htm}
 }
-
+\author{
+Alex Chubaty and Eliot McIntire
+}

@@ -3,9 +3,9 @@
 \docType{methods}
 \name{loadPackages}
 \alias{loadPackages}
-\alias{loadPackages,NULL-method}
 \alias{loadPackages,character-method}
 \alias{loadPackages,list-method}
+\alias{loadPackages,NULL-method}
 \title{Load packages.}
 \usage{
 loadPackages(packageList, install = FALSE, quiet = TRUE)
@@ -42,10 +42,9 @@ Load and optionally install additional packages.
 }
 
 }
-\author{
-Alex Chubaty
-}
 \seealso{
 \code{\link{require}}.
 }
-
+\author{
+Alex Chubaty
+}

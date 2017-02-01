@@ -47,4 +47,3 @@ if (interactive()) {
 \seealso{
 \code{\link{spread}} and \code{\link{raster}}
 }
-

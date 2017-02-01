@@ -2,19 +2,20 @@
 % Please edit documentation in R/simList-accessors.R
 \docType{methods}
 \name{objs}
-\alias{$}
-\alias{$,simList-method}
-\alias{$<-}
-\alias{$<-,simList-method}
+\alias{objs}
+\alias{simList-accessors-objects}
+\alias{objs,simList-method}
+\alias{objs<-}
+\alias{objs<-}
+\alias{objs<-,simList-method}
 \alias{[[}
 \alias{[[,simList,ANY,ANY-method}
 \alias{[[<-}
 \alias{[[<-,simList,ANY,ANY,ANY-method}
-\alias{objs}
-\alias{objs,simList-method}
-\alias{objs<-}
-\alias{objs<-,simList-method}
-\alias{simList-accessors-objects}
+\alias{$}
+\alias{$,simList-method}
+\alias{$<-}
+\alias{$<-,simList-method}
 \title{Extract or replace an object from the simulation environment}
 \usage{
 objs(sim, ...)
@@ -75,4 +76,3 @@ Other functions to access elements of a \code{simList} object: \code{\link{.addD
   \code{\link{paths}}, \code{\link{progressInterval}},
   \code{\link{times}}
 }
-

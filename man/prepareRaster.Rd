@@ -31,4 +31,3 @@ Then calculates the maxpixels to plot for speed.
 Eliot McIntire
 }
 \keyword{internal}
-

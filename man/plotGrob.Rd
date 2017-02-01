@@ -3,10 +3,10 @@
 \docType{methods}
 \name{.plotGrob}
 \alias{.plotGrob}
-\alias{.plotGrob,SpatialLines-method}
 \alias{.plotGrob,SpatialPoints-method}
-\alias{.plotGrob,SpatialPolygons-method}
 \alias{.plotGrob,matrix-method}
+\alias{.plotGrob,SpatialPolygons-method}
+\alias{.plotGrob,SpatialLines-method}
 \title{Plot spatial grobs (using \code{grid} package)}
 \usage{
 .plotGrob(grobToPlot, col = NULL, real = FALSE, size = unit(5, "points"),
@@ -108,4 +108,3 @@ For building on Windows, you'll need to install Rtools from
 Eliot McIntire
 }
 \keyword{internal}
-

@@ -26,9 +26,6 @@ A sorted character vector of package names.
 \description{
 Get module or simulation package dependencies
 }
-\author{
-Alex Chubaty
-}
 \seealso{
 Other functions to access elements of a \code{simList} object: \code{\link{.addDepends}},
   \code{\link{doEvent.checkpoint}}, \code{\link{envir}},
@@ -39,4 +36,6 @@ Other functions to access elements of a \code{simList} object: \code{\link{.addD
   \code{\link{paths}}, \code{\link{progressInterval}},
   \code{\link{times}}
 }
-
+\author{
+Alex Chubaty
+}

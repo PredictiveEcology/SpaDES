@@ -41,4 +41,3 @@ sum(density*2*pi/500)
 \author{
 Eliot McIntire
 }
-

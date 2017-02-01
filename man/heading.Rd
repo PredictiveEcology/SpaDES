@@ -4,9 +4,9 @@
 \name{heading}
 \alias{heading}
 \alias{heading,SpatialPoints,SpatialPoints-method}
-\alias{heading,SpatialPoints,matrix-method}
-\alias{heading,matrix,SpatialPoints-method}
 \alias{heading,matrix,matrix-method}
+\alias{heading,matrix,SpatialPoints-method}
+\alias{heading,SpatialPoints,matrix-method}
 \title{Heading between spatial points.}
 \usage{
 heading(from, to)
@@ -61,4 +61,3 @@ heading(prev, curr)
 \author{
 Eliot McIntire
 }
-

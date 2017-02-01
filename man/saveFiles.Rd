@@ -62,6 +62,7 @@ standard R functions for saving R objects (e.g., \code{save} or \code{saveRDS}).
 This is the least modular approach, as it will happen whether a module user
 wants it or not.
 }
+
 \examples{
 \dontrun{
 
@@ -99,4 +100,3 @@ Eliot McIntire
 
 Alex Chubaty
 }
-

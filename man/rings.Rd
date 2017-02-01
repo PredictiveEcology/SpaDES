@@ -99,9 +99,6 @@ if (interactive()) {
   Plot(emptyRas)
 }
 }
-\author{
-Eliot McIntire
-}
 \seealso{
 \code{\link{cir}} which uses a different algorithm.
 \code{cir} tends to be faster when there are few starting points, \code{rings}
@@ -112,4 +109,6 @@ See example.
 
 \code{rgeos::gBuffer}
 }
-
+\author{
+Eliot McIntire
+}

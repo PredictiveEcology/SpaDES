@@ -4,11 +4,11 @@
 \name{changeObjEnv}
 \alias{changeObjEnv}
 \alias{changeObjEnv,character,environment,environment,logical-method}
-\alias{changeObjEnv,character,environment,environment,missing-method}
-\alias{changeObjEnv,character,environment,missing,logical-method}
 \alias{changeObjEnv,character,environment,missing,missing-method}
-\alias{changeObjEnv,character,missing,environment,logical-method}
 \alias{changeObjEnv,character,missing,environment,missing-method}
+\alias{changeObjEnv,character,environment,missing,logical-method}
+\alias{changeObjEnv,character,missing,environment,logical-method}
+\alias{changeObjEnv,character,environment,environment,missing-method}
 \alias{changeObjEnv,list,ANY,ANY,ANY-method}
 \title{Copy or move objects from one environment to another}
 \usage{
@@ -59,4 +59,3 @@ changeObjEnv(objs, fromEnv = e1, toEnv = e2)
 \author{
 Eliot Mcintire
 }
-

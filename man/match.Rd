@@ -16,4 +16,3 @@ x \%fin\% table
 A faster '\%in\%', directly pulled from \code{fastmatch::match}, based on
 \url{http://stackoverflow.com/questions/32934933/faster-in-operator}.
 }
-

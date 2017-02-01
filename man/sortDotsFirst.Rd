@@ -22,4 +22,3 @@ the same order after a sort.
 Eliot McIntire
 }
 \keyword{internal}
-

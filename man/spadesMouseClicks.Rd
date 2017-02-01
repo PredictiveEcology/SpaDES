@@ -2,10 +2,10 @@
 % Please edit documentation in R/plotting-other.R
 \docType{methods}
 \name{clickValues}
-\alias{.clickCoord}
-\alias{clickCoordinates}
-\alias{clickExtent}
 \alias{clickValues}
+\alias{clickExtent}
+\alias{clickCoordinates}
+\alias{.clickCoord}
 \title{Mouse interactions with Plots}
 \usage{
 clickValues(n = 1)
@@ -60,4 +60,3 @@ clicked on and passes this plot name and the clicked coordinates to \code{.click
 Eliot McIntire
 }
 \keyword{internal}
-

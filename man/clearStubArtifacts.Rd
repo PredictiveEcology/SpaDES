@@ -26,4 +26,3 @@ function will clear those stubs.
 \author{
 Eliot McIntire
 }
-

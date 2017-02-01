@@ -12,4 +12,3 @@ RStudio addin to copy an existing module
 \author{
 Alex Chubaty
 }
-

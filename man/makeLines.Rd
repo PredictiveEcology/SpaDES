@@ -59,4 +59,3 @@ caribouTraj <- makeLines(caribou1, caribou2)
 \author{
 Eliot McIntire
 }
-

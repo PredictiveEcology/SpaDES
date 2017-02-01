@@ -3,10 +3,10 @@
 \docType{methods}
 \name{simInit}
 \alias{simInit}
-\alias{simInit,ANY,ANY,ANY,ANY,ANY,ANY,ANY,ANY-method}
+\alias{simInit,list,list,list,list,list,data.frame,data.frame,character-method}
 \alias{simInit,ANY,ANY,ANY,character,ANY,ANY,ANY,ANY-method}
 \alias{simInit,ANY,ANY,character,ANY,ANY,ANY,ANY,ANY-method}
-\alias{simInit,list,list,list,list,list,data.frame,data.frame,character-method}
+\alias{simInit,ANY,ANY,ANY,ANY,ANY,ANY,ANY,ANY-method}
 \title{Initialize a new simulation}
 \usage{
 simInit(times, params, modules, objects, paths, inputs, outputs, loadOrder,
@@ -208,9 +208,6 @@ if (require(rgdal)) {
 }
 
 }
-\author{
-Alex Chubaty and Eliot McIntire
-}
 \references{
 Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{https://www.nostarch.com/artofr.htm}
 }
@@ -219,4 +216,6 @@ Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No 
 \code{\link{times}}, \code{\link{params}}, \code{\link{objs}}, \code{\link{paths}},
 \code{\link{modules}}, \code{\link{inputs}}, \code{\link{outputs}}
 }
-
+\author{
+Alex Chubaty and Eliot McIntire
+}

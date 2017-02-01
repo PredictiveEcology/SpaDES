@@ -29,11 +29,10 @@ specifying the names of child modules.}
 \description{
 Create new module code file
 }
-\author{
-Eliot McIntire and Alex Chubaty
-}
 \seealso{
 Other module creation helpers: \code{\link{newModuleDocumentation}},
   \code{\link{newModuleTests}}, \code{\link{newModule}}
 }
-
+\author{
+Eliot McIntire and Alex Chubaty
+}

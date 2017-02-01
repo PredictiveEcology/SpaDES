@@ -31,4 +31,3 @@ in addition to saving the object metadata in the \code{archivist} repository dat
 \author{
 Eliot McIntire
 }
-

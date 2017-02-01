@@ -4,12 +4,12 @@
 \name{Cache}
 \alias{Cache}
 \alias{Cache,ANY-method}
-\alias{cache}
-\alias{cache,ANY-method}
 \alias{clearCache}
 \alias{clearCache,ANY-method}
 \alias{showCache}
 \alias{showCache,ANY-method}
+\alias{cache}
+\alias{cache,ANY-method}
 \title{Cache method that accomodates environments, S4 methods, Rasters}
 \usage{
 Cache(FUN, ..., notOlderThan = NULL, objects = NULL, outputObjects = NULL,
@@ -79,20 +79,21 @@ Will clear all objects from the \code{cachePath} of the sim object
 }
 \description{
 This function is largely copied from \code{\link[archivist]{cache}}, with
-three very critical modifications.  The archivist package detects
-different environments as different. It also does not detect S4 methods
-correctly due to method inheritance. Finally, it does not detect
-objects that have file-base storage of information
+three very critical modifications:
+1) the \code{archivist} package detects different environments as different;
+2) it also does not detect S4 methods correctly due to method inheritance;
+3) it does not detect objects that have file-base storage of information
 (like \code{\link[raster]{RasterLayer-class}} objects and
-\code{\link[ff]{ff}} objects). This version of the \code{cache} function
-accomodates those 3 special, though quite common, cases by 1) converting
-any environments into list equivalents, 2) identifying the dispatched
-S4 method (including those made through inheritance) before
-\code{\link[digest]{digest}} is called so the correct method is being
-cached, and 3) by running \code{\link[digest]{digest}} on the linked
-file. In the \code{SpaDES} context,
-the \code{simList} has an environment as one of its slots, thus using
-archivist::cache will not work correctly.
+\code{\link[ff]{ff}} objects).
+This version of the \code{cache} function accomodates those three special,
+though quite common, cases by:
+1) converting any environments into list equivalents;
+2) identifying the dispatched S4 method (including those made through
+inheritance) before \code{\link[digest]{digest}} is called so the correct
+method is being cached;
+and 3) by running \code{\link[digest]{digest}} on the linked file.
+In the \code{SpaDES} context, the \code{simList} has an environment as one of
+its slots, thus using \code{archivist::cache} will not work correctly.
 
 \code{showCache} and \code{clearCache} are wrappers around \code{archivist} package
 functions, specific to simList objects.
@@ -100,8 +101,7 @@ They allow the user a bit of control over what is being cached.
 }
 \details{
 Some of the details of the changes include:
-We remove all elements that have an environment as part of
-their attributes.
+We remove all elements that have an environment as part of their attributes.
 This is generally functions that are loaded from the modules,
 but also the \code{.envir} slot in the \code{simList}.
 Functions are formatted to text before running digest.
@@ -185,6 +185,7 @@ be a slight change to a function call, such as:
 to
 \code{Cache(projectRaster, raster, crs = crs(newRaster))}
 }
+
 \examples{
 \dontrun{
 mySim <- simInit(times = list(start = 0.0, end = 5.0),
@@ -244,12 +245,11 @@ clearCache(mySim)
 showCache(mySim)
 }
 }
-\author{
-Eliot McIntire
-}
 \seealso{
 \code{\link[archivist]{cache}}.
 
 \code{\link[archivist]{splitTagsLocal}}.
 }
-
+\author{
+Eliot McIntire
+}

@@ -3,8 +3,8 @@
 \docType{methods}
 \name{checkModuleLocal}
 \alias{checkModuleLocal}
-\alias{checkModuleLocal,character,ANY,ANY-method}
 \alias{checkModuleLocal,character,character,character-method}
+\alias{checkModuleLocal,character,ANY,ANY-method}
 \title{Check for the existence of a module locally}
 \usage{
 checkModuleLocal(name, path, version)
@@ -37,4 +37,3 @@ of all essential module files listed below.
 \author{
 Alex Chubaty
 }
-

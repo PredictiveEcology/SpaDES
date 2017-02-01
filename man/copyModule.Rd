@@ -36,4 +36,3 @@ Create a copy of an existing module
 \author{
 Alex Chubaty
 }
-

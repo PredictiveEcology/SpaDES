@@ -40,4 +40,3 @@ You must know how to use SELES for these to be useful.
 \author{
 Eliot McIntire
 }
-

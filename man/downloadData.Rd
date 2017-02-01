@@ -4,9 +4,9 @@
 \name{downloadData}
 \alias{downloadData}
 \alias{downloadData,character,character,logical-method}
-\alias{downloadData,character,character,missing-method}
-\alias{downloadData,character,missing,logical-method}
 \alias{downloadData,character,missing,missing-method}
+\alias{downloadData,character,missing,logical-method}
+\alias{downloadData,character,character,missing-method}
 \title{Download module data}
 \usage{
 downloadData(module, path, quiet)
@@ -37,4 +37,3 @@ the correct one.
 \author{
 Alex Chubaty
 }
-

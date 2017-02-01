@@ -26,4 +26,3 @@ Modified from \url{http://stackoverflow.com/a/25485782/1380598}.
 \author{
 Alex Chubaty
 }
-

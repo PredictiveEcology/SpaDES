@@ -33,4 +33,3 @@ and using \code{rsync} on macOS and Linux.
 \author{
 Eliot McIntire
 }
-

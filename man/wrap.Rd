@@ -3,13 +3,14 @@
 \docType{methods}
 \name{wrap}
 \alias{wrap}
+\alias{wrap,matrix,Extent,missing-method}
 \alias{wrap,SpatialPoints,ANY,missing-method}
+\alias{wrap,matrix,Raster,missing-method}
+\alias{wrap,matrix,Raster,missing-method}
+\alias{wrap,matrix,matrix,missing-method}
 \alias{wrap,SpatialPointsDataFrame,Extent,logical-method}
 \alias{wrap,SpatialPointsDataFrame,Raster,logical-method}
 \alias{wrap,SpatialPointsDataFrame,matrix,logical-method}
-\alias{wrap,matrix,Extent,missing-method}
-\alias{wrap,matrix,Raster,missing-method}
-\alias{wrap,matrix,matrix,missing-method}
 \title{Wrap coordinates or pixels in a torus-like fashion}
 \usage{
 wrap(X, bounds, withHeading)
@@ -86,4 +87,3 @@ for(i in 1:10) {
 \author{
 Eliot McIntire
 }
-

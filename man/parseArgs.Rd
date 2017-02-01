@@ -27,4 +27,3 @@ Internal function used within objectNames.
 Eliot McIntire and Alex Chubaty
 }
 \keyword{internal}
-

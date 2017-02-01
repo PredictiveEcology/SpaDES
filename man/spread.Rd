@@ -309,6 +309,7 @@ In order of number of cells included in resulting events, from most cells to few
                             that caused the \code{stopRule} to be \code{TRUE}\cr
 }
 }
+
 \examples{
 library(raster)
 library(RColorBrewer)
@@ -560,13 +561,12 @@ if (interactive()) {
   Plot(hist(table(fires[][fires[] > 0])), title = "fire size distribution")
 }
 }
+\seealso{
+\code{\link{rings}} which uses \code{spread} but with specific argument
+values selected for a specific purpose. \code{\link[raster]{distanceFromPoints}}
+}
 \author{
 Eliot McIntire
 
 Steve Cumming
 }
-\seealso{
-\code{\link{rings}} which uses \code{spread} but with specific argument
-values selected for a specific purpose. \code{\link[raster]{distanceFromPoints}}
-}
-

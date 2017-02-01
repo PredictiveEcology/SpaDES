@@ -26,4 +26,3 @@ Looks in the remote \code{repo} for a module named \code{name}.
 \author{
 Eliot McIntire and Alex Chubaty
 }
-

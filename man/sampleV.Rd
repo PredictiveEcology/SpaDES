@@ -24,4 +24,3 @@ A random perumtation, as in \code{sample}, but with \code{size} vectorized.
 Intended for internal use only. \code{size} is vectorized.
 }
 \keyword{internal}
-

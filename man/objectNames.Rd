@@ -30,4 +30,3 @@ Internal function primarily used from \code{Plot}.
 Eliot McIntire
 }
 \keyword{internal}
-

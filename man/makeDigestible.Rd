@@ -51,13 +51,12 @@ The \code{.envir} slot is emptied (\code{NULL}).
 The object is then converted to a \code{simList_} which has a \code{.list} slot.
 The hashes of the objects are then placed in that \code{.list} slot.
 }
-\author{
-Eliot McIntire
-}
 \seealso{
 \code{\link[archivist]{cache}}.
 
 \code{\link[digest]{digest}}.
 }
+\author{
+Eliot McIntire
+}
 \keyword{internal}
-

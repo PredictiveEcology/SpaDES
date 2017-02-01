@@ -34,4 +34,3 @@ version of SpaDES because module compatibility cannot be assured.
 \author{
 Alex Chubaty
 }
-

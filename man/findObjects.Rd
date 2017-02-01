@@ -2,8 +2,8 @@
 % Please edit documentation in R/helpers.R
 \docType{methods}
 \name{findObjects}
-\alias{.findObjects}
 \alias{findObjects}
+\alias{.findObjects}
 \title{Find objects if passed as character strings}
 \usage{
 .findObjects(objects, functionCall = "simInit")
@@ -23,4 +23,3 @@ environments by searching the call stack.
 Eliot McIntire
 }
 \keyword{internal}
-

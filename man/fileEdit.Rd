@@ -22,4 +22,3 @@ RStudio, as suggested in the RStudio support ticket at
 Alex Chubaty
 }
 \keyword{internal}
-

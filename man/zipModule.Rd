@@ -4,9 +4,9 @@
 \name{zipModule}
 \alias{zipModule}
 \alias{zipModule,character,character,character-method}
-\alias{zipModule,character,character,missing-method}
 \alias{zipModule,character,missing,character-method}
 \alias{zipModule,character,missing,missing-method}
+\alias{zipModule,character,character,missing-method}
 \title{Create a zip archive of a module subdirectory}
 \usage{
 zipModule(name, path, version, data = FALSE, ...)
@@ -44,4 +44,3 @@ inside a given module.
 \author{
 Eliot McIntire and Alex Chubaty
 }
-

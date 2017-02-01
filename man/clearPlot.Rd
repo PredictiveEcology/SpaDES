@@ -3,10 +3,10 @@
 \docType{methods}
 \name{clearPlot}
 \alias{clearPlot}
-\alias{clearPlot,missing,logical-method}
-\alias{clearPlot,missing,missing-method}
 \alias{clearPlot,numeric,logical-method}
 \alias{clearPlot,numeric,missing-method}
+\alias{clearPlot,missing,logical-method}
+\alias{clearPlot,missing,missing-method}
 \title{Clear plotting device}
 \usage{
 clearPlot(dev = dev.cur(), removeData = TRUE, force = FALSE)
@@ -44,4 +44,3 @@ manually.
 \author{
 Eliot McIntire
 }
-

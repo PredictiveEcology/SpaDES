@@ -23,4 +23,3 @@ Internal function, used during \code{\link{simInit}}.
 Alex Chubaty
 }
 \keyword{internal}
-

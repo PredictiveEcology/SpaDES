@@ -31,4 +31,3 @@ Internal function. Simple wrapper for \code{\link{assign}}.
 Alex Chubaty
 }
 \keyword{internal}
-

@@ -22,4 +22,3 @@ Internal function. Simple wrapper for \code{\link{get}}.
 Alex Chubaty
 }
 \keyword{internal}
-

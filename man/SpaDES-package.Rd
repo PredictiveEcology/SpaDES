@@ -2,9 +2,10 @@
 % Please edit documentation in R/spades-package.R, R/zzz.R
 \docType{package}
 \name{SpaDES-package}
-\alias{SpaDES}
 \alias{SpaDES-package}
+\alias{SpaDES}
 \alias{spades-package}
+\alias{SpaDES-package}
 \title{Categorized overview of the \code{SpaDES} package}
 \description{
 This package allows implementation a variety of simulation-type models,
@@ -501,6 +502,7 @@ found with \code{file.path(find.package("SpaDES"), "sampleModules")}
 
 }
 }
+
 \author{
 Alex M. Chubaty \email{alexander.chubaty@canada.ca}
 
@@ -508,4 +510,3 @@ Eliot J. B. McIntire \email{eliot.mcintire@canada.ca}
 }
 \keyword{------------------------------------------------------------------------------------------}
 \keyword{package}
-

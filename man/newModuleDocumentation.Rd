@@ -4,8 +4,8 @@
 \name{newModuleDocumentation}
 \alias{newModuleDocumentation}
 \alias{newModuleDocumentation,character,character,logical,character,character-method}
-\alias{newModuleDocumentation,character,character,missing,ANY,ANY-method}
 \alias{newModuleDocumentation,character,missing,logical,ANY,ANY-method}
+\alias{newModuleDocumentation,character,character,missing,ANY,ANY-method}
 \alias{newModuleDocumentation,character,missing,missing,ANY,ANY-method}
 \title{Create new module documentation}
 \usage{
@@ -40,11 +40,10 @@ specifying the names of child modules.}
 \description{
 Create new module documentation
 }
-\author{
-Eliot McIntire and Alex Chubaty
-}
 \seealso{
 Other module creation helpers: \code{\link{newModuleCode}},
   \code{\link{newModuleTests}}, \code{\link{newModule}}
 }
-
+\author{
+Eliot McIntire and Alex Chubaty
+}

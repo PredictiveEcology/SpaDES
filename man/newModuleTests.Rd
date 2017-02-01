@@ -22,12 +22,11 @@ Default \code{TRUE}.}
 \description{
 Create template testing structures for new modules
 }
-\author{
-Eliot McIntire and Alex Chubaty
-}
 \seealso{
 Other module creation helpers: \code{\link{newModuleCode}},
   \code{\link{newModuleDocumentation}},
   \code{\link{newModule}}
 }
-
+\author{
+Eliot McIntire and Alex Chubaty
+}

@@ -72,4 +72,3 @@ checksums(moduleName, modulePath, write = TRUE)
 \author{
 Alex Chubaty
 }
-

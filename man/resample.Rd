@@ -16,4 +16,3 @@ resample(x, ...)
 A version of sample that doesn't have awkward behaviour when \code{length(x) == 1}.
 Adapted directly from the \code{\link[base]{sample}} help file.
 }
-

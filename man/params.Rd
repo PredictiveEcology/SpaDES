@@ -2,15 +2,17 @@
 % Please edit documentation in R/simList-accessors.R
 \docType{methods}
 \name{params}
+\alias{params}
+\alias{simList-accessors-params}
+\alias{params,.simList-method}
+\alias{params<-}
+\alias{params<-}
+\alias{params<-,.simList-method}
 \alias{P}
+\alias{simList-accessors-params}
 \alias{P,.simList-method}
 \alias{parameters}
 \alias{parameters,.simList-method}
-\alias{params}
-\alias{params,.simList-method}
-\alias{params<-}
-\alias{params<-,.simList-method}
-\alias{simList-accessors-params}
 \title{Get and set simulation parameters.}
 \usage{
 params(sim)
@@ -93,4 +95,3 @@ Other functions to access elements of a \code{simList} object: \code{\link{.addD
   \code{\link{paths}}, \code{\link{progressInterval}},
   \code{\link{times}}
 }
-

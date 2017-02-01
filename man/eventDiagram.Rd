@@ -3,9 +3,9 @@
 \docType{methods}
 \name{eventDiagram}
 \alias{eventDiagram}
+\alias{eventDiagram,simList,numeric,character-method}
 \alias{eventDiagram,simList,missing,character-method}
 \alias{eventDiagram,simList,missing,missing-method}
-\alias{eventDiagram,simList,numeric,character-method}
 \title{Simulation event diagram}
 \usage{
 eventDiagram(sim, n, startDate, ...)
@@ -49,10 +49,9 @@ Based on this StackOverflow answer: \url{http://stackoverflow.com/a/29999300/138
 A red vertical line corresponding to the current date may appear on the figure.
 This is useful for Gantt Charts generally but can be considered a 'bug' here.
 }
-\author{
-Alex Chubaty
-}
 \seealso{
 \code{\link[DiagrammeR]{mermaid}}.
 }
-
+\author{
+Alex Chubaty
+}

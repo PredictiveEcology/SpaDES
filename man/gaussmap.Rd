@@ -48,4 +48,3 @@ Plot(map1)
 \seealso{
 \code{\link{RFsimulate}} and \code{\link{extent}}
 }
-

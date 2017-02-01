@@ -12,4 +12,3 @@ RStudio addin to create a new module
 \author{
 Alex Chubaty
 }
-

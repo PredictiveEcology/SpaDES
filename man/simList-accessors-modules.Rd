@@ -2,15 +2,17 @@
 % Please edit documentation in R/simList-accessors.R
 \docType{methods}
 \name{modules}
+\alias{modules}
+\alias{simList-accessors-modules}
+\alias{modules,.simList-method}
+\alias{modules<-}
+\alias{modules<-}
+\alias{modules<-,.simList-method}
 \alias{depends}
 \alias{depends,.simList-method}
 \alias{depends<-}
+\alias{depends<-}
 \alias{depends<-,.simList-method}
-\alias{modules}
-\alias{modules,.simList-method}
-\alias{modules<-}
-\alias{modules<-,.simList-method}
-\alias{simList-accessors-modules}
 \title{Simulation modules and dependencies}
 \usage{
 modules(sim, hidden = FALSE)
@@ -53,9 +55,6 @@ These are included for advanced users.
 \details{
 Currently, only get and set methods are defined. Subset methods are not.
 }
-\author{
-Alex Chubaty
-}
 \seealso{
 \code{\link{SpaDES}}, specifically the section 1.2.7 on Modules and dependencies.
 
@@ -68,4 +67,6 @@ Other functions to access elements of a \code{simList} object: \code{\link{.addD
   \code{\link{paths}}, \code{\link{progressInterval}},
   \code{\link{times}}
 }
-
+\author{
+Alex Chubaty
+}

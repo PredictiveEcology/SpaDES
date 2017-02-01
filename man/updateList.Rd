@@ -3,10 +3,10 @@
 \docType{methods}
 \name{updateList}
 \alias{updateList}
-\alias{updateList,NULL,NULL-method}
+\alias{updateList,list,list-method}
 \alias{updateList,NULL,list-method}
 \alias{updateList,list,NULL-method}
-\alias{updateList,list,list-method}
+\alias{updateList,NULL,NULL-method}
 \title{Update elements of a named list with elements of a second named list}
 \usage{
 updateList(x, y)
@@ -49,4 +49,3 @@ updateList(NULL, NULL) # should return empty list
 \author{
 Alex Chubaty
 }
-

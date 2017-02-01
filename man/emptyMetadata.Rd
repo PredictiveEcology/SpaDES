@@ -21,4 +21,3 @@ Default values to use for metadata elements when not otherwise supplied.
 Alex Chubaty
 }
 \keyword{internal}
-

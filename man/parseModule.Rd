@@ -2,11 +2,11 @@
 % Please edit documentation in R/simulation.R
 \docType{methods}
 \name{.parseModulePartial}
-\alias{.parseModule}
-\alias{.parseModule,simList,list-method}
 \alias{.parseModulePartial}
 \alias{.parseModulePartial,missing,missing,character,character-method}
 \alias{.parseModulePartial,simList,list,missing,character-method}
+\alias{.parseModule}
+\alias{.parseModule,simList,list-method}
 \title{Parse and initialize a module}
 \usage{
 .parseModulePartial(sim, modules, filename, defineModuleElement)
@@ -58,4 +58,3 @@ Eliot McIntire
 Alex Chubaty
 }
 \keyword{internal}
-

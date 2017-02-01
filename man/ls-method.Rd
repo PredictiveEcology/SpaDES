@@ -2,10 +2,10 @@
 % Please edit documentation in R/simList-accessors.R
 \docType{methods}
 \name{ls.simList}
-\alias{ls,simList-method}
 \alias{ls.simList}
-\alias{objects,simList-method}
+\alias{ls,simList-method}
 \alias{objects.simList}
+\alias{objects,simList-method}
 \title{List simulation objects}
 \usage{
 ls.simList(name)
@@ -36,4 +36,3 @@ Other functions to access elements of a \code{simList} object: \code{\link{.addD
   \code{\link{paths}}, \code{\link{progressInterval}},
   \code{\link{times}}
 }
-

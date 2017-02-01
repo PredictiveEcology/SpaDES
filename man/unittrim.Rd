@@ -20,4 +20,3 @@ Used within \code{.clickCoord}
 Paul Murrell
 }
 \keyword{internal}
-

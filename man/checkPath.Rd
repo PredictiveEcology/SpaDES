@@ -3,9 +3,9 @@
 \docType{methods}
 \name{checkPath}
 \alias{checkPath}
-\alias{checkPath,NULL,ANY-method}
 \alias{checkPath,character,logical-method}
 \alias{checkPath,character,missing-method}
+\alias{checkPath,NULL,ANY-method}
 \alias{checkPath,missing,ANY-method}
 \title{Check filepath.}
 \usage{
@@ -35,4 +35,3 @@ such as trailing slashes, etc.
 \seealso{
 \code{\link{file.exists}}, \code{\link{dir.create}}.
 }
-

@@ -3,6 +3,7 @@
 \docType{methods}
 \name{divergentColors}
 \alias{divergentColors}
+\alias{divergentColours}
 \alias{divergentColors,character,character,numeric,numeric-method}
 \alias{divergentColours}
 \title{Divergent colour palette}
@@ -41,10 +42,9 @@ Based on ideas from Maureen Kennedy, Nick Povak, and Alina Cansler.
 \examples{
 divergentColors("darkred", "darkblue", -10, 10, 0, "white")
 }
-\author{
-Eliot McIntire and Alex Chubaty
-}
 \seealso{
 \code{\link{colorRampPalette}}
 }
-
+\author{
+Eliot McIntire and Alex Chubaty
+}

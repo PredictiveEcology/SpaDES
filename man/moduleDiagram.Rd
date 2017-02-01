@@ -35,11 +35,10 @@ Create a network diagram illustrating the simplified module dependencies of a
 simulation. Offers a less detailed view of specific objects than does
 plotting the \code{depsEdgeList} directly with \code{\link{objectDiagram}}.
 }
-\author{
-Alex Chubaty
-}
 \seealso{
 \code{\link{igraph}}, \code{\link{moduleGraph}} for a version that accounts for
 parent and children module structure.
 }
-
+\author{
+Alex Chubaty
+}

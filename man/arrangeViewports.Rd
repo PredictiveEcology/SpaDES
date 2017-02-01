@@ -27,4 +27,3 @@ the Plot functions to plot them efficiently.
 Eliot McIntire
 }
 \keyword{internal}
-

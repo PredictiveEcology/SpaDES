@@ -423,10 +423,9 @@ if (interactive()) {
   unlink(tmpdir, recursive = TRUE)
 }
 }
-\author{
-Eliot McIntire
-}
 \seealso{
 \code{\link{simInit}}, \code{\link{SpaDES}}
 }
-
+\author{
+Eliot McIntire
+}

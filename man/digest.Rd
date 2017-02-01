@@ -25,4 +25,3 @@ Internal function. Wrapper for \code{\link[digest]{digest}} using md5sum.
 Alex Chubaty
 }
 \keyword{internal}
-

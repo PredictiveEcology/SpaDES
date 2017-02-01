@@ -3,9 +3,9 @@
 \docType{methods}
 \name{downloadModule}
 \alias{downloadModule}
-\alias{downloadModule,character,ANY,ANY,ANY,ANY,ANY-method}
 \alias{downloadModule,character,character,character,character,logical,logical-method}
 \alias{downloadModule,character,missing,missing,missing,missing,missing-method}
+\alias{downloadModule,character,ANY,ANY,ANY,ANY,ANY-method}
 \title{Download a module from a SpaDES module GitHub repository}
 \usage{
 downloadModule(name, path, version, repo, data, quiet)
@@ -62,4 +62,3 @@ The default is to overwrite any existing files in the case of a conflict.
 \author{
 Alex Chubaty
 }
-

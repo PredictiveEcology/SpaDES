@@ -2,8 +2,8 @@
 % Please edit documentation in R/plotting-other.R
 \docType{methods}
 \name{newPlot}
-\alias{dev.useRSGD}
 \alias{newPlot}
+\alias{dev.useRSGD}
 \title{Open a new plotting window}
 \usage{
 newPlot(noRStudioGD = TRUE, ...)
@@ -30,10 +30,9 @@ Use \code{dev.useRSGD(FALSE)} to avoid RStudio for the remainder of this session
 and \code{dev.useRSGD(TRUE)} to use the RStudio graphics device.
 (This sets the default device uvia the \code{device} option.)
 }
-\author{
-Eliot McIntire and Alex Chubaty
-}
 \seealso{
 \code{\link{dev}}.
 }
-
+\author{
+Eliot McIntire and Alex Chubaty
+}

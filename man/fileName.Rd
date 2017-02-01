@@ -18,4 +18,3 @@ Extract filename (without extension) of a file
 \author{
 Eliot McIntire
 }
-

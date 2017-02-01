@@ -65,4 +65,3 @@ shine(mySim, filesOnly = TRUE)
 shine(mySim, debug = TRUE)
 }
 }
-

@@ -25,4 +25,3 @@ set of these core packages used by SpaDES can be found here:
 \code{SpaDES:::.spadesEnv$corePackages}
 }
 \keyword{internal}
-

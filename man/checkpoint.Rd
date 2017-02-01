@@ -2,17 +2,19 @@
 % Please edit documentation in R/checkpoint.R, R/simList-accessors.R
 \docType{methods}
 \name{doEvent.checkpoint}
+\alias{doEvent.checkpoint}
+\alias{checkpointLoad}
 \alias{.checkpointSave}
 \alias{checkpointFile}
 \alias{checkpointFile,.simList-method}
+\alias{checkpointFile<-}
 \alias{checkpointFile<-}
 \alias{checkpointFile<-,.simList-method}
 \alias{checkpointInterval}
 \alias{checkpointInterval,.simList-method}
 \alias{checkpointInterval<-}
+\alias{checkpointInterval<-}
 \alias{checkpointInterval<-,.simList-method}
-\alias{checkpointLoad}
-\alias{doEvent.checkpoint}
 \title{Simulation checkpoints.}
 \usage{
 doEvent.checkpoint(sim, eventTime, eventType, debug = FALSE)
@@ -68,9 +70,6 @@ RNG save code adapted from:
 \url{http://www.cookbook-r.com/Numbers/Saving_the_state_of_the_random_number_generator/}
 and \url{https://stackoverflow.com/questions/13997444/}
 }
-\author{
-Alex Chubaty
-}
 \seealso{
 \code{\link{.Random.seed}}.
 
@@ -83,4 +82,6 @@ Other functions to access elements of a \code{simList} object: \code{\link{.addD
   \code{\link{paths}}, \code{\link{progressInterval}},
   \code{\link{times}}
 }
-
+\author{
+Alex Chubaty
+}

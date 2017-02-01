@@ -61,4 +61,3 @@ if (interactive()) {
   Plot(rasAgents)
 }
 }
-

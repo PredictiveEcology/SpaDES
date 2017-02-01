@@ -2,8 +2,8 @@
 % Please edit documentation in R/plotting-classes.R
 \docType{class}
 \name{.arrangement-class}
-\alias{.arrangement}
 \alias{.arrangement-class}
+\alias{.arrangement}
 \title{The \code{.arrangement} class}
 \description{
 This class contains the plotting arrangement information.
@@ -63,11 +63,11 @@ match the names of the \code{...} objects. Default is NULL. See details.}
 \item{\code{size}}{a numeric or a named list of numerics, used for SpatialPoints plots.
 Default is 5. See details.}
 }}
-\author{
-Eliot McIntire
-}
+
 \seealso{
 \code{\link{spadesClasses}}
 }
+\author{
+Eliot McIntire
+}
 \keyword{internal}
-

@@ -51,4 +51,3 @@ parameters = rbind(
 \author{
 Alex Chubaty
 }
-

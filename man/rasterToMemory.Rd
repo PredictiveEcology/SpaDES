@@ -22,10 +22,9 @@ A raster object whose values are stored in memory.
 Wrapper to the \code{raster} function, that creates the raster object in
 memory, even if it was read in from file.
 }
-\author{
-Eliot McIntire and Alex Chubaty
-}
 \seealso{
 \code{\link{raster}}.
 }
-
+\author{
+Eliot McIntire and Alex Chubaty
+}

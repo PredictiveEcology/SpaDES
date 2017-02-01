@@ -2,8 +2,8 @@
 % Please edit documentation in R/plotting-classes.R
 \docType{class}
 \name{.spadesGrob-class}
-\alias{.spadesGrob}
 \alias{.spadesGrob-class}
+\alias{.spadesGrob}
 \title{The \code{.spadesGrob} class}
 \description{
 This class contains the plotting .spadesGrob information.
@@ -42,11 +42,11 @@ spatialObject classes}
 
 \item{\code{plotArgs}}{list. Any parameters needed for plotting, set by Plot call.}
 }}
-\author{
-Eliot McIntire
-}
+
 \seealso{
 \code{\link{spadesClasses}}
 }
+\author{
+Eliot McIntire
+}
 \keyword{internal}
-

@@ -2,13 +2,13 @@
 % Please edit documentation in R/simList-accessors.R
 \docType{methods}
 \name{.callingModuleName}
-\alias{.callingFrameTimeunit}
-\alias{.callingFrameTimeunit,.simList-method}
-\alias{.callingFrameTimeunit,NULL-method}
 \alias{.callingModuleName}
 \alias{.callingModuleName,.simList-method}
 \alias{currentModule}
 \alias{currentModule,.simList-method}
+\alias{.callingFrameTimeunit}
+\alias{.callingFrameTimeunit,.simList-method}
+\alias{.callingFrameTimeunit,NULL-method}
 \title{Namespacing within SpaDES}
 \usage{
 .callingModuleName(sim)
@@ -28,6 +28,9 @@ currentModule(sim)
 \arguments{
 \item{sim}{A \code{simList} object from which to extract element(s) or
 in which to replace element(s).}
+
+\item{x}{A \code{simList} object from which to extract element(s) or
+in which to replace element(s).}
 }
 \description{
 \code{.callingModuleName} returns the name of the module that is currently
@@ -44,4 +47,3 @@ Eliot McIntire
 Eliot McIntire
 }
 \keyword{internal}
-

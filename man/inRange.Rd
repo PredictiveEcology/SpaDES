@@ -27,4 +27,3 @@ inRange(x, 0, 1)
 \author{
 Alex Chubaty
 }
-
