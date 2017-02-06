@@ -575,20 +575,22 @@ setMethod(
     defaultHashAlgo <- "xxhash64"
     defaultWriteHashAlgo <- "xxhash64"
     dots <- list(...)
-
     path <- checkPath(path, create = FALSE) %>% file.path(., module, "data")
-    if (!write) stopifnot(file.exists(file.path(path, "CHECKSUMS.txt")))
-
-    files <- list.files(path, full.names = TRUE) %>%
-      grep("CHECKSUMS.txt", ., value = TRUE, invert = TRUE)
-
     checksumFile <- file.path(path, "CHECKSUMS.txt")
 
-    txt <- if (file.info(checksumFile)$size > 0) {
+    if (!write) {
+      stopifnot(file.exists(checksumFile))
+    } else if (!file.exists(checksumFile)) {
+      file.create(checksumFile)
+    }
+
+    files <- list.files(path, full.names = TRUE) %>%
+      grep(basename(checksumFile), ., value = TRUE, invert = TRUE)
+
+    txt <- if (!write && file.info(checksumFile)$size > 0) {
       read.table(checksumFile, header = TRUE, stringsAsFactors = FALSE)
     } else {
-      data.frame(file = character(0), checksum = character(0),
-                 stringsAsFactors = FALSE)
+      data.frame(file = character(0), checksum = character(0), stringsAsFactors = FALSE)
     }
 
     if (is.null(dots$algo)) {
@@ -613,23 +615,21 @@ setMethod(
       }
     }
 
-    message("Checking local files")
+    message("Checking local files...")
     if (length(txt$file) & length(files)) {
       filesToCheck <- files[basename(files) %in% txt$file]
     } else {
-      filesToCheck <- character(0)
+      filesToCheck <- files
     }
     checksums <- do.call(digest, args = append(list(file = filesToCheck), dots))
-    message("Finished checking local files")
+    message("Finished checking local files.")
 
-    if(length(filesToCheck)) {
+    if (length(filesToCheck)) {
       out <- data.frame(file = basename(filesToCheck), checksum = checksums,
-                        algorithm = dots$algo,
-                        stringsAsFactors = FALSE)
+                        algorithm = dots$algo, stringsAsFactors = FALSE)
     } else {
       out <- data.frame(file = character(0), checksum = character(0),
-                        algorithm = character(0),
-                        stringsAsFactors = FALSE)
+                        algorithm = character(0), stringsAsFactors = FALSE)
     }
 
     if (write) {
