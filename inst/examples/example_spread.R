@@ -247,3 +247,37 @@ if (interactive()) {
   Plot(fires, new = TRUE, cols = c("red", "yellow"), zero.color = "white")
   Plot(hist(table(fires[][fires[] > 0])), title = "fire size distribution")
 }
+
+## Example with relativeSpreadProb ... i.e., a relative probability spreadProb
+##  (shown here because because spreadProb raster is not a probability).
+##  Here, we force the events to grow, choosing always 2 neighbours,
+##  according to the relative probabilities
+##  contained on hab layer. Note, neighProbs = c(0,1) forces each active pixel
+##  to move to 2 new pixels (prob = 0 for 1 neighbour, prob = 1 for 2 neighbours)
+##  Note: set hab3 to be very distinct probability differences, to detect spread
+##  differences
+hab3 <- (hab>20) * 200 + 1
+seed <- 643503
+set.seed(seed)
+sam <- sample(which(hab3[] == 1), 1)
+set.seed(seed)
+events1 <- spread(hab3, spreadProb = hab3, loci = sam, directions = 8,
+             neighProbs = c(0, 1), maxSize = c(70), exactSizes = TRUE)
+# Compare to absolute probability version
+set.seed(seed)
+events2 <- spread(hab3, id = TRUE, loci = sam, directions = 8,
+                 neighProbs = c(0, 1), maxSize = c(70), exactSizes = TRUE)
+if(interactive()) {
+  clearPlot();Plot(events1, new=TRUE, cols = c("red", "yellow"),
+                   zero.color = "white")
+  Plot(events2, new=TRUE, cols = c("red", "yellow"),
+                   zero.color = "white")
+  Plot(hist(table(events1[][events1[]>0]), breaks = 30), title = "Event size distribution")
+# Check that events1 resulted in higher hab3 pixels overall
+}
+# Compare outputs -- many more high value hab pixels spread to in event1
+hab3[events1[]>0]
+hab3[events2[]>0]
+# Should be TRUE
+sum(hab3[events1[]>0]) >= sum(hab3[events2[]>0])
+
