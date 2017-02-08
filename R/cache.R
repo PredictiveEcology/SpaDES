@@ -276,8 +276,20 @@ setMethod(
           if (length(wh) > 0) {
             simListOut <- out # gets all items except objects in list(...)
             origEnv <- list(...)[[wh]]@.envir
-            keepFromOrig <- !(ls(origEnv) %fin% ls(out))
-            list2env(mget(ls(origEnv)[keepFromOrig], envir = origEnv), envir = simListOut@.envir)
+            isListOfSimLists <- if(is.list(out)) if(is(out[[1]], "simList")) TRUE else FALSE else FALSE
+
+            if(isListOfSimLists) {
+              for(i in seq_along(out)) {
+                keepFromOrig <- !(ls(origEnv) %fin% ls(out[[i]]))
+                list2env(mget(ls(origEnv)[keepFromOrig], envir = origEnv), 
+                         envir = simListOut[[i]]@.envir)
+              }
+              
+            } else {
+              keepFromOrig <- !(ls(origEnv) %fin% ls(out))
+              list2env(mget(ls(origEnv)[keepFromOrig], envir = origEnv), 
+                       envir = simListOut@.envir)
+            }
 
             #simListOut <- list(...)[[wh]] # original simList
             #for(i in ls(out)) {
