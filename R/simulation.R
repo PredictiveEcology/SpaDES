@@ -547,14 +547,18 @@ setMethod(
 
     ## timeunit is needed before all parsing of modules.
     ## It could be used within modules within defineParameter statements.
-    timeunits <- .parseModulePartial(sim, modules(sim), defineModuleElement = "timeunit")
+    timeunits <-
+      .parseModulePartial(sim, modules(sim), defineModuleElement = "timeunit")
 
     allTimeUnits <- FALSE
 
     findSmallestTU <- function(sim, mods) {
-      out <- lapply(.parseModulePartial(sim, mods, defineModuleElement = "childModules"), as.list)
+      out <-
+        lapply(.parseModulePartial(sim, mods, defineModuleElement = "childModules"),
+               as.list)
       isParent <- lapply(out, length) > 0
-      tu <- .parseModulePartial(sim, mods, defineModuleElement = "timeunit")
+      tu <-
+        .parseModulePartial(sim, mods, defineModuleElement = "timeunit")
       hasTU <- !is.na(tu)
       out[hasTU] <- tu[hasTU]
       if (!all(hasTU)) {
@@ -571,15 +575,16 @@ setMethod(
 
     # recursive function to extract parent and child structures
     buildModuleGraph <- function(sim, mods) {
-      out <- lapply(.parseModulePartial(sim, mods, defineModuleElement = "childModules"), as.list)
+      out <-
+        lapply(.parseModulePartial(sim, mods, defineModuleElement = "childModules"),
+               as.list)
       isParent <- lapply(out, length) > 0
-      to <- unlist(lapply(out, function(x) {
-          if (length(x) == 0) {
+      to <-
+        unlist(lapply(out, function(x)
+          if (length(x) == 0)
             names(x)
-          } else {
-            x
-          }
-      }))
+          else
+            x))
       if (is.null(to))
         to <- character(0)
       from <- rep(names(out), unlist(lapply(out, length)))
@@ -601,7 +606,8 @@ setMethod(
 
     timeunits <- findSmallestTU(sim, modules(sim))
 
-    if (length(timeunits) == 0) timeunits <- list("second") # no modules at all
+    if (length(timeunits) == 0)
+      timeunits <- list("second") # no modules at all
 
     if (!is.null(times$unit)) {
       message(
@@ -672,7 +678,8 @@ setMethod(
     # add name to depends
     if (!is.null(names(sim@depends@dependencies))) {
       names(sim@depends@dependencies) <- sim@depends@dependencies %>%
-        lapply(., function(x) x@name) %>%
+        lapply(., function(x)
+          x@name) %>%
         unlist()
     }
 
@@ -687,7 +694,8 @@ setMethod(
     # assign user-specified non-global params, while
     # keeping defaults for params not specified by user
     omit <- c(which(core == "load"), which(core == "save"))
-    pnames <- unique(c(paste0(".", core[-omit]), names(sim@params)))
+    pnames <-
+      unique(c(paste0(".", core[-omit]), names(sim@params)))
 
     if (is.null(params$.progress) || any(is.na(params$.progress))) {
       params$.progress <- list(type = NA_character_, interval = NA_real_)
@@ -709,7 +717,8 @@ setMethod(
     # load user-defined modules
     for (m in loadOrder) {
       # schedule each module's init event:
-      sim <- scheduleEvent(sim, sim@simtimes[["start"]], m, "init", .normal())
+      sim <-
+        scheduleEvent(sim, sim@simtimes[["start"]], m, "init", .normal())
 
       ### add module name to the loaded list
       modulesLoaded <- append(modulesLoaded, m)
@@ -792,7 +801,8 @@ setMethod(
             "loadTime in ?simInit"
           )
         )
-        sim@events <- sim@events[eventTime >= sim@simtimes[["start"]]]
+        sim@events <-
+          sim@events[eventTime >= sim@simtimes[["start"]]]
       }
     }
 
@@ -832,7 +842,9 @@ setMethod(
                         outputs,
                         loadOrder,
                         notOlderThan) {
-    li <- lapply(names(match.call()[-1]), function(x) eval(parse(text = x)))
+    li <-
+      lapply(names(match.call()[-1]), function(x)
+        eval(parse(text = x)))
     names(li) <- names(match.call())[-1]
     # find the simInit call that was responsible for this, get the objects
     #   in the environment of the parents of that call, and pass them to new
@@ -867,7 +879,9 @@ setMethod(
                         outputs,
                         loadOrder,
                         notOlderThan) {
-    li <- lapply(names(match.call()[-1]), function(x) eval(parse(text = x)))
+    li <-
+      lapply(names(match.call()[-1]), function(x)
+        eval(parse(text = x)))
     names(li) <- names(match.call())[-1]
     li$modules <- as.list(modules)
     sim <- do.call("simInit", args = li)
@@ -920,14 +934,15 @@ setMethod(
                          "data.frame",
                          "character")
     listNames <- names(li)
-    expectedOrder <- c("times",
-                       "params",
-                       "modules",
-                       "objects",
-                       "paths",
-                       "inputs",
-                       "outputs",
-                       "loadOrder")
+    expectedOrder <-
+      c("times",
+        "params",
+        "modules",
+        "objects",
+        "paths",
+        "inputs",
+        "outputs",
+        "loadOrder")
     ma <- match(expectedOrder, listNames)
     li <- li[ma]
 
