@@ -637,11 +637,11 @@ setMethod(
 
       # extract spreadProb values from spreadProb argument
       if (is.numeric(spreadProb)) {
-        if (n == 1 & spreadStateExists) {
+        if (n == 1 & spreadProbLaterExists) {
           # need cell specific values
           spreadProbs <- rep(spreadProb, NROW(potentials))
-          prevIndices <- potentials[, 1L] %fin% initialActiveCells#spreadState[active == TRUE, indices]
-          spreadProbs[prevIndices] <- spreadProbLater
+          #prevIndices <- potentials[, 1L] %fin% initialActiveCells#spreadState[active == TRUE, indices]
+          spreadProb <- spreadProbLater
         } else {
           if (length(spreadProb) > 1) {
             spreadProbs <- spreadProb[potentials[, 2L]]
@@ -651,11 +651,11 @@ setMethod(
         }
       } else {
         # here for raster spreadProb
-        if (n == 1 & spreadStateExists) {
+        if (n == 1 & spreadProbLaterExists) {
           # need cell specific values
           spreadProbs <- spreadProb[][potentials[, 2L]]
-          prevIndices <- potentials[, 1L] %fin% initialActiveCells#spreadState[active == TRUE, indices]
-          spreadProbs[prevIndices] <- spreadProbLater
+          #prevIndices <- potentials[, 1L] %fin% initialActiveCells#spreadState[active == TRUE, indices]
+          spreadProb <- spreadProbLater
         } else {
           spreadProbs <- spreadProb[][potentials[, 2L]]
         }
