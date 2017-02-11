@@ -190,7 +190,7 @@ setMethod(
   definition = function(FUN, ..., notOlderThan, objects, outputObjects,
                         algo, cacheRepo, compareRasterFileLength) {
     tmpl <- list(...)
-
+    
     if (missing(notOlderThan)) notOlderThan <- NULL
     # These three lines added to original version of cache in archive package
     wh <- which(sapply(tmpl, function(x) is(x, "simList")))
@@ -214,6 +214,7 @@ setMethod(
 
     whRas <- which(sapply(tmpl, function(x) is(x, "Raster")))
     whFun <- which(sapply(tmpl, function(x) is.function(x)))
+    whCluster <- which(sapply(tmpl, function(x) is(x, "cluster")))
     if (length(wh) > 0 | exists("sim")) {
       if (length(wh) > 0) {
         cur <- current(tmpl[[wh]])
@@ -255,6 +256,7 @@ setMethod(
 
     if (length(whRas) > 0) tmpl[whRas] <- lapply(tmpl[whRas], makeDigestible,
                                                  compareRasterFileLength = compareRasterFileLength)
+    if (length(whCluster) > 0) tmpl[whCluster] <- NULL
     if (length(whFun) > 0) tmpl[whFun] <- lapply(tmpl[whFun], format)
     if (!is.null(tmpl$progress)) if (!is.na(tmpl$progress)) tmpl$progress <- NULL
 
