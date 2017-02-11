@@ -169,7 +169,7 @@ saveFiles <- function(sim) {
   if (any(is.na(outputs(sim)[outputs(sim)$saveTime > curTime, "saved"]))) {
     nextTime <- min(outputs(sim)[is.na(outputs(sim)$saved), "saveTime"], na.rm = TRUE)
     attributes(nextTime)$unit <- sim@simtimes[["timeunit"]]
-    if(curTime == end(time)) {
+    if(time(sim) == end(sim)) {
       sim <- scheduleEvent(sim, nextTime, "save", "end", .last())
     } else {
       sim <- scheduleEvent(sim, nextTime, "save", "later", .last())
