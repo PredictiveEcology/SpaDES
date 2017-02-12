@@ -144,6 +144,8 @@ setMethod(
     all_children <- list()
     children <- list()
     parent_ids <- integer()
+    dots <- list(...)
+    if(!is.null(dots$objects)) objs <- dots$objects
     for (j in .unparsed(modules)) {
       m <- modules[[j]][1]
       filename <-
@@ -229,8 +231,11 @@ setMethod(
       # If user supplies the needed objects, then test whether all are supplied.
       # If they are all supplied, then skip the .inputObjects code
       cacheIt <- FALSE
-      if (!all(sim@depends@dependencies[[i]]@inputObjects$objectName %in% userSuppliedObjNames)) {
+      allObjsProvided <- sim@depends@dependencies[[i]]@inputObjects$objectName %in% userSuppliedObjNames
+      if (!all(allObjsProvided)) {
         if (!is.null(sim@.envir$.inputObjects)) {
+          list2env(objs[sim@depends@dependencies[[i]]@inputObjects$objectName[allObjsProvided]],
+                   envir = sim@.envir)
           a <- sim@params[[m]][[".useCache"]]
           if (!is.null(a)) {
             if(".useCache" %in% names(list(...)$params)) {  # user supplied values
