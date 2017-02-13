@@ -204,13 +204,13 @@ setMethod(
           cacheRepo <- sim@paths$cachePath
         } else {
           cacheRepo <- SpaDES::getPaths()$cachePath
-          #stop("Cache requires sim or cacheRepo to be set")
         }
       }
     }
 
-    if (is(try(archivist::showLocalRepo(cacheRepo), silent = TRUE), "try-error"))
+    if (is(try(archivist::showLocalRepo(cacheRepo), silent = TRUE), "try-error")) {
       archivist::createLocalRepo(cacheRepo)
+    }
 
     whRas <- which(sapply(tmpl, function(x) is(x, "Raster")))
     whFun <- which(sapply(tmpl, function(x) is.function(x)))
@@ -227,8 +227,9 @@ setMethod(
       if (length(wh) > 0) tmpl[wh] <- lapply(tmpl[wh], makeDigestible,
                                              compareRasterFileLength = compareRasterFileLength)
     } else {
-      if (length(wh) > 0) tmpl[wh] <- lapply(tmpl[wh], function(xx) makeDigestible(xx, objects,
-                                                                                   compareRasterFileLength=compareRasterFileLength))
+      if (length(wh) > 0) tmpl[wh] <- lapply(tmpl[wh], function(xx) {
+        makeDigestible(xx, objects, compareRasterFileLength = compareRasterFileLength)
+      })
     }
 
     if (isS4(FUN)) {
@@ -237,8 +238,7 @@ setMethod(
       firstElems <- lapply(firstElems, function(x) {
         y <- strsplit(x, split = "=")
         unlist(lapply(y, function(z) z[1]))
-      }
-      )
+      })
       sigArgs <- lapply(unique(firstElems), function(x) {
         FUN@signature %in% x
       })
@@ -248,7 +248,7 @@ setMethod(
                                  signature = sapply(as.list(
                                    match.call(FUN, do.call(call, append(list(name = FUN@generic),
                                                                         tmpl))))[FUN@signature[signat]],
-                                   class))
+                                   class)) ## TO DO: need to get the method the dispatch correct
       tmpl$.FUN <- format(methodUsed@.Data)
     } else {
       tmpl$.FUN <- format(FUN) # This is changed to allow copying between computers
@@ -274,7 +274,6 @@ setMethod(
 
         out <- loadFromLocalRepo(isInRepo$artifact[lastOne],
                                  repoDir = cacheRepo, value = TRUE)
-        #if(!is(out, "simList")) {
           if (length(wh) > 0) {
             simListOut <- out # gets all items except objects in list(...)
             origEnv <- list(...)[[wh]]@.envir
@@ -291,16 +290,8 @@ setMethod(
               list2env(mget(ls(origEnv)[keepFromOrig], envir = origEnv),
                        envir = simListOut@.envir)
             }
-
-            #simListOut <- list(...)[[wh]] # original simList
-            #for(i in ls(out)) {
-            #  simListOut[[i]] <- out[[i]]
-            #}
-
             return(simListOut)
           }
-        #}
-
         return(out)
       }
       if (notOlderThan >= lastEntry) {
