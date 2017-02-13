@@ -1423,9 +1423,12 @@ setReplaceMethod(
          paste0(sim@outputs$objectName[is.na(sim@outputs$file)])
        # If a filename is provided, determine if it is absolute path, if so,
        # use that, if not, then append it to outputPath(sim)
-       sim@outputs[!isAbsolutePath(sim@outputs$file), "file"] <-
-         file.path(outputPath(sim),
-                   sim@outputs$file[!isAbsolutePath(sim@outputs$file)])
+       alreadyWithOutputPath <- grepl(pattern=paste0("^",outputPath(sim)), sim@outputs$file)
+       if(any(!alreadyWithOutputPath)) {
+         sim@outputs[!isAbsolutePath(sim@outputs$file)[!alreadyWithOutputPath], "file"] <-
+           file.path(outputPath(sim),
+                     sim@outputs$file[!isAbsolutePath(sim@outputs$file)])
+       }
 
        # If there is no function provided, then use saveRDS, from package base
        sim@outputs[is.na(sim@outputs$fun), "fun"] <- "saveRDS"
