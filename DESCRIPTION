@@ -134,4 +134,4 @@ Collate:
     'splitRaster.R'
     'spread-process.R'
     'zzz.R'
-RoxygenNote: 6.0.0
+RoxygenNote: 6.0.1

@@ -190,8 +190,8 @@ setMethod(
       }
       # override immediately with user supplied values
       pars <- list(...)$params
-      if(!is.null(pars[[m]])) {
-        if(length(pars[[m]])>0) {
+      if (!is.null(pars[[m]])) {
+        if (length(pars[[m]]) > 0) {
           sim@params[[m]][names(pars[[m]])] <- pars[[m]]
         }
       }
@@ -233,9 +233,9 @@ setMethod(
         if (!is.null(sim@.envir$.inputObjects)) {
           a <- sim@params[[m]][[".useCache"]]
           if (!is.null(a)) {
-            if(".useCache" %in% names(list(...)$params)) {  # user supplied values
+            if (".useCache" %in% names(list(...)$params)) {  # user supplied values
               b <- list(...)$params[[i]]$.useCache
-              if(!is.null(b)) a <- b
+              if (!is.null(b)) a <- b
             }
             #.useCache is a parameter
             if (!identical(FALSE, a)) {
@@ -251,7 +251,7 @@ setMethod(
             }
           }
 
-          if(cacheIt) {
+          if (cacheIt) {
             message("Using cached copy of .inputObjects for ", m)
             objNam <- sim@depends@dependencies[[i]]@outputObjects$objectName
             moduleSpecificObjects <- c(grep(ls(sim), pattern = m, value = TRUE),

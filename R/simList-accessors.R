@@ -640,7 +640,7 @@ setMethod("P",
               }
             } else {
               inSimInit <- grep(sys.calls(), pattern=".parseModule")
-              if(any(inSimInit)) {
+              if (any(inSimInit)) {
                 module <- get("m", sys.frame(grep(sys.calls(), pattern=".parseModule")[2]))
                 if (is.null(param)) {
                   return(sim@params[[module]])

@@ -398,7 +398,10 @@ setMethod(
         xFile <- gsub("[?!]", "_", basename(x))
         destfile <- file.path(dataDir, xFile)
         id <- which(chksums$expectedFile == xFile)
-        if(length(id)==0) stop("Currently downloadData requires that basename(sourceURL) name and local filename are the same")
+        if (length(id) == 0) {
+          stop("downloadData() requires that basename(sourceURL) name",
+               " and local filename be the same.")
+        }
         if ((chksums$result[id] == "FAIL") | is.na(chksums$actualFile[id])) {
           tmpFile <- file.path(tempdir(), "SpaDES_module_data") %>%
             checkPath(create = TRUE) %>%
@@ -622,7 +625,7 @@ setMethod(
     checksums <- do.call(digest, args = append(list(file = filesToCheck), dots))
     message("Finished checking local files")
 
-    if(length(filesToCheck)) {
+    if (length(filesToCheck)) {
       out <- data.frame(file = basename(filesToCheck), checksum = checksums,
                         algorithm = dots$algo,
                         stringsAsFactors = FALSE)
