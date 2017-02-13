@@ -344,7 +344,7 @@ if (interactive()) {
 # initiate 10 fires
 startCells <- as.integer(sample(1:ncell(emptyRas),100))
 fires <- spread(hab, loci = startCells, 0.235, persistence = 0, numNeighs = 2,
-                mask=NULL, maxSize = 1e8, directions=8, iterations=1e6, id = TRUE)
+                mask = NULL, maxSize = 1e8, directions=8, iterations=1e6, id = TRUE)
 
 #set colors of raster, including a transparent layer for zeros
 setColors(fires, 10) <- c("transparent", brewer.pal(8, "Reds")[5:8])
@@ -364,7 +364,7 @@ if (interactive()) {
   Plot(fires, addTo = "hab2", zero.color = "transparent",
      cols = colorRampPalette(c("orange","darkred"))(10))
   # or overplot the original (NOTE: legend stays at original values)
-  Plot(fires, cols = topo.colors(10), new=TRUE, zero.color = "white")
+  Plot(fires, cols = topo.colors(10), new = TRUE, zero.color = "white")
 }
 
 ####################
@@ -576,7 +576,7 @@ if (interactive()) {
 ##  to move to 2 new pixels (prob = 0 for 1 neighbour, prob = 1 for 2 neighbours)
 ##  Note: set hab3 to be very distinct probability differences, to detect spread
 ##  differences
-hab3 <- (hab>20) * 200 + 1
+hab3 <- (hab > 20) * 200 + 1
 seed <- 643503
 set.seed(seed)
 sam <- sample(which(hab3[] == 1), 1)
@@ -587,20 +587,18 @@ events1 <- spread(hab3, spreadProb = hab3, loci = sam, directions = 8,
 set.seed(seed)
 events2 <- spread(hab3, id = TRUE, loci = sam, directions = 8,
                  neighProbs = c(0, 1), maxSize = c(70), exactSizes = TRUE)
-if(interactive()) {
-  clearPlot();Plot(events1, new=TRUE, cols = c("red", "yellow"),
-                   zero.color = "white")
-  Plot(events2, new=TRUE, cols = c("red", "yellow"),
-                   zero.color = "white")
-  Plot(hist(table(events1[][events1[]>0]), breaks = 30), title = "Event size distribution")
+if (interactive()) {
+  clearPlot()
+  Plot(events1, new = TRUE, cols = c("red", "yellow"), zero.color = "white")
+  Plot(events2, new = TRUE, cols = c("red", "yellow"), zero.color = "white")
+  Plot(hist(table(events1[][events1[] > 0]), breaks = 30), title = "Event size distribution")
 # Check that events1 resulted in higher hab3 pixels overall
 }
 # Compare outputs -- many more high value hab pixels spread to in event1
-hab3[events1[]>0]
-hab3[events2[]>0]
-# Should be TRUE
-sum(hab3[events1[]>0]) >= sum(hab3[events2[]>0])
+hab3[events1[] > 0]
+hab3[events2[] > 0]
 
+sum(hab3[events1[] > 0]) >= sum(hab3[events2[] > 0]) ## should be TRUE
 }
 \seealso{
 \code{\link{rings}} which uses \code{spread} but with specific argument
