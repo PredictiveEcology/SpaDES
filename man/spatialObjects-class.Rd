@@ -7,9 +7,11 @@
 \title{The \code{spatialObjects} class}
 \description{
 This class is the union of several spatial objects from \code{raster} and
-\code{sp} packages:
+\code{sp} packages.
 }
 \details{
+Members:
+
 \itemize{
   \item \code{RasterLayer}, \code{RasterLayerSparse}, \code{RasterStack};
   \item \code{SpatialLines}, \code{SpatialLinesDataFrame};

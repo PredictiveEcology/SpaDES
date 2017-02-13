@@ -36,7 +36,9 @@ setAs(from = "list", to = "gpar", function(from) {
 #' The \code{spatialObjects} class
 #'
 #' This class is the union of several spatial objects from \code{raster} and
-#' \code{sp} packages:
+#' \code{sp} packages.
+#'
+#' Members:
 #'
 #' \itemize{
 #'   \item \code{RasterLayer}, \code{RasterLayerSparse}, \code{RasterStack};
