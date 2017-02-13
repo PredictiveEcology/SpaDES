@@ -345,17 +345,17 @@ setMethod(
       if (is.na(path)) {
         stop("Invalid path: cannot be NA.")
       } else {
-        pathNormed <- normPath(path)
+        path <- normPath(path)
 
-        if (!file.exists(pathNormed)) {
+        if (!file.exists(path)) {
           if (create == TRUE) {
-            dir.create(file.path(pathNormed), recursive = TRUE, showWarnings = FALSE)
+            dir.create(file.path(path), recursive = TRUE, showWarnings = FALSE)
           } else {
             stop(paste("Specified path", path, "doesn't exist.",
                        "Create it and try again."))
           }
         }
-        return(path) # ensure path re-normalized after creation (see #267)
+        return(normPath(path)) # ensure path re-normalized after creation (see #267)
       }
     }
 })
