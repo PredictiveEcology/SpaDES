@@ -35,13 +35,20 @@ setAs(from = "list", to = "gpar", function(from) {
 ################################################################################
 #' The \code{spatialObjects} class
 #'
-#' This class is the union of several spatial objects from raster and sp packages.
+#' This class is the union of several spatial objects from \code{raster} and
+#' \code{sp} packages:
+#'
+#' \itemize{
+#'   \item \code{RasterLayer}, \code{RasterLayerSparse}, \code{RasterStack};
+#'   \item \code{SpatialLines}, \code{SpatialLinesDataFrame};
+#'   \item \code{SpatialPixels}, \code{SpatialPixelsDataFrame};
+#'   \item \code{SpatialPoints}, \code{SpatialPointsDataFrame};
+#'   \item \code{SpatialPolygons}, \code{SpatialPolygonsDataFrame}.
+#' }
+#'
 #' Notably missing is \code{RasterBrick}, for now.
 #'
 #' @seealso \code{\link{spadesClasses}}
-#'
-#' @slot members  SpatialPoints*, SpatialPolygons*, SpatialLines*,
-#'                RasterLayer, RasterStack
 #'
 #' @aliases spatialObjects
 #' @importClassesFrom raster RasterLayer
@@ -60,8 +67,11 @@ setAs(from = "list", to = "gpar", function(from) {
 #' @author Eliot McIntire
 #' @exportClass spatialObjects
 setClassUnion(name = "spatialObjects",
-              members = c("SpatialPoints", "SpatialPolygons", "SpatialLines",
-                          "RasterLayer", "RasterStack")
+              members = c("RasterLayer", "RasterLayerSparse", "RasterStack",
+                          "SpatialLines", "SpatialLinesDataFrame",
+                          "SpatialPixels", "SpatialPixelsDataFrame",
+                          "SpatialPoints", "SpatialPointsDataFrame",
+                          "SpatialPolygons", "SpatialPolygonsDataFrame")
 )
 
 ################################################################################
