@@ -28,10 +28,10 @@ test_that("defineModule correctly handles different inputs", {
     ),
     inputObjects = data.frame(
       objectName = "testInput", objectClass = "list", sourceURL = "",
-      other = NA_character_, stringsAsFactors = FALSE
+      desc = NA_character_, stringsAsFactors = FALSE
     ),
     outputObjects = data.frame(
-      objectName = "testOutput", objectClass = "list", other = NA_character_,
+      objectName = "testOutput", objectClass = "list", desc = NA_character_,
       stringsAsFactors = FALSE
     )
   )
