@@ -310,7 +310,7 @@ setMethod("normPath",
 })
 
 ################################################################################
-#' Check filepath.
+#' Check filepath
 #'
 #' Checks the specified filepath for formatting consistencies,
 #' such as trailing slashes, etc.

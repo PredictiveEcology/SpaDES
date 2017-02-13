@@ -86,11 +86,11 @@ License: GPL-3
 VignetteBuilder: knitr, rmarkdown
 BugReports: https://github.com/PredictiveEcology/SpaDES/issues
 ByteCompile: yes
-Collate:
+Collate: 
     'priority.R'
     'environment.R'
-    'misc-methods.R'
     'module-dependencies-class.R'
+    'misc-methods.R'
     'helpers.R'
     'simList-class.R'
     'POM.R'

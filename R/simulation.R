@@ -145,7 +145,7 @@ setMethod(
     children <- list()
     parent_ids <- integer()
     dots <- list(...)
-    if(!is.null(dots$objects)) objs <- dots$objects
+    if (!is.null(dots$objects)) objs <- dots$objects
     for (j in .unparsed(modules)) {
       m <- modules[[j]][1]
       filename <-

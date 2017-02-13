@@ -681,46 +681,46 @@ setMethod(
         # seems slower under early tests, because of the on the fly creation of a data.table
         # bbb <- data.table(potentials)
         # numNeighsAvailable <- bbb[,.N,by="from"]$N
-        # if(length(numNeighsAvailable) != length(numNeighs)) {
-        #   activeCellContinue <- loci %in% unique(potentials[,"from"])
+        # if (length(numNeighsAvailable) != length(numNeighs)) {
+        #   activeCellContinue <- loci %in% unique(potentials[, "from"])
         #   numNeighs <- numNeighs[activeCellContinue]
         # }
         # anyTooSmall <- which(numNeighsAvailable<numNeighs)
-        # if(length(anyTooSmall)>0) {
+        # if (length(anyTooSmall) > 0) {
         #   numNeighs[anyTooSmall] <- unname(numNeighsAvailable[anyTooSmall])
         # }
-        # potentials <- as.matrix(bbb[,list(to=resample(to,numNeighs[.GRP])),by="from"])
+        # potentials <- as.matrix(bbb[, list(to = resample(to, numNeighs[.GRP])), by = "from"])
 
-        aaa <- split(seq_along(potentials[,"to"]), potentials[, "from"]);
-        if(length(aaa) != length(numNeighs)) {
-          activeCellContinue <- loci %in% unique(potentials[,"from"])
+        aaa <- split(seq_along(potentials[, "to"]), potentials[, "from"]);
+        if (length(aaa) != length(numNeighs)) {
+          activeCellContinue <- loci %in% unique(potentials[, "from"])
           numNeighs <- numNeighs[activeCellContinue]
         }
 
         tmpA <- unlist(lapply(aaa, length))
-        tmpB <- which(tmpA<numNeighs)
-        if(length(tmpB)>0)
+        tmpB <- which(tmpA < numNeighs)
+        if (length(tmpB) > 0)
           numNeighs[tmpB] <- unname(tmpA[tmpB])
 
-        if(relativeSpreadProb) {
-          rescaledProbs <- tapply(spreadProbs, potentials[,"from"], function(x) x/sum(x, na.rm=TRUE),
-                 simplify = FALSE)
+        if (relativeSpreadProb) {
+          rescaledProbs <- tapply(spreadProbs, potentials[,"from"], function(x) {
+            x / sum(x, na.rm = TRUE)
+          }, simplify = FALSE)
           neighIndexToKeep <- unlist(lapply(seq_along(aaa), function(x)
-            resample(aaa[[x]], size=numNeighs[x], prob = rescaledProbs[[x]])))
+            resample(aaa[[x]], size = numNeighs[x], prob = rescaledProbs[[x]])))
         } else {
           neighIndexToKeep <- unlist(lapply(seq_along(aaa), function(x)
-            resample(aaa[[x]], size=numNeighs[x])))
+            resample(aaa[[x]], size = numNeighs[x])))
         }
-        potentials <- potentials[neighIndexToKeep,,drop=FALSE]
+        potentials <- potentials[neighIndexToKeep, , drop = FALSE]
         spreadProbs <- 1
-
       }
 
-      #if(integerProbs) {
+      #if (integerProbs) {
       #  potentials <- potentials[as.logical(spreadProbs), , drop = FALSE]
       #} else if (any(spreadProbs < 1)) {
-      # if(relativeSpreadProb) {
-      #   mb = microbenchmark(tapply={
+      # if (relativeSpreadProb) {
+      #   mb = microbenchmark(tapply = {
       #   spreadProbs <- unname(unlist(tapply(spreadProbs, potentials[,"from"], function(x) x/sum(x, na.rm=TRUE),
       #                 simplify = FALSE))[
       #                   order(unname(unlist(tapply(seq_along(spreadProbs),

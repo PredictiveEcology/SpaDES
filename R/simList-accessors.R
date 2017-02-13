@@ -1423,11 +1423,10 @@ setReplaceMethod(
          paste0(sim@outputs$objectName[is.na(sim@outputs$file)])
        # If a filename is provided, determine if it is absolute path, if so,
        # use that, if not, then append it to outputPath(sim)
-       alreadyWithOutputPath <- grepl(pattern=paste0("^",outputPath(sim)), sim@outputs$file)
-       if(any(!alreadyWithOutputPath)) {
+       alreadyWithOutputPath <- grepl(pattern = paste0("^", outputPath(sim)), sim@outputs$file)
+       if (any(!alreadyWithOutputPath)) {
          sim@outputs[!isAbsolutePath(sim@outputs$file)[!alreadyWithOutputPath], "file"] <-
-           file.path(outputPath(sim),
-                     sim@outputs$file[!isAbsolutePath(sim@outputs$file)])
+           file.path(outputPath(sim), sim@outputs$file[!isAbsolutePath(sim@outputs$file)])
        }
 
        # If there is no function provided, then use saveRDS, from package base
@@ -1437,8 +1436,7 @@ setReplaceMethod(
        # file extension stuff
        fileExts <- .saveFileExtensions()
        fe <- suppressMessages(inner_join(sim@outputs, fileExts)$exts)
-       wh <- !stri_detect_fixed(str = sim@outputs$file, pattern = ".") &
-         (nchar(fe) > 0)
+       wh <- !stri_detect_fixed(str = sim@outputs$file, pattern = ".") & (nchar(fe) > 0)
        sim@outputs[wh, "file"] <- paste0(sim@outputs[wh, "file"], ".", fe[wh])
 
        # If the file name already has a time unit on it,

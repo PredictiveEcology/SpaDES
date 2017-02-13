@@ -602,6 +602,10 @@ hab3[events2[]>0]
 sum(hab3[events1[]>0]) >= sum(hab3[events2[]>0])
 
 }
+\seealso{
+\code{\link{rings}} which uses \code{spread} but with specific argument
+values selected for a specific purpose. \code{\link[raster]{distanceFromPoints}}
+}
 \author{
 Eliot McIntire
 

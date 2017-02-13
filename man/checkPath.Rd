@@ -7,7 +7,7 @@
 \alias{checkPath,character,missing-method}
 \alias{checkPath,NULL,ANY-method}
 \alias{checkPath,missing,ANY-method}
-\title{Check filepath.}
+\title{Check filepath}
 \usage{
 checkPath(path, create)
 
