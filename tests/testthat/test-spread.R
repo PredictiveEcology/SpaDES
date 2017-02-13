@@ -1176,3 +1176,30 @@ test_that("multi-core version of distanceFromEachPoints does not work correctly"
     expect_true(all.equal(dfep, dfepCluster2))
   }
 })
+
+
+
+
+test_that("spreadProb with relative values does not work correctly", {
+  library(raster)
+  seed <- 64350
+  set.seed(seed)
+  emptyRas <- raster(extent(0, 1e2, 0, 1e2), res = 1)
+  hab <- randomPolygons(emptyRas, numTypes = 40)
+  names(hab) <- "hab"
+
+  hab3 <- (hab>20) * 200 + 1
+  sam <- sample(which(hab3[] == 1), 1)
+  set.seed(seed)
+  events1 <- spread(hab3, spreadProb = hab3, loci = sam, directions = 8,
+                    neighProbs = c(0, 1), maxSize = c(100), exactSizes = TRUE)
+  # Compare to absolute probability version
+  set.seed(seed)
+  events2 <- spread(hab3, id = TRUE, loci = sam, directions = 8,
+                    neighProbs = c(0, 1), maxSize = c(100), exactSizes = TRUE)
+  # Compare outputs -- many more high value hab pixels spread to in event1
+  print(hab3[events1[]>0])
+  print(hab3[events2[]>0])
+  expect_true(sum(hab3[events1[]>0]) > sum(hab3[events2[]>0]))
+
+})

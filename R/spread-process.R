@@ -237,6 +237,13 @@ if (getRversion() >= "3.1.0") {
 #'                   so that the events can continue if passed into \code{spread} with
 #'                   \code{spreadState}.
 #'
+#' @param relativeSpreadProb Logical. If \code{TRUE}, then \code{spreadProb} will
+#'                      be rescaled *within* the \code{directions} neighbours, such that
+#'                      the sum of the probabilities of all neighbours will be 1. Default
+#'                      \code{FALSE}, unless \code{spreadProb} values are not contained
+#'                      between 0 and 1, which will force \code{relativeSpreadProb}
+#'                      to be \code{TRUE}.
+#'
 #' @param ...           Additional named vectors or named list of named vectors
 #'                      required for \code{stopRule}. These
 #'                      vectors should be as long as required e.g., length
@@ -300,7 +307,7 @@ setGeneric("spread", function(landscape, loci = NA_real_,
                               allowOverlap = FALSE,
                               asymmetry = NA_real_, asymmetryAngle = NA_real_,
                               quick = FALSE, neighProbs = NULL, exactSizes = FALSE,
-                              ...) {
+                              relativeSpreadProb = FALSE, ...) {
   standardGeneric("spread")
 })
 
@@ -327,7 +334,7 @@ setMethod(
                         returnDistances, mapID, id, plot.it, spreadProbLater,
                         spreadState, circle, circleMaxRadius, stopRule,
                         stopRuleBehavior, allowOverlap, asymmetry, asymmetryAngle,
-                        quick, neighProbs, exactSizes,
+                        quick, neighProbs, exactSizes, relativeSpreadProb,
                         ...) {
 
     if (!is.null(neighProbs)) {
@@ -365,7 +372,6 @@ setMethod(
       }
     }
 
-    #browser()
     if (spreadStateExists) {
       keepers <- spreadState$active==TRUE
       loci <- initialActiveCells <- spreadState[keepers, indices]
@@ -378,17 +384,26 @@ setMethod(
     # Check for probabilities
     if (!quick) {
       if (is(spreadProbLater, "RasterLayer") | is(spreadProb, "Rasterlayer")) {
-        if ( (minValue(spreadProb) > 1L) || (maxValue(spreadProb) < 0L) ) {
-          stop("spreadProb is not a probability")
+        if ( (minValue(spreadProb) > 1L) || (maxValue(spreadProb) < 0L) ||
+             (maxValue(spreadProb) > 1L) || (minValue(spreadProb) < 0L) ) {
+          #stop("spreadProb is not a probability")
+          relativeSpreadProb <- TRUE
         }
         if (spreadProbLaterExists)
-          if ( (minValue(spreadProbLater) > 1L) || (maxValue(spreadProbLater) < 0L) ) {
-            stop("spreadProbLater is not a probability")
+          if ( ( (minValue(spreadProbLater) > 1L) || (maxValue(spreadProbLater) < 0L) ||
+                 (maxValue(spreadProbLater) > 1L) || (minValue(spreadProbLater) < 0L) ) ) {
+            # stop("spreadProbLater is not a probability")
+            relativeSpreadProb <- TRUE
           }
       } else {
-        if (!all(inRange(spreadProb))) stop("spreadProb is not a probability")
-        if (spreadProbLaterExists)
+        if (!all(inRange(spreadProb))) {
+          relativeSpreadProb <- TRUE
+          stop("spreadProb is not a probability")
+        }
+        if (spreadProbLaterExists) {
+          relativeSpreadProb <- TRUE
           if (!all(inRange(spreadProbLater))) stop("spreadProbLater is not a probability")
+        }
       }
     }
 
@@ -469,7 +484,7 @@ setMethod(
     }
 
     if (!allowOverlap & !returnDistances) {
-      if (id | returnIndices) {
+      if (id | returnIndices | relativeSpreadProb) {
         if (spreadStateExists) {
           spreads[spreadState$indices] <- spreadState$id
         } else {
@@ -573,7 +588,6 @@ setMethod(
       }
 
       # identify neighbours
-
       if (allowOverlap | returnDistances) {
         whActive <- spreads[,"active"] == 1 # spreads carries over
         potentials <- adj(landscape, loci, directions, pairs = TRUE,
@@ -581,7 +595,7 @@ setMethod(
         spreads[whActive,"active"] <- 0
         potentials <- cbind(potentials, active = 1)
       } else {
-        if (id | returnIndices | circle) {
+        if (id | returnIndices | circle | relativeSpreadProb | !is.null(neighProbs)) {
           #potentials <- adj(landscape, loci, directions, pairs = TRUE)
           potentials <- adj(landscape, loci, directions, pairs = TRUE)#,
                                 #numNeighs = numNeighs)
@@ -617,49 +631,17 @@ setMethod(
         potentials <- potentials[keep, , drop = FALSE]
       }
 
-      if (!is.null(neighProbs)) {
-        # This commented block is the data.table way of doing the neighProbs -- ]
-        # seems slower under early tests, because of the on the fly creation of a data.table
-        # bbb <- data.table(potentials)
-        # numNeighsAvailable <- bbb[,.N,by="from"]$N
-        # if (length(numNeighsAvailable) != length(numNeighs)) {
-        #   activeCellContinue <- loci %in% unique(potentials[, "from"])
-        #   numNeighs <- numNeighs[activeCellContinue]
-        # }
-        # anyTooSmall <- which(numNeighsAvailable<numNeighs)
-        # if (length(anyTooSmall) > 0) {
-        #   numNeighs[anyTooSmall] <- unname(numNeighsAvailable[anyTooSmall])
-        # }
-        # potentials <- as.matrix(bbb[,list(to=resample(to,numNeighs[.GRP])),by="from"])
-
-        aaa <- split(seq_along(potentials[, "to"]), potentials[, "from"]);
-        if (length(aaa) != length(numNeighs)) {
-          activeCellContinue <- loci %in% unique(potentials[, "from"])
-          numNeighs <- numNeighs[activeCellContinue]
-        }
-
-        tmpA <- unlist(lapply(aaa, length))
-        tmpB <- which(tmpA < numNeighs)
-        if (length(tmpB) > 0) {
-          numNeighs[tmpB] <- unname(tmpA[tmpB])
-        }
-
-        numNeighsKeep <- unlist(lapply(seq_along(aaa), function(x) {
-          resample(aaa[[x]], size = numNeighs[x])
-        }))
-        potentials <- potentials[numNeighsKeep, , drop = FALSE]
-      }
-
       if (n == 2) {
         spreadProb <- spreadProbLater
       }
 
+      # extract spreadProb values from spreadProb argument
       if (is.numeric(spreadProb)) {
-        if (n == 1 & spreadStateExists) {
+        if (n == 1 & spreadProbLaterExists) {
           # need cell specific values
           spreadProbs <- rep(spreadProb, NROW(potentials))
-          prevIndices <- potentials[, 1L] %fin% initialActiveCells#spreadState[active == TRUE, indices]
-          spreadProbs[prevIndices] <- spreadProbLater
+          #prevIndices <- potentials[, 1L] %fin% initialActiveCells#spreadState[active == TRUE, indices]
+          spreadProb <- spreadProbLater
         } else {
           if (length(spreadProb) > 1) {
             spreadProbs <- spreadProb[potentials[, 2L]]
@@ -669,15 +651,16 @@ setMethod(
         }
       } else {
         # here for raster spreadProb
-        if (n == 1 & spreadStateExists) {
+        if (n == 1 & spreadProbLaterExists) {
           # need cell specific values
           spreadProbs <- spreadProb[][potentials[, 2L]]
-          prevIndices <- potentials[, 1L] %fin% initialActiveCells#spreadState[active == TRUE, indices]
-          spreadProbs[prevIndices] <- spreadProbLater
+          #prevIndices <- potentials[, 1L] %fin% initialActiveCells#spreadState[active == TRUE, indices]
+          spreadProb <- spreadProbLater
         } else {
           spreadProbs <- spreadProb[][potentials[, 2L]]
         }
       }
+
       if (!is.na(asymmetry)) {
         if (allowOverlap | returnDistances) {
           a <- cbind(id = potentials[, 3L], to = potentials[, 2L],
@@ -693,10 +676,65 @@ setMethod(
         spreadProbs <- spreadProbs - diff(c(spreadProb[], mean(spreadProbs)))
       }
 
+      if (!is.null(neighProbs) | relativeSpreadProb) {
+        # This commented block is the data.table way of doing the neighProbs -- ]
+        # seems slower under early tests, because of the on the fly creation of a data.table
+        # bbb <- data.table(potentials)
+        # numNeighsAvailable <- bbb[,.N,by="from"]$N
+        # if(length(numNeighsAvailable) != length(numNeighs)) {
+        #   activeCellContinue <- loci %in% unique(potentials[,"from"])
+        #   numNeighs <- numNeighs[activeCellContinue]
+        # }
+        # anyTooSmall <- which(numNeighsAvailable<numNeighs)
+        # if(length(anyTooSmall)>0) {
+        #   numNeighs[anyTooSmall] <- unname(numNeighsAvailable[anyTooSmall])
+        # }
+        # potentials <- as.matrix(bbb[,list(to=resample(to,numNeighs[.GRP])),by="from"])
+
+        aaa <- split(seq_along(potentials[,"to"]), potentials[, "from"]);
+        if(length(aaa) != length(numNeighs)) {
+          activeCellContinue <- loci %in% unique(potentials[,"from"])
+          numNeighs <- numNeighs[activeCellContinue]
+        }
+
+        tmpA <- unlist(lapply(aaa, length))
+        tmpB <- which(tmpA<numNeighs)
+        if(length(tmpB)>0)
+          numNeighs[tmpB] <- unname(tmpA[tmpB])
+
+        if(relativeSpreadProb) {
+          rescaledProbs <- tapply(spreadProbs, potentials[,"from"], function(x) x/sum(x, na.rm=TRUE),
+                 simplify = FALSE)
+          neighIndexToKeep <- unlist(lapply(seq_along(aaa), function(x)
+            resample(aaa[[x]], size=numNeighs[x], prob = rescaledProbs[[x]])))
+        } else {
+          neighIndexToKeep <- unlist(lapply(seq_along(aaa), function(x)
+            resample(aaa[[x]], size=numNeighs[x])))
+        }
+        potentials <- potentials[neighIndexToKeep,,drop=FALSE]
+        spreadProbs <- 1
+
+      }
+
       #if(integerProbs) {
       #  potentials <- potentials[as.logical(spreadProbs), , drop = FALSE]
       #} else if (any(spreadProbs < 1)) {
+      # if(relativeSpreadProb) {
+      #   mb = microbenchmark(tapply={
+      #   spreadProbs <- unname(unlist(tapply(spreadProbs, potentials[,"from"], function(x) x/sum(x, na.rm=TRUE),
+      #                 simplify = FALSE))[
+      #                   order(unname(unlist(tapply(seq_along(spreadProbs),
+      #                                              potentials[,"from"], function(x) x))))])
+      #
+      #   },dt={
+      #   spreadProbs <- data.table(potentials, spreadProb = spreadProbs) %>%
+      #     .[,spreadProb:=spreadProb/sum(spreadProb),by="from"] %>% .$spreadProb
+      #   })
+      #   print(paste("iteration", n, "; length =", NROW(potentials)))
+      #   print(mb)
+      # }
       potentials <- potentials[runif(NROW(potentials)) <= spreadProbs, , drop = FALSE]
+
       #}
       potentials <- potentials[sample.int(NROW(potentials)), , drop = FALSE] # random ordering so not always same
       if (!allowOverlap) { # here is where allowOverlap and returnDistances are different
@@ -760,7 +798,6 @@ setMethod(
             }
             events <- potentials[, 2L]
           }
-          #browser(expr=!(tabulate(spreads, length(maxSize))[6] == size[6]))
           size <- pmin(size + len, maxSize) ## Quick? and dirty. fast but loose (too flexible)
         }
 
@@ -881,7 +918,7 @@ setMethod(
               events <- events[notDupsEvents]
             }
           } else {
-            if (id | returnIndices) {
+            if (id | returnIndices | relativeSpreadProb) {
               spreads[events] <- spreads[potentials[, 1L]] # give new cells, the id of the source cell
             } else {
               spreads[events] <- n

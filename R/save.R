@@ -12,7 +12,7 @@ doEvent.save <- function(sim, eventTime, eventType, debug = FALSE) {
       firstSave <- min(outputs(sim)[, "saveTime"], na.rm = TRUE)
       attributes(firstSave)$unit <- sim@simtimes[["timeunit"]]
       sim <- scheduleEvent(sim, firstSave, "save", "spades", .last())
-      sim <- scheduleEvent(sim, end(sim, sim@simtimes[["timeunit"]]), "save", "end", .last())
+      #sim <- scheduleEvent(sim, end(sim, sim@simtimes[["timeunit"]]), "save", "end", .last())
     }
     checkPath(sim@paths$outputPath, create = TRUE)
 
@@ -169,7 +169,11 @@ saveFiles <- function(sim) {
   if (any(is.na(outputs(sim)[outputs(sim)$saveTime > curTime, "saved"]))) {
     nextTime <- min(outputs(sim)[is.na(outputs(sim)$saved), "saveTime"], na.rm = TRUE)
     attributes(nextTime)$unit <- sim@simtimes[["timeunit"]]
-    sim <- scheduleEvent(sim, nextTime, "save", "later", .last())
+    if(time(sim) == end(sim)) {
+      sim <- scheduleEvent(sim, nextTime, "save", "end", .last())
+    } else {
+      sim <- scheduleEvent(sim, nextTime, "save", "later", .last())
+    }
   }
   return(invisible(sim))
 }

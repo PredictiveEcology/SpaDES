@@ -190,7 +190,7 @@ setMethod(
   definition = function(FUN, ..., notOlderThan, objects, outputObjects,
                         algo, cacheRepo, compareRasterFileLength) {
     tmpl <- list(...)
-
+    
     if (missing(notOlderThan)) notOlderThan <- NULL
     # These three lines added to original version of cache in archive package
     wh <- which(sapply(tmpl, function(x) is(x, "simList")))
@@ -214,6 +214,7 @@ setMethod(
 
     whRas <- which(sapply(tmpl, function(x) is(x, "Raster")))
     whFun <- which(sapply(tmpl, function(x) is.function(x)))
+    whCluster <- which(sapply(tmpl, function(x) is(x, "cluster")))
     if (length(wh) > 0 | exists("sim")) {
       if (length(wh) > 0) {
         cur <- current(tmpl[[wh]])
@@ -255,6 +256,7 @@ setMethod(
 
     if (length(whRas) > 0) tmpl[whRas] <- lapply(tmpl[whRas], makeDigestible,
                                                  compareRasterFileLength = compareRasterFileLength)
+    if (length(whCluster) > 0) tmpl[whCluster] <- NULL
     if (length(whFun) > 0) tmpl[whFun] <- lapply(tmpl[whFun], format)
     if (!is.null(tmpl$progress)) if (!is.na(tmpl$progress)) tmpl$progress <- NULL
 
@@ -276,8 +278,20 @@ setMethod(
           if (length(wh) > 0) {
             simListOut <- out # gets all items except objects in list(...)
             origEnv <- list(...)[[wh]]@.envir
-            keepFromOrig <- !(ls(origEnv) %fin% ls(out))
-            list2env(mget(ls(origEnv)[keepFromOrig], envir = origEnv), envir = simListOut@.envir)
+            isListOfSimLists <- if(is.list(out)) if(is(out[[1]], "simList")) TRUE else FALSE else FALSE
+
+            if(isListOfSimLists) {
+              for(i in seq_along(out)) {
+                keepFromOrig <- !(ls(origEnv) %fin% ls(out[[i]]))
+                list2env(mget(ls(origEnv)[keepFromOrig], envir = origEnv), 
+                         envir = simListOut[[i]]@.envir)
+              }
+              
+            } else {
+              keepFromOrig <- !(ls(origEnv) %fin% ls(out))
+              list2env(mget(ls(origEnv)[keepFromOrig], envir = origEnv), 
+                       envir = simListOut@.envir)
+            }
 
             #simListOut <- list(...)[[wh]] # original simList
             #for(i in ls(out)) {

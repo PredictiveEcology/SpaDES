@@ -26,12 +26,13 @@ version 1.3.1.9000
 * workaround issues with RStudio graphics on Linux (with #116): use `dev.noRSGD()` to bypass the Rstudio graphics device for your current session (sets the `device` option for your platform).
 * event queues (event, completed, current) now do shallow copies of pre-existing data.tables, rather than `rblindlist( )`. This improved DES speed by > 40%. Benchmarking of 1400 events in 1.6 seconds now; previously 3.0 seconds.
 * add `Copy` (capital C) as replacement for `copy` which conflicts with `data.table::copy`, and add `queues` argument to do a deep copy of the event queues.
-* spread function: minor speedups, plus 2 new parameters `numNeighs` & `exactSizes`
+* spread function: minor speedups, plus 3 new parameters `relativeSpreadProb`, `numNeighs` & `exactSizes`
 * new function `copyModule` for creating a copy of an existing module
 * change default value for `speedup` in `gaussMap`; now 1.
 * improve module template to auto fill module author info using `devtools.desc.author` option if set.
 * `zipModule` now has `data` argument, allowing data to be omitted from zipped module.
 * improved `moduleDiagram` to show `_INPUT_` node in different colour from the other modules
+* `checksums(..., write = TRUE)` ignores the contents of `CHECKSUMS.txt`, overwriting that file with the checksums of all files in the module's `data/` directory. This makes it easier to update the checksum file, *e.g.*, when adding new data (#332).
 * minor bugfixes for unusual cases
 * **Defunct**: `p`. Use `params` or `P` instead.
 
