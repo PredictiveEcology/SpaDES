@@ -232,7 +232,7 @@ defineModule(sim, list(
   if (type == "child") ",
   reqdPkgs = list(),
   parameters = rbind(
-    #defineParameter(\"paramName\", \"paramClass\", value, min, max, \"parameter description\")),
+    #defineParameter(\"paramName\", \"paramClass\", value, min, max, \"parameter description\"),
     defineParameter(\".plotInitialTime\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first plot event should occur\"),
     defineParameter(\".plotInterval\", \"numeric\", NA, NA, NA, \"This describes the simulation time interval between plot events\"),
     defineParameter(\".saveInitialTime\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first save event should occur\"),
