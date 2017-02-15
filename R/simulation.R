@@ -148,8 +148,7 @@ setMethod(
     if (!is.null(dots$objects)) objs <- dots$objects
     for (j in .unparsed(modules)) {
       m <- modules[[j]][1]
-      filename <-
-        paste(sim@paths[["modulePath"]], "/", m, "/", m, ".R", sep = "")
+      filename <- paste(sim@paths[["modulePath"]], "/", m, "/", m, ".R", sep = "")
       parsedFile <- parse(filename)
       defineModuleItem <- grepl(pattern = "defineModule", parsedFile)
 
@@ -178,8 +177,12 @@ setMethod(
       # check that modulename == filename
       fname <- unlist(strsplit(basename(filename), "[.][r|R]$"))
       for (k in length(sim@depends@dependencies)) {
-        if (sim@depends@dependencies[[k]]@name == m)
+        if (sim@depends@dependencies[[k]]@name == m) {
           i <- k
+        } else {
+          stop("Module name metadata (", sim@depends@dependencies[[k]]@name, ") ",
+               "does not match filename (", m, ".R).")
+        }
       }
 
       # assign default param values
