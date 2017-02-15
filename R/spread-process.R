@@ -712,7 +712,8 @@ setMethod(
             resample(aaa[[x]], size=numNeighs[x])))
         }
         potentials <- potentials[neighIndexToKeep,,drop=FALSE]
-        spreadProbs <- 1
+        spreadProbs <- spreadProbs[neighIndexToKeep]
+        spreadProbs[spreadProbs>0] <- 1
 
       }
 
