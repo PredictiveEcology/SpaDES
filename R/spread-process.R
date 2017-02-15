@@ -712,8 +712,10 @@ setMethod(
           neighIndexToKeep <- unlist(lapply(seq_along(aaa), function(x)
             resample(aaa[[x]], size = numNeighs[x])))
         }
-        potentials <- potentials[neighIndexToKeep, , drop = FALSE]
-        spreadProbs <- 1
+        potentials <- potentials[neighIndexToKeep,,drop=FALSE]
+        spreadProbs <- spreadProbs[neighIndexToKeep]
+        spreadProbs[spreadProbs>0] <- 1
+
       }
 
       #if (integerProbs) {
