@@ -91,7 +91,7 @@ spades(mySim)
 dir(outputPath)
 
 # remove the files
-file.remove(dir(savePath, full.names = T))
+file.remove(dir(savePath, full.names = TRUE))
 
 }
 }

@@ -126,8 +126,6 @@ NumericMatrix pointDistance3(NumericVector fromX, NumericVector toX,
     return out2;
   }
 
-
   colnames(out) = CharacterVector::create("x", "y", "dists");
   return out;
-
 }

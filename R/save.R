@@ -5,9 +5,6 @@ if (getRversion() >= "3.1.0") {
 # Just checks for paths, creates them if they do not exist
 doEvent.save <- function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
-    # check that output directory exists, make it if not
-    #pathsToCheck <- checkPath(outputPath(sim), create = TRUE)
-
     if (NROW(outputs(sim)) > 0) {
       firstSave <- min(outputs(sim)[, "saveTime"], na.rm = TRUE)
       attributes(firstSave)$unit <- sim@simtimes[["timeunit"]]
@@ -113,7 +110,7 @@ doEvent.save <- function(sim, eventTime, eventType, debug = FALSE) {
 #' dir(outputPath)
 #'
 #' # remove the files
-#' file.remove(dir(savePath, full.names = T))
+#' file.remove(dir(savePath, full.names = TRUE))
 #'
 #' }
 saveFiles <- function(sim) {
@@ -136,8 +133,9 @@ saveFiles <- function(sim) {
 
     # don't need to save exactly same thing more than once - use data.table here because distinct
     # from dplyr does not do as expected
-    outputs(sim) <- data.frame(unique(data.table(outputs(sim)),
-                                      by = c("objectName", "saveTime", "file", "fun", "package", "arguments")))
+    outputs(sim) <- data.table(outputs(sim)) %>%
+      unique(., by = c("objectName", "saveTime", "file", "fun", "package", "arguments")) %>%
+      data.frame()
   }
 
   if (NROW(outputs(sim)[outputs(sim)$saveTime == curTime & is.na(outputs(sim)$saved), "saved"]) > 0) {
@@ -158,8 +156,7 @@ saveFiles <- function(sim) {
 
         outputs(sim)[i, "saved"] <- TRUE
       } else {
-        warning(paste(outputs(sim)$obj[i],
-                      "is not an object in the simList. Cannot save."))
+        warning(paste(outputs(sim)$obj[i], "is not an object in the simList. Cannot save."))
         outputs(sim)[i, "saved"] <- FALSE
       }
     }
@@ -169,7 +166,7 @@ saveFiles <- function(sim) {
   if (any(is.na(outputs(sim)[outputs(sim)$saveTime > curTime, "saved"]))) {
     nextTime <- min(outputs(sim)[is.na(outputs(sim)$saved), "saveTime"], na.rm = TRUE)
     attributes(nextTime)$unit <- sim@simtimes[["timeunit"]]
-    if(time(sim) == end(sim)) {
+    if (time(sim) == end(sim)) {
       sim <- scheduleEvent(sim, nextTime, "save", "end", .last())
     } else {
       sim <- scheduleEvent(sim, nextTime, "save", "later", .last())

@@ -29,8 +29,7 @@ test_that("saving files does not work correctly", {
 
   # test spades-level mechanism
   expect_true(file.exists(file.path(savePath, "caribou_month1.rds")))
-  expect_true(file.exists(file.path(savePath, "landscape_month2.rds")))
-  expect_false(file.exists(file.path(savePath, "landscape_month3.rds")))
+  expect_false(file.exists(file.path(savePath, "landscape_month2.rds")))
 
   # test module-level mechanism
   expect_true(file.exists(file.path(savePath, "caribou_month3.rds")))

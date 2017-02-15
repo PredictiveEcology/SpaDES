@@ -338,7 +338,7 @@ setMethod(
                         ...) {
 
     if (!is.null(neighProbs)) {
-      if(allowOverlap!=FALSE) stop("Can't use neighProbs and allowOverlap = TRUE together")
+      if (isTRUE(allowOverlap)) stop("Can't use neighProbs and allowOverlap = TRUE together")
     }
     if (!is.null(mapID)) {
       warning("mapID is deprecated, use id")
@@ -365,8 +365,8 @@ setMethod(
     }
 
     if (any(!is.na(maxSize))) {
-      msEqZero <- maxSize<1
-      if(any(msEqZero)) {
+      msEqZero <- maxSize < 1
+      if (any(msEqZero)) {
         loci <- loci[!msEqZero]
         maxSize <- maxSize[!msEqZero]
       }
@@ -569,21 +569,21 @@ setMethod(
     }
 
     noMaxSize <- all(maxSize >= ncells) # will be used to omit testing for maxSize
-    if(is.null(neighProbs)) {
+    if (is.null(neighProbs)) {
       numNeighs <- NULL
     }
 
     numRetries <- rep(0, length(initialLoci))
     # while there are active cells
     while (length(loci) & (n <= iterations) ) {
-      if(!is.null(neighProbs)) {
-        numNeighs <- if(is.list(neighProbs)) {
+      if (!is.null(neighProbs)) {
+        numNeighs <- if (is.list(neighProbs)) {
           unlist(lapply(neighProbs, function(x) {
             sample.int(length(x), size = 1, replace = TRUE, prob = x)
           }))
         } else {
-          sample.int(length(neighProbs), size = length(loci),
-                                replace = TRUE, prob=neighProbs)
+          sample.int(length(neighProbs), size = length(loci), replace = TRUE,
+                     prob = neighProbs)
         }
       }
 
@@ -681,35 +681,36 @@ setMethod(
         # seems slower under early tests, because of the on the fly creation of a data.table
         # bbb <- data.table(potentials)
         # numNeighsAvailable <- bbb[,.N,by="from"]$N
-        # if(length(numNeighsAvailable) != length(numNeighs)) {
-        #   activeCellContinue <- loci %in% unique(potentials[,"from"])
+        # if (length(numNeighsAvailable) != length(numNeighs)) {
+        #   activeCellContinue <- loci %in% unique(potentials[, "from"])
         #   numNeighs <- numNeighs[activeCellContinue]
         # }
         # anyTooSmall <- which(numNeighsAvailable<numNeighs)
-        # if(length(anyTooSmall)>0) {
+        # if (length(anyTooSmall) > 0) {
         #   numNeighs[anyTooSmall] <- unname(numNeighsAvailable[anyTooSmall])
         # }
-        # potentials <- as.matrix(bbb[,list(to=resample(to,numNeighs[.GRP])),by="from"])
+        # potentials <- as.matrix(bbb[, list(to = resample(to, numNeighs[.GRP])), by = "from"])
 
-        aaa <- split(seq_along(potentials[,"to"]), potentials[, "from"]);
-        if(length(aaa) != length(numNeighs)) {
-          activeCellContinue <- loci %in% unique(potentials[,"from"])
+        aaa <- split(seq_along(potentials[, "to"]), potentials[, "from"]);
+        if (length(aaa) != length(numNeighs)) {
+          activeCellContinue <- loci %in% unique(potentials[, "from"])
           numNeighs <- numNeighs[activeCellContinue]
         }
 
         tmpA <- unlist(lapply(aaa, length))
-        tmpB <- which(tmpA<numNeighs)
-        if(length(tmpB)>0)
+        tmpB <- which(tmpA < numNeighs)
+        if (length(tmpB) > 0)
           numNeighs[tmpB] <- unname(tmpA[tmpB])
 
-        if(relativeSpreadProb) {
-          rescaledProbs <- tapply(spreadProbs, potentials[,"from"], function(x) x/sum(x, na.rm=TRUE),
-                 simplify = FALSE)
+        if (relativeSpreadProb) {
+          rescaledProbs <- tapply(spreadProbs, potentials[,"from"], function(x) {
+            x / sum(x, na.rm = TRUE)
+          }, simplify = FALSE)
           neighIndexToKeep <- unlist(lapply(seq_along(aaa), function(x)
-            resample(aaa[[x]], size=numNeighs[x], prob = rescaledProbs[[x]])))
+            resample(aaa[[x]], size = numNeighs[x], prob = rescaledProbs[[x]])))
         } else {
           neighIndexToKeep <- unlist(lapply(seq_along(aaa), function(x)
-            resample(aaa[[x]], size=numNeighs[x])))
+            resample(aaa[[x]], size = numNeighs[x])))
         }
         potentials <- potentials[neighIndexToKeep,,drop=FALSE]
         spreadProbs <- spreadProbs[neighIndexToKeep]
@@ -717,11 +718,11 @@ setMethod(
 
       }
 
-      #if(integerProbs) {
+      #if (integerProbs) {
       #  potentials <- potentials[as.logical(spreadProbs), , drop = FALSE]
       #} else if (any(spreadProbs < 1)) {
-      # if(relativeSpreadProb) {
-      #   mb = microbenchmark(tapply={
+      # if (relativeSpreadProb) {
+      #   mb = microbenchmark(tapply = {
       #   spreadProbs <- unname(unlist(tapply(spreadProbs, potentials[,"from"], function(x) x/sum(x, na.rm=TRUE),
       #                 simplify = FALSE))[
       #                   order(unname(unlist(tapply(seq_along(spreadProbs),
@@ -965,20 +966,20 @@ setMethod(
         events <- NULL
       }
 
-      if(exactSizes) {
-        if(all(numRetries < 10)) {
-          if(spreadStateExists) {
+      if (exactSizes) {
+        if (all(numRetries < 10)) {
+          if (spreadStateExists) {
             tooSmall <- tabulate(spreads[c(spreadState[!keepers]$indices, spreadsIndices)],
                                  length(maxSize)) < maxSize
           } else {
             tooSmall <- tabulate(spreads, length(maxSize)) < maxSize
           }
-          inactive <- tabulate(spreads[events], length(maxSize))==0
+          inactive <- tabulate(spreads[events], length(maxSize)) == 0
 
           #size <- pmin(size + len, maxSize) ## Quick? and dirty. fast but loose (too flexible)
 
           needPersist <- tooSmall & inactive
-          if(any(needPersist)) {
+          if (any(needPersist)) {
             numRetries <- numRetries + needPersist
 
             keepLoci <- spreads[loci] %fin% which(tooSmall & inactive)
@@ -1034,7 +1035,7 @@ setMethod(
         }
       } else {
         #wh <- spreads > 0
-        if(spreadStateExists) {
+        if (spreadStateExists) {
           wh <- c(spreadState[!keepers]$indices, spreadsIndices)
         } else {
           wh <- spreadsIndices
@@ -1065,8 +1066,8 @@ setMethod(
       } else {
         setkeyv(completed, c("id","indices"))
         setkeyv(active, c("id","indices"))
-        allCells <- completed[active, active:=TRUE] #rbindlist(list(completed, active)) # not a copy
-        if(spreadStateExists) {
+        allCells <- completed[active, active := TRUE] #rbindlist(list(completed, active)) # not a copy
+        if (spreadStateExists) {
           initEventID <- unique(spreadState$id)
         } else {
           initEventID <- allCells[indices %fin% initialLoci, id]
@@ -1373,8 +1374,7 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
     nrowFrom <- NROW(from)
     if (nrowFrom > 1) {
       if (is.null(cumulativeFn)) {
-        if((any(otherFromCols) | isTRUE(angles))  ) {
-        #if(TRUE) {
+        if ((any(otherFromCols) | isTRUE(angles))  ) {
           out <- lapply(seq_len(nrowFrom), function(k) {
              out <- .pointDistance(from = from[k, , drop = FALSE], to = to,
                                    angles = angles, maxDistance = maxDistance,
@@ -1382,12 +1382,11 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
            })
           out <- do.call(rbind, out)
         } else {
-          maxDistance2 <- if(is.na(maxDistance)) Inf else maxDistance
+          maxDistance2 <- if (is.na(maxDistance)) Inf else maxDistance
           out <- pointDistance3(fromX = from[, "x"], toX = to[, "x"],
                               fromY = from[, "y"], toY = to[, "y"],
                               maxDistance = maxDistance2)
         }
-        #if(!all.equal(out2, out)) stop("Not all equal")
       } else {
         # if there is a cluster, then there are two levels of cumulative function,
         #  inside each cluster and outside, or "within and between clusters".
