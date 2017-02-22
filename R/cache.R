@@ -120,6 +120,7 @@
 #' @export
 #' @importFrom archivist cache loadFromLocalRepo saveToLocalRepo showLocalRepo
 #' @importFrom digest digest
+#' @importFrom R.utils isAbsolutePath
 #' @include simList-class.R
 #' @docType methods
 #' @rdname cache
@@ -213,7 +214,17 @@ setMethod(
     }
 
     whRas <- which(sapply(tmpl, function(x) is(x, "Raster")))
-    whFun <- which(sapply(tmpl, function(x) is.function(x)))
+    whFun <- which(sapply(tmpl, function(x) is.function(x) | is(x, "expression")))
+    whFilename <- which(sapply(tmpl, function(x) is.character(x)))
+    if(length(whFilename)>0) {
+      tmpl[whFilename] <- lapply(whFilename, function(xx) {
+        if(isAbsolutePath(tmpl[[xx]]))
+          basename(tmpl[[xx]]) 
+        else 
+          tmpl[[xx]]
+      })
+    }
+    
     whCluster <- which(sapply(tmpl, function(x) is(x, "cluster")))
     if (length(wh) > 0 | exists("sim")) {
       if (length(wh) > 0) {
@@ -482,7 +493,7 @@ setMethod(
       envirHash <- (sapply(objectsToDigest, function(x) {
           if (!(x == ".sessionInfo")) {
             obj <- get(x, envir = envir(object))
-            if (!is(obj, "function")) {
+            if (!is(obj, "function") & !is(obj, "expression")) {
               if (is(obj, "Raster")) {
                 # convert Rasters in the simList to some of their metadata.
                 obj <- makeDigestible(obj,
