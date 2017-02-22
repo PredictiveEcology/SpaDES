@@ -33,8 +33,13 @@ version 1.3.1.9000
 * `zipModule` now has `data` argument, allowing data to be omitted from zipped module.
 * improved `moduleDiagram` to show `_INPUT_` node in different colour from the other modules
 * `checksums(..., write = TRUE)` ignores the contents of `CHECKSUMS.txt`, overwriting that file with the checksums of all files in the module's `data/` directory. This makes it easier to update the checksum file, *e.g.*, when adding new data (#332).
+* improved module versioning (#321)
 * minor bugfixes for unusual cases
-* **Defunct**: `p`. Use `params` or `P` instead.
+
+* **Defunct**:
+
+    * `p`. Use `params` or `P` instead.
+    * `versionWarning`. Wasn't used.
 
 version 1.3.1
 =============

@@ -134,7 +134,7 @@ setMethod(
 setGeneric(".parseModule",
            function(sim, modules, userSuppliedObjNames = NULL, notOlderThan, ...) {
              standardGeneric(".parseModule")
-           })
+})
 
 #' @rdname parseModule
 setMethod(
@@ -176,13 +176,12 @@ setMethod(
 
       # check that modulename == filename
       fname <- unlist(strsplit(basename(filename), "[.][r|R]$"))
-      for (k in length(sim@depends@dependencies)) {
-        if (sim@depends@dependencies[[k]]@name == m) {
-          i <- k
-        } else {
-          stop("Module name metadata (", sim@depends@dependencies[[k]]@name, ") ",
-               "does not match filename (", m, ".R).")
-        }
+      k <- length(sim@depends@dependencies)
+      if (sim@depends@dependencies[[k]]@name == m) {
+        i <- k
+      } else {
+        stop("Module name metadata (", sim@depends@dependencies[[k]]@name, ") ",
+             "does not match filename (", m, ".R).")
       }
 
       # assign default param values
@@ -204,22 +203,27 @@ setMethod(
       # do inputObjects and outputObjects
       pf <- parsedFile[defineModuleItem]
       if (any(inObjs)) {
-        sim@depends@dependencies[[i]]@inputObjects <- data.frame(rbindlist(fill = TRUE,
-                                                                list(sim@depends@dependencies[[i]]@inputObjects,
-          eval(pf[[1]][[3]][inObjs][[1]]))))
+        sim@depends@dependencies[[i]]@inputObjects <- data.frame(
+          rbindlist(fill = TRUE,
+                    list(sim@depends@dependencies[[i]]@inputObjects,
+                         eval(pf[[1]][[3]][inObjs][[1]]))
+          )
+        )
       }
       if (any(outObjs)) {
-        sim@depends@dependencies[[i]]@outputObjects <- data.frame(rbindlist(fill = TRUE,
-                                                                   list(sim@depends@dependencies[[i]]@outputObjects,
-        eval(pf[[1]][[3]][outObjs][[1]]))))
+        sim@depends@dependencies[[i]]@outputObjects <- data.frame(
+          rbindlist(fill = TRUE,
+                    list(sim@depends@dependencies[[i]]@outputObjects,
+                         eval(pf[[1]][[3]][outObjs][[1]]))
+          )
+        )
       }
 
       # update parse status of the module
       attributes(modules[[j]]) <- list(parsed = TRUE)
 
       # add child modules to list of all child modules, to be parsed later
-      children <-
-        as.list(sim@depends@dependencies[[i]]@childModules) %>%
+      children <- as.list(sim@depends@dependencies[[i]]@childModules) %>%
         lapply(., `attributes<-`, list(parsed = FALSE))
       all_children <- append_attr(all_children, children)
 
@@ -555,18 +559,14 @@ setMethod(
 
     ## timeunit is needed before all parsing of modules.
     ## It could be used within modules within defineParameter statements.
-    timeunits <-
-      .parseModulePartial(sim, modules(sim), defineModuleElement = "timeunit")
+    timeunits <- .parseModulePartial(sim, modules(sim), defineModuleElement = "timeunit")
 
     allTimeUnits <- FALSE
 
     findSmallestTU <- function(sim, mods) {
-      out <-
-        lapply(.parseModulePartial(sim, mods, defineModuleElement = "childModules"),
-               as.list)
+      out <- lapply(.parseModulePartial(sim, mods, defineModuleElement = "childModules"), as.list)
       isParent <- lapply(out, length) > 0
-      tu <-
-        .parseModulePartial(sim, mods, defineModuleElement = "timeunit")
+      tu <- .parseModulePartial(sim, mods, defineModuleElement = "timeunit")
       hasTU <- !is.na(tu)
       out[hasTU] <- tu[hasTU]
       if (!all(hasTU)) {
@@ -583,26 +583,22 @@ setMethod(
 
     # recursive function to extract parent and child structures
     buildModuleGraph <- function(sim, mods) {
-      out <-
-        lapply(.parseModulePartial(sim, mods, defineModuleElement = "childModules"),
-               as.list)
+      out <- lapply(.parseModulePartial(sim, mods, defineModuleElement = "childModules"), as.list)
       isParent <- lapply(out, length) > 0
-      to <-
-        unlist(lapply(out, function(x)
-          if (length(x) == 0)
+      to <- unlist(lapply(out, function(x) {
+          if (length(x) == 0) {
             names(x)
-          else
-            x))
+          } else {
+            x
+          }
+      }))
       if (is.null(to))
         to <- character(0)
       from <- rep(names(out), unlist(lapply(out, length)))
-      outDF <- data.frame(from = from,
-                          to = to,
-                          stringsAsFactors = FALSE)
+      outDF <- data.frame(from = from, to = to, stringsAsFactors = FALSE)
       while (any(isParent)) {
         for (i in which(isParent)) {
-          outDF <-
-            rbind(outDF, buildModuleGraph(sim, as.list(unlist(out[i]))))
+          outDF <- rbind(outDF, buildModuleGraph(sim, as.list(unlist(out[i]))))
           isParent[i] <- FALSE
         }
       }
@@ -614,8 +610,7 @@ setMethod(
 
     timeunits <- findSmallestTU(sim, modules(sim))
 
-    if (length(timeunits) == 0)
-      timeunits <- list("second") # no modules at all
+    if (length(timeunits) == 0) timeunits <- list("second") # no modules at all
 
     if (!is.null(times$unit)) {
       message(
@@ -660,15 +655,8 @@ setMethod(
     # add core module name to the loaded list (loaded with the package)
     modulesLoaded <- append(modulesLoaded, core)
 
-    # source module metadata and code files, checking version info
-    lapply(modules(sim), function(m) {
-      .parseModulePartial(
-        sim = sim,
-        modules = list(m),
-        defineModuleElement = "version"
-      )[[m]] #%>%
-      #  versionWarning(m, .)
-    })
+    # source module metadata and code files
+    lapply(modules(sim), function(m) moduleVersion(m, sim = sim))
 
     ## do multi-pass if there are parent modules; first for parents, then for children
     all_parsed <- FALSE
@@ -725,8 +713,7 @@ setMethod(
     # load user-defined modules
     for (m in loadOrder) {
       # schedule each module's init event:
-      sim <-
-        scheduleEvent(sim, sim@simtimes[["start"]], m, "init", .normal())
+      sim <- scheduleEvent(sim, sim@simtimes[["start"]], m, "init", .normal())
 
       ### add module name to the loaded list
       modulesLoaded <- append(modulesLoaded, m)
@@ -850,9 +837,7 @@ setMethod(
                         outputs,
                         loadOrder,
                         notOlderThan) {
-    li <-
-      lapply(names(match.call()[-1]), function(x)
-        eval(parse(text = x)))
+    li <- lapply(names(match.call()[-1]), function(x) eval(parse(text = x)))
     names(li) <- names(match.call())[-1]
     # find the simInit call that was responsible for this, get the objects
     #   in the environment of the parents of that call, and pass them to new
@@ -887,9 +872,7 @@ setMethod(
                         outputs,
                         loadOrder,
                         notOlderThan) {
-    li <-
-      lapply(names(match.call()[-1]), function(x)
-        eval(parse(text = x)))
+    li <- lapply(names(match.call()[-1]), function(x) eval(parse(text = x)))
     names(li) <- names(match.call())[-1]
     li$modules <- as.list(modules)
     sim <- do.call("simInit", args = li)
@@ -942,15 +925,14 @@ setMethod(
                          "data.frame",
                          "character")
     listNames <- names(li)
-    expectedOrder <-
-      c("times",
-        "params",
-        "modules",
-        "objects",
-        "paths",
-        "inputs",
-        "outputs",
-        "loadOrder")
+    expectedOrder <- c("times",
+                       "params",
+                       "modules",
+                       "objects",
+                      "paths",
+                      "inputs",
+                      "outputs",
+                      "loadOrder")
     ma <- match(expectedOrder, listNames)
     li <- li[ma]
 

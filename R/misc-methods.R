@@ -689,47 +689,6 @@ sortDotsFirst <- function(obj) {
   }
 }
 
-#' Compare module version against SpaDES package version and warn if incompatible
-#'
-#' Performs a basic check to ensure the module version is compatible with the
-#' SpaDES package version.
-#' Compatibility is best assured when both versions are equal.
-#' If module version < spades version, there is likely no problem, as SpaDES
-#' should be backwards compatible.
-#' However, if module version > spades version, the user needs to update their
-#' version of SpaDES because module compatibility cannot be assured.
-#'
-#' @param moduleName     Character string providing the module name.
-#' @param moduleVersion  The module version as either a character, numeric, or
-#'                       numeric version (e.g., extracted from module metadata).
-#'                       Is coerced to \code{numeric_version}.
-#' @return Logical (invisibly) indicating whether the module is compatible with
-#' the version of the SpaDES package.
-#' Will also produce a warning if not compatible.
-#'
-#' @author Alex Chubaty
-#'
-setGeneric("versionWarning", function(moduleName, moduleVersion) {
-  standardGeneric("versionWarning")
-})
-
-#' @rdname versionWarning
-setMethod(
-  "versionWarning",
-  signature(moduleName = "character", moduleVersion = "ANY"),
-  definition = function(moduleName, moduleVersion) {
-    moduleVersion <- as.numeric_version(moduleVersion)
-    pkgVersion <- packageVersion("SpaDES")
-
-    isOK <- (pkgVersion >= moduleVersion)
-
-    if (!isOK) {
-      warning("Module version (", moduleVersion, ") does not match ",
-              "SpaDES package version (", pkgVersion, ").\n")
-    }
-    return(invisible(isOK))
-})
-
 ################################################################################
 #' Create empty fileTable for inputs and outputs
 #'

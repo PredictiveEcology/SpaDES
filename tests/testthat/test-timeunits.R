@@ -20,7 +20,7 @@ test_that("timeunit works correctly", {
     authors = c(person(c("Alex", "M"), "Chubaty",
                        email = "alexander.chubaty@canada.ca",
                        role = c("aut", "cre"))),
-    version = numeric_version("0.0.1"),
+    version = list(testModule = "0.0.1"),
     spatialExtent = raster::extent(rep(NA_real_, 4)),
     timeframe = as.POSIXlt(c(NA, NA)),
     timeunit = NA_character_,
@@ -29,11 +29,12 @@ test_that("timeunit works correctly", {
     parameters = rbind(
       defineParameter("dummyVal", "numeric", 1.0, NA, NA, "vague description")
     ),
-    inputObjects = data.frame(objectName = "testInput", objectClass = "list",
-                              sourceURL = "", other = NA_character_,
-                              stringsAsFactors = FALSE),
-    outputObjects = data.frame(objectName = "testOutput", objectClass = "list",
-                               other = NA_character_, stringsAsFactors = FALSE)
+    inputObjects = bind_rows(
+      expectsInput(objectName = "testInput", objectClass = "list", sourceURL = "", desc = NA_character_)
+    ),
+    outputObjects = bind_rows(
+      createsOutput(objectName = "testOutput", objectClass = "list", desc = NA_character_)
+    )
   )
 
   # Test for numerics, or character strings that are not recognized
@@ -117,16 +118,16 @@ test_that("timeunits with child and parent modules work correctly", {
     unlink(tmpdir, recursive = TRUE)
   }, add = TRUE)
 
-  suppressMessages({
+  #suppressMessages({
     newModule("grandpar1", ".", type = "parent", children = c("child1", "child2", "par1"), open = FALSE)
     newModule("par1", ".", type = "parent", children = c("child4", "child3"), open = FALSE)
     newModule("child1", ".", open = FALSE)
+    newModule("child2", ".", open = FALSE)
     newModule("child3", ".", open = FALSE)
     newModule("child4", ".", open = FALSE)
     newModule("child5", ".", open = FALSE)
-  })
+  #})
 
-  suppressMessages(newModule("child2", ".", open = FALSE))
   fileName <- "child2/child2.R"
   xxx <- readLines(fileName)
   xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = "day"') # nolint
