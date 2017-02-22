@@ -518,7 +518,9 @@ setMethod(
       # Remove paths as they are system dependent and not relevant for digest
       #  i.e., if the same file is located in a different place, that is ok
       object@paths <- list()
-
+      object@outputs$file <- basename(object@outputs$file)
+      object@inputs$file <- basename(object@inputs$file)
+      
       # Sort the params and .list with dots first, to allow Linux and Windows to be compatible
       object@params <- lapply(object@params, function(x) sortDotsFirst(x))
 
