@@ -286,6 +286,8 @@ setMethod(
     files2 <- list()
     children <- .parseModulePartial(filename = file.path(path, name, paste0(name, ".R")),
                                     defineModuleElement = "childModules")
+    childVersions <- .parseModulePartial(filename = file.path(path, name, paste0(name, ".R")),
+                                         defineModuleElement = "version")
 
     dataList2 <- data.frame(result = character(0), expectedFile = character(0),
                             actualFile = character(0), checksum.x = character(0),
@@ -295,7 +297,11 @@ setMethod(
     if (!is.null(children)) {
       if ( all( nzchar(children) & !is.na(children) ) ) {
         tmp <- lapply(children, function(x) {
-          f <- downloadModule(x, path = path, data = data)
+          f <- if (is.null(childVersions[[x]])) {
+            downloadModule(x, path = path, data = data, version = childVersions[[x]])
+          } else {
+            downloadModule(x, path = path, data = data)
+          }
           files2 <<- append(files2, f[[1]])
           dataList2 <<- bind_rows(dataList2, f[[2]])
         })

@@ -223,10 +223,14 @@ defineModule(sim, list(
   authors = ", getOption("devtools.desc.author",
                          "c(person(c(\"First\", \"Middle\"), \"Last\", email = \"email@example.com\", role = c(\"aut\", \"cre\")))"), ",
   childModules = ", children_char, ",
-  version = numeric_version(\"", as.character(packageVersion("SpaDES")), "\"),
-  ", if (type == "child") "spatialExtent = raster::extent(rep(NA_real_, 4)),
-  timeframe = as.POSIXlt(c(NA, NA)),","
-  timeunit = \"year\",","
+  version = list(SpaDES = \"", as.character(packageVersion("SpaDES")), "\", ", name, " = \"0.0.1\"",
+        if (type == "parent") paste0(", ", children, " = \"0.0.1\""),
+        "),
+  ",
+  if (type == "child") "spatialExtent = raster::extent(rep(NA_real_, 4)),
+  timeframe = as.POSIXlt(c(NA, NA)),
+  ",
+  "timeunit = \"year\"," ,"
   citation = list(\"citation.bib\"),
   documentation = list(\"README.txt\", \"", name, ".Rmd\")",
   if (type == "child") ",
@@ -972,9 +976,7 @@ setMethod("zipModule",
 setMethod("zipModule",
           signature = c(name = "character", path = "missing", version = "missing"),
           definition = function(name, data, ...) {
-            vers <- .parseModulePartial(filename = file.path(path, name, paste0(name,".R")),
-                                        defineModuleElement = "version") %>% as.character
-            #vers <- moduleMetadata(name, ".")$version %>% as.character
+            vers <- moduleVersion(name, path) %>% as.character()
             zipModule(name = name, path = ".", version = vers, data = data, ...)
 })
 
@@ -983,8 +985,6 @@ setMethod("zipModule",
 setMethod("zipModule",
           signature = c(name = "character", path = "character", version = "missing"),
           definition = function(name, path, data, ...) {
-            vers <- .parseModulePartial(filename = file.path(path, name, paste0(name,".R")),
-                                        defineModuleElement = "version") %>% as.character
-            #vers <- moduleMetadata(name, path)$version %>% as.character
+            vers <- vers <- moduleVersion(name, path) %>% as.character()
             zipModule(name = name, path = path, version = vers, data = data, ...)
 })

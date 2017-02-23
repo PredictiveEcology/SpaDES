@@ -17,8 +17,8 @@ test_that("downloadModule downloads and unzips a single module", {
 
   f <- downloadModule(m, tmpdir, quiet = TRUE)[[1]] %>% unlist() %>% basename()
 
-  f_expected <- c("citation.bib", "CHECKSUMS.txt", "LICENSE",
-                  "README.txt", "test.R", "test.Rmd")
+  f_expected <- c("LICENSE", "README.txt", "citation.bib", "CHECKSUMS.txt",
+                  "test.R", "test.Rmd")
 
   expect_gt(length(f), 0)
   expect_gt(length(file.path(tmpdir)), 0)

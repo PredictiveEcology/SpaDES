@@ -921,7 +921,8 @@ setMethod(
             }
           } else {
             if (id | returnIndices | relativeSpreadProb) {
-              spreads[events] <- spreads[potentials[, 1L]] # give new cells, the id of the source cell
+              # give new cells, the id of the source cell
+              spreads[events] <- spreads[potentials[, 1L]]
             } else {
               spreads[events] <- n
             }

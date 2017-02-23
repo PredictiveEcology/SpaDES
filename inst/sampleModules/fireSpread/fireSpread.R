@@ -1,7 +1,7 @@
-usesSpaDESVersion <- "1.1.0"
+usesSpaDESVersion <- "1.3.1.9044"
 if (packageVersion("SpaDES") < usesSpaDESVersion) {
-  stop("This fireSpread module was built with SpaDES version", usesSpaDESVersion,
-       "Please update SpaDES to use this module")
+  stop("This randomLandscapes module was built with SpaDES version", usesSpaDESVersion,
+       ". Please update SpaDES to use this module.")
 }
 rm(usesSpaDESVersion)
 
@@ -15,7 +15,7 @@ defineModule(sim, list(
     person(c("Eliot", "J", "B"), "McIntire", email = "eliot.mcintire@canada.ca", role = c("aut", "cre")),
     person("Steve", "Cumming", email = "Steve.Cumming@sbf.ulaval.ca", role = c("aut"))
   ),
-  version = numeric_version("1.4.0"),
+  version = list(SpaDES = "1.3.1.9044", fireSpread = "1.5.0"),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
   timeframe = as.POSIXlt(c(NA, NA)),
   timeunit = "year",

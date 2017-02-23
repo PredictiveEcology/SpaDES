@@ -218,7 +218,7 @@ setMethod(
     whFilename <- which(sapply(tmpl, function(x) is.character(x)))
     if(length(whFilename)>0) {
       tmpl[whFilename] <- lapply(whFilename, function(xx) {
-        if(isAbsolutePath(tmpl[[xx]]))
+        if(file.exists(tmpl[[xx]]))
           basename(tmpl[[xx]]) 
         else 
           tmpl[[xx]]
