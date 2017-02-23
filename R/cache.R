@@ -471,7 +471,8 @@ setMethod(
 #' @include simList-class.R
 #' @include misc-methods.R
 #' @importFrom digest digest
-#' @docType methods
+#' @importFrom broom tidy
+#' @docType metbrohods
 #' @keywords internal
 #' @rdname makeDigestible
 #' @author Eliot McIntire
@@ -499,6 +500,8 @@ setMethod(
                 obj <- makeDigestible(obj,
                                       compareRasterFileLength = compareRasterFileLength)
                 dig <- digest::digest(obj)
+              } else if (is(obj, "Spatial")) {
+                dig <- makeDigestible(obj)
               } else {
                 # convert functions in the simList to their digest.
                 #  functions have environments so are always unique
@@ -561,6 +564,20 @@ setMethod(
     }
     return(dig)
 })
+
+
+setMethod(
+  "makeDigestible",
+  signature = "Spatial",
+  definition = function(object, compareRasterFileLength) {
+    
+    #if (is(object, "SpatialPolygonsDataFrame") ) {
+      dig <- suppressMessages(digest::digest(broom::tidy(object)))
+    #} else {
+    #  dig <- digest::digest(object)
+    #}
+    return(dig)
+  })
 
 ################################################################################
 #' Clear erroneous archivist artifacts
