@@ -472,7 +472,7 @@ setMethod(
 #' @include misc-methods.R
 #' @importFrom broom tidy
 #' @importFrom digest digest
-#' @docType metbrohods
+#' @docType methods
 #' @keywords internal
 #' @rdname makeDigestible
 #' @author Eliot McIntire
