@@ -573,12 +573,11 @@ setMethod(
     
     #if (is(object, "SpatialPolygonsDataFrame") ) {
       
-    aaa <- broom::tidy(object)
+    aaa <- suppressMessages(broom::tidy(object))
+    
+    # The following Rounding is necessary to make digest equal on linux and windows
     bbb <- as.data.frame(lapply(aaa, function(x) if(is(x,"numeric")) round(x, 4) else x))
-    dig <- suppressMessages(digest::digest(bbb))
-    #} else {
-    #  dig <- digest::digest(object)
-    #}
+    dig <- digest::digest(bbb)
     return(dig)
   })
 
