@@ -43,6 +43,7 @@ Suggests:
     tkrplot
 Imports:
     archivist (>= 2.1),
+    broom,
     chron,
     CircStats,
     data.table (>= 1.9.6),

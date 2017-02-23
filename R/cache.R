@@ -224,7 +224,7 @@ setMethod(
           tmpl[[xx]]
       })
     }
-    
+
     whCluster <- which(sapply(tmpl, function(x) is(x, "cluster")))
     if (length(wh) > 0 | exists("sim")) {
       if (length(wh) > 0) {
@@ -470,8 +470,8 @@ setMethod(
 #' @seealso \code{\link[digest]{digest}}.
 #' @include simList-class.R
 #' @include misc-methods.R
-#' @importFrom digest digest
 #' @importFrom broom tidy
+#' @importFrom digest digest
 #' @docType metbrohods
 #' @keywords internal
 #' @rdname makeDigestible
@@ -534,7 +534,7 @@ setMethod(
       object@paths <- list()
       object@outputs$file <- basename(object@outputs$file)
       object@inputs$file <- basename(object@inputs$file)
-      
+
       # Sort the params and .list with dots first, to allow Linux and Windows to be compatible
       object@params <- lapply(object@params, function(x) sortDotsFirst(x))
 
@@ -565,21 +565,20 @@ setMethod(
     return(dig)
 })
 
-
 setMethod(
   "makeDigestible",
   signature = "Spatial",
   definition = function(object, compareRasterFileLength) {
-    
+
     #if (is(object, "SpatialPolygonsDataFrame") ) {
-      
+
     aaa <- suppressMessages(broom::tidy(object))
-    
+
     # The following Rounding is necessary to make digest equal on linux and windows
     bbb <- as.data.frame(lapply(aaa, function(x) if(is(x,"numeric")) round(x, 4) else x))
     dig <- digest::digest(bbb)
     return(dig)
-  })
+})
 
 ################################################################################
 #' Clear erroneous archivist artifacts
