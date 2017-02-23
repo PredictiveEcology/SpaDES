@@ -572,7 +572,10 @@ setMethod(
   definition = function(object, compareRasterFileLength) {
     
     #if (is(object, "SpatialPolygonsDataFrame") ) {
-      dig <- suppressMessages(digest::digest(broom::tidy(object)))
+      
+    aaa <- broom::tidy(object)
+    bbb <- as.data.frame(lapply(aaa, function(x) if(is(x,"numeric")) round(x, 4) else x))
+    dig <- suppressMessages(digest::digest(bbb))
     #} else {
     #  dig <- digest::digest(object)
     #}
