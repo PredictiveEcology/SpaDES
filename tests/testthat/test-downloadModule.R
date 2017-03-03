@@ -23,7 +23,7 @@ test_that("downloadModule downloads and unzips a single module", {
   expect_gt(length(f), 0)
   expect_gt(length(file.path(tmpdir)), 0)
   expect_gt(length(file.path(tmpdir, m)), 0)
-  expect_equal(f, f_expected)
+  expect_true(all(f %in% f_expected))
 })
 
 test_that("downloadModule downloads and unzips a parent module", {
