@@ -522,7 +522,7 @@ setMethod(
       # Remove the NULL entries in the @.list
 
       envirHash <- envirHash[!sapply(envirHash, is.null)]
-      envirHash <- sortDotsFirst(envirHash)
+      envirHash <- sortDotsUnderscoreFirst(envirHash)
 
       # Convert to a simList_ to remove the .envir slot
       object <- as(object, "simList_")
@@ -542,7 +542,7 @@ setMethod(
       }
       
       # Sort the params and .list with dots first, to allow Linux and Windows to be compatible
-      object@params <- lapply(object@params, function(x) sortDotsFirst(x))
+      object@params <- lapply(object@params, function(x) sortDotsUnderscoreFirst(x))
 
       return(object)
 })
