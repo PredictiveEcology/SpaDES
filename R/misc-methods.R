@@ -680,13 +680,15 @@ setMethod(
 #' @rdname sortDotsUnderscoreFirst
 #' @author Eliot McIntire
 sortDotsUnderscoreFirst <- function(obj) {
-  dotObjs <- grep("^\\.|_", names(obj))
-  if (length(dotObjs) > 0) {
-    append(obj[dotObjs][order(names(obj[dotObjs]))],
-           obj[-dotObjs][order(names(obj[-dotObjs]))])
-  } else {
-    obj
-  }
+  names(obj) <- gsub(names(obj), pattern="\\.", replacement = "DOT")
+  names(obj) <- gsub(names(obj), pattern="_", replacement = "US")
+  obj[order(names(obj))]
+  # if (length(dotObjs) > 0) {
+  #   append(obj[dotObjs][order(names(obj[dotObjs]))],
+  #          obj[-dotObjs][order(names(obj[-dotObjs]))])
+  # } else {
+  #   obj
+  # }
 }
 
 ################################################################################
