@@ -534,7 +534,13 @@ setMethod(
       object@paths <- list()
       object@outputs$file <- basename(object@outputs$file)
       object@inputs$file <- basename(object@inputs$file)
-
+      deps <- object@depends@dependencies
+      for (i in seq_along(deps)) {
+        object@depends@dependencies[[i]] <- lapply(slotNames(object@depends@dependencies[[i]]), function(x) slot(object@depends@dependencies[[i]],x))
+        names(object@depends@dependencies[[i]]) <- slotNames(deps[[i]])
+        object@depends@dependencies[[i]][["timeframe"]] <- as.Date(deps[[i]]@timeframe)
+      }
+      
       # Sort the params and .list with dots first, to allow Linux and Windows to be compatible
       object@params <- lapply(object@params, function(x) sortDotsFirst(x))
 
