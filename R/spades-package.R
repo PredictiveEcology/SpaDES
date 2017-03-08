@@ -480,5 +480,5 @@ NULL
 NULL
 
 #'@importFrom Rcpp evalCpp
-#'@useDynLib SpaDES
+#'@useDynLib SpaDES, .registration = TRUE
 NULL
