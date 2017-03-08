@@ -191,7 +191,7 @@ setMethod(
   definition = function(FUN, ..., notOlderThan, objects, outputObjects,
                         algo, cacheRepo, compareRasterFileLength) {
     tmpl <- list(...)
-
+    
     if (missing(notOlderThan)) notOlderThan <- NULL
     # These three lines added to original version of cache in archive package
     wh <- which(sapply(tmpl, function(x) is(x, "simList")))
@@ -213,7 +213,8 @@ setMethod(
       archivist::createLocalRepo(cacheRepo)
     }
 
-    whRas <- which(sapply(tmpl, function(x) is(x, "Raster")))
+    whRasOrSpatial <- which(sapply(tmpl, function(x) {is(x, "Raster")| is(x, "Spatial")}))
+    whSpatial <- which(sapply(tmpl, function(x) is(x, "Spatial")))
     whFun <- which(sapply(tmpl, function(x) is.function(x) | is(x, "expression")))
     whFilename <- which(sapply(tmpl, function(x) is.character(x)))
     if(length(whFilename)>0) {
@@ -265,7 +266,7 @@ setMethod(
       tmpl$.FUN <- format(FUN) # This is changed to allow copying between computers
     }
 
-    if (length(whRas) > 0) tmpl[whRas] <- lapply(tmpl[whRas], makeDigestible,
+    if (length(whRasOrSpatial) > 0) tmpl[whRasOrSpatial] <- lapply(tmpl[whRasOrSpatial], makeDigestible,
                                                  compareRasterFileLength = compareRasterFileLength)
     if (length(whCluster) > 0) tmpl[whCluster] <- NULL
     if (length(whFun) > 0) tmpl[whFun] <- lapply(tmpl[whFun], format)
