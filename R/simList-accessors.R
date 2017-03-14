@@ -2842,7 +2842,11 @@ setMethod(
     }
 
     # provide default values for missing metadata elements
-    if (is.null(x$reqdPkgs)) {
+    if (identical(x$reqdPkgs, list())) {
+      x$reqdPkgs <- list()
+    } else if (is.null(na.omit(x$reqdPkgs))) {
+      x$reqdPkgs <- list()
+    } else if (!nzchar(na.omit(x$reqdPkgs))) {
       x$reqdPkgs <- list()
     } else {
       loadPackages(x$reqdPkgs)
