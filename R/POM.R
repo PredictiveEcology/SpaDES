@@ -253,13 +253,17 @@ setMethod(
             }
           })
 
+          envPOMCalled <- sys.frame(min(grep("POM", sys.calls()))-1)
+
           objectiveRes <- lapply(seq_along(outputObjects), function(x) {
             if (is(outputObjects[[x]], "Raster")) {
               outObj <- getValues(outputObjects[[x]])
-              dataObj <- getValues(get(names(outputObjects)[x]))
+              dataObj <- getValues(get(names(outputObjects)[x]),
+                                   envir = envPOMCalled)
             } else {
               outObj <- outputObjects[[x]]
-              dataObj <- get(names(outputObjects)[[x]])
+              dataObj <- get(names(outputObjects)[[x]],
+                             envir = envPOMCalled)
             }
 
             if (useLog[x]) {
