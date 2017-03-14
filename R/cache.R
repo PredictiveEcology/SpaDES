@@ -196,6 +196,7 @@ setMethod(
     # These three lines added to original version of cache in archive package
     wh <- which(sapply(tmpl, function(x) is(x, "simList")))
     if (is.null(cacheRepo)) {
+      browser()
       if (length(wh) > 0) {
         cacheRepo <- tmpl[wh][[1]]@paths$cachePath # just take the first simList, if there are >1
       } else {
@@ -537,11 +538,13 @@ setMethod(
       object@inputs$file <- basename(object@inputs$file)
       deps <- object@depends@dependencies
       for (i in seq_along(deps)) {
-        object@depends@dependencies[[i]] <- lapply(slotNames(object@depends@dependencies[[i]]), function(x) slot(object@depends@dependencies[[i]],x))
-        names(object@depends@dependencies[[i]]) <- slotNames(deps[[i]])
-        object@depends@dependencies[[i]][["timeframe"]] <- as.Date(deps[[i]]@timeframe)
+        if(!is.null(deps[[i]])) {
+          object@depends@dependencies[[i]] <- lapply(slotNames(object@depends@dependencies[[i]]), function(x) slot(object@depends@dependencies[[i]],x))
+          names(object@depends@dependencies[[i]]) <- slotNames(deps[[i]])
+          object@depends@dependencies[[i]][["timeframe"]] <- as.Date(deps[[i]]@timeframe)
+        }
       }
-      
+
       # Sort the params and .list with dots first, to allow Linux and Windows to be compatible
       object@params <- lapply(object@params, function(x) sortDotsUnderscoreFirst(x))
 
