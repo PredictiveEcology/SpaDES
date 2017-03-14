@@ -646,7 +646,7 @@ setMethod(
           if (length(spreadProb) > 1) {
             spreadProbs <- spreadProb[potentials[, 2L]]
           } else {
-            spreadProbs <- spreadProb
+            spreadProbs <- rep(spreadProb, NROW(potentials))
           }
         }
       } else {
