@@ -1065,9 +1065,10 @@ setMethod(
         allCells <- data.table(spreads[, keepCols]) # change column order to match non allowOverlap
         set(allCells, , j = "active", as.logical(allCells$active))
       } else {
-        setkeyv(completed, c("id","indices"))
-        setkeyv(active, c("id","indices"))
-        allCells <- completed[active, active := TRUE] #rbindlist(list(completed, active)) # not a copy
+        allCells <- rbindlist(list(completed, active))
+        # setkeyv(completed, c("id","indices"))
+        # setkeyv(active, c("id","indices"))
+        # allCells <- completed[active, active := TRUE] #rbindlist(list(completed, active)) # not a copy
         if (spreadStateExists) {
           initEventID <- unique(spreadState$id)
         } else {
