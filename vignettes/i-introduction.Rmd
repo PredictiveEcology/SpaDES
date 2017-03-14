@@ -271,7 +271,7 @@ Plotting methods using `Plot` are optimized for speed and are much faster than t
 # Simulation experiments
 
 Running multiple simulations with different parameter values is a critical part of sensitivity and robustness analysis, simulation experiments, optimization, and pattern oriented modelling.
-Likewise, greater understanding and evaluation of models and their uncertainty requires simulation replication and repetition [@Grimm:2005book; @Thiele2015].
+Likewise, greater understanding and evaluation of models and their uncertainty requires simulation replication and repetition [@Grimm2005book; @Thiele2015].
 Using `R` as a common platform for data, simulation, and analyses we can do all of these easily and directly as part of our `SpaDES` simulation without breaking the linkages between model and analysis.
 This workflow facilitates and enhances the use of ensemble and consensus modelling, and studies of cumulative effects.
 
