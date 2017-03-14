@@ -156,6 +156,7 @@ test_that("spades calls with different signatures don't work", {
   }, add = TRUE)
 
   a <- simInit()
+  a1 <- Copy(a)
   expect_silent(spades(a))
   expect_output(spades(a, debug = TRUE), "eventTime")
   expect_silent(spades(a, .plotInitialTime = NA))
@@ -182,7 +183,8 @@ test_that("spades calls with different signatures don't work", {
   expect_silent(spades(a, progress = "rr"))
 
   paths(a)$cachePath <- file.path(tempdir(), "cache") %>% checkPath(create = TRUE)
-  expect_output(spades(a, cache = TRUE, debug = TRUE), "eventTime")
+  a <- Copy(a1)
+  expect_output(spades(a, cache = TRUE, debug = TRUE, notOlderThan = Sys.time()), "eventTime")
   expect_true(all(dir(paths(a)$cachePath) == c("backpack.db", "gallery")))
   file.remove(dir(paths(a)$cachePath, full.names = TRUE, recursive = TRUE))
 
