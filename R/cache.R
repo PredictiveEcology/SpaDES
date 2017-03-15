@@ -191,12 +191,11 @@ setMethod(
   definition = function(FUN, ..., notOlderThan, objects, outputObjects,
                         algo, cacheRepo, compareRasterFileLength) {
     tmpl <- list(...)
-    
+
     if (missing(notOlderThan)) notOlderThan <- NULL
     # These three lines added to original version of cache in archive package
     wh <- which(sapply(tmpl, function(x) is(x, "simList")))
     if (is.null(cacheRepo)) {
-      browser()
       if (length(wh) > 0) {
         cacheRepo <- tmpl[wh][[1]]@paths$cachePath # just take the first simList, if there are >1
       } else {
