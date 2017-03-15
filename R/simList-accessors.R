@@ -628,7 +628,6 @@ setGeneric("P", function(sim, module = NULL, param = NULL) {
 setMethod("P",
           signature = ".simList",
           definition = function(sim, module, param) {
-            #browser()
             if (is.null(module)) {
               module <- sim@current$moduleName
             }

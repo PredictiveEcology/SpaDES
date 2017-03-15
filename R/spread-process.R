@@ -777,10 +777,8 @@ setMethod(
         }
 
         events <- potentials[, 2L]
-        #browser()
 
         if (!noMaxSize) {
-          #browser(expr=n>=48)
           if (allowOverlap | returnDistances) {
             len <- tabulate(potentials[, 3L], length(maxSize))
           } else {
@@ -814,7 +812,6 @@ setMethod(
                                 cells = events, prev = 0)
           } else {
             #whgtZero <- which(spreads > 0)
-            #browser(expr = (!isTRUE(all.equal(which(spreads > 0), sort(spreadsIndices)))))
             whgtZero <- spreadsIndices
             prevCells <- cbind(id = spreads[whgtZero],
                                landscape = if (LandRasNeeded) landRas[whgtZero] else NULL,
@@ -1550,7 +1547,6 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
     # m1 <- to[, c("x", "y"), drop = FALSE]
     # m2 <- from[, c("x", "y"), drop = FALSE]
     #
-    # browser(expr=NROW(m1)>500)
     # dists <- .Call("distanceToNearestPoint",
     #       m1, m2, as.integer(0), PACKAGE = "raster")
     # if (!is.na(angles)) {
