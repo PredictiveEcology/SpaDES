@@ -491,11 +491,12 @@ setMethod(
 #'   }
 #' }
 #'
-setGeneric("simInit",
-           function(times, params, modules, objects, paths, inputs, outputs, loadOrder,
-                    notOlderThan = NULL) {
-             standardGeneric("simInit")
-           })
+setGeneric(
+  "simInit",
+  function(times, params, modules, objects, paths, inputs, outputs, loadOrder,
+           notOlderThan = NULL) {
+    standardGeneric("simInit")
+})
 
 #' @rdname simInit
 setMethod(
