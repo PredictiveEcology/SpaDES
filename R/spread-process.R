@@ -795,7 +795,8 @@ setMethod(
                 thisID <- which(spreads[potentials[, 1L]] == whichID[i])
               }
 
-              potentials <- potentials[-resample(thisID, toRm[i]), , drop = FALSE]
+              if(length(thisID)) # some unusual cases where there are none on the spreads. Unsure how this occurs
+                potentials <- potentials[-resample(thisID, toRm[i]), , drop = FALSE]
             }
             events <- potentials[, 2L]
           }
