@@ -543,7 +543,6 @@ setMethod(
         maxRadiusList <- lapply(seqNumInd, function(x) {
           ## 0.75 was the maximum that worked with 1e4 pixels, 1e2 maxRadius
           ## 0.66 was the maximum that worked with 4e6 pixels, 1.3e3 maxRadius
-          #browser(expr = x > 55)
           a <- seq(minRadius[x], maxRadius[x], by = max(0.68, 0.75 - maxRadius[x] / 3e3))
           if (a[length(a)] != maxRadius[x]) a <- c(a, maxRadius[x])
           a

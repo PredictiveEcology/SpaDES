@@ -628,7 +628,6 @@ setGeneric("P", function(sim, module = NULL, param = NULL) {
 setMethod("P",
           signature = ".simList",
           definition = function(sim, module, param) {
-            #browser()
             if (is.null(module)) {
               module <- sim@current$moduleName
             }
@@ -2846,7 +2845,7 @@ setMethod(
       x$reqdPkgs <- list()
     } else if (is.null(na.omit(x$reqdPkgs))) {
       x$reqdPkgs <- list()
-    } else if (!nzchar(na.omit(x$reqdPkgs))) {
+    } else if (any(!nzchar(na.omit(x$reqdPkgs)))) {
       x$reqdPkgs <- list()
     } else {
       loadPackages(x$reqdPkgs)

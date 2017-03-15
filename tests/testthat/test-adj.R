@@ -233,7 +233,6 @@ test_that("adj.R results not identical to adjacent", {
                   adjMat <- adj.raw(a, sam, directions = dirs, sort = sortTF, match.adjacent = ma,
                                     include = incl, target = targs,
                                     id = ids, pairs = prs, torus = tor)
-                  #browser(expr=!isTRUE(all.equal(adjMat, adjDT)))
                   #expect_true(isTRUE(all.equal(adjMat, adjDT)))
                   expect_equivalent(adjMat, adjDT)
                   #numTests <<- numTests+1
@@ -243,25 +242,20 @@ test_that("adj.R results not identical to adjacent", {
                     if (isTRUE(adj2)) {
                       if (!prs) {
                         if (ma) {
-                          #browser(expr=!isTRUE(all.equal(adjDT, adj2)))
 
                           expect_equivalent(adjDT, adj2, info = paste0("ma=", ma, ", dirs=", dirs, ", sortTF=", sortTF,
                                                                   ", incl=", incl, ", is.null(ids)=", is.null(ids),
                                                                   ", prs=", prs))
-                          #numTests <<- numTests+1
                         } else {
                           expect_equivalent(unique(sort(adjDT[, "to"])), sort(adj2))
-                          #numTests <<- numTests+1
                         }
                       } else {
                         colOrd <- if (is.null(ids)) 1:2 else c(2, 3, 1)
                         if (ma) {
                           if (!sortTF) {
                             expect_equivalent(adjDT, adj2[, colOrd])
-                            #numTests <<- numTests+1
                           } else {
                             expect_equivalent(adjDT, adj2[order(adj2[, "from"], adj2[, "to"]), colOrd])
-                            #numTests <<- numTests+1
                           }
                         } else {
                           if (!sortTF) {
