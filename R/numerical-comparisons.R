@@ -10,17 +10,20 @@
 #' @param a   lower bound (default 0)
 #' @param b   upper bound (default 1)
 #'
-#' @export
-#' @docType methods
-#' @rdname inRange
+#' @return Logical vectors. \code{NA} values in \code{x} are retained.
 #'
 #' @author Alex Chubaty
+#' @docType methods
+#' @export
+#' @importFrom raster getValues
+#' @rdname inRange
+#'
 #' @examples
 #' set.seed(100)
 #' x <- stats::rnorm(4) # -0.50219235  0.13153117 -0.07891709  0.88678481
 #' inRange(x, 0, 1)
 #'
-inRange <- function(x, a=0, b=1) {
+inRange <- function(x, a = 0, b = 1) {
   if (is.null(x)) return(NULL) # is this desired behaviour?
   if (!is.numeric(x)) {
     if (is(x, "Raster")) {
