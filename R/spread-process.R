@@ -557,8 +557,9 @@ setMethod(
       if (!is.integer(maxSize)) maxSize <- floor(maxSize)
       if (spreadStateExists) {
         sizeAll <- spreadState[, list(len = .N), by = id]
-        maxSize <- rep_len(maxSize, length(initialLoci) + NROW(sizeAll))
-        size <- c(sizeAll[, len], rep_len(1L, length(initialLoci)))
+        #maxSize <- rep_len(maxSize, length(initialLoci) + NROW(sizeAll))
+        size <- c(sizeAll[, len])#, rep_len(1L, length(initialLoci)))
+        
       } else {
         maxSize <- rep_len(maxSize, length(loci))
         size <- rep_len(1L, length(loci))
@@ -777,14 +778,12 @@ setMethod(
         }
 
         events <- potentials[, 2L]
-        #browser()
 
         if (!noMaxSize) {
-          #browser(expr=n>=48)
           if (allowOverlap | returnDistances) {
             len <- tabulate(potentials[, 3L], length(maxSize))
           } else {
-            len <- tabulate(spreads[potentials[, 1L]], length(maxSize))
+            len <- tabulate(spreads[potentials[, 1L]], length(maxSize)) # actually interested in potential[,2L], but they don't have values yet... can use their source
           }
           if ( any( (size + len) > maxSize & size <= maxSize) ) {
             whichID <- which(size + len > maxSize)
@@ -1550,7 +1549,6 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
     # m1 <- to[, c("x", "y"), drop = FALSE]
     # m2 <- from[, c("x", "y"), drop = FALSE]
     #
-    # browser(expr=NROW(m1)>500)
     # dists <- .Call("distanceToNearestPoint",
     #       m1, m2, as.integer(0), PACKAGE = "raster")
     # if (!is.na(angles)) {
