@@ -63,24 +63,22 @@ test_that("test event-level cache", {
   #                   capture_messages(sims <- spades(Copy(mySim), notOlderThan = Sys.time()))))
   sims <- spades(Copy(mySim), notOlderThan = Sys.time()) ## TO DO: fix this test
   landscapeObjHash <- digest::digest(SpaDES:::makeDigestible(
-    raster::dropLayer(sims$landscape, "Fires")), algo= "xxhash64")
+    raster::dropLayer(sims$landscape, "Fires")), algo = "xxhash64")
   firesHash <- digest::digest(object = SpaDES:::makeDigestible(
     sims$landscape$Fires), algo = "xxhash64")
 
-  # R-devel as of Jan 28, 2017 has a different hash than all other versions (2nd hash below)
   expect_true(any(c("1dba95f5f30da56f") %in% landscapeObjHash))
   expect_true(any(c("40ee768c2ff2b2dc") %in% firesHash))
 
   mess1 <- capture_messages(sims <- spades(Copy(mySim)))
   expect_true(any(grepl(pattern = "Using cached copy of init event in randomLandscapes module", mess1)))
   landscapeObjHash <- digest::digest(SpaDES:::makeDigestible(
-    raster::dropLayer(sims$landscape, "Fires")), algo= "xxhash64")
+    raster::dropLayer(sims$landscape, "Fires")), algo = "xxhash64")
   firesHash <- digest::digest(object = SpaDES:::makeDigestible(
     sims$landscape$Fires), algo = "xxhash64")
 
-  # R-devel as of Jan 28, 2017 has a different hash than all other versions (2nd hash below)
   expect_true(any(c("1dba95f5f30da56f") %in% landscapeObjHash))
-  expect_false(any(c("40ee768c2ff2b2dc") %in% firesHash))# The non cached stuff goes ahead as normal
+  expect_false(any(c("40ee768c2ff2b2dc") %in% firesHash)) # The non cached stuff goes ahead as normal
 
   clearCache(sims)
 })
@@ -118,35 +116,37 @@ test_that("test module-level cache", {
   pdf(tmpfile)
   #expect_true(!grepl(pattern = "Using cached copy of init event in randomLandscapes module",
   #                   capture_messages(sims <- spades(Copy(mySim), notOlderThan = Sys.time()))))
-  sims <- spades(Copy(mySim), notOlderThan = Sys.time()) ## TO DO: fix this test
+  sims <- spades(Copy(mySim), notOlderThan = Sys.time())
+  dev.off()
+
+  expect_true(file.info(tmpfile)$size > 20000)
+  unlink(tmpfile)
+
   landscapeObjHash <- digest::digest(SpaDES:::makeDigestible(
-    raster::dropLayer(sims$landscape, "Fires")), algo= "xxhash64")
+    raster::dropLayer(sims$landscape, "Fires")), algo = "xxhash64")
   firesHash <- digest::digest(object = SpaDES:::makeDigestible(
     sims$landscape$Fires), algo = "xxhash64")
 
-  # R-devel as of Jan 28, 2017 has a different hash than all other versions (2nd hash below)
   expect_true(any(c("1dba95f5f30da56f") %in% landscapeObjHash))
   expect_true(any(c("40ee768c2ff2b2dc") %in% firesHash))
-  dev.off()
-  expect_true(file.info(tmpfile)$size > 20000)
-  unlink(tmpfile)
 
   # The cached version will be identical for both events (init and plot), but will not actually
   # complete the plot, because plotting isn't cacheable
   pdf(tmpfile)
   mess1 <- capture_messages(sims <- spades(Copy(mySim)))
+  dev.off()
+
+  expect_true(file.info(tmpfile)$size < 10000)
+  unlink(tmpfile)
+
   expect_true(any(grepl(pattern = "Using cached copy of init event in randomLandscapes module", mess1)))
   landscapeObjHash <- digest::digest(SpaDES:::makeDigestible(
-    raster::dropLayer(sims$landscape, "Fires")), algo= "xxhash64")
+    raster::dropLayer(sims$landscape, "Fires")), algo = "xxhash64")
   firesHash <- digest::digest(object = SpaDES:::makeDigestible(
     sims$landscape$Fires), algo = "xxhash64")
 
-  # R-devel as of Jan 28, 2017 has a different hash than all other versions (2nd hash below)
   expect_true(any(c("1dba95f5f30da56f") %in% landscapeObjHash))
   expect_false(any(c("40ee768c2ff2b2dc") %in% firesHash)) # The non cached stuff goes ahead as normal
-  dev.off()
-  expect_true(file.info(tmpfile)$size < 10000)
-  unlink(tmpfile)
 
   clearCache(sims)
 })
