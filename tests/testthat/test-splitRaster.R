@@ -147,7 +147,7 @@ test_that("splitRaster works in parallel", {
     tmpdir <- file.path(tempdir(), "splitRaster-test-parallel") %>% checkPath(create = TRUE)
 
     on.exit({
-      detach("package:raster")
+      #detach("package:raster")
       unlink(tmpdir, recursive = TRUE)
     }, add = TRUE)
 
