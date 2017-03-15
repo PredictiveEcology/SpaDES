@@ -206,7 +206,7 @@ setMethod(
   "loadPackages",
   signature = "character",
   definition = function(packageList, install, quiet) {
-    packageList <- na.omit(packageList) %>% as.character
+    packageList <- na.omit(packageList) %>% as.character()
     if (length(packageList)) {
       if (install) {
         repos <- getOption("repos")
@@ -218,8 +218,13 @@ setMethod(
         install.packages(toInstall, repos = repos)
       }
 
-      loaded <- suppressMessages(sapply(packageList, require, character.only = TRUE, quiet = TRUE,
-                       warn.conflicts = FALSE))
+      loaded <- suppressMessages(sapply(packageList, require, character.only = TRUE,
+                                        quiet = TRUE, warn.conflicts = FALSE))
+
+      if (any(!loaded)) {
+        stop("Some packages required for the simulation are not installed:\n",
+             "    ", paste(names(loaded[-which(loaded)]), collapse = "\n    "))
+      }
 
       if (!quiet) {
         message(paste("Loaded", length(which(loaded == TRUE)), "of",
