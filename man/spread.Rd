@@ -322,6 +322,7 @@ library(raster)
 library(RColorBrewer)
 
 # Make random forest cover map
+set.seed(123)
 emptyRas <- raster(extent(0, 1e2, 0, 1e2), res = 1)
 hab <- randomPolygons(emptyRas, numTypes = 40)
 names(hab) <- "hab"
@@ -556,12 +557,14 @@ dev();
 seed <- sample(1e6,1)
 #seed <- 576534
 set.seed(seed); print(seed)
+startCells <- startCells[1:4]
 maxSizes <- rexp(length(startCells), rate = 1 / 500)
 fires <- spread(hab, loci = startCells, 1, persistence = 0,
                 neighProbs = c(0.5, 0.5, 0.5) / 1.5,
                 mask = NULL, maxSize = maxSizes, directions = 8,
                 iterations = 1e6, id = TRUE, plot.it = FALSE, exactSizes = TRUE);
-table(fires[fires > 0][]) < floor(maxSizes);
+all(table(fires[fires > 0][]) == floor(maxSizes))
+
 if (interactive()) {
   clearPlot()
   Plot(fires, new = TRUE, cols = c("red", "yellow"), zero.color = "white")
@@ -576,7 +579,7 @@ if (interactive()) {
 ##  to move to 2 new pixels (prob = 0 for 1 neighbour, prob = 1 for 2 neighbours)
 ##  Note: set hab3 to be very distinct probability differences, to detect spread
 ##  differences
-hab3 <- (hab > 20) * 200 + 1
+hab3 <- (hab < 20) * 200 + 1
 seed <- 643503
 set.seed(seed)
 sam <- sample(which(hab3[] == 1), 1)
@@ -594,11 +597,12 @@ if (interactive()) {
   Plot(hist(table(events1[][events1[] > 0]), breaks = 30), title = "Event size distribution")
 # Check that events1 resulted in higher hab3 pixels overall
 }
-# Compare outputs -- many more high value hab pixels spread to in event1
+# Compare outputs -- should be more high value hab pixels spread to in event1
+#  (randomness may prevent this in all cases)
 hab3[events1[] > 0]
 hab3[events2[] > 0]
 
-sum(hab3[events1[] > 0]) >= sum(hab3[events2[] > 0]) ## should be TRUE
+sum(hab3[events1[] > 0]) >= sum(hab3[events2[] > 0]) ## should be usually TRUE
 }
 \seealso{
 \code{\link{rings}} which uses \code{spread} but with specific argument

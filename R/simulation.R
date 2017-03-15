@@ -810,7 +810,7 @@ setMethod(
     checkParams(sim, core, dotParams, sim@paths[["modulePath"]])
 
     # keep session info for debugging & checkpointing
-    sim$.sessionInfo <- sessionInfo()
+    #sim$.sessionInfo <- sessionInfo()
 
     return(invisible(sim))
 })

@@ -213,7 +213,8 @@ setMethod(
       archivist::createLocalRepo(cacheRepo)
     }
 
-    whRas <- which(sapply(tmpl, function(x) is(x, "Raster")))
+    whRasOrSpatial <- which(sapply(tmpl, function(x) {is(x, "Raster")| is(x, "Spatial")}))
+    whSpatial <- which(sapply(tmpl, function(x) is(x, "Spatial")))
     whFun <- which(sapply(tmpl, function(x) is.function(x) | is(x, "expression")))
     whFilename <- which(sapply(tmpl, function(x) is.character(x)))
     if(length(whFilename)>0) {
@@ -265,7 +266,7 @@ setMethod(
       tmpl$.FUN <- format(FUN) # This is changed to allow copying between computers
     }
 
-    if (length(whRas) > 0) tmpl[whRas] <- lapply(tmpl[whRas], makeDigestible,
+    if (length(whRasOrSpatial) > 0) tmpl[whRasOrSpatial] <- lapply(tmpl[whRasOrSpatial], makeDigestible,
                                                  compareRasterFileLength = compareRasterFileLength)
     if (length(whCluster) > 0) tmpl[whCluster] <- NULL
     if (length(whFun) > 0) tmpl[whFun] <- lapply(tmpl[whFun], format)
@@ -522,7 +523,7 @@ setMethod(
       # Remove the NULL entries in the @.list
 
       envirHash <- envirHash[!sapply(envirHash, is.null)]
-      envirHash <- sortDotsFirst(envirHash)
+      envirHash <- sortDotsUnderscoreFirst(envirHash)
 
       # Convert to a simList_ to remove the .envir slot
       object <- as(object, "simList_")
@@ -534,9 +535,17 @@ setMethod(
       object@paths <- list()
       object@outputs$file <- basename(object@outputs$file)
       object@inputs$file <- basename(object@inputs$file)
+      deps <- object@depends@dependencies
+      for (i in seq_along(deps)) {
+        if(!is.null(deps[[i]])) {
+          object@depends@dependencies[[i]] <- lapply(slotNames(object@depends@dependencies[[i]]), function(x) slot(object@depends@dependencies[[i]],x))
+          names(object@depends@dependencies[[i]]) <- slotNames(deps[[i]])
+          object@depends@dependencies[[i]][["timeframe"]] <- as.Date(deps[[i]]@timeframe)
+        }
+      }
 
       # Sort the params and .list with dots first, to allow Linux and Windows to be compatible
-      object@params <- lapply(object@params, function(x) sortDotsFirst(x))
+      object@params <- lapply(object@params, function(x) sortDotsUnderscoreFirst(x))
 
       return(object)
 })
