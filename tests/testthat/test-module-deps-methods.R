@@ -1,5 +1,6 @@
 test_that("defineModule correctly handles different inputs", {
   tmp <- simInit()
+  library(dplyr)
 
   # check empty metadata
   x0 <- list()

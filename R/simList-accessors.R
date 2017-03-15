@@ -2846,7 +2846,7 @@ setMethod(
       x$reqdPkgs <- list()
     } else if (is.null(na.omit(x$reqdPkgs))) {
       x$reqdPkgs <- list()
-    } else if (!nzchar(na.omit(x$reqdPkgs))) {
+    } else if (any(!nzchar(na.omit(x$reqdPkgs)))) {
       x$reqdPkgs <- list()
     } else {
       loadPackages(x$reqdPkgs)
