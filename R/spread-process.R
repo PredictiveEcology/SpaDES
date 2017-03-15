@@ -803,8 +803,6 @@ setMethod(
           size <- pmin(size + len, maxSize) ## Quick? and dirty. fast but loose (too flexible)
         }
 
-        message(length(size), " fires burning")
-        
         # Implement stopRule section
         if (is.function(stopRule) & length(events) > 0) {
           if (allowOverlap | returnDistances) {
