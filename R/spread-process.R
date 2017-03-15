@@ -803,6 +803,8 @@ setMethod(
           size <- pmin(size + len, maxSize) ## Quick? and dirty. fast but loose (too flexible)
         }
 
+        message(length(size), " fires burning")
+        
         # Implement stopRule section
         if (is.function(stopRule) & length(events) > 0) {
           if (allowOverlap | returnDistances) {
@@ -814,7 +816,6 @@ setMethod(
                                 cells = events, prev = 0)
           } else {
             #whgtZero <- which(spreads > 0)
-            #browser(expr = (!isTRUE(all.equal(which(spreads > 0), sort(spreadsIndices)))))
             whgtZero <- spreadsIndices
             prevCells <- cbind(id = spreads[whgtZero],
                                landscape = if (LandRasNeeded) landRas[whgtZero] else NULL,
@@ -928,6 +929,7 @@ setMethod(
             }
             spreadsIndices <- unname(c(spreadsIndices, events))
           }
+          spreadsIndices <- unname(c(spreadsIndices, events))
         }
 
         # remove the cells from "events" that push it over maxSize
@@ -1065,7 +1067,8 @@ setMethod(
         allCells <- data.table(spreads[, keepCols]) # change column order to match non allowOverlap
         set(allCells, , j = "active", as.logical(allCells$active))
       } else {
-        allCells <- rbindlist(list(completed, active))
+        allCells <- rbindlist(list(active, completed)) # active first, so next line will keep active
+        allCells <- allCells[!duplicated(allCells$indices)] # some "completed" cells are still active. Keep the active ones.
         # setkeyv(completed, c("id","indices"))
         # setkeyv(active, c("id","indices"))
         # allCells <- completed[active, active := TRUE] #rbindlist(list(completed, active)) # not a copy
