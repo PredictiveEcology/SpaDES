@@ -948,7 +948,7 @@ setMethod(
             rm(whichID)
           }
         } else {
-          if (size >= maxSize) {
+          if (all(size >= maxSize)) {
             events <- NULL
           }
         }
