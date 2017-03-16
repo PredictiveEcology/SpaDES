@@ -559,7 +559,7 @@ setMethod(
         sizeAll <- spreadState[, list(len = .N), by = id]
         #maxSize <- rep_len(maxSize, length(initialLoci) + NROW(sizeAll))
         size <- c(sizeAll[, len])#, rep_len(1L, length(initialLoci)))
-        
+
       } else {
         maxSize <- rep_len(maxSize, length(loci))
         size <- rep_len(1L, length(loci))
@@ -927,7 +927,7 @@ setMethod(
             }
             spreadsIndices <- unname(c(spreadsIndices, events))
           }
-          spreadsIndices <- unname(c(spreadsIndices, events))
+          #spreadsIndices <- unname(c(spreadsIndices, events))
         }
 
         # remove the cells from "events" that push it over maxSize
