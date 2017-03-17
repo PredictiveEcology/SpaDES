@@ -84,11 +84,11 @@ License: GPL-3
 VignetteBuilder: knitr, rmarkdown
 BugReports: https://github.com/PredictiveEcology/SpaDES/issues
 ByteCompile: yes
-Collate:
+Collate: 
     'priority.R'
     'environment.R'
-    'misc-methods.R'
     'module-dependencies-class.R'
+    'misc-methods.R'
     'helpers.R'
     'simList-class.R'
     'POM.R'
@@ -98,10 +98,14 @@ Collate:
     'check.R'
     'checkpoint.R'
     'copy.R'
+    'dwdData.R'
     'experiment.R'
+    'hList.R'
     'initialize.R'
+    'listWebData.R'
     'simulation.R'
     'load.R'
+    'logChecksum.R'
     'mapReduce.R'
     'mergeRaster.R'
     'module-dependencies-methods.R'
@@ -129,5 +133,7 @@ Collate:
     'spades-package.R'
     'splitRaster.R'
     'spread-process.R'
+    'untarDwd.R'
+    'unzipDwd.R'
     'zzz.R'
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.0

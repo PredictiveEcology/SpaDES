@@ -4,19 +4,21 @@
 \name{Cache}
 \alias{Cache}
 \alias{Cache,ANY-method}
-\alias{cache}
-\alias{cache,ANY-method}
 \alias{clearCache}
 \alias{clearCache,ANY-method}
 \alias{showCache}
 \alias{showCache,ANY-method}
+\alias{cache}
+\alias{cache,ANY-method}
 \title{Cache method that accomodates environments, S4 methods, Rasters}
 \usage{
 Cache(FUN, ..., notOlderThan = NULL, objects = NULL, outputObjects = NULL,
-  algo = "xxhash32", cacheRepo = NULL)
+  algo = "xxhash32", cacheRepo = NULL, sideEffect = FALSE,
+  makeCopy = FALSE, quick)
 
 \S4method{Cache}{ANY}(FUN, ..., notOlderThan = NULL, objects = NULL,
-  outputObjects = NULL, algo = "xxhash32", cacheRepo = NULL)
+  outputObjects = NULL, algo = "xxhash32", cacheRepo = NULL,
+  sideEffect = FALSE, makeCopy = FALSE, quick)
 
 clearCache(sim, afterDate, beforeDate, cacheRepo, ...)
 
@@ -57,6 +59,16 @@ return. This is only relevant for \code{simList} objects}
 
 \item{cacheRepo}{A repository used for storing cached objects. This is optional
 if \code{Cache} is used inside a SpaDES module.}
+
+\item{sideEffect}{A logical argument indicating if downloaded files are found locally using
+filename and checksum. When absent, files are recovered from the copy stored in cacheRepo/gallery.}
+
+\item{makeCopy}{A logical argument indicating if a copy of the downloaded files should be stored in the cacheRepo/gallery directory.
+This allow to recover a copy faster than running the function if files are not found locally.
+Only work when cache run for the first time for now.}
+
+\item{quick}{A logical argument indicating if checksum should be made on file (FALSE) or on character string
+representing the combination of the filename and its size (TRUE). Default is TRUE}
 
 \item{sim}{A \code{simList} simulation object, generally produced by \code{simInit}.}
 
@@ -178,6 +190,7 @@ be a slight change to a function call, such as:
 to
 \code{Cache(projectRaster, raster, crs = crs(newRaster))}
 }
+
 \examples{
 \dontrun{
 mySim <- simInit(times=list(start=0.0, end=5.0),
@@ -237,12 +250,11 @@ clearCache(mySim)
 showCache(mySim)
 }
 }
-\author{
-Eliot McIntire
-}
 \seealso{
 \code{\link[archivist]{cache}}.
 
 \code{\link[archivist]{splitTagsLocal}}.
 }
-
+\author{
+Eliot McIntire
+}
