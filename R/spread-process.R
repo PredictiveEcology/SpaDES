@@ -411,7 +411,7 @@ setMethod(
 
     ncells <- ncell(landscape)
 
-    if (allowOverlap | returnDistances) {
+    if (allowOverlap | returnDistances | spreadStateExists) {
       if (spreadStateExists) {
         spreads <- as.matrix(spreadState[,list(initialLocus, indices, id, active)])
 
@@ -483,7 +483,7 @@ setMethod(
       landRas <- landscape[] # For speed
     }
 
-    if (!allowOverlap & !returnDistances) {
+    if (!allowOverlap & !returnDistances & !spreadStateExists) {
       if (id | returnIndices | relativeSpreadProb) {
         if (spreadStateExists) {
           spreads[spreadState$indices] <- spreadState$id
@@ -500,9 +500,12 @@ setMethod(
     # Convert mask and NAs to 0 on the spreadProb Raster
     if (is(spreadProb, "Raster")) {
       # convert NA to 0s
-      isNASpreadProb <- is.na(spreadProb[])
-      if (any(isNASpreadProb))
+      #isNASpreadProb <- is.na(spreadProb[])
+      if (anyNA(spreadProb[])) {
+        isNASpreadProb <- is.na(spreadProb[])
         spreadProb[isNASpreadProb] <- 0L
+      }
+
     } else if (is.numeric(spreadProb)) {
       # Translate numeric spreadProb into a Raster, if there is a mask
       if (is(mask, "Raster")) {
@@ -514,11 +517,13 @@ setMethod(
     if (is(spreadProbLater, "Raster")) {
       # convert NA to 0s
       if (!spreadProbLaterExists) {
-        isNASpreadProbLater <- isNASpreadProb
+        if(exists("isNASpreadProb", inherits = FALSE))
+          isNASpreadProbLater <- isNASpreadProb
       } else {
-        isNASpreadProbLater <- is.na(spreadProbLater[])
+        if(anyNA(spreadProbLater[]))
+          isNASpreadProbLater <- is.na(spreadProbLater[])
       }
-      if (any(isNASpreadProbLater)) spreadProbLater[isNASpreadProbLater] <- 0L
+      if (exists("isNASpreadProbLater", inherits = FALSE)) spreadProbLater[isNASpreadProbLater] <- 0L
 
     } else if (is.numeric(spreadProbLater)) {
        # Translate numeric spreadProbLater into a Raster, if there is a mask
@@ -589,7 +594,7 @@ setMethod(
       }
 
       # identify neighbours
-      if (allowOverlap | returnDistances) {
+      if (allowOverlap | returnDistances | spreadStateExists) {
         whActive <- spreads[,"active"] == 1 # spreads carries over
         potentials <- adj(landscape, loci, directions, pairs = TRUE,
                           id = spreads[whActive, "id"])#, numNeighs = numNeighs)
@@ -611,7 +616,7 @@ setMethod(
         potentials <- cbind(potentials, dists = 0)
 
       # keep only neighbours that have not been spread to yet
-      if (allowOverlap | returnDistances) {
+      if (allowOverlap | returnDistances | spreadStateExists) {
         colnames(potentials) <- colnames(spreads)
         potentials[, "initialLocus"] <- initialLoci[potentials[, "id"]]
         d <- rbind(spreads, potentials)
@@ -907,9 +912,9 @@ setMethod(
 
         if (length(events) > 0) {
           # place new value at new cells that became active
-          if (allowOverlap | returnDistances) {
+          if (allowOverlap | returnDistances | spreadStateExists) {
             spreads <- rbind(spreads, potentials)
-            if (returnDistances & !allowOverlap) {
+            if ((returnDistances | spreadStateExists) & !allowOverlap) {
               # 2nd place where allowOverlap and returnDistances differ
               notDups <- !duplicated(spreads[, "indices"])
               nrSpreads <- NROW(spreads)
@@ -1020,7 +1025,7 @@ setMethod(
     } # end of while loop
 
     # Convert the data back to raster
-    if (!allowOverlap & !returnDistances) {
+    if (!allowOverlap & !returnDistances & !spreadStateExists) {
       if (lowMemory) {
         wh <- ffwhich(spreads, spreads > 0) %>% as.ram
         if (returnIndices) {
@@ -1059,7 +1064,7 @@ setMethod(
     }
 
     if (returnIndices) {
-      if (allowOverlap | returnDistances) {
+      if (allowOverlap | returnDistances | spreadStateExists) {
         keepCols <- c(3, 1, 2, 4)
         if (circle) keepCols <- c(keepCols, 5)
         allCells <- data.table(spreads[, keepCols]) # change column order to match non allowOverlap
