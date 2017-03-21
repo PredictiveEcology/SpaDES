@@ -571,15 +571,18 @@ setMethod(
   definition = function(object, compareRasterFileLength) {
 
     if (is(object, "RasterStack") | is(object, "RasterBrick")) {
-      dig <- list(dim(object), res(object), crs(object), extent(object),
-                  lapply(object@layers, function(yy) yy@data))
+      dig <- suppressWarnings(list(dim(object), res(object), crs(object), extent(object),
+                  lapply(object@layers, function(yy) {
+                    digest::digest(yy@data, length = compareRasterFileLength)
+                    })))
       if (nchar(object@filename) > 0) {
         # if the Raster is on disk, has the first compareRasterFileLength characters;
         # uses SpaDES:::digest on the file
         dig <- append(dig, digest(file = object@filename, length = compareRasterFileLength))
       }
     } else {
-      dig <- list(dim(object), res(object), crs(object), extent(object), object@data)
+      dig <- suppressWarnings(list(dim(object), res(object), crs(object), extent(object),
+                  digest::digest(object@data, length = compareRasterFileLength)))
       if (nchar(object@file@name) > 0) {
         # if the Raster is on disk, has the first compareRasterFileLength characters;
         # uses SpaDES:::digest on the file
