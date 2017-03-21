@@ -337,6 +337,10 @@ setMethod(
     written <- FALSE
     if (is(outputToSave, "Raster")) {
       outputToSave <- prepareFileBackedRaster(outputToSave, repoDir = cacheRepo)#, archiveData = TRUE,
+      attr(outputToSave, "tags") <- attr(output, "tags")
+      attr(outputToSave, "call") <- attr(output, "call")
+      if (isS4(FUN))
+        attr(outputToSave, "function") <- attr(output, "function")
       output <- outputToSave
       #archiveSessionInfo = FALSE,
       #archiveMiniature = FALSE, rememberName = FALSE, silent = TRUE)
@@ -395,6 +399,17 @@ setMethod(
 
     objs <- searchInLocalRepo(pattern = list(dateFrom = afterDate, dateTo = beforeDate),
                               repoDir = cacheRepo)
+    objsDT <- data.table(artifact = objs, key = "artifact")
+    allCacheDT <- data.table(showCache(cacheRepo = cacheRepo), key = "artifact")
+    rastersInRepo <- objsDT[allCacheDT][pmatch(table = tagValue, "Raster")]
+    if(all(!is.na(rastersInRepo$artifact))) {
+      rasters <- lapply(rastersInRepo$artifact, function(ras) {
+        loadFromLocalRepo(ras, repoDir = cacheRepo, value = TRUE)
+      })
+      filesToRemove <- unlist(lapply(rasters, function(x) filename(x)))
+      unlink(filesToRemove)
+    }
+
     rmFromLocalRepo(objs, cacheRepo, many = TRUE)
   })
 
@@ -669,13 +684,19 @@ setMethod(
 #'
 prepareFileBackedRaster <- function(obj, repoDir = NULL, compareRasterFileLength = 1e6, ...) {
   if (!inMemory(obj)) {
+    isFilebacked <- TRUE
     curFilename <- normalizePath(filename(obj), winslash = "/")
+  } else {
+    isFilebacked <- FALSE
+    curFilename <- basename(tempfile(pattern = "raster",fileext = ".tif", tmpdir = ""))
+  }
 
-    saveFilename <- file.path(repoDir, "rasters", basename(curFilename)) %>%
-      normalizePath(., winslash = "/", mustWork = FALSE)
+  saveFilename <- file.path(repoDir, "rasters", basename(curFilename)) %>%
+    normalizePath(., winslash = "/", mustWork = FALSE)
 
-    if (saveFilename != curFilename) {
-      shouldCopy <- TRUE
+  if (saveFilename != curFilename) {
+    if(isFilebacked) {
+        shouldCopy <- TRUE
       if (file.exists(saveFilename)) {
         if (!(compareRasterFileLength == Inf)) {
           if (digest(file = saveFilename, length = compareRasterFileLength) ==
@@ -703,7 +724,11 @@ prepareFileBackedRaster <- function(obj, repoDir = NULL, compareRasterFileLength
         }
       }
       slot(slot(obj, "file"), "name") <- saveFilename
+    } else {
+      checkPath(dirname(saveFilename), create = TRUE)
+      obj <- writeRaster(obj, filename = saveFilename, datatype = dataType(obj))
     }
+
   } else {
     saveFilename <- slot(slot(obj, "file"), "name")
   }
