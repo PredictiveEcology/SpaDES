@@ -179,7 +179,7 @@
 #'
 setGeneric("Cache", signature = "...",
            function(FUN, ..., notOlderThan = NULL,
-                    objects = NULL, outputObjects = NULL, algo = "xxhash32",
+                    objects = NULL, outputObjects = NULL, algo = "xxhash64",
                     cacheRepo = NULL, compareRasterFileLength = 1e6) {
              archivist::cache(cacheRepo, FUN, ..., notOlderThan, algo)
 })
@@ -648,7 +648,7 @@ setMethod(
 #' @rdname cache
 setGeneric("cache", signature = "...",
            function(cacheRepo = NULL, FUN, ..., notOlderThan = NULL,
-                    objects = NULL, outputObjects = NULL, algo = "xxhash32") {
+                    objects = NULL, outputObjects = NULL, algo = "xxhash64") {
              archivist::cache(cacheRepo, FUN, ..., notOlderThan, algo)
 })
 

@@ -13,10 +13,10 @@
 \title{Cache method that accomodates environments, S4 methods, Rasters}
 \usage{
 Cache(FUN, ..., notOlderThan = NULL, objects = NULL, outputObjects = NULL,
-  algo = "xxhash32", cacheRepo = NULL, compareRasterFileLength = 1e+06)
+  algo = "xxhash64", cacheRepo = NULL, compareRasterFileLength = 1e+06)
 
 \S4method{Cache}{ANY}(FUN, ..., notOlderThan = NULL, objects = NULL,
-  outputObjects = NULL, algo = "xxhash32", cacheRepo = NULL,
+  outputObjects = NULL, algo = "xxhash64", cacheRepo = NULL,
   compareRasterFileLength = 1e+06)
 
 clearCache(sim, afterDate, beforeDate, cacheRepo, ...)
@@ -28,10 +28,10 @@ showCache(sim, cacheRepo, ...)
 \S4method{showCache}{ANY}(sim, cacheRepo, ...)
 
 cache(cacheRepo = NULL, FUN, ..., notOlderThan = NULL, objects = NULL,
-  outputObjects = NULL, algo = "xxhash32")
+  outputObjects = NULL, algo = "xxhash64")
 
 \S4method{cache}{ANY}(cacheRepo = NULL, FUN, ..., notOlderThan = NULL,
-  objects = NULL, outputObjects = NULL, algo = "xxhash32")
+  objects = NULL, outputObjects = NULL, algo = "xxhash64")
 }
 \arguments{
 \item{FUN}{A function to be called.}
