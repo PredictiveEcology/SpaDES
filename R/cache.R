@@ -1,3 +1,6 @@
+if (getRversion() >= "3.1.0") {
+  utils::globalVariables(c("tagValue"))
+}
 ################################################################################
 #' Cache method that accomodates environments, S4 methods, Rasters
 #'
@@ -679,7 +682,7 @@ setMethod(
 #' @return A raster object and its file backing will be passed to the archivist repository.
 #'
 #' @importFrom digest digest
-#' @importFrom raster filename
+#' @importFrom raster filename dataType
 #'
 #' @docType methods
 #' @author Eliot McIntire
