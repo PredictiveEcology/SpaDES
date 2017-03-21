@@ -12,4 +12,3 @@ patchSize(patches)
 \description{
 Patch size
 }
-

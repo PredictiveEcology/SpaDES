@@ -2,19 +2,19 @@
 % Please edit documentation in R/neighbourhood.R
 \docType{methods}
 \name{adj.raw}
-\alias{adj}
 \alias{adj.raw}
+\alias{adj}
 \title{Fast `adjacent` function, and Just In Time compiled version}
 \usage{
 adj.raw(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
   include = FALSE, target = NULL, numCol = NULL, numCell = NULL,
   match.adjacent = FALSE, cutoff.for.data.table = 10000, torus = FALSE,
-  id = NULL)
+  id = NULL, numNeighs = NULL)
 
 adj(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
   include = FALSE, target = NULL, numCol = NULL, numCell = NULL,
   match.adjacent = FALSE, cutoff.for.data.table = 10000, torus = FALSE,
-  id = NULL)
+  id = NULL, numNeighs = NULL)
 }
 \arguments{
 \item{x}{Raster* object for which adjacency will be calculated.}
@@ -54,6 +54,10 @@ faster with large numbers of cells.}
 Default is FALSE.}
 
 \item{id}{numeric If not NULL, then function will return "id" column. Default NULL.}
+
+\item{numNeighs}{A numeric scalar, indicating how many neighbours to return. Must be
+less than or equal to \code{directions}; which neighbours are random
+with equal probabilities.}
 }
 \value{
 a matrix of one or two columns, from and to.
@@ -95,10 +99,9 @@ adj.new <- adj(numCol = numCol, numCell = numCell, cells = sam, directions = 8,
   include = TRUE)
 
 }
-\author{
-Eliot McIntire
-}
 \seealso{
 \code{\link[raster]{adjacent}}
 }
-
+\author{
+Eliot McIntire
+}

@@ -126,4 +126,3 @@ if (interactive()) {
 \author{
 Eliot McIntire
 }
-

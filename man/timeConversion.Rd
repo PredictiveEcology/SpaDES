@@ -2,19 +2,19 @@
 % Please edit documentation in R/times.R
 \docType{methods}
 \name{inSeconds}
-\alias{.spadesTimes}
-\alias{checkTimeunit}
-\alias{checkTimeunit,character,environment-method}
-\alias{checkTimeunit,character,missing-method}
+\alias{inSeconds}
+\alias{inSeconds,character,environment-method}
+\alias{inSeconds,NULL,missing-method}
+\alias{inSeconds,character,missing-method}
 \alias{convertTimeunit}
 \alias{convertTimeunit,numeric,character,environment-method}
-\alias{convertTimeunit,numeric,character,missing-method}
 \alias{convertTimeunit,numeric,missing,missing-method}
-\alias{inSeconds}
-\alias{inSeconds,NULL,missing-method}
-\alias{inSeconds,character,environment-method}
-\alias{inSeconds,character,missing-method}
+\alias{convertTimeunit,numeric,character,missing-method}
+\alias{.spadesTimes}
 \alias{spadesTimes}
+\alias{checkTimeunit}
+\alias{checkTimeunit,character,missing-method}
+\alias{checkTimeunit,character,environment-method}
 \title{Convert time units}
 \format{An object of class \code{character} of length 6.}
 \usage{
@@ -90,4 +90,3 @@ Alex Chubaty & Eliot McIntire
 Eliot McIntire
 }
 \keyword{datasets}
-

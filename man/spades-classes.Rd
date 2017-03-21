@@ -36,10 +36,10 @@ are therefore intended for internal use only.
   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 }
-\author{
-Eliot McIntire and Alex Chubaty
-}
+
 \seealso{
 \code{\link{Plot}}, \code{\link{simInit}}
 }
-
+\author{
+Eliot McIntire and Alex Chubaty
+}

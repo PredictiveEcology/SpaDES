@@ -33,4 +33,3 @@ paddedFloatToChar(1.25, padL = 3, padR = 5)
 \author{
 Eliot McIntire and Alex Chubaty
 }
-

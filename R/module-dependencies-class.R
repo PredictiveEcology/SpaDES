@@ -38,7 +38,7 @@ setMethod(".inputObjects",
           definition = function() {
             in.df <- data.frame(
               objectName = character(0), objectClass = character(0),
-              sourceURL = character(0), other = character(0),
+              desc = character(0), sourceURL = character(0), 
               stringsAsFactors = FALSE
             )
             return(in.df)
@@ -55,7 +55,7 @@ setMethod(".outputObjects",
           definition = function() {
             out.df <- data.frame(
               objectName = character(0), objectClass = character(0),
-              other = character(0), stringsAsFactors = FALSE
+              desc = character(0), stringsAsFactors = FALSE
             )
             return(out.df)
 })
@@ -165,14 +165,14 @@ setClass(
     # data.frame checking
     if (length(object@inputObjects) < 1L) stop("input object name and class must be specified, or NA.")
     if (length(object@outputObjects) < 1L) stop("output object name and class must be specified, or NA.")
-    if ( !all(c("objectName", "objectClass", "other") %in% colnames(object@inputObjects)) ) {
-      stop("input object data.frame must use colnames objectName, objectClass, and other.")
+    if ( !all(names(.inputObjects()) %in% colnames(object@inputObjects)) ) {
+      stop(paste("input object data.frame must use colnames", paste(collapse = ", ", colnames(.inputObjects()) )))
     }
-    if ( !("sourceURL" %in% colnames(object@inputObjects)) ) {
-      warning("input object data.frame should use colnames sourceURL.")
-    }
-    if ( !all(c("objectName", "objectClass", "other") %in% colnames(object@outputObjects)) ) {
-     stop("output object data.frame must use colnames objectName, objectClass, and other.")
+    # if ( !("sourceURL" %in% colnames(object@inputObjects)) ) {
+    #   warning("input object data.frame should use colnames sourceURL.")
+    # }
+    if ( !all(colnames(.outputObjects()) %in% colnames(object@outputObjects)) ) {
+     stop(paste("output object data.frame must use colnames", paste(collapse = ", ", colnames(.outputObjects()))))
     }
     # try coercing to character because if data.frame was created without specifying
     # `stringsAsFactors=FALSE`, or used `NA` (logical) there will be problems...
@@ -186,7 +186,7 @@ setClass(
       object@inputObjects$sourceURL <- as.character(object@inputObjects$sourceURL)
     }
     if (!is.character(object@inputObjects$other)) {
-     object@inputObjects$other <- as.character(object@inputObjects$other)
+     object@inputObjects$desc <- as.character(object@inputObjects$desc)
     }
     if (!is.character(object@outputObjects$objectName)) {
      object@outputObjects$objectName <- as.character(object@outputObjects$objectName)
@@ -194,8 +194,8 @@ setClass(
     if (!is.character(object@outputObjects$objectClass)) {
      object@outputObjects$objectClass <- as.character(object@outputObjects$objectClass)
     }
-    if (!is.character(object@outputObjects$other)) {
-     object@outputObjects$other <- as.character(object@outputObjects$other)
+    if (!is.character(object@outputObjects$desc)) {
+     object@outputObjects$desc <- as.character(object@outputObjects$desc)
     }
 })
 

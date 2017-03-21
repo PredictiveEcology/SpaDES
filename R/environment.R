@@ -20,6 +20,8 @@
 #'
 #' @param ... Additional arguments to pass to \code{assign}.
 #'
+#' @return Only used for its side effect, namely the object assigned to the \code{.spadesEnv}
+#'
 #' @docType methods
 #' @keywords internal
 #' @rdname assignSpaDES

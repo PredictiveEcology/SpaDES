@@ -4,9 +4,9 @@
 \name{openModules}
 \alias{openModules}
 \alias{openModules,character,character-method}
-\alias{openModules,character,missing-method}
-\alias{openModules,missing,character-method}
 \alias{openModules,missing,missing-method}
+\alias{openModules,missing,character-method}
+\alias{openModules,character,missing-method}
 \alias{openModules,simList,missing-method}
 \title{Open all modules nested within a base directory}
 \usage{
@@ -50,4 +50,3 @@ is provided.
 \author{
 Eliot McIntire
 }
-

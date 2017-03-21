@@ -32,4 +32,3 @@ they will be opened too.
 \author{
 Eliot McIntire and Alex Chubaty
 }
-

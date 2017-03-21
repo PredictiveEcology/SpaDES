@@ -4,9 +4,9 @@
 \name{cir}
 \alias{cir}
 \alias{cir,RasterLayer,SpatialPoints,missing-method}
-\alias{cir,RasterLayer,matrix,missing-method}
-\alias{cir,RasterLayer,missing,missing-method}
 \alias{cir,RasterLayer,missing,numeric-method}
+\alias{cir,RasterLayer,missing,missing-method}
+\alias{cir,RasterLayer,matrix,missing-method}
 \title{Identify pixels in a circle or ring (donut) around an object.}
 \usage{
 cir(landscape, coords, loci, maxRadius = ncol(landscape)/4,
@@ -211,4 +211,3 @@ See example. For the specific case of creating distance surfaces from specific
 points, see \code{\link{distanceFromEachPoint}}, which is often faster.
 For the more general GIS buffering, see \code{rgeos::gBuffer}.
 }
-

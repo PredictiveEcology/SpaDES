@@ -2,19 +2,19 @@
 % Please edit documentation in R/helpers.R
 \docType{methods}
 \name{emptyEventList}
-\alias{.currentEventDT}
-\alias{.emptyEventList}
-\alias{.emptyEventList,missing,missing,missing,missing-method}
-\alias{.emptyEventList,numeric,character,character,numeric-method}
-\alias{.emptyEventListCols}
-\alias{.emptyEventListDT}
-\alias{.emptyEventListNA}
-\alias{.emptyEventListObj}
-\alias{.eventsDT}
-\alias{.lengthEventsDT}
-\alias{.numColsEventList}
-\alias{.singleEventListDT}
 \alias{emptyEventList}
+\alias{.emptyEventListDT}
+\alias{.singleEventListDT}
+\alias{.emptyEventList}
+\alias{.emptyEventList,numeric,character,character,numeric-method}
+\alias{.emptyEventList,missing,missing,missing,missing-method}
+\alias{.emptyEventListObj}
+\alias{.emptyEventListCols}
+\alias{.emptyEventListNA}
+\alias{.currentEventDT}
+\alias{.eventsDT}
+\alias{.numColsEventList}
+\alias{.lengthEventsDT}
 \title{Blank (template) event list}
 \format{An object of class \code{data.table} (inherits from \code{data.frame}) with 0 rows and 4 columns.}
 \usage{
@@ -73,4 +73,3 @@ Alex Chubaty
 }
 \keyword{datasets}
 \keyword{internal}
-

@@ -2,6 +2,7 @@ test_that("test cache", {
   library(igraph)
   tmpdir <- file.path(tempdir(), "testCache") %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
+  try(clearCache(cacheRepo = tmpdir), silent = TRUE)
 
   # Example of changing parameter values
   mySim <- simInit(
@@ -24,20 +25,19 @@ test_that("test cache", {
 
   set.seed(1123)
   sims <- experiment(mySim, replicates = 2, cache = TRUE)
-  out <- print(showCache(sims[[1]]))
+  out <- showCache(sims[[1]])
   expect_output(print(out), "cacheId")
   expect_true(NROW(out) == 10) # will become 15 with new experiment caching stuff
   clearCache(sims[[1]])
-  out <- print(showCache(sims[[1]]))
+  out <- showCache(sims[[1]])
   expect_true(NROW(out) == 0)
 })
 
 test_that("test event-level cache", {
-  #if((getRversion() > "3.3.2"))
-  skip("Not working on R devel")
   library(igraph)
   tmpdir <- file.path(tempdir(), "testCache") %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
+  try(clearCache(cacheRepo = tmpdir), silent = TRUE)
 
   # Example of changing parameter values
   mySim <- simInit(
@@ -59,31 +59,38 @@ test_that("test event-level cache", {
   )
 
   set.seed(1123)
-  expect_true(!grepl(pattern = "Using cached copy of init event in randomLandscapes module",
-                     capture_messages(sims <- spades(mySim, notOlderThan = Sys.time()))))
-  landscapeObjHash <- digest::digest(object = dropLayer(sims$landscape, "Fires"), algo = "xxhash64")
-  firesHash <- digest::digest(object = sims$landscape$Fires, algo = "xxhash64")
-  expect_identical("290afe2cf904d4f5", landscapeObjHash)
-  expect_true("4e6e705cb7e50920" %in% firesHash)
+  #expect_true(!grepl(pattern = "Using cached copy of init event in randomLandscapes module",
+  #                   capture_messages(sims <- spades(Copy(mySim), notOlderThan = Sys.time()))))
+  sims <- spades(Copy(mySim), notOlderThan = Sys.time()) ## TO DO: fix this test
+  landscapeObjHash <- digest::digest(SpaDES:::makeDigestible(
+    raster::dropLayer(sims$landscape, "Fires")), algo = "xxhash64")
+  firesHash <- digest::digest(object = SpaDES:::makeDigestible(
+    sims$landscape$Fires), algo = "xxhash64")
 
-  mess1 <- capture_messages(sims <- spades(mySim))
-  expect_true(any(grepl(pattern = "Using cached copy of init event in randomLandscapes module",
-                        mess1)))
-  landscapeObjHash <- digest::digest(object = dropLayer(sims$landscape, "Fires"), algo = "xxhash64")
-  firesHash <- digest::digest(object = sims$landscape$Fires, algo = "xxhash64")
-  expect_identical("290afe2cf904d4f5", landscapeObjHash) # cached part is identical
-  expect_false("4e6e705cb7e50920" %in% firesHash) # The non cached stuff goes ahead as normal
+  expect_true(any(c("1dba95f5f30da56f") %in% landscapeObjHash))
+  expect_true(any(c("40ee768c2ff2b2dc") %in% firesHash))
+
+  mess1 <- capture_messages(sims <- spades(Copy(mySim)))
+  expect_true(any(grepl(pattern = "Using cached copy of init event in randomLandscapes module", mess1)))
+  landscapeObjHash <- digest::digest(SpaDES:::makeDigestible(
+    raster::dropLayer(sims$landscape, "Fires")), algo = "xxhash64")
+  firesHash <- digest::digest(object = SpaDES:::makeDigestible(
+    sims$landscape$Fires), algo = "xxhash64")
+
+  expect_true(any(c("1dba95f5f30da56f") %in% landscapeObjHash))
+  expect_false(any(c("40ee768c2ff2b2dc") %in% firesHash)) # The non cached stuff goes ahead as normal
 
   clearCache(sims)
 })
 
 test_that("test module-level cache", {
   #if((getRversion() > "3.3.2"))
-  skip("Not working on R devel")
+  #skip("Not working on R devel")
   library(igraph)
   tmpdir <- file.path(tempdir(), "testCache") %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
   tmpfile <- tempfile(fileext = ".pdf")
+  try(clearCache(cacheRepo = tmpdir), silent = TRUE)
 
   # Example of changing parameter values
   times <- list(start = 0.0, end = 1.0, timeunit = "year")
@@ -107,29 +114,87 @@ test_that("test module-level cache", {
 
   set.seed(1123)
   pdf(tmpfile)
-  expect_true(!grepl(pattern = "Using cached copy of init event in randomLandscapes module",
-                     capture_messages(sims <- spades(mySim, notOlderThan = Sys.time()))))
-  landscapeObjHash <- digest::digest(object = dropLayer(sims$landscape, "Fires"), algo = "xxhash64")
-  firesHash <- digest::digest(object = sims$landscape$Fires, algo = "xxhash64")
-  expect_identical("290afe2cf904d4f5", landscapeObjHash)
-  expect_true("4e6e705cb7e50920" %in% firesHash)
+  #expect_true(!grepl(pattern = "Using cached copy of init event in randomLandscapes module",
+  #                   capture_messages(sims <- spades(Copy(mySim), notOlderThan = Sys.time()))))
+  sims <- spades(Copy(mySim), notOlderThan = Sys.time())
   dev.off()
+
   expect_true(file.info(tmpfile)$size > 20000)
   unlink(tmpfile)
+
+  landscapeObjHash <- digest::digest(SpaDES:::makeDigestible(
+    raster::dropLayer(sims$landscape, "Fires")), algo = "xxhash64")
+  firesHash <- digest::digest(object = SpaDES:::makeDigestible(
+    sims$landscape$Fires), algo = "xxhash64")
+
+  expect_true(any(c("1dba95f5f30da56f") %in% landscapeObjHash))
+  expect_true(any(c("40ee768c2ff2b2dc") %in% firesHash))
 
   # The cached version will be identical for both events (init and plot), but will not actually
   # complete the plot, because plotting isn't cacheable
   pdf(tmpfile)
-  mess1 <- capture_messages(sims <- spades(mySim))
-  expect_true(any(grepl(pattern = "Using cached copy of init event in randomLandscapes module",
-                        mess1)))
-  landscapeObjHash <- digest::digest(object = dropLayer(sims$landscape, "Fires"), algo = "xxhash64")
-  firesHash <- digest::digest(object = sims$landscape$Fires, algo = "xxhash64")
-  expect_identical("290afe2cf904d4f5", landscapeObjHash) # cached part is identical
-  expect_false("4e6e705cb7e50920" %in% firesHash) # The non cached stuff goes ahead as normal
+  mess1 <- capture_messages(sims <- spades(Copy(mySim)))
   dev.off()
+
   expect_true(file.info(tmpfile)$size < 10000)
   unlink(tmpfile)
 
+  expect_true(any(grepl(pattern = "Using cached copy of init event in randomLandscapes module", mess1)))
+  landscapeObjHash <- digest::digest(SpaDES:::makeDigestible(
+    raster::dropLayer(sims$landscape, "Fires")), algo = "xxhash64")
+  firesHash <- digest::digest(object = SpaDES:::makeDigestible(
+    sims$landscape$Fires), algo = "xxhash64")
+
+  expect_true(any(c("1dba95f5f30da56f") %in% landscapeObjHash))
+  expect_false(any(c("40ee768c2ff2b2dc") %in% firesHash)) # The non cached stuff goes ahead as normal
+
   clearCache(sims)
+})
+
+test_that("test file-backed raster caching", {
+  #if((getRversion() > "3.3.2"))
+  library(igraph)
+  library(raster)
+  tmpdir <- file.path(tempdir(), "testCache") %>% checkPath(create = TRUE)
+  on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
+  tmpRasterfile <- tempfile(tmpdir = tmpdir, fileext = ".tif")
+  try(clearCache(cacheRepo = tmpdir), silent = TRUE)
+
+  nOT <- Sys.time()
+
+  randomPolyToDisk <- function(tmpdir, tmpRasterfile) {
+    r <- randomPolygons(numTypes = 30)
+    writeRaster(r, tmpRasterfile, overwrite = TRUE)
+    r <- raster(tmpRasterfile)
+    r
+  }
+
+  a <- randomPolyToDisk(tmpdir, tmpRasterfile)
+  # confirm that the raster has the given tmp filename
+  expect_identical(strsplit(tmpRasterfile, split = "[\\/]"),
+                   strsplit(a@file@name, split = "[\\/]"))
+  aa <- Cache(randomPolyToDisk, tmpdir, tmpRasterfile, cacheRepo = tmpdir)
+  # confirm that the raster has the new filename in the cachePath
+  expect_false(identical(strsplit(tmpRasterfile, split = "[\\/]"),
+                         strsplit(file.path(tmpdir, "rasters", basename(tmpRasterfile)), split = "[\\/]")))
+  expect_true(any(grepl(pattern = basename(tmpRasterfile),
+                        dir(file.path(tmpdir, "rasters")))))
+
+  # Caching a raster as an input works
+  rasterTobinary <- function(raster) {
+    ceiling(raster[] / (mean(raster[]) + 1))
+  }
+  nOT <- Sys.time()
+  for (i in 1:2) {
+    assign(paste0("b", i), system.time(
+      assign(paste0("a", i), Cache(rasterTobinary, aa, cacheRepo = tmpdir, notOlderThan = nOT))
+    ))
+    nOT <- Sys.time() - 100
+  }
+
+  # test that they are identical
+  expect_equal(a1, a2)
+
+  # confirm that the second one was obtained through reading from Cache... much faster than writing
+  expect_true(b1[1] > b2[1])
 })

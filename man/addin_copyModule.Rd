@@ -2,14 +2,13 @@
 % Please edit documentation in R/rstudio-addins.R
 \name{addin_copyModule}
 \alias{addin_copyModule}
-\title{Rstudio addin to copy an existing module}
+\title{RStudio addin to copy an existing module}
 \usage{
 addin_copyModule()
 }
 \description{
-Rstudio addin to copy an existing module
+RStudio addin to copy an existing module
 }
 \author{
 Alex Chubaty
 }
-

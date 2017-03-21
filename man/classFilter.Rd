@@ -98,4 +98,3 @@ rm(e)
 \author{
 Alex Chubaty
 }
-

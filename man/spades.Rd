@@ -3,8 +3,8 @@
 \docType{methods}
 \name{spades}
 \alias{spades}
-\alias{spades,ANY,ANY,ANY,logical-method}
 \alias{spades,simList,ANY,ANY,missing-method}
+\alias{spades,ANY,ANY,ANY,logical-method}
 \title{Run a spatial discrete event simulation}
 \usage{
 spades(sim, debug = FALSE, progress = NA, cache, .plotInitialTime = NULL,
@@ -138,9 +138,6 @@ See \url{https://github.com/PredictiveEcology/SpaDES/wiki/Debugging} for details
 }
 
 }
-\author{
-Alex Chubaty
-}
 \references{
 Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{https://www.nostarch.com/artofr.htm}
 }
@@ -149,4 +146,6 @@ Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No 
 
 \code{\link{experiment}} for using replication with \code{spades}.
 }
-
+\author{
+Alex Chubaty
+}

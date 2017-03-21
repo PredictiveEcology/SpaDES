@@ -54,10 +54,9 @@ if (interactive()) {
   Plot(biomass, communities, fullRas)
 }
 }
-\author{
-Eliot McIntire
-}
 \seealso{
 \code{\link{raster}}
 }
-
+\author{
+Eliot McIntire
+}

@@ -286,6 +286,8 @@ setMethod(
     files2 <- list()
     children <- .parseModulePartial(filename = file.path(path, name, paste0(name, ".R")),
                                     defineModuleElement = "childModules")
+    childVersions <- .parseModulePartial(filename = file.path(path, name, paste0(name, ".R")),
+                                         defineModuleElement = "version")
 
     dataList2 <- data.frame(result = character(0), expectedFile = character(0),
                             actualFile = character(0), checksum.x = character(0),
@@ -295,7 +297,11 @@ setMethod(
     if (!is.null(children)) {
       if ( all( nzchar(children) & !is.na(children) ) ) {
         tmp <- lapply(children, function(x) {
-          f <- downloadModule(x, path = path, data = data)
+          f <- if (is.null(childVersions[[x]])) {
+            downloadModule(x, path = path, data = data, version = childVersions[[x]])
+          } else {
+            downloadModule(x, path = path, data = data)
+          }
           files2 <<- append(files2, f[[1]])
           dataList2 <<- bind_rows(dataList2, f[[2]])
         })
@@ -395,12 +401,17 @@ setMethod(
       setwd(path); on.exit(setwd(cwd), add = TRUE)
 
       files <- sapply(to.dl, function(x) {
-        destfile <- file.path(dataDir, basename(x))
-        id <- which(chksums$expectedFile == basename(x))
+        xFile <- gsub("[?!]", "_", basename(x))
+        destfile <- file.path(dataDir, xFile)
+        id <- which(chksums$expectedFile == xFile)
+        if (length(id) == 0) {
+          stop("downloadData() requires that basename(sourceURL) name",
+               " and local filename be the same.")
+        }
         if ((chksums$result[id] == "FAIL") | is.na(chksums$actualFile[id])) {
           tmpFile <- file.path(tempdir(), "SpaDES_module_data") %>%
             checkPath(create = TRUE) %>%
-            file.path(., basename(x))
+            file.path(., xFile)
           message("Downloading ", chksums$actualFile[id], " for module ", module, " ...")
           download.file(x, destfile = tmpFile, mode = "wb", quiet = quiet)
           copied <- file.copy(from = tmpFile, to = destfile, overwrite = TRUE)
@@ -573,20 +584,22 @@ setMethod(
     defaultHashAlgo <- "xxhash64"
     defaultWriteHashAlgo <- "xxhash64"
     dots <- list(...)
-
     path <- checkPath(path, create = FALSE) %>% file.path(., module, "data")
-    if (!write) stopifnot(file.exists(file.path(path, "CHECKSUMS.txt")))
-
-    files <- list.files(path, full.names = TRUE) %>%
-      grep("CHECKSUMS.txt", ., value = TRUE, invert = TRUE)
-
     checksumFile <- file.path(path, "CHECKSUMS.txt")
 
-    txt <- if (file.info(checksumFile)$size > 0) {
+    if (!write) {
+      stopifnot(file.exists(checksumFile))
+    } else if (!file.exists(checksumFile)) {
+      file.create(checksumFile)
+    }
+
+    files <- list.files(path, full.names = TRUE) %>%
+      grep(basename(checksumFile), ., value = TRUE, invert = TRUE)
+
+    txt <- if (!write && file.info(checksumFile)$size > 0) {
       read.table(checksumFile, header = TRUE, stringsAsFactors = FALSE)
     } else {
-      data.frame(file = character(0), checksum = character(0),
-                 stringsAsFactors = FALSE)
+      data.frame(file = character(0), checksum = character(0), stringsAsFactors = FALSE)
     }
 
     if (is.null(dots$algo)) {
@@ -611,13 +624,22 @@ setMethod(
       }
     }
 
-    message("Checking local files")
-    checksums <- do.call(digest, args = append(list(file = files), dots))
-    message("Finished checking local files")
+    message("Checking local files...")
+    if (length(txt$file) & length(files)) {
+      filesToCheck <- files[basename(files) %in% txt$file]
+    } else {
+      filesToCheck <- files
+    }
+    checksums <- do.call(digest, args = append(list(file = filesToCheck), dots))
+    message("Finished checking local files.")
 
-    out <- data.frame(file = basename(files), checksum = checksums,
-                      algorithm = dots$algo,
-                      stringsAsFactors = FALSE)
+    if (length(filesToCheck)) {
+      out <- data.frame(file = basename(filesToCheck), checksum = checksums,
+                        algorithm = dots$algo, stringsAsFactors = FALSE)
+    } else {
+      out <- data.frame(file = character(0), checksum = character(0),
+                        algorithm = character(0), stringsAsFactors = FALSE)
+    }
 
     if (write) {
       write.table(out, checksumFile, eol = "\n", col.names = TRUE, row.names = FALSE)

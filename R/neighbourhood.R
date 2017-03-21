@@ -67,6 +67,10 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @param id numeric If not NULL, then function will return "id" column. Default NULL.
 #'
+#' @param numNeighs A numeric scalar, indicating how many neighbours to return. Must be
+#'                  less than or equal to \code{directions}; which neighbours are random
+#'                  with equal probabilities.
+#'
 #' @return a matrix of one or two columns, from and to.
 #'
 #' @seealso \code{\link[raster]{adjacent}}
@@ -93,9 +97,9 @@ if (getRversion() >= "3.1.0") {
 adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
                     include = FALSE, target = NULL, numCol = NULL, numCell = NULL,
                     match.adjacent = FALSE, cutoff.for.data.table = 1e4,
-                    torus = FALSE, id = NULL) {
-  to <- NULL
-  J <- NULL
+                    torus = FALSE, id = NULL, numNeighs = NULL) {
+  to = NULL
+  J = NULL
   cells <- as.integer(cells)
 
   if (is.null(numCol) | is.null(numCell)) {
@@ -129,6 +133,7 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
   }
 
   toCells <- if (directions == 8) {
+
     if (match.adjacent)
       if (include)
         c(cells, topl, lef, botl, topr, rig, botr, top, bot)
@@ -165,6 +170,17 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
     stop("directions must be 4 or 8 or \'bishop\'")
   }
 
+  if (!is.null(numNeighs)) {
+    lenCells <- length(cells)
+    if (length(numNeighs) == 1) numNeighs <- rep(numNeighs, lenCells)
+    ind <- unlist(sampleV(1:(directions + include), size = numNeighs))
+    minusVal <- lenCells - rep.int(seq_along(cells), numNeighs)
+    indFull2 <- ind * lenCells - minusVal
+
+    toCells <- toCells[indFull2]
+    fromCells <- fromCells[indFull2]
+  }
+
   useMatrix <- (length(cells) < cutoff.for.data.table)
   if (useMatrix) {
     adj <- cbind(from = fromCells, to = toCells)
@@ -175,8 +191,6 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
   }
 
   if (useMatrix) {
-
-    ################################################
     # Remove all cells that are not target cells, if target is a vector of cells
     if (!is.null(target)) {
       adj <- adj[na.omit(adj[, "to"] %in% target), , drop = FALSE]
@@ -230,7 +244,7 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
       }
     }
   } else {
-    #################################################
+    ## use data.table
     # Remove all cells that are not target cells, if target is a vector of cells
     if (!is.null(target)) {
       set(adj, , "ord", seq_len(NROW(adj)))
@@ -529,7 +543,6 @@ setMethod(
         maxRadiusList <- lapply(seqNumInd, function(x) {
           ## 0.75 was the maximum that worked with 1e4 pixels, 1e2 maxRadius
           ## 0.66 was the maximum that worked with 4e6 pixels, 1.3e3 maxRadius
-          #browser(expr = x > 55)
           a <- seq(minRadius[x], maxRadius[x], by = max(0.68, 0.75 - maxRadius[x] / 3e3))
           if (a[length(a)] != maxRadius[x]) a <- c(a, maxRadius[x])
           a
@@ -992,10 +1005,10 @@ setMethod(
 
     sortedUniqAngles <- sort(unique(a[, "angles"]))
     dxx <- lapply(sort(unique(a[, "id"])), function(id) {
-      aID <- a[a[, "id"] == id,, drop = FALSE]
+      aID <- a[a[, "id"] == id, , drop = FALSE]
       b <- tapply(aID[, "stopDist"], aID[, "angles"], min, na.rm = TRUE)
       d1 <- lapply(sortedUniqAngles, function(x) {
-        a1 <- aID[aID[, "angles"] %==% x , , drop = FALSE]
+        a1 <- aID[aID[, "angles"] %==% x, , drop = FALSE]
         if (includeBehavior == "excludePixels")
           a1[a1[, "dists"] %<<% b[as.numeric(names(b)) %==% x], , drop = FALSE]
         else
@@ -1008,3 +1021,5 @@ setMethod(
     d2xx[, -whDrop, drop = FALSE]
   }
 })
+
+

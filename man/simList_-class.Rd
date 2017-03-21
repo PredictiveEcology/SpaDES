@@ -2,8 +2,8 @@
 % Please edit documentation in R/simList-class.R
 \docType{class}
 \name{simList_-class}
-\alias{simList_}
 \alias{simList_-class}
+\alias{simList_}
 \title{The \code{simList_} class}
 \description{
 Internal use only. Used when saving/loading a \code{simList}.
@@ -14,11 +14,10 @@ is replaced by a \code{.list} containing a list to store the objects from the
 environment contained within the \code{simList}.
 Saving/loading a list behaves more reliably than saving/loading an environment.
 }
-\author{
-Alex Chubaty
-}
 \seealso{
 \code{\link{simList}}
 }
+\author{
+Alex Chubaty
+}
 \keyword{internal}
-

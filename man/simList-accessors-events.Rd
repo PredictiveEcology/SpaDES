@@ -2,22 +2,25 @@
 % Please edit documentation in R/simList-accessors.R
 \docType{methods}
 \name{events}
-\alias{completed}
-\alias{completed,.simList,character-method}
-\alias{completed,.simList,missing-method}
-\alias{completed<-}
-\alias{completed<-,.simList-method}
+\alias{events}
+\alias{simList-accessors-events}
+\alias{events,.simList,character-method}
+\alias{events,.simList,missing-method}
+\alias{events<-}
+\alias{events<-}
+\alias{events<-,.simList-method}
 \alias{current}
 \alias{current,.simList,character-method}
 \alias{current,.simList,missing-method}
 \alias{current<-}
+\alias{current<-}
 \alias{current<-,.simList-method}
-\alias{events}
-\alias{events,.simList,character-method}
-\alias{events,.simList,missing-method}
-\alias{events<-}
-\alias{events<-,.simList-method}
-\alias{simList-accessors-events}
+\alias{completed}
+\alias{completed,.simList,character-method}
+\alias{completed,.simList,missing-method}
+\alias{completed<-}
+\alias{completed<-}
+\alias{completed<-,.simList-method}
 \title{Simulation event lists}
 \usage{
 events(sim, unit)
@@ -94,4 +97,3 @@ Other functions to access elements of a \code{simList} object: \code{\link{.addD
   \code{\link{paths}}, \code{\link{progressInterval}},
   \code{\link{times}}
 }
-

@@ -3,14 +3,14 @@
 \docType{methods}
 \name{rndstr}
 \alias{rndstr}
-\alias{rndstr,missing,missing,logical-method}
-\alias{rndstr,missing,missing,missing-method}
-\alias{rndstr,missing,numeric,logical-method}
-\alias{rndstr,missing,numeric,missing-method}
-\alias{rndstr,numeric,missing,logical-method}
-\alias{rndstr,numeric,missing,missing-method}
 \alias{rndstr,numeric,numeric,logical-method}
 \alias{rndstr,numeric,numeric,missing-method}
+\alias{rndstr,numeric,missing,logical-method}
+\alias{rndstr,missing,numeric,logical-method}
+\alias{rndstr,numeric,missing,missing-method}
+\alias{rndstr,missing,numeric,missing-method}
+\alias{rndstr,missing,missing,logical-method}
+\alias{rndstr,missing,missing,missing-method}
 \title{Generate random strings}
 \usage{
 rndstr(n, len, characterFirst)
@@ -62,4 +62,3 @@ rndstr(n = 5, len = 10, characterFirst = TRUE)
 \author{
 Alex Chubaty and Eliot McIntire
 }
-

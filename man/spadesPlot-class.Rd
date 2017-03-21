@@ -2,8 +2,8 @@
 % Please edit documentation in R/plotting-classes.R
 \docType{class}
 \name{.spadesPlot-class}
-\alias{.spadesPlot}
 \alias{.spadesPlot-class}
+\alias{.spadesPlot}
 \title{The \code{.spadesPlot} class}
 \description{
 This class contains all necessary information to build a Plot on a device,
@@ -39,11 +39,11 @@ i.e, \code{landscape$DEM}.
 
 \item{\code{spadesGrobList}}{list. A list of lists of .spadesGrob objects}
 }}
-\author{
-Eliot McIntire
-}
+
 \seealso{
 \code{\link{spadesClasses}}
 }
+\author{
+Eliot McIntire
+}
 \keyword{internal}
-

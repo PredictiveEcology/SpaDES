@@ -14,6 +14,9 @@ inRange(x, a = 0, b = 1)
 
 \item{b}{upper bound (default 1)}
 }
+\value{
+Logical vectors. \code{NA} values in \code{x} are retained.
+}
 \description{
 Default values of \code{a=0; b=1} allow for quick test if
 \code{x} is a probability.
@@ -27,4 +30,3 @@ inRange(x, 0, 1)
 \author{
 Alex Chubaty
 }
-

@@ -10,6 +10,9 @@ figure/
 man/spadesEnv.Rd
 myModule.md
 output/
+src/*.o
+src/*.so
+src/*.dll
 tests/testthat/*.pdf
 tests/testthat/*.RData
 vignettes/.build.timestamp

@@ -22,10 +22,10 @@ This has been changed to use a temporary directory by default instead, with a pa
 * Windows 7            (local), R 3.3.0, 3.3.1
 
 ### Development R version
-* Debian:testing  (rocker/drd), R 3.4.0 (2016-11-20 r71670)
-* Ubuntu 12.04     (travis-ci), R 3.4.0 (2016-11-18 r71668)
-* Windows           (appveyor), R 3.4.0 (2016-11-17 r71664)
-* Windows        (win-builder), R 3.4.0 (2016-10-07 r71462)
+* Debian:testing  (rocker/drd), R 3.4.0 (2017-01-22 r72017)
+* Ubuntu 12.04     (travis-ci), R 3.4.0 (2017-01-27 r72038)
+* Windows           (appveyor), R 3.4.0 (2017-01-27 r72038)
+* Windows        (win-builder), R 3.4.0 (2017-01-27 r72039)
 
 ## R CMD check results
 
@@ -35,13 +35,11 @@ There were 2 NOTEs:
 
 1. There are multiple parts to this note:
 
-    a. Several words were flagged as possibly mispelled, but they are not.
-    
-            Possibly mis-spelled words in DESCRIPTION:
-              DES (8:23)
-              fastshp (12:24)
-              modularity (8:55)
-              repos (12:34)
+    a. Some words were flagged as possibly mispelled, but they are not. 
+     
+            Possibly mis-spelled words in DESCRIPTION: 
+              DES (8:23) 
+              modularity (8:55) 
 
     b. The `fastshp` package in Suggests is optionally installed from Rforge and not required to use the package. Instructions for installation are provided in the Description, README, and via a message to the user. We believe this should satisfy the CRAN policy requirement regarding additional dependencies.
 

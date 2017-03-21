@@ -13,7 +13,8 @@ spread(landscape, loci = NA_real_, spreadProb = 0.23, persistence = 0,
   id = FALSE, plot.it = FALSE, spreadProbLater = NA_real_,
   spreadState = NA, circle = FALSE, circleMaxRadius = NA_real_,
   stopRule = NA, stopRuleBehavior = "includeRing", allowOverlap = FALSE,
-  asymmetry = NA_real_, asymmetryAngle = NA_real_, quick = FALSE, ...)
+  asymmetry = NA_real_, asymmetryAngle = NA_real_, quick = FALSE,
+  neighProbs = NULL, exactSizes = FALSE, relativeSpreadProb = FALSE, ...)
 
 \S4method{spread}{RasterLayer}(landscape, loci = NA_real_,
   spreadProb = 0.23, persistence = 0, mask = NA, maxSize = 100000000L,
@@ -23,7 +24,8 @@ spread(landscape, loci = NA_real_, spreadProb = 0.23, persistence = 0,
   spreadProbLater = NA_real_, spreadState = NA, circle = FALSE,
   circleMaxRadius = NA_real_, stopRule = NA,
   stopRuleBehavior = "includeRing", allowOverlap = FALSE,
-  asymmetry = NA_real_, asymmetryAngle = NA_real_, quick = FALSE, ...)
+  asymmetry = NA_real_, asymmetryAngle = NA_real_, quick = FALSE,
+  neighProbs = NULL, exactSizes = FALSE, relativeSpreadProb = FALSE, ...)
 }
 \arguments{
 \item{landscape}{A \code{RasterLayer} object. This defines the possible locations
@@ -133,6 +135,25 @@ that describes which way the \code{asymmetry} is.}
 \item{quick}{Logical. If TRUE, then several potentially time consuming checking (such as
 \code{inRange}) will be skipped. This should only be used if there is no
 concern about checking to ensure that inputs are legal.}
+
+\item{neighProbs}{A numeric vector, whose sum is 1. It indicates the probabilities an individual
+spread iteration spreading to \code{1:length(neighProbs)} neighbours.}
+
+\item{exactSizes}{Logical. If TRUE, then the \code{maxSize} will be treated as exact sizes,
+i.e., the spread events will continue until they are
+\code{floor(maxSize)}. This is overridden by \code{iterations}, but
+if \code{iterations} is run, and individual events haven't reached
+\code{maxSize}, then the returned \code{data.table} will still have
+at least one active cell per event that did not achieve \code{maxSize},
+so that the events can continue if passed into \code{spread} with
+\code{spreadState}.}
+
+\item{relativeSpreadProb}{Logical. If \code{TRUE}, then \code{spreadProb} will
+be rescaled *within* the \code{directions} neighbours, such that
+the sum of the probabilities of all neighbours will be 1. Default
+\code{FALSE}, unless \code{spreadProb} values are not contained
+between 0 and 1, which will force \code{relativeSpreadProb}
+to be \code{TRUE}.}
 
 \item{...}{Additional named vectors or named list of named vectors
 required for \code{stopRule}. These
@@ -295,11 +316,13 @@ In order of number of cells included in resulting events, from most cells to few
                             that caused the \code{stopRule} to be \code{TRUE}\cr
 }
 }
+
 \examples{
 library(raster)
 library(RColorBrewer)
 
 # Make random forest cover map
+set.seed(123)
 emptyRas <- raster(extent(0, 1e2, 0, 1e2), res = 1)
 hab <- randomPolygons(emptyRas, numTypes = 40)
 names(hab) <- "hab"
@@ -320,8 +343,9 @@ if (interactive()) {
 }
 
 # initiate 10 fires
-startCells <- as.integer(sample(1:ncell(emptyRas), 10))
-fires <- spread(hab, loci = startCells, 0.235, 0, NULL, 1e8, 8, 1e6, id = TRUE)
+startCells <- as.integer(sample(1:ncell(emptyRas),100))
+fires <- spread(hab, loci = startCells, 0.235, persistence = 0, numNeighs = 2,
+                mask = NULL, maxSize = 1e8, directions=8, iterations=1e6, id = TRUE)
 
 #set colors of raster, including a transparent layer for zeros
 setColors(fires, 10) <- c("transparent", brewer.pal(8, "Reds")[5:8])
@@ -335,13 +359,13 @@ if (interactive()) {
   Plot(fires) # default color range makes zero transparent.
   # Instead, to give a color to the zero values, use \\code{zero.color=}
   Plot(fires, addTo = "hab",
-       cols = colorRampPalette(c("orange", "darkred"))(10))
+       cols = colorRampPalette(c("orange","darkred"))(10), zero.color = "transparent")
   hab2 <- hab
   Plot(hab2)
-  Plot(fires, addTo = "hab2", zero.color = "white",
-     cols = colorRampPalette(c("orange", "darkred"))(10))
+  Plot(fires, addTo = "hab2", zero.color = "transparent",
+     cols = colorRampPalette(c("orange","darkred"))(10))
   # or overplot the original (NOTE: legend stays at original values)
-  Plot(fires, cols = topo.colors(10))
+  Plot(fires, cols = topo.colors(10), new = TRUE, zero.color = "white")
 }
 
 ####################
@@ -375,7 +399,7 @@ burned <- fires[active == FALSE]
 burnedMap <- rasterizeReduced(burned, fullRas, "id", "indices")
 if (interactive()) {
   clearPlot()
-  Plot(burnedMap)
+  Plot(burnedMap, new = TRUE)
 }
 
 ####################
@@ -524,14 +548,68 @@ if (interactive()) {
   clearPlot()
   Plot(overlapEvents)
 }
+
+
+## Using alternative algorithm, not probabilistic diffusion
+## Will give exactly correct sizes, yet still with variability
+## within the spreading (i.e., cells with and without successes)
+dev();
+seed <- sample(1e6,1)
+#seed <- 576534
+set.seed(seed); print(seed)
+startCells <- startCells[1:4]
+maxSizes <- rexp(length(startCells), rate = 1 / 500)
+fires <- spread(hab, loci = startCells, 1, persistence = 0,
+                neighProbs = c(0.5, 0.5, 0.5) / 1.5,
+                mask = NULL, maxSize = maxSizes, directions = 8,
+                iterations = 1e6, id = TRUE, plot.it = FALSE, exactSizes = TRUE);
+all(table(fires[fires > 0][]) == floor(maxSizes))
+
+if (interactive()) {
+  clearPlot()
+  Plot(fires, new = TRUE, cols = c("red", "yellow"), zero.color = "white")
+  Plot(hist(table(fires[][fires[] > 0])), title = "fire size distribution")
+}
+
+## Example with relativeSpreadProb ... i.e., a relative probability spreadProb
+##  (shown here because because spreadProb raster is not a probability).
+##  Here, we force the events to grow, choosing always 2 neighbours,
+##  according to the relative probabilities
+##  contained on hab layer. Note, neighProbs = c(0,1) forces each active pixel
+##  to move to 2 new pixels (prob = 0 for 1 neighbour, prob = 1 for 2 neighbours)
+##  Note: set hab3 to be very distinct probability differences, to detect spread
+##  differences
+hab3 <- (hab < 20) * 200 + 1
+seed <- 643503
+set.seed(seed)
+sam <- sample(which(hab3[] == 1), 1)
+set.seed(seed)
+events1 <- spread(hab3, spreadProb = hab3, loci = sam, directions = 8,
+             neighProbs = c(0, 1), maxSize = c(70), exactSizes = TRUE)
+# Compare to absolute probability version
+set.seed(seed)
+events2 <- spread(hab3, id = TRUE, loci = sam, directions = 8,
+                 neighProbs = c(0, 1), maxSize = c(70), exactSizes = TRUE)
+if (interactive()) {
+  clearPlot()
+  Plot(events1, new = TRUE, cols = c("red", "yellow"), zero.color = "white")
+  Plot(events2, new = TRUE, cols = c("red", "yellow"), zero.color = "white")
+  Plot(hist(table(events1[][events1[] > 0]), breaks = 30), title = "Event size distribution")
+# Check that events1 resulted in higher hab3 pixels overall
+}
+# Compare outputs -- should be more high value hab pixels spread to in event1
+#  (randomness may prevent this in all cases)
+hab3[events1[] > 0]
+hab3[events2[] > 0]
+
+sum(hab3[events1[] > 0]) >= sum(hab3[events2[] > 0]) ## should be usually TRUE
+}
+\seealso{
+\code{\link{rings}} which uses \code{spread} but with specific argument
+values selected for a specific purpose. \code{\link[raster]{distanceFromPoints}}
 }
 \author{
 Eliot McIntire
 
 Steve Cumming
 }
-\seealso{
-\code{\link{rings}} which uses \code{spread} but with specific argument
-values selected for a specific purpose. \code{\link[raster]{distanceFromPoints}}
-}
-

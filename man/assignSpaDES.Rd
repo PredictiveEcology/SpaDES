@@ -24,6 +24,9 @@ environment.}
 
 \item{...}{Additional arguments to pass to \code{assign}.}
 }
+\value{
+Only used for its side effect, namely the object assigned to the \code{.spadesEnv}
+}
 \description{
 Internal function. Simple wrapper for \code{\link{assign}}.
 }
@@ -31,4 +34,3 @@ Internal function. Simple wrapper for \code{\link{assign}}.
 Alex Chubaty
 }
 \keyword{internal}
-

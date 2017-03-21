@@ -262,8 +262,8 @@ test_that("Unit tests for image content is not error-free", {
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
     Darwin = "EEC0911E4AE16E6E",
-    Linux = "EEC0911E4AE16E6E",
-    Windows = "EEC0911E4AE16E6E"
+    Linux = "EEC0913E4AE16E2E",
+    Windows = "EEC0911E4BE16E2E"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
 })
@@ -291,7 +291,7 @@ test_that("Unit tests for plotting colors", {
   ###################################
   png(file = "test.png", width = 400, height = 300)
   clearPlot()
-  Plot(ras, new = TRUE)
+  Plot(ras, new = TRUE) # should be a 2 x 2 raster, bottom left red, top row blue, bottom right green
   dev.off()
 
   #dput(getFingerprint(file = "test.png"))
@@ -309,7 +309,8 @@ test_that("Unit tests for plotting colors", {
   setColors(rasStack, n = 3) <- list(ras = c("black", "blue", "green"))
   png(file = "test.png", width = 400, height = 300)
   clearPlot()
-  Plot(rasStack, new = TRUE)
+  Plot(rasStack, new = TRUE) # should be left 2 x 2 raster, blue top, black bot lef, green bot right,
+                             #  2nd raster, 2 x 2, topleft green, topRight & botLef grey, botright = beige
   dev.off()
 
   #dput(getFingerprint(file = "test.png"))
@@ -566,12 +567,12 @@ test_that("Plot 2 is not error-free", {
   Plot(pixelGroupMap, new = TRUE, cols = c("red", "yellow", "green", "blue"))
 
   ### Test legend that is pre-set, even with various types of rasters
-  # should be mostly empty raster, legend from 0 to 200
+  # should be dark red raster, legend from 0 to 200
   clearPlot()
-  Plot(r, legendRange = c(0, 200), new = TRUE, cols = c("red", "green"))
+  Plot(r1, legendRange = c(0, 200), new = TRUE, cols = c("red", "green"))
 
   # should be mostly red raster, a bit of green, legend below 0 to 2000
-  Plot(r, legendRange = c(-200, 2000), new = TRUE, cols = c("red", "green"))
+  Plot(r1, legendRange = c(-200, 2000), new = TRUE, cols = c("red", "green"))
 
   # zero.color on Real numbers doesn't do anything - expect NO BLACK
   r1 <- r - 200
@@ -592,6 +593,13 @@ test_that("Plot 2 is not error-free", {
   Plot(r)
   pixelGroupMap[] <- pixelGroupMap[] + 5
   Plot(pixelGroupMap, na.color = "white") # Should keep one dark Blue, rest white
+
+  # raster with bottom not zero
+  r1 <- raster(ncol = 30, nrow = 30)
+  r1[] <- sample(17:83, replace = TRUE, size = 900)
+  setColors(r1) <- c("green", "red")
+  Plot(r1, new = TRUE)
+
 })
 
 test_that("setColors is not error-free", {
@@ -796,10 +804,12 @@ test_that("Plot with base is not error-free", {
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
                  Darwin = "F3B5A64A8C0FF049",
-                 Linux = "F3B42E4A8C0FF0C9",
-                 Windows = "F3B4264A8C8FF0C9"
+                 Linux = "F3B5264A8C0FF04B",
+                 Windows = "F3B4264A8C8FF04B"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
+
+  ##################################################
 
   png(file = "test.png", width = 500, height = 400)
   ras <- rasOrig
@@ -989,8 +999,8 @@ test_that("Plot lists", {
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
                  Darwin = "8F62630DCC8DF05B",
-                 Linux = "876272A9CC8DF05E",
-                 Windows = "87737289CC99F04E"
+                 Linux = "877273AD8C8DF04A",
+                 Windows = "8773738D8C89F04E"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.02))
 })

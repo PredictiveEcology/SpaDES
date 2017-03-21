@@ -3,10 +3,10 @@
 \docType{methods}
 \name{getColors}
 \alias{getColors}
-\alias{getColors,ANY-method}
-\alias{getColors,Raster-method}
-\alias{getColors,SpatialPoints-method}
 \alias{getColours}
+\alias{getColors,Raster-method}
+\alias{getColors,ANY-method}
+\alias{getColors,SpatialPoints-method}
 \title{Get colours for plotting Raster* objects.}
 \usage{
 getColors(object)
@@ -26,13 +26,12 @@ Returns a named list of colors.
 \description{
 Get colours for plotting Raster* objects.
 }
+\seealso{
+\code{\link{setColors<-}},
+         \code{\link[RColorBrewer]{brewer.pal}}
+}
 \author{
 Alex Chubaty
 
 #@importClassesFrom NetLogoRClasses agentMatrix
 }
-\seealso{
-\code{\link{setColors<-}},
-         \code{\link[RColorBrewer]{brewer.pal}}
-}
-

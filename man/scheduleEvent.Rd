@@ -3,9 +3,9 @@
 \docType{methods}
 \name{scheduleEvent}
 \alias{scheduleEvent}
+\alias{scheduleEvent,simList,numeric,character,character,numeric-method}
 \alias{scheduleEvent,simList,NULL,character,character,numeric-method}
 \alias{scheduleEvent,simList,numeric,character,character,missing-method}
-\alias{scheduleEvent,simList,numeric,character,character,numeric-method}
 \title{Schedule a simulation event}
 \usage{
 scheduleEvent(sim, eventTime, moduleName, eventType, eventPriority)
@@ -57,10 +57,9 @@ instead of `data.frame` to implement the event queue (because it is much faster)
  scheduleEvent(x, time(sim) + 1.0, "firemodule", "burn", .lowest()) # lowest priority
 }
 }
-\author{
-Alex Chubaty
-}
 \references{
 Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{https://www.nostarch.com/artofr.htm}
 }
-
+\author{
+Alex Chubaty
+}

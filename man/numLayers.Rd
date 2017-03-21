@@ -3,11 +3,11 @@
 \docType{methods}
 \name{numLayers}
 \alias{numLayers}
+\alias{numLayers,list-method}
 \alias{numLayers,.spadesPlot-method}
-\alias{numLayers,ANY-method}
 \alias{numLayers,Raster-method}
 \alias{numLayers,Spatial-method}
-\alias{numLayers,list-method}
+\alias{numLayers,ANY-method}
 \title{Find the number of layers in a Spatial Object}
 \usage{
 numLayers(x)
@@ -37,4 +37,3 @@ These latter classes return \code{1}.
 \author{
 Eliot McIntire
 }
-

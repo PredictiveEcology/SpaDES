@@ -62,6 +62,7 @@ standard R functions for saving R objects (e.g., \code{save} or \code{saveRDS}).
 This is the least modular approach, as it will happen whether a module user
 wants it or not.
 }
+
 \examples{
 \dontrun{
 
@@ -90,7 +91,7 @@ spades(mySim)
 dir(outputPath)
 
 # remove the files
-file.remove(dir(savePath, full.names = T))
+file.remove(dir(savePath, full.names = TRUE))
 
 }
 }
@@ -99,4 +100,3 @@ Eliot McIntire
 
 Alex Chubaty
 }
-

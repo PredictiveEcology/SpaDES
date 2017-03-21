@@ -25,10 +25,9 @@ Create a sequence diagram illustrating the data object dependencies of a
 simulation. Offers a more detailed view of specific objects than does
 plotting the \code{depsEdgeList} directly with \code{\link{moduleDiagram}}.
 }
-\author{
-Alex Chubaty
-}
 \seealso{
 \code{\link[DiagrammeR]{mermaid}}.
 }
-
+\author{
+Alex Chubaty
+}

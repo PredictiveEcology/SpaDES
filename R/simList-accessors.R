@@ -638,6 +638,16 @@ setMethod("P",
                 return(sim@params[[module]][[param]])
               }
             } else {
+              inSimInit <- grep(sys.calls(), pattern=".parseModule")
+              if (any(inSimInit)) {
+                module <- get("m", sys.frame(grep(sys.calls(), pattern=".parseModule")[2]))
+                if (is.null(param)) {
+                  return(sim@params[[module]])
+                } else {
+                  return(sim@params[[module]][[param]])
+                }
+              }
+
               return(sim@params)
             }
 })
@@ -1412,9 +1422,11 @@ setReplaceMethod(
          paste0(sim@outputs$objectName[is.na(sim@outputs$file)])
        # If a filename is provided, determine if it is absolute path, if so,
        # use that, if not, then append it to outputPath(sim)
-       sim@outputs[!isAbsolutePath(sim@outputs$file), "file"] <-
-         file.path(outputPath(sim),
-                   sim@outputs$file[!isAbsolutePath(sim@outputs$file)])
+       alreadyWithOutputPath <- grepl(pattern = paste0("^", outputPath(sim)), sim@outputs$file)
+       if (any(!alreadyWithOutputPath)) {
+         sim@outputs[!isAbsolutePath(sim@outputs$file)[!alreadyWithOutputPath], "file"] <-
+           file.path(outputPath(sim), sim@outputs$file[!isAbsolutePath(sim@outputs$file)])
+       }
 
        # If there is no function provided, then use saveRDS, from package base
        sim@outputs[is.na(sim@outputs$fun), "fun"] <- "saveRDS"
@@ -1423,8 +1435,7 @@ setReplaceMethod(
        # file extension stuff
        fileExts <- .saveFileExtensions()
        fe <- suppressMessages(inner_join(sim@outputs, fileExts)$exts)
-       wh <- !stri_detect_fixed(str = sim@outputs$file, pattern = ".") &
-         (nchar(fe) > 0)
+       wh <- !stri_detect_fixed(str = sim@outputs$file, pattern = ".") & (nchar(fe) > 0)
        sim@outputs[wh, "file"] <- paste0(sim@outputs[wh, "file"], ".", fe[wh])
 
        # If the file name already has a time unit on it,
@@ -2761,12 +2772,13 @@ setMethod(
 #'
 #' @examples
 #' \dontrun{
-#'   # a default version of the defineModule is created with a call to newModule
-#'
+#'   ## a default version of the defineModule is created with a call to newModule
 #'   newModule("test", path = tempdir())
-#'   # file.edit(file.path(tempdir(), "test", "test.R"))
 #'
-#'   # The default defineModule created by newModule is currently (SpaDES version 1.2.0.9010):
+#'   ## view the resulting module file
+#'   #file.edit(file.path(tempdir(), "test", "test.R"))
+#'
+#'   # The default defineModule created by newModule is currently (SpaDES version 1.3.1.9044):
 #'   defineModule(sim, list(
 #'     name = "test",
 #'     description = "insert module description here",
@@ -2774,12 +2786,12 @@ setMethod(
 #'     authors = c(person(c("First", "Middle"), "Last",
 #'                      email="email@example.com", role=c("aut", "cre"))),
 #'     childModules = character(0),
-#'     version = numeric_version("1.2.0.9010"),spatialExtent =
-#'                                  raster::extent(rep(NA_real_, 4)),
+#'     version = list(SpaDES = "1.3.1.9044", test = "0.0.1"),
+#'     spatialExtent = raster::extent(rep(NA_real_, 4)),
 #'     timeframe = as.POSIXlt(c(NA, NA)),
-#'   timeunit = NA_character_, # e.g., "year",
+#'     timeunit = NA_character_, # e.g., "year",
 #'     citation = list("citation.bib"),
-#'   documentation = list("README.txt", "test.Rmd"),
+#'     documentation = list("README.txt", "test.Rmd"),
 #'     reqdPkgs = list(),
 #'     parameters = rbind(
 #'       #defineParameter("paramName", "paramClass", value, min, max,
@@ -2793,18 +2805,13 @@ setMethod(
 #'       defineParameter(".saveInterval", "numeric", NA, NA, NA,
 #'       "This describes the simulation time at which the first save event should occur")
 #'     ),
-#'     inputObjects = data.frame(
-#'       objectName = NA_character_,
-#'       objectClass = NA_character_,
-#'       sourceURL = "",
-#'       other = NA_character_,
-#'       stringsAsFactors = FALSE
+#'     inputObjects = bind_rows(
+#'       expectsInput(objectName = NA_character_, objectClass = NA_character_,
+#'         sourceURL = NA_character_, desc = NA_character_, other = NA_character_)
 #'     ),
-#'     outputObjects = data.frame(
-#'       objectName = NA_character_,
-#'       objectClass = NA_character_,
-#'       other = NA_character_,
-#'       stringsAsFactors = FALSE
+#'     outputObjects = bind_rows(
+#'       createsOutput(objectName = NA_character_, objectClass = NA_character_,
+#'         desc = NA_character_, other = NA_character_)
 #'     )
 #'   ))
 #'
@@ -2834,7 +2841,11 @@ setMethod(
     }
 
     # provide default values for missing metadata elements
-    if (is.null(x$reqdPkgs)) {
+    if (identical(x$reqdPkgs, list())) {
+      x$reqdPkgs <- list()
+    } else if (is.null(na.omit(x$reqdPkgs))) {
+      x$reqdPkgs <- list()
+    } else if (any(!nzchar(na.omit(x$reqdPkgs)))) {
       x$reqdPkgs <- list()
     } else {
       loadPackages(x$reqdPkgs)
@@ -2849,7 +2860,7 @@ setMethod(
       }
     })
 
-    x$childModules <- x$childModules %>% as.character %>% na.omit %>% as.character
+    x$childModules <- x$childModules %>% as.character() %>% na.omit() %>% as.character()
 
     x$authors <- if ( is.null(x$authors) || is.na(x$authors) ) {
       person("unknown")
@@ -2857,7 +2868,13 @@ setMethod(
       as.person(x$authors)
     }
 
-    x$version <- as.numeric_version(x$version)
+    ## maintain backwards compatibility with SpaDES versions prior to 1.3.1.9044
+    ## where `version` was a single `numeric_version` value instead of named list
+    x$version <- if (is.null(names(x$version))) {
+      as.numeric_version(x$version) ## SpaDES < 1.3.1.9044
+    } else {
+      as.numeric_version(x$version[[x$name]]) ## SpaDES >= 1.3.1.9044
+    }
 
     x$spatialExtent <- if (!is(x$spatialExtent, "Extent")) {
       if (is.null(x$spatialExtent)) {
@@ -3337,10 +3354,3 @@ setMethod(
   return(outputDF)
 }
 
-#' @rdname params
-#' @export
-#' @inheritParams P
-p <- function(sim, module = NULL, param = NULL) {
-  .Deprecated("P", old = "p")
-  P(sim = sim, module = module, param = param)
-}

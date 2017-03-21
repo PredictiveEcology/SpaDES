@@ -14,4 +14,3 @@
 Given the name or the definition of a class, plus optionally data to be
 included in the object, \code{new} returns an object from that class.
 }
-

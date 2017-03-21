@@ -29,4 +29,3 @@ Internal function.
 Alex Chubaty
 }
 \keyword{internal}
-

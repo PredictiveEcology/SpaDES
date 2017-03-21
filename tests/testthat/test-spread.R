@@ -32,14 +32,15 @@ test_that("spread produces legal RasterLayer", {
   # Test that spreadState with a data.table works
   fires <- list()
   fires[[1]] <- spread(a, loci = as.integer(sample(1:ncell(a), 10)), returnIndices = TRUE,
-                       0.235, 0, NULL, 1e8, 8, iterations = 2, id = TRUE)
+                       spreadProb=0.235, persistence=0, mask=NULL,
+                       maxSize = 1e8, 8, iterations = 2, id = TRUE)
   stopped <- list()
   stopped[[1]] <- fires[[1]][, sum(active), by = id][V1 == 0, id]
   for (i in 2:4) {
     j <- sample(1:1000, 1);
     set.seed(j);
     fires[[i]] <- spread(a, loci = as.integer(sample(1:ncell(a), 10)), returnIndices = TRUE,
-                         0.235, 0, NULL, 1e8, 8, iterations = 2, id = TRUE,
+                         spreadProb = 0.235, 0, NULL, 1e8, 8, iterations = 2, id = TRUE,
                          spreadState = fires[[i - 1]])
     stopped[[i]] <- fires[[i]][, sum(active), by = id][V1 == 0, id]
 
@@ -56,7 +57,8 @@ test_that("spread produces legal RasterLayer", {
                    spreadState = fires)
   expect_true(all(fires2[, unique(id)] %in% fires[, unique(id)]))
   expect_true(all(fires[, unique(id)] %in% fires2[, unique(id)]))
-  expect_true(all(fires2[, length(initialLocus), by = id][, V1] == c(5, 14, 10, 16, 1, 39, 16, 18, 28, 1)))
+  expect_true(all(fires2[, length(initialLocus), by = id][, V1] ==
+                    c(5L, 10L, 8L, 11L, 1L, 29L, 13L, 14L, 22L, 1L)))
 })
 
 test_that("spread stopRule does not work correctly", {
@@ -83,8 +85,9 @@ test_that("spread stopRule does not work correctly", {
   set.seed(1234)
   startCells <- as.integer(sample(1:ncell(hab), 10))
   stopRule1 <- function(landscape) sum(landscape) > maxVal
-  stopRuleA <- spread(hab, loci = startCells, 1, 0,
-                      NULL, maxSize = 1e6, 8, 1e6, id = TRUE,
+  stopRuleA <- spread(hab, loci = startCells, spreadProb = 1, persistence = 0,
+                      mask = NULL, maxSize = 1e6, directions = 8,
+                      iterations = 1e6, id = TRUE,
                       circle = TRUE, stopRule = stopRule1)
   foo <- cbind(vals = hab[stopRuleA], id = stopRuleA[stopRuleA > 0]);
   expect_true(all( tapply(foo[, "vals"], foo[, "id"], sum) > maxVal))
@@ -182,7 +185,7 @@ test_that("spread stopRule does not work correctly", {
   # Test for circles using maxDist
   set.seed(543345)
   numCircs <- 4
-  #  set.seed(53432)
+  set.seed(53432)
   stopRule2 <- function(landscape) sum(landscape) > maxVal
   startCells <- as.integer(sample(1:ncell(hab), numCircs))
 
@@ -1172,4 +1175,27 @@ test_that("multi-core version of distanceFromEachPoints does not work correctly"
     endCluster()
     expect_true(all.equal(dfep, dfepCluster2))
   }
+})
+
+test_that("spreadProb with relative values does not work correctly", {
+  library(raster)
+  seed <- 64350
+  set.seed(seed)
+  emptyRas <- raster(extent(0, 1e2, 0, 1e2), res = 1)
+  hab <- randomPolygons(emptyRas, numTypes = 40)
+  names(hab) <- "hab"
+
+  hab3 <- (hab > 20) * 200 + 1
+  sam <- sample(which(hab3[] == 1), 1)
+  set.seed(seed)
+  events1 <- spread(hab3, spreadProb = hab3, loci = sam, directions = 8,
+                    neighProbs = c(0, 1), maxSize = c(100), exactSizes = TRUE)
+
+  # Compare to absolute probability version
+  set.seed(seed)
+  events2 <- spread(hab3, id = TRUE, loci = sam, directions = 8,
+                    neighProbs = c(0, 1), maxSize = c(100), exactSizes = TRUE)
+
+  # many more high value hab pixels spread to in event1
+  expect_true(sum(hab3[events1[] > 0]) > sum(hab3[events2[] > 0]))
 })

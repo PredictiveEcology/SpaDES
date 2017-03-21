@@ -4,20 +4,24 @@
 \name{zipModule}
 \alias{zipModule}
 \alias{zipModule,character,character,character-method}
-\alias{zipModule,character,character,missing-method}
 \alias{zipModule,character,missing,character-method}
 \alias{zipModule,character,missing,missing-method}
+\alias{zipModule,character,character,missing-method}
 \title{Create a zip archive of a module subdirectory}
 \usage{
-zipModule(name, path, version, ...)
+zipModule(name, path, version, data = FALSE, ...)
 
-\S4method{zipModule}{character,character,character}(name, path, version, ...)
+\S4method{zipModule}{character,character,character}(name, path, version,
+  data = FALSE, ...)
 
-\S4method{zipModule}{character,missing,character}(name, path, version, ...)
+\S4method{zipModule}{character,missing,character}(name, path, version,
+  data = FALSE, ...)
 
-\S4method{zipModule}{character,missing,missing}(name, path, version, ...)
+\S4method{zipModule}{character,missing,missing}(name, path, version,
+  data = FALSE, ...)
 
-\S4method{zipModule}{character,character,missing}(name, path, version, ...)
+\S4method{zipModule}{character,character,missing}(name, path, version,
+  data = FALSE, ...)
 }
 \arguments{
 \item{name}{Character string giving the module name.}
@@ -25,6 +29,9 @@ zipModule(name, path, version, ...)
 \item{path}{A file path to a directory containing the module subdirectory.}
 
 \item{version}{The module version.}
+
+\item{data}{Logical. If \code{TRUE}, then the data subfolder will be included in the zip.
+Default is \code{FALSE}.}
 
 \item{...}{Additional arguments to \code{\link{zip}}:
 e.g., add \code{"-q"} using \code{flags="-q -r9X"}
@@ -37,4 +44,3 @@ inside a given module.
 \author{
 Eliot McIntire and Alex Chubaty
 }
-

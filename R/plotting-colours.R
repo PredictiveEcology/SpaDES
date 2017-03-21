@@ -60,6 +60,7 @@ setMethod("getColors",
 #' Set colours for plotting Raster* objects.
 #'
 #' \code{setColors} works as a replacement method or a normal function call.
+#' This function can accept RColorBrewer colors by name. See example.
 #'
 #' @param object     A \code{Raster*} object.
 #'
@@ -76,6 +77,7 @@ setMethod("getColors",
 #'
 #' @export
 #' @importFrom grDevices colorRampPalette
+#' @importFrom RColorBrewer brewer.pal brewer.pal.info
 #' @docType methods
 #' @aliases setColours
 #' @rdname setColors
@@ -131,7 +133,7 @@ setMethod("getColors",
 #'     Plot(ras)
 #'   }
 #'
-#'   # if a factor rastere, and not enough labels are provided, then a warning
+#'   # if a factor raster, and not enough labels are provided, then a warning
 #'   #   will be given, and colors will be interpolated
 #'   #   The level called purple is not purple, but interpolated betwen red and yellow
 #'   ras <- setColors(ras, c("red", "yellow"))
@@ -139,6 +141,14 @@ setMethod("getColors",
 #'     clearPlot()
 #'     Plot(ras)
 #'   }
+#'
+#'   # Use RColorBrewer colors
+#'   setColors(ras) <- "Reds"
+#'   if (interactive()) {
+#'     clearPlot()
+#'     Plot(ras)
+#'   }
+#'
 #' }
 setGeneric("setColors<-",
            function(object, ..., n, value) {
@@ -158,8 +168,23 @@ setReplaceMethod(
     if (raster::is.factor(object)) {
       if (n != NROW(object@data@attributes[[1]])) {
         message("Number of colors not equal number of values: interpolating")
-        pal <- colorRampPalette(value, alpha = TRUE, ...)
         n <- NROW(object@data@attributes[[1]])
+      }
+    }
+    rcolbrewInfo <- RColorBrewer::brewer.pal.info
+    if ((value %in% row.names(rcolbrewInfo))[1]) {
+      if (n > rcolbrewInfo[value, "maxcolors"]) {
+        ntmp <- rcolbrewInfo[value, "maxcolors"]
+      } else {
+        ntmp <- n
+      }
+      value <- RColorBrewer::brewer.pal(ntmp , value)
+    }
+    if (raster::is.factor(object)) {
+      if (n != NROW(object@data@attributes[[1]])) {
+        #message("Number of colors not equal number of values: interpolating")
+        #pal <- colorRampPalette(value, alpha = TRUE, ...)
+        #n <- NROW(object@data@attributes[[1]])
         object@legend@colortable <- pal(n)
       } else {
         object@legend@colortable <- value
@@ -339,7 +364,7 @@ setMethod(
         cols <- colorTable
       }
     }
-  z <- getValues(grobToPlot)
+    z <- getValues(grobToPlot)
 
     # If minValue is defined, then use it, otherwise, calculate them.
     #  This is different than maxz because of the sampleRegular.
@@ -348,7 +373,7 @@ setMethod(
     #  so, use the metadata version of minValue, but use the max(z) to
     #  accomodate cases where there are too many legend values for the
     # number of raster values.
-  #if(!raster::is.factor(grobToPlot)) {
+  #if (!raster::is.factor(grobToPlot)) {
     if (any(is.na(legendRange))) {
       if (!exists("minz")) {
         minz <- suppressWarnings(min(z, na.rm = TRUE))
@@ -439,14 +464,17 @@ setMethod(
       if (is.character(cols) & (length(cols) == 1)) {
         if (cols %in% rownames(brewer.pal.info)) {
           suppressWarnings(cols <- brewer.pal(nValues, cols))
-        #} else {
-        #  warning("Color not recognized. Try RColorBrewer or default R colors")
         }
       }
       cols <- if (nValues > length(cols)) {
         colorRampPalette(cols)(nValues)
       } else if (nValues < length(cols)) {
-        cols[minz:maxz + max(0, 1 - minz)]
+        if ((minz + nValues - 1)  > length(cols)) {
+          # there are enough colors, but they don't start at 1
+          cols[minz:maxz - minz + 1 + max(0, 1 - minz)]
+        } else {
+          cols[minz:maxz + max(0, 1 - minz)]
+        }
       } else {
         cols
       }
@@ -479,7 +507,7 @@ setMethod(
     }
 
     # Here, rescale so it is between 0 and maxNumCols or nValues
-    if (isFac){
+    if (isFac) {
       z <- match(z, facLevs$ID)
     } else {
       if (real) {#& (maxz <= maxNumCols) ) {
@@ -551,7 +579,7 @@ setMethod(
 
     if (isFac & !is.null(colTable)) {
       cols <- rep(na.color, length(factorValues)) # changed from max to length to accommodate zeros or factors not starting at 1
-      cols[factorValues - min(factorValues) + 1] <- colTable
+      cols[seq_along(facLevs$ID) - min(factorValues) + 1] <- colTable
     }
     if (length(whichZeroLegend)) {
       cols[whichZeroLegend] <- zero.color

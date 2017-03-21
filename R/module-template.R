@@ -1,9 +1,9 @@
 ################################################################################
 #' Open a file for editing
 #'
-#' Rstudio's \code{file.edit} behaves differently than \code{utils::file.edit}.
+#' RStudio's \code{file.edit} behaves differently than \code{utils::file.edit}.
 #' The workaround is to have the user manually open the file if they are using
-#' Rstudio, as suggested in the Rstudio support ticket at
+#' RStudio, as suggested in the RStudio support ticket at
 #' \url{https://support.rstudio.com/hc/en-us/community/posts/206011308-file-edit-vs-utils-file-edit}.
 #'
 #' @param file  Character string giving the file path to open.
@@ -152,7 +152,7 @@ setMethod(
       newModuleTests(name = name, path = path, open = open)
     }
 
-    ### Make Rmarkdown file for module documentation
+    ### Make R Markdown file for module documentation
     newModuleDocumentation(name = name, path = path, open = open, type = type, children = children)
 })
 
@@ -223,16 +223,20 @@ defineModule(sim, list(
   authors = ", getOption("devtools.desc.author",
                          "c(person(c(\"First\", \"Middle\"), \"Last\", email = \"email@example.com\", role = c(\"aut\", \"cre\")))"), ",
   childModules = ", children_char, ",
-  version = numeric_version(\"", as.character(packageVersion("SpaDES")), "\"),
-  ", if (type == "child") "spatialExtent = raster::extent(rep(NA_real_, 4)),
-  timeframe = as.POSIXlt(c(NA, NA)),","
-  timeunit = \"year\",","
+  version = list(SpaDES = \"", as.character(packageVersion("SpaDES")), "\", ", name, " = \"0.0.1\"",
+        if (type == "parent") paste0(", ", children, " = \"0.0.1\""),
+        "),
+  ",
+  if (type == "child") "spatialExtent = raster::extent(rep(NA_real_, 4)),
+  timeframe = as.POSIXlt(c(NA, NA)),
+  ",
+  "timeunit = \"year\"," ,"
   citation = list(\"citation.bib\"),
   documentation = list(\"README.txt\", \"", name, ".Rmd\")",
   if (type == "child") ",
   reqdPkgs = list(),
   parameters = rbind(
-    #defineParameter(\"paramName\", \"paramClass\", value, min, max, \"parameter description\")),
+    #defineParameter(\"paramName\", \"paramClass\", value, min, max, \"parameter description\"),
     defineParameter(\".plotInitialTime\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first plot event should occur\"),
     defineParameter(\".plotInterval\", \"numeric\", NA, NA, NA, \"This describes the simulation time interval between plot events\"),
     defineParameter(\".saveInitialTime\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first save event should occur\"),
@@ -438,7 +442,7 @@ setMethod(
     filenameLICENSE <- file.path(nestedPath, "LICENSE")
     filenameREADME <- file.path(nestedPath, "README.txt")
 
-    ### Make Rmarkdown file for module documentation
+    ### Make R Markdown file for module documentation
     cat(
 "---
 title: \"", name, "\"
@@ -454,11 +458,11 @@ Provide an overview of what the module does / how to use the module.
 Module documentation should be written so that others can use your module.
 This is a template for module documentation, and should be changed to reflect your module.
 
-## RMarkdown
+## R Markdown
 
-RMarkdown syntax allows R code, outputs, and figures to be rendered in the documentation.
+R Markdown syntax allows R code, outputs, and figures to be rendered in the documentation.
 
-For help writing in RMarkdown, see http://rmarkdown.rstudio.com/.
+For help writing in R Markdown, see http://rmarkdown.rstudio.com/.
 
 # Usage
 
@@ -548,7 +552,7 @@ where to download data, etc.",
         file = filenameREADME, fill = FALSE, sep = "")
 
     if (open) {
-      # use tryCatch: Rstudio bug causes file open to fail on Windows (#209)
+      # use tryCatch: RStudio bug causes file open to fail on Windows (#209)
       openModules(basename(filenameRmd), nestedPath)
 
       # tryCatch(file.edit(filenameRmd), error = function(e) {
@@ -920,6 +924,8 @@ setMethod("copyModule",
 #' @param name    Character string giving the module name.
 #' @param path    A file path to a directory containing the module subdirectory.
 #' @param version The module version.
+#' @param data    Logical. If \code{TRUE}, then the data subfolder will be included in the zip.
+#'                Default is \code{FALSE}.
 #' @param ...     Additional arguments to \code{\link{zip}}:
 #'                e.g., add \code{"-q"} using \code{flags="-q -r9X"}
 #'                (the default flags are \code{"-r9X"}).
@@ -929,7 +935,7 @@ setMethod("copyModule",
 #' @export
 #' @rdname zipModule
 #'
-setGeneric("zipModule", function(name, path, version, ...) {
+setGeneric("zipModule", function(name, path, version, data=FALSE, ...) {
   standardGeneric("zipModule")
 })
 
@@ -939,7 +945,7 @@ setGeneric("zipModule", function(name, path, version, ...) {
 setMethod(
   "zipModule",
   signature = c(name = "character", path = "character", version = "character"),
-  definition = function(name, path, version, ...) {
+  definition = function(name, path, version, data, ...) {
     path <- checkPath(path, create = FALSE)
     callingWd <- getwd()
     on.exit(setwd(callingWd), add = TRUE)
@@ -949,8 +955,10 @@ setMethod(
 
     allFiles <- dir(path = file.path(name), recursive = TRUE, full.names = TRUE)
     allFiles <- grep(paste0(name, "_+.+.zip"), allFiles, value = TRUE, invert = TRUE) # moduleName_....zip only
+    if (!data)
+      allFiles <- grep(file.path(name, "data"),  allFiles, invert = TRUE, value = TRUE)
 
-    zip(zipFileName, files = allFiles)#, extras = c("-x"), ...)
+    zip(zipFileName, files = allFiles, ...)#, extras = c("-x"), ...)
     file.copy(zipFileName, to = paste0(name, "/", zipFileName), overwrite = TRUE)
     file.remove(zipFileName)
 })
@@ -959,28 +967,24 @@ setMethod(
 #' @export
 setMethod("zipModule",
           signature = c(name = "character", path = "missing", version = "character"),
-          definition = function(name, version, ...) {
-            zipModule(name = name, path = ".", version = version, ...)
+          definition = function(name, version, data, ...) {
+            zipModule(name = name, path = ".", version = version, data = data, ...)
 })
 
 #' @export
 #' @rdname zipModule
 setMethod("zipModule",
           signature = c(name = "character", path = "missing", version = "missing"),
-          definition = function(name, ...) {
-            vers <- .parseModulePartial(filename = file.path(path, name, paste0(name,".R")),
-                                        defineModuleElement = "version") %>% as.character
-            #vers <- moduleMetadata(name, ".")$version %>% as.character
-            zipModule(name = name, path = ".", version = vers, ...)
+          definition = function(name, data, ...) {
+            vers <- moduleVersion(name, path) %>% as.character()
+            zipModule(name = name, path = ".", version = vers, data = data, ...)
 })
 
 #' @export
 #' @rdname zipModule
 setMethod("zipModule",
           signature = c(name = "character", path = "character", version = "missing"),
-          definition = function(name, path, ...) {
-            vers <- .parseModulePartial(filename = file.path(path, name, paste0(name,".R")),
-                                        defineModuleElement = "version") %>% as.character
-            #vers <- moduleMetadata(name, path)$version %>% as.character
-            zipModule(name = name, path = path, version = vers, ...)
+          definition = function(name, path, data, ...) {
+            vers <- vers <- moduleVersion(name, path) %>% as.character()
+            zipModule(name = name, path = path, version = vers, data = data, ...)
 })

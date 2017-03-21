@@ -3,15 +3,15 @@
 \docType{methods}
 \name{splitRaster}
 \alias{splitRaster}
-\alias{splitRaster,RasterLayer,integer,integer,missing,character-method}
-\alias{splitRaster,RasterLayer,integer,integer,missing,missing-method}
 \alias{splitRaster,RasterLayer,integer,integer,numeric,character-method}
 \alias{splitRaster,RasterLayer,numeric,numeric,integer,character-method}
 \alias{splitRaster,RasterLayer,numeric,numeric,integer,missing-method}
-\alias{splitRaster,RasterLayer,numeric,numeric,missing,character-method}
-\alias{splitRaster,RasterLayer,numeric,numeric,missing,missing-method}
 \alias{splitRaster,RasterLayer,numeric,numeric,numeric,character-method}
 \alias{splitRaster,RasterLayer,numeric,numeric,numeric,missing-method}
+\alias{splitRaster,RasterLayer,numeric,numeric,missing,character-method}
+\alias{splitRaster,RasterLayer,numeric,numeric,missing,missing-method}
+\alias{splitRaster,RasterLayer,integer,integer,missing,character-method}
+\alias{splitRaster,RasterLayer,integer,integer,missing,missing-method}
 \title{Split a RasterLayer into multiple tiles}
 \usage{
 splitRaster(r, nx, ny, buffer, path, cl)
@@ -139,10 +139,9 @@ all.equal(n2, r) ## TRUE
 
 unlink(tmpdir, recursive = TRUE)
 }
-\author{
-Alex Chubaty and Yong Luo
-}
 \seealso{
 \code{\link{do.call}}, \code{\link[raster]{merge}}, \code{\link{mergeRaster}}.
 }
-
+\author{
+Alex Chubaty and Yong Luo
+}

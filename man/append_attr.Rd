@@ -36,4 +36,3 @@ rm(tmp1, tmp2)
 \author{
 Alex Chubaty and Eliot McIntire
 }
-

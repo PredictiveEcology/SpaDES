@@ -29,4 +29,3 @@ Merges two \code{.spadesPlot} objects
 Eliot McIntire
 }
 \keyword{internal}
-

@@ -6,15 +6,21 @@
 \alias{makeDigestible,simList-method}
 \title{Remove any reference to environments or filepaths in objects}
 \usage{
-makeDigestible(object, objects)
+makeDigestible(object, objects, compareRasterFileLength = 1e+06)
 
-\S4method{makeDigestible}{simList}(object, objects)
+\S4method{makeDigestible}{simList}(object, objects,
+  compareRasterFileLength = 1e+06)
 }
 \arguments{
 \item{object}{an object to convert to a 'digestible' state}
 
 \item{objects}{Optional character vector indicating which objects are to
 be considered while making digestible.}
+
+\item{compareRasterFileLength}{Numeric. Optional. When there are Rasters, that
+have file-backed storage, this is passed to the length arg in \code{digest}
+when determining if the Raster file is already in the database.
+Default 1e6. Passed to \code{prepareFileBackedRaster}.}
 }
 \value{
 A simplified version of the \code{simList} object, but with no
@@ -45,13 +51,12 @@ The \code{.envir} slot is emptied (\code{NULL}).
 The object is then converted to a \code{simList_} which has a \code{.list} slot.
 The hashes of the objects are then placed in that \code{.list} slot.
 }
-\author{
-Eliot McIntire
-}
 \seealso{
 \code{\link[archivist]{cache}}.
 
 \code{\link[digest]{digest}}.
 }
+\author{
+Eliot McIntire
+}
 \keyword{internal}
-

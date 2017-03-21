@@ -27,4 +27,3 @@ white space availabe to plot.
 Eliot McIntire
 }
 \keyword{internal}
-

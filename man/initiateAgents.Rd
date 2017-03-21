@@ -3,11 +3,11 @@
 \docType{methods}
 \name{initiateAgents}
 \alias{initiateAgents}
-\alias{initiateAgents,Raster,missing,Raster,ANY,missing-method}
 \alias{initiateAgents,Raster,missing,missing,ANY,missing-method}
-\alias{initiateAgents,Raster,missing,missing,ANY,numeric-method}
-\alias{initiateAgents,Raster,numeric,Raster,ANY,missing-method}
+\alias{initiateAgents,Raster,missing,Raster,ANY,missing-method}
 \alias{initiateAgents,Raster,numeric,missing,ANY,missing-method}
+\alias{initiateAgents,Raster,numeric,Raster,ANY,missing-method}
+\alias{initiateAgents,Raster,missing,missing,ANY,numeric-method}
 \title{\code{SELES} - Initiate agents}
 \usage{
 initiateAgents(map, numAgents, probInit, asSpatialPoints = TRUE, indices)
@@ -81,4 +81,3 @@ out
 \author{
 Eliot McIntire
 }
-

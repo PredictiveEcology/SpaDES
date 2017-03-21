@@ -2,15 +2,15 @@
 % Please edit documentation in R/plotting-colours.R
 \docType{methods}
 \name{setColors<-}
-\alias{setColors}
-\alias{setColors,RasterLayer,character,missing-method}
-\alias{setColors,RasterLayer,character,numeric-method}
 \alias{setColors<-}
-\alias{setColors<-,Raster,missing,list-method}
-\alias{setColors<-,RasterLayer,missing,character-method}
-\alias{setColors<-,RasterLayer,numeric,character-method}
-\alias{setColors<-,RasterStack,numeric,list-method}
 \alias{setColours}
+\alias{setColors<-,RasterLayer,numeric,character-method}
+\alias{setColors<-,RasterLayer,missing,character-method}
+\alias{setColors<-,RasterStack,numeric,list-method}
+\alias{setColors<-,Raster,missing,list-method}
+\alias{setColors}
+\alias{setColors,RasterLayer,character,numeric-method}
+\alias{setColors,RasterLayer,character,missing-method}
 \title{Set colours for plotting Raster* objects.}
 \usage{
 setColors(object, ..., n) <- value
@@ -46,6 +46,7 @@ Returns a Raster with the \code{colortable} slot set to \code{values}.
 }
 \description{
 \code{setColors} works as a replacement method or a normal function call.
+This function can accept RColorBrewer colors by name. See example.
 }
 \examples{
 \dontrun{
@@ -93,7 +94,7 @@ Returns a Raster with the \code{colortable} slot set to \code{values}.
     Plot(ras)
   }
 
-  # if a factor rastere, and not enough labels are provided, then a warning
+  # if a factor raster, and not enough labels are provided, then a warning
   #   will be given, and colors will be interpolated
   #   The level called purple is not purple, but interpolated betwen red and yellow
   ras <- setColors(ras, c("red", "yellow"))
@@ -101,13 +102,20 @@ Returns a Raster with the \code{colortable} slot set to \code{values}.
     clearPlot()
     Plot(ras)
   }
+
+  # Use RColorBrewer colors
+  setColors(ras) <- "Reds"
+  if (interactive()) {
+    clearPlot()
+    Plot(ras)
+  }
+
 }
-}
-\author{
-Alex Chubaty
 }
 \seealso{
 \code{\link[RColorBrewer]{brewer.pal}},
          \code{\link[grDevices]{colorRampPalette}}.
 }
-
+\author{
+Alex Chubaty
+}

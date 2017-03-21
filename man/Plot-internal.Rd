@@ -2,16 +2,25 @@
 % Please edit documentation in R/plotting-helpers.R
 \docType{methods}
 \name{.convertSpatialToPlotGrob}
-\alias{.Plot}
-\alias{.Plot,.spadesGrob-method}
 \alias{.convertSpatialToPlotGrob}
+\alias{PlotHelpers}
 \alias{.convertSpatialToPlotGrob,spatialObjects,.spadesGrob-method}
-\alias{.refreshGrob}
-\alias{.refreshGrob,.spadesGrob-method}
-\alias{.updateGrobGPTextAxis}
-\alias{.updateGrobGPTextAxis,.spadesGrob-method}
+\alias{PlotHelpers}
 \alias{.xyAxes}
+\alias{PlotHelpers}
 \alias{.xyAxes,.spadesGrob,.arrangement-method}
+\alias{PlotHelpers}
+\alias{.Plot}
+\alias{PlotHelpers}
+\alias{.Plot,.spadesGrob-method}
+\alias{PlotHelpers}
+\alias{.refreshGrob}
+\alias{PlotHelpers}
+\alias{.refreshGrob,.spadesGrob-method}
+\alias{PlotHelpers}
+\alias{.updateGrobGPTextAxis}
+\alias{PlotHelpers}
+\alias{.updateGrobGPTextAxis,.spadesGrob-method}
 \alias{PlotHelpers}
 \title{Internal functions used by Plot}
 \usage{
@@ -113,4 +122,3 @@ Not meant to be used by user.
 Eliot McIntire
 }
 \keyword{internal}
-

@@ -2,10 +2,10 @@
 % Please edit documentation in R/plotting-other.R
 \docType{methods}
 \name{clickValues}
-\alias{.clickCoord}
-\alias{clickCoordinates}
-\alias{clickExtent}
 \alias{clickValues}
+\alias{clickExtent}
+\alias{clickCoordinates}
+\alias{.clickCoord}
 \title{Mouse interactions with Plots}
 \usage{
 clickValues(n = 1)
@@ -36,7 +36,7 @@ new extent. Default \code{TRUE}.}
 \description{
 These functions use \code{grid.locator}. The primary two user-level functions are
 \code{clickValues} and \code{clickExtent}. These functions automatically select
-the correct viewport (i.e., map) where the mouse clicks occured so the user
+the correct viewport (i.e., map) where the mouse clicks occurred so the user
 does not have to manually specify which map is being clicked on.
 This works for \code{Raster*}, \code{SpatialPoints*}, and \code{SpatialPolygons*} objects.
 }
@@ -60,4 +60,3 @@ clicked on and passes this plot name and the clicked coordinates to \code{.click
 Eliot McIntire
 }
 \keyword{internal}
-

@@ -3,11 +3,11 @@
 \docType{methods}
 \name{layerNames}
 \alias{layerNames}
-\alias{layerNames,.spadesPlot-method}
+\alias{layerNames,list-method}
 \alias{layerNames,ANY-method}
 \alias{layerNames,Raster-method}
+\alias{layerNames,.spadesPlot-method}
 \alias{layerNames,igraph-method}
-\alias{layerNames,list-method}
 \title{Extract the layer names of Spatial Objects}
 \usage{
 layerNames(object)
@@ -36,4 +36,3 @@ classes of objects plotted by \code{Plot}.
 \author{
 Eliot McIntire
 }
-

@@ -42,4 +42,3 @@ Builds a \code{.spadesPlot} object from a list of objects.
 Eliot McIntire
 }
 \keyword{internal}
-

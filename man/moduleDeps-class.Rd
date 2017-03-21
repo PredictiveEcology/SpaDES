@@ -2,8 +2,8 @@
 % Please edit documentation in R/module-dependencies-class.R
 \docType{class}
 \name{.moduleDeps-class}
-\alias{.moduleDeps}
 \alias{.moduleDeps-class}
+\alias{.moduleDeps}
 \title{The \code{.moduleDeps} class}
 \description{
 Descriptor object for specifying SpaDES module dependecies.
@@ -64,11 +64,11 @@ input and an output, add the object to each of these
 \item{\code{outputObjects}}{A \code{data.frame} specifying the objects output by the
 module, following the format of \code{inputObjects}.}
 }}
-\author{
-Alex Chubaty
-}
+
 \seealso{
 \code{.simDeps}, \code{\link{spadesClasses}}
 }
+\author{
+Alex Chubaty
+}
 \keyword{internal}
-

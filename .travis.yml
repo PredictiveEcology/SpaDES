@@ -48,6 +48,11 @@ matrix:
   - os: linux
     dist: trusty
     cran: https://cran.rstudio.com/
+    addons:
+      apt:
+        packages:
+          - libgdal1-dev
+
     before_install:
     - tlmgr install xcolor
     - export DISPLAY=:99.0

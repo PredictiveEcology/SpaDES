@@ -91,10 +91,9 @@ all.equal(n2, r) ## TRUE
 
 unlink(tmpdir, recursive = TRUE)
 }
-\author{
-Yong Luo and Alex Chubaty
-}
 \seealso{
 \code{\link[raster]{merge}}, \code{\link[raster]{mosaic}}
 }
-
+\author{
+Yong Luo and Alex Chubaty
+}

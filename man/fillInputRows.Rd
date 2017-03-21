@@ -15,4 +15,3 @@
 An internal function for coercing a data.frame to inputs()
 }
 \keyword{internal}
-

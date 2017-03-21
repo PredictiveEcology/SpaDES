@@ -3,9 +3,9 @@
 \docType{methods}
 \name{normPath}
 \alias{normPath}
-\alias{normPath,NULL-method}
 \alias{normPath,character-method}
 \alias{normPath,list-method}
+\alias{normPath,NULL-method}
 \alias{normPath,missing-method}
 \title{Normalize filepath}
 \usage{
@@ -31,4 +31,3 @@ Checks the specified filepath for formatting consistencies:
  2) do tilde etc. expansion;
  3) remove trailing slash.
 }
-

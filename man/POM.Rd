@@ -350,11 +350,10 @@ if (interactive()) {
                  lower = c(0.2, 80), upper = c(0.24, 120))
 }
 }
-\author{
-Eliot McIntire
-}
 \seealso{
 \code{\link{spades}}, \code{\link[parallel]{makeCluster}},
 \code{\link{simInit}}
 }
-
+\author{
+Eliot McIntire
+}

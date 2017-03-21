@@ -3,11 +3,11 @@
 \docType{methods}
 \name{.fileExtensions}
 \alias{.fileExtensions}
-\alias{.saveFileExtensions}
 \alias{loadFiles}
+\alias{loadFiles,simList,missing-method}
 \alias{loadFiles,missing,ANY-method}
 \alias{loadFiles,missing,missing-method}
-\alias{loadFiles,simList,missing-method}
+\alias{.saveFileExtensions}
 \title{File extensions map}
 \usage{
 .fileExtensions()
@@ -77,12 +77,11 @@ end(sim2) <- 20
 sim2 <- spades(sim2) # loads the percentPine map 2 more times, once at 10, once at 20
 }
 }
+\seealso{
+\code{\link{inputs}}
+}
 \author{
 Eliot McIntire
 
 Alex Chubaty
 }
-\seealso{
-\code{\link{inputs}}
-}
-

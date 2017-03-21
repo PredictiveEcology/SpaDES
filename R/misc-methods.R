@@ -206,7 +206,7 @@ setMethod(
   "loadPackages",
   signature = "character",
   definition = function(packageList, install, quiet) {
-    packageList <- na.omit(packageList) %>% as.character
+    packageList <- na.omit(packageList) %>% as.character()
     if (length(packageList)) {
       if (install) {
         repos <- getOption("repos")
@@ -218,7 +218,13 @@ setMethod(
         install.packages(toInstall, repos = repos)
       }
 
-      loaded <- sapply(packageList, require, character.only = TRUE)
+      loaded <- suppressMessages(sapply(packageList, require, character.only = TRUE,
+                                        quiet = TRUE, warn.conflicts = FALSE))
+
+      if (any(!loaded)) {
+        stop("Some packages required for the simulation are not installed:\n",
+             "    ", paste(names(loaded[-which(loaded)]), collapse = "\n    "))
+      }
 
       if (!quiet) {
         message(paste("Loaded", length(which(loaded == TRUE)), "of",
@@ -309,7 +315,7 @@ setMethod("normPath",
 })
 
 ################################################################################
-#' Check filepath.
+#' Check filepath
 #'
 #' Checks the specified filepath for formatting consistencies,
 #' such as trailing slashes, etc.
@@ -676,58 +682,19 @@ setMethod(
 #' @include simList-class.R
 #' @docType methods
 #' @keywords internal
-#' @rdname sortDotsFirst
+#' @rdname sortDotsUnderscoreFirst
 #' @author Eliot McIntire
-sortDotsFirst <- function(obj) {
-  dotObjs <- grep("^\\.", names(obj))
-  if (length(dotObjs) > 0) {
-    append(obj[dotObjs][order(names(obj[dotObjs]))],
-           obj[-dotObjs][order(names(obj[-dotObjs]))])
-  } else {
-    obj
-  }
+sortDotsUnderscoreFirst <- function(obj) {
+  names(obj) <- gsub(names(obj), pattern="\\.", replacement = "DOT")
+  names(obj) <- gsub(names(obj), pattern="_", replacement = "US")
+  obj[order(names(obj))]
+  # if (length(dotObjs) > 0) {
+  #   append(obj[dotObjs][order(names(obj[dotObjs]))],
+  #          obj[-dotObjs][order(names(obj[-dotObjs]))])
+  # } else {
+  #   obj
+  # }
 }
-
-#' Compare module version against SpaDES package version and warn if incompatible
-#'
-#' Performs a basic check to ensure the module version is compatible with the
-#' SpaDES package version.
-#' Compatibility is best assured when both versions are equal.
-#' If module version < spades version, there is likely no problem, as SpaDES
-#' should be backwards compatible.
-#' However, if module version > spades version, the user needs to update their
-#' version of SpaDES because module compatibility cannot be assured.
-#'
-#' @param moduleName     Character string providing the module name.
-#' @param moduleVersion  The module version as either a character, numeric, or
-#'                       numeric version (e.g., extracted from module metadata).
-#'                       Is coerced to \code{numeric_version}.
-#' @return Logical (invisibly) indicating whether the module is compatible with
-#' the version of the SpaDES package.
-#' Will also produce a warning if not compatible.
-#'
-#' @author Alex Chubaty
-#'
-setGeneric("versionWarning", function(moduleName, moduleVersion) {
-  standardGeneric("versionWarning")
-})
-
-#' @rdname versionWarning
-setMethod(
-  "versionWarning",
-  signature(moduleName = "character", moduleVersion = "ANY"),
-  definition = function(moduleName, moduleVersion) {
-    moduleVersion <- as.numeric_version(moduleVersion)
-    pkgVersion <- packageVersion("SpaDES")
-
-    isOK <- (pkgVersion >= moduleVersion)
-
-    if (!isOK) {
-      warning("Module version (", moduleVersion, ") does not match ",
-              "SpaDES package version (", pkgVersion, ").\n")
-    }
-    return(invisible(isOK))
-})
 
 ################################################################################
 #' Create empty fileTable for inputs and outputs

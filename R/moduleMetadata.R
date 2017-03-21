@@ -5,13 +5,15 @@
 #'
 #' @param path   Character string specifying the file path to modules directory.
 #'               Default is to use the \code{spades.modulePath} option.
+#'
 #' @inheritParams spades
 #'
 #' @return A list of module metadata, matching the structure in
 #'         \code{\link{defineModule}}.
 #'
-#' @export
 #' @docType methods
+#' @export
+#' @include simulation.R
 #' @rdname moduleMetadata
 #'
 #' @seealso \code{\link{defineModule}}
@@ -42,37 +44,17 @@ setGeneric("moduleMetadata", function(module, path, sim) {
 #' @rdname moduleMetadata
 setMethod(
   "moduleMetadata",
-  signature = c(module = "character", path = "character"),
+  signature = c(module = "character", path = "character", sim = "missing"),
   definition = function(module, path) {
     filename <- paste(path, "/", module, "/", module, ".R", sep = "")
     if (!file.exists(filename)) {
       stop(paste(filename, "does not exist. This was created by putting",
                  "modulePath with the module name as a folder and filename. ",
                  "Please correct the modulePath or module name in",
-                 "the simInit call."))
+                 "the simInit() call."))
     }
 
-    # parsedFile <- parse(filename)
-    # defineModuleItem <- grepl(pattern = "defineModule", parsedFile)
-    #
-    # # pull out the list portion from "defineModule"
-    # x <- parsedFile[defineModuleItem] %>%
-    #   as.character %>%
-    #   gsub("[[:space:]]*\\n[[:space:]]*", " ", .) %>%
-    #   sub("^defineModule[[:space:]]*\\([[:space:]]*", "", .) %>%
-    #   sub("^sim[[:space:]]*,[[:space:]]*", "", .) %>%
-    #   sub("\\)$", "", .) %>%
-    #   gsub("[[:space:]]*=[[:space:]]*", " = ", .)
-    #
-    # # ensure variables in params are kept as strings
-    # x <- gsub("(globals\\(sim\\)\\$[^\\),]*)", "\"\\1\"", x, perl = TRUE)
-    # x <- gsub( "(params\\(sim\\)\\$[^\\),]*)", "\"\\1\"", x, perl = TRUE)
-    #
-    # # check input types
-    # x <- gsub("extent\\(rep\\(NA, 4\\)\\)", "extent\\(rep\\(NA_real_, 4\\)\\)", x) %>%
-    #   gsub("extent\\(c\\(NA, NA, NA, NA\\)\\)", "extent\\(rep\\(NA_real_, 4\\)\\)", .)
-
-    # store metadata as list
+    ## store metadata as list
     defineModuleListItems <- c("name", "description", "keywords", "childModules", "authors",
       "version", "spatialExtent", "timeframe", "timeunit", "citation",
       "documentation", "reqdPkgs", "parameters", "inputObjects", "outputObjects")
@@ -133,5 +115,86 @@ setMethod(
       names(metadata) <- module
     }
     return(metadata)
+})
 
-  })
+################################################################################
+#' Parse and extract a module's version
+#'
+#' @param module Character string. Your module's name.
+#'
+#' @param path   Character string specifying the file path to modules directory.
+#'               Default is to use the \code{spades.modulePath} option.
+#'
+#' @inheritParams spades
+#'
+#' @return \code{numeric_version} indicating the module's version.
+#'
+#' @docType methods
+#' @export
+#' @include simulation.R
+#' @rdname moduleVersion
+#'
+#' @seealso \code{\link{moduleMetadata}}
+#'
+#' @author Alex Chubaty
+#'
+#' @examples
+#' path <- system.file(package = "SpaDES", "sampleModules")
+#'
+#' # using filepath
+#' moduleVersion("caribouMovement", path)
+#'
+#' # using simList
+#' mySim <- simInit(
+#'    times = list(start = 2000.0, end = 2002.0, timeunit = "year"),
+#'    params = list(
+#'      .globals = list(stackName = "landscape", burnStats = "nPixelsBurned")
+#'    ),
+#'    modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
+#'    paths = list(modulePath = path)
+#' )
+#' moduleVersion("caribouMovement", sim = mySim)
+#'
+setGeneric("moduleVersion", function(module, path, sim) {
+  standardGeneric("moduleVersion")
+})
+
+#' @export
+#' @rdname moduleVersion
+setMethod(
+  "moduleVersion",
+  signature = c(module = "character", path = "character", sim = "missing"),
+  definition = function(module, path) {
+  v <- .parseModulePartial(filename = file.path(path, module, paste0(module, ".R")),
+                           defineModuleElement = "version")
+  if (is.null(names(v))) {
+    as.numeric_version(v) ## SpaDES < 1.3.1.9044
+  } else {
+    as.numeric_version(v[[module]]) ## SpaDES >= 1.3.1.9044
+  }
+})
+
+#' @export
+#' @rdname moduleVersion
+setMethod(
+  "moduleVersion",
+  signature = c(module = "character", path = "missing", sim = "missing"),
+  definition = function(module) {
+    moduleVersion(module = module, path = getOption("spades.modulePath"))
+})
+
+#' @export
+#' @rdname moduleVersion
+setMethod(
+  "moduleVersion",
+  signature = c(module = "character", path = "missing", sim = "simList"),
+  definition = function(module, sim) {
+    v <- .parseModulePartial(sim = sim, modules = list(module), defineModuleElement = "version") %>%
+      `[[`(module)
+
+    if (is.null(names(v))) {
+      as.numeric_version(v) ## SpaDES < 1.3.1.9044
+    } else {
+      as.numeric_version(v[[module]])  ## SpaDES >= 1.3.1.9044
+    }
+})

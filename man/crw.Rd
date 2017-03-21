@@ -2,10 +2,10 @@
 % Please edit documentation in R/movement.R
 \docType{methods}
 \name{move}
-\alias{crw}
-\alias{crw,SpatialPoints-method}
-\alias{crw,SpatialPointsDataFrame-method}
 \alias{move}
+\alias{crw}
+\alias{crw,SpatialPointsDataFrame-method}
+\alias{crw,SpatialPoints-method}
 \title{Move}
 \usage{
 move(hypothesis = "crw", ...)
@@ -48,8 +48,8 @@ side of the map, as determined by the \code{extent} argument.
 Default \code{FALSE}.}
 }
 \value{
-A SpatialPointsDataFrame object with updated spatial position defined by a
-  single occurence of step length(s) and turn angle(s).
+A SpatialPointsDataFrame object with updated spatial position defined
+        by a single occurrence of step length(s) and turn angle(s).
 }
 \description{
 Wrapper for selecting different animal movement methods.
@@ -61,11 +61,6 @@ This simple version of a correlated random walk is largely the version that
 was presented in Turchin 1998, but it was also used with bias modifications
 in McIntire, Schultz, Crone 2007.
 }
-\author{
-Eliot McIntire
-
-Eliot McIntire
-}
 \references{
 Turchin, P. 1998. Quantitative analysis of movement: measuring and modeling population redistribution in animals and plants. Sinauer Associates, Sunderland, MA.
 
@@ -74,4 +69,8 @@ McIntire, E. J. B., C. B. Schultz, and E. E. Crone. 2007. Designing a network fo
 \seealso{
 \code{\link{pointDistance}}
 }
+\author{
+Eliot McIntire
 
+Eliot McIntire
+}

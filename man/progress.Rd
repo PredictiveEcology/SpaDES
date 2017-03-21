@@ -5,9 +5,11 @@
 \alias{progressInterval}
 \alias{progressInterval,.simList-method}
 \alias{progressInterval<-}
+\alias{progressInterval<-}
 \alias{progressInterval<-,.simList-method}
 \alias{progressType}
 \alias{progressType,.simList-method}
+\alias{progressType<-}
 \alias{progressType<-}
 \alias{progressType<-,.simList-method}
 \title{Get and set simulation progress bar details}
@@ -81,4 +83,3 @@ Other functions to access elements of a \code{simList} object: \code{\link{.addD
   \code{\link{params}}, \code{\link{paths}},
   \code{\link{times}}
 }
-

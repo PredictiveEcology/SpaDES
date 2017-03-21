@@ -2,7 +2,7 @@
 title: "02 Building modules in `SpaDES`"
 author:
   - "Alex M. Chubaty"
-date: '`r format(Sys.Date(), format="%B %d %Y")`'
+date: '`r strftime(Sys.Date(), "%B %d %Y")`'
 output:
   rmarkdown::html_vignette:
     number_sections: yes
@@ -50,10 +50,10 @@ A module can schedule other event types from within the same module, and should 
 
 Each module schedules its own events (*e.g.*, a 'fire' module may schedule 'burn' events) and only uses its own data objects (or shared simulation objects).
 Modules that behave in this way are independent of one another, which is the preferred way to design and implement modules.
-Maintaining strict modularity allows the removal, additon, and replacement of modules without having to rewrite your code.
+Maintaining strict modularity allows the removal, addition, and replacement of modules without having to rewrite your code.
 
 Module event dependencies complicate the construction of simulation models, and hinder the ability to develop and deploy models with modularity.
-If two modules are actually depedent on each others' events, then you should consider whether they really are separate modules or should be merged into a single module.
+If two modules are actually dependent on each others' events, then you should consider whether they really are separate modules or should be merged into a single module.
 
 # Module structure
 
@@ -110,7 +110,7 @@ Every module requires complete metadata, structured as a named list, and passed 
 **`timeunit`**        | Describes the unit of time corresponding to `1.0` simulation time units.
 **`citation`**        | A list of citations for the module, as a character strings.
 &nbsp;                | Alternatively, the name of a \code{.bib} or similar file.
-**`documentation`**   | List of filenames refering to module documentation sources.
+**`documentation`**   | List of filenames referring to module documentation sources.
 **`reqdPkgs`**        | Character vector of R package names to be loaded.
 **`parameters`**      | A `data.frame` constructed using `rbind` with `defineParameter`, specifying module
 &nbsp;                | parameters, with columns `paramName`, `paramClass`, `default`, `min`, `max`, and `paramDesc`.
@@ -263,7 +263,7 @@ This mostly allows for function definitions to be simpler, *i.e.*, they just tak
 Accessing objects in the `envir` is similar to accessing items in a list, *i.e.*, `sim[["object"]]` or `sim$object` can be used, in addition to `get("object", envir=envir(sim))`. Likewise, simulation functions (*i.e.*, those defined in modules) are also accessed using the `$` accessor (*e.g.*, `sim$myFunction()`).
 
 Note that every module requires an `"init"` event type, which defines the initialization of the module; however, this `init` event need not do a whole lot (*i.e.*, it can be a stub).
-As such, the `modulenameInit()` function is required for initiliazation.
+As such, the `modulenameInit()` function is required for initialization.
 Modules may also include `"save"` and `"plot"` events, though these are optional.
 
 ```{r event-functions, echo=TRUE, eval=FALSE}
@@ -361,11 +361,11 @@ eventDiagram(mySim, "0000-06-01", n = 200, width = 720)
 Module documentation should be written so that others can use your module.
 As such, this documentation should include a high-level overview of the module as well as low-level, detailed descriptions of its usage.
 
-We strongly recommend using RMarkdown (`.Rmd`) for this documentation, as it is easily human-readible while also being machine-readible and easily converted to a wide variety of file formats including `PDF`, `HTML`, and `DOCX`.
+We strongly recommend using R Markdown (`.Rmd`) for this documentation, as it is easily human-readable while also being machine-readable and easily converted to a wide variety of file formats including `PDF`, `HTML`, and `DOCX`.
 Another benefit of using a text-based file format is to facilitate transparent document versioning and history using version control systems like `git`.
-For help writing in RMarkdown, see http://rmarkdown.rstudio.com/.
+For help writing in R Markdown, see http://rmarkdown.rstudio.com/.
 
-## Citation, License, and Readme files
+## Citation, LICENSE, and README files
 
 -  `citation.bib` provides a `BibTeX` formatted citation with which the module can be referenced.
 Most citation management software can read and output `.bib` format.
@@ -390,7 +390,7 @@ It is useful to not only check that the data files exist locally but that their 
 Use [semantic versioning](http://semver.org), such that a version number `x.y.z` corresponds to:
 
 - `x` is the **major** version (incremented when you make incompatible API changes)
-- `y` is the **minor** version (incremeted when you add functionality in a backwards-compatible manner)
+- `y` is the **minor** version (incremented when you add functionality in a backwards-compatible manner)
 - `z` is the **patch** version (incremented when you make backwards-compatible bug fixes)
 
 # Passing data between modules
@@ -401,7 +401,7 @@ Modularity in `SpaDES` simulations is maintained by ensuring modules interact in
 
 As you build your modules for your simulation, you can use any of `R`'s data types to store your objects and data.
 In particular, matrices (including vectors) and lists work well for this purpose because, as of `R` version `3.1.0`, they are more efficient, reducing your model's memory footprint and speeding up your code's execution.
-Other useful datatypes include `Raster*` and `SpatialPoints*` objects (see examples below).
+Other useful data types include `Raster*` and `SpatialPoints*` objects (see examples below).
 
 ## Global objects and the simulation environment
 
@@ -476,7 +476,7 @@ These core modules are summarized in the following table and described further b
 &nbsp;            | &nbsp;                                 | &nbsp;
 **`.load`**       | `inputs`: data.frame                   | `inputs()` or passed as `inputs` argument to `simList`
 &nbsp;            | &nbsp;                                 | &nbsp;
-**`.save`**       | `ouputs`: data.frame                   | `outputs()` or passed as `outputs` argument to `simList`
+**`.save`**       | `outputs`: data.frame                   | `outputs()` or passed as `outputs` argument to `simList`
 &nbsp;            | `.saveInitialTime`: numeric (or `NA`)  | as list item in your module parameters.
 &nbsp;            | `.saveInterval`: numeric (or `NA`)     | as list item in your module parameters.
 &nbsp;            | `.saveObjects`: character.             | as list item in your module parameters.
@@ -487,7 +487,7 @@ These core modules are summarized in the following table and described further b
 Schedule automatic simulation checkpointing to allow you to resume a previously saved simulation.
 All objects in the global environment including the state of the random number generator are saved and can be reloaded.
 Checkpoint frequency and filename can be passed as parameters to the simulation object as illustrated below.
-By befault, checkpointing is not used unless the `interval` parameter is provided; the simulation checkpoint file (if one exists) is loaded if the `file` parameter is specified.
+By default, checkpointing is not used unless the `interval` parameter is provided; the simulation checkpoint file (if one exists) is loaded if the `file` parameter is specified.
 
 ```{r checkpoints, echo=TRUE, eval=TRUE, message=FALSE}
 
@@ -568,7 +568,7 @@ Additional columns can also be provided:
 Objects to be saved can be specified using the `output` argument, by passing a data.frame analogous to the `.load` module. 
 This `data.frame` is passed via the `outputs` argument in the `simInit` call or via a `outputs(mySim) <- data.frame()`.
 
-Saving files can be done "at the model level" by passing a simulation parameter called `outputs` which can be a `data.frame` and consists minimally of a column named `objectNames`.
+Saving files can be done "at the model level" by passing a simulation parameter called `outputs` which can be a `data.frame` and consists minimally of a column named `objectName`.
 This will identify which objects should be saved. 
 Additional columns can also be provided:
 
@@ -640,7 +640,7 @@ sim <- scheduleEvent(mySim, nextSave, "randomLandscapes", "save")
 
 ## Plotting
 
-Plotting events can be scheduled similarly to save events, by passing module-specific parameters indicating when to schedule the first plot event and how often to rescheduling recurring plot events. By default, when a module is created with a `newModule()` call, plotting will be scheduled using `.plotIntitialTime`. The default is NA, i.e., no plotting.
+Plotting events can be scheduled similarly to save events, by passing module-specific parameters indicating when to schedule the first plot event and how often to rescheduling recurring plot events. By default, when a module is created with a `newModule()` call, plotting will be scheduled using `.plotInitialTime`. The default is NA, i.e., no plotting.
 
 - `.plotInitialTime`: The time at which the first plot is scheduled.
 - `.plotInterval`: The interval at which objects will be plotted. Used to schedule plot events.
@@ -673,13 +673,13 @@ mySim <- scheduleEvent(mySim, nextPlot, "randomLandscapes", "save")
 
 One of the primary motivations of developing the `SpaDES` package is to facilitate module reuse.
 We provide a few modules with this package as samples for demos and the vignettes, which can be used as a starting point for your own module development.
-We also maintain a publically accessible repository of `SpaDES` modules (details below).
+We also maintain a publicly accessible repository of `SpaDES` modules (details below).
 
 Before using other modules, it is up to the modeler (you!) to understand the technical and scientific limitations of these modules.
 Although `SpaDES` provides some built-in functionality to ensure different modules will work together, and warn the user if certain module combinations are invalid, when deciding upon which modules to use, be sure to also:
 
 1. Ensure you are using a suitable `R` version;
-2. Check package dependencies and ensure you have the necesary packages installed on your system;
+2. Check package dependencies and ensure you have the necessary packages installed on your system;
 3. Check module object dependencies (`simInit` does this);
 4. Check module compatibility (*e.g.*, spatial extent, timeframe, etc.) (`simInit` only does a basic version of this).
 
@@ -730,9 +730,9 @@ While it may be useful for modules to exhibit indirect dependence on each other 
 
 ## Using the module template
 
-Code for new modules can be developed quickly using the template generator function `newModule`(also available as an Rstudio addin) which accepts as arguments the name of the new module, a directory path in which to create the new module, and a logical indicating whether to open the newly created module code file for editing.
+Code for new modules can be developed quickly using the template generator function `newModule`(also available as an RStudio addin) which accepts as arguments the name of the new module, a directory path in which to create the new module, and a logical indicating whether to open the newly created module code file for editing.
 
-Module developers can set the `devtools.desc.author` option (*e.g.*, in their `.Rprofile` to automatically supply a deafult module author).
+Module developers can set the `devtools.desc.author` option (*e.g.*, in their `.Rprofile` to automatically supply a default module author).
 See `package?devtools` for more details.
 
 ```{r create-new-module, eval=FALSE, echo=TRUE, message=FALSE}
@@ -809,7 +809,7 @@ We maintain a repository of `SpaDES` modules at the following site: [https://git
 All contributed modules should be well documented.
 In addition to providing *complete* metadata within the module's `.R` file, the following components (see details above) should be included:
 
-1. Complete module documentation, such as an Rmarkdown (`.Rmd`) document that can be built as a `PDF`.
+1. Complete module documentation, such as an R Markdown (`.Rmd`) document that can be built as a `PDF`.
 2. A `citation.bib` file containing a BibTeX-formatted citation for your module (or for the publication describing your module). This citation will be used by others when citing your module.
 3. A `LICENSE` file describing how your module code may be used and modified.
 4. A `README` file containing an overview of your module and updates that are included with each version.

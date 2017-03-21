@@ -85,12 +85,11 @@ A message with the correct lines to copy and paste is provided.
 }
 
 }
-\author{
-Alex Chubaty and Eliot McIntire
-}
 \seealso{
 Other module creation helpers: \code{\link{newModuleCode}},
   \code{\link{newModuleDocumentation}},
   \code{\link{newModuleTests}}
 }
-
+\author{
+Alex Chubaty and Eliot McIntire
+}

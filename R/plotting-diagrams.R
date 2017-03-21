@@ -327,10 +327,16 @@ setMethod(
     if (showParents) {
       moduleGraph(sim = sim, ...)
     } else {
+      if (!("vertex.color" %in% names(dots))) {
+        vcol <- sapply(names(V(modDia)), function(v) {
+          ifelse(v == "_INPUT_", "orange", "lightblue")
+        })
+      }
       if ("title" %in% names(dots)) {
-        Plot(modDia, plotFn = "plot", axes = FALSE, ...)
+        Plot(modDia, plotFn = "plot", axes = FALSE, vertex.color = vcol, ...)
       } else {
-        Plot(modDia, plotFn = "plot", axes = FALSE, title = "Module Diagram", ...)
+        Plot(modDia, plotFn = "plot", axes = FALSE, vertex.color = vcol,
+             title = "Module Diagram", ...)
       }
     }
 })

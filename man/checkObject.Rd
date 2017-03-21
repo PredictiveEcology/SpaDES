@@ -3,11 +3,11 @@
 \docType{methods}
 \name{checkObject}
 \alias{checkObject}
-\alias{checkObject,missing,ANY,missing,ANY-method}
-\alias{checkObject,simList,character,missing,character-method}
-\alias{checkObject,simList,character,missing,missing-method}
-\alias{checkObject,simList,missing,ANY,missing-method}
 \alias{checkObject,simList,missing,Raster,character-method}
+\alias{checkObject,simList,missing,ANY,missing-method}
+\alias{checkObject,simList,character,missing,missing-method}
+\alias{checkObject,simList,character,missing,character-method}
+\alias{checkObject,missing,ANY,missing,ANY-method}
 \title{Check for existence of object(s) referenced by a \code{objects} slot of a
 \code{simList} object}
 \usage{
@@ -47,10 +47,9 @@ Invisibly return \code{TRUE} indicating object exists; \code{FALSE} if not.
 Check that a named object exists in the provide \code{simList} environment slot,
 and optionally has desired attributes.
 }
-\author{
-Alex Chubaty and Eliot McIntire
-}
 \seealso{
 \code{\link{library}}.
 }
-
+\author{
+Alex Chubaty and Eliot McIntire
+}

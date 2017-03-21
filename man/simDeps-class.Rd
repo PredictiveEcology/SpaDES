@@ -2,8 +2,8 @@
 % Please edit documentation in R/module-dependencies-class.R
 \docType{class}
 \name{.simDeps-class}
-\alias{.simDeps}
 \alias{.simDeps-class}
+\alias{.simDeps}
 \title{The \code{.simDeps} class}
 \description{
 Defines all simulation dependencies for all modules within a SpaDES simulation.
@@ -13,11 +13,11 @@ Defines all simulation dependencies for all modules within a SpaDES simulation.
 \describe{
 \item{\code{dependencies}}{List of \code{\link{.moduleDeps}} dependency objects.}
 }}
-\author{
-Alex Chubaty
-}
+
 \seealso{
 \code{\link{.moduleDeps}}, \code{\link{spadesClasses}}
 }
+\author{
+Alex Chubaty
+}
 \keyword{internal}
-

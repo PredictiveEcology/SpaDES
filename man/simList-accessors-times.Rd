@@ -2,28 +2,33 @@
 % Please edit documentation in R/simList-accessors.R
 \docType{methods}
 \name{times}
-\alias{end}
-\alias{end,.simList,character-method}
-\alias{end,.simList,missing-method}
-\alias{end<-}
-\alias{end<-,.simList-method}
-\alias{simList-accessors-times}
-\alias{start}
-\alias{start,.simList,character-method}
-\alias{start,.simList,missing-method}
-\alias{start<-}
-\alias{start<-,.simList-method}
-\alias{time}
-\alias{time,.simList,character-method}
-\alias{time,.simList,missing-method}
-\alias{time<-}
-\alias{time<-,.simList-method}
 \alias{times}
+\alias{simList-accessors-times}
 \alias{times,.simList-method}
 \alias{times<-}
+\alias{times<-}
 \alias{times<-,.simList-method}
+\alias{time}
+\alias{time,.simList,missing-method}
+\alias{time,.simList,character-method}
+\alias{time<-}
+\alias{time<-}
+\alias{time<-,.simList-method}
+\alias{end}
+\alias{end,.simList,missing-method}
+\alias{end,.simList,character-method}
+\alias{end<-}
+\alias{end<-}
+\alias{end<-,.simList-method}
+\alias{start}
+\alias{start,.simList,missing-method}
+\alias{start,.simList,character-method}
+\alias{start<-}
+\alias{start<-}
+\alias{start<-,.simList-method}
 \alias{timeunit}
 \alias{timeunit,.simList-method}
+\alias{timeunit<-}
 \alias{timeunit<-}
 \alias{timeunit<-,.simList-method}
 \alias{timeunits}
@@ -151,9 +156,6 @@ computationally. For instance, it is much faster to use \code{time(sim, "year")}
 than \code{time(sim)}. So as a module developer, it is advantageous to
 write out the longer one, minimizing the looking up that R must do.
 }
-\author{
-Alex Chubaty and Eliot McIntire
-}
 \seealso{
 \code{\link{SpaDES}}, specifically the section 1.2.5 on Simulation times.
 
@@ -166,4 +168,6 @@ Other functions to access elements of a \code{simList} object: \code{\link{.addD
   \code{\link{params}}, \code{\link{paths}},
   \code{\link{progressInterval}}
 }
-
+\author{
+Alex Chubaty and Eliot McIntire
+}

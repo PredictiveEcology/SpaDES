@@ -2,20 +2,20 @@
 % Please edit documentation in R/times.R
 \docType{methods}
 \name{dyears}
-\alias{dNA}
-\alias{dNA,ANY-method}
-\alias{dday}
-\alias{dhour}
-\alias{dmonth}
-\alias{dmonths}
-\alias{dmonths,numeric-method}
-\alias{dsecond}
-\alias{dweek}
-\alias{dweeks}
-\alias{dweeks,numeric-method}
-\alias{dyear}
 \alias{dyears}
 \alias{dyears,numeric-method}
+\alias{dmonths}
+\alias{dmonths,numeric-method}
+\alias{dweeks}
+\alias{dweeks,numeric-method}
+\alias{dweek}
+\alias{dmonth}
+\alias{dyear}
+\alias{dsecond}
+\alias{dday}
+\alias{dhour}
+\alias{dNA}
+\alias{dNA,ANY-method}
 \title{SpaDES time units}
 \usage{
 dyears(x)
@@ -77,4 +77,3 @@ Then the module developer can use "fortNight" as the module's time unit.
 \author{
 Eliot McIntire
 }
-

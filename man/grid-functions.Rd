@@ -20,4 +20,3 @@ can change \code{Plot} arguments without having to load the entire grid package.
 \seealso{
 \code{\link[grid]{gpar}}
 }
-

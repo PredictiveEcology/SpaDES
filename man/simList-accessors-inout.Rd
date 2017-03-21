@@ -2,23 +2,27 @@
 % Please edit documentation in R/simList-accessors.R
 \docType{methods}
 \name{inputs}
-\alias{inputArgs}
-\alias{inputArgs,.simList-method}
-\alias{inputArgs<-}
-\alias{inputArgs<-,.simList-method}
 \alias{inputs}
+\alias{simList-accessors-inout}
 \alias{inputs,.simList-method}
 \alias{inputs<-}
+\alias{inputs<-}
 \alias{inputs<-,.simList-method}
-\alias{outputArgs}
-\alias{outputArgs,.simList-method}
-\alias{outputArgs<-}
-\alias{outputArgs<-,.simList-method}
 \alias{outputs}
 \alias{outputs,.simList-method}
 \alias{outputs<-}
+\alias{outputs<-}
 \alias{outputs<-,.simList-method}
-\alias{simList-accessors-inout}
+\alias{inputArgs}
+\alias{inputArgs,.simList-method}
+\alias{inputArgs<-}
+\alias{inputArgs<-}
+\alias{inputArgs<-,.simList-method}
+\alias{outputArgs}
+\alias{outputArgs,.simList-method}
+\alias{outputArgs<-}
+\alias{outputArgs<-}
+\alias{outputArgs<-,.simList-method}
 \title{Inputs and outputs}
 \usage{
 inputs(sim)
@@ -193,6 +197,7 @@ rules of recycling for each \code{fun}.\cr
 
 See the modules vignette for more details (\code{browseVignettes("SpaDES")}).
 }
+
 \examples{
 #######################
 # inputs
@@ -336,4 +341,3 @@ Other functions to access elements of a \code{simList} object: \code{\link{.addD
   \code{\link{paths}}, \code{\link{progressInterval}},
   \code{\link{times}}
 }
-

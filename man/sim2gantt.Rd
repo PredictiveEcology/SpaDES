@@ -34,4 +34,3 @@ events in a completed simulation.
 Alex Chubaty
 }
 \keyword{internal}
-

@@ -2,12 +2,12 @@
 % Please edit documentation in R/priority.R
 \docType{methods}
 \name{priority}
+\alias{priority}
 \alias{.first}
 \alias{.highest}
 \alias{.last}
 \alias{.lowest}
 \alias{.normal}
-\alias{priority}
 \title{Event priority}
 \usage{
 .first()
@@ -29,4 +29,3 @@ Preset envent priorities: 1 = first (highest); 5 = normal; 10 = last (lowest).
 \author{
 Alex Chubaty
 }
-

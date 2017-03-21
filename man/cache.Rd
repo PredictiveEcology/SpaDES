@@ -13,12 +13,11 @@
 \title{Cache method that accomodates environments, S4 methods, Rasters}
 \usage{
 Cache(FUN, ..., notOlderThan = NULL, objects = NULL, outputObjects = NULL,
-  algo = "xxhash32", cacheRepo = NULL, sideEffect = FALSE,
-  makeCopy = FALSE, quick)
+  algo = "xxhash32", cacheRepo = NULL, compareRasterFileLength = 1e+06)
 
 \S4method{Cache}{ANY}(FUN, ..., notOlderThan = NULL, objects = NULL,
   outputObjects = NULL, algo = "xxhash32", cacheRepo = NULL,
-  sideEffect = FALSE, makeCopy = FALSE, quick)
+  compareRasterFileLength = 1e+06)
 
 clearCache(sim, afterDate, beforeDate, cacheRepo, ...)
 
@@ -57,18 +56,13 @@ return. This is only relevant for \code{simList} objects}
     \code{sha256}, \code{sha512}, \code{xxhash32}, \code{xxhash64} and
     \code{murmur32}.}
 
-\item{cacheRepo}{A repository used for storing cached objects. This is optional
-if \code{Cache} is used inside a SpaDES module.}
+\item{cacheRepo}{A repository used for storing cached objects.
+This is optional if \code{Cache} is used inside a SpaDES module.}
 
-\item{sideEffect}{A logical argument indicating if downloaded files are found locally using
-filename and checksum. When absent, files are recovered from the copy stored in cacheRepo/gallery.}
-
-\item{makeCopy}{A logical argument indicating if a copy of the downloaded files should be stored in the cacheRepo/gallery directory.
-This allow to recover a copy faster than running the function if files are not found locally.
-Only work when cache run for the first time for now.}
-
-\item{quick}{A logical argument indicating if checksum should be made on file (FALSE) or on character string
-representing the combination of the filename and its size (TRUE). Default is TRUE}
+\item{compareRasterFileLength}{Numeric. Optional. When there are Rasters, that
+have file-backed storage, this is passed to the length arg in \code{digest}
+when determining if the Raster file is already in the database.
+Default 1e6. Passed to \code{prepareFileBackedRaster}.}
 
 \item{sim}{A \code{simList} simulation object, generally produced by \code{simInit}.}
 
@@ -85,20 +79,21 @@ Will clear all objects from the \code{cachePath} of the sim object
 }
 \description{
 This function is largely copied from \code{\link[archivist]{cache}}, with
-three very critical modifications.  The archivist package detects
-different environments as different. It also does not detect S4 methods
-correctly due to method inheritance. Finally, it does not detect
-objects that have file-base storage of information
+three very critical modifications:
+1) the \code{archivist} package detects different environments as different;
+2) it also does not detect S4 methods correctly due to method inheritance;
+3) it does not detect objects that have file-base storage of information
 (like \code{\link[raster]{RasterLayer-class}} objects and
-\code{\link[ff]{ff}} objects). This version of the \code{cache} function
-accomodates those 3 special, though quite common, cases by 1) converting
-any environments into list equivalents, 2) identifying the dispatched
-S4 method (including those made through inheritance) before
-\code{\link[digest]{digest}} is called so the correct method is being
-cached, and 3) by running \code{\link[digest]{digest}} on the linked
-file. In the \code{SpaDES} context,
-the \code{simList} has an environment as one of its slots, thus using
-archivist::cache will not work correctly.
+\code{\link[ff]{ff}} objects).
+This version of the \code{cache} function accomodates those three special,
+though quite common, cases by:
+1) converting any environments into list equivalents;
+2) identifying the dispatched S4 method (including those made through
+inheritance) before \code{\link[digest]{digest}} is called so the correct
+method is being cached;
+and 3) by running \code{\link[digest]{digest}} on the linked file.
+In the \code{SpaDES} context, the \code{simList} has an environment as one of
+its slots, thus using \code{archivist::cache} will not work correctly.
 
 \code{showCache} and \code{clearCache} are wrappers around \code{archivist} package
 functions, specific to simList objects.
@@ -106,8 +101,7 @@ They allow the user a bit of control over what is being cached.
 }
 \details{
 Some of the details of the changes include:
-We remove all elements that have an environment as part of
-their attributes.
+We remove all elements that have an environment as part of their attributes.
 This is generally functions that are loaded from the modules,
 but also the \code{.envir} slot in the \code{simList}.
 Functions are formatted to text before running digest.
@@ -130,7 +124,8 @@ call the achivist package version of cache.
 In general, it is expected that caching will only be used when stochasticity
 is not relevant, or if a user has achieved sufficient stochasticity (e.g., via
 sufficient number of calls to \code{experiment}) such that no new explorations
-of stochastic outcomes are required.
+of stochastic outcomes are required. It will also be very useful in a
+reproducible work flow
 }
 \section{Caching as part of SpaDES}{
 
@@ -152,7 +147,7 @@ the cached version of the \code{simList}.
 
 
 If the parameter \code{.useCache} is set to TRUE, then the \code{doEvent.moduleName}
-will be cached. That means taht every time that module
+will be cached. That means that every time that module
 is called from within a spades or experiment call, cache will be used. Only
 the objects inside the \code{simList} that correspond to the inputObjects of the
 module and the outputObjects to the module will be assessed for caching
@@ -166,7 +161,7 @@ no stochasticity, such as data-preparation modules, GIS modules etc.
 
 
 If the parameter \code{.useCache} is set to a character or character vector,
-then that or those event(s) will be cached. That means taht every time the event
+then that or those event(s) will be cached. That means that every time the event
 is called from within a spades or experiment call, cache will be used. Only
 the objects inside the \code{simList} that correspond to the inputObjects of the
 module and the outputObjects to the module will be assessed for caching
@@ -193,10 +188,10 @@ to
 
 \examples{
 \dontrun{
-mySim <- simInit(times=list(start=0.0, end=5.0),
-                 params=list(.globals=list(stackName="landscape", burnStats = "testStats")),
-                 modules=list("randomLandscapes", "fireSpread"),
-                 paths=list(modulePath=system.file("sampleModules", package="SpaDES")))
+mySim <- simInit(times = list(start = 0.0, end = 5.0),
+                 params = list(.globals = list(stackName = "landscape", burnStats = "testStats")),
+                 modules = list("randomLandscapes", "fireSpread"),
+                 paths = list(modulePath = system.file("sampleModules", package = "SpaDES")))
 
   # This functionality can be achieved within a spades call
   # compare caching ... run once to create cache

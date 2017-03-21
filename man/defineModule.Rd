@@ -117,14 +117,16 @@ Packages are loaded during this call.
                              \code{simList}.\cr
 }
 }
+
 \examples{
 \dontrun{
-  # a default version of the defineModule is created with a call to newModule
-
+  ## a default version of the defineModule is created with a call to newModule
   newModule("test", path = tempdir())
-  # file.edit(file.path(tempdir(), "test", "test.R"))
 
-  # The default defineModule created by newModule is currently (SpaDES version 1.2.0.9010):
+  ## view the resulting module file
+  #file.edit(file.path(tempdir(), "test", "test.R"))
+
+  # The default defineModule created by newModule is currently (SpaDES version 1.3.1.9044):
   defineModule(sim, list(
     name = "test",
     description = "insert module description here",
@@ -132,12 +134,12 @@ Packages are loaded during this call.
     authors = c(person(c("First", "Middle"), "Last",
                      email="email@example.com", role=c("aut", "cre"))),
     childModules = character(0),
-    version = numeric_version("1.2.0.9010"),spatialExtent =
-                                 raster::extent(rep(NA_real_, 4)),
+    version = list(SpaDES = "1.3.1.9044", test = "0.0.1"),
+    spatialExtent = raster::extent(rep(NA_real_, 4)),
     timeframe = as.POSIXlt(c(NA, NA)),
-  timeunit = NA_character_, # e.g., "year",
+    timeunit = NA_character_, # e.g., "year",
     citation = list("citation.bib"),
-  documentation = list("README.txt", "test.Rmd"),
+    documentation = list("README.txt", "test.Rmd"),
     reqdPkgs = list(),
     parameters = rbind(
       #defineParameter("paramName", "paramClass", value, min, max,
@@ -151,18 +153,13 @@ Packages are loaded during this call.
       defineParameter(".saveInterval", "numeric", NA, NA, NA,
       "This describes the simulation time at which the first save event should occur")
     ),
-    inputObjects = data.frame(
-      objectName = NA_character_,
-      objectClass = NA_character_,
-      sourceURL = "",
-      other = NA_character_,
-      stringsAsFactors = FALSE
+    inputObjects = bind_rows(
+      expectsInput(objectName = NA_character_, objectClass = NA_character_,
+        sourceURL = NA_character_, desc = NA_character_, other = NA_character_)
     ),
-    outputObjects = data.frame(
-      objectName = NA_character_,
-      objectClass = NA_character_,
-      other = NA_character_,
-      stringsAsFactors = FALSE
+    outputObjects = bind_rows(
+      createsOutput(objectName = NA_character_, objectClass = NA_character_,
+        desc = NA_character_, other = NA_character_)
     )
   ))
 
@@ -172,4 +169,3 @@ Packages are loaded during this call.
 \author{
 Alex Chubaty
 }
-

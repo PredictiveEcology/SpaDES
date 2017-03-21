@@ -31,4 +31,3 @@ Build a module dependency graph
 \author{
 Alex Chubaty
 }
-

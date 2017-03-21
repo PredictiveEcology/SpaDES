@@ -3,14 +3,14 @@
 \docType{methods}
 \name{moduleMetadata}
 \alias{moduleMetadata}
-\alias{moduleMetadata,ANY,missing,simList-method}
-\alias{moduleMetadata,character,character,ANY-method}
+\alias{moduleMetadata,character,character,missing-method}
 \alias{moduleMetadata,character,missing,missing-method}
+\alias{moduleMetadata,ANY,missing,simList-method}
 \title{Parse and extract module metadata}
 \usage{
 moduleMetadata(module, path, sim)
 
-\S4method{moduleMetadata}{character,character,ANY}(module, path)
+\S4method{moduleMetadata}{character,character,missing}(module, path)
 
 \S4method{moduleMetadata}{character,missing,missing}(module)
 
@@ -48,10 +48,9 @@ mySim <- simInit(
 moduleMetadata(sim = mySim)
 
 }
-\author{
-Alex Chubaty
-}
 \seealso{
 \code{\link{defineModule}}
 }
-
+\author{
+Alex Chubaty
+}

@@ -3,10 +3,11 @@
 \docType{methods}
 \name{envir}
 \alias{envir}
+\alias{simList-accessors-envir}
 \alias{envir,simList-method}
 \alias{envir<-}
+\alias{envir<-}
 \alias{envir<-,simList-method}
-\alias{simList-accessors-envir}
 \title{Simulation environment}
 \usage{
 envir(sim)
@@ -33,9 +34,6 @@ These are included for advanced users.
 \details{
 Currently, only get and set methods are defined. Subset methods are not.
 }
-\author{
-Alex Chubaty
-}
 \seealso{
 \code{\link{SpaDES}}, specifically the section 1.2.8 on simList environment.
 
@@ -48,4 +46,6 @@ Other functions to access elements of a \code{simList} object: \code{\link{.addD
   \code{\link{paths}}, \code{\link{progressInterval}},
   \code{\link{times}}
 }
-
+\author{
+Alex Chubaty
+}

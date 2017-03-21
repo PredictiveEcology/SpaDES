@@ -23,4 +23,3 @@ Determine the largest timestep unit in a simulation
 \author{
 Eliot McIntire and Alex Chubaty
 }
-

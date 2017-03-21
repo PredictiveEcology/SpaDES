@@ -24,4 +24,3 @@ Based on \url{http://stackoverflow.com/a/1816487/1380598}.
 \author{
 Alex Chubaty
 }
-

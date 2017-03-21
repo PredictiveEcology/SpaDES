@@ -3,26 +3,28 @@
 \docType{methods}
 \name{simInit}
 \alias{simInit}
-\alias{simInit,ANY,ANY,ANY,ANY,ANY,ANY,ANY,ANY-method}
+\alias{simInit,list,list,list,list,list,data.frame,data.frame,character-method}
 \alias{simInit,ANY,ANY,ANY,character,ANY,ANY,ANY,ANY-method}
 \alias{simInit,ANY,ANY,character,ANY,ANY,ANY,ANY,ANY-method}
-\alias{simInit,list,list,list,list,list,data.frame,data.frame,character-method}
+\alias{simInit,ANY,ANY,ANY,ANY,ANY,ANY,ANY,ANY-method}
 \title{Initialize a new simulation}
 \usage{
-simInit(times, params, modules, objects, paths, inputs, outputs, loadOrder)
+simInit(times, params, modules, objects, paths, inputs, outputs, loadOrder,
+  notOlderThan = NULL)
 
 
   \S4method{simInit}{list,list,list,list,list,data.frame,data.frame,character}(times,
-  params, modules, objects, paths, inputs, outputs, loadOrder)
+  params, modules, objects, paths, inputs, outputs, loadOrder,
+  notOlderThan = NULL)
 
 \S4method{simInit}{ANY,ANY,ANY,character,ANY,ANY,ANY,ANY}(times, params,
-  modules, objects, paths, inputs, outputs, loadOrder)
+  modules, objects, paths, inputs, outputs, loadOrder, notOlderThan = NULL)
 
 \S4method{simInit}{ANY,ANY,character,ANY,ANY,ANY,ANY,ANY}(times, params,
-  modules, objects, paths, inputs, outputs, loadOrder)
+  modules, objects, paths, inputs, outputs, loadOrder, notOlderThan = NULL)
 
 \S4method{simInit}{ANY,ANY,ANY,ANY,ANY,ANY,ANY,ANY}(times, params, modules,
-  objects, paths, inputs, outputs, loadOrder)
+  objects, paths, inputs, outputs, loadOrder, notOlderThan = NULL)
 }
 \arguments{
 \item{times}{A named list of numeric simulation start and end times
@@ -67,6 +69,13 @@ columns with following column names: \code{objectName} (character, required),
 \item{loadOrder}{An optional list of module names specfiying the order in
 which to load the modules. If not specified, the module
 load order will be determined automatically.}
+
+\item{notOlderThan}{A time, as in from \code{Sys.time()}. This is passed into
+the \code{Cache} function that wraps \code{.inputObjects}.
+If the module has a parameter, \code{.useCache} and it is
+\code{TRUE}, then the \code{.inputObjects} will be cached.
+Passing the current time into to \code{notOlderThan} will cause the
+Cache to be refreshed, i.e., rerun.}
 }
 \value{
 A \code{simList} simulation object, pre-initialized from values
@@ -199,9 +208,6 @@ if (require(rgdal)) {
 }
 
 }
-\author{
-Alex Chubaty and Eliot McIntire
-}
 \references{
 Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{https://www.nostarch.com/artofr.htm}
 }
@@ -210,4 +216,6 @@ Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No 
 \code{\link{times}}, \code{\link{params}}, \code{\link{objs}}, \code{\link{paths}},
 \code{\link{modules}}, \code{\link{inputs}}, \code{\link{outputs}}
 }
-
+\author{
+Alex Chubaty and Eliot McIntire
+}

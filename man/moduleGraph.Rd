@@ -36,10 +36,9 @@ parent and children modules and return a list with an igraph object
 and an igraph communities object, showing the groups.
 Currently only tested with relatively simple structures.
 }
-\author{
-Eliot McIntire
-}
 \seealso{
 moduleDiagram
 }
-
+\author{
+Eliot McIntire
+}

@@ -2,13 +2,13 @@
 % Please edit documentation in R/plotting-colours.R
 \docType{methods}
 \name{.makeColorMatrix}
-\alias{#}
 \alias{.makeColorMatrix}
-\alias{.makeColorMatrix,Raster,Extent,numeric-method}
+\alias{makeColourMatrix}
+\alias{#}
 \alias{@importClassesFrom}
 \alias{NetLogoRClasses}
 \alias{griddedClasses}
-\alias{makeColourMatrix}
+\alias{.makeColorMatrix,Raster,Extent,numeric-method}
 \title{Convert Raster to color matrix useable by raster function for plotting}
 \usage{
 .makeColorMatrix(grobToPlot, zoomExtent, maxpixels, legendRange, cols = NULL,
@@ -55,4 +55,3 @@ Internal function.
 Eliot McIntire
 }
 \keyword{internal}
-

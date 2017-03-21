@@ -18,4 +18,3 @@ Extract the file extension of a file
 \author{
 Eliot McIntire and Alex Chubaty
 }
-
