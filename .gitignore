@@ -53,3 +53,5 @@ vignettes/*_cache
 *.vrb
 *.xdy
 *.tdo
+
+dbHash\.sqlite
