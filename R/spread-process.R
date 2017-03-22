@@ -1026,8 +1026,9 @@ setMethod(
           needPersistJump <- TRUE
           if (any(needPersist)) {
             assign("numRetries",
-                   get("numRetries", inherits = FALSE, pos = "package:SpaDES") + needPersist,
-                   pos = SpaDES:::.spadesEnv)
+                   get("numRetries", inherits = FALSE, envir = SpaDES:::.spadesEnv) +
+                     needPersist,
+                   envir = SpaDES:::.spadesEnv)
 
             if(spreadStateExists) {
 
