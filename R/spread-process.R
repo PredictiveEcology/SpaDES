@@ -754,7 +754,10 @@ setMethod(
       if (!allowOverlap) { # here is where allowOverlap and returnDistances are different
         potentials <- potentials[!duplicated(potentials[, 2L]), , drop = FALSE]
       }
-
+      
+      # increment iteration
+      n <- n + 1L
+      
       if (length(potentials) > 0) {# potentials can become zero because all active cells are edge cells
         # implement circle
         if (!missing(circle)) {
@@ -769,10 +772,10 @@ setMethod(
             a <- a[, !(colnames(a) %fin% c("dists")), drop = FALSE]
             # need 3 columns, id, x, y in both initialLociXY and a
             d <- distanceFromEachPoint(initialLociXY, a, angles = asymmetry) # d is sorted
-            cMR <- n
+            cMR <- (n-1) * res(landscape)[1]
             if (!any(is.na(circleMaxRadius))) {
               # don't bother proceeding if circleMaxRadius is larger than current iteration
-              if (any(circleMaxRadius <= n)) {
+              if (any(circleMaxRadius <= ( (n-1) * res(landscape)[1]))) {
                 if (length(circleMaxRadius) > 1) { # if it is a vector of values
                   cMR <- circleMaxRadius[d[, "id"]]
                 } else {
@@ -912,9 +915,6 @@ setMethod(
             toKeepSR <- !(eventCells[, "id"] %fin% as.numeric(names(which((shouldStop)))))
           }
         }
-
-        # increment iteration
-        n <- n + 1L
 
         if (length(events) > 0) {
           # place new value at new cells that became active
