@@ -579,11 +579,11 @@ setMethod(
       numNeighs <- NULL
     }
 
-    if(!exists("numRetries", envir = as.environment("package:SpaDES")))
-      assign("numRetries", rep(0, length(initialLoci)), envir = as.environment("package:SpaDES"))
-    
+    if(!exists("numRetries", envir = SpaDES:::.spadesEnv))
+      assign("numRetries", rep(0, length(initialLoci)), envir = SpaDES:::.spadesEnv)
+
     toColumn <- c("to", "indices")
-    
+
     # while there are active cells
     while (length(loci) & (n <= iterations) ) {
       if (!is.null(neighProbs)) {
@@ -623,10 +623,10 @@ setMethod(
       if (allowOverlap | returnDistances | spreadStateExists) {
         #faster alternative to tapply, but cumbersome
         #potentialsOrig <- potentials
-        
+
         if(TRUE) { # data.table version is faster for potentials > 500 or so
           #potentials <- potentialsOrig
-          
+
           spreadsDT <- data.table(spreads)
           potentialsDT <- data.table(potentials)
           potentialsDT[,initialLocus:=initialLoci[potentialsDT$id]]
@@ -636,9 +636,9 @@ setMethod(
           setcolorder(potentialsDT, c(colnamesPDT[whIL], colnamesPDT[-c(whIL, whFrom)], colnamesPDT[whFrom]))
           setnames(potentialsDT, old="to", new = "indices")
           d <- rbindlist(list(spreadsDT, potentialsDT), fill = TRUE)
-          d <- data.table(d); setkey(d, "id"); 
+          d <- data.table(d); setkey(d, "id");
           d[, duplicated:=duplicated(indices),by=id]
-          d <- d[duplicated==0 & active==1]; 
+          d <- d[duplicated==0 & active==1];
           set(d,,"duplicated",NULL)
           potentials <- as.matrix(d)
         } else {
@@ -654,17 +654,17 @@ setMethod(
             cbind(d[d[, "id"] == id, , drop = FALSE],
                   duplicated = duplicated(d[d[, "id"] == id, "indices"]))
           }))
-        
+
           lastCol <- ncol(d)
           potentials <- d[d[, "duplicated"] == 0 &
                             d[, "active"] == 1, , drop = FALSE][, -lastCol, drop = FALSE]
         }
-        
+
       } else {
         keep <- spreads[potentials[, 2L]] == 0L
         potentials <- potentials[keep, , drop = FALSE]
       }
-      
+
       if (n == 2) {
         spreadProb <- spreadProbLater
       }
@@ -694,9 +694,9 @@ setMethod(
           spreadProbs <- spreadProb[][potentials[, 2L]]
         }
       }
-      
+
       if(anyNA(spreadProbs)) spreadProbs[is.na(spreadProbs)] <- 0
-      
+
       if (!is.na(asymmetry)) {
         if (allowOverlap | returnDistances) {
           a <- cbind(id = potentials[, 3L], to = potentials[, 2L],
@@ -711,7 +711,7 @@ setMethod(
         spreadProbs <- newSpreadProbExtremes[1] + (angleQuality * diff(newSpreadProbExtremes))
         spreadProbs <- spreadProbs - diff(c(spreadProb[], mean(spreadProbs)))
       }
-      
+
       if (!is.null(neighProbs) | relativeSpreadProb) {
         # This commented block is the data.table way of doing the neighProbs -- ]
         # seems slower under early tests, because of the on the fly creation of a data.table
@@ -727,7 +727,7 @@ setMethod(
         # }
         # potentials <- as.matrix(bbb[, list(to = resample(to, numNeighs[.GRP])), by = "from"])
 
-        aaa <- split(seq_along(potentials[, toColumn[spreadStateExists+1]]), 
+        aaa <- split(seq_along(potentials[, toColumn[spreadStateExists+1]]),
                      potentials[, "from"]);
         if (length(aaa) != length(numNeighs)) {
           activeCellContinue <- loci %in% unique(potentials[, "from"])
@@ -779,10 +779,10 @@ setMethod(
       if (!allowOverlap) { # here is where allowOverlap and returnDistances are different
         potentials <- potentials[!duplicated(potentials[, 2L]), , drop = FALSE]
       }
-      
+
       # increment iteration
       n <- n + 1L
-      
+
       if (length(potentials) > 0) {# potentials can become zero because all active cells are edge cells
         # implement circle
         if (!missing(circle)) {
@@ -839,7 +839,7 @@ setMethod(
             }
             events <- potentials[, 2L]
           }
-          
+
           #size <- size + len
           # which ones were removed
           #size[whichID] <- size[whichID] - toRm
@@ -949,7 +949,7 @@ setMethod(
           # place new value at new cells that became active
           if (allowOverlap | returnDistances | spreadStateExists) {
             fromCol <- colnames(potentials)=="from"
-            
+
             spreads <- rbind(spreads, potentials[,!fromCol])
             if ((returnDistances | spreadStateExists) & !allowOverlap) {
               # 2nd place where allowOverlap and returnDistances differ
@@ -1005,18 +1005,18 @@ setMethod(
             rm(toKeepSR)
           }
         }
-      } else { # there are no potentials -- possibly from failed runif, or spreadProbs all 0 
+      } else { # there are no potentials -- possibly from failed runif, or spreadProbs all 0
         events <- NULL
       }
-      
+
       if (exactSizes) {
-        if (all(get("numRetries", inherits = FALSE, envir = as.environment("package:SpaDES")) < 10)) {
+        if (all(get("numRetries", inherits = FALSE, envir = SpaDES:::.spadesEnv) < 10)) {
           if (spreadStateExists) {
             # tooSmall <- tabulate(spreads[c(spreadState[!keepers]$indices, spreadsIndices)],
             #                      length(maxSize)) < maxSize
             tooSmall <- tabulate(spreads[,"id"], length(maxSize)) < maxSize
             inactive <- tabulate(spreads[spreads[,"active"]==1,"id"], length(maxSize)) == 0
-            
+
           } else {
             tooSmall <- tabulate(spreads, length(maxSize)) < maxSize
             inactive <- tabulate(spreads[events], length(maxSize)) == 0
@@ -1025,18 +1025,18 @@ setMethod(
           needPersist <- tooSmall & inactive # these are ones that are stuck ... i.e., too small, and inactive
           needPersistJump <- TRUE
           if (any(needPersist)) {
-            assign("numRetries", 
-                   get("numRetries", inherits = FALSE, pos = "package:SpaDES") + needPersist, 
-                   pos = as.environment("package:SpaDES"))
+            assign("numRetries",
+                   get("numRetries", inherits = FALSE, pos = "package:SpaDES") + needPersist,
+                   pos = SpaDES:::.spadesEnv)
 
             if(spreadStateExists) {
-              
+
               whSmallInactive <- which(tooSmall & inactive)
               spreadsSmallInactive <- spreads[spreads[, "id"] %in% whSmallInactive, ]
               if(needPersistJump) {
                 message("Jumping to new active location, up to 1000 m away")
-                mmm <- SpaDES::rings(landscape, loci = spreadsSmallInactive[, "indices"], 
-                                     maxRadius = 1000, minRadius = 1, 
+                mmm <- SpaDES::rings(landscape, loci = spreadsSmallInactive[, "indices"],
+                                     maxRadius = 1000, minRadius = 1,
                                      returnIndices = TRUE)
                 wh <- mmm[,list(whKeepLoci=resample(.I, 1)),by=id]$whKeepLoci
               } else {
@@ -1052,7 +1052,7 @@ setMethod(
               keepLoci <- spreads[loci] %fin% which(tooSmall & inactive)
               events <- c(loci[keepLoci], events)
             }
-            
+
           }
         }
       }
@@ -1133,7 +1133,7 @@ setMethod(
         allCells <- data.table(spreads[, keepCols, drop=FALSE]) # change column order to match non allowOverlap
         set(allCells, , j = "active", as.logical(allCells$active))
         setkeyv(allCells, "id")
-        
+
       } else {
         allCells <- rbindlist(list(active, completed)) # active first, so next line will keep active
         allCells <- allCells[!duplicated(allCells$indices)] # some "completed" cells are still active. Keep the active ones.
@@ -1162,7 +1162,7 @@ setMethod(
         allCells <- dtToJoin[allCells]
       }
       allCells[]
-      if(sum(allCells$active)==0) rm("numRetries", envir = as.environment("package:SpaDES"))
+      if(sum(allCells$active)==0) rm("numRetries", envir = SpaDES:::.spadesEnv)
       return(allCells)
     }
 
