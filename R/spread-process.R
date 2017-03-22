@@ -621,26 +621,50 @@ setMethod(
 
       # keep only neighbours that have not been spread to yet
       if (allowOverlap | returnDistances | spreadStateExists) {
-        colnames(potentials) <- colnames(spreads)
-        potentials[, "initialLocus"] <- initialLoci[potentials[, "id"]]
-        d <- rbind(spreads, potentials)
-
         #faster alternative to tapply, but cumbersome
-        ids <- as.integer(unique(d[, "id"]))
-        d <- do.call(rbind, lapply(ids, function(id) {
-          cbind(d[d[, "id"] == id, , drop = FALSE],
-                duplicated = duplicated(d[d[, "id"] == id, "indices"]))
-        }))
-
-        lastCol <- ncol(d)
-        potentials <- d[d[, "duplicated"] == 0 &
-                          d[, "active"] == 1, , drop = FALSE][, -lastCol, drop = FALSE]
-
+        #potentialsOrig <- potentials
+        
+        if(TRUE) { # data.table version is faster for potentials > 500 or so
+          #potentials <- potentialsOrig
+          
+          spreadsDT <- data.table(spreads)
+          potentialsDT <- data.table(potentials)
+          potentialsDT[,initialLocus:=initialLoci[potentialsDT$id]]
+          colnamesPDT <- colnames(potentialsDT)
+          whIL <- which(colnamesPDT=="initialLocus")
+          whFrom <- which(colnamesPDT=="from")
+          setcolorder(potentialsDT, c(colnamesPDT[whIL], colnamesPDT[-c(whIL, whFrom)], colnamesPDT[whFrom]))
+          setnames(potentialsDT, old="to", new = "indices")
+          d <- rbindlist(list(spreadsDT, potentialsDT), fill = TRUE)
+          d <- data.table(d); setkey(d, "id"); 
+          d[, duplicated:=duplicated(indices),by=id]
+          d <- d[duplicated==0 & active==1]; 
+          set(d,,"duplicated",NULL)
+          potentials <- as.matrix(d)
+        } else {
+          #potentials <- potentialsOrig
+          potentialsFrom <- potentials[,"from"]
+          colnames(potentials) <- colnames(spreads)
+          # get rid of immediate "from" and replace with original "from"
+          potentials[, "initialLocus"] <- initialLoci[potentials[, "id"]]
+          d <- rbind(spreads, potentials)
+          d <- cbind(d, "from"=c(rep(NA, NROW(spreads)), potentialsFrom))
+          ids <- as.integer(unique(d[, "id"]))
+          d <- do.call(rbind, lapply(ids, function(id) {
+            cbind(d[d[, "id"] == id, , drop = FALSE],
+                  duplicated = duplicated(d[d[, "id"] == id, "indices"]))
+          }))
+        
+          lastCol <- ncol(d)
+          potentials <- d[d[, "duplicated"] == 0 &
+                            d[, "active"] == 1, , drop = FALSE][, -lastCol, drop = FALSE]
+        }
+        
       } else {
         keep <- spreads[potentials[, 2L]] == 0L
         potentials <- potentials[keep, , drop = FALSE]
       }
-
+      
       if (n == 2) {
         spreadProb <- spreadProbLater
       }
