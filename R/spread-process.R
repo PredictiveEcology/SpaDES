@@ -364,6 +364,9 @@ setMethod(
         loci <- (nrow(landscape) / 2L + 0.5) * ncol(landscape)
     }
 
+    if(length(loci)==0)
+      stop("No loci. Nothing to do")
+
     if (any(!is.na(maxSize))) {
       msEqZero <- maxSize < 1
       if (any(msEqZero)) {
