@@ -483,11 +483,11 @@ setMethod(
       landRas <- landscape[] # For speed
     }
 
-    if (!allowOverlap & !returnDistances & !spreadStateExists) {
+    if (!allowOverlap & !returnDistances) {#} & !spreadStateExists) {
       if (id | returnIndices | relativeSpreadProb) {
-        if (spreadStateExists) {
-          spreads[spreadState$indices] <- spreadState$id
-        } else {
+        if (!spreadStateExists) {
+        #   #spreads[spreadState$indices] <- spreadState$id
+        # } else {
           # give values to spreads vector at initialLoci
           spreads[loci] <- 1L:length(loci)
         }
@@ -818,7 +818,7 @@ setMethod(
         events <- potentials[, 2L]
 
         if (!noMaxSize) {
-          if (allowOverlap | returnDistances) {
+          if (allowOverlap | returnDistances | spreadStateExists) {
             len <- tabulate(potentials[, 3L], length(maxSize))
           } else {
             len <- tabulate(spreads[potentials[, 1L]], length(maxSize)) # actually interested in potential[,2L], but they don't have values yet... can use their source
@@ -827,7 +827,7 @@ setMethod(
             whichID <- which(size + len > maxSize)
             toRm <- (size + len)[whichID] - maxSize[whichID] # remove some active cells, if more than maxSize
             for (i in 1:length(whichID)) {
-              if (allowOverlap | returnDistances) {
+              if (allowOverlap | returnDistances | spreadStateExists) {
                 thisID <- which(potentials[, 3L] == whichID[i])
               } else {
                 thisID <- which(spreads[potentials[, 1L]] == whichID[i])
@@ -838,6 +838,10 @@ setMethod(
             }
             events <- potentials[, 2L]
           }
+          
+          #size <- size + len
+          # which ones were removed
+          #size[whichID] <- size[whichID] - toRm
           size <- pmin(size + len, maxSize) ## Quick? and dirty. fast but loose (too flexible)
         }
 
