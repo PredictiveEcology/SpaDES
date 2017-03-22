@@ -727,7 +727,8 @@ setMethod(
         # }
         # potentials <- as.matrix(bbb[, list(to = resample(to, numNeighs[.GRP])), by = "from"])
 
-        aaa <- split(seq_along(potentials[, "to"]), potentials[, "from"]);
+        aaa <- split(seq_along(potentials[, toColumn[spreadStateExists+1]]), 
+                     potentials[, "from"]);
         if (length(aaa) != length(numNeighs)) {
           activeCellContinue <- loci %in% unique(potentials[, "from"])
           numNeighs <- numNeighs[activeCellContinue]
@@ -947,7 +948,9 @@ setMethod(
         if (length(events) > 0) {
           # place new value at new cells that became active
           if (allowOverlap | returnDistances | spreadStateExists) {
-            spreads <- rbind(spreads, potentials)
+            fromCol <- colnames(potentials)=="from"
+            
+            spreads <- rbind(spreads, potentials[,!fromCol])
             if ((returnDistances | spreadStateExists) & !allowOverlap) {
               # 2nd place where allowOverlap and returnDistances differ
               notDups <- !duplicated(spreads[, "indices"])
@@ -1127,8 +1130,10 @@ setMethod(
       if (allowOverlap | returnDistances | spreadStateExists) {
         keepCols <- c(3, 1, 2, 4)
         if (circle) keepCols <- c(keepCols, 5)
-        allCells <- data.table(spreads[, keepCols]) # change column order to match non allowOverlap
+        allCells <- data.table(spreads[, keepCols, drop=FALSE]) # change column order to match non allowOverlap
         set(allCells, , j = "active", as.logical(allCells$active))
+        setkeyv(allCells, "id")
+        
       } else {
         allCells <- rbindlist(list(active, completed)) # active first, so next line will keep active
         allCells <- allCells[!duplicated(allCells$indices)] # some "completed" cells are still active. Keep the active ones.
