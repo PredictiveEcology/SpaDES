@@ -579,7 +579,11 @@ setMethod(
       numNeighs <- NULL
     }
 
-    numRetries <- rep(0, length(initialLoci))
+    if(!exists("numRetries", envir = as.environment("package:SpaDES")))
+      assign("numRetries", rep(0, length(initialLoci)), envir = as.environment("package:SpaDES"))
+    
+    toColumn <- c("to", "indices")
+    
     # while there are active cells
     while (length(loci) & (n <= iterations) ) {
       if (!is.null(neighProbs)) {
@@ -683,7 +687,7 @@ setMethod(
         spreadProbs <- newSpreadProbExtremes[1] + (angleQuality * diff(newSpreadProbExtremes))
         spreadProbs <- spreadProbs - diff(c(spreadProb[], mean(spreadProbs)))
       }
-
+      
       if (!is.null(neighProbs) | relativeSpreadProb) {
         # This commented block is the data.table way of doing the neighProbs -- ]
         # seems slower under early tests, because of the on the fly creation of a data.table
@@ -970,28 +974,54 @@ setMethod(
             rm(toKeepSR)
           }
         }
-      } else {
+      } else { # there are no potentials -- possibly from failed runif, or spreadProbs all 0 
         events <- NULL
       }
-
+      
       if (exactSizes) {
-        if (all(numRetries < 10)) {
+        if (all(get("numRetries", inherits = FALSE, envir = as.environment("package:SpaDES")) < 10)) {
           if (spreadStateExists) {
-            tooSmall <- tabulate(spreads[c(spreadState[!keepers]$indices, spreadsIndices)],
-                                 length(maxSize)) < maxSize
+            # tooSmall <- tabulate(spreads[c(spreadState[!keepers]$indices, spreadsIndices)],
+            #                      length(maxSize)) < maxSize
+            tooSmall <- tabulate(spreads[,"id"], length(maxSize)) < maxSize
+            inactive <- tabulate(spreads[spreads[,"active"]==1,"id"], length(maxSize)) == 0
+            
           } else {
             tooSmall <- tabulate(spreads, length(maxSize)) < maxSize
+            inactive <- tabulate(spreads[events], length(maxSize)) == 0
           }
-          inactive <- tabulate(spreads[events], length(maxSize)) == 0
 
-          #size <- pmin(size + len, maxSize) ## Quick? and dirty. fast but loose (too flexible)
-
-          needPersist <- tooSmall & inactive
+          needPersist <- tooSmall & inactive # these are ones that are stuck ... i.e., too small, and inactive
+          needPersistJump <- TRUE
           if (any(needPersist)) {
-            numRetries <- numRetries + needPersist
+            assign("numRetries", 
+                   get("numRetries", inherits = FALSE, pos = "package:SpaDES") + needPersist, 
+                   pos = as.environment("package:SpaDES"))
 
-            keepLoci <- spreads[loci] %fin% which(tooSmall & inactive)
-            events <- c(loci[keepLoci], events)
+            if(spreadStateExists) {
+              
+              whSmallInactive <- which(tooSmall & inactive)
+              spreadsSmallInactive <- spreads[spreads[, "id"] %in% whSmallInactive, ]
+              if(needPersistJump) {
+                message("Jumping to new active location, up to 1000 m away")
+                mmm <- SpaDES::rings(landscape, loci = spreadsSmallInactive[, "indices"], 
+                                     maxRadius = 1000, minRadius = 1, 
+                                     returnIndices = TRUE)
+                wh <- mmm[,list(whKeepLoci=resample(.I, 1)),by=id]$whKeepLoci
+              } else {
+                for(whSI in whSmallInactive) {
+                  wh <- which(spreads[,"id"] == whSI)
+                  wh <- tail(wh,2) # pick last two ones from all inactive cells
+                  keepLoci <- spreads[wh,"indices"]
+                  events <- c(keepLoci, events)
+                  spreads[wh,"active"] <- 1
+                }
+              }
+            } else {
+              keepLoci <- spreads[loci] %fin% which(tooSmall & inactive)
+              events <- c(loci[keepLoci], events)
+            }
+            
           }
         }
       }
@@ -1099,6 +1129,7 @@ setMethod(
         allCells <- dtToJoin[allCells]
       }
       allCells[]
+      if(sum(allCells$active)==0) rm("numRetries", envir = as.environment("package:SpaDES"))
       return(allCells)
     }
 
