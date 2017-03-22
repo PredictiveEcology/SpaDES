@@ -214,7 +214,20 @@ test_that("test file-backed raster caching", {
   bb <- Cache(randomPolyToMemory, tmpdir, cacheRepo = tmpdir)
   expect_true(NROW(showCache(cacheRepo=tmpdir))==5)
 
+  # Test that factors are saved correctly
+  randomPolyToFactorInMemory <- function(tmpdir) {
+    r <- randomPolygons(numTypes = 30)
+    levels(r) <- data.frame(ID = 1:30, vals = sample(LETTERS[1:5], size = 30,replace = TRUE),
+                            vals2 <- sample(1:7, size = 30, replace = TRUE))
+    dataType(r) <- "INT1U"
+    r
+  }
+  bb <- Cache(randomPolyToFactorInMemory, tmpdir, cacheRepo = tmpdir)
+  expect_true(is.factor(bb))
+  expect_true(is(levels(bb)[[1]], "data.frame"))
+  expect_true(NCOL(levels(bb)[[1]])==3)
+  expect_true(NROW(levels(bb)[[1]])==30)
+
   clearCache(cacheRepo = tmpdir)
-  expect_true(length(dir(file.path(tmpdir, "rasters")))==0)
 
 })

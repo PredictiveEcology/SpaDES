@@ -694,7 +694,12 @@ prepareFileBackedRaster <- function(obj, repoDir = NULL, compareRasterFileLength
     curFilename <- normalizePath(filename(obj), winslash = "/")
   } else {
     isFilebacked <- FALSE
-    curFilename <- basename(tempfile(pattern = "raster",fileext = ".tif", tmpdir = ""))
+    if(is.factor(obj)) {
+      fileExt <- ".grd"
+    } else {
+      fileExt <- ".tif"
+    }
+    curFilename <- basename(tempfile(pattern = "raster",fileext = fileExt, tmpdir = ""))
   }
 
   saveFilename <- file.path(repoDir, "rasters", basename(curFilename)) %>%
