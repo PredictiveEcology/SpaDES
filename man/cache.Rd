@@ -83,15 +83,16 @@ three very critical modifications:
 1) the \code{archivist} package detects different environments as different;
 2) it also does not detect S4 methods correctly due to method inheritance;
 3) it does not detect objects that have file-base storage of information
-(like \code{\link[raster]{RasterLayer-class}} objects and
-\code{\link[ff]{ff}} objects).
-This version of the \code{cache} function accomodates those three special,
+(specifically \code{\link[raster]{RasterLayer-class}} objects).
+This version of the \code{Cache} function accomodates those three special,
 though quite common, cases by:
 1) converting any environments into list equivalents;
 2) identifying the dispatched S4 method (including those made through
 inheritance) before \code{\link[digest]{digest}} is called so the correct
 method is being cached;
-and 3) by running \code{\link[digest]{digest}} on the linked file.
+and 3) by running \code{\link[digest]{digest}} on the linked file. Currently,
+only file-backed \code{Raster*} objects are digested (e.g., not \code{ff} objects,
+or any other R object where the data is in a file, rather than RAM object).
 In the \code{SpaDES} context, the \code{simList} has an environment as one of
 its slots, thus using \code{archivist::cache} will not work correctly.
 
@@ -121,6 +122,12 @@ always prefixed with \code{SpaDES::cache(  )} so that it does not accidentally
 call the achivist package version of cache.
 }
 \note{
+\code{Raster*} class objects have a special behaviour when Cached. Whether they
+are file-backed or in-memory objects, they will become file-backed, and their
+file will be created in or copied to a "rasters" subfolder of the \code{cacheRepo} using
+\code{writeRaster}. Their RAM representation (as an R object) will still be in the usual
+"gallery" folder.
+
 In general, it is expected that caching will only be used when stochasticity
 is not relevant, or if a user has achieved sufficient stochasticity (e.g., via
 sufficient number of calls to \code{experiment}) such that no new explorations
