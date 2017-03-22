@@ -6,10 +6,11 @@
 \alias{makeDigestible,simList-method}
 \title{Remove any reference to environments or filepaths in objects}
 \usage{
-makeDigestible(object, objects, compareRasterFileLength = 1e+06)
+makeDigestible(object, objects, compareRasterFileLength = 1e+06,
+  algo = "xxhash64")
 
 \S4method{makeDigestible}{simList}(object, objects,
-  compareRasterFileLength = 1e+06)
+  compareRasterFileLength = 1e+06, algo = "xxhash64")
 }
 \arguments{
 \item{object}{an object to convert to a 'digestible' state}
@@ -21,6 +22,11 @@ be considered while making digestible.}
 have file-backed storage, this is passed to the length arg in \code{digest}
 when determining if the Raster file is already in the database.
 Default 1e6. Passed to \code{prepareFileBackedRaster}.}
+
+\item{algo}{The algorithms to be used; currently available choices are
+    \code{md5}, which is also the default, \code{sha1}, \code{crc32},
+    \code{sha256}, \code{sha512}, \code{xxhash32}, \code{xxhash64} and
+    \code{murmur32}.}
 }
 \value{
 A simplified version of the \code{simList} object, but with no

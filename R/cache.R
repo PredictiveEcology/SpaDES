@@ -240,10 +240,12 @@ setMethod(
 
     if (is.null(objects)) {
       if (length(wh) > 0) tmpl[wh] <- lapply(tmpl[wh], makeDigestible,
-                                             compareRasterFileLength = compareRasterFileLength)
+                                             compareRasterFileLength = compareRasterFileLength,
+                                             algo = algo)
     } else {
       if (length(wh) > 0) tmpl[wh] <- lapply(tmpl[wh], function(xx) {
-        makeDigestible(xx, objects, compareRasterFileLength = compareRasterFileLength)
+        makeDigestible(xx, objects, compareRasterFileLength = compareRasterFileLength,
+                       algo = algo)
       })
     }
 
@@ -270,7 +272,8 @@ setMethod(
     }
 
     if (length(whRasOrSpatial) > 0) tmpl[whRasOrSpatial] <- lapply(tmpl[whRasOrSpatial], makeDigestible,
-                                                 compareRasterFileLength = compareRasterFileLength)
+                                                 compareRasterFileLength = compareRasterFileLength,
+                                                 algo = algo)
     if (length(whCluster) > 0) tmpl[whCluster] <- NULL
     if (length(whFun) > 0) tmpl[whFun] <- lapply(tmpl[whFun], format)
     if (!is.null(tmpl$progress)) if (!is.na(tmpl$progress)) tmpl$progress <- NULL
@@ -496,7 +499,8 @@ setMethod(
 #' @rdname makeDigestible
 #' @author Eliot McIntire
 setGeneric("makeDigestible", function(object, objects,
-                                      compareRasterFileLength = 1e6) {
+                                      compareRasterFileLength = 1e6,
+                                      algo = "xxhash64") {
           standardGeneric("makeDigestible")
 })
 
@@ -504,7 +508,8 @@ setGeneric("makeDigestible", function(object, objects,
 setMethod(
   "makeDigestible",
   signature = "simList",
-    definition = function(object, objects, compareRasterFileLength) {
+    definition = function(object, objects, compareRasterFileLength,
+                          algo) {
 
       objectsToDigest <- sort(ls(object@.envir, all.names = TRUE))
       if (!missing(objects)) {
@@ -517,23 +522,25 @@ setMethod(
               if (is(obj, "Raster")) {
                 # convert Rasters in the simList to some of their metadata.
                 obj <- makeDigestible(obj,
-                                      compareRasterFileLength = compareRasterFileLength)
-                dig <- digest::digest(obj)
+                                      compareRasterFileLength = compareRasterFileLength,
+                                      algo = algo)
+                dig <- digest::digest(obj, algo = algo)
               } else if (is(obj, "Spatial")) {
-                dig <- makeDigestible(obj)
+                dig <- makeDigestible(obj,
+                                      algo = algo)
               } else {
                 # convert functions in the simList to their digest.
                 #  functions have environments so are always unique
-                dig <- digest::digest(obj)
+                dig <- digest::digest(obj, algo = algo)
               }
             } else {
               # for functions, use a character representation via format
-              dig <- digest::digest(format(obj))
+              dig <- digest::digest(format(obj), algo = algo)
             }
           } else {
             # for .sessionInfo, just keep the major and minor R version
             dig <- digest::digest(get(x, envir = envir(object))[[1]] %>%
-                                    .[c("major", "minor")])
+                                    .[c("major", "minor")], algo = algo)
           }
         return(dig)
       }))
@@ -571,12 +578,12 @@ setMethod(
 setMethod(
   "makeDigestible",
   signature = "Raster",
-  definition = function(object, compareRasterFileLength) {
+  definition = function(object, compareRasterFileLength, algo) {
 
     if (is(object, "RasterStack") | is(object, "RasterBrick")) {
       dig <- suppressWarnings(list(dim(object), res(object), crs(object), extent(object),
                   lapply(object@layers, function(yy) {
-                    digest::digest(yy@data, length = compareRasterFileLength)
+                    digest::digest(yy@data, length = compareRasterFileLength, algo = algo)
                     })))
       if (nchar(object@filename) > 0) {
         # if the Raster is on disk, has the first compareRasterFileLength characters;
@@ -585,11 +592,12 @@ setMethod(
       }
     } else {
       dig <- suppressWarnings(list(dim(object), res(object), crs(object), extent(object),
-                  digest::digest(object@data, length = compareRasterFileLength)))
+                  digest::digest(object@data, length = compareRasterFileLength, algo = algo)))
       if (nchar(object@file@name) > 0) {
         # if the Raster is on disk, has the first compareRasterFileLength characters;
-        # uses SpaDES:::digest on the file
-        dig <- append(dig, digest(file = object@file@name, length = compareRasterFileLength))
+        dig <- append(dig,
+                      digest::digest(file = object@file@name, length = compareRasterFileLength,
+                                     algo = algo))
       }
     }
     return(dig)
@@ -598,7 +606,7 @@ setMethod(
 setMethod(
   "makeDigestible",
   signature = "Spatial",
-  definition = function(object, compareRasterFileLength) {
+  definition = function(object, compareRasterFileLength, algo) {
 
     #if (is(object, "SpatialPolygonsDataFrame") ) {
 
@@ -606,7 +614,7 @@ setMethod(
 
     # The following Rounding is necessary to make digest equal on linux and windows
     bbb <- as.data.frame(lapply(aaa, function(x) if(is(x,"numeric")) round(x, 4) else x))
-    dig <- digest::digest(bbb)
+    dig <- digest::digest(bbb, algo = algo)
     return(dig)
 })
 
@@ -779,10 +787,10 @@ copyFile <- function(from = NULL, to = NULL, useRobocopy = TRUE,
   if (os == "windows") {
     if (useRobocopy) {
       if (silent) {
-        system(paste0("robocopy ","/purge"[delDestination]," /ETA /NDL /NFL /NJH /NJS ",
+        suppressWarnings(system(paste0("robocopy ","/purge"[delDestination]," /ETA /NDL /NFL /NJH /NJS ",
                       normalizePath(dirname(from), winslash = "\\"),
                       "\\ ", normalizePath(to, winslash = "\\"),
-                      " ", basename(from)))
+                      " ", basename(from))))
       } else {
         system(paste0("robocopy ", "/purge"[delDestination], " /ETA ",
                       normalizePath(dirname(from), winslash = "\\"), "\\ ",
