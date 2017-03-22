@@ -1,3 +1,6 @@
+if (getRversion() >= "3.1.0") {
+  utils::globalVariables(c("tagValue"))
+}
 ################################################################################
 #' Cache method that accomodates environments, S4 methods, Rasters
 #'
@@ -179,7 +182,7 @@
 #'
 setGeneric("Cache", signature = "...",
            function(FUN, ..., notOlderThan = NULL,
-                    objects = NULL, outputObjects = NULL, algo = "xxhash32",
+                    objects = NULL, outputObjects = NULL, algo = "xxhash64",
                     cacheRepo = NULL, compareRasterFileLength = 1e6) {
              archivist::cache(cacheRepo, FUN, ..., notOlderThan, algo)
 })
@@ -337,6 +340,10 @@ setMethod(
     written <- FALSE
     if (is(outputToSave, "Raster")) {
       outputToSave <- prepareFileBackedRaster(outputToSave, repoDir = cacheRepo)#, archiveData = TRUE,
+      attr(outputToSave, "tags") <- attr(output, "tags")
+      attr(outputToSave, "call") <- attr(output, "call")
+      if (isS4(FUN))
+        attr(outputToSave, "function") <- attr(output, "function")
       output <- outputToSave
       #archiveSessionInfo = FALSE,
       #archiveMiniature = FALSE, rememberName = FALSE, silent = TRUE)
@@ -395,6 +402,17 @@ setMethod(
 
     objs <- searchInLocalRepo(pattern = list(dateFrom = afterDate, dateTo = beforeDate),
                               repoDir = cacheRepo)
+    objsDT <- data.table(artifact = objs, key = "artifact")
+    allCacheDT <- data.table(showCache(cacheRepo = cacheRepo), key = "artifact")
+    rastersInRepo <- objsDT[allCacheDT][pmatch(table = tagValue, "Raster")]
+    if(all(!is.na(rastersInRepo$artifact))) {
+      rasters <- lapply(rastersInRepo$artifact, function(ras) {
+        loadFromLocalRepo(ras, repoDir = cacheRepo, value = TRUE)
+      })
+      filesToRemove <- unlist(lapply(rasters, function(x) filename(x)))
+      unlink(filesToRemove)
+    }
+
     rmFromLocalRepo(objs, cacheRepo, many = TRUE)
   })
 
@@ -556,15 +574,18 @@ setMethod(
   definition = function(object, compareRasterFileLength) {
 
     if (is(object, "RasterStack") | is(object, "RasterBrick")) {
-      dig <- list(dim(object), res(object), crs(object), extent(object),
-                  lapply(object@layers, function(yy) yy@data))
+      dig <- suppressWarnings(list(dim(object), res(object), crs(object), extent(object),
+                  lapply(object@layers, function(yy) {
+                    digest::digest(yy@data, length = compareRasterFileLength)
+                    })))
       if (nchar(object@filename) > 0) {
         # if the Raster is on disk, has the first compareRasterFileLength characters;
         # uses SpaDES:::digest on the file
         dig <- append(dig, digest(file = object@filename, length = compareRasterFileLength))
       }
     } else {
-      dig <- list(dim(object), res(object), crs(object), extent(object), object@data)
+      dig <- suppressWarnings(list(dim(object), res(object), crs(object), extent(object),
+                  digest::digest(object@data, length = compareRasterFileLength)))
       if (nchar(object@file@name) > 0) {
         # if the Raster is on disk, has the first compareRasterFileLength characters;
         # uses SpaDES:::digest on the file
@@ -630,7 +651,7 @@ setMethod(
 #' @rdname cache
 setGeneric("cache", signature = "...",
            function(cacheRepo = NULL, FUN, ..., notOlderThan = NULL,
-                    objects = NULL, outputObjects = NULL, algo = "xxhash32") {
+                    objects = NULL, outputObjects = NULL, algo = "xxhash64") {
              archivist::cache(cacheRepo, FUN, ..., notOlderThan, algo)
 })
 
@@ -661,7 +682,7 @@ setMethod(
 #' @return A raster object and its file backing will be passed to the archivist repository.
 #'
 #' @importFrom digest digest
-#' @importFrom raster filename
+#' @importFrom raster filename dataType
 #'
 #' @docType methods
 #' @author Eliot McIntire
@@ -669,13 +690,19 @@ setMethod(
 #'
 prepareFileBackedRaster <- function(obj, repoDir = NULL, compareRasterFileLength = 1e6, ...) {
   if (!inMemory(obj)) {
+    isFilebacked <- TRUE
     curFilename <- normalizePath(filename(obj), winslash = "/")
+  } else {
+    isFilebacked <- FALSE
+    curFilename <- basename(tempfile(pattern = "raster",fileext = ".tif", tmpdir = ""))
+  }
 
-    saveFilename <- file.path(repoDir, "rasters", basename(curFilename)) %>%
-      normalizePath(., winslash = "/", mustWork = FALSE)
+  saveFilename <- file.path(repoDir, "rasters", basename(curFilename)) %>%
+    normalizePath(., winslash = "/", mustWork = FALSE)
 
-    if (saveFilename != curFilename) {
-      shouldCopy <- TRUE
+  if (saveFilename != curFilename) {
+    if(isFilebacked) {
+        shouldCopy <- TRUE
       if (file.exists(saveFilename)) {
         if (!(compareRasterFileLength == Inf)) {
           if (digest(file = saveFilename, length = compareRasterFileLength) ==
@@ -703,7 +730,11 @@ prepareFileBackedRaster <- function(obj, repoDir = NULL, compareRasterFileLength
         }
       }
       slot(slot(obj, "file"), "name") <- saveFilename
+    } else {
+      checkPath(dirname(saveFilename), create = TRUE)
+      obj <- writeRaster(obj, filename = saveFilename, datatype = dataType(obj))
     }
+
   } else {
     saveFilename <- slot(slot(obj, "file"), "name")
   }

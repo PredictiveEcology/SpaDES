@@ -67,8 +67,8 @@ test_that("test event-level cache", {
   firesHash <- digest::digest(object = SpaDES:::makeDigestible(
     sims$landscape$Fires), algo = "xxhash64")
 
-  expect_true(any(c("1dba95f5f30da56f") %in% landscapeObjHash))
-  expect_true(any(c("40ee768c2ff2b2dc") %in% firesHash))
+  expect_true(any(c("127a565ba9dc675b") %in% landscapeObjHash))
+  expect_true(any(c("54e0e90a477d70f2") %in% firesHash))
 
   mess1 <- capture_messages(sims <- spades(Copy(mySim)))
   expect_true(any(grepl(pattern = "Using cached copy of init event in randomLandscapes module", mess1)))
@@ -77,8 +77,8 @@ test_that("test event-level cache", {
   firesHash <- digest::digest(object = SpaDES:::makeDigestible(
     sims$landscape$Fires), algo = "xxhash64")
 
-  expect_true(any(c("1dba95f5f30da56f") %in% landscapeObjHash))
-  expect_false(any(c("40ee768c2ff2b2dc") %in% firesHash)) # The non cached stuff goes ahead as normal
+  expect_true(any(c("127a565ba9dc675b") %in% landscapeObjHash))
+  expect_false(any(c("54e0e90a477d70f2") %in% firesHash)) # The non cached stuff goes ahead as normal
 
   clearCache(sims)
 })
@@ -127,8 +127,8 @@ test_that("test module-level cache", {
   firesHash <- digest::digest(object = SpaDES:::makeDigestible(
     sims$landscape$Fires), algo = "xxhash64")
 
-  expect_true(any(c("1dba95f5f30da56f") %in% landscapeObjHash))
-  expect_true(any(c("40ee768c2ff2b2dc") %in% firesHash))
+  expect_true(any(c("127a565ba9dc675b") %in% landscapeObjHash))
+  expect_true(any(c("54e0e90a477d70f2") %in% firesHash))
 
   # The cached version will be identical for both events (init and plot), but will not actually
   # complete the plot, because plotting isn't cacheable
@@ -145,8 +145,8 @@ test_that("test module-level cache", {
   firesHash <- digest::digest(object = SpaDES:::makeDigestible(
     sims$landscape$Fires), algo = "xxhash64")
 
-  expect_true(any(c("1dba95f5f30da56f") %in% landscapeObjHash))
-  expect_false(any(c("40ee768c2ff2b2dc") %in% firesHash)) # The non cached stuff goes ahead as normal
+  expect_true(any(c("127a565ba9dc675b") %in% landscapeObjHash))
+  expect_false(any(c("54e0e90a477d70f2") %in% firesHash)) # The non cached stuff goes ahead as normal
 
   clearCache(sims)
 })
@@ -197,4 +197,24 @@ test_that("test file-backed raster caching", {
 
   # confirm that the second one was obtained through reading from Cache... much faster than writing
   expect_true(b1[1] > b2[1])
+
+  clearCache(cacheRepo = tmpdir)
+
+  # Check that Caching of rasters saves them to tif file instead of rdata
+  randomPolyToMemory <- function(tmpdir) {
+    r <- randomPolygons(numTypes = 30)
+    dataType(r) <- "INT1U"
+    r
+  }
+
+  bb <- Cache(randomPolyToMemory, tmpdir, cacheRepo = tmpdir)
+  expect_true(nzchar(filename(bb)))
+  expect_true(fromDisk(bb))
+
+  bb <- Cache(randomPolyToMemory, tmpdir, cacheRepo = tmpdir)
+  expect_true(NROW(showCache(cacheRepo=tmpdir))==5)
+
+  clearCache(cacheRepo = tmpdir)
+  expect_true(length(dir(file.path(tmpdir, "rasters")))==0)
+
 })
