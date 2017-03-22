@@ -351,7 +351,7 @@ setMethod(
     spreadProbLaterExists <- TRUE
 
     if (!is(spreadProbLater, "Raster")) {
-      if (is.na(spreadProbLater)) {
+      if (anyNA(spreadProbLater)) {
         spreadProbLaterExists <- FALSE
         spreadProbLater <- spreadProb
       }
@@ -501,10 +501,10 @@ setMethod(
     if (is(spreadProb, "Raster")) {
       # convert NA to 0s
       #isNASpreadProb <- is.na(spreadProb[])
-      if (anyNA(spreadProb[])) {
-        isNASpreadProb <- is.na(spreadProb[])
-        spreadProb[isNASpreadProb] <- 0L
-      }
+      # if (anyNA(spreadProb[])) {
+      #   isNASpreadProb <- is.na(spreadProb[])
+      #   spreadProb[isNASpreadProb] <- 0L
+      # }
 
     } else if (is.numeric(spreadProb)) {
       # Translate numeric spreadProb into a Raster, if there is a mask
@@ -516,14 +516,14 @@ setMethod(
     # Convert mask and NAs to 0 on the spreadProbLater Raster
     if (is(spreadProbLater, "Raster")) {
       # convert NA to 0s
-      if (!spreadProbLaterExists) {
-        if(exists("isNASpreadProb", inherits = FALSE))
-          isNASpreadProbLater <- isNASpreadProb
-      } else {
-        if(anyNA(spreadProbLater[]))
-          isNASpreadProbLater <- is.na(spreadProbLater[])
-      }
-      if (exists("isNASpreadProbLater", inherits = FALSE)) spreadProbLater[isNASpreadProbLater] <- 0L
+      # if (!spreadProbLaterExists) {
+      #   if(exists("isNASpreadProb", inherits = FALSE))
+      #     isNASpreadProbLater <- isNASpreadProb
+      # } else {
+      #   if(anyNA(spreadProbLater[]))
+      #     isNASpreadProbLater <- is.na(spreadProbLater[])
+      # }
+      # if (exists("isNASpreadProbLater", inherits = FALSE)) spreadProbLater[isNASpreadProbLater] <- 0L
 
     } else if (is.numeric(spreadProbLater)) {
        # Translate numeric spreadProbLater into a Raster, if there is a mask
@@ -666,7 +666,9 @@ setMethod(
           spreadProbs <- spreadProb[][potentials[, 2L]]
         }
       }
-
+      
+      if(anyNA(spreadProbs)) spreadProbs[is.na(spreadProbs)] <- 0
+      
       if (!is.na(asymmetry)) {
         if (allowOverlap | returnDistances) {
           a <- cbind(id = potentials[, 3L], to = potentials[, 2L],
