@@ -410,6 +410,7 @@ setMethod(
         loadFromLocalRepo(ras, repoDir = cacheRepo, value = TRUE)
       })
       filesToRemove <- unlist(lapply(rasters, function(x) filename(x)))
+      filesToRemove <- gsub(filesToRemove, pattern = ".{1}$", replacement = "*")
       unlink(filesToRemove)
     }
 
