@@ -33,7 +33,7 @@ A data.frame with columns: result, expectedFile, actualFile, and checksum.
 Verify (and optionally write) checksums for data files in a module's
 \code{data/} subdirectory. The file \code{data/CHECKSUMS.txt} contains the
 expected checksums for each data file.
-Checksums are computed using \code{SpaDES:::digest}, which is simply a
+Checksums are computed using \code{SpaDES:::.digest}, which is simply a
 wrapper around \code{digest::digest}.
 }
 \details{
