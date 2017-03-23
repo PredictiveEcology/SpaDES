@@ -877,7 +877,7 @@ copyFile <- function(from = NULL, to = NULL, useRobocopy = TRUE,
         suppressWarnings(useFileCopy <- tryCatch(system(paste0("robocopy ","/purge"[delDestination]," /ETA /NDL /NFL /NJH /NJS ",
                       normalizePath(dirname(from), winslash = "\\"),
                       "\\ ", normalizePath(to, winslash = "\\"),
-                      " ", basename(from)), intern=TRUE), error = function(x) TRUE))
+                      " ", basename(from)), intern = TRUE), error = function(x) TRUE))
       } else {
         useFileCopy <- tryCatch(system(paste0("robocopy ", "/purge"[delDestination], " /ETA ",
                       normalizePath(dirname(from), winslash = "\\"), "\\ ",
@@ -891,16 +891,16 @@ copyFile <- function(from = NULL, to = NULL, useRobocopy = TRUE,
     }
   } else if (os == "linux") {
     if (silent) {
-      useFileCopy <- tryCatch(system(paste0("rsync -a ","--delete "[delDestination], from, " ", to,"/"),
-             intern = TRUE), error = function(x) TRUE)
+      useFileCopy <- tryCatch(system(paste0("rsync -a ", "--delete "[delDestination], from, " ", to, "/"),
+                                     intern = TRUE), error = function(x) TRUE)
     } else {
-      useFileCopy <- tryCatch(system(paste0("rsync -avP ","--delete "[delDestination], from, " ", to, "/"),
+      useFileCopy <- tryCatch(system(paste0("rsync -avP ", "--delete "[delDestination], from, " ", to, "/"),
                                      intern = TRUE), error = function(x) TRUE)
     }
-  } else if(os == "darwin") {
+  } else if (os == "darwin") {
     useFileCopy <- TRUE
   }
-  if(isTRUE(useFileCopy))
+  if (isTRUE(useFileCopy))
     file.copy(from = from, to = to, overwrite = overwrite, recursive = FALSE)
 
   setwd(origDir)
