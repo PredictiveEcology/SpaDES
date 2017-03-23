@@ -1164,7 +1164,7 @@ setMethod(
         allCells <- dtToJoin[allCells]
       }
       allCells[]
-      if(exists("nuMRetries", envir = .spadesEnv)) {
+      if(exists("numRetries", envir = .spadesEnv)) {
         if(sum(allCells$active)==0) rm("numRetries", envir = .spadesEnv)
       }
       return(allCells)
