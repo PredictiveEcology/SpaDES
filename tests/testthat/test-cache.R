@@ -214,7 +214,49 @@ test_that("test file-backed raster caching", {
   bb <- Cache(randomPolyToMemory, tmpdir, cacheRepo = tmpdir)
   expect_true(NROW(showCache(cacheRepo=tmpdir))==5)
 
+  # Test that factors are saved correctly
+  randomPolyToFactorInMemory <- function(tmpdir) {
+    r <- randomPolygons(numTypes = 30)
+    levels(r) <- data.frame(ID = 1:30, vals = sample(LETTERS[1:5], size = 30,replace = TRUE),
+                            vals2 <- sample(1:7, size = 30, replace = TRUE))
+    dataType(r) <- "INT1U"
+    r
+  }
+  bb <- Cache(randomPolyToFactorInMemory, tmpdir, cacheRepo = tmpdir)
+  expect_true(dirname(filename(bb))==file.path(tmpdir, "rasters"))
+  expect_true(dataType(bb)=="INT1U")
+  expect_true(is.factor(bb))
+  expect_true(is(levels(bb)[[1]], "data.frame"))
+  expect_true(NCOL(levels(bb)[[1]])==3)
+  expect_true(NROW(levels(bb)[[1]])==30)
+
+
+  randomPolyToFactorOnDisk <- function(tmpdir, tmpFile) {
+    r <- randomPolygons(numTypes = 30)
+    levels(r) <- data.frame(ID = 1:30, vals = sample(LETTERS[1:5], size = 30,replace = TRUE),
+                            vals2=sample(1:7, size = 30, replace = TRUE))
+    r <- writeRaster(r, tmpFile, overwrite = TRUE, datatype="INT1U")
+    #r <- raster(tmpRasterfile)
+    r
+  }
+  tf <- raster::rasterTmpFile()
+  # bb1 has original tmp filename
+  bb1 <- randomPolyToFactorOnDisk(tmpdir, tf)
+  # bb has new one, inside of cache repository, with same basename
+  bb <- Cache(randomPolyToFactorOnDisk, tmpdir, tmpFile = tf,
+              cacheRepo = tmpdir)
+  expect_true(dirname(filename(bb))==file.path(tmpdir, "rasters"))
+  expect_true(basename(filename(bb))==basename(tf))
+  expect_false(filename(bb)==tf)
+  expect_true(dirname(filename(bb1))==dirname(tf))
+  expect_true(basename(filename(bb1))==basename(tf))
+  expect_true(dataType(bb)=="INT1U")
+  expect_true(is.factor(bb))
+  expect_true(is(levels(bb)[[1]], "data.frame"))
+  expect_true(NCOL(levels(bb)[[1]])==3)
+  expect_true(NROW(levels(bb)[[1]])==30)
+
+
   clearCache(cacheRepo = tmpdir)
-  expect_true(length(dir(file.path(tmpdir, "rasters")))==0)
 
 })

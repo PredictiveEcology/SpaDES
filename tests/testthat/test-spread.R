@@ -58,7 +58,7 @@ test_that("spread produces legal RasterLayer", {
   expect_true(all(fires2[, unique(id)] %in% fires[, unique(id)]))
   expect_true(all(fires[, unique(id)] %in% fires2[, unique(id)]))
   expect_true(all(fires2[, length(initialLocus), by = id][, V1] ==
-                    c(5L, 10L, 8L, 11L, 1L, 29L, 13L, 14L, 22L, 1L)))
+                    c(4L, 8L, 7L, 9L, 1L, 25L, 13L, 13L, 20L, 1L)))
 })
 
 test_that("spread stopRule does not work correctly", {
