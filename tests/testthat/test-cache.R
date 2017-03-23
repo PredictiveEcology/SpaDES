@@ -239,7 +239,7 @@ test_that("test file-backed raster caching", {
     #r <- raster(tmpRasterfile)
     r
   }
-  tf <- raster::rasterTmpFile()
+  tf <- tempfile(fileext = ".grd")
   # bb1 has original tmp filename
   bb1 <- randomPolyToFactorOnDisk(tmpdir, tf)
   # bb has new one, inside of cache repository, with same basename

@@ -808,32 +808,41 @@ copyFile <- function(from = NULL, to = NULL, useRobocopy = TRUE,
                      create = TRUE, silent = FALSE) {
 
   origDir <- getwd()
+  useFileCopy <- FALSE
   if (!dir.exists(to)) to <- dirname(to) # extract just the directory part
   os <- tolower(Sys.info()[["sysname"]])
   if (os == "windows") {
     if (useRobocopy) {
       if (silent) {
-        suppressWarnings(system(paste0("robocopy ","/purge"[delDestination]," /ETA /NDL /NFL /NJH /NJS ",
+        suppressWarnings(useFileCopy <- tryCatch(system(paste0("robocopy ","/purge"[delDestination]," /ETA /NDL /NFL /NJH /NJS ",
                       normalizePath(dirname(from), winslash = "\\"),
                       "\\ ", normalizePath(to, winslash = "\\"),
-                      " ", basename(from))))
+                      " ", basename(from)), intern=TRUE), error = function(x) TRUE))
       } else {
-        system(paste0("robocopy ", "/purge"[delDestination], " /ETA ",
+        useFileCopy <- tryCatch(system(paste0("robocopy ", "/purge"[delDestination], " /ETA ",
                       normalizePath(dirname(from), winslash = "\\"), "\\ ",
-                      normalizePath(to, winslash = "\\"), " ", basename(from)))
+                      normalizePath(to, winslash = "\\"), " ", basename(from)), intern = TRUE),
+                      error = function(x) TRUE)
         #         system(paste0("robocopy /E ","/purge"[delDestination]," /ETA ", normalizePath(fromDir, winslash = "\\"),
         #                       "\\ ", normalizePath(toDir, winslash = "\\"), "\\"))
       }
     } else {
-      file.copy(from = from, to = to, overwrite = overwrite, recursive = FALSE)
+      useFileCopy <- TRUE
     }
-  } else if (os == "linux" | os == "darwin") {
+  } else if (os == "linux") {
     if (silent) {
-      system(paste0("rsync -a ","--delete "[delDestination], from, " ", to,"/"))
+      useFileCopy <- tryCatch(system(paste0("rsync -a ","--delete "[delDestination], from, " ", to,"/"),
+             intern = TRUE), error = function(x) TRUE)
     } else {
-      system(paste0("rsync -avP ","--delete "[delDestination], from, " ", to, "/"))
+      useFileCopy <- tryCatch(system(paste0("rsync -avP ","--delete "[delDestination], from, " ", to, "/"),
+                                     intern = TRUE), error = function(x) TRUE)
     }
+  } else if(os == "darwin") {
+    useFileCopy <- TRUE
   }
+  if(isTRUE(useFileCopy))
+    file.copy(from = from, to = to, overwrite = overwrite, recursive = FALSE)
+
   setwd(origDir)
   return(invisible(to))
 }
