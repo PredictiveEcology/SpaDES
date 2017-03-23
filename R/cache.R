@@ -1,6 +1,7 @@
 if (getRversion() >= "3.1.0") {
-  utils::globalVariables(c("tagValue"))
+  utils::globalVariables(c("tagValue", "tagKey", "artifact"))
 }
+
 ################################################################################
 #' Cache method that accomodates environments, S4 methods, Rasters
 #'
@@ -468,7 +469,10 @@ setMethod(
                                 repoDir = cacheRepo)
       objsDT <- data.table(artifact = objs, key = "artifact")
     } else {
-      objsDT <- data.table(splitTagsLocal(cacheRepo), key="artifact")[tagValue %in% userTags | tagKey %in% userTags]
+      objsDT <- data.table(splitTagsLocal(cacheRepo), key="artifact")[
+        tagValue %in% userTags |
+          tagKey %in% userTags |
+          artifact %in% userTags]
       objs <- objsDT$artifact
     }
     allCacheDT <- data.table(showCache(cacheRepo = cacheRepo), key = "artifact")
@@ -518,7 +522,9 @@ setMethod(
                  tagValue = character(0), createdDate = character(0))
     }))
     if(length(userTags)>0) {
-      dtResult <- dt[tagValue %in% userTags | tagKey %in% userTags]
+      dtResult <- dt[tagValue %in% userTags |
+                       tagKey %in% userTags |
+                       artifact %in% userTags]
       setkey(dtResult, "artifact")
       setkey(dt, "artifact")
       dt[unique(dtResult[,list(artifact)], by = "artifact")]

@@ -175,6 +175,23 @@ test_that("test file-backed raster caching", {
   expect_identical(strsplit(tmpRasterfile, split = "[\\/]"),
                    strsplit(a@file@name, split = "[\\/]"))
   aa <- Cache(randomPolyToDisk, tmpdir, tmpRasterfile, cacheRepo = tmpdir, userTags = "something2")
+
+  # Test clearCache by tags
+  expect_equal(NROW(showCache(cacheRepo = tmpdir)), 6)
+  clearCache(cacheRepo = tmpdir, userTags = "something")
+  expect_equal(NROW(showCache(cacheRepo = tmpdir)), 6)
+  clearCache(cacheRepo = tmpdir, userTags = "something2")
+  expect_equal(NROW(showCache(cacheRepo = tmpdir)), 0)
+
+  aa <- Cache(randomPolyToDisk, tmpdir, tmpRasterfile, cacheRepo = tmpdir, userTags = "something2")
+  expect_equal(NROW(showCache(cacheRepo = tmpdir)), 6)
+  clearCache(cacheRepo = tmpdir, userTags = c("something", "testing"))
+  expect_equal(NROW(showCache(cacheRepo = tmpdir)), 6)
+  clearCache(cacheRepo = tmpdir, userTags = c("something2", "testing"))
+  expect_equal(NROW(showCache(cacheRepo = tmpdir)), 0)
+
+  aa <- Cache(randomPolyToDisk, tmpdir, tmpRasterfile, cacheRepo = tmpdir, userTags = "something2")
+
   # confirm that the raster has the new filename in the cachePath
   expect_false(identical(strsplit(tmpRasterfile, split = "[\\/]"),
                          strsplit(file.path(tmpdir, "rasters", basename(tmpRasterfile)), split = "[\\/]")))
@@ -240,7 +257,7 @@ test_that("test file-backed raster caching", {
     r
   }
   tf <- tempfile(fileext = ".grd")
-  file.create(tf) ## create file first, then normPath (needed for macOS)
+  file.create(tf)
   tf <- normalizePath(tf)
 
   # bb1 has original tmp filename
