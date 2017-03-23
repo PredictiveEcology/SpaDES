@@ -1,6 +1,7 @@
 if (getRversion() >= "3.1.0") {
-  utils::globalVariables(c("tagValue"))
+  utils::globalVariables(c("tagValue", "tagKey", "artifact"))
 }
+
 ################################################################################
 #' Cache method that accomodates environments, S4 methods, Rasters
 #'
