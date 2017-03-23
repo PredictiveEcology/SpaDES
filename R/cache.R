@@ -192,8 +192,8 @@
 setGeneric("Cache", signature = "...",
            function(FUN, ..., notOlderThan = NULL,
                     objects = NULL, outputObjects = NULL, algo = "xxhash32",
-                    cacheRepo = NULL, compareRasterFileLength = 1e6) {
-                    cacheRepo = NULL, sideEffect= FALSE, makeCopy = FALSE, quick = FALSE) {
+                    cacheRepo = NULL, compareRasterFileLength = 1e6, sideEffect= FALSE,
+                    makeCopy = FALSE, quick = FALSE) {
              archivist::cache(cacheRepo, FUN, ..., notOlderThan, algo)
 })
 
@@ -202,8 +202,7 @@ setGeneric("Cache", signature = "...",
 setMethod(
   "Cache",
   definition = function(FUN, ..., notOlderThan, objects, outputObjects,
-                        algo, cacheRepo, compareRasterFileLength) {
-                        algo, cacheRepo = NULL, sideEffect= FALSE, makeCopy = FALSE, quick = FALSE) {
+                        algo, cacheRepo, compareRasterFileLength, sideEffect= FALSE, makeCopy = FALSE, quick = FALSE) {
     tmpl <- list(...)
     if (missing(notOlderThan)) notOlderThan <- NULL
     if (missing(quick)) quick <- TRUE

@@ -13,11 +13,13 @@
 \title{Cache method that accomodates environments, S4 methods, Rasters}
 \usage{
 Cache(FUN, ..., notOlderThan = NULL, objects = NULL, outputObjects = NULL,
-  algo = "xxhash32", cacheRepo = NULL, compareRasterFileLength = 1e+06)
+  algo = "xxhash32", cacheRepo = NULL, compareRasterFileLength = 1e+06,
+  sideEffect = FALSE, makeCopy = FALSE, quick = FALSE)
 
 \S4method{Cache}{ANY}(FUN, ..., notOlderThan = NULL, objects = NULL,
   outputObjects = NULL, algo = "xxhash32", cacheRepo = NULL,
-  compareRasterFileLength = 1e+06)
+  compareRasterFileLength = 1e+06, sideEffect = FALSE, makeCopy = FALSE,
+  quick = FALSE)
 
 clearCache(sim, afterDate, beforeDate, cacheRepo, ...)
 
@@ -63,6 +65,16 @@ This is optional if \code{Cache} is used inside a SpaDES module.}
 have file-backed storage, this is passed to the length arg in \code{digest}
 when determining if the Raster file is already in the database.
 Default 1e6. Passed to \code{prepareFileBackedRaster}.}
+
+\item{sideEffect}{A logical argument. Only effective when cache operates on dwdData.If TRUE,the argument check if files to be downloaded
+are found locally prior to download. When the files are absent, they are recovered from a copy (the argument
+makeCopy must have been set as TRUE the first time chache was runned).}
+
+\item{makeCopy}{A logical argument. Only effective when cache operates on dwdData. It creates a copy of the downloaded
+files in the cacheRepo/gallery directory to optimize recovering. Only work when cache run for the first time for now.}
+
+\item{quick}{A logical argument. If TRUE, checksum is compiled using the combination of the filename and its size.
+If FALSE, cheksum is compiled using the object. Default is FALSE.}
 
 \item{sim}{A \code{simList} simulation object, generally produced by \code{simInit}.}
 
