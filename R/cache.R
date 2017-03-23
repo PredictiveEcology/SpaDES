@@ -384,11 +384,15 @@ setMethod(
 #' @param beforeDate Objects cached before this date will be deleted, formatted as YYYY-MM-DD.
 #' @param ... Other arguments passed to
 #'
-#' If neither \code{afterDate} or \code{beforeDate} are provided, then all objects will be removed.
+#' If neither \code{afterDate} or \code{beforeDate} are provided, nor \code{userTags},
+#'  then all objects will be removed.
 #' If both \code{afterDate} and \code{beforeDate} are specified, then all objects between \code{afterDate} and
 #' \code{beforeDate} will be deleted.
+#' If \code{userTags} is used, this will override \code{afterDate} or \code{beforeDate}.
 #'
-#' @return Will clear all objects from the \code{cachePath} of the sim object
+#' @return Will clear all (or that match \code{userTags}, or between \code{afterDate} or \code{beforeDate})
+#' objects from the repository located at \code{cachePath} of the sim object,
+#' if \code{sim} is provided, or located in \code{cacheRepo} .
 #'
 #' @export
 #' @importFrom archivist rmFromLocalRepo searchInLocalRepo
@@ -423,7 +427,7 @@ setMethod(
                                 repoDir = cacheRepo)
       objsDT <- data.table(artifact = objs, key = "artifact")
     } else {
-      objsDT <- data.table(splitTagsLocal(cacheRepo), key="artifact")[tagValue %in% userTags]
+      objsDT <- data.table(splitTagsLocal(cacheRepo), key="artifact")[tagValue %in% userTags | tagKey %in% userTags]
       objs <- objsDT$artifact
     }
     allCacheDT <- data.table(showCache(cacheRepo = cacheRepo), key = "artifact")
@@ -456,7 +460,7 @@ setMethod(
 #' \dontrun{
 #' showCache(mySim)
 #' }
-setGeneric("showCache", function(sim, cacheRepo, ...) {
+setGeneric("showCache", function(sim, cacheRepo, userTags = character(), ...) {
   standardGeneric("showCache")
 })
 
@@ -464,14 +468,23 @@ setGeneric("showCache", function(sim, cacheRepo, ...) {
 #' @rdname cache
 setMethod(
   "showCache",
-  definition = function(sim, cacheRepo, ...) {
+  definition = function(sim, cacheRepo, userTags, ...) {
     if (missing(sim) & missing(cacheRepo)) stop("Must provide either sim or cacheRepo")
     if (missing(cacheRepo)) cacheRepo <- sim@paths$cachePath
 
-    tryCatch(splitTagsLocal(cacheRepo), error = function(x) {
+    dt <- data.table(tryCatch(splitTagsLocal(cacheRepo), error = function(x) {
       data.frame(artifact = character(0), tagKey = character(0),
                  tagValue = character(0), createdDate = character(0))
-    })
+    }))
+    if(length(userTags)>0) {
+      dtResult <- dt[tagValue %in% userTags | tagKey %in% userTags]
+      setkey(dtResult, "artifact")
+      setkey(dt, "artifact")
+      dt[unique(dtResult[,list(artifact)], by = "artifact")]
+    } else {
+      dt
+    }
+
 })
 
 ################################################################################
