@@ -1,5 +1,5 @@
 if (getRversion() >= "3.1.0") {
-  utils::globalVariables(c("indices", "id", "initialLocus", "dists", "dup"))
+  utils::globalVariables(c("indices", "id", "initialLocus", "dists", "dup", ".I"))
 }
 
 ###############################################################################
@@ -582,8 +582,8 @@ setMethod(
       numNeighs <- NULL
     }
 
-    if(!exists("numRetries", envir = SpaDES:::.spadesEnv))
-      assign("numRetries", rep(0, length(initialLoci)), envir = SpaDES:::.spadesEnv)
+    if(!exists("numRetries", envir = .spadesEnv))
+      .assignSpaDES("numRetries", rep(0, length(initialLoci)))
 
     toColumn <- c("to", "indices")
 
@@ -1013,7 +1013,7 @@ setMethod(
       }
 
       if (exactSizes) {
-        if (all(get("numRetries", inherits = FALSE, envir = SpaDES:::.spadesEnv) < 10)) {
+        if (all(.getSpaDES("numRetries", inherits = FALSE) < 10)) {
           if (spreadStateExists) {
             # tooSmall <- tabulate(spreads[c(spreadState[!keepers]$indices, spreadsIndices)],
             #                      length(maxSize)) < maxSize
@@ -1028,10 +1028,8 @@ setMethod(
           needPersist <- tooSmall & inactive # these are ones that are stuck ... i.e., too small, and inactive
           needPersistJump <- TRUE
           if (any(needPersist)) {
-            assign("numRetries",
-                   get("numRetries", inherits = FALSE, envir = SpaDES:::.spadesEnv) +
-                     needPersist,
-                   envir = SpaDES:::.spadesEnv)
+            .assignSpaDES("numRetries",
+               .getSpaDES("numRetries", inherits = FALSE) + needPersist)
 
             if(spreadStateExists) {
 
@@ -1166,7 +1164,7 @@ setMethod(
         allCells <- dtToJoin[allCells]
       }
       allCells[]
-      if(sum(allCells$active)==0) rm("numRetries", envir = SpaDES:::.spadesEnv)
+      if(sum(allCells$active)==0) rm("numRetries", envir = .spadesEnv)
       return(allCells)
     }
 

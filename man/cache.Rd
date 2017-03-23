@@ -20,10 +20,10 @@ Cache(FUN, ..., notOlderThan = NULL, objects = NULL, outputObjects = NULL,
   outputObjects = NULL, algo = "xxhash64", cacheRepo = NULL,
   compareRasterFileLength = 1e+06, userTags = c())
 
-clearCache(sim, afterDate, beforeDate, cacheRepo, userTags = "", ...)
+clearCache(sim, afterDate, beforeDate, cacheRepo, userTags = character(), ...)
 
 \S4method{clearCache}{ANY}(sim, afterDate, beforeDate, cacheRepo,
-  userTags = "", ...)
+  userTags = character(), ...)
 
 showCache(sim, cacheRepo, ...)
 
