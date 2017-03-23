@@ -249,7 +249,8 @@ setMethod(
       } else {
         cur <- current(sim)
       }
-      userTags <- c(userTags,
+      if(NROW(cur))
+        userTags <- c(userTags,
                     paste0("module:",cur$moduleName),
                     paste0("eventType:",cur$eventType),
                     paste0("eventTime:",cur$eventTime))

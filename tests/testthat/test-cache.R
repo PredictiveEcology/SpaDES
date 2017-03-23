@@ -27,7 +27,7 @@ test_that("test cache", {
   sims <- experiment(mySim, replicates = 2, cache = TRUE)
   out <- showCache(sims[[1]])
   expect_output(print(out), "cacheId")
-  expect_true(NROW(out) == 10) # will become 15 with new experiment caching stuff
+  expect_true(NROW(out) == 12) # will become 15 with new experiment caching stuff
   clearCache(sims[[1]])
   out <- showCache(sims[[1]])
   expect_true(NROW(out) == 0)
