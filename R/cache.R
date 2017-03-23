@@ -464,19 +464,15 @@ setMethod(
     if (missing(afterDate)) afterDate <- "1970-01-01"
     if (missing(beforeDate)) beforeDate <- Sys.Date() + 1
 
-    if(length(userTags)==0) {
-      objs <- searchInLocalRepo(pattern = list(dateFrom = afterDate, dateTo = beforeDate),
-                                repoDir = cacheRepo)
-      objsDT <- data.table(artifact = objs, key = "artifact")
-    } else {
-      objsDT <- data.table(splitTagsLocal(cacheRepo), key="artifact")[
+    objsDT <- data.table(splitTagsLocal(cacheRepo), key="artifact")
+    if(length(userTags)>0) {
+      objsDT <- objsDT[
         tagValue %in% userTags |
           tagKey %in% userTags |
           artifact %in% userTags]
-      objs <- objsDT$artifact
     }
-    allCacheDT <- data.table(showCache(cacheRepo = cacheRepo), key = "artifact")
-    rastersInRepo <- objsDT[allCacheDT][pmatch(table = tagValue, "Raster")]
+    objs <- objsDT$artifact
+    rastersInRepo <- objsDT[grep(tagValue, pattern="Raster")]
     if(all(!is.na(rastersInRepo$artifact))) {
       rasters <- lapply(rastersInRepo$artifact, function(ras) {
         loadFromLocalRepo(ras, repoDir = cacheRepo, value = TRUE)
@@ -517,20 +513,19 @@ setMethod(
     if (missing(sim) & missing(cacheRepo)) stop("Must provide either sim or cacheRepo")
     if (missing(cacheRepo)) cacheRepo <- sim@paths$cachePath
 
-    dt <- data.table(tryCatch(splitTagsLocal(cacheRepo), error = function(x) {
-      data.frame(artifact = character(0), tagKey = character(0),
-                 tagValue = character(0), createdDate = character(0))
-    }))
-    if(length(userTags)>0) {
-      dtResult <- dt[tagValue %in% userTags |
-                       tagKey %in% userTags |
-                       artifact %in% userTags]
-      setkey(dtResult, "artifact")
-      setkey(dt, "artifact")
-      dt[unique(dtResult[,list(artifact)], by = "artifact")]
-    } else {
-      dt
+
+    objsDT <- showLocalRepo(cacheRepo) %>% data.table()
+    if(NROW(objsDT)>0) {
+      objsDT <- data.table(splitTagsLocal(cacheRepo), key="artifact")
+      if(length(userTags)>0) {
+        objsDT <- data.table(splitTagsLocal(cacheRepo), key="artifact")[
+          tagValue %in% userTags |
+            tagKey %in% userTags |
+            artifact %in% userTags]
+      }
+
     }
+    objsDT
 
 })
 
