@@ -93,20 +93,20 @@ y1 <- splitRaster(r, nx, ny, c(10, 10), path = file.path(tmpdir, "y1"))
 y2 <- splitRaster(r, nx, ny, c(0.5, 0.5), path = file.path(tmpdir, "y2"))
 
 # parallel cropping
-# if (interactive()) {
-#   n <- pmin(parallel::detectCores(), 4) # use up to 4 cores
-#   beginCluster(n)
-#   y3 <- splitRaster(r, nx, ny, c(0.7, 0.7), path = file.path(tmpdir, "y3"))
-#   endCluster()
-# }
+if (interactive()) {
+  n <- pmin(parallel::detectCores(), 4) # use up to 4 cores
+  beginCluster(n)
+  y3 <- splitRaster(r, nx, ny, c(0.7, 0.7), path = file.path(tmpdir, "y3"))
+  endCluster()
+}
 
 # the original raster:
-#if (interactive()) plot(r) # may require a call to `dev()` if using RStudio
+if (interactive()) plot(r) # may require a call to `dev()` if using RStudio
 
 # the split raster:
 layout(mat = matrix(seq_len(nx * ny), ncol = nx, nrow = ny))
 plotOrder <- c(4, 8, 12, 3, 7, 11, 2, 6, 10, 1, 5, 9)
-#if (interactive()) invisible(lapply(y0[plotOrder], plot))
+if (interactive()) invisible(lapply(y0[plotOrder], plot))
 
 # can be recombined using `raster::merge`
 m0 <- do.call(merge, y0)
