@@ -1034,7 +1034,7 @@ setMethod(
             if(spreadStateExists) {
 
               whSmallInactive <- which(tooSmall & inactive)
-              spreadsSmallInactive <- spreads[spreads[, "id"] %in% whSmallInactive, ]
+              spreadsSmallInactive <- spreads[spreads[, "id"] %in% whSmallInactive, , drop = FALSE]
               if(needPersistJump) {
                 message("Jumping to new active location, up to 1000 m away")
                 mmm <- SpaDES::rings(landscape, loci = spreadsSmallInactive[, "indices"],
