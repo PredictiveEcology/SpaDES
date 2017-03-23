@@ -1,3 +1,7 @@
+if (getRversion() >= "3.1.0") {
+  utils::globalVariables(c("tagValue", "tagKey", "artifact"))
+}
+
 ################################################################################
 #' Cache method that accomodates environments, S4 methods, Rasters
 #'
@@ -6,15 +10,16 @@
 #' 1) the \code{archivist} package detects different environments as different;
 #' 2) it also does not detect S4 methods correctly due to method inheritance;
 #' 3) it does not detect objects that have file-base storage of information
-#' (like \code{\link[raster]{RasterLayer-class}} objects and
-#' \code{\link[ff]{ff}} objects).
-#' This version of the \code{cache} function accomodates those three special,
+#' (specifically \code{\link[raster]{RasterLayer-class}} objects).
+#' This version of the \code{Cache} function accomodates those three special,
 #' though quite common, cases by:
 #' 1) converting any environments into list equivalents;
 #' 2) identifying the dispatched S4 method (including those made through
 #' inheritance) before \code{\link[digest]{digest}} is called so the correct
 #' method is being cached;
-#' and 3) by running \code{\link[digest]{digest}} on the linked file.
+#' and 3) by running \code{\link[digest]{digest}} on the linked file. Currently,
+#' only file-backed \code{Raster*} objects are digested (e.g., not \code{ff} objects,
+#' or any other R object where the data is in a file, rather than RAM object).
 #' In the \code{SpaDES} context, the \code{simList} has an environment as one of
 #' its slots, thus using \code{archivist::cache} will not work correctly.
 #'
@@ -87,7 +92,14 @@
 #' to
 #' \code{Cache(projectRaster, raster, crs = crs(newRaster))}
 #'
+#' @note \code{Raster*} class objects have a special behaviour when Cached. Whether they
+#' are file-backed or in-memory objects, they will become file-backed, and their
+#' file will be created in or copied to a "rasters" subfolder of the \code{cacheRepo} using
+#' \code{writeRaster}. Their RAM representation (as an R object) will still be in the usual
+#' "gallery" folder.
+#'
 #' @inheritParams archivist::cache
+#' @inheritParams archivist::saveToLocalRepo
 #'
 #' @param objects Character vector of objects within the simList that should
 #'                be considered for caching. i.e., only use a subset of
@@ -109,6 +121,10 @@
 #' @return As with \code{\link[archivist]{cache}}, the return is either the return
 #' value of the function call or the cached version (i.e., the result from a previous
 #' call to this same cached function with identical arguments).
+#'
+#' If \code{Cache} is called within a SpaDES module, then the cached entry will automatically
+#' get 3 extra \code{userTags}: eventTime, eventType, and moduleName. These can then be used in
+#' \code{clearCache} to selectively remove cached objects by eventTime, eventType or moduleName.
 #'
 #' @note In general, it is expected that caching will only be used when stochasticity
 #' is not relevant, or if a user has achieved sufficient stochasticity (e.g., via
@@ -179,9 +195,10 @@
 #'
 setGeneric("Cache", signature = "...",
            function(FUN, ..., notOlderThan = NULL,
-                    objects = NULL, outputObjects = NULL, algo = "xxhash32",
-                    cacheRepo = NULL, compareRasterFileLength = 1e6) {
-             archivist::cache(cacheRepo, FUN, ..., notOlderThan, algo)
+                    objects = NULL, outputObjects = NULL, algo = "xxhash64",
+                    cacheRepo = NULL, compareRasterFileLength = 1e6,
+                    userTags = c()) {
+             archivist::cache(cacheRepo, FUN, ..., notOlderThan, algo, userTags = userTags)
 })
 
 #' @export
@@ -189,15 +206,15 @@ setGeneric("Cache", signature = "...",
 setMethod(
   "Cache",
   definition = function(FUN, ..., notOlderThan, objects, outputObjects,
-                        algo, cacheRepo, compareRasterFileLength) {
+                        algo, cacheRepo, compareRasterFileLength, userTags) {
     tmpl <- list(...)
 
     if (missing(notOlderThan)) notOlderThan <- NULL
     # These three lines added to original version of cache in archive package
-    wh <- which(sapply(tmpl, function(x) is(x, "simList")))
+    whSimList <- which(sapply(tmpl, function(x) is(x, "simList")))
     if (is.null(cacheRepo)) {
-      if (length(wh) > 0) {
-        cacheRepo <- tmpl[wh][[1]]@paths$cachePath # just take the first simList, if there are >1
+      if (length(whSimList) > 0) {
+        cacheRepo <- tmpl[whSimList][[1]]@paths$cachePath # just take the first simList, if there are >1
       } else {
         doEventFrameNum <- grep(sys.calls(), pattern = "(^doEvent)|(^.parseModule)")[2]
         if (!is.na(doEventFrameNum)) {
@@ -227,20 +244,27 @@ setMethod(
     }
 
     whCluster <- which(sapply(tmpl, function(x) is(x, "cluster")))
-    if (length(wh) > 0 | exists("sim")) {
-      if (length(wh) > 0) {
-        cur <- current(tmpl[[wh]])
+    if (length(whSimList) > 0 | exists("sim")) {
+      if (length(whSimList) > 0) {
+        cur <- current(tmpl[[whSimList]])
       } else {
         cur <- current(sim)
       }
+      if(NROW(cur))
+        userTags <- c(userTags,
+                    paste0("module:",cur$moduleName),
+                    paste0("eventType:",cur$eventType),
+                    paste0("eventTime:",cur$eventTime))
     }
 
     if (is.null(objects)) {
-      if (length(wh) > 0) tmpl[wh] <- lapply(tmpl[wh], makeDigestible,
-                                             compareRasterFileLength = compareRasterFileLength)
+      if (length(whSimList) > 0) tmpl[whSimList] <- lapply(tmpl[whSimList], makeDigestible,
+                                             compareRasterFileLength = compareRasterFileLength,
+                                             algo = algo)
     } else {
-      if (length(wh) > 0) tmpl[wh] <- lapply(tmpl[wh], function(xx) {
-        makeDigestible(xx, objects, compareRasterFileLength = compareRasterFileLength)
+      if (length(whSimList) > 0) tmpl[whSimList] <- lapply(tmpl[whSimList], function(xx) {
+        makeDigestible(xx, objects, compareRasterFileLength = compareRasterFileLength,
+                       algo = algo)
       })
     }
 
@@ -267,7 +291,8 @@ setMethod(
     }
 
     if (length(whRasOrSpatial) > 0) tmpl[whRasOrSpatial] <- lapply(tmpl[whRasOrSpatial], makeDigestible,
-                                                 compareRasterFileLength = compareRasterFileLength)
+                                                 compareRasterFileLength = compareRasterFileLength,
+                                                 algo = algo)
     if (length(whCluster) > 0) tmpl[whCluster] <- NULL
     if (length(whFun) > 0) tmpl[whFun] <- lapply(tmpl[whFun], format)
     if (!is.null(tmpl$progress)) if (!is.na(tmpl$progress)) tmpl$progress <- NULL
@@ -286,9 +311,9 @@ setMethod(
 
         out <- loadFromLocalRepo(isInRepo$artifact[lastOne],
                                  repoDir = cacheRepo, value = TRUE)
-          if (length(wh) > 0) {
+          if (length(whSimList) > 0) {
             simListOut <- out # gets all items except objects in list(...)
-            origEnv <- list(...)[[wh]]@.envir
+            origEnv <- list(...)[[whSimList]]@.envir
             isListOfSimLists <- if (is.list(out)) if (is(out[[1]], "simList")) TRUE else FALSE else FALSE
 
             if (isListOfSimLists) {
@@ -337,6 +362,10 @@ setMethod(
     written <- FALSE
     if (is(outputToSave, "Raster")) {
       outputToSave <- prepareFileBackedRaster(outputToSave, repoDir = cacheRepo)#, archiveData = TRUE,
+      attr(outputToSave, "tags") <- attr(output, "tags")
+      attr(outputToSave, "call") <- attr(output, "call")
+      if (isS4(FUN))
+        attr(outputToSave, "function") <- attr(output, "function")
       output <- outputToSave
       #archiveSessionInfo = FALSE,
       #archiveMiniature = FALSE, rememberName = FALSE, silent = TRUE)
@@ -344,7 +373,8 @@ setMethod(
     while (!written) {
       saved <- try(saveToLocalRepo(outputToSave, repoDir = cacheRepo,
                                    archiveData = TRUE, archiveSessionInfo = FALSE,
-                                   archiveMiniature = FALSE, rememberName = FALSE, silent = TRUE),
+                                   archiveMiniature = FALSE, rememberName = FALSE, silent = TRUE,
+                                   userTags = userTags),
                    silent = TRUE)
 
       # This is for simultaneous write conflicts. SQLite on Windows can't handle them.
@@ -362,39 +392,100 @@ setMethod(
 #' @inheritParams cache
 #' @param afterDate Objects cached after this date will be deleted, formatted YYYY-MM-DD.
 #' @param beforeDate Objects cached before this date will be deleted, formatted as YYYY-MM-DD.
-#' @param ... Other arguments passed to
+#' @param ... Other arguments. Currently unused.
 #'
-#' If neither \code{afterDate} or \code{beforeDate} are provided, then all objects will be removed.
+#' If neither \code{afterDate} or \code{beforeDate} are provided, nor \code{userTags},
+#'  then all objects will be removed.
 #' If both \code{afterDate} and \code{beforeDate} are specified, then all objects between \code{afterDate} and
 #' \code{beforeDate} will be deleted.
+#' If \code{userTags} is used, this will override \code{afterDate} or \code{beforeDate}.
 #'
-#' @return Will clear all objects from the \code{cachePath} of the sim object
+#' @return Will clear all (or that match \code{userTags}, or between \code{afterDate} or \code{beforeDate})
+#' objects from the repository located at \code{cachePath} of the sim object,
+#' if \code{sim} is provided, or located in \code{cacheRepo} .
 #'
 #' @export
 #' @importFrom archivist rmFromLocalRepo searchInLocalRepo
+#' @param userTags Character. If used, this will be used in place of the \code{afterDate} and
+#'                 \code{beforeDate}. Specifying a userTag here will clear all objects with that
+#'                 tag exactly (no wildcards at this time). Note: user "label:value" pairs, if
+#'                 named tag values are desired (see \code{\link[archivist]{Tags}})
 #' @include simList-class.R
 #' @docType methods
-#' @rdname cache
+#' @rdname viewCache
 #' @examples
 #' \dontrun{
 #' clearCache(mySim)
+#'
+#' mySim <- simInit(
+#'   times = list(start = 0.0, end = 1.0, timeunit = "year"),
+#'   params = list(
+#'     .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
+#'     # Turn off interactive plotting
+#'     fireSpread = list(.plotInitialTime = NA),
+#'     caribouMovement = list(.plotInitialTime = NA),
+#'     randomLandscapes = list(.plotInitialTime = NA, .useCache = "init")
+#'   ),
+#'   modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
+#'   paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
+#'                outputPath = tmpdir,
+#'                cachePath = tmpdir),
+#'   # Save final state of landscape and caribou
+#'   outputs = data.frame(objectName = c("landscape", "caribou"),
+#'                        stringsAsFactors = FALSE)
+#' )
+#'
+#' sims <- spades(Copy(mySim), notOlderThan = Sys.time()) ## TO DO: fix this test
+#'
+#' ranNums <- Cache(runif, 4, cacheRepo=cachePath(mySim), userTags = "objectName:a")
+#'
+#' showCache(mySim)
+#'
+#' showCache(mySim, userTags = c("objectName"))
+#' showCache(mySim, userTags = c("a"))
+#' showCache(mySim, userTags = c("eventTime")) # show only cached objects made during spades call
+#'
+#' clearCache(mySim, userTags = c("eventTime")) # remove only cached objects made during spades call
+#' showCache(mySim) # they are gone
 #' }
-setGeneric("clearCache", function(sim, afterDate, beforeDate, cacheRepo, ...) {
+setGeneric("clearCache", function(sim, afterDate, beforeDate, cacheRepo,
+                                  userTags = character(), ...) {
   standardGeneric("clearCache")
 })
 
 #' @export
-#' @rdname cache
+#' @rdname viewCache
 setMethod(
   "clearCache",
-  definition = function(sim, afterDate, beforeDate, cacheRepo, ...) {
+  definition = function(sim, afterDate, beforeDate, cacheRepo,
+                        userTags, ...) {
     if (missing(sim) & missing(cacheRepo)) stop("Must provide either sim or cacheRepo")
     if (missing(cacheRepo)) cacheRepo <- sim@paths$cachePath
     if (missing(afterDate)) afterDate <- "1970-01-01"
     if (missing(beforeDate)) beforeDate <- Sys.Date() + 1
 
-    objs <- searchInLocalRepo(pattern = list(dateFrom = afterDate, dateTo = beforeDate),
-                              repoDir = cacheRepo)
+    if(length(userTags)==0) {
+      objs <- searchInLocalRepo(pattern = list(dateFrom = afterDate, dateTo = beforeDate),
+                                repoDir = cacheRepo)
+      objsDT <- data.table(artifact = objs, key = "artifact")
+    } else {
+      objsDT <- data.table(splitTagsLocal(cacheRepo), key="artifact")[
+        tagValue %in% userTags |
+          tagKey %in% userTags |
+          artifact %in% userTags]
+      objs <- objsDT$artifact
+    }
+    allCacheDT <- data.table(showCache(cacheRepo = cacheRepo), key = "artifact")
+    rastersInRepo <- objsDT[allCacheDT][pmatch(table = tagValue, "Raster")]
+    if(all(!is.na(rastersInRepo$artifact))) {
+      rasters <- lapply(rastersInRepo$artifact, function(ras) {
+        loadFromLocalRepo(ras, repoDir = cacheRepo, value = TRUE)
+      })
+      filesToRemove <- unlist(lapply(rasters, function(x) filename(x)))
+      filesToRemove <- gsub(filesToRemove, pattern = ".{1}$", replacement = "*")
+      unlink(filesToRemove)
+    }
+
     rmFromLocalRepo(objs, cacheRepo, many = TRUE)
   })
 
@@ -409,27 +500,38 @@ setMethod(
 #' @importFrom archivist splitTagsLocal
 #' @include simList-class.R
 #' @docType methods
-#' @rdname cache
+#' @rdname viewCache
 #' @examples
 #' \dontrun{
 #' showCache(mySim)
 #' }
-setGeneric("showCache", function(sim, cacheRepo, ...) {
+setGeneric("showCache", function(sim, cacheRepo, userTags = character(), ...) {
   standardGeneric("showCache")
 })
 
 #' @export
-#' @rdname cache
+#' @rdname viewCache
 setMethod(
   "showCache",
-  definition = function(sim, cacheRepo, ...) {
+  definition = function(sim, cacheRepo, userTags, ...) {
     if (missing(sim) & missing(cacheRepo)) stop("Must provide either sim or cacheRepo")
     if (missing(cacheRepo)) cacheRepo <- sim@paths$cachePath
 
-    tryCatch(splitTagsLocal(cacheRepo), error = function(x) {
+    dt <- data.table(tryCatch(splitTagsLocal(cacheRepo), error = function(x) {
       data.frame(artifact = character(0), tagKey = character(0),
                  tagValue = character(0), createdDate = character(0))
-    })
+    }))
+    if(length(userTags)>0) {
+      dtResult <- dt[tagValue %in% userTags |
+                       tagKey %in% userTags |
+                       artifact %in% userTags]
+      setkey(dtResult, "artifact")
+      setkey(dt, "artifact")
+      dt[unique(dtResult[,list(artifact)], by = "artifact")]
+    } else {
+      dt
+    }
+
 })
 
 ################################################################################
@@ -478,7 +580,8 @@ setMethod(
 #' @rdname makeDigestible
 #' @author Eliot McIntire
 setGeneric("makeDigestible", function(object, objects,
-                                      compareRasterFileLength = 1e6) {
+                                      compareRasterFileLength = 1e6,
+                                      algo = "xxhash64") {
           standardGeneric("makeDigestible")
 })
 
@@ -486,7 +589,8 @@ setGeneric("makeDigestible", function(object, objects,
 setMethod(
   "makeDigestible",
   signature = "simList",
-    definition = function(object, objects, compareRasterFileLength) {
+    definition = function(object, objects, compareRasterFileLength,
+                          algo) {
 
       objectsToDigest <- sort(ls(object@.envir, all.names = TRUE))
       if (!missing(objects)) {
@@ -499,23 +603,25 @@ setMethod(
               if (is(obj, "Raster")) {
                 # convert Rasters in the simList to some of their metadata.
                 obj <- makeDigestible(obj,
-                                      compareRasterFileLength = compareRasterFileLength)
-                dig <- digest::digest(obj)
+                                      compareRasterFileLength = compareRasterFileLength,
+                                      algo = algo)
+                dig <- digest::digest(obj, algo = algo)
               } else if (is(obj, "Spatial")) {
-                dig <- makeDigestible(obj)
+                dig <- makeDigestible(obj,
+                                      algo = algo)
               } else {
                 # convert functions in the simList to their digest.
                 #  functions have environments so are always unique
-                dig <- digest::digest(obj)
+                dig <- digest::digest(obj, algo = algo)
               }
             } else {
               # for functions, use a character representation via format
-              dig <- digest::digest(format(obj))
+              dig <- digest::digest(format(obj), algo = algo)
             }
           } else {
             # for .sessionInfo, just keep the major and minor R version
             dig <- digest::digest(get(x, envir = envir(object))[[1]] %>%
-                                    .[c("major", "minor")])
+                                    .[c("major", "minor")], algo = algo)
           }
         return(dig)
       }))
@@ -553,22 +659,26 @@ setMethod(
 setMethod(
   "makeDigestible",
   signature = "Raster",
-  definition = function(object, compareRasterFileLength) {
+  definition = function(object, compareRasterFileLength, algo) {
 
     if (is(object, "RasterStack") | is(object, "RasterBrick")) {
-      dig <- list(dim(object), res(object), crs(object), extent(object),
-                  lapply(object@layers, function(yy) yy@data))
+      dig <- suppressWarnings(list(dim(object), res(object), crs(object), extent(object),
+                  lapply(object@layers, function(yy) {
+                    digest::digest(yy@data, length = compareRasterFileLength, algo = algo)
+                    })))
       if (nchar(object@filename) > 0) {
         # if the Raster is on disk, has the first compareRasterFileLength characters;
         # uses SpaDES:::digest on the file
         dig <- append(dig, digest(file = object@filename, length = compareRasterFileLength))
       }
     } else {
-      dig <- list(dim(object), res(object), crs(object), extent(object), object@data)
+      dig <- suppressWarnings(list(dim(object), res(object), crs(object), extent(object),
+                  digest::digest(object@data, length = compareRasterFileLength, algo = algo)))
       if (nchar(object@file@name) > 0) {
         # if the Raster is on disk, has the first compareRasterFileLength characters;
-        # uses SpaDES:::digest on the file
-        dig <- append(dig, digest(file = object@file@name, length = compareRasterFileLength))
+        dig <- append(dig,
+                      digest::digest(file = object@file@name, length = compareRasterFileLength,
+                                     algo = algo))
       }
     }
     return(dig)
@@ -577,7 +687,7 @@ setMethod(
 setMethod(
   "makeDigestible",
   signature = "Spatial",
-  definition = function(object, compareRasterFileLength) {
+  definition = function(object, compareRasterFileLength, algo) {
 
     #if (is(object, "SpatialPolygonsDataFrame") ) {
 
@@ -585,7 +695,7 @@ setMethod(
 
     # The following Rounding is necessary to make digest equal on linux and windows
     bbb <- as.data.frame(lapply(aaa, function(x) if(is(x,"numeric")) round(x, 4) else x))
-    dig <- digest::digest(bbb)
+    dig <- digest::digest(bbb, algo = algo)
     return(dig)
 })
 
@@ -630,7 +740,7 @@ setMethod(
 #' @rdname cache
 setGeneric("cache", signature = "...",
            function(cacheRepo = NULL, FUN, ..., notOlderThan = NULL,
-                    objects = NULL, outputObjects = NULL, algo = "xxhash32") {
+                    objects = NULL, outputObjects = NULL, algo = "xxhash64") {
              archivist::cache(cacheRepo, FUN, ..., notOlderThan, algo)
 })
 
@@ -656,12 +766,12 @@ setMethod(
 #'
 #' @param repoDir Character denoting an existing directory in which an artifact will be saved.
 #'
-#' @param ... pass to \code{archivist::saveToRepo}
+#' @param ... passed to \code{archivist::saveToRepo}
 #'
 #' @return A raster object and its file backing will be passed to the archivist repository.
 #'
 #' @importFrom digest digest
-#' @importFrom raster filename
+#' @importFrom raster filename dataType
 #'
 #' @docType methods
 #' @author Eliot McIntire
@@ -669,13 +779,24 @@ setMethod(
 #'
 prepareFileBackedRaster <- function(obj, repoDir = NULL, compareRasterFileLength = 1e6, ...) {
   if (!inMemory(obj)) {
+    isFilebacked <- TRUE
     curFilename <- normalizePath(filename(obj), winslash = "/")
+  } else {
+    isFilebacked <- FALSE
+    if(is.factor(obj)) {
+      fileExt <- ".grd"
+    } else {
+      fileExt <- ".tif"
+    }
+    curFilename <- basename(tempfile(pattern = "raster",fileext = fileExt, tmpdir = ""))
+  }
 
-    saveFilename <- file.path(repoDir, "rasters", basename(curFilename)) %>%
-      normalizePath(., winslash = "/", mustWork = FALSE)
+  saveFilename <- file.path(repoDir, "rasters", basename(curFilename)) %>%
+    normalizePath(., winslash = "/", mustWork = FALSE)
 
-    if (saveFilename != curFilename) {
-      shouldCopy <- TRUE
+  if (saveFilename != curFilename) {
+    if(isFilebacked) {
+        shouldCopy <- TRUE
       if (file.exists(saveFilename)) {
         if (!(compareRasterFileLength == Inf)) {
           if (digest(file = saveFilename, length = compareRasterFileLength) ==
@@ -703,7 +824,11 @@ prepareFileBackedRaster <- function(obj, repoDir = NULL, compareRasterFileLength
         }
       }
       slot(slot(obj, "file"), "name") <- saveFilename
+    } else {
+      checkPath(dirname(saveFilename), create = TRUE)
+      obj <- writeRaster(obj, filename = saveFilename, datatype = dataType(obj))
     }
+
   } else {
     saveFilename <- slot(slot(obj, "file"), "name")
   }
@@ -743,32 +868,41 @@ copyFile <- function(from = NULL, to = NULL, useRobocopy = TRUE,
                      create = TRUE, silent = FALSE) {
 
   origDir <- getwd()
+  useFileCopy <- FALSE
   if (!dir.exists(to)) to <- dirname(to) # extract just the directory part
   os <- tolower(Sys.info()[["sysname"]])
   if (os == "windows") {
     if (useRobocopy) {
       if (silent) {
-        system(paste0("robocopy ","/purge"[delDestination]," /ETA /NDL /NFL /NJH /NJS ",
+        suppressWarnings(useFileCopy <- tryCatch(system(paste0("robocopy ","/purge"[delDestination]," /ETA /NDL /NFL /NJH /NJS ",
                       normalizePath(dirname(from), winslash = "\\"),
                       "\\ ", normalizePath(to, winslash = "\\"),
-                      " ", basename(from)))
+                      " ", basename(from)), intern=TRUE), error = function(x) TRUE))
       } else {
-        system(paste0("robocopy ", "/purge"[delDestination], " /ETA ",
+        useFileCopy <- tryCatch(system(paste0("robocopy ", "/purge"[delDestination], " /ETA ",
                       normalizePath(dirname(from), winslash = "\\"), "\\ ",
-                      normalizePath(to, winslash = "\\"), " ", basename(from)))
+                      normalizePath(to, winslash = "\\"), " ", basename(from)), intern = TRUE),
+                      error = function(x) TRUE)
         #         system(paste0("robocopy /E ","/purge"[delDestination]," /ETA ", normalizePath(fromDir, winslash = "\\"),
         #                       "\\ ", normalizePath(toDir, winslash = "\\"), "\\"))
       }
     } else {
-      file.copy(from = from, to = to, overwrite = overwrite, recursive = FALSE)
+      useFileCopy <- TRUE
     }
-  } else if (os == "linux" | os == "darwin") {
+  } else if (os == "linux") {
     if (silent) {
-      system(paste0("rsync -a ","--delete "[delDestination], from, " ", to,"/"))
+      useFileCopy <- tryCatch(system(paste0("rsync -a ","--delete "[delDestination], from, " ", to,"/"),
+             intern = TRUE), error = function(x) TRUE)
     } else {
-      system(paste0("rsync -avP ","--delete "[delDestination], from, " ", to, "/"))
+      useFileCopy <- tryCatch(system(paste0("rsync -avP ","--delete "[delDestination], from, " ", to, "/"),
+                                     intern = TRUE), error = function(x) TRUE)
     }
+  } else if(os == "darwin") {
+    useFileCopy <- TRUE
   }
+  if(isTRUE(useFileCopy))
+    file.copy(from = from, to = to, overwrite = overwrite, recursive = FALSE)
+
   setwd(origDir)
   return(invisible(to))
 }

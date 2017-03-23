@@ -272,7 +272,8 @@ setMethod(
             sim <- Cache(FUN = sim@.envir$.inputObjects, sim = sim,
                          objects = moduleSpecificObjects,
                          notOlderThan = notOlderThan,
-                         outputObjects = moduleSpecificOutputObjects)
+                         outputObjects = moduleSpecificOutputObjects,
+                         userTags=c(paste0("module:",m),paste0("eventType:.inputObjects")))
           } else {
             message("Running .inputObjects for ", m)
             .modifySearchPath(pkgs = sim@depends@dependencies[[i]]@reqdPkgs)
@@ -1672,8 +1673,8 @@ setMethod(
          archivist::createLocalRepo(paths(sim)$cachePath)
 
       return(
-        SpaDES::cache(
-          sim@paths$cachePath,
+        Cache(
+          cacheRepo=sim@paths$cachePath,
           spades,
           sim = sim,
           debug = debug,
@@ -1681,6 +1682,7 @@ setMethod(
           .plotInitialTime = .plotInitialTime,
           .saveInitialTime = .saveInitialTime,
           notOlderThan = notOlderThan,
+          userTags = c("function:spades"),
           ...
         )
       )

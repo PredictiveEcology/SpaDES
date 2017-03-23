@@ -27,7 +27,7 @@ test_that("test cache", {
   sims <- experiment(mySim, replicates = 2, cache = TRUE)
   out <- showCache(sims[[1]])
   expect_output(print(out), "cacheId")
-  expect_true(NROW(out) == 10) # will become 15 with new experiment caching stuff
+  expect_true(NROW(out) == 12) # will become 15 with new experiment caching stuff
   clearCache(sims[[1]])
   out <- showCache(sims[[1]])
   expect_true(NROW(out) == 0)
@@ -67,8 +67,8 @@ test_that("test event-level cache", {
   firesHash <- digest::digest(object = SpaDES:::makeDigestible(
     sims$landscape$Fires), algo = "xxhash64")
 
-  expect_true(any(c("1dba95f5f30da56f") %in% landscapeObjHash))
-  expect_true(any(c("40ee768c2ff2b2dc") %in% firesHash))
+  expect_true(any(c("8b62c052c79b0dc8") %in% landscapeObjHash))
+  expect_true(any(c("5832b0ce8b9b66fe") %in% firesHash))
 
   mess1 <- capture_messages(sims <- spades(Copy(mySim)))
   expect_true(any(grepl(pattern = "Using cached copy of init event in randomLandscapes module", mess1)))
@@ -77,8 +77,8 @@ test_that("test event-level cache", {
   firesHash <- digest::digest(object = SpaDES:::makeDigestible(
     sims$landscape$Fires), algo = "xxhash64")
 
-  expect_true(any(c("1dba95f5f30da56f") %in% landscapeObjHash))
-  expect_false(any(c("40ee768c2ff2b2dc") %in% firesHash)) # The non cached stuff goes ahead as normal
+  expect_true(any(c("8b62c052c79b0dc8") %in% landscapeObjHash))
+  expect_false(any(c("5832b0ce8b9b66fe") %in% firesHash)) # The non cached stuff goes ahead as normal
 
   clearCache(sims)
 })
@@ -127,8 +127,8 @@ test_that("test module-level cache", {
   firesHash <- digest::digest(object = SpaDES:::makeDigestible(
     sims$landscape$Fires), algo = "xxhash64")
 
-  expect_true(any(c("1dba95f5f30da56f") %in% landscapeObjHash))
-  expect_true(any(c("40ee768c2ff2b2dc") %in% firesHash))
+  expect_true(any(c("8b62c052c79b0dc8") %in% landscapeObjHash))
+  expect_true(any(c("5832b0ce8b9b66fe") %in% firesHash))
 
   # The cached version will be identical for both events (init and plot), but will not actually
   # complete the plot, because plotting isn't cacheable
@@ -145,8 +145,8 @@ test_that("test module-level cache", {
   firesHash <- digest::digest(object = SpaDES:::makeDigestible(
     sims$landscape$Fires), algo = "xxhash64")
 
-  expect_true(any(c("1dba95f5f30da56f") %in% landscapeObjHash))
-  expect_false(any(c("40ee768c2ff2b2dc") %in% firesHash)) # The non cached stuff goes ahead as normal
+  expect_true(any(c("8b62c052c79b0dc8") %in% landscapeObjHash))
+  expect_false(any(c("5832b0ce8b9b66fe") %in% firesHash)) # The non cached stuff goes ahead as normal
 
   clearCache(sims)
 })
@@ -173,7 +173,24 @@ test_that("test file-backed raster caching", {
   # confirm that the raster has the given tmp filename
   expect_identical(strsplit(tmpRasterfile, split = "[\\/]"),
                    strsplit(a@file@name, split = "[\\/]"))
-  aa <- Cache(randomPolyToDisk, tmpdir, tmpRasterfile, cacheRepo = tmpdir)
+  aa <- Cache(randomPolyToDisk, tmpdir, tmpRasterfile, cacheRepo = tmpdir, userTags = "something2")
+
+  # Test clearCache by tags
+  expect_equal(NROW(showCache(cacheRepo = tmpdir)), 6)
+  clearCache(cacheRepo = tmpdir, userTags = "something")
+  expect_equal(NROW(showCache(cacheRepo = tmpdir)), 6)
+  clearCache(cacheRepo = tmpdir, userTags = "something2")
+  expect_equal(NROW(showCache(cacheRepo = tmpdir)), 0)
+
+  aa <- Cache(randomPolyToDisk, tmpdir, tmpRasterfile, cacheRepo = tmpdir, userTags = "something2")
+  expect_equal(NROW(showCache(cacheRepo = tmpdir)), 6)
+  clearCache(cacheRepo = tmpdir, userTags = c("something", "testing"))
+  expect_equal(NROW(showCache(cacheRepo = tmpdir)), 6)
+  clearCache(cacheRepo = tmpdir, userTags = c("something2", "testing"))
+  expect_equal(NROW(showCache(cacheRepo = tmpdir)), 0)
+
+  aa <- Cache(randomPolyToDisk, tmpdir, tmpRasterfile, cacheRepo = tmpdir, userTags = "something2")
+
   # confirm that the raster has the new filename in the cachePath
   expect_false(identical(strsplit(tmpRasterfile, split = "[\\/]"),
                          strsplit(file.path(tmpdir, "rasters", basename(tmpRasterfile)), split = "[\\/]")))
@@ -197,4 +214,69 @@ test_that("test file-backed raster caching", {
 
   # confirm that the second one was obtained through reading from Cache... much faster than writing
   expect_true(b1[1] > b2[1])
+
+  clearCache(cacheRepo = tmpdir)
+
+  # Check that Caching of rasters saves them to tif file instead of rdata
+  randomPolyToMemory <- function(tmpdir) {
+    r <- randomPolygons(numTypes = 30)
+    dataType(r) <- "INT1U"
+    r
+  }
+
+  bb <- Cache(randomPolyToMemory, tmpdir, cacheRepo = tmpdir)
+  expect_true(nzchar(filename(bb)))
+  expect_true(fromDisk(bb))
+
+  bb <- Cache(randomPolyToMemory, tmpdir, cacheRepo = tmpdir)
+  expect_true(NROW(showCache(cacheRepo=tmpdir))==5)
+
+  # Test that factors are saved correctly
+  randomPolyToFactorInMemory <- function(tmpdir) {
+    r <- randomPolygons(numTypes = 30)
+    levels(r) <- data.frame(ID = 1:30, vals = sample(LETTERS[1:5], size = 30,replace = TRUE),
+                            vals2 <- sample(1:7, size = 30, replace = TRUE))
+    dataType(r) <- "INT1U"
+    r
+  }
+  bb <- Cache(randomPolyToFactorInMemory, tmpdir, cacheRepo = tmpdir)
+  expect_true(dirname(filename(bb))==file.path(tmpdir, "rasters"))
+  expect_true(dataType(bb)=="INT1U")
+  expect_true(is.factor(bb))
+  expect_true(is(levels(bb)[[1]], "data.frame"))
+  expect_true(NCOL(levels(bb)[[1]])==3)
+  expect_true(NROW(levels(bb)[[1]])==30)
+
+
+  randomPolyToFactorOnDisk <- function(tmpdir, tmpFile) {
+    r <- randomPolygons(numTypes = 30)
+    levels(r) <- data.frame(ID = 1:30, vals = sample(LETTERS[1:5], size = 30,replace = TRUE),
+                            vals2=sample(1:7, size = 30, replace = TRUE))
+    r <- writeRaster(r, tmpFile, overwrite = TRUE, datatype="INT1U")
+    #r <- raster(tmpRasterfile)
+    r
+  }
+  tf <- tempfile(fileext = ".grd")
+  file.create(tf)
+  tf <- normalizePath(tf)
+
+  # bb1 has original tmp filename
+  bb1 <- randomPolyToFactorOnDisk(tmpdir, tf)
+  # bb has new one, inside of cache repository, with same basename
+  bb <- Cache(randomPolyToFactorOnDisk, tmpdir, tmpFile = tf,
+              cacheRepo = tmpdir)
+  expect_true(dirname(filename(bb))==file.path(tmpdir, "rasters"))
+  expect_true(basename(filename(bb))==basename(tf))
+  expect_false(filename(bb)==tf)
+  expect_true(dirname(filename(bb1))==dirname(tf))
+  expect_true(basename(filename(bb1))==basename(tf))
+  expect_true(dataType(bb)=="INT1U")
+  expect_true(is.factor(bb))
+  expect_true(is(levels(bb)[[1]], "data.frame"))
+  expect_true(NCOL(levels(bb)[[1]])==3)
+  expect_true(NROW(levels(bb)[[1]])==30)
+
+
+  clearCache(cacheRepo = tmpdir)
+
 })

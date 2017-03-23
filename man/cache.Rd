@@ -4,43 +4,28 @@
 \name{Cache}
 \alias{Cache}
 \alias{Cache,ANY-method}
-\alias{clearCache}
-\alias{clearCache,ANY-method}
-\alias{showCache}
-\alias{showCache,ANY-method}
 \alias{cache}
 \alias{cache,ANY-method}
 \title{Cache method that accomodates environments, S4 methods, Rasters}
 \usage{
 Cache(FUN, ..., notOlderThan = NULL, objects = NULL, outputObjects = NULL,
-  algo = "xxhash32", cacheRepo = NULL, compareRasterFileLength = 1e+06)
+  algo = "xxhash64", cacheRepo = NULL, compareRasterFileLength = 1e+06,
+  userTags = c())
 
 \S4method{Cache}{ANY}(FUN, ..., notOlderThan = NULL, objects = NULL,
-  outputObjects = NULL, algo = "xxhash32", cacheRepo = NULL,
-  compareRasterFileLength = 1e+06)
-
-clearCache(sim, afterDate, beforeDate, cacheRepo, ...)
-
-\S4method{clearCache}{ANY}(sim, afterDate, beforeDate, cacheRepo, ...)
-
-showCache(sim, cacheRepo, ...)
-
-\S4method{showCache}{ANY}(sim, cacheRepo, ...)
+  outputObjects = NULL, algo = "xxhash64", cacheRepo = NULL,
+  compareRasterFileLength = 1e+06, userTags = c())
 
 cache(cacheRepo = NULL, FUN, ..., notOlderThan = NULL, objects = NULL,
-  outputObjects = NULL, algo = "xxhash32")
+  outputObjects = NULL, algo = "xxhash64")
 
 \S4method{cache}{ANY}(cacheRepo = NULL, FUN, ..., notOlderThan = NULL,
-  objects = NULL, outputObjects = NULL, algo = "xxhash32")
+  objects = NULL, outputObjects = NULL, algo = "xxhash64")
 }
 \arguments{
 \item{FUN}{A function to be called.}
 
-\item{...}{Other arguments passed to
-
-If neither \code{afterDate} or \code{beforeDate} are provided, then all objects will be removed.
-If both \code{afterDate} and \code{beforeDate} are specified, then all objects between \code{afterDate} and
-\code{beforeDate} will be deleted.}
+\item{...}{Arguments of \code{FUN} function .}
 
 \item{notOlderThan}{load an artifact from the database only if it was created after notOlderThan.}
 
@@ -64,18 +49,16 @@ have file-backed storage, this is passed to the length arg in \code{digest}
 when determining if the Raster file is already in the database.
 Default 1e6. Passed to \code{prepareFileBackedRaster}.}
 
-\item{sim}{A \code{simList} simulation object, generally produced by \code{simInit}.}
-
-\item{afterDate}{Objects cached after this date will be deleted, formatted YYYY-MM-DD.}
-
-\item{beforeDate}{Objects cached before this date will be deleted, formatted as YYYY-MM-DD.}
+\item{userTags}{A character vector with Tags. These Tags will be added to the repository along with the artifact.}
 }
 \value{
 As with \code{\link[archivist]{cache}}, the return is either the return
 value of the function call or the cached version (i.e., the result from a previous
 call to this same cached function with identical arguments).
 
-Will clear all objects from the \code{cachePath} of the sim object
+If \code{Cache} is called within a SpaDES module, then the cached entry will automatically
+get 3 extra \code{userTags}: eventTime, eventType, and moduleName. These can then be used in
+\code{clearCache} to selectively remove cached objects by eventTime, eventType or moduleName.
 }
 \description{
 This function is largely copied from \code{\link[archivist]{cache}}, with
@@ -83,21 +66,18 @@ three very critical modifications:
 1) the \code{archivist} package detects different environments as different;
 2) it also does not detect S4 methods correctly due to method inheritance;
 3) it does not detect objects that have file-base storage of information
-(like \code{\link[raster]{RasterLayer-class}} objects and
-\code{\link[ff]{ff}} objects).
-This version of the \code{cache} function accomodates those three special,
+(specifically \code{\link[raster]{RasterLayer-class}} objects).
+This version of the \code{Cache} function accomodates those three special,
 though quite common, cases by:
 1) converting any environments into list equivalents;
 2) identifying the dispatched S4 method (including those made through
 inheritance) before \code{\link[digest]{digest}} is called so the correct
 method is being cached;
-and 3) by running \code{\link[digest]{digest}} on the linked file.
+and 3) by running \code{\link[digest]{digest}} on the linked file. Currently,
+only file-backed \code{Raster*} objects are digested (e.g., not \code{ff} objects,
+or any other R object where the data is in a file, rather than RAM object).
 In the \code{SpaDES} context, the \code{simList} has an environment as one of
 its slots, thus using \code{archivist::cache} will not work correctly.
-
-\code{showCache} and \code{clearCache} are wrappers around \code{archivist} package
-functions, specific to simList objects.
-They allow the user a bit of control over what is being cached.
 }
 \details{
 Some of the details of the changes include:
@@ -121,6 +101,12 @@ always prefixed with \code{SpaDES::cache(  )} so that it does not accidentally
 call the achivist package version of cache.
 }
 \note{
+\code{Raster*} class objects have a special behaviour when Cached. Whether they
+are file-backed or in-memory objects, they will become file-backed, and their
+file will be created in or copied to a "rasters" subfolder of the \code{cacheRepo} using
+\code{writeRaster}. Their RAM representation (as an R object) will still be in the usual
+"gallery" folder.
+
 In general, it is expected that caching will only be used when stochasticity
 is not relevant, or if a user has achieved sufficient stochasticity (e.g., via
 sufficient number of calls to \code{experiment}) such that no new explorations
@@ -238,17 +224,9 @@ mySim <- simInit(times = list(start = 0.0, end = 5.0),
 
 }
 
-\dontrun{
-clearCache(mySim)
-}
-\dontrun{
-showCache(mySim)
-}
 }
 \seealso{
 \code{\link[archivist]{cache}}.
-
-\code{\link[archivist]{splitTagsLocal}}.
 }
 \author{
 Eliot McIntire
