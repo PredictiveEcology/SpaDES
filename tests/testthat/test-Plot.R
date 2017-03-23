@@ -683,7 +683,6 @@ test_that("Plot with base is not error-free", {
     unlink(tmpdir, recursive = TRUE)
   }, add = TRUE)
 
-  #dev(2, width = 13, height = 7)
   set.seed(123)
   rasOrig <- raster(extent(0, 40, 0, 20), vals = sample(1:8, replace = TRUE, size = 800), res = 1)
   ras <- rasOrig
@@ -802,7 +801,7 @@ test_that("Plot with base is not error-free", {
 
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
-                 Darwin = "F3B5A64A8C0FF049",
+                 Darwin = "F3B5264A8C0FF04B",
                  Linux = "F3B5264A8C0FF04B",
                  Windows = "F3B4264A8C8FF04B"
   )
