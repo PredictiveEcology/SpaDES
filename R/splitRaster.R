@@ -1,6 +1,6 @@
-#' Split a RasterLayer into multiple tiles
+#' Split and re-merge RasterLayer(s)
 #'
-#' Divides up a raster into an arbitrary number of pieces (tiles).
+#' \code{splitRaster} divides up a raster into an arbitrary number of pieces (tiles).
 #' Split rasters can be recombined using \code{do.call(merge, y)} or \code{mergeRaster(y)},
 #' where \code{y <- splitRaster(x)}.
 #'
@@ -30,9 +30,9 @@
 #'                of \code{beginCluster()}, to use parallelism for this function, allowing for
 #'                more control over cluster use.
 #'
-#' @return A list (length \code{nx*ny}) of cropped raster tiles.
+#' @return \code{splitRaster} returns a list (length \code{nx*ny}) of cropped raster tiles.
 #'
-#' @seealso \code{\link{do.call}}, \code{\link[raster]{merge}}, \code{\link{mergeRaster}}.
+#' @seealso \code{\link{do.call}}, \code{\link[raster]{merge}}.
 #'
 # igraph exports %>% from magrittr
 #' @importFrom parallel clusterApplyLB

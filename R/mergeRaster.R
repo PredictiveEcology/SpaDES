@@ -1,12 +1,8 @@
-#' Merge split raster tiles into a single raster layer.
-#'
-#' Recombine the split tiles from \code{splitRaster} into a single RasterLayer.
-#'
 #' @details \code{mergeRaster} differs from \code{merge} in how overlapping tile
 #' regions are handled: \code{merge} retains the values of the first raster in
 #' the list. This has the consequence of retaining the values from the buffered
 #' region in the first tile in place of the values from the neighbouring tile.
-#' On the otherhand, \code{mergeRaster} retains the values of the tile region,
+#' On the other hand, \code{mergeRaster} retains the values of the tile region,
 #' over the values in any buffered regions. This is useful for reducing edge
 #' effects when performing raster operations involving contagious processes.
 #' To use the average of cell values, or do another computation, use
@@ -14,7 +10,7 @@
 #'
 #' @param x    A list of split raster tiles (i.e., from \code{splitRaster}).
 #'
-#' @return A \code{RasterLayer} object.
+#' @return \code{mergeRaster} returns a \code{RasterLayer} object.
 #'
 #' @seealso \code{\link[raster]{merge}}, \code{\link[raster]{mosaic}}
 #'
@@ -22,18 +18,16 @@
 #' @importFrom raster crop extent merge
 #' @export
 #' @docType methods
-#' @rdname mergeRaster
+#' @rdname splitRaster
 #'
 #' @author Yong Luo and Alex Chubaty
-#'
-#' @example inst/examples/example_splitRaster.R
 #'
 setGeneric("mergeRaster", function(x) {
   standardGeneric("mergeRaster")
 })
 
 #' @export
-#' @rdname mergeRaster
+#' @rdname splitRaster
 setMethod(
   "mergeRaster",
   signature = signature(x = "list"),
