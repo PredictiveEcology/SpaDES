@@ -13,15 +13,17 @@
 \title{Cache method that accomodates environments, S4 methods, Rasters}
 \usage{
 Cache(FUN, ..., notOlderThan = NULL, objects = NULL, outputObjects = NULL,
-  algo = "xxhash64", cacheRepo = NULL, compareRasterFileLength = 1e+06)
+  algo = "xxhash64", cacheRepo = NULL, compareRasterFileLength = 1e+06,
+  userTags = c())
 
 \S4method{Cache}{ANY}(FUN, ..., notOlderThan = NULL, objects = NULL,
   outputObjects = NULL, algo = "xxhash64", cacheRepo = NULL,
-  compareRasterFileLength = 1e+06)
+  compareRasterFileLength = 1e+06, userTags = c())
 
-clearCache(sim, afterDate, beforeDate, cacheRepo, ...)
+clearCache(sim, afterDate, beforeDate, cacheRepo, userTags = "", ...)
 
-\S4method{clearCache}{ANY}(sim, afterDate, beforeDate, cacheRepo, ...)
+\S4method{clearCache}{ANY}(sim, afterDate, beforeDate, cacheRepo,
+  userTags = "", ...)
 
 showCache(sim, cacheRepo, ...)
 
@@ -63,6 +65,10 @@ This is optional if \code{Cache} is used inside a SpaDES module.}
 have file-backed storage, this is passed to the length arg in \code{digest}
 when determining if the Raster file is already in the database.
 Default 1e6. Passed to \code{prepareFileBackedRaster}.}
+
+\item{userTags}{Character. If used, this will be used in place of the \code{afterDate} and
+\code{beforeDate}. Specifying a userTag here will clear all objects with that
+tag exactly (no wildcards at this time)}
 
 \item{sim}{A \code{simList} simulation object, generally produced by \code{simInit}.}
 

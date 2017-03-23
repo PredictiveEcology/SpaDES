@@ -91,6 +91,7 @@ if (getRversion() >= "3.1.0") {
 #' \code{Cache(projectRaster, raster, crs = crs(newRaster))}
 #'
 #' @inheritParams archivist::cache
+#' @inheritParams archivist::saveToLocalRepo
 #'
 #' @param objects Character vector of objects within the simList that should
 #'                be considered for caching. i.e., only use a subset of
@@ -183,8 +184,9 @@ if (getRversion() >= "3.1.0") {
 setGeneric("Cache", signature = "...",
            function(FUN, ..., notOlderThan = NULL,
                     objects = NULL, outputObjects = NULL, algo = "xxhash64",
-                    cacheRepo = NULL, compareRasterFileLength = 1e6) {
-             archivist::cache(cacheRepo, FUN, ..., notOlderThan, algo)
+                    cacheRepo = NULL, compareRasterFileLength = 1e6,
+                    userTags = c()) {
+             archivist::cache(cacheRepo, FUN, ..., notOlderThan, algo, userTags = userTags)
 })
 
 #' @export
@@ -192,7 +194,7 @@ setGeneric("Cache", signature = "...",
 setMethod(
   "Cache",
   definition = function(FUN, ..., notOlderThan, objects, outputObjects,
-                        algo, cacheRepo, compareRasterFileLength) {
+                        algo, cacheRepo, compareRasterFileLength, userTags) {
     tmpl <- list(...)
 
     if (missing(notOlderThan)) notOlderThan <- NULL
@@ -354,7 +356,8 @@ setMethod(
     while (!written) {
       saved <- try(saveToLocalRepo(outputToSave, repoDir = cacheRepo,
                                    archiveData = TRUE, archiveSessionInfo = FALSE,
-                                   archiveMiniature = FALSE, rememberName = FALSE, silent = TRUE),
+                                   archiveMiniature = FALSE, rememberName = FALSE, silent = TRUE,
+                                   userTags = userTags),
                    silent = TRUE)
 
       # This is for simultaneous write conflicts. SQLite on Windows can't handle them.
@@ -382,6 +385,9 @@ setMethod(
 #'
 #' @export
 #' @importFrom archivist rmFromLocalRepo searchInLocalRepo
+#' @param userTags Character. If used, this will be used in place of the \code{afterDate} and
+#'                 \code{beforeDate}. Specifying a userTag here will clear all objects with that
+#'                 tag exactly (no wildcards at this time)
 #' @include simList-class.R
 #' @docType methods
 #' @rdname cache
@@ -389,7 +395,8 @@ setMethod(
 #' \dontrun{
 #' clearCache(mySim)
 #' }
-setGeneric("clearCache", function(sim, afterDate, beforeDate, cacheRepo, ...) {
+setGeneric("clearCache", function(sim, afterDate, beforeDate, cacheRepo,
+                                  userTags = "", ...) {
   standardGeneric("clearCache")
 })
 
@@ -397,15 +404,21 @@ setGeneric("clearCache", function(sim, afterDate, beforeDate, cacheRepo, ...) {
 #' @rdname cache
 setMethod(
   "clearCache",
-  definition = function(sim, afterDate, beforeDate, cacheRepo, ...) {
+  definition = function(sim, afterDate, beforeDate, cacheRepo,
+                        userTags, ...) {
     if (missing(sim) & missing(cacheRepo)) stop("Must provide either sim or cacheRepo")
     if (missing(cacheRepo)) cacheRepo <- sim@paths$cachePath
     if (missing(afterDate)) afterDate <- "1970-01-01"
     if (missing(beforeDate)) beforeDate <- Sys.Date() + 1
 
-    objs <- searchInLocalRepo(pattern = list(dateFrom = afterDate, dateTo = beforeDate),
-                              repoDir = cacheRepo)
-    objsDT <- data.table(artifact = objs, key = "artifact")
+    if(length(userTags)==0) {
+      objs <- searchInLocalRepo(pattern = list(dateFrom = afterDate, dateTo = beforeDate),
+                                repoDir = cacheRepo)
+      objsDT <- data.table(artifact = objs, key = "artifact")
+    } else {
+      objsDT <- data.table(splitTagsLocal(cacheRepo), key="artifact")[tagValue %in% userTags]
+      objs <- objsDT$artifact
+    }
     allCacheDT <- data.table(showCache(cacheRepo = cacheRepo), key = "artifact")
     rastersInRepo <- objsDT[allCacheDT][pmatch(table = tagValue, "Raster")]
     if(all(!is.na(rastersInRepo$artifact))) {

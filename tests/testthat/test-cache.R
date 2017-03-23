@@ -173,7 +173,7 @@ test_that("test file-backed raster caching", {
   # confirm that the raster has the given tmp filename
   expect_identical(strsplit(tmpRasterfile, split = "[\\/]"),
                    strsplit(a@file@name, split = "[\\/]"))
-  aa <- Cache(randomPolyToDisk, tmpdir, tmpRasterfile, cacheRepo = tmpdir)
+  aa <- Cache(randomPolyToDisk, tmpdir, tmpRasterfile, cacheRepo = tmpdir, userTags = "something2")
   # confirm that the raster has the new filename in the cachePath
   expect_false(identical(strsplit(tmpRasterfile, split = "[\\/]"),
                          strsplit(file.path(tmpdir, "rasters", basename(tmpRasterfile)), split = "[\\/]")))
