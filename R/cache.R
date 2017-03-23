@@ -121,6 +121,10 @@ if (getRversion() >= "3.1.0") {
 #' value of the function call or the cached version (i.e., the result from a previous
 #' call to this same cached function with identical arguments).
 #'
+#' If \code{Cache} is called within a SpaDES module, then the cached entry will automatically
+#' get 3 extra \code{userTags}: eventTime, eventType, and moduleName. These can then be used in
+#' \code{clearCache} to selectively remove cached objects by eventTime, eventType or moduleName.
+#'
 #' @note In general, it is expected that caching will only be used when stochasticity
 #' is not relevant, or if a user has achieved sufficient stochasticity (e.g., via
 #' sufficient number of calls to \code{experiment}) such that no new explorations
@@ -245,6 +249,10 @@ setMethod(
       } else {
         cur <- current(sim)
       }
+      userTags <- c(userTags,
+                    paste0("module:",cur$moduleName),
+                    paste0("eventType:",cur$eventType),
+                    paste0("eventTime:",cur$eventTime))
     }
 
     if (is.null(objects)) {
@@ -382,7 +390,7 @@ setMethod(
 #' @inheritParams cache
 #' @param afterDate Objects cached after this date will be deleted, formatted YYYY-MM-DD.
 #' @param beforeDate Objects cached before this date will be deleted, formatted as YYYY-MM-DD.
-#' @param ... Other arguments passed to
+#' @param ... Other arguments. Currently unused.
 #'
 #' If neither \code{afterDate} or \code{beforeDate} are provided, nor \code{userTags},
 #'  then all objects will be removed.
@@ -398,13 +406,45 @@ setMethod(
 #' @importFrom archivist rmFromLocalRepo searchInLocalRepo
 #' @param userTags Character. If used, this will be used in place of the \code{afterDate} and
 #'                 \code{beforeDate}. Specifying a userTag here will clear all objects with that
-#'                 tag exactly (no wildcards at this time)
+#'                 tag exactly (no wildcards at this time). Note: user "label:value" pairs, if
+#'                 named tag values are desired (see \code{\link[archivist]{Tags}})
 #' @include simList-class.R
 #' @docType methods
-#' @rdname cache
+#' @rdname viewCache
 #' @examples
 #' \dontrun{
 #' clearCache(mySim)
+#'
+#' mySim <- simInit(
+#'   times = list(start = 0.0, end = 1.0, timeunit = "year"),
+#'   params = list(
+#'     .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
+#'     # Turn off interactive plotting
+#'     fireSpread = list(.plotInitialTime = NA),
+#'     caribouMovement = list(.plotInitialTime = NA),
+#'     randomLandscapes = list(.plotInitialTime = NA, .useCache = "init")
+#'   ),
+#'   modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
+#'   paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
+#'                outputPath = tmpdir,
+#'                cachePath = tmpdir),
+#'   # Save final state of landscape and caribou
+#'   outputs = data.frame(objectName = c("landscape", "caribou"),
+#'                        stringsAsFactors = FALSE)
+#' )
+#'
+#' sims <- spades(Copy(mySim), notOlderThan = Sys.time()) ## TO DO: fix this test
+#'
+#' ranNums <- Cache(runif, 4, cacheRepo=cachePath(mySim), userTags = "objectName:a")
+#'
+#' showCache(mySim)
+#'
+#' showCache(mySim, userTags = c("objectName"))
+#' showCache(mySim, userTags = c("a"))
+#' showCache(mySim, userTags = c("eventTime")) # show only cached objects made during spades call
+#'
+#' clearCache(mySim, userTags = c("eventTime")) # remove only cached objects made during spades call
+#' showCache(mySim) # they are gone
 #' }
 setGeneric("clearCache", function(sim, afterDate, beforeDate, cacheRepo,
                                   userTags = character(), ...) {
@@ -412,7 +452,7 @@ setGeneric("clearCache", function(sim, afterDate, beforeDate, cacheRepo,
 })
 
 #' @export
-#' @rdname cache
+#' @rdname viewCache
 setMethod(
   "clearCache",
   definition = function(sim, afterDate, beforeDate, cacheRepo,
@@ -455,7 +495,7 @@ setMethod(
 #' @importFrom archivist splitTagsLocal
 #' @include simList-class.R
 #' @docType methods
-#' @rdname cache
+#' @rdname viewCache
 #' @examples
 #' \dontrun{
 #' showCache(mySim)
@@ -465,7 +505,7 @@ setGeneric("showCache", function(sim, cacheRepo, userTags = character(), ...) {
 })
 
 #' @export
-#' @rdname cache
+#' @rdname viewCache
 setMethod(
   "showCache",
   definition = function(sim, cacheRepo, userTags, ...) {
@@ -719,7 +759,7 @@ setMethod(
 #'
 #' @param repoDir Character denoting an existing directory in which an artifact will be saved.
 #'
-#' @param ... pass to \code{archivist::saveToRepo}
+#' @param ... passed to \code{archivist::saveToRepo}
 #'
 #' @return A raster object and its file backing will be passed to the archivist repository.
 #'

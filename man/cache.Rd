@@ -4,10 +4,6 @@
 \name{Cache}
 \alias{Cache}
 \alias{Cache,ANY-method}
-\alias{clearCache}
-\alias{clearCache,ANY-method}
-\alias{showCache}
-\alias{showCache,ANY-method}
 \alias{cache}
 \alias{cache,ANY-method}
 \title{Cache method that accomodates environments, S4 methods, Rasters}
@@ -20,15 +16,6 @@ Cache(FUN, ..., notOlderThan = NULL, objects = NULL, outputObjects = NULL,
   outputObjects = NULL, algo = "xxhash64", cacheRepo = NULL,
   compareRasterFileLength = 1e+06, userTags = c())
 
-clearCache(sim, afterDate, beforeDate, cacheRepo, userTags = character(), ...)
-
-\S4method{clearCache}{ANY}(sim, afterDate, beforeDate, cacheRepo,
-  userTags = character(), ...)
-
-showCache(sim, cacheRepo, ...)
-
-\S4method{showCache}{ANY}(sim, cacheRepo, ...)
-
 cache(cacheRepo = NULL, FUN, ..., notOlderThan = NULL, objects = NULL,
   outputObjects = NULL, algo = "xxhash64")
 
@@ -38,11 +25,7 @@ cache(cacheRepo = NULL, FUN, ..., notOlderThan = NULL, objects = NULL,
 \arguments{
 \item{FUN}{A function to be called.}
 
-\item{...}{Other arguments passed to
-
-If neither \code{afterDate} or \code{beforeDate} are provided, then all objects will be removed.
-If both \code{afterDate} and \code{beforeDate} are specified, then all objects between \code{afterDate} and
-\code{beforeDate} will be deleted.}
+\item{...}{Arguments of \code{FUN} function .}
 
 \item{notOlderThan}{load an artifact from the database only if it was created after notOlderThan.}
 
@@ -66,22 +49,16 @@ have file-backed storage, this is passed to the length arg in \code{digest}
 when determining if the Raster file is already in the database.
 Default 1e6. Passed to \code{prepareFileBackedRaster}.}
 
-\item{userTags}{Character. If used, this will be used in place of the \code{afterDate} and
-\code{beforeDate}. Specifying a userTag here will clear all objects with that
-tag exactly (no wildcards at this time)}
-
-\item{sim}{A \code{simList} simulation object, generally produced by \code{simInit}.}
-
-\item{afterDate}{Objects cached after this date will be deleted, formatted YYYY-MM-DD.}
-
-\item{beforeDate}{Objects cached before this date will be deleted, formatted as YYYY-MM-DD.}
+\item{userTags}{A character vector with Tags. These Tags will be added to the repository along with the artifact.}
 }
 \value{
 As with \code{\link[archivist]{cache}}, the return is either the return
 value of the function call or the cached version (i.e., the result from a previous
 call to this same cached function with identical arguments).
 
-Will clear all objects from the \code{cachePath} of the sim object
+If \code{Cache} is called within a SpaDES module, then the cached entry will automatically
+get 3 extra \code{userTags}: eventTime, eventType, and moduleName. These can then be used in
+\code{clearCache} to selectively remove cached objects by eventTime, eventType or moduleName.
 }
 \description{
 This function is largely copied from \code{\link[archivist]{cache}}, with
@@ -101,10 +78,6 @@ only file-backed \code{Raster*} objects are digested (e.g., not \code{ff} object
 or any other R object where the data is in a file, rather than RAM object).
 In the \code{SpaDES} context, the \code{simList} has an environment as one of
 its slots, thus using \code{archivist::cache} will not work correctly.
-
-\code{showCache} and \code{clearCache} are wrappers around \code{archivist} package
-functions, specific to simList objects.
-They allow the user a bit of control over what is being cached.
 }
 \details{
 Some of the details of the changes include:
@@ -251,17 +224,9 @@ mySim <- simInit(times = list(start = 0.0, end = 5.0),
 
 }
 
-\dontrun{
-clearCache(mySim)
-}
-\dontrun{
-showCache(mySim)
-}
 }
 \seealso{
 \code{\link[archivist]{cache}}.
-
-\code{\link[archivist]{splitTagsLocal}}.
 }
 \author{
 Eliot McIntire

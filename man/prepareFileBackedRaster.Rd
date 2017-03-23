@@ -18,7 +18,7 @@ have file-backed storage, this is passed to the length arg in \code{digest}
 when determining if the Raster file is already in the database.
 Default 1e6. Passed to \code{prepareFileBackedRaster}.}
 
-\item{...}{pass to \code{archivist::saveToRepo}}
+\item{...}{passed to \code{archivist::saveToRepo}}
 }
 \value{
 A raster object and its file backing will be passed to the archivist repository.
