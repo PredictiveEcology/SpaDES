@@ -84,12 +84,13 @@ test_that("test event-level cache", {
 })
 
 test_that("test module-level cache", {
-  #if((getRversion() > "3.3.2"))
-  #skip("Not working on R devel")
   library(igraph)
   tmpdir <- file.path(tempdir(), "testCache") %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
+
   tmpfile <- tempfile(fileext = ".pdf")
+  file.create(tmpfile)
+  tmpfile <- normPath(tmpfile)
   try(clearCache(cacheRepo = tmpdir), silent = TRUE)
 
   # Example of changing parameter values
@@ -130,8 +131,8 @@ test_that("test module-level cache", {
   expect_true(any(c("8b62c052c79b0dc8") %in% landscapeObjHash))
   expect_true(any(c("5832b0ce8b9b66fe") %in% firesHash))
 
-  # The cached version will be identical for both events (init and plot), but will not actually
-  # complete the plot, because plotting isn't cacheable
+  # The cached version will be identical for both events (init and plot),
+  # but will not actually complete the plot, because plotting isn't cacheable
   pdf(tmpfile)
   mess1 <- capture_messages(sims <- spades(Copy(mySim)))
   dev.off()
@@ -145,8 +146,8 @@ test_that("test module-level cache", {
   firesHash <- digest::digest(object = SpaDES:::makeDigestible(
     sims$landscape$Fires), algo = "xxhash64")
 
-  expect_true(any(c("8b62c052c79b0dc8") %in% landscapeObjHash))
-  expect_false(any(c("5832b0ce8b9b66fe") %in% firesHash)) # The non cached stuff goes ahead as normal
+  expect_true(landscapeObjHash == "8b62c052c79b0dc8")
+  expect_false(firesHash == "5832b0ce8b9b66fe") # non-cached stuff goes ahead as normal
 
   clearCache(sims)
 })
@@ -159,6 +160,8 @@ test_that("test file-backed raster caching", {
   tmpdir <- file.path(tempdir(), "testCache") %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
   tmpRasterfile <- tempfile(tmpdir = tmpdir, fileext = ".tif")
+  file.create(tmpRasterfile)
+  tmpRasterfile <- normPath(tmpRasterfile)
   try(clearCache(cacheRepo = tmpdir), silent = TRUE)
 
   nOT <- Sys.time()
@@ -258,7 +261,7 @@ test_that("test file-backed raster caching", {
   }
   tf <- tempfile(fileext = ".grd")
   file.create(tf)
-  tf <- normalizePath(tf)
+  tf <- normPath(tf)
 
   # bb1 has original tmp filename
   bb1 <- randomPolyToFactorOnDisk(tmpdir, tf)
