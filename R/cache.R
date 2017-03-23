@@ -199,10 +199,10 @@ setMethod(
 
     if (missing(notOlderThan)) notOlderThan <- NULL
     # These three lines added to original version of cache in archive package
-    wh <- which(sapply(tmpl, function(x) is(x, "simList")))
+    whSimList <- which(sapply(tmpl, function(x) is(x, "simList")))
     if (is.null(cacheRepo)) {
-      if (length(wh) > 0) {
-        cacheRepo <- tmpl[wh][[1]]@paths$cachePath # just take the first simList, if there are >1
+      if (length(whSimList) > 0) {
+        cacheRepo <- tmpl[whSimList][[1]]@paths$cachePath # just take the first simList, if there are >1
       } else {
         doEventFrameNum <- grep(sys.calls(), pattern = "(^doEvent)|(^.parseModule)")[2]
         if (!is.na(doEventFrameNum)) {
@@ -232,20 +232,20 @@ setMethod(
     }
 
     whCluster <- which(sapply(tmpl, function(x) is(x, "cluster")))
-    if (length(wh) > 0 | exists("sim")) {
-      if (length(wh) > 0) {
-        cur <- current(tmpl[[wh]])
+    if (length(whSimList) > 0 | exists("sim")) {
+      if (length(whSimList) > 0) {
+        cur <- current(tmpl[[whSimList]])
       } else {
         cur <- current(sim)
       }
     }
 
     if (is.null(objects)) {
-      if (length(wh) > 0) tmpl[wh] <- lapply(tmpl[wh], makeDigestible,
+      if (length(whSimList) > 0) tmpl[whSimList] <- lapply(tmpl[whSimList], makeDigestible,
                                              compareRasterFileLength = compareRasterFileLength,
                                              algo = algo)
     } else {
-      if (length(wh) > 0) tmpl[wh] <- lapply(tmpl[wh], function(xx) {
+      if (length(whSimList) > 0) tmpl[whSimList] <- lapply(tmpl[whSimList], function(xx) {
         makeDigestible(xx, objects, compareRasterFileLength = compareRasterFileLength,
                        algo = algo)
       })
@@ -294,9 +294,9 @@ setMethod(
 
         out <- loadFromLocalRepo(isInRepo$artifact[lastOne],
                                  repoDir = cacheRepo, value = TRUE)
-          if (length(wh) > 0) {
+          if (length(whSimList) > 0) {
             simListOut <- out # gets all items except objects in list(...)
-            origEnv <- list(...)[[wh]]@.envir
+            origEnv <- list(...)[[whSimList]]@.envir
             isListOfSimLists <- if (is.list(out)) if (is(out[[1]], "simList")) TRUE else FALSE else FALSE
 
             if (isListOfSimLists) {
@@ -396,7 +396,7 @@ setMethod(
 #' clearCache(mySim)
 #' }
 setGeneric("clearCache", function(sim, afterDate, beforeDate, cacheRepo,
-                                  userTags = "", ...) {
+                                  userTags = character(), ...) {
   standardGeneric("clearCache")
 })
 
