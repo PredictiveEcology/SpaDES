@@ -2,7 +2,7 @@ test_that("test cache", {
   library(igraph)
   tmpdir <- file.path(tempdir(), "testCache") %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
-  try(clearCache(cacheRepo = tmpdir), silent = TRUE)
+  try(clearCache(tmpdir), silent = TRUE)
 
   # Example of changing parameter values
   mySim <- simInit(
@@ -27,7 +27,7 @@ test_that("test cache", {
   sims <- experiment(mySim, replicates = 2, cache = TRUE)
   out <- showCache(sims[[1]])
   expect_output(print(out), "cacheId")
-  expect_true(NROW(out) == 12) # will become 15 with new experiment caching stuff
+  expect_true(NROW(out) == 14) # will become 15 with new experiment caching stuff
   clearCache(sims[[1]])
   out <- showCache(sims[[1]])
   expect_true(NROW(out) == 0)
@@ -37,7 +37,7 @@ test_that("test event-level cache", {
   library(igraph)
   tmpdir <- file.path(tempdir(), "testCache") %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
-  try(clearCache(cacheRepo = tmpdir), silent = TRUE)
+  try(clearCache(tmpdir), silent = TRUE)
 
   # Example of changing parameter values
   mySim <- simInit(
@@ -91,7 +91,7 @@ test_that("test module-level cache", {
   tmpfile <- tempfile(fileext = ".pdf")
   file.create(tmpfile)
   tmpfile <- normPath(tmpfile)
-  try(clearCache(cacheRepo = tmpdir), silent = TRUE)
+  try(clearCache(tmpdir), silent = TRUE)
 
   # Example of changing parameter values
   times <- list(start = 0.0, end = 1.0, timeunit = "year")
@@ -162,7 +162,7 @@ test_that("test file-backed raster caching", {
   tmpRasterfile <- tempfile(tmpdir = tmpdir, fileext = ".tif")
   file.create(tmpRasterfile)
   tmpRasterfile <- normPath(tmpRasterfile)
-  try(clearCache(cacheRepo = tmpdir), silent = TRUE)
+  try(clearCache(tmpdir), silent = TRUE)
 
   nOT <- Sys.time()
 
@@ -180,18 +180,20 @@ test_that("test file-backed raster caching", {
   aa <- Cache(randomPolyToDisk, tmpdir, tmpRasterfile, cacheRepo = tmpdir, userTags = "something2")
 
   # Test clearCache by tags
-  expect_equal(NROW(showCache(cacheRepo = tmpdir)), 6)
-  clearCache(cacheRepo = tmpdir, userTags = "something")
-  expect_equal(NROW(showCache(cacheRepo = tmpdir)), 6)
-  clearCache(cacheRepo = tmpdir, userTags = "something2")
-  expect_equal(NROW(showCache(cacheRepo = tmpdir)), 0)
+  expect_equal(NROW(showCache(tmpdir)), 8)
+  clearCache(tmpdir, userTags = "something$")
+  expect_equal(NROW(showCache(tmpdir)), 8)
+  clearCache(tmpdir, userTags = "something2")
+  expect_equal(NROW(showCache(tmpdir)), 0)
 
   aa <- Cache(randomPolyToDisk, tmpdir, tmpRasterfile, cacheRepo = tmpdir, userTags = "something2")
-  expect_equal(NROW(showCache(cacheRepo = tmpdir)), 6)
-  clearCache(cacheRepo = tmpdir, userTags = c("something", "testing"))
-  expect_equal(NROW(showCache(cacheRepo = tmpdir)), 6)
-  clearCache(cacheRepo = tmpdir, userTags = c("something2", "testing"))
-  expect_equal(NROW(showCache(cacheRepo = tmpdir)), 0)
+  expect_equal(NROW(showCache(tmpdir)), 8)
+  clearCache(tmpdir, userTags = c("something$", "testing$"))
+  expect_equal(NROW(showCache(tmpdir)), 8)
+  clearCache(tmpdir, userTags = c("something2$", "testing$"))
+  expect_equal(NROW(showCache(tmpdir)), 8)
+  clearCache(tmpdir, userTags = c("something2$", "randomPolyToDisk$"))
+  expect_equal(NROW(showCache(tmpdir)), 0)
 
   aa <- Cache(randomPolyToDisk, tmpdir, tmpRasterfile, cacheRepo = tmpdir, userTags = "something2")
 
@@ -219,7 +221,7 @@ test_that("test file-backed raster caching", {
   # confirm that the second one was obtained through reading from Cache... much faster than writing
   expect_true(b1[1] > b2[1])
 
-  clearCache(cacheRepo = tmpdir)
+  clearCache(tmpdir)
 
   # Check that Caching of rasters saves them to tif file instead of rdata
   randomPolyToMemory <- function(tmpdir) {
@@ -233,7 +235,7 @@ test_that("test file-backed raster caching", {
   expect_true(fromDisk(bb))
 
   bb <- Cache(randomPolyToMemory, tmpdir, cacheRepo = tmpdir)
-  expect_true(NROW(showCache(cacheRepo = tmpdir)) == 5)
+  expect_true(NROW(showCache(tmpdir)) == 7)
 
   # Test that factors are saved correctly
   randomPolyToFactorInMemory <- function(tmpdir) {
@@ -278,5 +280,31 @@ test_that("test file-backed raster caching", {
   expect_true(NCOL(levels(bb)[[1]]) == 3)
   expect_true(NROW(levels(bb)[[1]]) == 30)
 
-  clearCache(cacheRepo = tmpdir)
+  clearCache(tmpdir)
+})
+
+
+test_that("test date-based cache removal", {
+  library(igraph)
+  tmpdir <- file.path(tempdir(), "testCache") %>% checkPath(create = TRUE)
+  on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
+
+  tmpfile <- tempfile(fileext = ".pdf")
+  file.create(tmpfile)
+  tmpfile <- normPath(tmpfile)
+  try(clearCache(tmpdir), silent = TRUE)
+
+  a <- Cache(runif, 1, cacheRepo = tmpdir)
+  a1 <- showCache(tmpdir)
+  expect_true(NROW(a1)>0)
+  b <- clearCache(tmpdir, before = Sys.Date() - 1)
+  expect_true(NROW(b) == 0)
+  expect_identical(a1, showCache(tmpdir))
+
+  b <- clearCache(tmpdir, before = Sys.Date() + 1)
+  expect_identical(b, a1)
+
+  # Example of changing parameter values
+
+  clearCache(tmpdir)
 })

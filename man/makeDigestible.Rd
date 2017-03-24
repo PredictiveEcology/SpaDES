@@ -48,7 +48,7 @@ caching a \code{simList}.
 This is a derivative of the class \code{simList}, except that all references
 to local environments are removed.
 Specifically, all functions (which are contained within environments) are
-converted to a text representation via a call to \code{format(fn)}.
+converted to a text representation via a call to \code{format(FUN)}.
 Also the objects that were contained within the \code{.envir} slot are hashed
 using \code{digest::digest}.
 The \code{paths} slot is not used (to allow comparison across platforms); it's

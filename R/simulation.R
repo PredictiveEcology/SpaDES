@@ -1153,7 +1153,8 @@ setMethod(
                             objects = moduleSpecificObjects,
                             notOlderThan = notOlderThan,
                             outputObjects = moduleSpecificOutputObjects,
-                            cacheRepo = sim@paths[["cachePath"]])
+                            cacheRepo = sim@paths[["cachePath"]],
+                            userTags = c("function:doEvent"))
              } else {
 
                sim <- get(moduleCall,
@@ -1682,7 +1683,6 @@ setMethod(
           .plotInitialTime = .plotInitialTime,
           .saveInitialTime = .saveInitialTime,
           notOlderThan = notOlderThan,
-          userTags = c("function:spades"),
           ...
         )
       )

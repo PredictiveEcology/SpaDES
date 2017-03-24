@@ -220,8 +220,16 @@ mySim <- simInit(times = list(start = 0.0, end = 5.0),
    same <- lapply(layers, function(l) identical(randomSim$landscape[[l]],
                                         randomSimCached$landscape[[l]]))
    names(same) <- layers
-   print(same)
+   print(same) # Fires is not same because it is not in the randomLandscape module that was cached
 
+   # Note - one can access cached items manually (rather than simply rerunning the same Cache function again)
+   if(requireNamespace("archivist")) {
+     # examine the cache
+     showCache(mySim)
+     # get the RasterLayer that was produced with the gaussMap function:
+     map <- showCache(mySim, userTags = "gaussMap")$artifact \%>\%
+       archivist::loadFromLocalRepo(repoDir = cachePath(mySim), value = TRUE)
+   }
 }
 
 }

@@ -10,42 +10,44 @@
 functions, specific to simList objects.
 They allow the user a bit of control over what is being cached.}
 \usage{
-clearCache(sim, afterDate, beforeDate, cacheRepo, userTags = character(), ...)
+clearCache(x, userTags = character(), after, before, ...)
 
-\S4method{clearCache}{ANY}(sim, afterDate, beforeDate, cacheRepo,
-  userTags = character(), ...)
+\S4method{clearCache}{ANY}(x, userTags = character(), after, before, ...)
 
-showCache(sim, cacheRepo, userTags = character(), ...)
+showCache(x, userTags = character(), after, before, ...)
 
-\S4method{showCache}{ANY}(sim, cacheRepo, userTags = character(), ...)
+\S4method{showCache}{ANY}(x, userTags = character(), after, before, ...)
 }
 \arguments{
-\item{sim}{A \code{simList} simulation object, generally produced by \code{simInit}.}
+\item{x}{A simList or a directory containing a valid archivist repository}
 
-\item{afterDate}{Objects cached after this date will be deleted, formatted YYYY-MM-DD.}
+\item{userTags}{Character vector. If used, this will be used in place of the \code{after} and
+\code{before}. Specifying one or more \code{userTag} here will clear all objects that
+match those tags. Matching is via regular expresssion, meaning partial matches
+will work unless strict beginning (^) and end ($) of string characters are used. Matching
+will be against any of the 3 columns returned by \code{showCache()},
+i.e., artifact, tagValue or tagName. Also, length \code{userTags} > 1, then matching is by
+`and`.}
 
-\item{beforeDate}{Objects cached before this date will be deleted, formatted as YYYY-MM-DD.}
+\item{after}{A time (POSIX, character understandable by data.table).
+Objects cached after this time will be shown or deleted.}
 
-\item{cacheRepo}{A repository used for storing cached objects.
-This is optional if \code{Cache} is used inside a SpaDES module.}
-
-\item{userTags}{Character. If used, this will be used in place of the \code{afterDate} and
-\code{beforeDate}. Specifying a userTag here will clear all objects with that
-tag exactly (no wildcards at this time). Note: user "label:value" pairs, if
-named tag values are desired (see \code{\link[archivist]{Tags}})}
+\item{before}{A time (POSIX, character understandable by data.table).
+Objects cached before this time will be shown or deleted.}
 
 \item{...}{Other arguments. Currently unused.
 
-If neither \code{afterDate} or \code{beforeDate} are provided, nor \code{userTags},
+If neither \code{after} or \code{before} are provided, nor \code{userTags},
  then all objects will be removed.
-If both \code{afterDate} and \code{beforeDate} are specified, then all objects between \code{afterDate} and
-\code{beforeDate} will be deleted.
-If \code{userTags} is used, this will override \code{afterDate} or \code{beforeDate}.}
+If both \code{after} and \code{before} are specified, then all objects between \code{after} and
+\code{before} will be deleted.
+If \code{userTags} is used, this will override \code{after} or \code{before}.}
 }
 \value{
-Will clear all (or that match \code{userTags}, or between \code{afterDate} or \code{beforeDate})
+Will clear all (or that match \code{userTags}, or between \code{after} or \code{before})
 objects from the repository located at \code{cachePath} of the sim object,
-if \code{sim} is provided, or located in \code{cacheRepo} .
+if \code{sim} is provided, or located in \code{cacheRepo}. Also returns a data.table invisibly
+of the removed items.
 }
 \description{
 \code{showCache} and \code{clearCache} are wrappers around \code{archivist} package

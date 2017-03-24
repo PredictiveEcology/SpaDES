@@ -1,5 +1,5 @@
 if (getRversion() >= "3.1.0") {
-  utils::globalVariables(c("tagValue", "tagKey", "artifact"))
+  utils::globalVariables(c("tagValue", "tagKey", "artifact", "createdDate"))
 }
 
 ################################################################################
@@ -189,8 +189,17 @@ if (getRversion() >= "3.1.0") {
 #'    same <- lapply(layers, function(l) identical(randomSim$landscape[[l]],
 #'                                         randomSimCached$landscape[[l]]))
 #'    names(same) <- layers
-#'    print(same)
+#'    print(same) # Fires is not same because it is not in the randomLandscape module that was cached
 #'
+#'    # Note - one can access cached items manually (rather than simply
+#'    #    rerunning the same Cache function again)
+#'    if(requireNamespace("archivist")) {
+#'      # examine the cache
+#'      showCache(mySim)
+#'      # get the RasterLayer that was produced with the gaussMap function:
+#'      map <- showCache(mySim, userTags = "gaussMap")$artifact %>%
+#'        archivist::loadFromLocalRepo(repoDir = cachePath(mySim), value = TRUE)
+#'    }
 #' }
 #'
 setGeneric("Cache", signature = "...",
@@ -275,18 +284,41 @@ setMethod(
         y <- strsplit(x, split = "=")
         unlist(lapply(y, function(z) z[1]))
       })
+      firstElems <- firstElems[!unlist(lapply(firstElems, is.null))] # remove nulls
+      firstElems <- firstElems[!unlist(lapply(firstElems, function(x) any(grepl(x, pattern = "inherited"))))] # remove "nulls"inherited
+      firstElems <- firstElems[!unlist(lapply(firstElems, function(x) any(grepl(x, pattern = "\\(inherited"))))] # remove "nulls"inherited
+      firstElems <- firstElems[!unlist(lapply(firstElems, function(x) any(grepl(x, pattern = "^Function:"))))] # remove "nulls"inherited
+
       sigArgs <- lapply(unique(firstElems), function(x) {
         FUN@signature %in% x
       })
       signat <- unlist(sigArgs[unlist(lapply(sigArgs, function(y) any(y)))])
 
+      matchedCall <- as.list(
+        match.call(FUN, do.call(call, append(list(name = FUN@generic),
+                                             list(...)))))
+      matchedCall <- matchedCall[nzchar(names(matchedCall))]
+      matchedCall <- matchedCall[na.omit(match(names(matchedCall), FUN@signature[signat]))]
+
+      signatures <- rep("missing", (sum(signat))) # default is "missing"
+      names(signatures) <- FUN@signature[signat]
+      classMatchedCall <- sapply(matchedCall, class)
+      signatures[names(classMatchedCall)] <- classMatchedCall # update "missing" with ones that aren't missing
+
       methodUsed <- selectMethod(FUN, optional = TRUE,
-                                 signature = sapply(as.list(
-                                   match.call(FUN, do.call(call, append(list(name = FUN@generic),
-                                                                        tmpl))))[FUN@signature[signat]],
-                                   class)) ## TO DO: need to get the method the dispatch correct
+                                 signature = signatures) ## TO DO: need to get the method the dispatch correct
       tmpl$.FUN <- format(methodUsed@.Data)
+      functionName <- FUN@generic
     } else {
+      functionName <- sys.calls() %>%
+        grep(pattern = "^Cache", value = TRUE) %>%
+        parse(text = .) %>%
+        match.call(Cache, call = .) %>%
+        .$FUN %>%
+        deparse()
+
+
+
       tmpl$.FUN <- format(FUN) # This is changed to allow copying between computers
     }
 
@@ -371,6 +403,16 @@ setMethod(
       #archiveMiniature = FALSE, rememberName = FALSE, silent = TRUE)
     }
     while (!written) {
+      objSize <- object.size(outputToSave)
+      if(length(whSimList) > 0){
+        objSize <- lapply(output@.envir, object.size) %>%
+          unlist() %>%
+          sum() %>%
+          `+`(objSize)
+      }
+      userTags <- c(userTags,
+                    paste0("function:",functionName),
+                    paste0("object.size:", objSize))
       saved <- try(saveToLocalRepo(outputToSave, repoDir = cacheRepo,
                                    archiveData = TRUE, archiveSessionInfo = FALSE,
                                    archiveMiniature = FALSE, rememberName = FALSE, silent = TRUE,
@@ -390,26 +432,34 @@ setMethod(
 
 #' @inheritParams spades
 #' @inheritParams cache
-#' @param afterDate Objects cached after this date will be deleted, formatted YYYY-MM-DD.
-#' @param beforeDate Objects cached before this date will be deleted, formatted as YYYY-MM-DD.
+#' @param x A simList or a directory containing a valid archivist repository
+#' @param after A time (POSIX, character understandable by data.table).
+#'                  Objects cached after this time will be shown or deleted.
+#' @param before A time (POSIX, character understandable by data.table).
+#'                   Objects cached before this time will be shown or deleted.
 #' @param ... Other arguments. Currently unused.
 #'
-#' If neither \code{afterDate} or \code{beforeDate} are provided, nor \code{userTags},
+#' If neither \code{after} or \code{before} are provided, nor \code{userTags},
 #'  then all objects will be removed.
-#' If both \code{afterDate} and \code{beforeDate} are specified, then all objects between \code{afterDate} and
-#' \code{beforeDate} will be deleted.
-#' If \code{userTags} is used, this will override \code{afterDate} or \code{beforeDate}.
+#' If both \code{after} and \code{before} are specified, then all objects between \code{after} and
+#' \code{before} will be deleted.
+#' If \code{userTags} is used, this will override \code{after} or \code{before}.
 #'
-#' @return Will clear all (or that match \code{userTags}, or between \code{afterDate} or \code{beforeDate})
+#' @return Will clear all (or that match \code{userTags}, or between \code{after} or \code{before})
 #' objects from the repository located at \code{cachePath} of the sim object,
-#' if \code{sim} is provided, or located in \code{cacheRepo} .
+#' if \code{sim} is provided, or located in \code{cacheRepo}. Also returns a data.table invisibly
+#' of the removed items.
 #'
 #' @export
 #' @importFrom archivist rmFromLocalRepo searchInLocalRepo
-#' @param userTags Character. If used, this will be used in place of the \code{afterDate} and
-#'                 \code{beforeDate}. Specifying a userTag here will clear all objects with that
-#'                 tag exactly (no wildcards at this time). Note: user "label:value" pairs, if
-#'                 named tag values are desired (see \code{\link[archivist]{Tags}})
+#' @param userTags Character vector. If used, this will be used in place of the \code{after} and
+#'                 \code{before}. Specifying one or more \code{userTag} here will clear all objects that
+#'                 match those tags. Matching is via regular expresssion, meaning partial matches
+#'                 will work unless strict beginning (^) and end ($) of string characters are used. Matching
+#'                 will be against any of the 3 columns returned by \code{showCache()},
+#'                 i.e., artifact, tagValue or tagName. Also, length \code{userTags} > 1, then matching is by
+#'                 `and`.
+#'
 #' @include simList-class.R
 #' @docType methods
 #' @rdname viewCache
@@ -448,8 +498,7 @@ setMethod(
 #' clearCache(mySim, userTags = c("eventTime")) # remove only cached objects made during spades call
 #' showCache(mySim) # they are gone
 #' }
-setGeneric("clearCache", function(sim, afterDate, beforeDate, cacheRepo,
-                                  userTags = character(), ...) {
+setGeneric("clearCache", function(x, userTags = character(), after, before, ...) {
   standardGeneric("clearCache")
 })
 
@@ -457,32 +506,31 @@ setGeneric("clearCache", function(sim, afterDate, beforeDate, cacheRepo,
 #' @rdname viewCache
 setMethod(
   "clearCache",
-  definition = function(sim, afterDate, beforeDate, cacheRepo,
-                        userTags, ...) {
-    if (missing(sim) & missing(cacheRepo)) stop("Must provide either sim or cacheRepo")
-    if (missing(cacheRepo)) cacheRepo <- sim@paths$cachePath
-    if (missing(afterDate)) afterDate <- "1970-01-01"
-    if (missing(beforeDate)) beforeDate <- Sys.Date() + 1
+  definition = function(x, userTags, after, before, ...) {
+    if (missing(x)) stop("Must provide a simList or repository")
+    if (missing(after)) after <- "1970-01-01"
+    if (missing(before)) before <- Sys.Date() + 1
+    if (is(x, "simList")) x <- x@paths$cachePath
 
-    objsDT <- data.table(splitTagsLocal(cacheRepo), key="artifact")
-    if(length(userTags)>0) {
-      objsDT <- objsDT[
-        tagValue %in% userTags |
-          tagKey %in% userTags |
-          artifact %in% userTags]
-    }
-    objs <- objsDT$artifact
-    rastersInRepo <- objsDT[grep(tagValue, pattern="Raster")]
-    if(all(!is.na(rastersInRepo$artifact))) {
-      rasters <- lapply(rastersInRepo$artifact, function(ras) {
-        loadFromLocalRepo(ras, repoDir = cacheRepo, value = TRUE)
-      })
-      filesToRemove <- unlist(lapply(rasters, function(x) filename(x)))
-      filesToRemove <- gsub(filesToRemove, pattern = ".{1}$", replacement = "*")
-      unlink(filesToRemove)
-    }
+    args <- append(list(x = x, after = after, before = before, userTags = userTags),
+                   list(...))
 
-    rmFromLocalRepo(objs, cacheRepo, many = TRUE)
+    objsDT <- do.call(showCache, args = args)
+
+    if(NROW(objsDT)) {
+      rastersInRepo <- objsDT[grep(tagValue, pattern="Raster")]
+      if(all(!is.na(rastersInRepo$artifact))) {
+        rasters <- lapply(rastersInRepo$artifact, function(ras) {
+          loadFromLocalRepo(ras, repoDir = x, value = TRUE)
+        })
+        filesToRemove <- unlist(lapply(rasters, function(x) filename(x)))
+        filesToRemove <- gsub(filesToRemove, pattern = ".{1}$", replacement = "*")
+        unlink(filesToRemove)
+      }
+
+      rmFromLocalRepo(objsDT$artifact, x, many = TRUE)
+    }
+    return(invisible(objsDT))
   })
 
 #' \code{showCache} and \code{clearCache} are wrappers around \code{archivist} package
@@ -501,7 +549,8 @@ setMethod(
 #' \dontrun{
 #' showCache(mySim)
 #' }
-setGeneric("showCache", function(sim, cacheRepo, userTags = character(), ...) {
+setGeneric("showCache", function(x, userTags = character(),
+                                 after, before, ...) {
   standardGeneric("showCache")
 })
 
@@ -509,19 +558,26 @@ setGeneric("showCache", function(sim, cacheRepo, userTags = character(), ...) {
 #' @rdname viewCache
 setMethod(
   "showCache",
-  definition = function(sim, cacheRepo, userTags, ...) {
-    if (missing(sim) & missing(cacheRepo)) stop("Must provide either sim or cacheRepo")
-    if (missing(cacheRepo)) cacheRepo <- sim@paths$cachePath
+  definition = function(x, userTags, after, before, ...) {
+    if (missing(x)) stop("Must provide a simList or repository")
+    if (missing(after)) after <- "1970-01-01"
+    if (missing(before)) before <- Sys.Date() + 1
+    if (is(x, "simList")) x <- x@paths$cachePath
 
-
-    objsDT <- showLocalRepo(cacheRepo) %>% data.table()
+    objsDT <- showLocalRepo(x) %>% data.table()
+    objsDT <- objsDT[createdDate <= before & createdDate >= after]
     if(NROW(objsDT)>0) {
-      objsDT <- data.table(splitTagsLocal(cacheRepo), key="artifact")
+      objsDT <- data.table(splitTagsLocal(x), key="artifact")
       if(length(userTags)>0) {
-        objsDT <- data.table(splitTagsLocal(cacheRepo), key="artifact")[
-          tagValue %in% userTags |
-            tagKey %in% userTags |
-            artifact %in% userTags]
+        objsDT <- data.table(splitTagsLocal(x), key="artifact")
+        for(ut in userTags) {
+          objsDT2 <- objsDT[
+            grepl(tagValue, pattern = ut)   |
+            grepl(tagKey, pattern = ut) |
+            grepl(artifact, pattern = ut)]
+          setkey(objsDT2, "artifact")
+          objsDT <- objsDT[objsDT2[,artifact]]
+        }
       }
 
     }
@@ -546,7 +602,7 @@ setMethod(
 #' This is a derivative of the class \code{simList}, except that all references
 #' to local environments are removed.
 #' Specifically, all functions (which are contained within environments) are
-#' converted to a text representation via a call to \code{format(fn)}.
+#' converted to a text representation via a call to \code{format(FUN)}.
 #' Also the objects that were contained within the \code{.envir} slot are hashed
 #' using \code{digest::digest}.
 #' The \code{paths} slot is not used (to allow comparison across platforms); it's
