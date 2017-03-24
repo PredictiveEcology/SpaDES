@@ -310,13 +310,9 @@ setMethod(
       tmpl$.FUN <- format(methodUsed@.Data)
       functionName <- FUN@generic
     } else {
-      functionName <- grep(sys.calls(), pattern = "^Cache|^SpaDES::Cache", value = TRUE) %>%
-        parse(text = .) %>%
-        match.call(Cache, call = .) %>%
-        .$FUN %>%
-        deparse()
-
-
+      functionCall <- grep(sys.calls(), pattern = "^Cache|^SpaDES::Cache", value = TRUE)
+      functionName <- match.call(Cache, parse(text = functionCall))$FUN
+      functionName <- deparse(functionName)
 
       tmpl$.FUN <- format(FUN) # This is changed to allow copying between computers
     }
