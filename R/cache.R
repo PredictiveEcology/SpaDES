@@ -310,8 +310,7 @@ setMethod(
       tmpl$.FUN <- format(methodUsed@.Data)
       functionName <- FUN@generic
     } else {
-      functionName <- sys.calls() %>%
-        grep(pattern = "^Cache", value = TRUE) %>%
+      functionName <- grep(sys.calls(), pattern = "^Cache|^SpaDES::Cache", value = TRUE) %>%
         parse(text = .) %>%
         match.call(Cache, call = .) %>%
         .$FUN %>%
