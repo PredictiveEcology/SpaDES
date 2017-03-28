@@ -298,9 +298,10 @@ setMethod(
     #assertions
     assertClass(landscape, "Raster")
     ncells <- ncell(landscape)
+
     assert(
       checkNumeric(start, min.len=0, max.len=ncells, lower = 1, upper=ncells),
-      checkDataTable(start, ncols=5, types=rep("numeric", 5)))
+      checkDataTable(start, ncols=5, types=c(rep("numeric", 2), "character", rep("numeric", 2))))
 
     qassert(neighProbs, "n[0,1]")
     assertNumeric(sum(neighProbs), lower = 1, upper = 1)
@@ -325,25 +326,26 @@ setMethod(
     }
     ##### End assertions
 
-    needDistance <- returnDistances | circle
+    needDistance <- returnDistances | circle # returnDistances = TRUE and circle = TRUE both require distance calculations
     maxRetriesPerID <- 10 # This means that if an event can not spread any more, it will try 10 times, including 2 jumps
-
 
     if(!is.data.table(start)) {
       start <- as.integer(start)
       dtInitial <- data.table(initialPixels=start, size = size)
-      #if(!anyNA(neighProbs)) set(dtInitial, , "neighProbs", neighProbs)
       setkey(dtInitial, "initialPixels")
       ids <- data.table(id=1:NROW(start), initialPixels=start, numRetries=0, key="initialPixels")
       dt <- data.table(initialPixels=start, pixels=start,
                        potentialPixels=start, state="activeSource")#, distance=NA_real_)
     } else {
       dtInitial <- data.table(initialPixels=unique(start$initialPixels), size = size)
-      #if(!anyNA(neighProbs)) set(dtInitial, , "neighProbs", neighProbs)
       setkey(dtInitial, "initialPixels")
-      ids <- start[,list(id, initialPixels)]
+      ids <- data.table(id=start$id, initialPixels=start$initialPixels, key = "initialPixels")
+      ids <- unique(ids)
+      set(ids, ,"numRetries", 0)
       dt <- start
       set(dt, , "id", NULL)
+      set(dt, , "potentialPixels", dt$pixels)
+      set(dt, , "numRetries", NULL)
     }
     if(needDistance)
       set(dt, , "distance", 0) # it is zero distance to self
@@ -462,7 +464,7 @@ setMethod(
 
       dt <- rbindlist(list(dt, dtPotential))
 
-      # Remove duplicates
+      # Remove duplicates, which was already done for neighProbs situation
       if(anyNA(neighProbs)) {
           if(allowOverlap) {
           dt[,`:=`(dups=duplicated(potentialPixels)),by=initialPixels]

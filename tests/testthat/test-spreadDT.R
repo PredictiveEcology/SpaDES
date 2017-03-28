@@ -185,6 +185,28 @@ test_that("spreadDT tests", {
   }
   rm("temp", envir=.GlobalEnv)
 
+
+  if(interactive())
+    print("testing iterative calling of spreadDT")
+  set.seed(2993)
+  sams <- sample(innerCells,2)
+  out <- spreadDT(a, iterations = 1, start = sams, asRaster=FALSE)
+  stillActive <- TRUE
+  while(stillActive) {
+    stillActive <- any(out$state=="activeSource")
+    out <- spreadDT(a, iterations = 1, start = out, asRaster=FALSE)
+  }
+
+  set.seed(2993)
+  out2 <- spreadDT(a, start = sams, asRaster=FALSE)
+  keyedCols <- c("id", "pixels")
+  setkeyv(out2, keyedCols)
+  setkeyv(out, keyedCols)
+  expect_equivalent(out2, out)
+
+
+
+
   skip("benchmarking spreadDT")
   a <- raster(extent(0, 1000, 0,1000), res = 1)
   set.seed(123); sams <- sample(innerCells,30)
@@ -197,6 +219,43 @@ test_that("spreadDT tests", {
                                 c={out2 <- spread(a, loci = sams, 0.235, id=TRUE, lowMemory = TRUE)})
   set.seed(123); profvis::profvis({out <- spreadDT(a, start = sams, 0.235, asRaster=FALSE,
                                                    allowOverlap = TRUE)})
+
+    iterativeFun <- function(x) {
+                   for(i in 1:10) {
+                     set.seed(2993)
+                     sams <- sample(innerCells,2)
+                     out <- spreadDT(a, iterations = 1, start = sams, asRaster=FALSE)
+                     stillActive <- TRUE
+                     while(stillActive) {
+                       stillActive <- any(out$state=="activeSource")
+                       out <- spreadDT(a, iterations = 1, start = out, asRaster=FALSE)
+                     }
+                   }
+    }
+
+   nonIterativeFun <- function(x) {
+                   for(i in 1:10) {
+                     set.seed(2993)
+                     sams <- sample(innerCells,2)
+                     out2 <- spreadDT(a, start = sams, asRaster=FALSE)
+                   }
+   }
+   origSpread <- function(x) {
+     for(i in 1:10) {
+       set.seed(2993)
+       sams <- sample(innerCells,2)
+       out4 <- spread(a, loci = sams, id = TRUE, returnIndices = TRUE)
+     }
+   }
+
+   microbenchmark(times = 4, iterativeFun(), nonIterativeFun(), origSpread())
+   # Unit: milliseconds
+   #              expr       min         lq       mean    median         uq       max neval
+   #    iterativeFun() 1152.2276 1164.89607 1195.57302 1184.4268 1226.24997 1261.2108     4
+   # nonIterativeFun()  314.4753  323.93325  364.54964  356.1395  405.16603  431.4443     4
+   #      origSpread()   26.0284   26.11521   30.38148   27.1556   34.64774   41.1863     4
+   profvis::profvis({iterativeFun()})
+   profvis::profvis({nonIterativeFun()})
 
 
 })
