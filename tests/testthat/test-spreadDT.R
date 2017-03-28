@@ -92,8 +92,8 @@ test_that("spreadDT produces legal RasterLayer", {
   }
 
   skip("benchmarking spreadDT")
-  a <- raster(extent(0, 10000 , 0,10000), res = 1)
-  set.seed(123); sams <- sample(ncell(a),130)
+  a <- raster(extent(0, 1000, 0,1000), res = 1)
+  set.seed(123); sams <- sample(ncell(a),30)
   set.seed(123); profvis::profvis({out <- spreadDT(a, start = sams, 0.235, asRaster=FALSE)})
   set.seed(123); profvis::profvis({out <- spreadDT(a, start = sams, 0.235, asRaster=FALSE,
                                                    allowOverlap = TRUE)})
