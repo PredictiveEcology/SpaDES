@@ -334,7 +334,7 @@ setMethod(
       dtInitial <- data.table(initialPixels=start, size = size, key = "initialPixels")
       ids <- data.table(id=seq_along(start), initialPixels=start, numRetries=0, key="initialPixels")
       dt <- data.table(initialPixels=start, pixels=start,
-                       potentialPixels=start, state="activeSource")#, distance=NA_real_)
+                       potentialPixels=as.integer(start), state="activeSource")#, distance=NA_real_)
     } else {
       ids <- start[,list(id, initialPixels)]
       dt <- start
@@ -362,17 +362,21 @@ setMethod(
         dtRetry <- dt[dtState];
         if(any(((ids$numRetries+1) %% 5) == 0)) { # jump every 5, starting at 4
           resCur <- res(landscape)[1]
-          fromPixels <- dt[state=="needRetry"]$pixels
+          fromPixels <- dt[dtState]$pixels
           potentialPixels <- cir(landscape, loci = fromPixels, includeBehavior = "excludePixels",
                                 minRadius = resCur, maxRadius=4*resCur, allowOverlap = TRUE)
-          potentialPixels <- data.table(potentialPixels)[,`:=`(from=fromPixels[id], id=dtRetry$initialPixels[id])]
+          potentialPixels <- data.table(potentialPixels)[
+            ,`:=`(from=as.integer(fromPixels[id]), id=as.integer(dtRetry$initialPixels[id]))]
           set(potentialPixels, , "x", NULL);set(potentialPixels, , "y", NULL)
 
           dtPotential <- potentialPixels[,list(to=resample(indices, 2)),by=c("id","from")]
 
         } else {
-          dtPotential <- data.table(adj(landscape, directions=directions, id=dtRetry$initialPixels,
-                                        cells = dtRetry$pixels))
+          adjMat <- adj(landscape, directions=directions, id=dtRetry$initialPixels,
+                        cells = dtRetry$pixels)
+          dtPotential <- data.table(from=as.integer(adjMat[,"from"]),
+                                    to=as.integer(adjMat[,"to"]),
+                                    id=as.integer(adjMat[,"id"]))
         }
         set(dtPotential, ,"state", "potential" )
 
@@ -386,7 +390,10 @@ setMethod(
         dtActiveSrc <- dt$state == "activeSource"
         adjMat <- adj(landscape, directions=directions, id=dt$initialPixels[dtActiveSrc],
                       cells = dt$pixels[dtActiveSrc])
-        dtPotential <- data.table(adjMat, state="potential")#, distance=NA_real_)
+        dtPotential <- data.table(from=as.integer(adjMat[,"from"]),
+                                  to=as.integer(adjMat[,"to"]),
+                                  id=as.integer(adjMat[,"id"]),
+                                  state="potential")#, distance=NA_real_)
 
         # Only increment iteration if it is NOT a retry situation
         its <- its + 1

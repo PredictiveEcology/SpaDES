@@ -98,7 +98,7 @@ test_that("spreadDT produces legal RasterLayer", {
   set.seed(123); profvis::profvis({out <- spreadDT(a, start = sams, 0.235, asRaster=FALSE,
                                                    allowOverlap = TRUE)})
 
-  set.seed(123); microbenchmark(times = 1, {out1 <- spreadDT(a, start = sams, 0.235, asRaster=FALSE)},
+  set.seed(123); microbenchmark(times = 30, {out1 <- spreadDT(a, start = sams, 0.235, asRaster=FALSE)},
                                 b={out2 <- spread(a, loci = sams, 0.235, id=TRUE)},
                                 c={out2 <- spread(a, loci = sams, 0.235, id=TRUE, lowMemory = TRUE)})
   set.seed(123); profvis::profvis({out <- spreadDT(a, start = sams, 0.235, asRaster=FALSE,
