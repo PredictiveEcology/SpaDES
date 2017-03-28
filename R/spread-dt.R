@@ -299,12 +299,11 @@ setMethod(
     assertClass(landscape, "Raster")
     ncells <- ncell(landscape)
     assert(
-      checkNumeric(start, min.len=0, max.len=ncells),
+      checkNumeric(start, min.len=0, max.len=ncells, lower = 1, upper=ncells),
       checkDataTable(start, ncols=5, types=rep("numeric", 5)))
 
     qassert(neighProbs, "n[0,1]")
     assertNumeric(sum(neighProbs), lower = 1, upper = 1)
-    if(!anyNA(neighProbs)) spreadProb <- 1
 
     assert(
       checkNumeric(spreadProb, 0, 1, min.len=1, max.len=ncells),
@@ -319,7 +318,7 @@ setMethod(
     if(!missing(size)) {
       assert(
         checkNumeric(size, min.len = 1, max.len=1),
-        checkNumeric(size, min.len = length(start), max.len=length(start))
+        checkNumeric(size, min.len = NROW(start), max.len=NROW(start))
       )
     } else {
       size <- NA
@@ -331,11 +330,17 @@ setMethod(
 
 
     if(!is.data.table(start)) {
-      dtInitial <- data.table(initialPixels=start, size = size, key = "initialPixels")
-      ids <- data.table(id=seq_along(start), initialPixels=start, numRetries=0, key="initialPixels")
+      start <- as.integer(start)
+      dtInitial <- data.table(initialPixels=start, size = size)
+      #if(!anyNA(neighProbs)) set(dtInitial, , "neighProbs", neighProbs)
+      setkey(dtInitial, "initialPixels")
+      ids <- data.table(id=1:NROW(start), initialPixels=start, numRetries=0, key="initialPixels")
       dt <- data.table(initialPixels=start, pixels=start,
-                       potentialPixels=as.integer(start), state="activeSource")#, distance=NA_real_)
+                       potentialPixels=start, state="activeSource")#, distance=NA_real_)
     } else {
+      dtInitial <- data.table(initialPixels=unique(start$initialPixels), size = size)
+      #if(!anyNA(neighProbs)) set(dtInitial, , "neighProbs", neighProbs)
+      setkey(dtInitial, "initialPixels")
       ids <- start[,list(id, initialPixels)]
       dt <- start
       set(dt, , "id", NULL)
@@ -350,12 +355,9 @@ setMethod(
     needRetryID <- numeric()
     whSucc <- which(dt$state=="activeSource")
 
-    while((length(needRetryID) | length(whSucc)) &  its <= iterations) {
+    while((length(needRetryID) | length(whSucc)) &  its < iterations) {
 
-      # Get neighbours, either via adj (default), cir (jumping if stuck), or numNeighs
-      if(!anyNA(neighProbs))
-        numNeighs <- sample.int(length(neighProbs), size = length(start), replace = TRUE,
-                   prob = neighProbs)
+      #print(dtInitial)
 
       if(length(needRetryID)>0){
         dtState <- dt$state=="needRetry"
@@ -364,10 +366,10 @@ setMethod(
           resCur <- res(landscape)[1]
           fromPixels <- dt[dtState]$pixels
           potentialPixels <- cir(landscape, loci = fromPixels, includeBehavior = "excludePixels",
-                                minRadius = resCur, maxRadius=4*resCur, allowOverlap = TRUE)
-          potentialPixels <- data.table(potentialPixels)[
-            ,`:=`(from=as.integer(fromPixels[id]), id=as.integer(dtRetry$initialPixels[id]))]
-          set(potentialPixels, , "x", NULL);set(potentialPixels, , "y", NULL)
+                                 minRadius = resCur, maxRadius=4*resCur, allowOverlap = TRUE)
+          potentialPixels <- data.table(id=as.integer(potentialPixels[,"id"]),
+                                        indices = as.integer(potentialPixels[,"indices"]))[
+                                          ,`:=`(from=as.integer(fromPixels[id]), id=as.integer(dtRetry$initialPixels[id]))]
 
           dtPotential <- potentialPixels[,list(to=resample(indices, 2)),by=c("id","from")]
 
@@ -420,30 +422,59 @@ setMethod(
         }
       }
 
+      if(!anyNA(neighProbs)) {
 
-      # Evaluate against spreadProb --> convert "potential" to "successful"
-      actualSpreadProb <- if(length(spreadProb)==1) {
-        spreadProb
+        # Get neighbours, either via adj (default), cir (jumping if stuck), or numNeighs
+        numNeighsByPixel <- unique(dtPotential, by = c("initialPixels", "pixels"))
+        set(numNeighsByPixel, , "numNeighs",
+            sample.int(size = NROW(numNeighsByPixel), n = length(neighProbs),
+                       replace = TRUE, prob = neighProbs))
+        setkeyv(numNeighsByPixel, c("initialPixels", "pixels"))
+
+        # remove duplicates from the already selected "pixels" and new "potentialPixels", since it must select exactly numNeighs
+        dups <- duplicated(c(dt$pixels, dtPotential$potentialPixels))
+        dups <- dups[-seq_along(dt$pixels)]
+        dtPotential <- dtPotential[!dups]
+        setkeyv(dtPotential, c("initialPixels", "pixels")) # sort so it is the same as numNeighsByPixel
+        set(dtPotential, , "spreadProb", spreadProb[dtPotential$potentialPixels])
+        # If it is a corner or has had pixels removed bc of duplicates, it may not have enough neighbours
+        numNeighsByPixel <- numNeighsByPixel[dtPotential[,.N,by=c("initialPixels", "pixels")]]
+        set(numNeighsByPixel, , "numNeighs", pmin(numNeighsByPixel$N, numNeighsByPixel$numNeighs, na.rm=TRUE))
+
+        dtPotential <- dtPotential[dtPotential[,list(keepIndex=
+                                                       resample(.I, numNeighsByPixel$numNeighs[.GRP],
+                                                                prob=spreadProb/sum(spreadProb,na.rm=TRUE))),
+                                               by="pixels"]$keepIndex]
+        set(dtPotential, , "spreadProb", NULL)
       } else {
-        spreadProb[dtPotential$potentialPixels]
-      }
 
-      dtPotential <- dtPotential[runif(NROW(dtPotential))<actualSpreadProb]
+        # Extract spreadProb for the current set of potentials
+        actualSpreadProb <- if(length(spreadProb)==1) {
+          spreadProb
+        } else {
+          spreadProb[dtPotential$potentialPixels]
+        }
+
+        # Evaluate against spreadProb --> convert "potential" to "successful"
+        dtPotential <- dtPotential[runif(NROW(dtPotential))<actualSpreadProb]
+      }
       set(dtPotential, , "state", "successful")
 
       dt <- rbindlist(list(dt, dtPotential))
 
       # Remove duplicates
-      if(allowOverlap) {
-        dt[,`:=`(dups=duplicated(potentialPixels)),by=initialPixels]
-        dupes <- dt$dups
-        set(dt, , "dups", NULL)
-      } else {
-        dupes <- duplicated(dt$potentialPixels)
+      if(anyNA(neighProbs)) {
+          if(allowOverlap) {
+          dt[,`:=`(dups=duplicated(potentialPixels)),by=initialPixels]
+          dupes <- dt$dups
+          set(dt, , "dups", NULL)
+        } else {
+          dupes <- duplicated(dt$potentialPixels)
+        }
+        # remove any duplicates
+        dt <- dt[!dupes]
       }
 
-      # remove any duplicates
-      dt <- dt[!dupes]
 
       if(!anyNA(size)) {
         setkeyv(dt,"initialPixels") # must sort because size is sorted
@@ -494,7 +525,6 @@ setMethod(
       set(dt, whSucc, "state", "activeSource")# return holding cells to successful
       set(dt, whSucc, "pixels", dt$potentialPixels[whSucc])# return holding cells to successful
 
-
       if(plot.it) {
         newPlot <- FALSE
         if(!exists("ras", inherits = FALSE)) {
@@ -524,7 +554,8 @@ setMethod(
 
     if(asRaster) {
       ras <- raster(landscape)
-      ras[dt$pixels] <- dt$id
+      # inside unit tests, this raster gives warnings if it is only NAs
+      suppressWarnings(ras[dt$pixels] <- dt$id)
       return(ras)
     }
     return(dt)
