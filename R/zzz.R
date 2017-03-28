@@ -62,12 +62,15 @@ NULL
 }
 
 .onAttach <- function(libname, pkgname) {
-  packageStartupMessage("Default paths for SpaDES directories set to:\n",
-                        "  cachePath:  ", getOption("spades.cachePath"), "\n",
-                        "  inputPath:  ", getOption("spades.inputPath"), "\n",
-                        "  modulePath: ", getOption("spades.modulePath"), "\n",
-                        "  outputPath: ", getOption("spades.outputPath"), "\n",
-                        "These can be changed using 'setPaths()'. See '?setPaths'.")
+  if (interactive()) {
+    packageStartupMessage("Using SpaDES version ", packageVersion("SpaDES"), ".")
+    packageStartupMessage("Default paths for SpaDES directories set to:\n",
+                          "  cachePath:  ", getOption("spades.cachePath"), "\n",
+                          "  inputPath:  ", getOption("spades.inputPath"), "\n",
+                          "  modulePath: ", getOption("spades.modulePath"), "\n",
+                          "  outputPath: ", getOption("spades.outputPath"), "\n",
+                          "These can be changed using 'setPaths()'. See '?setPaths'.")
+  }
 }
 
 .onUnload <- function(libpath) {

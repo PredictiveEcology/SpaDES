@@ -193,7 +193,7 @@ if (getRversion() >= "3.1.0") {
 #'
 #'    # Note - one can access cached items manually (rather than simply
 #'    #    rerunning the same Cache function again)
-#'    if(requireNamespace("archivist")) {
+#'    if (requireNamespace("archivist")) {
 #'      # examine the cache
 #'      showCache(mySim)
 #'      # get the RasterLayer that was produced with the gaussMap function:
@@ -239,13 +239,13 @@ setMethod(
       archivist::createLocalRepo(cacheRepo)
     }
 
-    whRasOrSpatial <- which(sapply(tmpl, function(x) {is(x, "Raster")| is(x, "Spatial")}))
+    whRasOrSpatial <- which(sapply(tmpl, function(x) is(x, "Raster")| is(x, "Spatial")))
     whSpatial <- which(sapply(tmpl, function(x) is(x, "Spatial")))
     whFun <- which(sapply(tmpl, function(x) is.function(x) | is(x, "expression")))
     whFilename <- which(sapply(tmpl, function(x) is.character(x)))
-    if(length(whFilename)>0) {
+    if (length(whFilename) > 0) {
       tmpl[whFilename] <- lapply(whFilename, function(xx) {
-        if(any(unlist(lapply(tmpl[[xx]], file.exists))))
+        if (any(unlist(lapply(tmpl[[xx]], file.exists))))
           basename(tmpl[[xx]])
         else
           tmpl[[xx]]
@@ -259,11 +259,12 @@ setMethod(
       } else {
         cur <- current(sim)
       }
-      if(NROW(cur))
+      if (NROW(cur)) {
         userTags <- c(userTags,
-                    paste0("module:",cur$moduleName),
-                    paste0("eventType:",cur$eventType),
-                    paste0("eventTime:",cur$eventTime))
+                      paste0("module:",cur$moduleName),
+                      paste0("eventType:",cur$eventType),
+                      paste0("eventTime:",cur$eventTime))
+      }
     }
 
     if (is.null(objects)) {
@@ -399,7 +400,7 @@ setMethod(
     }
     while (!written) {
       objSize <- object.size(outputToSave)
-      if(length(whSimList) > 0){
+      if (length(whSimList) > 0) {
         objSize <- lapply(output@.envir, object.size) %>%
           unlist() %>%
           sum() %>%
@@ -512,9 +513,9 @@ setMethod(
 
     objsDT <- do.call(showCache, args = args)
 
-    if(NROW(objsDT)) {
-      rastersInRepo <- objsDT[grep(tagValue, pattern="Raster")]
-      if(all(!is.na(rastersInRepo$artifact))) {
+    if (NROW(objsDT)) {
+      rastersInRepo <- objsDT[grep(tagValue, pattern = "Raster")]
+      if (all(!is.na(rastersInRepo$artifact))) {
         rasters <- lapply(rastersInRepo$artifact, function(ras) {
           loadFromLocalRepo(ras, repoDir = x, value = TRUE)
         })
@@ -561,23 +562,22 @@ setMethod(
 
     objsDT <- showLocalRepo(x) %>% data.table()
     objsDT <- objsDT[createdDate <= before & createdDate >= after]
-    if(NROW(objsDT)>0) {
-      objsDT <- data.table(splitTagsLocal(x), key="artifact")
-      if(length(userTags)>0) {
-        objsDT <- data.table(splitTagsLocal(x), key="artifact")
-        for(ut in userTags) {
+    if (NROW(objsDT) > 0) {
+      objsDT <- data.table(splitTagsLocal(x), key = "artifact")
+      if (length(userTags) > 0) {
+        objsDT <- data.table(splitTagsLocal(x), key = "artifact")
+        for (ut in userTags) {
           objsDT2 <- objsDT[
             grepl(tagValue, pattern = ut)   |
             grepl(tagKey, pattern = ut) |
             grepl(artifact, pattern = ut)]
           setkey(objsDT2, "artifact")
-          objsDT <- objsDT[objsDT2[,artifact]]
+          objsDT <- objsDT[objsDT2[, artifact]]
         }
       }
 
     }
     objsDT
-
 })
 
 ################################################################################
@@ -689,7 +689,7 @@ setMethod(
       object@inputs$file <- basename(object@inputs$file)
       deps <- object@depends@dependencies
       for (i in seq_along(deps)) {
-        if(!is.null(deps[[i]])) {
+        if (!is.null(deps[[i]])) {
           object@depends@dependencies[[i]] <- lapply(slotNames(object@depends@dependencies[[i]]), function(x) slot(object@depends@dependencies[[i]],x))
           names(object@depends@dependencies[[i]]) <- slotNames(deps[[i]])
           object@depends@dependencies[[i]][["timeframe"]] <- as.Date(deps[[i]]@timeframe)
@@ -740,7 +740,7 @@ setMethod(
     aaa <- suppressMessages(broom::tidy(object))
 
     # The following Rounding is necessary to make digest equal on linux and windows
-    bbb <- as.data.frame(lapply(aaa, function(x) if(is(x,"numeric")) round(x, 4) else x))
+    bbb <- as.data.frame(lapply(aaa, function(x) if (is(x,"numeric")) round(x, 4) else x))
     dig <- digest::digest(bbb, algo = algo)
     return(dig)
 })
@@ -829,19 +829,19 @@ prepareFileBackedRaster <- function(obj, repoDir = NULL, compareRasterFileLength
     curFilename <- normalizePath(filename(obj), winslash = "/")
   } else {
     isFilebacked <- FALSE
-    if(is.factor(obj)) {
+    if (is.factor(obj)) {
       fileExt <- ".grd"
     } else {
       fileExt <- ".tif"
     }
-    curFilename <- basename(tempfile(pattern = "raster",fileext = fileExt, tmpdir = ""))
+    curFilename <- basename(tempfile(pattern = "raster", fileext = fileExt, tmpdir = ""))
   }
 
   saveFilename <- file.path(repoDir, "rasters", basename(curFilename)) %>%
     normalizePath(., winslash = "/", mustWork = FALSE)
 
   if (saveFilename != curFilename) {
-    if(isFilebacked) {
+    if (isFilebacked) {
         shouldCopy <- TRUE
       if (file.exists(saveFilename)) {
         if (!(compareRasterFileLength == Inf)) {
