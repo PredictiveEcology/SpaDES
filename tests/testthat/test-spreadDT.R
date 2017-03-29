@@ -20,9 +20,7 @@ test_that("spreadDT tests", {
     )
   innerCells <- Which(bb %==% 1, cells = TRUE)
 
-  # check it makes a RasterLayer
   set.seed(123)
-
   for (i in 1:20) {
     sams <- sample(innerCells, 2)
     out <- spreadDT(a, start = sams, 0.225, asRaster = FALSE)
@@ -279,11 +277,16 @@ test_that("spreadDT tests", {
 
   #
   if (interactive())
-    print("check wide range of spreadProbs")
+    print("check wide range of spreadProbs and that it makes a RasterLayer")
   set.seed(654)
+  rasts <- list()
   for (i in 1:20) {
-    ras1 <- spreadDT(a, spreadProb = stats::runif(1, 0, 1))
+    rasts[[i]] <- spreadDT(a, spreadProb = stats::runif(1, 0, 1))
     expect_that(ras1, is_a("RasterLayer"))
+  }
+  if(interactive()) {
+    names(rasts) <- paste0("ras", 1:20)
+    clearPlot();Plot(rasts)
   }
 
 
@@ -357,7 +360,7 @@ test_that("spreadDT tests", {
   })
 
 
-######## Benchmarking ##########
+  ######## Benchmarking ##########
   iterativeFun <- function(a, quick, N, sp) {
     sams <- sample(innerCells, N)
     out <-
@@ -422,35 +425,43 @@ test_that("spreadDT tests", {
     out
   }
 
-  N <- 5
+  N <- 2
   ras <- raster(extent(0,1000, 0, 1000), res=1)
   sp <- 0.225
   microbenchmark(
-    times = 100,
+    times = 300,
     iterativeFun(ras, TRUE, N, sp),
-    iterativeFun(ras, FALSE, N, sp),
     nonIterativeFun(ras, TRUE, N, sp),
-    nonIterativeFun(ras, FALSE, N, sp),
     origSpread(ras, TRUE, N, sp),
+    origSpreadIterations(ras, TRUE, N, sp)
+  )
+  # Unit: milliseconds
+  #                                   expr      min        lq       mean    median        uq       max neval
+  #         iterativeFun(ras, TRUE, N, sp) 2.594306  8.924342  41.634193 20.399147  50.94852  469.5847   300
+  #      nonIterativeFun(ras, TRUE, N, sp) 2.215102  7.911519  35.220934 20.601506  41.92183  343.9790   300
+  #           origSpread(ras, TRUE, N, sp) 3.798198  5.339209   9.098732  6.939754  11.41923   37.1523   300
+  # origSpreadIterations(ras, TRUE, N, sp) 8.197316 37.070922 117.296638 77.938427 152.23013 1787.4115   300
+
+  # without "quick"
+  microbenchmark(
+    times = 300,
+    iterativeFun(ras, FALSE, N, sp),
+    nonIterativeFun(ras, FALSE, N, sp),
     origSpread(ras, FALSE, N, sp),
-    origSpreadIterations(ras, TRUE, N, sp),
     origSpreadIterations(ras, FALSE, N, sp)
   )
   # Unit: milliseconds
-  #                                    expr       min         lq      mean    median        uq       max neval
-  #          iterativeFun(ras, TRUE, N, sp)  8.876843  41.029004 103.50997  75.31951 118.68743 900.12923   100
-  #         iterativeFun(ras, FALSE, N, sp)  9.730140  57.309110 150.28499  99.53419 189.85423 869.00395   100
-  #       nonIterativeFun(ras, TRUE, N, sp)  7.754794  34.905868  85.45669  64.72970 119.48657 335.12623   100
-  #      nonIterativeFun(ras, FALSE, N, sp)  4.388647  32.660129  89.49787  71.30537 122.81880 399.37439   100
-  #            origSpread(ras, TRUE, N, sp)  5.456727   8.437067  14.07297  11.25568  16.88489 100.00861   100
-  #           origSpread(ras, FALSE, N, sp)  5.272939   8.724234  14.61261  12.45030  18.65129  74.00638   100
-  #  origSpreadIterations(ras, TRUE, N, sp) 23.940454 120.204763 224.28606 179.72315 276.46078 914.72025   100
-  # origSpreadIterations(ras, FALSE, N, sp) 30.864194 109.792897 223.27747 175.67290 291.72513 856.51481   100
+  #                                    expr      min        lq       mean   median        uq       max neval
+  #         iterativeFun(ras, FALSE, N, sp) 3.783828 17.689877  79.880324 43.19992 111.36893 533.12433   300
+  #      nonIterativeFun(ras, FALSE, N, sp) 2.482569  9.439626  36.757586 24.27037  49.69580 457.16594   300
+  #           origSpread(ras, FALSE, N, sp) 4.306443  5.808448   9.735225  7.87794  11.27186  57.12811   300
+  # origSpreadIterations(ras, FALSE, N, sp) 8.469181 43.587773 128.641724 87.59830 170.37884 848.58913   300
   #
+
   profvis::profvis({
     set.seed(345)
-    for(i in 1:30)
-    iterativeFun(ras, TRUE, N, sp=0.235)
+    for(i in 1:50)
+      iterativeFun(ras, TRUE, N, sp=0.235)
   })
   profvis::profvis({
     nonIterativeFun()

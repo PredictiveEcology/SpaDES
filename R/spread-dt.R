@@ -386,7 +386,7 @@ setMethod(
 
       # Remove duplicates, which was already done for neighProbs situation
       if(anyNA(neighProbs)) {
-          if(allowOverlap) {
+        if(allowOverlap) {
           dt[,`:=`(dups=duplicatedInt(pixels)),by=initialPixels]
           dupes <- dt$dups
           set(dt, , "dups", NULL)
