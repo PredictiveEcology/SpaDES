@@ -20,7 +20,7 @@ using namespace Rcpp;
 //' @rdname distances
 // [[Rcpp::export]]
 NumericMatrix pointDistance2(NumericMatrix to, NumericMatrix from) { // from = x1 and y1; to = x0 and y0
-// NumericVector pointDistance2(NumericMatrix to, NumericMatrix from) { // from = x1 and y1; to = x0 and y0
+  // NumericVector pointDistance2(NumericMatrix to, NumericMatrix from) { // from = x1 and y1; to = x0 and y0
 
   int nr = to.nrow();
   int nc = to.ncol();
