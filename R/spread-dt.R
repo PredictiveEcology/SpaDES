@@ -223,6 +223,7 @@ setMethod(
     }
     ##### End assertions
 
+    ##### Set up dt and clusterDT objects
     if(missing(size)) {
       size <- NA
     }
@@ -231,26 +232,23 @@ setMethod(
 
     if(!is.data.table(start)) {
       start <- as.integer(start)
-      #dtInitial <- data.table(initialPixels=start, size = size)
-      #setkey(dtInitial, "initialPixels")
-      clusterDT <- data.table(id=1:NROW(start), initialPixels=start, numRetries=0, key="initialPixels")
-      dt <- data.table(initialPixels=start, pixels=start,
-                       state="activeSource")#, distance=NA_real_)
+
+      clusterDT=as.data.table(cbind(id=seq_along(start), initialPixels=start, numRetries=0L));
+        setkey(clusterDT, "initialPixels")
+
+      dt <- as.data.table(cbind(initialPixels=start, pixels=start))
+        set(dt, , "state", "activeSource")
+
       if(!anyNA(size)) {
         if(length(size) > 1)
           size <- size[order(start)] # reorder to matches increasing order of start
       }
     } else {
-      #dtInitial <- data.table(initialPixels=unique(start$initialPixels), size = size)
-      #clusterDT <- data.table(id=start$id, initialPixels=start$initialPixels, key = "initialPixels")
-      #microbenchmark(a={unique(start$id); unique(start$initialPixels)},b=unique(clusterDT))
       clusterDT <- attr(start, "cluster")#data.table(id=unique(start$id), initialPixels=unique(start$initialPixels), key = "initialPixels")
       setkey(clusterDT, "initialPixels")
       if(!anyNA(size)) {
         size <- size[order(clusterDT$id)] # reorder to matches increasing order of start
       }
-      #setkey(dtInitial, "initialPixels")
-      #clusterDT <- unique(clusterDT)
       set(clusterDT, ,"numRetries", 0)
       dt <- start
     }
@@ -258,8 +256,6 @@ setMethod(
       set(dt, , "distance", 0) # it is zero distance to self
 
     its <- 0
-
-    #setkeyv(dt, "state")
 
     needRetryID <- numeric()
     whSucc <- which(dt$state=="activeSource")
@@ -282,20 +278,12 @@ setMethod(
           set(potentialPixels, , "from", fromPixels[potentialPixels$id])
           set(potentialPixels, , "id", dtRetry$initialPixels[potentialPixels$id])
 
-          # potentialPixels <- data.table(id=as.integer(potentialPixels[,"id"]),
-          #                               indices = as.integer(potentialPixels[,"indices"]))[
-          #                                 ,`:=`(from=fromPixels[id],
-          #                                       id=dtRetry$initialPixels[id])]
-
           dtPotential <- potentialPixels[,list(to=resample(indices, 2)),by=c("id","from")]
 
         } else { # get adjacent neighbours
           adjMat <- adj(landscape, directions=directions, id=dtRetry$initialPixels,
                         cells = dtRetry$pixels)
           dtPotential <- as.data.table(adjMat)
-          # dtPotential <- data.table(from=as.integer(adjMat[,"from"]),
-          #                           to=as.integer(adjMat[,"to"]),
-          #                           id=as.integer(adjMat[,"id"]))
         }
 
         whActiveSrc <- which(dt$state == "activeSource")
@@ -309,12 +297,8 @@ setMethod(
         adjMat <- adj(landscape, directions=directions, id=dt$initialPixels[dtActiveSrc],
                       cells = dt$pixels[dtActiveSrc])
         dtPotential <- as.data.table(adjMat)
-        # dtPotential <- data.table(from=adjMat[,"from"],
-        #                           to=adjMat[,"to"],
-        #                           id=adjMat[,"id"],
-        #                           state="potential")#, distance=NA_real_)
 
-        # Only increment iteration if it is NOT a retry situation
+        # only iterate if it is not a Retry situation
         its <- its + 1
       }
       set(dtPotential, , "state", "potential")
@@ -365,7 +349,7 @@ setMethod(
                                                  by="pixels"]$keepIndex]
           set(dtPotential, , "spreadProb", NULL)
         }
-      } else {
+      } else { # standard algorithm ... runif against spreadProb
 
         # Extract spreadProb for the current set of potentials
         actualSpreadProb <- if(length(spreadProb)==1) {
@@ -377,6 +361,8 @@ setMethod(
         # Evaluate against spreadProb --> convert "potential" to "successful"
         dtPotential <- dtPotential[runif(NROW(dtPotential))<actualSpreadProb]
       }
+
+      # convert state of all those still left, move potentialPixels into pixels column
       set(dtPotential, , "state", "successful")
       set(dtPotential, , "pixels", dtPotential$potentialPixels)
       set(dtPotential, , "potentialPixels", NULL)
@@ -438,7 +424,7 @@ setMethod(
             set(clusterDT,needRetryID,"numRetries",clusterDT$numRetries[needRetryID]+1)
           }
         }
-      }
+      } # end size based removals
 
       # Change states of cells
       set(dt, which(dt$state=="activeSource"), "state", "inactive")
@@ -463,7 +449,6 @@ setMethod(
         }
         Plot(ras, new=newPlot)
       }
-
     } # end of main loop
 
     ## clean up ##
