@@ -282,7 +282,7 @@ test_that("spreadDT tests", {
   rasts <- list()
   for (i in 1:20) {
     rasts[[i]] <- spreadDT(a, spreadProb = stats::runif(1, 0, 1))
-    expect_that(ras1, is_a("RasterLayer"))
+    expect_that(rasts[[i]], is_a("RasterLayer"))
   }
   if(interactive()) {
     names(rasts) <- paste0("ras", 1:20)
