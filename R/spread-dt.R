@@ -275,12 +275,14 @@ setMethod(
           potentialPixels <- cir(landscape, loci = fromPixels, includeBehavior = "excludePixels",
                                  minRadius = resCur, maxRadius=4*resCur, allowOverlap = TRUE)[,c("id","indices")]
           potentialPixels <- matrix(as.integer(potentialPixels), ncol=2)
-          colnames(potentialPixels) <- c("id", "indices")
-          potentialPixels <- as.data.table(potentialPixels)
-          set(potentialPixels, , "from", fromPixels[potentialPixels$id])
-          set(potentialPixels, , "id", dtRetry$initialPixels[potentialPixels$id])
-
-          dtPotential <- potentialPixels[,list(to=resample(indices, 2)),by=c("id","from")]
+          colnames(potentialPixels) <- c("id", "to")
+          potentialPixels <- cbind(id=dtRetry$initialPixels[potentialPixels[,"id"]],
+                                   from=fromPixels[potentialPixels[,"id"]],
+                                   to=potentialPixels[, "to"])
+          dtPotential <- as.data.table(potentialPixels)[,list(to=resample(to, 2)),by=c("id","from")]
+          #set(potentialPixels, , "from", fromPixels[potentialPixels$id])
+          #set(potentialPixels, , "id", dtRetry$initialPixels[potentialPixels$id])
+          #dtPotential <- potentialPixels[,list(to=resample(indices, 2)),by=c("id","from")]
 
         } else { # get adjacent neighbours
           adjMat <- adj(landscape, directions=directions, id=dtRetry$initialPixels,
@@ -308,8 +310,8 @@ setMethod(
       if(needDistance)
         set(dtPotential, , "distance", NA_real_)
 
-      setnames(dtPotential, c("from", "to", "id"), c("pixels", "potentialPixels", "initialPixels"))
-      setcolorder(dtPotential, c(names(dt), "potentialPixels"))
+      #setnames(dtPotential, c("from", "to", "id"), c("pixels", "potentialPixels", "initialPixels"))
+      #setcolorder(dtPotential, c(dtColNames, "potentialPixels"))
 
       # randomize row order so duplicates are not always in same place
       i <- sample.int(NROW(dtPotential))
@@ -317,8 +319,8 @@ setMethod(
 
       # calculate distances, if required ... attach to dt
       if(needDistance) {
-        fromPts <- xyFromCell(landscape,dtPotential$initialPixels)
-        toPts <- xyFromCell(landscape,dtPotential$potentialPixels)
+        fromPts <- xyFromCell(landscape,dtPotential$id)
+        toPts <- xyFromCell(landscape,dtPotential$to)
         set(dtPotential, , "distance", pointDistance(p1 = fromPts, p2 = toPts, lonlat=FALSE))
         if(circle) {
           dtPotential <- dtPotential[(distance %<=% its & distance %>>% (its-1))]
@@ -335,12 +337,12 @@ setMethod(
         setkeyv(numNeighsByPixel, c("initialPixels", "pixels"))
 
         # remove duplicates from the already selected "pixels" and new "potentialPixels", since it must select exactly numNeighs
-        dups <- duplicatedInt(c(dt$pixels, dtPotential$potentialPixels))
+        dups <- duplicatedInt(c(dt$pixels, dtPotential$to))
         dups <- dups[-seq_along(dt$pixels)]
         dtPotential <- dtPotential[!dups]
         setkeyv(dtPotential, c("initialPixels", "pixels")) # sort so it is the same as numNeighsByPixel
         if(NROW(dtPotential)) {
-          set(dtPotential, , "spreadProb", spreadProb[dtPotential$potentialPixels])
+          set(dtPotential, , "spreadProb", spreadProb[dtPotential$to])
           # If it is a corner or has had pixels removed bc of duplicates, it may not have enough neighbours
           numNeighsByPixel <- numNeighsByPixel[dtPotential[,.N,by=c("initialPixels", "pixels")]]
           set(numNeighsByPixel, , "numNeighs", pmin(numNeighsByPixel$N, numNeighsByPixel$numNeighs, na.rm=TRUE))
@@ -357,22 +359,26 @@ setMethod(
         actualSpreadProb <- if(length(spreadProb)==1) {
           spreadProb
         } else {
-          spreadProb[dtPotential$potentialPixels]
+          spreadProb[dtPotential$to]
         }
 
         # Evaluate against spreadProb --> convert "potential" to "successful"
         keepers <- runif(NROW(dtPotential))<actualSpreadProb
         dtPotential <-
-          as.data.table(cbind(initialPixels=dtPotential$initialPixels[keepers],
-                              pixels=dtPotential$pixels[keepers],
-                              potentialPixels=dtPotential$potentialPixels[keepers]))
+          as.data.table(cbind(id=dtPotential$id[keepers],
+                              from=dtPotential$from[keepers],
+                              to=dtPotential$to[keepers]))
         #dtPotential <- dtPotential[keepers]
       }
 
       # convert state of all those still left, move potentialPixels into pixels column
       set(dtPotential, , "state", "successful")
-      set(dtPotential, , "pixels", dtPotential$potentialPixels)
-      set(dtPotential, , "potentialPixels", NULL)
+      #set(dtPotential, , "pixels", dtPotential$to)
+      #set(dtPotential, , "potentialPixels", NULL)
+
+      set(dtPotential, , "from", dtPotential$to)
+      set(dtPotential, , "to", NULL)
+      #setcolorder(dtPotential, c("id", "from", "state"))
 
       # combine potentials to previous
       dt <- rbindlist(list(dt, dtPotential))
