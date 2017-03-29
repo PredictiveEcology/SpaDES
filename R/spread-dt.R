@@ -235,7 +235,7 @@ setMethod(
       #setkey(dtInitial, "initialPixels")
       clusterDT <- data.table(id=1:NROW(start), initialPixels=start, numRetries=0, key="initialPixels")
       dt <- data.table(initialPixels=start, pixels=start,
-                       potentialPixels=start, state="activeSource")#, distance=NA_real_)
+                       state="activeSource")#, distance=NA_real_)
       if(!anyNA(size)) {
         if(length(size) > 1)
           size <- size[order(start)] # reorder to matches increasing order of start
@@ -253,7 +253,6 @@ setMethod(
       #clusterDT <- unique(clusterDT)
       set(clusterDT, ,"numRetries", 0)
       dt <- start
-      set(dt, , "potentialPixels", dt$pixels)
     }
     if(needDistance)
       set(dt, , "distance", 0) # it is zero distance to self
@@ -315,7 +314,7 @@ setMethod(
         set(dtPotential, , "distance", NA_real_)
 
       setnames(dtPotential, c("from", "to", "id"), c("pixels", "potentialPixels", "initialPixels"))
-      setcolorder(dtPotential, names(dt))
+      setcolorder(dtPotential, c(names(dt), "potentialPixels"))
 
       # randomize row order so duplicates are not always in same place
       i <- sample.int(NROW(dtPotential))
@@ -370,6 +369,8 @@ setMethod(
         dtPotential <- dtPotential[runif(NROW(dtPotential))<actualSpreadProb]
       }
       set(dtPotential, , "state", "successful")
+      set(dtPotential, , "pixels", dtPotential$potentialPixels)
+      set(dtPotential, , "potentialPixels", NULL)
 
       # combine potentials to previous
       dt <- rbindlist(list(dt, dtPotential))
@@ -377,11 +378,11 @@ setMethod(
       # Remove duplicates, which was already done for neighProbs situation
       if(anyNA(neighProbs)) {
           if(allowOverlap) {
-          dt[,`:=`(dups=duplicatedInt(potentialPixels)),by=initialPixels]
+          dt[,`:=`(dups=duplicatedInt(pixels)),by=initialPixels]
           dupes <- dt$dups
           set(dt, , "dups", NULL)
         } else {
-          dupes <- duplicatedInt(dt$potentialPixels)
+          dupes <- duplicatedInt(dt$pixels)
         }
         # remove any duplicates
         dt <- dt[!dupes]
@@ -435,7 +436,7 @@ setMethod(
       set(dt, which(dt$state=="holding"), "state", "successful")# return holding cells to successful
       whSucc <- which(dt$state=="successful")
       set(dt, whSucc, "state", "activeSource")# return holding cells to successful
-      set(dt, whSucc, "pixels", dt$potentialPixels[whSucc])# return holding cells to successful
+      set(dt, whSucc, "pixels", dt$pixels[whSucc])# return holding cells to successful
 
       if(plot.it) {
         newPlot <- FALSE
