@@ -103,7 +103,8 @@ if (getRversion() >= "3.1.0") {
 #' @param neighProbs An optional numeric vector, whose sum is 1. It indicates the
 #'                   probabilities that an individual
 #'                   spread iteration will spread to \code{1, 2, ..., length(neighProbs)}
-#'                   neighbours, respectively.
+#'                   neighbours, respectively. If this is used (i.e., something other than
+#'                   NA), \code{circle} and \code{returnDistances} will not work currently.
 #'
 #' @param exactSize Logical. If TRUE, then the \code{size} will be treated as exact sizes,
 #'                   i.e., the spreadDT events will continue until they are
@@ -255,6 +256,7 @@ setMethod(
       dt <- start
     }
     dtColNames <- colnames(dt)[!colnames(dt)=="state"]
+    dtPotentialColNames <- c("id", "from", "to", "state", "distance"[needDistance])
 
     if(needDistance)
       set(dt, , "distance", 0) # it is zero distance to self
@@ -333,6 +335,8 @@ setMethod(
         }
       }
 
+      set(dtPotential, , "state", "successful")
+
       # Alternative algorithm for finding potential neighbours -- uses a specific number of neighbours
       if(!anyNA(neighProbs)) {
 
@@ -359,7 +363,7 @@ setMethod(
                                                  by="from"]$keepIndex]
           set(dtPotential, , "spreadProb", NULL)
         }
-        setcolorder(dtPotential, c("id", "from", "to"))
+        setcolorder(dtPotential, dtPotentialColNames)
       } else { # standard algorithm ... runif against spreadProb
 
         # Extract spreadProb for the current set of potentials
@@ -371,23 +375,14 @@ setMethod(
 
         # Evaluate against spreadProb -- next lines are faster than: dtPotential <- dtPotential[keepers]
         keepers <- runif(NROW(dtPotential))<actualSpreadProb
-        if(needDistance) { # This needs to be in a different order ... keep it aside for now
-          dists <- dtPotential$distance[keepers]
-        }
-        dtPotential <- as.data.table(cbind(id=dtPotential$id[keepers],
-                                           from=dtPotential$from[keepers],
-                                           to=dtPotential$to[keepers]))
-        #dtPotential <- dtPotential[keepers]
+        ll <- lapply(colnames(dtPotential), function(x) dtPotential[[x]][keepers])
+        names(ll) <- colnames(dtPotential)
+        dtPotential <- as.data.table(ll[dtPotentialColNames])
 
       }
 
 
       # convert state of all those still left, move potentialPixels into pixels column
-      set(dtPotential, , "state", "successful")
-      if(needDistance) {
-        set(dtPotential, , "distance", dists)
-      }
-
       set(dtPotential, , "from", dtPotential$to)
       set(dtPotential, , "to", NULL)
 
@@ -407,13 +402,9 @@ setMethod(
         if(any(dupes)) {
           # faster than
           # dt <- dt[!dupes]
-          state <- dt$state[!dupes]
-          dists <- dt$distance[!dupes]
-          dt <- as.data.table(cbind(initialPixels=dt$initialPixels[!dupes],
-                                pixels=dt$pixels[!dupes]))
-          set(dt, , "state", state)
-          if(needDistance)
-            set(dt, , "distance", dists)
+          ll <- lapply(colnames(dt), function(x) dt[[x]][!dupes])
+          names(ll) <- colnames(dt)
+          dt <- as.data.table(ll)
         }
       }
 

@@ -7,16 +7,16 @@
 \title{Simulate a contagious spread process on a landscape, with data.table internals}
 \usage{
 spreadDT(landscape, start = ncell(landscape)/2 - ncol(landscape)/2,
-  spreadProb = 0.23, asRaster = TRUE, size, directions = 8L,
-  iterations = 1000000L, returnDistances = FALSE, plot.it = FALSE,
-  circle = FALSE, allowOverlap = FALSE, quick = FALSE,
-  neighProbs = NA_real_, exactSize = FALSE, ...)
+  spreadProb = 0.23, asRaster = TRUE, size, exactSize = FALSE,
+  directions = 8L, iterations = 1000000L, returnDistances = FALSE,
+  plot.it = FALSE, circle = FALSE, allowOverlap = FALSE,
+  neighProbs = NA_real_, skipChecks = FALSE, ...)
 
 \S4method{spreadDT}{RasterLayer}(landscape, start = ncell(landscape)/2 -
   ncol(landscape)/2, spreadProb = 0.23, asRaster = TRUE, size,
-  directions = 8L, iterations = 1000000L, returnDistances = FALSE,
-  plot.it = FALSE, circle = FALSE, allowOverlap = FALSE, quick = FALSE,
-  neighProbs = NA_real_, exactSize = FALSE, ...)
+  exactSize = FALSE, directions = 8L, iterations = 1000000L,
+  returnDistances = FALSE, plot.it = FALSE, circle = FALSE,
+  allowOverlap = FALSE, neighProbs = NA_real_, skipChecks = FALSE, ...)
 }
 \arguments{
 \item{landscape}{A \code{RasterLayer} object. This defines the possible locations
@@ -43,6 +43,15 @@ all events to be spreadDT. Recycled to match \code{start} length,
 if it is not as long as \code{start}.
 See section on \code{Breaking out of spreadDT events}.}
 
+\item{exactSize}{Logical. If TRUE, then the \code{size} will be treated as exact sizes,
+i.e., the spreadDT events will continue until they are
+\code{floor(size)}. This is overridden by \code{iterations}, but
+if \code{iterations} is run, and individual events haven't reached
+\code{size}, then the returned \code{data.table} will still have
+at least one active cell per event that did not achieve \code{size},
+so that the events can continue if passed into \code{spreadDT} with
+\code{spreadState}.}
+
 \item{directions}{The number adjacent cells in which to look;
 default is 8 (Queen case). Can only be 4 or 8.}
 
@@ -66,32 +75,20 @@ problems. Note, this will likely create unexpected results if \code{spreadProb} 
 another, i.e., they do not interact. Currently, this is slower than
 if \code{allowOverlap} is \code{FALSE}. Default is \code{FALSE}.}
 
-\item{quick}{Logical. If TRUE, then several potentially time consuming checking (such as
-\code{inRange}) will be skipped. This should only be used if there is no
-concern about checking to ensure that inputs are legal.}
-
 \item{neighProbs}{An optional numeric vector, whose sum is 1. It indicates the
 probabilities that an individual
 spread iteration will spread to \code{1, 2, ..., length(neighProbs)}
 neighbours, respectively.}
 
-\item{exactSize}{Logical. If TRUE, then the \code{size} will be treated as exact sizes,
-i.e., the spreadDT events will continue until they are
-\code{floor(size)}. This is overridden by \code{iterations}, but
-if \code{iterations} is run, and individual events haven't reached
-\code{size}, then the returned \code{data.table} will still have
-at least one active cell per event that did not achieve \code{size},
-so that the events can continue if passed into \code{spreadDT} with
-\code{spreadState}.}
+\item{skipChecks}{Logical. If TRUE, then several potentially time consuming checking (such as
+\code{inRange}) will be skipped. This should only be used if there is no
+concern about checking to ensure that inputs are legal, i.e., if this call
+is using the previous output from this same call.}
 
 \item{...}{Additional named vectors or named list of named vectors
 required for \code{stopRule}. These
 vectors should be as long as required e.g., length
 \code{start} if there is one value per event.}
-
-\item{escapeProb}{Numeric or RasterLayer, optional. If provided, then this overrides
-the \code{spreadProb} for the first iteration, the "Escape
-Probability". See section on "Breaking out of spreadDT events".}
 }
 \value{
 Either a \code{RasterLayer} (if \code{asRaster} is \code{TRUE}, the default).
