@@ -1,14 +1,16 @@
 ###############################################################################
-#' Simulate a spread process on a landscape, with data.table internals
+#' Simulate a contagious spread process on a landscape, with data.table internals
 #'
 #' This can be used to simulate fires, seed dispersal, calculation of iterative,
 #' concentric landscape values (symmetric or asymmetric) and many other things.
 #' Essentially, it starts from a collection of cells (\code{start}) and spreads
 #' to neighbours, according to the \code{directions} and \code{spreadProb} arguments.
-#' from every start until all cells in the landscape have been covered.
-#' With \code{id} set to \code{TRUE}, the resulting map will be classified
-#' by the index of the cell where that event propagated from.
-#' This can be used to examine things like fire size distributions.
+#'
+#' There are 2 main underlying algorithms: \code{spreadProb} and \code{neighProb}.
+#' Using \code{spreadProb}, every "active" pixel will assess all
+#' neighbours (either 4 or 8, depending on  \code{directions}), and will "activate"
+#' whichever neighbours successfully pass \code{runif(1,0,1)<spreadProb}. The algorithm
+#' will iterate again and again, each time starting from the newly "activated" cells.
 #'
 #' This function can be interrupted before all active cells are exhausted if
 #' the \code{iterations} value is reached before there are no more active
@@ -21,37 +23,15 @@
 #' for example, a fire is spreading, and a new set of conditions arise due to
 #' a change in weather.
 #'
-#' \code{asymmetry} is currently used to modify the \code{spreadProb} in the following way.
-#' First for each active cell, spreadProb is converted into a length 2 numeric of Low and High
-#' spreadDT probabilities for that
-#' cell: \code{spreadProbsLH <- (spreadProb*2) // (asymmetry+1)*c(1,asymmetry)},
-#' whose ratio is equal to
-#' \code{asymmetry}.
-#' Then, using \code{asymmetryAngle}, the angle between the
-#' initial starting point of the event and all potential
-#' cells is found. These are converted into a proportion of the angle from
-#' \code{-asymmetryAngle}
-#' to
-#' \code{asymmetryAngle}
-#' using:
-#' \code{angleQuality <- (cos(angles - rad(asymmetryAngle))+1)/2}
-#'
-#' These are then converted to multiple spreadProbs by
-#' \code{spreadProbs <- lowSpreadProb+(angleQuality * diff(spreadProbsLH))}
-#' To maintain an expected \code{spreadProb} that is the same as the asymmetric
-#' \code{spreadProbs}, these are then rescaled so that the mean of the
-#' asymmetric spreadProbs is always equal to spreadProb at every iteration:
-#' \code{spreadProbs <- spreadProbs - diff(c(spreadProb,mean(spreadProbs)))}
-#'
 #' @section Breaking out of spreadDT events:
 #'
-#' There are 4 ways for the spreadDT to "stop" spreading. Here, each "event" is defined as
-#' all cells that are spawned from a single starting start. So, one spreadDT call can have
-#' multiple spreading "events". The ways outlines below are all acting at all times,
+#' There are 3 ways for the spreadDT to "stop" spreading. Here, each "event" is defined as
+#' all cells that are spawned from each unique \code{start} location.
+#' So, one spreadDT call can have
+#' multiple spreading "events". The ways outlined below are all acting at all times,
 #' i.e., they are not mutually exclusive. Therefore, it is the user's
 #' responsibility to make sure the different rules are interacting with
-#' each other correctly. Using \code{spreadProb} or \code{size} are computationally
-#' fastest, sometimes dramatically so.
+#' each other correctly.
 #'
 #' \tabular{ll}{
 #'   \code{spreadProb} \tab Probabilistically, if spreadProb is low enough,
@@ -62,66 +42,13 @@
 #'   \code{size} \tab This is the number of cells that are "successfully" turned
 #'                       on during a spreading event. This can be vectorized, one value
 #'                       for each event   \cr
-#'   \code{circleMaxRadius} \tab If \code{circle} is TRUE, then this will be the maximum
-#'                       radius reached, and then the event will stop. This is
-#'                       vectorized, and if length is >1, it will be matched
-#'                       in the order of \code{start}\cr
-#'   \code{stopRule} \tab This is a func
-#'   tion that can use "landscape", "id", "cells", or any
-#'                       named vector passed into \code{spreadDT} in the \code{...}. This
-#'                       can take on relatively complex functions. Passing in, say, a Raster
-#'                       Layer to \code{spreadDT} can access the individual values on that
-#'                       arbitrary Raster Layer using "cells". These will be calculated
-#'                       within all the cells of the individual event (equivalent to a
-#'                       "group_by(event)" in dplyr. So, \code{sum(arbitraryRaster[cells])}
-#'                       would sum up all the raster values on the arbitraryRaster Raster
-#'                       that are overlaid by the individual event. This can then be used in
-#'                       a logical statement.  See examples.
-#'                       To confirm the cause of stopping, the user can assess the values
-#'                       after the function has finished.\cr
+#'   \code{iterations} \tab This is a hard cap on the number of internal iterations to
+#'                          complete before returning the current state of the system
+#'                          as a data.table \cr
 #' }
-#'
-#' The spreadDT function does not return the result of this stopRule. If,
-#' say, an event has both \code{circleMaxRadius} and \code{stopRule},
-#' and it is
-#' the \code{circleMaxRadius} that caused the event spreading to stop,
-#' there will be no indicator returned from this function that indicates
-#' which rule caused the stop.
-#'
-#' \code{stopRule} has many use cases. One common use case is evaluating
-#' a neighbourhood around a focal set of points. This provides,
-#' therefore, an alternative to the \code{\link[raster]{buffer}} function or
-#' \code{\link[raster]{focal}} function.
-#' In both of those cases, the window/buffer size must be an input to the function. Here,
-#' the resulting size can be emergent based on the incremental growing and calculating
-#' of the \code{landscape} values underlying the spreading event.
-#'
-#' @section \code{stopRuleBehavior}:
-#' This determines how the \code{stopRule} should be implemented. Because
-#' spreading occurs outwards in concentric circles or shapes, one cell width at a time, there
-#' are 4 possible ways to interpret the logical inequality defined in \code{stopRule}.
-#' In order of number of cells included in resulting events, from most cells to fewest cells:
-#'
-#' \tabular{ll}{
-#'   \code{"includeRing"} \tab Will include the entire ring of cells that, as a group,
-#'                             caused \code{stopRule} to be \code{TRUE}.\cr
-#'   \code{"includePixel"} \tab Working backwards from the entire ring that caused the
-#'                              \code{stopRule} to be \code{TRUE}, this will iteratively
-#'                              random cells in the final ring
-#'                              until the \code{stopRule} is \code{FALSE}. This will add back
-#'                              the last removed cell and include it in the return result
-#'                              for that event.\cr
-#'   \code{"excludePixel"} \tab Like \code{"includePixel"}, but it will not add back the cell
-#'                        that causes \code{stopRule} to be \code{TRUE}\cr
-#'   \code{"excludeRing"} \tab Analogous to \code{"excludePixel"}, but for the entire final
-#'                             ring of cells added. This will exclude the entire ring of cells
-#'                             that caused the \code{stopRule} to be \code{TRUE}\cr
-#' }
-#'
 #'
 #' @param landscape     A \code{RasterLayer} object. This defines the possible locations
-#'                      for spreading events to start and spreadDT into. This can also
-#'                      be used as part of \code{stopRule}. Require input.
+#'                      for spreading events to start and spreadDT into. Required.
 #'
 #' @param start     Either a vector of pixel numbers to initiate spreading, or a
 #'                  data.table that is the output of a previous \code{spreadDT}.
@@ -139,8 +66,9 @@
 #'                      the \code{spreadProb} for the first iteration, the "Escape
 #'                      Probability". See section on "Breaking out of spreadDT events".
 #'
-#' @param persistence   A length 1 probability that an active cell will continue to burn,
-#'                      per time step.
+#' @param asRaster Logical, length 1. If \code{TRUE}, the function will return a \code{Raster}
+#'                 where raster non NA values indicate the cells that were "actived", and the
+#'                 value is the initial starting pixel.
 #'
 #' @param size       Numeric. Maximum number of cells for a single or
 #'                      all events to be spreadDT. Recycled to match \code{start} length,
@@ -157,45 +85,15 @@
 #' @param returnDistances Logical. Should the function inclue a column with the
 #'                      individual cell distances from the locus where that event
 #'                      started. Default is FALSE. See Details.
-#' @param returnCluster Logical. If TRUE (the default), then a much smaller data.table will be appended as
-#'                      an attribute to the main data.table. This data.table will include several
-#'                      cluster-level charateristics
 #'
 #' @param circle        Logical. If TRUE, then outward spreadDT will be by equidistant rings,
 #'                      rather than solely by adjacent cells (via \code{directions} arg.). Default
 #'                      is FALSE. Using \code{circle = TRUE} can be dramatically slower for large
 #'                      problems. Note, this will likely create unexpected results if \code{spreadProb} < 1.
 #'
-#' @param circleMaxRadius Numeric. A further way to stop the outward spreadDT of events. If
-#'                      \code{circle} is \code{TRUE}, then it will grow to this maximum radius.
-#'                      See section on
-#'                      \code{Breaking out of spreadDT events}. Default to NA.
-#'
-#' @param stopRule      A function which will be used to assess whether each individual cluster
-#'                      should stop growing. This function can be an argument of "landscape",
-#'                      "id", "cells", and
-#'                      any other named vectors, a named list of named vectors,
-#'                      or a named data.frame of with column names passed to spreadDT in
-#'                      the ... . Default NA meaning that
-#'                      spreading will not stop as a function of the landscape. See section on
-#'                      \code{Breaking out of spreadDT events} and examples.
-#'
-#' @param stopRuleBehavior Character. Can be one of "includePixel", "excludePixel", "includeRing",
-#'                      "excludeRing". If \code{stopRule} contains a function, this argument is
-#'                      used determine what to do with the cell(s) that caused the rule to be
-#'                      \code{TRUE}. See details. Default is "includeRing" which means to
-#'                      accept the entire ring of cells that caused the rule to be \code{TRUE}.
-#'
 #' @param allowOverlap  Logical. If \code{TRUE}, then individual events can overlap with one
 #'                      another, i.e., they do not interact. Currently, this is slower than
 #'                      if \code{allowOverlap} is \code{FALSE}. Default is \code{FALSE}.
-#'
-#' @param asymmetry     A numeric indicating the ratio of the asymmetry to be used. Default is
-#'                      NA, indicating no asymmetry. See details. This is still experimental.
-#'                      Use with caution.
-#'
-#' @param asymmetryAngle A numeric indicating the angle in degrees (0 is "up", as in North on a map),
-#'                      that describes which way the \code{asymmetry} is.
 #'
 #' @param quick Logical. If TRUE, then several potentially time consuming checking (such as
 #'              \code{inRange}) will be skipped. This should only be used if there is no
@@ -262,16 +160,14 @@
 #'
 setGeneric("spreadDT", function(landscape, start = ncell(landscape)/2 - ncol(landscape)/2,
                                 spreadProb = 0.23, asRaster = TRUE,
-                                persistence = 0, size,
+                                size,
                                 directions = 8L, iterations = 1e6L,
-                                returnDistances = FALSE, returnCluster = TRUE,
+                                returnDistances = FALSE,
                                 plot.it = FALSE,
-                                circle = FALSE, circleMaxRadius = NA_real_,
-                                stopRule = NA, stopRuleBehavior = "includeRing",
+                                circle = FALSE,
                                 allowOverlap = FALSE,
-                                asymmetry = NA_real_, asymmetryAngle = NA_real_,
                                 quick = FALSE, neighProbs = NA_real_, exactSize = FALSE,
-                                relativeSpreadProb = FALSE, ...) {
+                                ...) {
   standardGeneric("spreadDT")
 })
 
@@ -286,13 +182,11 @@ setMethod(
   "spreadDT",
   signature(landscape = "RasterLayer"),
   definition = function(landscape, start, spreadProb, asRaster,
-                        persistence,
                         size,
                         directions, iterations,
-                        returnDistances, returnCluster, plot.it,
-                        circle, circleMaxRadius, stopRule,
-                        stopRuleBehavior, allowOverlap, asymmetry, asymmetryAngle,
-                        quick, neighProbs, exactSize, relativeSpreadProb,
+                        returnDistances, plot.it,
+                        circle, allowOverlap,
+                        quick, neighProbs, exactSize,
                         ...) {
 
 
