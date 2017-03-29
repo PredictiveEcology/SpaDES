@@ -374,8 +374,8 @@ setMethod(
     while((length(needRetryID) | length(whSucc)) &  its < iterations) {
 
       # Step 1
-      # Get neighbours, either via adj (default), cir (jumping if stuck), or numNeighs
-      if(length(needRetryID)>0){
+      # Get neighbours, either via adj (default) or cir (jumping if stuck)
+      if(length(needRetryID)>0){ # get slightly further neighbours
         dtState <- dt$state=="needRetry"
         dtRetry <- dt[dtState];
         if(any(((clusterDT$numRetries+1) %% 5) == 0)) { # jump every 5, starting at 4
@@ -389,7 +389,7 @@ setMethod(
 
           dtPotential <- potentialPixels[,list(to=resample(indices, 2)),by=c("id","from")]
 
-        } else {
+        } else { # get adjacent neighbours
           adjMat <- adj(landscape, directions=directions, id=dtRetry$initialPixels,
                         cells = dtRetry$pixels)
           dtPotential <- data.table(from=as.integer(adjMat[,"from"]),

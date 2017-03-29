@@ -357,7 +357,7 @@ test_that("spreadDT tests", {
   })
 
 
-### Benchmarking
+######## Benchmarking ##########
   iterativeFun <- function(a, quick, N, sp) {
     sams <- sample(innerCells, N)
     out <-
@@ -472,5 +472,15 @@ test_that("spreadDT tests", {
   mean(outNew$x)
   sd(out$x)
   sd(outNew$x)
+
+
+  N <- 5
+  ras <- raster(extent(0,1000, 0, 1000), res=1)
+  sp <- 0.235
+  set.seed(123)
+  microbenchmark(
+    times = 100,
+    nonIterativeFun(ras, TRUE, N, sp)
+  )
 
 })
