@@ -462,10 +462,12 @@ setMethod(
       ras <- raster(landscape)
       # inside unit tests, this raster gives warnings if it is only NAs
       suppressWarnings(ras[dt$pixels] <- clusterDT[dt]$id)
+      attr(ras, "cluster") <- clusterDT
+      attr(ras, "pixel") <- dt
       return(ras)
     }
-    if(returnCluster)
-      attr(dt, "cluster") <- clusterDT
+
+    attr(dt, "cluster") <- clusterDT
     return(dt)
   }
 )
