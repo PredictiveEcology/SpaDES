@@ -455,11 +455,11 @@ setMethod(
         if(newPlot)
           ras <- raster(landscape)
         if(returnDistances) {
-          ras[dt$potentialPixels] <- dt$distance
+          ras[dt$pixels] <- dt$distance
           newPlot <- TRUE
         } else {
           setkeyv(dt, "initialPixels")
-          ras[dt$potentialPixels] <- dt[clusterDT]$id
+          ras[dt$pixels] <- dt[clusterDT]$id
         }
         Plot(ras, new=newPlot)
       }
