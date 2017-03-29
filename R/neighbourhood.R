@@ -121,8 +121,8 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
 
   if (is.numeric(directions)) {
     top <- cells - numCol
-    lef <- cells - 1
-    rig <- cells + 1
+    lef <- cells - 1L
+    rig <- cells + 1L
     bot <- cells + numCol
   }
   if (needCorners) {
