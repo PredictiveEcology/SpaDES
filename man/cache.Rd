@@ -222,8 +222,9 @@ mySim <- simInit(times = list(start = 0.0, end = 5.0),
    names(same) <- layers
    print(same) # Fires is not same because it is not in the randomLandscape module that was cached
 
-   # Note - one can access cached items manually (rather than simply rerunning the same Cache function again)
-   if(requireNamespace("archivist")) {
+   # Note - one can access cached items manually (rather than simply
+   #    rerunning the same Cache function again)
+   if (requireNamespace("archivist")) {
      # examine the cache
      showCache(mySim)
      # get the RasterLayer that was produced with the gaussMap function:
