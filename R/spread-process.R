@@ -8,8 +8,8 @@ if (getRversion() >= "3.1.0") {
 #' This can be used to simulate fires, seed dispersal, calculation of iterative,
 #' concentric landscape values (symmetric or asymmetric) and many other things.
 #' Essentially, it starts from a collection of cells (\code{loci}) and spreads
-#' to neighbours, according to the \code{directions} and \code{spreadProbLater} arguments.
-#' This can become quite general, if \code{spreadProbLater} is 1 as it will expand
+#' to neighbours, according to the \code{directions} and \code{spreadProb} arguments.
+#' This can become quite general, if \code{spreadProb} is 1 as it will expand
 #' from every loci until all cells in the landscape have been covered.
 #' With \code{id} set to \code{TRUE}, the resulting map will be classified
 #' by the index of the cell where that event propagated from.
