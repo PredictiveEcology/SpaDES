@@ -458,21 +458,10 @@ setMethod(
     } # end of main loop
 
     ## clean up ##
-    set(dt, , "pixels", dt$potentialPixels)
-    set(dt, , "potentialPixels", NULL)
-
-    # join clusterDT to main table
-    # set(dt,,"tmp",seq_len(NROW(dt)))
-    # dt <- dt[clusterDT,on="initialPixels"]
-    # setkeyv(dt, "tmp")
-    # set(dt, ,"tmp", NULL)
-
-    #setkeyv(dt, "id") # so order is same as start
-
     if(asRaster) {
       ras <- raster(landscape)
       # inside unit tests, this raster gives warnings if it is only NAs
-      suppressWarnings(ras[dt$pixels] <- dt$initialPixels)
+      suppressWarnings(ras[dt$pixels] <- clusterDT[dt]$id)
       return(ras)
     }
     if(returnCluster)
