@@ -442,7 +442,7 @@ setMethod(
             needRetryID <- which(needRetryID)
 
             set(dt,keep,"state","needRetry")
-            set(clusterDT,needRetryID,"numRetries",clusterDT$numRetries[needRetryID]+1)
+            set(clusterDT,needRetryID,"numRetries",clusterDT$numRetries[needRetryID]+1L)
           }
         }
       } # end size based removals
