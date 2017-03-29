@@ -426,7 +426,7 @@ test_that("spreadDT tests", {
   ras <- raster(extent(0,1000, 0, 1000), res=1)
   sp <- 0.225
   microbenchmark(
-    times = 30,
+    times = 100,
     iterativeFun(ras, TRUE, N, sp),
     iterativeFun(ras, FALSE, N, sp),
     nonIterativeFun(ras, TRUE, N, sp),
@@ -437,15 +437,16 @@ test_that("spreadDT tests", {
     origSpreadIterations(ras, FALSE, N, sp)
   )
   # Unit: milliseconds
-  #                        expr       min        lq      mean    median         uq       max neval
-  #          iterativeFun(TRUE)  5.992042 48.447037 69.718150 66.769768  88.546894 158.19727   100
-  #         iterativeFun(FALSE) 12.448292 60.957684 85.318160 85.518054 102.162087 184.39568   100
-  #       nonIterativeFun(TRUE)  6.943067 14.495293 21.647874 19.479788  26.892898  49.09266   100
-  #           origSpread(FALSE)  3.611198  4.915029  6.195880  5.700317   6.737766  18.41116   200
-  #            origSpread(TRUE)  3.304885  4.876557  6.113878  5.817736   6.729926  15.54314   100
-  #  origSpreadIterations(TRUE)  7.686603 40.860350 70.656248 61.406394  96.669625 215.38094   100
-  # origSpreadIterations(FALSE) 15.800219 54.305615 83.028381 77.198408 104.517771 208.91776   100
-
+  #                                    expr       min         lq      mean    median        uq       max neval
+  #          iterativeFun(ras, TRUE, N, sp)  8.876843  41.029004 103.50997  75.31951 118.68743 900.12923   100
+  #         iterativeFun(ras, FALSE, N, sp)  9.730140  57.309110 150.28499  99.53419 189.85423 869.00395   100
+  #       nonIterativeFun(ras, TRUE, N, sp)  7.754794  34.905868  85.45669  64.72970 119.48657 335.12623   100
+  #      nonIterativeFun(ras, FALSE, N, sp)  4.388647  32.660129  89.49787  71.30537 122.81880 399.37439   100
+  #            origSpread(ras, TRUE, N, sp)  5.456727   8.437067  14.07297  11.25568  16.88489 100.00861   100
+  #           origSpread(ras, FALSE, N, sp)  5.272939   8.724234  14.61261  12.45030  18.65129  74.00638   100
+  #  origSpreadIterations(ras, TRUE, N, sp) 23.940454 120.204763 224.28606 179.72315 276.46078 914.72025   100
+  # origSpreadIterations(ras, FALSE, N, sp) 30.864194 109.792897 223.27747 175.67290 291.72513 856.51481   100
+  #
   profvis::profvis({
     set.seed(345)
     for(i in 1:30)
