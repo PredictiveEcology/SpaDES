@@ -1,3 +1,7 @@
+if (getRversion() >= "3.1.0") {
+  utils::globalVariables(c(".GRP", "N", "distance", "initialPixels", "pixels", "state", "tooBig"))
+}
+
 ###############################################################################
 #' Simulate a contagious spread process on a landscape, with data.table internals
 #'
@@ -61,10 +65,6 @@
 #'                      spreading into each cell from a neighbor. If a raster then this must
 #'                      be the cell-specific probability of a "receiving" potential cell.
 #'                      Default is \code{0.23}.
-#'
-#' @param escapeProb    Numeric or RasterLayer, optional. If provided, then this overrides
-#'                      the \code{spreadProb} for the first iteration, the "Escape
-#'                      Probability". See section on "Breaking out of spreadDT events".
 #'
 #' @param asRaster Logical, length 1. If \code{TRUE}, the function will return a \code{Raster}
 #'                 where raster non NA values indicate the cells that were "actived", and the
