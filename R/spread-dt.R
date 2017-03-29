@@ -1,5 +1,5 @@
 ###############################################################################
-#' Simulate a spreadDT process on a landscape.
+#' Simulate a spread process on a landscape, with data.table internals
 #'
 #' This can be used to simulate fires, seed dispersal, calculation of iterative,
 #' concentric landscape values (symmetric or asymmetric) and many other things.
@@ -295,37 +295,42 @@ setMethod(
                         ...) {
 
 
-    #assertions
-    assertClass(landscape, "Raster")
-    ncells <- ncell(landscape)
+    #### assertions ###############
+    if(!quick) {
+      assertClass(landscape, "Raster")
+      ncells <- ncell(landscape)
 
-    assert(
-      checkNumeric(start, min.len=0, max.len=ncells, lower = 1, upper=ncells),
-      checkDataTable(start, ncols=5, types=c(rep("numeric", 2), "character", rep("numeric", 2))))
-
-    qassert(neighProbs, "n[0,1]")
-    assertNumeric(sum(neighProbs), lower = 1, upper = 1)
-
-    assert(
-      checkNumeric(spreadProb, 0, 1, min.len=1, max.len=ncells),
-      checkClass(spreadProb, "RasterLayer")
-    )
-    qassert(directions, "N1[4,8]")
-    qassert(iterations, "N1[1,Inf]")
-    qassert(circle, "B")
-    if(circle)
-      qassert(spreadProb, "N1[1,1]")
-
-    if(!missing(size)) {
       assert(
-        checkNumeric(size, min.len = 1, max.len=1),
-        checkNumeric(size, min.len = NROW(start), max.len=NROW(start))
+        checkNumeric(start, min.len=0, max.len=ncells, lower = 1, upper=ncells),
+        checkDataTable(start, ncols=5, types=c(rep("numeric", 2), "character", rep("numeric", 2))))
+
+      qassert(neighProbs, "n[0,1]")
+      assertNumeric(sum(neighProbs), lower = 1, upper = 1)
+
+      assert(
+        checkNumeric(spreadProb, 0, 1, min.len=1, max.len=ncells),
+        checkClass(spreadProb, "RasterLayer")
       )
+      qassert(directions, "N1[4,8]")
+      qassert(iterations, "N1[1,Inf]")
+      qassert(circle, "B")
+      if(circle)
+        qassert(spreadProb, "N1[1,1]")
+
+      if(!missing(size)) {
+        assert(
+          checkNumeric(size, min.len = 1, max.len=1),
+          checkNumeric(size, min.len = NROW(start), max.len=NROW(start))
+        )
+      }
     } else {
-      size <- NA
+      ncells <- ncell(landscape)
     }
     ##### End assertions
 
+    if(missing(size)) {
+      size <- NA
+    }
     needDistance <- returnDistances | circle # returnDistances = TRUE and circle = TRUE both require distance calculations
     maxRetriesPerID <- 10 # This means that if an event can not spread any more, it will try 10 times, including 2 jumps
 
@@ -338,9 +343,11 @@ setMethod(
                        potentialPixels=start, state="activeSource")#, distance=NA_real_)
     } else {
       dtInitial <- data.table(initialPixels=unique(start$initialPixels), size = size)
+      #ids <- data.table(id=start$id, initialPixels=start$initialPixels, key = "initialPixels")
+      #microbenchmark(a={unique(start$id); unique(start$initialPixels)},b=unique(ids))
+      ids <- data.table(id=unique(start$id), initialPixels=dtInitial$initialPixels, key = "initialPixels")
       setkey(dtInitial, "initialPixels")
-      ids <- data.table(id=start$id, initialPixels=start$initialPixels, key = "initialPixels")
-      ids <- unique(ids)
+      #ids <- unique(ids)
       set(ids, ,"numRetries", 0)
       dt <- start
       set(dt, , "id", NULL)
@@ -352,14 +359,12 @@ setMethod(
 
     its <- 0
 
-    setkeyv(dt, "state")
+    #setkeyv(dt, "state")
 
     needRetryID <- numeric()
     whSucc <- which(dt$state=="activeSource")
 
     while((length(needRetryID) | length(whSucc)) &  its < iterations) {
-
-      #print(dtInitial)
 
       if(length(needRetryID)>0){
         dtState <- dt$state=="needRetry"
@@ -551,8 +556,12 @@ setMethod(
     set(dt, , "potentialPixels", NULL)
 
     # join ids to main table
+    set(dt,,"tmp",seq_len(NROW(dt)))
     dt <- dt[ids,on="initialPixels"]
-    setkeyv(dt, "id") # so order is same as start
+    setkeyv(dt, "tmp")
+    set(dt, ,"tmp", NULL)
+
+    #setkeyv(dt, "id") # so order is same as start
 
     if(asRaster) {
       ras <- raster(landscape)
