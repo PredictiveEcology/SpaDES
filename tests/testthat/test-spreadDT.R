@@ -436,12 +436,12 @@ test_that("spreadDT tests", {
     origSpreadIterations(ras, TRUE, N, sp)
   )
   # Unit: milliseconds
-  #                                   expr      min        lq       mean    median        uq       max neval
-  #         iterativeFun(ras, TRUE, N, sp) 2.594306  8.924342  41.634193 20.399147  50.94852  469.5847   300
-  #      nonIterativeFun(ras, TRUE, N, sp) 2.215102  7.911519  35.220934 20.601506  41.92183  343.9790   300
-  #           origSpread(ras, TRUE, N, sp) 3.798198  5.339209   9.098732  6.939754  11.41923   37.1523   300
-  # origSpreadIterations(ras, TRUE, N, sp) 8.197316 37.070922 117.296638 77.938427 152.23013 1787.4115   300
-
+  #                                   expr      min        lq       mean   median        uq        max neval
+  #         iterativeFun(ras, TRUE, N, sp) 2.049989  8.034987  41.159370 21.70246  53.04324  542.26276   300
+  #      nonIterativeFun(ras, TRUE, N, sp) 1.747623  7.557977  32.839258 18.82500  45.66944  284.18297   300
+  #           origSpread(ras, TRUE, N, sp) 4.160392  5.506815   9.828578  7.48979  11.29385   62.68097   300
+  # origSpreadIterations(ras, TRUE, N, sp) 8.470354 36.132883 118.389301 82.23695 171.52143 1333.70706   300
+  #
   # without "quick"
   microbenchmark(
     times = 300,
@@ -450,13 +450,13 @@ test_that("spreadDT tests", {
     origSpread(ras, FALSE, N, sp),
     origSpreadIterations(ras, FALSE, N, sp)
   )
+
   # Unit: milliseconds
-  #                                    expr      min        lq       mean   median        uq       max neval
-  #         iterativeFun(ras, FALSE, N, sp) 3.783828 17.689877  79.880324 43.19992 111.36893 533.12433   300
-  #      nonIterativeFun(ras, FALSE, N, sp) 2.482569  9.439626  36.757586 24.27037  49.69580 457.16594   300
-  #           origSpread(ras, FALSE, N, sp) 4.306443  5.808448   9.735225  7.87794  11.27186  57.12811   300
-  # origSpreadIterations(ras, FALSE, N, sp) 8.469181 43.587773 128.641724 87.59830 170.37884 848.58913   300
-  #
+  #                                    expr      min        lq      mean    median        uq       max neval
+  #         iterativeFun(ras, FALSE, N, sp) 3.478235 15.913367  70.45106 40.320842  93.84740  658.7165   300
+  #      nonIterativeFun(ras, FALSE, N, sp) 1.951742  6.693404  32.80602 17.324311  44.78096  218.2511   300
+  #           origSpread(ras, FALSE, N, sp) 4.482701  5.820473  14.78412  7.352538  10.58354 1444.4507   300
+  # origSpreadIterations(ras, FALSE, N, sp) 8.860116 39.897941 114.11640 76.236409 155.75251  747.5552   300
 
   profvis::profvis({
     set.seed(345)
