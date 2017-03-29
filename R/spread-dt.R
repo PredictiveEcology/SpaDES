@@ -252,6 +252,8 @@ setMethod(
       set(clusterDT, ,"numRetries", 0)
       dt <- start
     }
+    dtColNames <- colnames(dt)[!colnames(dt)=="state"]
+
     if(needDistance)
       set(dt, , "distance", 0) # it is zero distance to self
 
@@ -301,7 +303,7 @@ setMethod(
         # only iterate if it is not a Retry situation
         its <- its + 1
       }
-      set(dtPotential, , "state", "potential")
+      #set(dtPotential, , "state", "potential")
 
       if(needDistance)
         set(dtPotential, , "distance", NA_real_)
@@ -359,7 +361,12 @@ setMethod(
         }
 
         # Evaluate against spreadProb --> convert "potential" to "successful"
-        dtPotential <- dtPotential[runif(NROW(dtPotential))<actualSpreadProb]
+        keepers <- runif(NROW(dtPotential))<actualSpreadProb
+        dtPotential <-
+          as.data.table(cbind(initialPixels=dtPotential$initialPixels[keepers],
+                              pixels=dtPotential$pixels[keepers],
+                              potentialPixels=dtPotential$potentialPixels[keepers]))
+        #dtPotential <- dtPotential[keepers]
       }
 
       # convert state of all those still left, move potentialPixels into pixels column
@@ -380,7 +387,15 @@ setMethod(
           dupes <- duplicatedInt(dt$pixels)
         }
         # remove any duplicates
-        dt <- dt[!dupes]
+        if(sum(dupes)) {
+          state <- dt$state[!dupes]
+          dt <-
+            as.data.table(cbind(initialPixels=dt$initialPixels[!dupes],
+                                pixels=dt$pixels[!dupes]))
+          set(dt, , "state", state)
+
+          #dt2 <- dt[!dupes]
+        }
       }
 
       # Remove any pixels that push each cluster over their size limit
