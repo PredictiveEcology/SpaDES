@@ -635,7 +635,7 @@ setMethod(
   } else {
     MAT <- cbind(id, rads, angles, x, y, indices)
     if (!closest & !allowDuplicates) {
-      notDups <- !duplicated(indices)
+      notDups <- !duplicatedInt(indices)
       MAT <- MAT[notDups, , drop = FALSE]
     }
     MAT <- na.omit(MAT)

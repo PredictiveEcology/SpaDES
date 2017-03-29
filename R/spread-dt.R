@@ -447,7 +447,7 @@ setMethod(
         setkeyv(numNeighsByPixel, c("initialPixels", "pixels"))
 
         # remove duplicates from the already selected "pixels" and new "potentialPixels", since it must select exactly numNeighs
-        dups <- duplicated(c(dt$pixels, dtPotential$potentialPixels))
+        dups <- duplicatedInt(c(dt$pixels, dtPotential$potentialPixels))
         dups <- dups[-seq_along(dt$pixels)]
         dtPotential <- dtPotential[!dups]
         setkeyv(dtPotential, c("initialPixels", "pixels")) # sort so it is the same as numNeighsByPixel
@@ -483,11 +483,11 @@ setMethod(
       # Remove duplicates, which was already done for neighProbs situation
       if(anyNA(neighProbs)) {
           if(allowOverlap) {
-          dt[,`:=`(dups=duplicated(potentialPixels)),by=initialPixels]
+          dt[,`:=`(dups=duplicatedInt(potentialPixels)),by=initialPixels]
           dupes <- dt$dups
           set(dt, , "dups", NULL)
         } else {
-          dupes <- duplicated(dt$potentialPixels)
+          dupes <- duplicatedInt(dt$potentialPixels)
         }
         # remove any duplicates
         dt <- dt[!dupes]
