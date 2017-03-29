@@ -43,7 +43,7 @@ test_that("spreadDT tests", {
                0.225,
                size = maxSizes,
                asRaster = FALSE)
-    expect_true(all(out[, .N, by = "initialPixels"]$N <= maxSizes))
+    expect_true(all(out[, .N, by = "initialPixels"]$N <= maxSizes[order(sams)]))
   }
 
   if (interactive())
@@ -60,7 +60,7 @@ test_that("spreadDT tests", {
         exactSize = TRUE,
         asRaster = FALSE
       )
-    expect_true(all(out[, .N, by = "initialPixels"]$N == exactSizes))
+    expect_true(all(out[, .N, by = "initialPixels"]$N == exactSizes[order(sams)]))
   }
 
   if (interactive())
@@ -112,6 +112,7 @@ test_that("spreadDT tests", {
   }
 
   # test circle
+  sams <- sort(sample(innerCells, 3)) # sorted -- makes comparisons later easier
   out <- spreadDT(
     a,
     start = sams,
@@ -137,13 +138,17 @@ test_that("spreadDT tests", {
   expect_true(NROW(out) == ncell(a) * length(sams))
   expect_true(all(out$state == "inactive"))
   expect_true(all(out$distance <= (sqrt(2) * ncol(a))))
-  setkey(out, id, distance)
+
+  setkey(out, initialPixels, distance)
+
 
   if (interactive()) {
-    for (ids in unique(out$id)) {
-      dev(3 + ids)
+    count <- 1
+    for (ids in unique(out$initialPixels)) {
+      dev(3 + count)
+      count <- count + 1
       ras <- raster(a)
-      ras[out[id == ids, pixels]] <- out[id == ids, distance]
+      ras[out[initialPixels == ids, pixels]] <- out[initialPixels == ids, distance]
       clearPlot()
       Plot(ras)
     }
@@ -174,8 +179,10 @@ test_that("spreadDT tests", {
   cirOut$dists <- round(cirOut$dists, 4)
   out$distance <- round(out$distance, 4)
   setkey(cirOut, id, dists)
+  quickDT <- data.table(id=seq_along(sams), initialPixels=sams, key="id")
   cirOut <- unique(cirOut)
-  compare <- out[cirOut, on = c(id = "id", pixels = "indices")]
+  cirOut <- quickDT[cirOut]
+  compare <- out[cirOut, on = c(initialPixels = "initialPixels", pixels = "indices")]
   expect_true(sum(abs(compare$dists - compare$distance)) %==% 0)
 
 
@@ -260,7 +267,7 @@ test_that("spreadDT tests", {
     )
   }
   out <- rbindlist(out)[state == "activeSource"]
-  uniquePixels <- out[, list(uniquePix = unique(pixels)), by = "id"]
+  uniquePixels <- out[, list(uniquePix = unique(pixels)), by = "initialPixels"]
   avail <- table(sp[uniquePixels$uniquePix])
   actual <- unname(table(sp[out$pixels]))
   relProbs <- spreadProbOptions / sum(spreadProbOptions)
@@ -274,12 +281,10 @@ test_that("spreadDT tests", {
   if (interactive())
     print("check wide range of spreadProbs")
   set.seed(654)
-  temp <<- 1
   for (i in 1:20) {
     ras1 <- spreadDT(a, spreadProb = stats::runif(1, 0, 1))
     expect_that(ras1, is_a("RasterLayer"))
   }
-  rm("temp", envir = .GlobalEnv)
 
 
   if (interactive())
@@ -302,9 +307,7 @@ test_that("spreadDT tests", {
 
   set.seed(299)
   out2 <- spreadDT(a, start = sams, asRaster = FALSE)
-  keyedCols <- c("id", "pixels")
-  setkeyv(out2, keyedCols)
-  setkeyv(out, keyedCols)
+  keyedCols <- c("initialPixels", "pixels")
   expect_equivalent(out2, out)
 
 
@@ -423,15 +426,15 @@ test_that("spreadDT tests", {
   ras <- raster(extent(0,1000, 0, 1000), res=1)
   sp <- 0.225
   microbenchmark(
-    times = 100,
+    times = 30,
     iterativeFun(ras, TRUE, N, sp),
-  #  iterativeFun(ras, FALSE, N, sp),
-  #  nonIterativeFun(ras, TRUE, N, sp),
-  #  nonIterativeFun(ras, FALSE, N, sp),
-  #  origSpread(ras, TRUE, N, sp),
-  #  origSpread(ras, FALSE, N, sp)
-    origSpreadIterations(ras, TRUE, N, sp)
-  #  origSpreadIterations(ras, FALSE, N, sp)
+    iterativeFun(ras, FALSE, N, sp),
+    nonIterativeFun(ras, TRUE, N, sp),
+    nonIterativeFun(ras, FALSE, N, sp),
+    origSpread(ras, TRUE, N, sp),
+    origSpread(ras, FALSE, N, sp),
+    origSpreadIterations(ras, TRUE, N, sp),
+    origSpreadIterations(ras, FALSE, N, sp)
   )
   # Unit: milliseconds
   #                        expr       min        lq      mean    median         uq       max neval
@@ -444,6 +447,7 @@ test_that("spreadDT tests", {
   # origSpreadIterations(FALSE) 15.800219 54.305615 83.028381 77.198408 104.517771 208.91776   100
 
   profvis::profvis({
+    set.seed(345)
     for(i in 1:30)
     iterativeFun(ras, TRUE, N, sp=0.235)
   })

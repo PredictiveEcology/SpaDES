@@ -4,13 +4,13 @@
 \name{spreadDT}
 \alias{spreadDT}
 \alias{spreadDT,RasterLayer-method}
-\title{Simulate a spreadDT process on a landscape.}
+\title{Simulate a spread process on a landscape, with data.table internals}
 \usage{
 spreadDT(landscape, start = ncell(landscape)/2 - ncol(landscape)/2,
   spreadProb = 0.23, asRaster = TRUE, persistence = 0, size,
   directions = 8L, iterations = 1000000L, returnDistances = FALSE,
-  plot.it = FALSE, spreadProbLater = NA_real_, spreadState = NA,
-  circle = FALSE, circleMaxRadius = NA_real_, stopRule = NA,
+  returnCluster = TRUE, plot.it = FALSE, circle = FALSE,
+  circleMaxRadius = NA_real_, stopRule = NA,
   stopRuleBehavior = "includeRing", allowOverlap = FALSE,
   asymmetry = NA_real_, asymmetryAngle = NA_real_, quick = FALSE,
   neighProbs = NA_real_, exactSize = FALSE, relativeSpreadProb = FALSE,
@@ -19,8 +19,8 @@ spreadDT(landscape, start = ncell(landscape)/2 - ncol(landscape)/2,
 \S4method{spreadDT}{RasterLayer}(landscape, start = ncell(landscape)/2 -
   ncol(landscape)/2, spreadProb = 0.23, asRaster = TRUE, persistence = 0,
   size, directions = 8L, iterations = 1000000L, returnDistances = FALSE,
-  plot.it = FALSE, spreadProbLater = NA_real_, spreadState = NA,
-  circle = FALSE, circleMaxRadius = NA_real_, stopRule = NA,
+  returnCluster = TRUE, plot.it = FALSE, circle = FALSE,
+  circleMaxRadius = NA_real_, stopRule = NA,
   stopRuleBehavior = "includeRing", allowOverlap = FALSE,
   asymmetry = NA_real_, asymmetryAngle = NA_real_, quick = FALSE,
   neighProbs = NA_real_, exactSize = FALSE, relativeSpreadProb = FALSE,
@@ -61,6 +61,10 @@ until stops spreading itself (i.e., exhausts itself).}
 \item{returnDistances}{Logical. Should the function inclue a column with the
 individual cell distances from the locus where that event
 started. Default is FALSE. See Details.}
+
+\item{returnCluster}{Logical. If TRUE (the default), then a much smaller data.table will be appended as
+an attribute to the main data.table. This data.table will include several
+cluster-level charateristics}
 
 \item{plot.it}{If TRUE, then plot the raster at every iteraction,
 so one can watch the spreadDT event grow.}
@@ -157,8 +161,7 @@ This will generally be more useful when \code{allowOverlap} is \code{TRUE}.
 This can be used to simulate fires, seed dispersal, calculation of iterative,
 concentric landscape values (symmetric or asymmetric) and many other things.
 Essentially, it starts from a collection of cells (\code{start}) and spreads
-to neighbours, according to the \code{directions} and \code{spreadProbLater} arguments.
-This can become quite general, if \code{spreadProbLater} is 1 as it will expand
+to neighbours, according to the \code{directions} and \code{spreadProb} arguments.
 from every start until all cells in the landscape have been covered.
 With \code{id} set to \code{TRUE}, the resulting map will be classified
 by the index of the cell where that event propagated from.

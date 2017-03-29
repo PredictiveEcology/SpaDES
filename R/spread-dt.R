@@ -4,8 +4,7 @@
 #' This can be used to simulate fires, seed dispersal, calculation of iterative,
 #' concentric landscape values (symmetric or asymmetric) and many other things.
 #' Essentially, it starts from a collection of cells (\code{start}) and spreads
-#' to neighbours, according to the \code{directions} and \code{spreadProbLater} arguments.
-#' This can become quite general, if \code{spreadProbLater} is 1 as it will expand
+#' to neighbours, according to the \code{directions} and \code{spreadProb} arguments.
 #' from every start until all cells in the landscape have been covered.
 #' With \code{id} set to \code{TRUE}, the resulting map will be classified
 #' by the index of the cell where that event propagated from.
@@ -158,6 +157,9 @@
 #' @param returnDistances Logical. Should the function inclue a column with the
 #'                      individual cell distances from the locus where that event
 #'                      started. Default is FALSE. See Details.
+#' @param returnCluster Logical. If TRUE (the default), then a much smaller data.table will be appended as
+#'                      an attribute to the main data.table. This data.table will include several
+#'                      cluster-level charateristics
 #'
 #' @param circle        Logical. If TRUE, then outward spreadDT will be by equidistant rings,
 #'                      rather than solely by adjacent cells (via \code{directions} arg.). Default
@@ -262,9 +264,8 @@ setGeneric("spreadDT", function(landscape, start = ncell(landscape)/2 - ncol(lan
                                 spreadProb = 0.23, asRaster = TRUE,
                                 persistence = 0, size,
                                 directions = 8L, iterations = 1e6L,
-                                returnDistances = FALSE,
+                                returnDistances = FALSE, returnCluster = TRUE,
                                 plot.it = FALSE,
-                                spreadProbLater = NA_real_, spreadState = NA,
                                 circle = FALSE, circleMaxRadius = NA_real_,
                                 stopRule = NA, stopRuleBehavior = "includeRing",
                                 allowOverlap = FALSE,
@@ -288,7 +289,7 @@ setMethod(
                         persistence,
                         size,
                         directions, iterations,
-                        returnDistances, plot.it, spreadProbLater,
+                        returnDistances, returnCluster, plot.it,
                         circle, circleMaxRadius, stopRule,
                         stopRuleBehavior, allowOverlap, asymmetry, asymmetryAngle,
                         quick, neighProbs, exactSize, relativeSpreadProb,
@@ -302,7 +303,7 @@ setMethod(
 
       assert(
         checkNumeric(start, min.len=0, max.len=ncells, lower = 1, upper=ncells),
-        checkDataTable(start, ncols=5, types=c(rep("numeric", 2), "character", rep("numeric", 2))))
+        checkDataTable(start, ncols=3, types=c(rep("numeric", 2), "character")))
 
       qassert(neighProbs, "n[0,1]")
       assertNumeric(sum(neighProbs), lower = 1, upper = 1)
@@ -336,23 +337,29 @@ setMethod(
 
     if(!is.data.table(start)) {
       start <- as.integer(start)
-      dtInitial <- data.table(initialPixels=start, size = size)
-      setkey(dtInitial, "initialPixels")
-      ids <- data.table(id=1:NROW(start), initialPixels=start, numRetries=0, key="initialPixels")
+      #dtInitial <- data.table(initialPixels=start, size = size)
+      #setkey(dtInitial, "initialPixels")
+      clusterDT <- data.table(id=1:NROW(start), initialPixels=start, numRetries=0, key="initialPixels")
       dt <- data.table(initialPixels=start, pixels=start,
                        potentialPixels=start, state="activeSource")#, distance=NA_real_)
+      if(!anyNA(size)) {
+        if(length(size) > 1)
+          size <- size[order(start)] # reorder to matches increasing order of start
+      }
     } else {
-      dtInitial <- data.table(initialPixels=unique(start$initialPixels), size = size)
-      #ids <- data.table(id=start$id, initialPixels=start$initialPixels, key = "initialPixels")
-      #microbenchmark(a={unique(start$id); unique(start$initialPixels)},b=unique(ids))
-      ids <- data.table(id=unique(start$id), initialPixels=dtInitial$initialPixels, key = "initialPixels")
-      setkey(dtInitial, "initialPixels")
-      #ids <- unique(ids)
-      set(ids, ,"numRetries", 0)
+      #dtInitial <- data.table(initialPixels=unique(start$initialPixels), size = size)
+      #clusterDT <- data.table(id=start$id, initialPixels=start$initialPixels, key = "initialPixels")
+      #microbenchmark(a={unique(start$id); unique(start$initialPixels)},b=unique(clusterDT))
+      clusterDT <- attr(start, "cluster")#data.table(id=unique(start$id), initialPixels=unique(start$initialPixels), key = "initialPixels")
+      setkey(clusterDT, "initialPixels")
+      if(!anyNA(size)) {
+        size <- size[order(clusterDT$id)] # reorder to matches increasing order of start
+      }
+      #setkey(dtInitial, "initialPixels")
+      #clusterDT <- unique(clusterDT)
+      set(clusterDT, ,"numRetries", 0)
       dt <- start
-      set(dt, , "id", NULL)
       set(dt, , "potentialPixels", dt$pixels)
-      set(dt, , "numRetries", NULL)
     }
     if(needDistance)
       set(dt, , "distance", 0) # it is zero distance to self
@@ -366,10 +373,12 @@ setMethod(
 
     while((length(needRetryID) | length(whSucc)) &  its < iterations) {
 
+      # Step 1
+      # Get neighbours, either via adj (default), cir (jumping if stuck), or numNeighs
       if(length(needRetryID)>0){
         dtState <- dt$state=="needRetry"
         dtRetry <- dt[dtState];
-        if(any(((ids$numRetries+1) %% 5) == 0)) { # jump every 5, starting at 4
+        if(any(((clusterDT$numRetries+1) %% 5) == 0)) { # jump every 5, starting at 4
           resCur <- res(landscape)[1]
           fromPixels <- dt[dtState]$pixels
           potentialPixels <- cir(landscape, loci = fromPixels, includeBehavior = "excludePixels",
@@ -407,6 +416,7 @@ setMethod(
         # Only increment iteration if it is NOT a retry situation
         its <- its + 1
       }
+
       if(needDistance)
         set(dtPotential, , "distance", NA_real_)
 
@@ -417,9 +427,7 @@ setMethod(
       i <- sample.int(NROW(dtPotential))
       for(x in colnames(dtPotential)) set(dtPotential, , x, dtPotential[[x]][i])
 
-      # combine potentials to previous
-      #dt <- rbindlist(list(dt, dtPotential))
-      # Remove duplicates within id
+      # calculate distances, if required ... attach to dt
       if(needDistance) {
         fromPts <- xyFromCell(landscape,dtPotential$initialPixels)
         toPts <- xyFromCell(landscape,dtPotential$potentialPixels)
@@ -429,9 +437,9 @@ setMethod(
         }
       }
 
+      # Alternative algorithm for finding potential neighbours -- uses a specific number of neighbours
       if(!anyNA(neighProbs)) {
 
-        # Get neighbours, either via adj (default), cir (jumping if stuck), or numNeighs
         numNeighsByPixel <- unique(dtPotential, by = c("initialPixels", "pixels"))
         set(numNeighsByPixel, , "numNeighs",
             sample.int(size = NROW(numNeighsByPixel), n = length(neighProbs),
@@ -443,16 +451,18 @@ setMethod(
         dups <- dups[-seq_along(dt$pixels)]
         dtPotential <- dtPotential[!dups]
         setkeyv(dtPotential, c("initialPixels", "pixels")) # sort so it is the same as numNeighsByPixel
-        set(dtPotential, , "spreadProb", spreadProb[dtPotential$potentialPixels])
-        # If it is a corner or has had pixels removed bc of duplicates, it may not have enough neighbours
-        numNeighsByPixel <- numNeighsByPixel[dtPotential[,.N,by=c("initialPixels", "pixels")]]
-        set(numNeighsByPixel, , "numNeighs", pmin(numNeighsByPixel$N, numNeighsByPixel$numNeighs, na.rm=TRUE))
+        if(NROW(dtPotential)) {
+          set(dtPotential, , "spreadProb", spreadProb[dtPotential$potentialPixels])
+          # If it is a corner or has had pixels removed bc of duplicates, it may not have enough neighbours
+          numNeighsByPixel <- numNeighsByPixel[dtPotential[,.N,by=c("initialPixels", "pixels")]]
+          set(numNeighsByPixel, , "numNeighs", pmin(numNeighsByPixel$N, numNeighsByPixel$numNeighs, na.rm=TRUE))
 
-        dtPotential <- dtPotential[dtPotential[,list(keepIndex=
-                                                       resample(.I, numNeighsByPixel$numNeighs[.GRP],
-                                                                prob=spreadProb/sum(spreadProb,na.rm=TRUE))),
-                                               by="pixels"]$keepIndex]
-        set(dtPotential, , "spreadProb", NULL)
+          dtPotential <- dtPotential[dtPotential[,list(keepIndex=
+                                                         resample(.I, numNeighsByPixel$numNeighs[.GRP],
+                                                                  prob=spreadProb/sum(spreadProb,na.rm=TRUE))),
+                                                 by="pixels"]$keepIndex]
+          set(dtPotential, , "spreadProb", NULL)
+        }
       } else {
 
         # Extract spreadProb for the current set of potentials
@@ -467,6 +477,7 @@ setMethod(
       }
       set(dtPotential, , "state", "successful")
 
+      # combine potentials to previous
       dt <- rbindlist(list(dt, dtPotential))
 
       # Remove duplicates, which was already done for neighProbs situation
@@ -482,11 +493,11 @@ setMethod(
         dt <- dt[!dupes]
       }
 
-
+      # Remove any pixels that push each cluster over their size limit
       if(!anyNA(size)) {
         setkeyv(dt,"initialPixels") # must sort because size is sorted
-        currentSize <- dt[,.N,by=initialPixels][,`:=`(size=dtInitial$size,
-                                                      tooBig=N-dtInitial$size)]
+        currentSize <- dt[,.N,by=initialPixels][,`:=`(size=size,
+                                                      tooBig=N-size)]
 
         currentSizeTooBig <- currentSize[tooBig>0]
         if(NROW(currentSizeTooBig)>0) {
@@ -510,17 +521,17 @@ setMethod(
                           (dt$state!="successful" & dt$state!="inactive"))
           if(length(keep)) {
 
-            needRetryID <- ids$initialPixels %in% unique(dt$initialPixels[keep])
-            tooManyRetries <- ids$numRetries > maxRetriesPerID
+            needRetryID <- clusterDT$initialPixels %in% unique(dt$initialPixels[keep])
+            tooManyRetries <- clusterDT$numRetries > maxRetriesPerID
             if(sum(tooManyRetries * needRetryID)>0) {
               needRetryID <- needRetryID & !(needRetryID * tooManyRetries)
               keep <- keep[dt$initialPixels[keep] %in%
-                             ids$initialPixels[needRetryID]]
+                             clusterDT$initialPixels[needRetryID]]
             }
             needRetryID <- which(needRetryID)
 
             set(dt,keep,"state","needRetry")
-            set(ids,needRetryID,"numRetries",ids$numRetries[needRetryID]+1)
+            set(clusterDT,needRetryID,"numRetries",clusterDT$numRetries[needRetryID]+1)
           }
         }
       }
@@ -544,7 +555,7 @@ setMethod(
           newPlot <- TRUE
         } else {
           setkeyv(dt, "initialPixels")
-          ras[dt$potentialPixels] <- dt[ids]$id
+          ras[dt$potentialPixels] <- dt[clusterDT]$id
         }
         Plot(ras, new=newPlot)
       }
@@ -555,20 +566,22 @@ setMethod(
     set(dt, , "pixels", dt$potentialPixels)
     set(dt, , "potentialPixels", NULL)
 
-    # join ids to main table
-    set(dt,,"tmp",seq_len(NROW(dt)))
-    dt <- dt[ids,on="initialPixels"]
-    setkeyv(dt, "tmp")
-    set(dt, ,"tmp", NULL)
+    # join clusterDT to main table
+    # set(dt,,"tmp",seq_len(NROW(dt)))
+    # dt <- dt[clusterDT,on="initialPixels"]
+    # setkeyv(dt, "tmp")
+    # set(dt, ,"tmp", NULL)
 
     #setkeyv(dt, "id") # so order is same as start
 
     if(asRaster) {
       ras <- raster(landscape)
       # inside unit tests, this raster gives warnings if it is only NAs
-      suppressWarnings(ras[dt$pixels] <- dt$id)
+      suppressWarnings(ras[dt$pixels] <- dt$initialPixels)
       return(ras)
     }
+    if(returnCluster)
+      attr(dt, "cluster") <- clusterDT
     return(dt)
   }
 )
