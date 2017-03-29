@@ -307,8 +307,10 @@ setMethod(
         needRetryID <- numeric()
       }
 
-      if(needDistance)
-        set(dtPotential, , "distance", NA_real_)
+      #set(dtPotential, , "state", "successful")
+
+      # if(needDistance)
+      #   set(dtPotential, , "distance", NA_real_)
 
       # randomize row order so duplicates are not always in same place
       i <- sample.int(NROW(dtPotential))
@@ -318,38 +320,46 @@ setMethod(
       if(needDistance) {
         fromPts <- xyFromCell(landscape,dtPotential$id)
         toPts <- xyFromCell(landscape,dtPotential$to)
-        set(dtPotential, , "distance", pointDistance(p1 = fromPts, p2 = toPts, lonlat=FALSE))
+        #set(dtPotential, , "distance", pointDistance(p1 = fromPts, p2 = toPts, lonlat=FALSE))
+        dists <- pointDistance(p1 = fromPts, p2 = toPts, lonlat=FALSE)
         if(circle) {
-          dtPotential <- dtPotential[(distance %<=% its & distance %>>% (its-1))]
+          distKeepers <- dists %<=% its & dists %>>% (its-1)
+          mat <- cbind(from=dtPotential$from[distKeepers],
+                to=dtPotential$to[distKeepers],
+                id=dtPotential$id[distKeepers])
+          if(needDistance)
+            mat <- cbind(mat, distance=dists[distKeepers])
+          dtPotential <- as.data.table(mat)
         }
       }
 
       # Alternative algorithm for finding potential neighbours -- uses a specific number of neighbours
       if(!anyNA(neighProbs)) {
 
-        numNeighsByPixel <- unique(dtPotential, by = c("initialPixels", "pixels"))
+        numNeighsByPixel <- unique(dtPotential, by = c("id", "from"))
         set(numNeighsByPixel, , "numNeighs",
             sample.int(size = NROW(numNeighsByPixel), n = length(neighProbs),
                        replace = TRUE, prob = neighProbs))
-        setkeyv(numNeighsByPixel, c("initialPixels", "pixels"))
+        setkeyv(numNeighsByPixel, c("id", "from"))
 
         # remove duplicates from the existing "pixels" and new "potential pixels", since it must select exactly numNeighs
         dups <- duplicatedInt(c(dt$pixels, dtPotential$to))
         dups <- dups[-seq_along(dt$pixels)]
         dtPotential <- dtPotential[!dups]
-        setkeyv(dtPotential, c("initialPixels", "pixels")) # sort so it is the same as numNeighsByPixel
+        setkeyv(dtPotential, c("id", "from")) # sort so it is the same as numNeighsByPixel
         if(NROW(dtPotential)) {
           set(dtPotential, , "spreadProb", spreadProb[dtPotential$to])
           # If it is a corner or has had pixels removed bc of duplicates, it may not have enough neighbours
-          numNeighsByPixel <- numNeighsByPixel[dtPotential[,.N,by=c("initialPixels", "pixels")]]
+          numNeighsByPixel <- numNeighsByPixel[dtPotential[,.N,by=c("id", "from")]]
           set(numNeighsByPixel, , "numNeighs", pmin(numNeighsByPixel$N, numNeighsByPixel$numNeighs, na.rm=TRUE))
 
           dtPotential <- dtPotential[dtPotential[,list(keepIndex=
                                                          resample(.I, numNeighsByPixel$numNeighs[.GRP],
                                                                   prob=spreadProb/sum(spreadProb,na.rm=TRUE))),
-                                                 by="pixels"]$keepIndex]
+                                                 by="from"]$keepIndex]
           set(dtPotential, , "spreadProb", NULL)
         }
+        setcolorder(dtPotential, c("id", "from", "to"))
       } else { # standard algorithm ... runif against spreadProb
 
         # Extract spreadProb for the current set of potentials
@@ -361,13 +371,23 @@ setMethod(
 
         # Evaluate against spreadProb -- next lines are faster than: dtPotential <- dtPotential[keepers]
         keepers <- runif(NROW(dtPotential))<actualSpreadProb
+        if(needDistance) { # This needs to be in a different order ... keep it aside for now
+          dists <- dtPotential$distance[keepers]
+        }
         dtPotential <- as.data.table(cbind(id=dtPotential$id[keepers],
                                            from=dtPotential$from[keepers],
                                            to=dtPotential$to[keepers]))
+        #dtPotential <- dtPotential[keepers]
+
       }
+
 
       # convert state of all those still left, move potentialPixels into pixels column
       set(dtPotential, , "state", "successful")
+      if(needDistance) {
+        set(dtPotential, , "distance", dists)
+      }
+
       set(dtPotential, , "from", dtPotential$to)
       set(dtPotential, , "to", NULL)
 
@@ -386,17 +406,19 @@ setMethod(
         # remove any duplicates
         if(any(dupes)) {
           # faster than
-          # dt <- dt[!dups]
+          # dt <- dt[!dupes]
           state <- dt$state[!dupes]
+          dists <- dt$distance[!dupes]
           dt <- as.data.table(cbind(initialPixels=dt$initialPixels[!dupes],
                                 pixels=dt$pixels[!dupes]))
           set(dt, , "state", state)
-
+          if(needDistance)
+            set(dt, , "distance", dists)
         }
       }
 
       # Remove any pixels that push each cluster over their size limit
-      if(!any(size)) {
+      if(!anyNA(size)) {
         setkeyv(dt,"initialPixels") # must sort because size is sorted
         currentSize <- dt[,.N,by=initialPixels][,`:=`(size=size,
                                                       tooBig=N-size)]
@@ -443,7 +465,7 @@ setMethod(
       set(dt, which(dt$state=="holding"), "state", "successful")# return holding cells to successful
       whSucc <- which(dt$state=="successful")
       set(dt, whSucc, "state", "activeSource")# return holding cells to successful
-      set(dt, whSucc, "pixels", dt$pixels[whSucc])# return holding cells to successful
+      #set(dt, whSucc, "pixels", dt$pixels[whSucc])# put successful cells into "pixel" column
 
       if(plot.it) {
         newPlot <- FALSE

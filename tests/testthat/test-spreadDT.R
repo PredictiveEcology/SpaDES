@@ -58,7 +58,14 @@ test_that("spreadDT tests", {
         exactSize = TRUE,
         asRaster = FALSE
       )
-    expect_true(all(out[, .N, by = "initialPixels"]$N == exactSizes[order(sams)]))
+    attrib <- attr(out, "cluster")$numRetries>10
+    if(any(attrib)) {
+      frequ <- out[, .N, by = "initialPixels"]$N
+      expect_true(all(frequ[attrib] < exactSizes[order(sams)][attrib]))
+      expect_true(all(frequ[!attrib] == exactSizes[order(sams)][!attrib]))
+    } else {
+      expect_true(all(out[, .N, by = "initialPixels"]$N == exactSizes[order(sams)]))
+    }
   }
 
   if (interactive())
@@ -146,6 +153,7 @@ test_that("spreadDT tests", {
       dev(3 + count)
       count <- count + 1
       ras <- raster(a)
+      ras[] <- 0
       ras[out[initialPixels == ids, pixels]] <- out[initialPixels == ids, distance]
       clearPlot()
       Plot(ras)
