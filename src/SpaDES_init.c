@@ -3,17 +3,19 @@
 #include <stdlib.h> // for NULL
 #include <R_ext/Rdynload.h>
 
-/* FIXME: 
+/* FIXME:
    Check these declarations against the C/Fortran source code.
 */
 
 /* .Call calls */
 extern SEXP SpaDES_pointDistance2(SEXP, SEXP);
 extern SEXP SpaDES_pointDistance3(SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP SpaDES_duplicatedInt(SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
     {"SpaDES_pointDistance2", (DL_FUNC) &SpaDES_pointDistance2, 2},
     {"SpaDES_pointDistance3", (DL_FUNC) &SpaDES_pointDistance3, 5},
+    {"SpaDES_duplicatedInt", (DL_FUNC) &SpaDES_duplicatedInt, 1},
     {NULL, NULL, 0}
 };
 

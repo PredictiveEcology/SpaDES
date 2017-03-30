@@ -1,0 +1,493 @@
+if (getRversion() >= "3.1.0") {
+  utils::globalVariables(c(".GRP", "N", "distance", "initialPixels", "pixels", "state", "tooBig"))
+}
+
+###############################################################################
+#' Simulate a contagious spread process on a landscape, with data.table internals
+#'
+#' This can be used to simulate fires, seed dispersal, calculation of iterative,
+#' concentric landscape values (symmetric or asymmetric) and many other things.
+#' Essentially, it starts from a collection of cells (\code{start}) and spreads
+#' to neighbours, according to the \code{directions} and \code{spreadProb} arguments.
+#'
+#' There are 2 main underlying algorithms: \code{spreadProb} and \code{neighProb}.
+#' Using \code{spreadProb}, every "active" pixel will assess all
+#' neighbours (either 4 or 8, depending on  \code{directions}), and will "activate"
+#' whichever neighbours successfully pass \code{runif(1,0,1)<spreadProb}. The algorithm
+#' will iterate again and again, each time starting from the newly "activated" cells.
+#'
+#' This function can be interrupted before all active cells are exhausted if
+#' the \code{iterations} value is reached before there are no more active
+#' cells to spreadDT into. The interrupted output (a data.table) can be passed subsequently
+#' as an input to this same function (as \code{start}). This is intended
+#' to be used for situations where external
+#' events happen during a spreadDT event, or where one or more arguments to the spreadDT
+#' function change before a spreadDT event is completed. For example, if it is
+#' desired that the \code{spreadProb} change before a spreadDT event is completed because,
+#' for example, a fire is spreading, and a new set of conditions arise due to
+#' a change in weather.
+#'
+#' @section Breaking out of spreadDT events:
+#'
+#' There are 3 ways for the spreadDT to "stop" spreading. Here, each "event" is defined as
+#' all cells that are spawned from each unique \code{start} location.
+#' So, one spreadDT call can have
+#' multiple spreading "events". The ways outlined below are all acting at all times,
+#' i.e., they are not mutually exclusive. Therefore, it is the user's
+#' responsibility to make sure the different rules are interacting with
+#' each other correctly.
+#'
+#' \tabular{ll}{
+#'   \code{spreadProb} \tab Probabilistically, if spreadProb is low enough,
+#'                          active spreading events will stop. In practice,
+#'                          active spreading events will stop. In practice,
+#'                          this number generally should be below 0.3 to actually
+#'                          see an event stop\cr
+#'   \code{size} \tab This is the number of cells that are "successfully" turned
+#'                       on during a spreading event. This can be vectorized, one value
+#'                       for each event   \cr
+#'   \code{iterations} \tab This is a hard cap on the number of internal iterations to
+#'                          complete before returning the current state of the system
+#'                          as a data.table \cr
+#' }
+#'
+#' @param landscape     A \code{RasterLayer} object. This defines the possible locations
+#'                      for spreading events to start and spreadDT into. Required.
+#'
+#' @param start     Either a vector of pixel numbers to initiate spreading, or a
+#'                  data.table that is the output of a previous \code{spreadDT}.
+#'                  If a vector, they should be cell indices (pixels) on the \code{landscape}.
+#'                  If user has x and y coordinates, these can be converted with
+#'                  \code{\link[raster]{cellFromXY}}.
+#'
+#' @param spreadProb    Numeric or rasterLayer. If numeric of length 1, then this is
+#'                      the global probability of
+#'                      spreading into each cell from a neighbor. If a raster then this must
+#'                      be the cell-specific probability of a "receiving" potential cell.
+#'                      Default is \code{0.23}.
+#'
+#' @param asRaster Logical, length 1. If \code{TRUE}, the function will return a \code{Raster}
+#'                 where raster non NA values indicate the cells that were "actived", and the
+#'                 value is the initial starting pixel.
+#'
+#' @param size       Numeric. Maximum number of cells for a single or
+#'                      all events to be spreadDT. Recycled to match \code{start} length,
+#'                      if it is not as long as \code{start}.
+#'                      See section on \code{Breaking out of spreadDT events}.
+#'
+#' @param directions    The number adjacent cells in which to look;
+#'                      default is 8 (Queen case). Can only be 4 or 8.
+#'
+#' @param iterations    Number of iterations to spreadDT.
+#'                      Leaving this \code{NULL} allows the spreadDT to continue
+#'                      until stops spreading itself (i.e., exhausts itself).
+#'
+#' @param returnDistances Logical. Should the function inclue a column with the
+#'                      individual cell distances from the locus where that event
+#'                      started. Default is FALSE. See Details.
+#'
+#' @param circle        Logical. If TRUE, then outward spreadDT will be by equidistant rings,
+#'                      rather than solely by adjacent cells (via \code{directions} arg.). Default
+#'                      is FALSE. Using \code{circle = TRUE} can be dramatically slower for large
+#'                      problems. Note, this will likely create unexpected results if \code{spreadProb} < 1.
+#'
+#' @param allowOverlap  Logical. If \code{TRUE}, then individual events can overlap with one
+#'                      another, i.e., they do not interact. Currently, this is slower than
+#'                      if \code{allowOverlap} is \code{FALSE}. Default is \code{FALSE}.
+#'
+#' @param skipChecks Logical. If TRUE, then several potentially time consuming checking (such as
+#'              \code{inRange}) will be skipped. This should only be used if there is no
+#'              concern about checking to ensure that inputs are legal, i.e., if this call
+#'              is using the previous output from this same call.
+#'
+#' @param neighProbs An optional numeric vector, whose sum is 1. It indicates the
+#'                   probabilities that an individual
+#'                   spread iteration will spread to \code{1, 2, ..., length(neighProbs)}
+#'                   neighbours, respectively. If this is used (i.e., something other than
+#'                   NA), \code{circle} and \code{returnDistances} will not work currently.
+#'
+#' @param exactSize Logical. If TRUE, then the \code{size} will be treated as exact sizes,
+#'                   i.e., the spreadDT events will continue until they are
+#'                   \code{floor(size)}. This is overridden by \code{iterations}, but
+#'                   if \code{iterations} is run, and individual events haven't reached
+#'                   \code{size}, then the returned \code{data.table} will still have
+#'                   at least one active cell per event that did not achieve \code{size},
+#'                   so that the events can continue if passed into \code{spreadDT} with
+#'                   \code{spreadState}.
+#'
+#' @param ...           Additional named vectors or named list of named vectors
+#'                      required for \code{stopRule}. These
+#'                      vectors should be as long as required e.g., length
+#'                      \code{start} if there is one value per event.
+#'
+#' @return Either a \code{RasterLayer} (if \code{asRaster} is \code{TRUE}, the default).
+#' If a \code{RasterLayer}, then it represents
+#' every cell in which a successful spreadDT event occurred. For the case of, say, a fire
+#' this would represent every cell that burned. If \code{allowOverlap} is \code{TRUE},
+#' the return will always be a \code{data.table}.
+#'
+#' If \code{asRaster} is false, then this function returns a \code{data.table} with columns:
+#'
+#' \tabular{ll}{
+#'   \code{id} \tab an arbitrary ID \code{1:length(start)} identifying
+#'                      unique clusters of spreadDT events, i.e., all cells
+#'                      that have been spreadDT into that have a
+#'                      common initial cell.\cr
+#'   \code{initialLocus} \tab the initial cell number of that particular
+#'                            spreadDT event.\cr
+#'   \code{indices} \tab The cell indices of cells that have
+#'                        been touched by the spreadDT algorithm.\cr
+#'   \code{active} \tab a logical indicating whether the cell is active (i.e.,
+#'                        could still be a source for spreading) or not (no
+#'                        spreading will occur from these cells).\cr
+#' }
+#'
+#' This will generally be more useful when \code{allowOverlap} is \code{TRUE}.
+#' @export
+#' @importFrom raster ncell raster res
+#' @importFrom checkmate assertClass assert checkNumeric checkDataTable qassert assertNumeric
+#' @importFrom checkmate checkLogical checkClass
+#' @importFrom stats runif
+#' @importFrom fpCompare %<=% %>>%
+#' @docType methods
+#'
+#' @author Eliot McIntire
+#' @author Steve Cumming
+#' @seealso \code{\link{rings}} which uses \code{spreadDT} but with specific argument
+#' values selected for a specific purpose. \code{\link[raster]{distanceFromPoints}}
+#'
+#' @name spreadDT
+#' @aliases spreadDT
+#' @rdname spreadDT
+#'
+setGeneric("spreadDT", function(landscape, start = ncell(landscape)/2 - ncol(landscape)/2,
+                                spreadProb = 0.23, asRaster = TRUE,
+                                size, exactSize = FALSE,
+                                directions = 8L, iterations = 1e6L,
+                                returnDistances = FALSE,
+                                plot.it = FALSE,
+                                circle = FALSE,
+                                allowOverlap = FALSE,
+                                neighProbs = NA_real_, skipChecks = FALSE,
+                                ...) {
+  standardGeneric("spreadDT")
+})
+
+#' @param plot.it  If TRUE, then plot the raster at every iteraction,
+#'                   so one can watch the spreadDT event grow.
+#'
+#' @rdname spreadDT
+#'
+#' @example inst/examples/example_spread.R
+#'
+setMethod(
+  "spreadDT",
+  signature(landscape = "RasterLayer"),
+  definition = function(landscape, start, spreadProb, asRaster,
+                        size, exactSize,
+                        directions, iterations,
+                        returnDistances, plot.it,
+                        circle, allowOverlap,
+                        neighProbs, skipChecks,
+                        ...) {
+
+
+    #### assertions ###############
+    if(!skipChecks) {
+      assertClass(landscape, "Raster")
+      ncells <- ncell(landscape)
+
+      assert(
+        checkNumeric(start, min.len=0, max.len=ncells, lower = 1, upper=ncells),
+        checkDataTable(start, ncols=3, types=c(rep("numeric", 2), "character")))
+
+      qassert(neighProbs, "n[0,1]")
+      assertNumeric(sum(neighProbs), lower = 1, upper = 1)
+
+      assert(
+        checkNumeric(spreadProb, 0, 1, min.len=1, max.len=ncells),
+        checkClass(spreadProb, "RasterLayer")
+      )
+      qassert(directions, "N1[4,8]")
+      qassert(iterations, "N1[1,Inf]")
+      qassert(circle, "B")
+      if(circle)
+        qassert(spreadProb, "N1[1,1]")
+
+      if(!missing(size)) {
+        assert(
+          checkNumeric(size, min.len = 1, max.len=1),
+          checkNumeric(size, min.len = NROW(start), max.len=NROW(start))
+        )
+      }
+    } else {
+      ncells <- ncell(landscape)
+    }
+    ##### End assertions
+
+    ##### Set up dt and clusterDT objects
+    if(missing(size)) {
+      size <- NA
+    }
+    needDistance <- returnDistances | circle # returnDistances = TRUE and circle = TRUE both require distance calculations
+    maxRetriesPerID <- 10 # This means that if an event can not spread any more, it will try 10 times, including 2 jumps
+
+    if(!is.data.table(start)) {
+      start <- as.integer(start)
+
+      clusterDT=as.data.table(cbind(id=seq_along(start), initialPixels=start, numRetries=0L));
+        setkey(clusterDT, "initialPixels")
+
+      dt <- as.data.table(cbind(initialPixels=start, pixels=start))
+        set(dt, , "state", "activeSource")
+
+      if(!anyNA(size)) {
+        if(length(size) > 1)
+          size <- size[order(start)] # reorder to matches increasing order of start
+      }
+    } else {
+      clusterDT <- attr(start, "cluster")#data.table(id=unique(start$id), initialPixels=unique(start$initialPixels), key = "initialPixels")
+      if(!key(clusterDT)=="initialPixels") # should have key if it came directly from output of spreadDT
+        setkey(clusterDT, "initialPixels")
+      if(!anyNA(size)) {
+        size <- size[order(clusterDT$id)] # reorder to matches increasing order of start
+      }
+      set(clusterDT, ,"numRetries", 0)
+      dt <- start
+    }
+    dtColNames <- colnames(dt)[!colnames(dt)=="state"]
+    dtPotentialColNames <- c("id", "from", "to", "state", "distance"[needDistance])
+
+    if(needDistance)
+      set(dt, , "distance", 0) # it is zero distance to self
+
+    its <- 0
+
+    needRetryID <- numeric()
+    whSucc <- which(dt$state=="activeSource")
+
+    while((length(needRetryID) | length(whSucc)) &  its < iterations) {
+
+      # Step 1
+      # Get neighbours, either via adj (default) or cir (jumping if stuck)
+      if(length(needRetryID)>0){ # get slightly further neighbours
+        dtState <- dt$state=="needRetry"
+        dtRetry <- dt[dtState];
+        if(any(((clusterDT$numRetries+1) %% 5) == 0)) { # jump every 5, starting at 4
+          resCur <- res(landscape)[1]
+          fromPixels <- dt[dtState]$pixels
+          potentialPixels <- cir(landscape, loci = fromPixels, includeBehavior = "excludePixels",
+                                 minRadius = resCur, maxRadius=4*resCur, allowOverlap = TRUE)[,c("id","indices")]
+          potentialPixels <- matrix(as.integer(potentialPixels), ncol=2)
+          colnames(potentialPixels) <- c("id", "to")
+          potentialPixels <- cbind(id=dtRetry$initialPixels[potentialPixels[,"id"]],
+                                   from=fromPixels[potentialPixels[,"id"]],
+                                   to=potentialPixels[, "to"])
+        } else { # get adjacent neighbours
+          potentialPixels <- adj(landscape, directions=directions, id=dtRetry$initialPixels,
+                        cells = dtRetry$pixels)
+        }
+
+        whActiveSrc <- which(dt$state == "activeSource")
+        set(dt, whActiveSrc, "state", "holding")
+        whNeedRetry <- which(dt$state == "needRetry")
+        set(dt, whNeedRetry, "state", "activeSource")
+
+      } else { # Spread to immediate neighbours
+        dtActiveSrc <- dt$state == "activeSource"
+        potentialPixels <- adj(landscape, directions=directions, id=dt$initialPixels[dtActiveSrc],
+                      cells = dt$pixels[dtActiveSrc])
+
+        # only iterate if it is not a Retry situation
+        its <- its + 1
+      }
+
+      dtPotential <- as.data.table(potentialPixels)
+
+      if(length(needRetryID)>0){ # of all possible cells in the jumping range, take just 2
+        dtPotential <- dtPotential[,list(to=resample(to, 2)),by=c("id","from")]
+        needRetryID <- numeric()
+      }
+
+      #set(dtPotential, , "state", "successful")
+
+      # if(needDistance)
+      #   set(dtPotential, , "distance", NA_real_)
+
+      # randomize row order so duplicates are not always in same place
+      i <- sample.int(NROW(dtPotential))
+      for(x in colnames(dtPotential)) set(dtPotential, , x, dtPotential[[x]][i])
+
+      # calculate distances, if required ... attach to dt
+      if(needDistance) {
+        fromPts <- xyFromCell(landscape,dtPotential$id)
+        toPts <- xyFromCell(landscape,dtPotential$to)
+        #set(dtPotential, , "distance", pointDistance(p1 = fromPts, p2 = toPts, lonlat=FALSE))
+        dists <- pointDistance(p1 = fromPts, p2 = toPts, lonlat=FALSE)
+        if(circle) {
+          distKeepers <- dists %<=% its & dists %>>% (its-1)
+          mat <- cbind(from=dtPotential$from[distKeepers],
+                to=dtPotential$to[distKeepers],
+                id=dtPotential$id[distKeepers])
+          if(needDistance)
+            mat <- cbind(mat, distance=dists[distKeepers])
+          dtPotential <- as.data.table(mat)
+        }
+      }
+
+      set(dtPotential, , "state", "successful")
+
+      # Alternative algorithm for finding potential neighbours -- uses a specific number of neighbours
+      if(!anyNA(neighProbs)) {
+
+        numNeighsByPixel <- unique(dtPotential, by = c("id", "from"))
+        set(numNeighsByPixel, , "numNeighs",
+            sample.int(size = NROW(numNeighsByPixel), n = length(neighProbs),
+                       replace = TRUE, prob = neighProbs))
+        setkeyv(numNeighsByPixel, c("id", "from"))
+
+        # remove duplicates from the existing "pixels" and new "potential pixels", since it must select exactly numNeighs
+        dups <- duplicatedInt(c(dt$pixels, dtPotential$to))
+        dups <- dups[-seq_along(dt$pixels)]
+        dtPotential <- dtPotential[!dups]
+        setkeyv(dtPotential, c("id", "from")) # sort so it is the same as numNeighsByPixel
+        if(NROW(dtPotential)) {
+          set(dtPotential, , "spreadProb", spreadProb[dtPotential$to])
+          # If it is a corner or has had pixels removed bc of duplicates, it may not have enough neighbours
+          numNeighsByPixel <- numNeighsByPixel[dtPotential[,.N,by=c("id", "from")]]
+          set(numNeighsByPixel, , "numNeighs", pmin(numNeighsByPixel$N, numNeighsByPixel$numNeighs, na.rm=TRUE))
+
+          dtPotential <- dtPotential[dtPotential[,list(keepIndex=
+                                                         resample(.I, numNeighsByPixel$numNeighs[.GRP],
+                                                                  prob=spreadProb/sum(spreadProb,na.rm=TRUE))),
+                                                 by="from"]$keepIndex]
+          set(dtPotential, , "spreadProb", NULL)
+        }
+        setcolorder(dtPotential, dtPotentialColNames)
+      } else { # standard algorithm ... runif against spreadProb
+
+        # Extract spreadProb for the current set of potentials
+        actualSpreadProb <- if(length(spreadProb)==1) {
+          spreadProb
+        } else {
+          spreadProb[dtPotential$to]
+        }
+
+        # Evaluate against spreadProb -- next lines are faster than: dtPotential <- dtPotential[keepers]
+        keepers <- runif(NROW(dtPotential))<actualSpreadProb
+        ll <- lapply(colnames(dtPotential), function(x) dtPotential[[x]][keepers])
+        names(ll) <- colnames(dtPotential)
+        dtPotential <- as.data.table(ll[dtPotentialColNames])
+
+      }
+
+
+      # convert state of all those still left, move potentialPixels into pixels column
+      set(dtPotential, , "from", dtPotential$to)
+      set(dtPotential, , "to", NULL)
+
+      # combine potentials to previous
+      dt <- rbindlist(list(dt, dtPotential))
+
+      # Remove duplicates, which was already done for neighProbs situation
+      if(anyNA(neighProbs)) {
+        if(allowOverlap) {
+          dt[,`:=`(dups=duplicatedInt(pixels)),by=initialPixels]
+          dupes <- dt$dups
+          set(dt, , "dups", NULL)
+        } else {
+          dupes <- duplicatedInt(dt$pixels)
+        }
+        # remove any duplicates
+        if(any(dupes)) {
+          # faster than
+          # dt <- dt[!dupes]
+          ll <- lapply(colnames(dt), function(x) dt[[x]][!dupes])
+          names(ll) <- colnames(dt)
+          dt <- as.data.table(ll)
+        }
+      }
+
+      # Remove any pixels that push each cluster over their size limit
+      if(!anyNA(size)) {
+        setkeyv(dt,"initialPixels") # must sort because size is sorted
+        currentSize <- dt[,.N,by=initialPixels][,`:=`(size=size,
+                                                      tooBig=N-size)]
+
+        currentSizeTooBig <- currentSize[tooBig>0]
+        if(NROW(currentSizeTooBig)>0) {
+          # sort them so .GRP works on 3rd line
+          setkeyv(currentSizeTooBig, "initialPixels")
+          dt <- dt[-dt[state=="successful" & (initialPixels %in% currentSizeTooBig$initialPixels),
+                       resample(.I, currentSizeTooBig[.GRP]$tooBig),by=initialPixels]$V1][
+                         initialPixels %in% currentSizeTooBig$initialPixels,state:="inactive"]
+        }
+
+        if(exactSize) {
+          currentSizeTooSmall <- currentSize[tooBig<0]
+          if(NROW(currentSizeTooSmall)>0) {
+            dt2 <- dt[initialPixels %in% currentSizeTooSmall$initialPixels & (state=="successful" | state=="holding")] # successful means will become activeSource next iteration
+            setkeyv(dt2, "initialPixels")
+            setkeyv(currentSizeTooSmall, "initialPixels")
+            currentSizeTooSmall <- currentSizeTooSmall[!dt2]
+          }
+          # if the ones that are too small are unsuccessful, make them "needRetry"
+          keep <- which(dt$initialPixels %in% currentSizeTooSmall$initialPixels &
+                          (dt$state!="successful" & dt$state!="inactive"))
+          if(length(keep)) {
+
+            needRetryID <- clusterDT$initialPixels %in% unique(dt$initialPixels[keep])
+            tooManyRetries <- clusterDT$numRetries > maxRetriesPerID
+            if(sum(tooManyRetries * needRetryID)>0) {
+              needRetryID <- needRetryID & !(needRetryID * tooManyRetries)
+              keep <- keep[dt$initialPixels[keep] %in%
+                             clusterDT$initialPixels[needRetryID]]
+            }
+            needRetryID <- which(needRetryID)
+
+            set(dt,keep,"state","needRetry")
+            set(clusterDT,needRetryID,"numRetries",clusterDT$numRetries[needRetryID]+1L)
+          }
+        }
+      } # end size based removals
+
+      # Change states of cells
+      set(dt, which(dt$state=="activeSource"), "state", "inactive")
+      set(dt, which(dt$state=="holding"), "state", "successful")# return holding cells to successful
+      whSucc <- which(dt$state=="successful")
+      set(dt, whSucc, "state", "activeSource")# return holding cells to successful
+      #set(dt, whSucc, "pixels", dt$pixels[whSucc])# put successful cells into "pixel" column
+
+      if(plot.it) {
+        newPlot <- FALSE
+        if(!exists("ras", inherits = FALSE)) {
+          newPlot <- TRUE
+        }
+        if(newPlot)
+          ras <- raster(landscape)
+        if(returnDistances) {
+          ras[dt$pixels] <- dt$distance
+          newPlot <- TRUE
+        } else {
+          setkeyv(dt, "initialPixels")
+          ras[dt$pixels] <- dt[clusterDT]$id
+        }
+        Plot(ras, new=newPlot)
+      }
+    } # end of main loop
+
+    ## clean up ##
+    if(asRaster) {
+      ras <- raster(landscape)
+      # inside unit tests, this raster gives warnings if it is only NAs
+      suppressWarnings(ras[dt$pixels] <- clusterDT[dt]$id)
+      attr(ras, "cluster") <- clusterDT
+      attr(ras, "pixel") <- dt
+      return(ras)
+    }
+
+    attr(dt, "cluster") <- clusterDT
+    return(dt)
+  }
+)
+
