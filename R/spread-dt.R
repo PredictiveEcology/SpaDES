@@ -235,7 +235,8 @@ setMethod(
     if(!is.data.table(start)) {
       start <- as.integer(start)
 
-      clusterDT=as.data.table(cbind(id=seq_along(start), initialPixels=start, numRetries=0L));
+      whActive <- seq_along(start)
+      clusterDT=as.data.table(cbind(id=whActive, initialPixels=start, numRetries=0L));
         setkey(clusterDT, "initialPixels")
 
       dt <- as.data.table(cbind(initialPixels=start, pixels=start))
@@ -254,6 +255,7 @@ setMethod(
       }
       set(clusterDT, ,"numRetries", 0)
       dt <- start
+      whActive <- which(dt$state=="activeSource")
     }
     dtColNames <- colnames(dt)[!colnames(dt)=="state"]
     dtPotentialColNames <- c("id", "from", "to", "state", "distance"[needDistance])
@@ -264,18 +266,17 @@ setMethod(
     its <- 0
 
     needRetryID <- numeric()
-    whSucc <- which(dt$state=="activeSource")
+    whNeedRetry <- numeric()
 
-    while((length(needRetryID) | length(whSucc)) &  its < iterations) {
+    while((length(needRetryID) | length(whActive)) &  its < iterations) {
 
       # Step 1
       # Get neighbours, either via adj (default) or cir (jumping if stuck)
       if(length(needRetryID)>0){ # get slightly further neighbours
-        dtState <- dt$state=="needRetry"
-        dtRetry <- dt[dtState];
+        dtRetry <- dt[whNeedRetry]
         if(any(((clusterDT$numRetries+1) %% 5) == 0)) { # jump every 5, starting at 4
           resCur <- res(landscape)[1]
-          fromPixels <- dt[dtState]$pixels
+          fromPixels <- dtRetry$pixels
           potentialPixels <- cir(landscape, loci = fromPixels, includeBehavior = "excludePixels",
                                  minRadius = resCur, maxRadius=4*resCur, allowOverlap = TRUE)[,c("id","indices")]
           potentialPixels <- matrix(as.integer(potentialPixels), ncol=2)
@@ -288,9 +289,7 @@ setMethod(
                         cells = dtRetry$pixels)
         }
 
-        whActiveSrc <- which(dt$state == "activeSource")
-        set(dt, whActiveSrc, "state", "holding")
-        whNeedRetry <- which(dt$state == "needRetry")
+        set(dt, whActive, "state", "holding")
         set(dt, whNeedRetry, "state", "activeSource")
 
       } else { # Spread to immediate neighbours
@@ -308,11 +307,6 @@ setMethod(
         dtPotential <- dtPotential[,list(to=resample(to, 2)),by=c("id","from")]
         needRetryID <- numeric()
       }
-
-      #set(dtPotential, , "state", "successful")
-
-      # if(needDistance)
-      #   set(dtPotential, , "distance", NA_real_)
 
       # randomize row order so duplicates are not always in same place
       i <- sample.int(NROW(dtPotential))
@@ -432,20 +426,20 @@ setMethod(
             currentSizeTooSmall <- currentSizeTooSmall[!dt2]
           }
           # if the ones that are too small are unsuccessful, make them "needRetry"
-          keep <- which(dt$initialPixels %in% currentSizeTooSmall$initialPixels &
+          whNeedRetry <- which(dt$initialPixels %in% currentSizeTooSmall$initialPixels &
                           (dt$state!="successful" & dt$state!="inactive"))
-          if(length(keep)) {
+          if(length(whNeedRetry)) {
 
-            needRetryID <- clusterDT$initialPixels %in% unique(dt$initialPixels[keep])
+            needRetryID <- clusterDT$initialPixels %in% unique(dt$initialPixels[whNeedRetry])
             tooManyRetries <- clusterDT$numRetries > maxRetriesPerID
             if(sum(tooManyRetries * needRetryID)>0) {
               needRetryID <- needRetryID & !(needRetryID * tooManyRetries)
-              keep <- keep[dt$initialPixels[keep] %in%
+              whNeedRetry <- whNeedRetry[dt$initialPixels[whNeedRetry] %in%
                              clusterDT$initialPixels[needRetryID]]
             }
             needRetryID <- which(needRetryID)
 
-            set(dt,keep,"state","needRetry")
+            set(dt,whNeedRetry,"state","needRetry")
             set(clusterDT,needRetryID,"numRetries",clusterDT$numRetries[needRetryID]+1L)
           }
         }
@@ -454,9 +448,9 @@ setMethod(
       # Change states of cells
       set(dt, which(dt$state=="activeSource"), "state", "inactive")
       set(dt, which(dt$state=="holding"), "state", "successful")# return holding cells to successful
-      whSucc <- which(dt$state=="successful")
-      set(dt, whSucc, "state", "activeSource")# return holding cells to successful
-      #set(dt, whSucc, "pixels", dt$pixels[whSucc])# put successful cells into "pixel" column
+      whActive <- which(dt$state=="successful")
+      set(dt, whActive, "state", "activeSource")# return holding cells to successful
+      #set(dt, whActive, "pixels", dt$pixels[whActive])# put successful cells into "pixel" column
 
       if(plot.it) {
         newPlot <- FALSE
