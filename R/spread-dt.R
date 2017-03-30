@@ -191,7 +191,6 @@ setMethod(
                         neighProbs, skipChecks,
                         ...) {
 
-
     #### assertions ###############
     if(!skipChecks) {
       assertClass(landscape, "Raster")
@@ -225,6 +224,17 @@ setMethod(
     }
     ##### End assertions
 
+    # required function
+    spreadProbHas0 <- if(is(spreadProb, "Raster")) minValue(spreadProb)==0 else any(spreadProb==0)
+    resampleZeroProof <- if(spreadProbHas0) function(i, n, sp) {
+      sm <- sum(sp, na.rm=TRUE)
+      if(sm==0) {
+        numeric()
+      } else {
+        resample(i, n, prob=sp/sm)
+      }
+    } else function(i, n, sp) resample(i, n, prob=sp/sm)
+    
     ##### Set up dt and clusterDT objects
     if(missing(size)) {
       size <- NA
@@ -353,14 +363,22 @@ setMethod(
         setkeyv(dtPotential, c("id", "from")) # sort so it is the same as numNeighsByPixel
         if(NROW(dtPotential)) {
           set(dtPotential, , "spreadProb", spreadProb[dtPotential$to])
+          spreadProbNA <- is.na(dtPotential$spreadProb) # This is where a mask enters
+          if(any(spreadProbNA)) {
+            colnamesDtPot <- colnames(dtPotential)
+            ll <-  lapply(colnamesDtPot, function(x) dtPotential[[x]][!spreadProbNA])
+            names(ll) <- colnamesDtPot
+            dtPotential <- as.data.table(ll)
+          }
           # If it is a corner or has had pixels removed bc of duplicates, it may not have enough neighbours
           numNeighsByPixel <- numNeighsByPixel[dtPotential[,.N,by=c("id", "from")]]
           set(numNeighsByPixel, , "numNeighs", pmin(numNeighsByPixel$N, numNeighsByPixel$numNeighs, na.rm=TRUE))
 
-          dtPotential <- dtPotential[dtPotential[,list(keepIndex=
-                                                         resample(.I, numNeighsByPixel$numNeighs[.GRP],
-                                                                  prob=spreadProb/sum(spreadProb,na.rm=TRUE))),
-                                                 by="from"]$keepIndex]
+          dtPotential <- dtPotential[
+            dtPotential[,list(keepIndex=
+                                resampleZeroProof(.I,numNeighsByPixel$numNeighs[.GRP], spreadProb)),
+                        by="from"]$keepIndex]
+          
           set(dtPotential, , "spreadProb", NULL)
         }
         setcolorder(dtPotential, dtPotentialColNames)
@@ -490,4 +508,5 @@ setMethod(
     return(dt)
   }
 )
+
 
