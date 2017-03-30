@@ -43,7 +43,7 @@ if (getRversion() >= "3.1.0") {
 #'                          active spreading events will stop. In practice,
 #'                          this number generally should be below 0.3 to actually
 #'                          see an event stop\cr
-#'   \code{size} \tab This is the number of cells that are "successfully" turned
+#'   \code{maxSize} \tab This is the number of cells that are "successfully" turned
 #'                       on during a spreading event. This can be vectorized, one value
 #'                       for each event   \cr
 #'   \code{iterations} \tab This is a hard cap on the number of internal iterations to
@@ -70,7 +70,7 @@ if (getRversion() >= "3.1.0") {
 #'                 where raster non NA values indicate the cells that were "actived", and the
 #'                 value is the initial starting pixel.
 #'
-#' @param size       Numeric. Maximum number of cells for a single or
+#' @param maxSize       Numeric. Maximum number of cells for a single or
 #'                      all events to be spreadDT. Recycled to match \code{start} length,
 #'                      if it is not as long as \code{start}.
 #'                      See section on \code{Breaking out of spreadDT events}.
@@ -106,12 +106,12 @@ if (getRversion() >= "3.1.0") {
 #'                   neighbours, respectively. If this is used (i.e., something other than
 #'                   NA), \code{circle} and \code{returnDistances} will not work currently.
 #'
-#' @param exactSize Logical. If TRUE, then the \code{size} will be treated as exact sizes,
+#' @param exactSize Logical. If TRUE, then the \code{maxSize} will be treated as exact sizes,
 #'                   i.e., the spreadDT events will continue until they are
-#'                   \code{floor(size)}. This is overridden by \code{iterations}, but
+#'                   \code{floor(maxSize)}. This is overridden by \code{iterations}, but
 #'                   if \code{iterations} is run, and individual events haven't reached
-#'                   \code{size}, then the returned \code{data.table} will still have
-#'                   at least one active cell per event that did not achieve \code{size},
+#'                   \code{maxSize}, then the returned \code{data.table} will still have
+#'                   at least one active cell per event that did not achieve \code{maxSize},
 #'                   so that the events can continue if passed into \code{spreadDT} with
 #'                   \code{spreadState}.
 #'
@@ -162,7 +162,7 @@ if (getRversion() >= "3.1.0") {
 #'
 setGeneric("spreadDT", function(landscape, start = ncell(landscape)/2 - ncol(landscape)/2,
                                 spreadProb = 0.23, asRaster = TRUE,
-                                size, exactSize = FALSE,
+                                maxSize, exactSize = FALSE,
                                 directions = 8L, iterations = 1e6L,
                                 returnDistances = FALSE,
                                 plot.it = FALSE,
@@ -184,7 +184,7 @@ setMethod(
   "spreadDT",
   signature(landscape = "RasterLayer"),
   definition = function(landscape, start, spreadProb, asRaster,
-                        size, exactSize,
+                        maxSize, exactSize,
                         directions, iterations,
                         returnDistances, plot.it,
                         circle, allowOverlap,
@@ -213,10 +213,10 @@ setMethod(
       if(circle)
         qassert(spreadProb, "N1[1,1]")
 
-      if(!missing(size)) {
+      if(!missing(maxSize)) {
         assert(
-          checkNumeric(size, min.len = 1, max.len=1),
-          checkNumeric(size, min.len = NROW(start), max.len=NROW(start))
+          checkNumeric(maxSize, min.len = 1, max.len=1),
+          checkNumeric(maxSize, min.len = NROW(start), max.len=NROW(start))
         )
       }
     } else {
@@ -228,16 +228,16 @@ setMethod(
     spreadProbHas0 <- if(is(spreadProb, "Raster")) minValue(spreadProb)==0 else any(spreadProb==0)
     resampleZeroProof <- if(spreadProbHas0) function(i, n, sp) {
       sm <- sum(sp, na.rm=TRUE)
-      if(sm==0) {
-        numeric()
+      if(sum(sp>0)<=n) {
+        integer()
       } else {
         resample(i, n, prob=sp/sm)
       }
     } else function(i, n, sp) resample(i, n, prob=sp/sm)
     
     ##### Set up dt and clusterDT objects
-    if(missing(size)) {
-      size <- NA
+    if(missing(maxSize)) {
+      maxSize <- NA
     }
     needDistance <- returnDistances | circle # returnDistances = TRUE and circle = TRUE both require distance calculations
     maxRetriesPerID <- 10 # This means that if an event can not spread any more, it will try 10 times, including 2 jumps
@@ -246,22 +246,27 @@ setMethod(
       start <- as.integer(start)
 
       whActive <- seq_along(start)
-      clusterDT=as.data.table(cbind(id=whActive, initialPixels=start, numRetries=0L));
-        setkey(clusterDT, "initialPixels")
-
       dt <- as.data.table(cbind(initialPixels=start, pixels=start))
-        set(dt, , "state", "activeSource")
+      set(dt, , "state", "activeSource")
 
-      if(!anyNA(size)) {
-        if(length(size) > 1)
-          size <- size[order(start)] # reorder to matches increasing order of start
+      clusterDT=as.data.table(cbind(id=whActive, initialPixels=start, numRetries=0L));
+      if(!anyNA(maxSize)) {
+        if(length(maxSize) > 1) {
+          set(clusterDT, , "maxSize", maxSize)
+          set(dt, which(maxSize==1), "state", "inactive") # de-activate ones that are 1 cell
+        }
       }
+      
+      setkey(clusterDT, "initialPixels")
     } else {
       clusterDT <- attr(start, "cluster")#data.table(id=unique(start$id), initialPixels=unique(start$initialPixels), key = "initialPixels")
       if(!key(clusterDT)=="initialPixels") # should have key if it came directly from output of spreadDT
         setkey(clusterDT, "initialPixels")
-      if(!anyNA(size)) {
-        size <- size[order(clusterDT$id)] # reorder to matches increasing order of start
+      if(!anyNA(maxSize)) {
+        if(any(maxSize != clusterDT$maxSize)) {
+          warning("maxSize provided, that does not match with maxSize in the start object. ",
+                  "Using the maxSize in the start object instead, found using: attr(start, 'cluster')")
+        }
       }
       set(clusterDT, ,"numRetries", 0)
       dt <- start
@@ -345,9 +350,15 @@ setMethod(
       if(!anyNA(neighProbs)) {
 
         numNeighsByPixel <- unique(dtPotential, by = c("id", "from"))
-        set(numNeighsByPixel, , "numNeighs",
-            sample.int(size = NROW(numNeighsByPixel), n = length(neighProbs),
-                       replace = TRUE, prob = neighProbs))
+        if(is.list(neighProbs)) {
+          set(numNeighsByPixel, , "numNeighs", unlist(lapply(
+            neighProbs, function(np) sample.int(size = 1, n = length(np), 
+                                                replace = TRUE, prob = np))))
+        } else {
+          set(numNeighsByPixel, , "numNeighs",
+              sample.int(size = NROW(numNeighsByPixel), n = length(neighProbs),
+                         replace = TRUE, prob = neighProbs))
+        }
         setkeyv(numNeighsByPixel, c("id", "from"))
 
         # remove duplicates from the existing "pixels" and new "potential pixels", since it must select exactly numNeighs
@@ -420,16 +431,18 @@ setMethod(
         }
       }
 
-      # Remove any pixels that push each cluster over their size limit
-      if(!anyNA(size)) {
-        setkeyv(dt,"initialPixels") # must sort because size is sorted
-        currentSize <- dt[,.N,by=initialPixels][,`:=`(size=size,
-                                                      tooBig=N-size)]
+      # Remove any pixels that push each cluster over their maxSize limit
+      if(!anyNA(maxSize)) {
+        setkeyv(dt,"initialPixels") # must sort because maxSize is sorted
+        currentSize <- dt[,.N,by=initialPixels][,`:=`(maxSize=clusterDT$maxSize,
+                                                      tooBig=N-clusterDT$maxSize)]
 
         currentSizeTooBig <- currentSize[tooBig>0]
         if(NROW(currentSizeTooBig)>0) {
           # sort them so .GRP works on 3rd line
           setkeyv(currentSizeTooBig, "initialPixels")
+          its1 <<- get("its1", envir=.GlobalEnv) + 1
+          message("inside: ", its1)
           dt <- dt[-dt[state=="successful" & (initialPixels %in% currentSizeTooBig$initialPixels),
                        resample(.I, currentSizeTooBig[.GRP]$tooBig),by=initialPixels]$V1][
                          initialPixels %in% currentSizeTooBig$initialPixels,state:="inactive"]
@@ -461,7 +474,7 @@ setMethod(
             set(clusterDT,needRetryID,"numRetries",clusterDT$numRetries[needRetryID]+1L)
           }
         }
-      } # end size based removals
+      } # end maxSize based removals
 
       # Change states of cells
       set(dt, which(dt$state=="activeSource"), "state", "inactive")
