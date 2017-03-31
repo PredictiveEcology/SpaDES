@@ -256,7 +256,6 @@ setMethod(
           set(dt, which(maxSize==1), "state", "inactive") # de-activate ones that are 1 cell
         }
       }
-      
       setkey(clusterDT, "initialPixels")
     } else {
       clusterDT <- attr(start, "cluster")#data.table(id=unique(start$id), initialPixels=unique(start$initialPixels), key = "initialPixels")
@@ -268,6 +267,7 @@ setMethod(
                   "Using the maxSize in the start object instead, found using: attr(start, 'cluster')")
         }
       }
+      if(!is.null(clusterDT$maxSize)) maxSize <- clusterDT$maxSize
       set(clusterDT, ,"numRetries", 0)
       dt <- start
       whActive <- which(dt$state=="activeSource")
@@ -441,8 +441,6 @@ setMethod(
         if(NROW(currentSizeTooBig)>0) {
           # sort them so .GRP works on 3rd line
           setkeyv(currentSizeTooBig, "initialPixels")
-          its1 <<- get("its1", envir=.GlobalEnv) + 1
-          message("inside: ", its1)
           dt <- dt[-dt[state=="successful" & (initialPixels %in% currentSizeTooBig$initialPixels),
                        resample(.I, currentSizeTooBig[.GRP]$tooBig),by=initialPixels]$V1][
                          initialPixels %in% currentSizeTooBig$initialPixels,state:="inactive"]
