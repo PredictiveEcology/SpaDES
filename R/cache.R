@@ -393,8 +393,19 @@ setMethod(
     # This is for write conflicts to the SQLite database, i.e., keep trying until it is
     # written
     written <- FALSE
-    if (is(outputToSave, "Raster")) {
-      outputToSave <- prepareFileBackedRaster(outputToSave, repoDir = cacheRepo)#, archiveData = TRUE,
+    outputToSaveIsList <- is.list(outputToSave)
+    if(outputToSaveIsList) {
+      rasters <- unlist(lapply(outputToSave, is, "Raster"))
+    } else {
+      rasters <- is(outputToSave, "Raster")
+    }
+    if (any(rasters)) {
+      if(outputToSaveIsList) {
+        outputToSave[rasters] <- lapply(outputToSave[rasters], function(x) 
+          prepareFileBackedRaster(x, repoDir = cacheRepo))#, archiveData = TRUE,
+      } else {
+        outputToSave <- prepareFileBackedRaster(outputToSave, repoDir = cacheRepo)#, archiveData = TRUE,
+      }
       attr(outputToSave, "tags") <- attr(output, "tags")
       attr(outputToSave, "call") <- attr(output, "call")
       if (isS4(FUN))
@@ -566,6 +577,7 @@ setGeneric("showCache", function(x, userTags = character(),
 setMethod(
   "showCache",
   definition = function(x, userTags, after, before, ...) {
+    browser()
     if (missing(x)) stop("Must provide a simList or repository")
     if (missing(after)) after <- "1970-01-01"
     if (missing(before)) before <- Sys.Date() + 1
@@ -576,14 +588,13 @@ setMethod(
     if (NROW(objsDT) > 0) {
       objsDT <- data.table(splitTagsLocal(x), key = "artifact")
       if (length(userTags) > 0) {
-        objsDT <- data.table(splitTagsLocal(x), key = "artifact")
         for (ut in userTags) {
           objsDT2 <- objsDT[
             grepl(tagValue, pattern = ut)   |
             grepl(tagKey, pattern = ut) |
             grepl(artifact, pattern = ut)]
           setkey(objsDT2, "artifact")
-          objsDT <- objsDT[objsDT2[, artifact]]
+          objsDT <- objsDT2
         }
       }
 
