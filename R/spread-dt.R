@@ -13,29 +13,31 @@ if (getRversion() >= "3.1.0") {
 #' There are 2 main underlying algorithms: \code{spreadProb} and \code{neighProb}.
 #' Using \code{spreadProb}, every "active" pixel will assess all
 #' neighbours (either 4 or 8, depending on  \code{directions}), and will "activate"
-#' whichever neighbours successfully pass \code{runif(1,0,1)<spreadProb}. The algorithm
-#' will iterate again and again, each time starting from the newly "activated" cells.
+#' whichever neighbours successfully pass \code{runif(1,0,1)<spreadProb}.
+#' The algorithm will iterate again and again, each time starting from the newly
+#' "activated" cells.
 #'
 #' This function can be interrupted before all active cells are exhausted if
 #' the \code{iterations} value is reached before there are no more active
-#' cells to spreadDT into. The interrupted output (a data.table) can be passed subsequently
-#' as an input to this same function (as \code{start}). This is intended
-#' to be used for situations where external
-#' events happen during a spreadDT event, or where one or more arguments to the spreadDT
-#' function change before a spreadDT event is completed. For example, if it is
-#' desired that the \code{spreadProb} change before a spreadDT event is completed because,
-#' for example, a fire is spreading, and a new set of conditions arise due to
-#' a change in weather.
+#' cells to spreadDT into. The interrupted output (a data.table) can be passed
+#' subsequently as an input to this same function (as \code{start}).
+#' This is intended to be used for situations where external events happen during
+#' a spreadDT event, or where one or more arguments to the spreadDT function
+#' change before a spreadDT event is completed.
+#' For example, if it is desired that the \code{spreadProb} change before a
+#' spreadDT event is completed because, for example, a fire is spreading, and a
+#' new set of conditions arise due to a change in weather.
 #'
 #' @section Breaking out of spreadDT events:
 #'
-#' There are 3 ways for the spreadDT to "stop" spreading. Here, each "event" is defined as
-#' all cells that are spawned from each unique \code{start} location.
-#' So, one spreadDT call can have
-#' multiple spreading "events". The ways outlined below are all acting at all times,
-#' i.e., they are not mutually exclusive. Therefore, it is the user's
-#' responsibility to make sure the different rules are interacting with
-#' each other correctly.
+#' There are 3 ways for the spreadDT to "stop" spreading.
+#' Here, each "event" is defined as all cells that are spawned from each unique
+#' \code{start} location.
+#' So, one spreadDT call can have multiple spreading "events".
+#' The ways outlined below are all acting at all times, i.e., they are not
+#' mutually exclusive.
+#' Therefore, it is the user's responsibility to make sure the different rules
+#' are interacting with each other correctly.
 #'
 #' \tabular{ll}{
 #'   \code{spreadProb} \tab Probabilistically, if spreadProb is low enough,
@@ -115,16 +117,15 @@ if (getRversion() >= "3.1.0") {
 #'                   so that the events can continue if passed into \code{spreadDT} with
 #'                   \code{spreadState}.
 #'
-#' @param ...           Additional named vectors or named list of named vectors
-#'                      required for \code{stopRule}. These
-#'                      vectors should be as long as required e.g., length
-#'                      \code{start} if there is one value per event.
+#' @param ...        Additional named vectors or named list of named vectors
+#'                   required for \code{stopRule}.
+#'                   These vectors should be as long as required e.g., length
+#'                   \code{start} if there is one value per event.
 #'
 #' @return Either a \code{RasterLayer} (if \code{asRaster} is \code{TRUE}, the default).
-#' If a \code{RasterLayer}, then it represents
-#' every cell in which a successful spreadDT event occurred. For the case of, say, a fire
-#' this would represent every cell that burned. If \code{allowOverlap} is \code{TRUE},
-#' the return will always be a \code{data.table}.
+#' If a \code{RasterLayer}, then it represents every cell in which a successful spreadDT event occurred.
+#' For the case of, say, a fire this would represent every cell that burned.
+#' If \code{allowOverlap} is \code{TRUE}, the return will always be a \code{data.table}.
 #'
 #' If \code{asRaster} is false, then this function returns a \code{data.table} with columns:
 #'
@@ -192,25 +193,25 @@ setMethod(
                         ...) {
 
     #### assertions ###############
-    if(!skipChecks) {
+    if (!skipChecks) {
       assertClass(landscape, "Raster")
       ncells <- ncell(landscape)
 
       assert(
-        checkNumeric(start, min.len=0, max.len=ncells, lower = 1, upper=ncells),
-        checkDataTable(start, ncols=3, types=c(rep("numeric", 2), "character")))
+        checkNumeric(start, min.len = 0, max.len = ncells, lower = 1, upper = ncells),
+        checkDataTable(start, ncols = 3, types = c(rep("numeric", 2), "character")))
 
       qassert(neighProbs, "n[0,1]")
       assertNumeric(sum(neighProbs), lower = 1, upper = 1)
 
       assert(
-        checkNumeric(spreadProb, 0, 1, min.len=1, max.len=ncells),
+        checkNumeric(spreadProb, 0, 1, min.len = 1, max.len = ncells),
         checkClass(spreadProb, "RasterLayer")
       )
       qassert(directions, "N1[4,8]")
       qassert(iterations, "N1[1,Inf]")
       qassert(circle, "B")
-      if(circle)
+      if (circle)
         qassert(spreadProb, "N1[1,1]")
 
       if(!missing(maxSize)) {
@@ -242,7 +243,7 @@ setMethod(
     needDistance <- returnDistances | circle # returnDistances = TRUE and circle = TRUE both require distance calculations
     maxRetriesPerID <- 10 # This means that if an event can not spread any more, it will try 10 times, including 2 jumps
 
-    if(!is.data.table(start)) {
+    if (!is.data.table(start)) {
       start <- as.integer(start)
 
       whActive <- seq_along(start)
@@ -259,7 +260,7 @@ setMethod(
       setkey(clusterDT, "initialPixels")
     } else {
       clusterDT <- attr(start, "cluster")#data.table(id=unique(start$id), initialPixels=unique(start$initialPixels), key = "initialPixels")
-      if(!key(clusterDT)=="initialPixels") # should have key if it came directly from output of spreadDT
+      if (!key(clusterDT) == "initialPixels") # should have key if it came directly from output of spreadDT
         setkey(clusterDT, "initialPixels")
       if(!anyNA(maxSize)) {
         if(any(maxSize != clusterDT$maxSize)) {
@@ -270,47 +271,51 @@ setMethod(
       if(!is.null(clusterDT$maxSize)) maxSize <- clusterDT$maxSize
       set(clusterDT, ,"numRetries", 0)
       dt <- start
-      whActive <- which(dt$state=="activeSource")
+      whActive <- which(dt$state == "activeSource")
     }
-    dtColNames <- colnames(dt)[!colnames(dt)=="state"]
+    dtColNames <- colnames(dt)[!colnames(dt) == "state"]
     dtPotentialColNames <- c("id", "from", "to", "state", "distance"[needDistance])
 
-    if(needDistance)
-      set(dt, , "distance", 0) # it is zero distance to self
+    if (needDistance) set(dt, , "distance", 0) # it is zero distance to self
 
     its <- 0
 
     needRetryID <- numeric()
     whNeedRetry <- numeric()
 
-    while((length(needRetryID) | length(whActive)) &  its < iterations) {
+    while ((length(needRetryID) | length(whActive)) &  its < iterations) {
 
       # Step 1
       # Get neighbours, either via adj (default) or cir (jumping if stuck)
-      if(length(needRetryID)>0){ # get slightly further neighbours
+      if (length(needRetryID) > 0) {
+        ## get slightly further neighbours
         dtRetry <- dt[whNeedRetry]
-        if(any(((clusterDT$numRetries+1) %% 5) == 0)) { # jump every 5, starting at 4
+        if (any(((clusterDT$numRetries + 1) %% 5) == 0)) { # jump every 5, starting at 4
           resCur <- res(landscape)[1]
           fromPixels <- dtRetry$pixels
           potentialPixels <- cir(landscape, loci = fromPixels, includeBehavior = "excludePixels",
-                                 minRadius = resCur, maxRadius=4*resCur, allowOverlap = TRUE)[,c("id","indices")]
-          potentialPixels <- matrix(as.integer(potentialPixels), ncol=2)
+                                 minRadius = resCur, maxRadius = 4*resCur, allowOverlap = TRUE)[,c("id","indices")]
+          potentialPixels <- matrix(as.integer(potentialPixels), ncol = 2)
           colnames(potentialPixels) <- c("id", "to")
-          potentialPixels <- cbind(id=dtRetry$initialPixels[potentialPixels[,"id"]],
-                                   from=fromPixels[potentialPixels[,"id"]],
-                                   to=potentialPixels[, "to"])
-        } else { # get adjacent neighbours
-          potentialPixels <- adj(landscape, directions=directions, id=dtRetry$initialPixels,
-                        cells = dtRetry$pixels)
+          potentialPixels <- cbind(id = dtRetry$initialPixels[potentialPixels[,"id"]],
+                                   from = fromPixels[potentialPixels[,"id"]],
+                                   to = potentialPixels[, "to"])
+        } else {
+          ## get adjacent neighbours
+          potentialPixels <- adj(landscape, directions = directions,
+                                 id = dtRetry$initialPixels,
+                                 cells = dtRetry$pixels)
         }
 
         set(dt, whActive, "state", "holding")
         set(dt, whNeedRetry, "state", "activeSource")
 
-      } else { # Spread to immediate neighbours
+      } else {
+        ## Spread to immediate neighbours
         dtActiveSrc <- dt$state == "activeSource"
-        potentialPixels <- adj(landscape, directions=directions, id=dt$initialPixels[dtActiveSrc],
-                      cells = dt$pixels[dtActiveSrc])
+        potentialPixels <- adj(landscape, directions = directions,
+                               id = dt$initialPixels[dtActiveSrc],
+                               cells = dt$pixels[dtActiveSrc])
 
         # only iterate if it is not a Retry situation
         its <- its + 1
@@ -318,37 +323,37 @@ setMethod(
 
       dtPotential <- as.data.table(potentialPixels)
 
-      if(length(needRetryID)>0){ # of all possible cells in the jumping range, take just 2
-        dtPotential <- dtPotential[,list(to=resample(to, 2)),by=c("id","from")]
+      if (length(needRetryID) > 0) {
+        # of all possible cells in the jumping range, take just 2
+        dtPotential <- dtPotential[,list(to = resample(to, 2)),by = c("id", "from")]
         needRetryID <- numeric()
       }
 
       # randomize row order so duplicates are not always in same place
       i <- sample.int(NROW(dtPotential))
-      for(x in colnames(dtPotential)) set(dtPotential, , x, dtPotential[[x]][i])
+      for (x in colnames(dtPotential)) set(dtPotential, , x, dtPotential[[x]][i])
 
       # calculate distances, if required ... attach to dt
-      if(needDistance) {
-        fromPts <- xyFromCell(landscape,dtPotential$id)
-        toPts <- xyFromCell(landscape,dtPotential$to)
+      if (needDistance) {
+        fromPts <- xyFromCell(landscape, dtPotential$id)
+        toPts <- xyFromCell(landscape, dtPotential$to)
         #set(dtPotential, , "distance", pointDistance(p1 = fromPts, p2 = toPts, lonlat=FALSE))
-        dists <- pointDistance(p1 = fromPts, p2 = toPts, lonlat=FALSE)
-        if(circle) {
-          distKeepers <- dists %<=% its & dists %>>% (its-1)
-          mat <- cbind(from=dtPotential$from[distKeepers],
-                to=dtPotential$to[distKeepers],
-                id=dtPotential$id[distKeepers])
-          if(needDistance)
-            mat <- cbind(mat, distance=dists[distKeepers])
+        dists <- pointDistance(p1 = fromPts, p2 = toPts, lonlat = FALSE)
+        if (circle) {
+          distKeepers <- dists %<=% its & dists %>>% (its - 1)
+          mat <- cbind(from = dtPotential$from[distKeepers],
+                       to = dtPotential$to[distKeepers],
+                       id = dtPotential$id[distKeepers])
+          if (needDistance)
+            mat <- cbind(mat, distance = dists[distKeepers])
           dtPotential <- as.data.table(mat)
         }
       }
 
       set(dtPotential, , "state", "successful")
 
-      # Alternative algorithm for finding potential neighbours -- uses a specific number of neighbours
-      if(!anyNA(neighProbs)) {
-
+      ## Alternative algorithm for finding potential neighbours -- uses a specific number of neighbours
+      if (!anyNA(neighProbs)) {
         numNeighsByPixel <- unique(dtPotential, by = c("id", "from"))
         if(is.list(neighProbs)) {
           set(numNeighsByPixel, , "numNeighs", unlist(lapply(
@@ -366,7 +371,7 @@ setMethod(
         dups <- dups[-seq_along(dt$pixels)]
         dtPotential <- dtPotential[!dups]
         setkeyv(dtPotential, c("id", "from")) # sort so it is the same as numNeighsByPixel
-        if(NROW(dtPotential)) {
+        if (NROW(dtPotential)) {
           set(dtPotential, , "spreadProb", spreadProb[dtPotential$to])
           spreadProbNA <- is.na(dtPotential$spreadProb) # This is where a mask enters
           if(any(spreadProbNA)) {
@@ -376,7 +381,7 @@ setMethod(
             dtPotential <- as.data.table(ll)
           }
           # If it is a corner or has had pixels removed bc of duplicates, it may not have enough neighbours
-          numNeighsByPixel <- numNeighsByPixel[dtPotential[,.N,by=c("id", "from")]]
+          numNeighsByPixel <- numNeighsByPixel[dtPotential[, .N, by = c("id", "from")]]
           set(numNeighsByPixel, , "numNeighs", pmin(numNeighsByPixel$N, numNeighsByPixel$numNeighs, na.rm=TRUE))
 
           dtPotential <- dtPotential[
@@ -387,17 +392,17 @@ setMethod(
           set(dtPotential, , "spreadProb", NULL)
         }
         setcolorder(dtPotential, dtPotentialColNames)
-      } else { # standard algorithm ... runif against spreadProb
-
+      } else {
+        ## standard algorithm ... runif against spreadProb
         # Extract spreadProb for the current set of potentials
-        actualSpreadProb <- if(length(spreadProb)==1) {
+        actualSpreadProb <- if (length(spreadProb) == 1) {
           spreadProb
         } else {
           spreadProb[dtPotential$to]
         }
 
         # Evaluate against spreadProb -- next lines are faster than: dtPotential <- dtPotential[keepers]
-        keepers <- runif(NROW(dtPotential))<actualSpreadProb
+        keepers <- runif(NROW(dtPotential)) < actualSpreadProb
         ll <- lapply(colnames(dtPotential), function(x) dtPotential[[x]][keepers])
         names(ll) <- colnames(dtPotential)
         dtPotential <- as.data.table(ll[dtPotentialColNames])
@@ -413,16 +418,16 @@ setMethod(
       dt <- rbindlist(list(dt, dtPotential))
 
       # Remove duplicates, which was already done for neighProbs situation
-      if(anyNA(neighProbs)) {
-        if(allowOverlap) {
-          dt[,`:=`(dups=duplicatedInt(pixels)),by=initialPixels]
+      if (anyNA(neighProbs)) {
+        if (allowOverlap) {
+          dt[, `:=`(dups = duplicatedInt(pixels)), by = initialPixels]
           dupes <- dt$dups
           set(dt, , "dups", NULL)
         } else {
           dupes <- duplicatedInt(dt$pixels)
         }
         # remove any duplicates
-        if(any(dupes)) {
+        if (any(dupes)) {
           # faster than
           # dt <- dt[!dupes]
           ll <- lapply(colnames(dt), function(x) dt[[x]][!dupes])
@@ -437,70 +442,70 @@ setMethod(
         currentSize <- dt[,.N,by=initialPixels][,`:=`(maxSize=clusterDT$maxSize,
                                                       tooBig=N-clusterDT$maxSize)]
 
-        currentSizeTooBig <- currentSize[tooBig>0]
-        if(NROW(currentSizeTooBig)>0) {
+        currentSizeTooBig <- currentSize[tooBig > 0]
+        if (NROW(currentSizeTooBig) > 0) {
           # sort them so .GRP works on 3rd line
           setkeyv(currentSizeTooBig, "initialPixels")
-          dt <- dt[-dt[state=="successful" & (initialPixels %in% currentSizeTooBig$initialPixels),
-                       resample(.I, currentSizeTooBig[.GRP]$tooBig),by=initialPixels]$V1][
-                         initialPixels %in% currentSizeTooBig$initialPixels,state:="inactive"]
+          dt <- dt[-dt[state == "successful" & (initialPixels %in% currentSizeTooBig$initialPixels),
+                       resample(.I, currentSizeTooBig[.GRP]$tooBig), by = initialPixels]$V1][
+                         initialPixels %in% currentSizeTooBig$initialPixels, state := "inactive"]
         }
 
-        if(exactSize) {
-          currentSizeTooSmall <- currentSize[tooBig<0]
-          if(NROW(currentSizeTooSmall)>0) {
-            dt2 <- dt[initialPixels %in% currentSizeTooSmall$initialPixels & (state=="successful" | state=="holding")] # successful means will become activeSource next iteration
+        if (exactSize) {
+          currentSizeTooSmall <- currentSize[tooBig < 0]
+          if (NROW(currentSizeTooSmall) > 0) {
+            # successful means will become activeSource next iteration
+            dt2 <- dt[initialPixels %in% currentSizeTooSmall$initialPixels & (state == "successful" | state == "holding")]
             setkeyv(dt2, "initialPixels")
             setkeyv(currentSizeTooSmall, "initialPixels")
             currentSizeTooSmall <- currentSizeTooSmall[!dt2]
           }
           # if the ones that are too small are unsuccessful, make them "needRetry"
           whNeedRetry <- which(dt$initialPixels %in% currentSizeTooSmall$initialPixels &
-                          (dt$state!="successful" & dt$state!="inactive"))
-          if(length(whNeedRetry)) {
-
+                          (dt$state != "successful" & dt$state != "inactive"))
+          if (length(whNeedRetry)) {
             needRetryID <- clusterDT$initialPixels %in% unique(dt$initialPixels[whNeedRetry])
             tooManyRetries <- clusterDT$numRetries > maxRetriesPerID
-            if(sum(tooManyRetries * needRetryID)>0) {
+            if (sum(tooManyRetries * needRetryID) > 0) {
               needRetryID <- needRetryID & !(needRetryID * tooManyRetries)
               whNeedRetry <- whNeedRetry[dt$initialPixels[whNeedRetry] %in%
                              clusterDT$initialPixels[needRetryID]]
             }
             needRetryID <- which(needRetryID)
 
-            set(dt,whNeedRetry,"state","needRetry")
-            set(clusterDT,needRetryID,"numRetries",clusterDT$numRetries[needRetryID]+1L)
+            set(dt, whNeedRetry, "state", "needRetry")
+            set(clusterDT, needRetryID, "numRetries", clusterDT$numRetries[needRetryID] + 1L)
           }
         }
       } # end maxSize based removals
 
       # Change states of cells
-      set(dt, which(dt$state=="activeSource"), "state", "inactive")
-      set(dt, which(dt$state=="holding"), "state", "successful")# return holding cells to successful
-      whActive <- which(dt$state=="successful")
+      set(dt, which(dt$state == "activeSource"), "state", "inactive")
+      set(dt, which(dt$state == "holding"), "state", "successful")# return holding cells to successful
+      whActive <- which(dt$state == "successful")
       set(dt, whActive, "state", "activeSource")# return holding cells to successful
       #set(dt, whActive, "pixels", dt$pixels[whActive])# put successful cells into "pixel" column
 
-      if(plot.it) {
+      if (plot.it) {
         newPlot <- FALSE
-        if(!exists("ras", inherits = FALSE)) {
+        if (!exists("ras", inherits = FALSE)) {
           newPlot <- TRUE
         }
-        if(newPlot)
+        if (newPlot)
           ras <- raster(landscape)
-        if(returnDistances) {
+        if (returnDistances) {
           ras[dt$pixels] <- dt$distance
           newPlot <- TRUE
         } else {
           setkeyv(dt, "initialPixels")
           ras[dt$pixels] <- dt[clusterDT]$id
         }
-        Plot(ras, new=newPlot)
+        Plot(ras, new = newPlot)
       }
     } # end of main loop
 
     ## clean up ##
-    if(asRaster) {
+    if (asRaster) {
       ras <- raster(landscape)
       # inside unit tests, this raster gives warnings if it is only NAs
       suppressWarnings(ras[dt$pixels] <- clusterDT[dt]$id)
