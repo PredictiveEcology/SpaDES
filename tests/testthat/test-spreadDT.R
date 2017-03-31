@@ -49,17 +49,16 @@ test_that("spreadDT tests", {
   exactSizes <- c(5, 3)
   for (i in 1:20) {
     sams <- sample(innerCells, 2)
-    out <-
-      spreadDT(
-        a,
-        start = sams,
-        0.225,
-        size = exactSizes,
-        exactSize = TRUE,
-        asRaster = FALSE
-      )
-    attrib <- attr(out, "cluster")$numRetries>10
-    if(any(attrib)) {
+    out <- spreadDT(
+      a,
+      start = sams,
+      0.225,
+      size = exactSizes,
+      exactSize = TRUE,
+      asRaster = FALSE
+    )
+    attrib <- attr(out, "cluster")$numRetries > 10
+    if (any(attrib)) {
       frequ <- out[, .N, by = "initialPixels"]$N
       expect_true(all(frequ[attrib] < exactSizes[order(sams)][attrib]))
       expect_true(all(frequ[!attrib] == exactSizes[order(sams)][!attrib]))
@@ -292,7 +291,7 @@ test_that("spreadDT tests", {
     rasts[[i]] <- spreadDT(a, spreadProb = stats::runif(1, 0, 1))
     expect_that(rasts[[i]], is_a("RasterLayer"))
   }
-  if(interactive()) {
+  if (interactive()) {
     names(rasts) <- paste0("ras", 1:20)
     clearPlot();Plot(rasts)
   }

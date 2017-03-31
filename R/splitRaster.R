@@ -58,10 +58,10 @@ setMethod(
   definition = function(r, nx, ny, buffer,
                         path, cl) {
 
-    if(!is.numeric(nx) | !is.numeric(ny) | !is.numeric(buffer)) stop("nx, ny, and buffer must be numeric")
-    if(!is.integer(nx)) nx <- as.integer(nx)
-    if(!is.integer(ny)) ny <- as.integer(ny)
-    if(is.integer(buffer)) buffer <- as.numeric(buffer)
+    if (!is.numeric(nx) | !is.numeric(ny) | !is.numeric(buffer)) stop("nx, ny, and buffer must be numeric")
+    if (!is.integer(nx)) nx <- as.integer(nx)
+    if (!is.integer(ny)) ny <- as.integer(ny)
+    if (is.integer(buffer)) buffer <- as.numeric(buffer)
 
     checkPath(path, create = TRUE)
 
@@ -116,7 +116,3 @@ setMethod(
 
     return(tiles)
 })
-
-
-
-

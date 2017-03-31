@@ -109,8 +109,7 @@ test_that("test module-level cache", {
                  outputPath = tmpdir,
                  cachePath = tmpdir),
     # Save final state of landscape and caribou
-    outputs = data.frame(objectName = c("landscape", "caribou"),
-                         stringsAsFactors = FALSE)
+    outputs = data.frame(objectName = c("landscape", "caribou"), stringsAsFactors = FALSE)
   )
 
   set.seed(1123)
@@ -153,7 +152,6 @@ test_that("test module-level cache", {
 })
 
 test_that("test file-backed raster caching", {
-  #if((getRversion() > "3.3.2"))
   library(igraph)
   library(raster)
 
@@ -283,7 +281,6 @@ test_that("test file-backed raster caching", {
   clearCache(tmpdir)
 })
 
-
 test_that("test date-based cache removal", {
   library(igraph)
   tmpdir <- file.path(tempdir(), "testCache") %>% checkPath(create = TRUE)
@@ -296,7 +293,7 @@ test_that("test date-based cache removal", {
 
   a <- Cache(runif, 1, cacheRepo = tmpdir)
   a1 <- showCache(tmpdir)
-  expect_true(NROW(a1)>0)
+  expect_true(NROW(a1) > 0)
   b <- clearCache(tmpdir, before = Sys.Date() - 1)
   expect_true(NROW(b) == 0)
   expect_identical(a1, showCache(tmpdir))
