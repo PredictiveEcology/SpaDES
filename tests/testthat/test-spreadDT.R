@@ -49,17 +49,16 @@ test_that("spreadDT tests", {
   exactSizes <- c(5, 3)
   for (i in 1:20) {
     sams <- sample(innerCells, 2)
-    out <-
-      spreadDT(
-        a,
-        start = sams,
-        0.225,
-        size = exactSizes,
-        exactSize = TRUE,
-        asRaster = FALSE
-      )
-    attrib <- attr(out, "cluster")$numRetries>10
-    if(any(attrib)) {
+    out <- spreadDT(
+      a,
+      start = sams,
+      0.225,
+      size = exactSizes,
+      exactSize = TRUE,
+      asRaster = FALSE
+    )
+    attrib <- attr(out, "cluster")$numRetries > 10
+    if (any(attrib)) {
       frequ <- out[, .N, by = "initialPixels"]$N
       expect_true(all(frequ[attrib] < exactSizes[order(sams)][attrib]))
       expect_true(all(frequ[!attrib] == exactSizes[order(sams)][!attrib]))
@@ -292,7 +291,7 @@ test_that("spreadDT tests", {
     rasts[[i]] <- spreadDT(a, spreadProb = stats::runif(1, 0, 1))
     expect_that(rasts[[i]], is_a("RasterLayer"))
   }
-  if(interactive()) {
+  if (interactive()) {
     names(rasts) <- paste0("ras", 1:20)
     clearPlot();Plot(rasts)
   }
@@ -374,7 +373,7 @@ test_that("spreadDT tests", {
     out <-
       spreadDT(a,
                iterations = 1,
-               start = sams,
+               start = sams, skipChecks=skipChecks,
                asRaster = FALSE, spreadProb = sp)
     stillActive <- TRUE
     while (stillActive) {
@@ -398,7 +397,7 @@ test_that("spreadDT tests", {
     out
   }
 
-  origSpread <- function(a, skipChecks, N, sp) {
+  origSpread <- function(a, quick, N, sp) {
     sams <- sample(innerCells, N)
     out <-
       spread(
@@ -406,12 +405,12 @@ test_that("spreadDT tests", {
         loci = sams,
         id = TRUE,
         returnIndices = TRUE,
-        skipChecks = skipChecks
+        quick = quick
       )
     out
   }
 
-  origSpreadIterations <- function(a, skipChecks, N, sp) {
+  origSpreadIterations <- function(a, quick, N, sp) {
     sams <- sample(innerCells, N)
     out <-
       spread(a, spreadProb = sp,
@@ -427,7 +426,7 @@ test_that("spreadDT tests", {
           iterations = 1,
           spreadState = out,
           returnIndices = TRUE,
-          skipChecks = skipChecks
+          quick = quick
         )
     }
     out
@@ -437,7 +436,7 @@ test_that("spreadDT tests", {
   ras <- raster(extent(0,1000, 0, 1000), res=1)
   sp <- 0.225
   microbenchmark(
-    times = 300,
+    times = 500,
     iterativeFun(ras, TRUE, N, sp),
     nonIterativeFun(ras, TRUE, N, sp),
     origSpread(ras, TRUE, N, sp),

@@ -364,8 +364,7 @@ setMethod(
         loci <- (nrow(landscape) / 2L + 0.5) * ncol(landscape)
     }
 
-    if(length(loci)==0)
-      stop("No loci. Nothing to do")
+    if (length(loci) == 0) stop("No loci. Nothing to do")
 
     if (any(!is.na(maxSize))) {
       msEqZero <- maxSize < 1
@@ -520,10 +519,10 @@ setMethod(
     if (is(spreadProbLater, "Raster")) {
       # convert NA to 0s
       # if (!spreadProbLaterExists) {
-      #   if(exists("isNASpreadProb", inherits = FALSE))
+      #   if (exists("isNASpreadProb", inherits = FALSE))
       #     isNASpreadProbLater <- isNASpreadProb
       # } else {
-      #   if(anyNA(spreadProbLater[]))
+      #   if (anyNA(spreadProbLater[]))
       #     isNASpreadProbLater <- is.na(spreadProbLater[])
       # }
       # if (exists("isNASpreadProbLater", inherits = FALSE)) spreadProbLater[isNASpreadProbLater] <- 0L
@@ -582,7 +581,7 @@ setMethod(
       numNeighs <- NULL
     }
 
-    if(!exists("numRetries", envir = .spadesEnv))
+    if (!exists("numRetries", envir = .spadesEnv))
       assign("numRetries", rep(0, length(initialLoci)), envir = .spadesEnv)
 
     toColumn <- c("to", "indices")
@@ -627,31 +626,31 @@ setMethod(
         #faster alternative to tapply, but cumbersome
         #potentialsOrig <- potentials
 
-        if(TRUE) { # data.table version is faster for potentials > 500 or so
+        if (TRUE) { # data.table version is faster for potentials > 500 or so
           #potentials <- potentialsOrig
 
           spreadsDT <- data.table(spreads)
           potentialsDT <- data.table(potentials)
-          potentialsDT[,initialLocus:=initialLoci[potentialsDT$id]]
+          potentialsDT[, initialLocus := initialLoci[potentialsDT$id]]
           colnamesPDT <- colnames(potentialsDT)
-          whIL <- which(colnamesPDT=="initialLocus")
-          whFrom <- which(colnamesPDT=="from")
+          whIL <- which(colnamesPDT == "initialLocus")
+          whFrom <- which(colnamesPDT == "from")
           setcolorder(potentialsDT, c(colnamesPDT[whIL], colnamesPDT[-c(whIL, whFrom)], colnamesPDT[whFrom]))
-          setnames(potentialsDT, old="to", new = "indices")
+          setnames(potentialsDT, old = "to", new = "indices")
           d <- rbindlist(list(spreadsDT, potentialsDT), fill = TRUE)
           d <- data.table(d); setkey(d, "id");
-          d[, duplicated:=duplicated(indices),by=id]
-          d <- d[duplicated==0 & active==1];
-          set(d,,"duplicated",NULL)
+          d[, duplicated := duplicated(indices), by = id]
+          d <- d[duplicated == 0 & active == 1];
+          set(d,, "duplicated", NULL)
           potentials <- as.matrix(d)
         } else {
           #potentials <- potentialsOrig
-          potentialsFrom <- potentials[,"from"]
+          potentialsFrom <- potentials[, "from"]
           colnames(potentials) <- colnames(spreads)
           # get rid of immediate "from" and replace with original "from"
           potentials[, "initialLocus"] <- initialLoci[potentials[, "id"]]
           d <- rbind(spreads, potentials)
-          d <- cbind(d, "from"=c(rep(NA, NROW(spreads)), potentialsFrom))
+          d <- cbind(d, "from" = c(rep(NA, NROW(spreads)), potentialsFrom))
           ids <- as.integer(unique(d[, "id"]))
           d <- do.call(rbind, lapply(ids, function(id) {
             cbind(d[d[, "id"] == id, , drop = FALSE],
@@ -698,7 +697,7 @@ setMethod(
         }
       }
 
-      if(anyNA(spreadProbs)) spreadProbs[is.na(spreadProbs)] <- 0
+      if (anyNA(spreadProbs)) spreadProbs[is.na(spreadProbs)] <- 0
 
       if (!is.na(asymmetry)) {
         if (allowOverlap | returnDistances) {
@@ -837,7 +836,7 @@ setMethod(
                 thisID <- which(spreads[potentials[, 1L]] == whichID[i])
               }
 
-              if(length(thisID)) # some unusual cases where there are none on the spreads. Unsure how this occurs
+              if (length(thisID)) # some unusual cases where there are none on the spreads. Unsure how this occurs
                 potentials <- potentials[-resample(thisID, toRm[i]), , drop = FALSE]
             }
             events <- potentials[, 2L]
@@ -1031,23 +1030,22 @@ setMethod(
             assign("numRetries", envir = .spadesEnv,
                get("numRetries", inherits = FALSE, envir = .spadesEnv) + needPersist)
 
-            if(spreadStateExists) {
-
+            if (spreadStateExists) {
               whSmallInactive <- which(tooSmall & inactive)
               spreadsSmallInactive <- spreads[spreads[, "id"] %in% whSmallInactive, , drop = FALSE]
-              if(needPersistJump) {
+              if (needPersistJump) {
                 message("Jumping to new active location, up to 1000 m away")
                 mmm <- SpaDES::rings(landscape, loci = spreadsSmallInactive[, "indices"],
                                      maxRadius = 1000, minRadius = 1,
                                      returnIndices = TRUE)
-                wh <- mmm[,list(whKeepLoci=resample(.I, 1)),by=id]$whKeepLoci
+                wh <- mmm[, list(whKeepLoci = resample(.I, 1)), by = id]$whKeepLoci
               } else {
-                for(whSI in whSmallInactive) {
-                  wh <- which(spreads[,"id"] == whSI)
-                  wh <- tail(wh,2) # pick last two ones from all inactive cells
-                  keepLoci <- spreads[wh,"indices"]
+                for (whSI in whSmallInactive) {
+                  wh <- which(spreads[, "id"] == whSI)
+                  wh <- tail(wh, 2) # pick last two ones from all inactive cells
+                  keepLoci <- spreads[wh, "indices"]
                   events <- c(keepLoci, events)
-                  spreads[wh,"active"] <- 1
+                  spreads[wh, "active"] <- 1
                 }
               }
             } else {
@@ -1164,8 +1162,8 @@ setMethod(
         allCells <- dtToJoin[allCells]
       }
       allCells[]
-      if(exists("numRetries", envir = .spadesEnv)) {
-        if(sum(allCells$active)==0) rm("numRetries", envir = .spadesEnv)
+      if (exists("numRetries", envir = .spadesEnv)) {
+        if (sum(allCells$active) == 0) rm("numRetries", envir = .spadesEnv)
       }
       return(allCells)
     }

@@ -78,7 +78,8 @@ if \code{allowOverlap} is \code{FALSE}. Default is \code{FALSE}.}
 \item{neighProbs}{An optional numeric vector, whose sum is 1. It indicates the
 probabilities that an individual
 spread iteration will spread to \code{1, 2, ..., length(neighProbs)}
-neighbours, respectively.}
+neighbours, respectively. If this is used (i.e., something other than
+NA), \code{circle} and \code{returnDistances} will not work currently.}
 
 \item{skipChecks}{Logical. If TRUE, then several potentially time consuming checking (such as
 \code{inRange}) will be skipped. This should only be used if there is no
@@ -86,16 +87,15 @@ concern about checking to ensure that inputs are legal, i.e., if this call
 is using the previous output from this same call.}
 
 \item{...}{Additional named vectors or named list of named vectors
-required for \code{stopRule}. These
-vectors should be as long as required e.g., length
+required for \code{stopRule}.
+These vectors should be as long as required e.g., length
 \code{start} if there is one value per event.}
 }
 \value{
 Either a \code{RasterLayer} (if \code{asRaster} is \code{TRUE}, the default).
-If a \code{RasterLayer}, then it represents
-every cell in which a successful spreadDT event occurred. For the case of, say, a fire
-this would represent every cell that burned. If \code{allowOverlap} is \code{TRUE},
-the return will always be a \code{data.table}.
+If a \code{RasterLayer}, then it represents every cell in which a successful spreadDT event occurred.
+For the case of, say, a fire this would represent every cell that burned.
+If \code{allowOverlap} is \code{TRUE}, the return will always be a \code{data.table}.
 
 If \code{asRaster} is false, then this function returns a \code{data.table} with columns:
 
@@ -125,30 +125,32 @@ to neighbours, according to the \code{directions} and \code{spreadProb} argument
 There are 2 main underlying algorithms: \code{spreadProb} and \code{neighProb}.
 Using \code{spreadProb}, every "active" pixel will assess all
 neighbours (either 4 or 8, depending on  \code{directions}), and will "activate"
-whichever neighbours successfully pass \code{runif(1,0,1)<spreadProb}. The algorithm
-will iterate again and again, each time starting from the newly "activated" cells.
+whichever neighbours successfully pass \code{runif(1,0,1)<spreadProb}.
+The algorithm will iterate again and again, each time starting from the newly
+"activated" cells.
 
 This function can be interrupted before all active cells are exhausted if
 the \code{iterations} value is reached before there are no more active
-cells to spreadDT into. The interrupted output (a data.table) can be passed subsequently
-as an input to this same function (as \code{start}). This is intended
-to be used for situations where external
-events happen during a spreadDT event, or where one or more arguments to the spreadDT
-function change before a spreadDT event is completed. For example, if it is
-desired that the \code{spreadProb} change before a spreadDT event is completed because,
-for example, a fire is spreading, and a new set of conditions arise due to
-a change in weather.
+cells to spreadDT into. The interrupted output (a data.table) can be passed
+subsequently as an input to this same function (as \code{start}).
+This is intended to be used for situations where external events happen during
+a spreadDT event, or where one or more arguments to the spreadDT function
+change before a spreadDT event is completed.
+For example, if it is desired that the \code{spreadProb} change before a
+spreadDT event is completed because, for example, a fire is spreading, and a
+new set of conditions arise due to a change in weather.
 }
 \section{Breaking out of spreadDT events}{
 
 
-There are 3 ways for the spreadDT to "stop" spreading. Here, each "event" is defined as
-all cells that are spawned from each unique \code{start} location.
-So, one spreadDT call can have
-multiple spreading "events". The ways outlined below are all acting at all times,
-i.e., they are not mutually exclusive. Therefore, it is the user's
-responsibility to make sure the different rules are interacting with
-each other correctly.
+There are 3 ways for the spreadDT to "stop" spreading.
+Here, each "event" is defined as all cells that are spawned from each unique
+\code{start} location.
+So, one spreadDT call can have multiple spreading "events".
+The ways outlined below are all acting at all times, i.e., they are not
+mutually exclusive.
+Therefore, it is the user's responsibility to make sure the different rules
+are interacting with each other correctly.
 
 \tabular{ll}{
   \code{spreadProb} \tab Probabilistically, if spreadProb is low enough,
@@ -157,8 +159,8 @@ each other correctly.
                          this number generally should be below 0.3 to actually
                          see an event stop\cr
   \code{size} \tab This is the number of cells that are "successfully" turned
-                      on during a spreading event. This can be vectorized, one value
-                      for each event   \cr
+                   on during a spreading event. This can be vectorized, one value
+                   for each event\cr
   \code{iterations} \tab This is a hard cap on the number of internal iterations to
                          complete before returning the current state of the system
                          as a data.table \cr

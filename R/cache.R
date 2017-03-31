@@ -400,8 +400,14 @@ setMethod(
     }
     while (!written) {
       objSize <- object.size(outputToSave)
-      if (length(whSimList) > 0) {
-        objSize <- lapply(output@.envir, object.size) %>%
+      if (length(whSimList) > 0) { # can be a simList or list of simLists
+        
+        if(is.list(output)) { # list of simLists
+          objS <- lapply(output, function(x) lapply(x@.envir, object.size))
+        } else { 
+          objS <- lapply(output@.envir, object.size)
+        }
+        objSize <- objS %>%
           unlist() %>%
           sum() %>%
           `+`(objSize)
