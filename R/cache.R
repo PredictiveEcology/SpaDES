@@ -263,7 +263,8 @@ setMethod(
         userTags <- c(userTags,
                       paste0("module:",cur$moduleName),
                       paste0("eventType:",cur$eventType),
-                      paste0("eventTime:",cur$eventTime))
+                      paste0("eventTime:",cur$eventTime),
+                      paste0("function:spades"))
       }
     }
 
@@ -312,9 +313,13 @@ setMethod(
       functionName <- FUN@generic
     } else {
       functionCall <- grep(sys.calls(), pattern = "^Cache|^SpaDES::Cache", value = TRUE)
-      functionName <- match.call(Cache, parse(text = functionCall))$FUN
-      functionName <- deparse(functionName)
-
+      if(length(functionCall)) {
+        functionName <- match.call(Cache, parse(text = functionCall))$FUN
+        functionName <- deparse(functionName)
+      } else {
+        functionName <- ""
+      }
+      
       tmpl$.FUN <- format(FUN) # This is changed to allow copying between computers
     }
 
