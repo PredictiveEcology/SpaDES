@@ -319,7 +319,7 @@ setMethod(
       } else {
         functionName <- ""
       }
-      
+
       tmpl$.FUN <- format(FUN) # This is changed to allow copying between computers
     }
 
@@ -393,8 +393,19 @@ setMethod(
     # This is for write conflicts to the SQLite database, i.e., keep trying until it is
     # written
     written <- FALSE
-    if (is(outputToSave, "Raster")) {
-      outputToSave <- prepareFileBackedRaster(outputToSave, repoDir = cacheRepo)#, archiveData = TRUE,
+    outputToSaveIsList <- is.list(outputToSave)
+    if(outputToSaveIsList) {
+      rasters <- unlist(lapply(outputToSave, is, "Raster"))
+    } else {
+      rasters <- is(outputToSave, "Raster")
+    }
+    if (any(rasters)) {
+      if(outputToSaveIsList) {
+        outputToSave[rasters] <- lapply(outputToSave[rasters], function(x)
+          prepareFileBackedRaster(x, repoDir = cacheRepo))#, archiveData = TRUE,
+      } else {
+        outputToSave <- prepareFileBackedRaster(outputToSave, repoDir = cacheRepo)#, archiveData = TRUE,
+      }
       attr(outputToSave, "tags") <- attr(output, "tags")
       attr(outputToSave, "call") <- attr(output, "call")
       if (isS4(FUN))
@@ -406,10 +417,10 @@ setMethod(
     while (!written) {
       objSize <- object.size(outputToSave)
       if (length(whSimList) > 0) { # can be a simList or list of simLists
-        
+
         if(is.list(output)) { # list of simLists
           objS <- lapply(output, function(x) lapply(x@.envir, object.size))
-        } else { 
+        } else {
           objS <- lapply(output@.envir, object.size)
         }
         objSize <- objS %>%
@@ -576,14 +587,13 @@ setMethod(
     if (NROW(objsDT) > 0) {
       objsDT <- data.table(splitTagsLocal(x), key = "artifact")
       if (length(userTags) > 0) {
-        objsDT <- data.table(splitTagsLocal(x), key = "artifact")
         for (ut in userTags) {
           objsDT2 <- objsDT[
             grepl(tagValue, pattern = ut)   |
             grepl(tagKey, pattern = ut) |
             grepl(artifact, pattern = ut)]
           setkey(objsDT2, "artifact")
-          objsDT <- objsDT[objsDT2[, artifact]]
+          objsDT <- objsDT2
         }
       }
 
