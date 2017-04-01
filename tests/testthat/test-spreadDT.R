@@ -337,6 +337,25 @@ test_that("spreadDT tests", {
   }
   expect_true(identical(out, attr(out1, "pixel")))
 
+
+
+  if (interactive())
+    print("testing iterative with maxSize")
+  set.seed(299)
+  seed <- sample(1e6, 1)
+  set.seed(seed)
+  sams <- sample(innerCells, 2)
+  exactSizes <- 5:6
+  out <- spreadDT(a, start = sams, 0.225, iterations = 1,
+                  exactSize = exactSizes, asRaster = FALSE)
+  for(i in 1:20)
+  out <- spreadDT(a, start = out, 0.225, iterations = 1,
+                    exactSize = exactSizes, asRaster = FALSE)
+
+
+
+
+  ##############################################################
   skip("benchmarking spreadDT")
   a <- raster(extent(0, 1000, 0, 1000), res = 1)
   set.seed(123)

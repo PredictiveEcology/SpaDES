@@ -40,13 +40,15 @@ value is the initial starting pixel.}
 
 \item{maxSize}{Numeric. Maximum number of cells for a single or
 all events to be spreadDT. Recycled to match \code{start} length,
-if it is not as long as \code{start}.
+if it is not as long as \code{start}. This will be overridden if
+\code{exactSize} also provided.
 See section on \code{Breaking out of spreadDT events}.}
 
 \item{exactSize}{Numeric vector, length 1 or \code{length(start)}.
 Similar to \code{maxSize}, but these will be the exact
 final sizes of the events.  i.e., the spreadDT events
 will continue until they are \code{floor(exactSize)}.
+This will override \code{maxSize} if both provided.
 See Details.}
 
 \item{directions}{The number adjacent cells in which to look;
@@ -84,10 +86,13 @@ concern about checking to ensure that inputs are legal, i.e., if this call
 is using the previous output from this same call.}
 }
 \value{
-Either a \code{RasterLayer} with a two attributes named "cluster" and "pixel" or a
-\code{data.table} with one attribute, "cluster".
-The \code{attr(result, "pixel")} is the same as the \code{data.table} returned
-if \code{asRaster} were \code{TRUE}).
+Either a \code{data.table} (\code{asRaster=FALSE}) or a \code{RasterLayer}
+(\code{asRaster=TRUE}, the default). The \code{data.table} will have one attribute named
+"cluster" as it provides cluster-level or event-level information about the
+spread events. If \code{asRaster} is TRUE, then the \code{data.table} will be attached
+to the Raster as an attribute named "pixel" as it provides pixel-level information about
+the spread events.
+
 The \code{RasterLayer} represents every cell in which a successful spreadDT event occurred.
 For the case of, say, a fire this would represent every cell that burned.
 If \code{allowOverlap} is \code{TRUE}, the return will always be a \code{data.table}.
@@ -116,6 +121,7 @@ a \code{data.table} with columns:
                          and was not achieved.\cr
   \code{maxSize} \tab The number of pixels that were provided as inputs via
                      \code{maxSize} or \code{exactSize}.\cr
+  \code{size} \tab The current size, in pixels, of each event.\cr
 }
 }
 \description{
@@ -168,6 +174,16 @@ latter 2 cases, the algorithm will retry again, but it will only re-try from the
 iterations active cells. The algorithm will only retry 10 times before quitting. Currently,
 there will also be an attempt to "jump" up to 4 cells away from the active cells to
 try to continue spreading.
+
+A common way to use this function is to build wrappers around this, followed by iterative
+calls in a \code{while} loop. See example.
+
+When using this function iteratively, there are several things to be wary about. 1) The output
+will likely be sorted differently than the input (i.e., the order of start, if a vector,
+may not be the same order as that returned). This means that when passing the same object
+back into the next iteration of the function call, \code{maxSize} or \code{exactSize} may
+not be in the same order. To get the same order, use e.g.,
+\code{maxSize=attr(out, "cluster")$maxSize}.
 }
 \section{Breaking out of spreadDT events}{
 
@@ -225,8 +241,43 @@ out[,.N,by="initialPixels"]$N == maxSizes # should be TRUE TRUE TRUE
 exactSizes <- sort(sample(100:110, size = length(sams)))
 out <- spreadDT(a, start = sams, 1, exactSize = exactSizes)
 
+# Iterative calling -- create a function with a high escape probability
+spreadWithEscape <- function(ras, start, escapeProb, spreadProb) {
+  out <- spreadDT(ras, start = sams, spreadProb = escapeProb, asRaster = FALSE)
+  while(any(out$state=="sourceActive")) {
+    # pass in previous output as start
+    out <- spreadDT(ras, start = out, spreadProb = spreadProb,
+                    asRaster = FALSE, skipChecks = TRUE) # skipChecks for speed
+  }
+  out
+}
+
+set.seed(421)
+out1 <- spreadWithEscape(a, sams, escapeProb = 0.25, spreadProb = 0.225)
+set.seed(421)
+out2 <- spreadDT(a, sams, 0.225, asRaster = FALSE)
+# The one with high escape probability is larger (most of the time)
+NROW(out1)>NROW(out2)
 
 
+## Use neighProbs, with a spreadProb that is a RasterLayer
+# Create a raster of different values, which will be the relative probabilities
+#   i.e., they are rescaled to relative probabilities within the 8 neighbour choices.
+#   The neighProbs below means 70\% of the time, 1 neighbour will be chosen,
+#   30\% of the time 2 neighbours.
+#   The cells with spreadProb of 5 are 5 times more likely than cells with 1 to be chosen,
+#   when they are both within the 8 neighbours
+sp <- raster(extent(0,3,0,3), res = 1, vals = 1:9) #small raster, simple values
+# Check neighProbs worked
+out <- list()
+for(i in 1:100) { # enough replicates to see stabilized probabilities
+  out[[i]] <- spreadDT(sp, spreadProb = sp, start = 5, iterations = 1,
+                neighProbs = c(1), asRaster = FALSE)
+}
+out <- data.table::rbindlist(out)[pixels!=5] # remove starting cell
+table(sp[out$pixels])
+# should be non-significant
+chisq.test(c(1:4,6:9), unname(table(sp[out$pixels])), simulate.p.value = TRUE)
 }
 \seealso{
 \code{\link{rings}} which uses \code{spreadDT} but with specific argument

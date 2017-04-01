@@ -81,13 +81,15 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @param maxSize       Numeric. Maximum number of cells for a single or
 #'                      all events to be spreadDT. Recycled to match \code{start} length,
-#'                      if it is not as long as \code{start}.
+#'                      if it is not as long as \code{start}. This will be overridden if
+#'                      \code{exactSize} also provided.
 #'                      See section on \code{Breaking out of spreadDT events}.
 #'
 #' @param exactSize Numeric vector, length 1 or \code{length(start)}.
 #'                  Similar to \code{maxSize}, but these will be the exact
 #'                  final sizes of the events.  i.e., the spreadDT events
 #'                  will continue until they are \code{floor(exactSize)}.
+#'                  This will override \code{maxSize} if both provided.
 #'                  See Details.
 #'
 #' @param directions    The number adjacent cells in which to look;
@@ -143,6 +145,13 @@ if (getRversion() >= "3.1.0") {
 #' A common way to use this function is to build wrappers around this, followed by iterative
 #' calls in a \code{while} loop. See example.
 #'
+#' When using this function iteratively, there are several things to be wary about. 1) The output
+#' will likely be sorted differently than the input (i.e., the order of start, if a vector,
+#' may not be the same order as that returned). This means that when passing the same object
+#' back into the next iteration of the function call, \code{maxSize} or \code{exactSize} may
+#' not be in the same order. To get the same order, use e.g.,
+#' \code{maxSize=attr(out, "cluster")$maxSize}.
+#'
 #' @return Either a \code{data.table} (\code{asRaster=FALSE}) or a \code{RasterLayer}
 #' (\code{asRaster=TRUE}, the default). The \code{data.table} will have one attribute named
 #' "cluster" as it provides cluster-level or event-level information about the
@@ -184,6 +193,8 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @export
 #' @importFrom raster ncell raster res
+#' @importFrom data.table uniqueN as.data.table data.table set setkeyv setnames
+#' @importFrom data.table ':=' rbindlist setcolorder
 #' @importFrom checkmate assertClass assert checkNumeric checkDataTable qassert assertNumeric
 #' @importFrom checkmate checkLogical checkClass
 #' @importFrom stats runif
@@ -252,16 +263,35 @@ setMethod(
         qassert(spreadProb, "N1[1,1]")
 
       if(!missing(maxSize)) {
-        assert(
-          checkNumeric(maxSize, min.len = 1, max.len=1),
-          checkNumeric(maxSize, min.len = NROW(start), max.len=NROW(start))
-        )
+        if(is.data.table(start)) {
+          N <- uniqueN(start,by = "initialPixels")
+          assert(
+            checkNumeric(maxSize, min.len = 1, max.len=1),
+            checkNumeric(maxSize, min.len = N,
+                         max.len=N)
+          )
+        } else {
+          assert(
+            checkNumeric(maxSize, min.len = 1, max.len=1),
+            checkNumeric(maxSize, min.len = NROW(start), max.len=NROW(start))
+          )
+        }
       }
       if(!missing(exactSize)) {
-        assert(
+        if(is.data.table(start)) {
+          N <- uniqueN(start,by = "initialPixels")
+          assert(
+            checkNumeric(exactSize, min.len = 1, max.len=1),
+            checkNumeric(exactSize, min.len = N,
+                         max.len=N)
+          )
+        } else {
+          assert(
           checkNumeric(exactSize, min.len = 1, max.len=1),
           checkNumeric(exactSize, min.len = NROW(start), max.len=NROW(start))
         )
+        }
+
       }
     } else {
       ncells <- ncell(landscape)
@@ -283,11 +313,13 @@ setMethod(
     if(missing(maxSize)) {
       maxSize <- NA
     }
+
     if(missing(exactSize)) {
       exactSize <- NA
     } else {
       maxSize <- exactSize
     }
+    sizeType <- if(!anyNA(exactSize)) "exactSize" else "maxSize"
 
     needDistance <- returnDistances | circle # returnDistances = TRUE and circle = TRUE both require distance calculations
     maxRetriesPerID <- 10 # This means that if an event can not spread any more, it will try 10 times, including 2 jumps
@@ -305,15 +337,20 @@ setMethod(
         set(clusterDT, , "maxSize", maxSize)
         set(dt, which(clusterDT$maxSize==1), "state", "inactive") # de-activate ones that are 1 cell
       }
-      setkey(clusterDT, "initialPixels")
+      if(!anyNA(exactSize)) {
+        set(clusterDT, , "exactSize", TRUE)
+      }
+
+      setkeyv(clusterDT, "initialPixels")
     } else {
       clusterDT <- attr(start, "cluster")#data.table(id=unique(start$id), initialPixels=unique(start$initialPixels), key = "initialPixels")
       if (!key(clusterDT) == "initialPixels") # should have key if it came directly from output of spreadDT
-        setkey(clusterDT, "initialPixels")
+        setkeyv(clusterDT, "initialPixels")
       if(!anyNA(maxSize)) {
         if(any(maxSize != clusterDT$maxSize)) {
-          warning("maxSize provided, that does not match with maxSize in the start object. ",
-                  "Using the maxSize in the start object instead, found using: attr(start, 'cluster')")
+          message(sizeType, " provided. It does not match with size attr(start, 'cluster')$maxSize. ",
+                  "Using the new ",sizeType," provided. Perhaps sorted differently?")
+          clusterDT$maxSize <- maxSize
         }
       }
       if(!is.null(clusterDT$maxSize)) maxSize <- clusterDT$maxSize
