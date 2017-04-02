@@ -112,10 +112,11 @@ if (getRversion() >= "3.1.0") {
 #'                      another, i.e., they do not interact. Currently, this is slower than
 #'                      if \code{allowOverlap} is \code{FALSE}. Default is \code{FALSE}.
 #'
-#' @param skipChecks Logical. If TRUE, then several potentially time consuming checking (such as
-#'              \code{inRange}) will be skipped. This should only be used if there is no
-#'              concern about checking to ensure that inputs are legal, i.e., if this call
-#'              is using the previous output from this same call.
+#' @param skipChecks Logical. If TRUE, the argument checking (i.e., assertions) will be
+#'              skipped. This should likely only be used once it is clear that the function
+#'              arguments are well understood and function speed is of the primary improtance.
+#'              This is likely most useful in repeated iteration cases i.e., if this call
+#'              is using the previous output from this same function.
 #'
 #' @param neighProbs An optional numeric vector, whose sum is 1. It indicates the
 #'                   probabilities that an individual
