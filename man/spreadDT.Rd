@@ -80,10 +80,11 @@ spread iteration will spread to \code{1, 2, ..., length(neighProbs)}
 neighbours, respectively. If this is used (i.e., something other than
 NA), \code{circle} and \code{returnDistances} will not work currently.}
 
-\item{skipChecks}{Logical. If TRUE, then several potentially time consuming checking (such as
-\code{inRange}) will be skipped. This should only be used if there is no
-concern about checking to ensure that inputs are legal, i.e., if this call
-is using the previous output from this same call.}
+\item{skipChecks}{Logical. If TRUE, the argument checking (i.e., assertions) will be
+skipped. This should likely only be used once it is clear that the function
+arguments are well understood and function speed is of the primary improtance.
+This is likely most useful in repeated iteration cases i.e., if this call
+is using the previous output from this same function.}
 }
 \value{
 Either a \code{data.table} (\code{asRaster=FALSE}) or a \code{RasterLayer}
