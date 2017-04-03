@@ -29,7 +29,7 @@ test_that("spreadDT tests", {
   }
 
   if (interactive())
-    print("testing size")
+    print("testing maxSize")
   maxSizes <- 2:3
   for (i in 1:20) {
     seed <- sample(1e6, 1)
@@ -39,13 +39,13 @@ test_that("spreadDT tests", {
       spreadDT(a,
                start = sams,
                0.225,
-               size = maxSizes,
+               maxSize = maxSizes,
                asRaster = FALSE)
     expect_true(all(out[, .N, by = "initialPixels"]$N <= maxSizes[order(sams)]))
   }
 
   if (interactive())
-    print("testing exact size")
+    print("testing exact maxSize")
   exactSizes <- c(5, 3)
   for (i in 1:20) {
     sams <- sample(innerCells, 2)
@@ -53,8 +53,7 @@ test_that("spreadDT tests", {
       a,
       start = sams,
       0.225,
-      size = exactSizes,
-      exactSize = TRUE,
+      exactSize = exactSizes,
       asRaster = FALSE
     )
     attrib <- attr(out, "cluster")$numRetries > 10
@@ -68,7 +67,7 @@ test_that("spreadDT tests", {
   }
 
   if (interactive())
-    print("testing exact size, can't be achieved, allow jumping")
+    print("testing exact maxSize, can't be achieved, allow jumping")
   exactSizes <-
     c(154, 111, 134) # too big for landscape, can't achieve it --
   #  will hit max numRetries, and will try jumping
@@ -82,8 +81,7 @@ test_that("spreadDT tests", {
         a,
         start = sams,
         0.225,
-        size = exactSizes,
-        exactSize = TRUE,
+        exactSize = exactSizes,
         asRaster = FALSE
       )
     expect_true(all(out[, .N, by = "initialPixels"]$N < exactSizes))
@@ -192,7 +190,7 @@ test_that("spreadDT tests", {
 
 
   if (interactive())
-    print("Scales with number of starts, not size of raster")
+    print("Scales with number of starts, not maxSize of raster")
   set.seed(21)
   b <- raster(extent(0, 33000 , 0, 33000), res = 1)
   sams <- sample(ncell(b), 2)
@@ -220,7 +218,7 @@ test_that("spreadDT tests", {
     spreadProb = sp,
     start = sams,
     neighProbs = c(0.7, 0.3),
-    size = maxSizes,
+    maxSize = maxSizes,
     asRaster = FALSE
   )
   expect_true(uniqueN(out) == maxSizes * length(sams))
@@ -261,7 +259,7 @@ test_that("spreadDT tests", {
   out <- list()
   for (i in 1:10) {
     #out[[i]] <- spreadDT(a, spreadProb = sp, iterations = 1,
-    #                             start = sams, neighProbs = c(0.7,0.3), size = maxSizes, asRaster=FALSE)
+    #                             start = sams, neighProbs = c(0.7,0.3), maxSize = maxSizes, asRaster=FALSE)
     out[[i]] <- spreadDT(
       a,
       spreadProb = sp,
@@ -314,14 +312,50 @@ test_that("spreadDT tests", {
                     start = out,
                     asRaster = FALSE)
   }
-
   set.seed(299)
   out2 <- spreadDT(a, start = sams, asRaster = FALSE)
   keyedCols <- c("initialPixels", "pixels")
   expect_equivalent(out2, out)
 
 
+  if (interactive())
+    print("testing iterative calling of spreadDT, but asRaster = TRUE")
+  set.seed(299)
+  sams <- sample(innerCells, 2)
+  set.seed(299)
+  out1 <- spreadDT(a,
+                  iterations = 1,
+                  start = sams,
+                  asRaster = TRUE)
+  stillActive <- TRUE
+  while (stillActive) {
+    stillActive <- any(attr(out1, "pixel")$state == "activeSource")
+    out1 <- spreadDT(a,
+                    iterations = 1,
+                    start = out1,
+                    asRaster = TRUE)
+  }
+  expect_true(identical(out, attr(out1, "pixel")))
 
+
+
+  if (interactive())
+    print("testing iterative with maxSize")
+  set.seed(299)
+  seed <- sample(1e6, 1)
+  set.seed(seed)
+  sams <- sample(innerCells, 2)
+  exactSizes <- 5:6
+  out <- spreadDT(a, start = sams, 0.225, iterations = 1,
+                  exactSize = exactSizes, asRaster = FALSE)
+  for(i in 1:20)
+  out <- spreadDT(a, start = out, 0.225, iterations = 1,
+                    exactSize = exactSizes, asRaster = FALSE)
+
+
+
+
+  ##############################################################
   skip("benchmarking spreadDT")
   a <- raster(extent(0, 1000, 0, 1000), res = 1)
   set.seed(123)

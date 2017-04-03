@@ -319,7 +319,7 @@ setMethod(
       } else {
         functionName <- ""
       }
-      
+
       tmpl$.FUN <- format(FUN) # This is changed to allow copying between computers
     }
 
@@ -401,7 +401,7 @@ setMethod(
     }
     if (any(rasters)) {
       if(outputToSaveIsList) {
-        outputToSave[rasters] <- lapply(outputToSave[rasters], function(x) 
+        outputToSave[rasters] <- lapply(outputToSave[rasters], function(x)
           prepareFileBackedRaster(x, repoDir = cacheRepo))#, archiveData = TRUE,
       } else {
         outputToSave <- prepareFileBackedRaster(outputToSave, repoDir = cacheRepo)#, archiveData = TRUE,
@@ -417,10 +417,10 @@ setMethod(
     while (!written) {
       objSize <- object.size(outputToSave)
       if (length(whSimList) > 0) { # can be a simList or list of simLists
-        
+
         if(is.list(output)) { # list of simLists
           objS <- lapply(output, function(x) lapply(x@.envir, object.size))
-        } else { 
+        } else {
           objS <- lapply(output@.envir, object.size)
         }
         objSize <- objS %>%
@@ -577,7 +577,6 @@ setGeneric("showCache", function(x, userTags = character(),
 setMethod(
   "showCache",
   definition = function(x, userTags, after, before, ...) {
-    browser()
     if (missing(x)) stop("Must provide a simList or repository")
     if (missing(after)) after <- "1970-01-01"
     if (missing(before)) before <- Sys.Date() + 1

@@ -6,16 +6,23 @@ if (getRversion() >= "3.1.0") {
 #' Simulate a contagious spread process on a landscape, with data.table internals
 #'
 #' This can be used to simulate fires, seed dispersal, calculation of iterative,
-#' concentric landscape values (symmetric or asymmetric) and many other things.
-#' Essentially, it starts from a collection of cells (\code{start}) and spreads
-#' to neighbours, according to the \code{directions} and \code{spreadProb} arguments.
+#' concentric, symmetric (currently) landscape values and many other things.
+#' Essentially, it starts from a collection of cells (\code{start}, called "events")
+#' and spreads to neighbours, according to the \code{directions}
+#' and \code{spreadProb} with modifications due to other arguments.
 #'
-#' There are 2 main underlying algorithms: \code{spreadProb} and \code{neighProb}.
+#' There are 2 main underlying algorithms for active cells to "spread" to
+#' nearby cells (adjacent cells): \code{spreadProb} and \code{neighProb}.
 #' Using \code{spreadProb}, every "active" pixel will assess all
 #' neighbours (either 4 or 8, depending on  \code{directions}), and will "activate"
-#' whichever neighbours successfully pass \code{runif(1,0,1)<spreadProb}.
+#' whichever neighbours successfully pass independent calls to
+#' \code{runif(1,0,1)<spreadProb}.
 #' The algorithm will iterate again and again, each time starting from the newly
-#' "activated" cells.
+#' "activated" cells. Several built-in decisions are as follows.
+#' 1. no active cell can active a cell that was already activated by
+#' the same event (i.e., "it won't go backwards"). 2. If \code{allowOverlap} is
+#' \code{FALSE}, then the previous rule will also apply, regardless of which
+#' "event" caused the pixels to be previously active.
 #'
 #' This function can be interrupted before all active cells are exhausted if
 #' the \code{iterations} value is reached before there are no more active
@@ -74,8 +81,16 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @param maxSize       Numeric. Maximum number of cells for a single or
 #'                      all events to be spreadDT. Recycled to match \code{start} length,
-#'                      if it is not as long as \code{start}.
+#'                      if it is not as long as \code{start}. This will be overridden if
+#'                      \code{exactSize} also provided.
 #'                      See section on \code{Breaking out of spreadDT events}.
+#'
+#' @param exactSize Numeric vector, length 1 or \code{length(start)}.
+#'                  Similar to \code{maxSize}, but these will be the exact
+#'                  final sizes of the events.  i.e., the spreadDT events
+#'                  will continue until they are \code{floor(exactSize)}.
+#'                  This will override \code{maxSize} if both provided.
+#'                  See Details.
 #'
 #' @param directions    The number adjacent cells in which to look;
 #'                      default is 8 (Queen case). Can only be 4 or 8.
@@ -97,10 +112,11 @@ if (getRversion() >= "3.1.0") {
 #'                      another, i.e., they do not interact. Currently, this is slower than
 #'                      if \code{allowOverlap} is \code{FALSE}. Default is \code{FALSE}.
 #'
-#' @param skipChecks Logical. If TRUE, then several potentially time consuming checking (such as
-#'              \code{inRange}) will be skipped. This should only be used if there is no
-#'              concern about checking to ensure that inputs are legal, i.e., if this call
-#'              is using the previous output from this same call.
+#' @param skipChecks Logical. If TRUE, the argument checking (i.e., assertions) will be
+#'              skipped. This should likely only be used once it is clear that the function
+#'              arguments are well understood and function speed is of the primary improtance.
+#'              This is likely most useful in repeated iteration cases i.e., if this call
+#'              is using the previous output from this same function.
 #'
 #' @param neighProbs An optional numeric vector, whose sum is 1. It indicates the
 #'                   probabilities that an individual
@@ -108,44 +124,78 @@ if (getRversion() >= "3.1.0") {
 #'                   neighbours, respectively. If this is used (i.e., something other than
 #'                   NA), \code{circle} and \code{returnDistances} will not work currently.
 #'
-#' @param exactSize Logical. If TRUE, then the \code{maxSize} will be treated as exact sizes,
-#'                   i.e., the spreadDT events will continue until they are
-#'                   \code{floor(maxSize)}. This is overridden by \code{iterations}, but
-#'                   if \code{iterations} is run, and individual events haven't reached
-#'                   \code{maxSize}, then the returned \code{data.table} will still have
-#'                   at least one active cell per event that did not achieve \code{maxSize},
-#'                   so that the events can continue if passed into \code{spreadDT} with
-#'                   \code{spreadState}.
+#' @details
 #'
-#' @param ...        Additional named vectors or named list of named vectors
-#'                   required for \code{stopRule}.
-#'                   These vectors should be as long as required e.g., length
-#'                   \code{start} if there is one value per event.
+#' If \code{exactSize} or \code{maxSize} are used, then spreading will continue and stop
+#' before or at \code{maxSize} or at \code{exactSize}. If \code{iterations} is specified,
+#' then the function will end, and the returned \code{data.table} will still
+#' may (if \code{maxSize}) or will (if \code{exactSize}) have at least one active
+#' cell per event that did not already achieve \code{maxSize} or \code{exactSize}. This
+#' will be very useful to build new, customized higher-level wrapper functions that iteratively
+#' call \code{spreadDT}.
 #'
-#' @return Either a \code{RasterLayer} (if \code{asRaster} is \code{TRUE}, the default).
-#' If a \code{RasterLayer}, then it represents every cell in which a successful spreadDT event occurred.
+#' @note
+#' \code{exactSize} may not be achieved if there aren't enough cells in the map. Also,
+#' \code{exactSize} may not be achieved because 2) the active cells are "stuck", i.e.,
+#' they have no unactivated cells to move to or 3) the \code{spreadProb} is low. In the
+#' latter 2 cases, the algorithm will retry again, but it will only re-try from the last
+#' iterations active cells. The algorithm will only retry 10 times before quitting. Currently,
+#' there will also be an attempt to "jump" up to 4 cells away from the active cells to
+#' try to continue spreading.
+#'
+#' A common way to use this function is to build wrappers around this, followed by iterative
+#' calls in a \code{while} loop. See example.
+#'
+#' When using this function iteratively, there are several things to be wary about. 1) The output
+#' will likely be sorted differently than the input (i.e., the order of start, if a vector,
+#' may not be the same order as that returned). This means that when passing the same object
+#' back into the next iteration of the function call, \code{maxSize} or \code{exactSize} may
+#' not be in the same order. To get the same order, use e.g.,
+#' \code{maxSize=attr(out, "cluster")$maxSize}.
+#'
+#' @return Either a \code{data.table} (\code{asRaster=FALSE}) or a \code{RasterLayer}
+#' (\code{asRaster=TRUE}, the default). The \code{data.table} will have one attribute named
+#' "cluster" as it provides cluster-level or event-level information about the
+#' spread events. If \code{asRaster} is TRUE, then the \code{data.table} will be attached
+#' to the Raster as an attribute named "pixel" as it provides pixel-level information about
+#' the spread events.
+#'
+#' The \code{RasterLayer} represents every cell in which a successful spreadDT event occurred.
 #' For the case of, say, a fire this would represent every cell that burned.
 #' If \code{allowOverlap} is \code{TRUE}, the return will always be a \code{data.table}.
 #'
-#' If \code{asRaster} is false, then this function returns a \code{data.table} with columns:
+#' If \code{asRaster} is \code{FALSE}, then this function returns a
+#' \code{data.table} with columns:
 #'
 #' \tabular{ll}{
-#'   \code{id} \tab an arbitrary ID \code{1:length(start)} identifying
-#'                      unique clusters of spreadDT events, i.e., all cells
-#'                      that have been spreadDT into that have a
-#'                      common initial cell.\cr
-#'   \code{initialLocus} \tab the initial cell number of that particular
+#'   \code{initialPixels} \tab the initial cell number of that particular
 #'                            spreadDT event.\cr
-#'   \code{indices} \tab The cell indices of cells that have
+#'   \code{pixels} \tab The cell indices of cells that have
 #'                        been touched by the spreadDT algorithm.\cr
-#'   \code{active} \tab a logical indicating whether the cell is active (i.e.,
+#'   \code{state} \tab a logical indicating whether the cell is active (i.e.,
 #'                        could still be a source for spreading) or not (no
 #'                        spreading will occur from these cells).\cr
 #' }
 #'
-#' This will generally be more useful when \code{allowOverlap} is \code{TRUE}.
+#' The attribute saved with the name "cluster" (e.g., \code{attr(output, "cluster")}) is
+#' a \code{data.table} with columns:
+#' \tabular{ll}{
+#'   \code{id} \tab An arbitrary code, from 1 to \code{length(start)} for each "event".\cr
+#'   \code{initialPixels} \tab the initial cell number of that particular
+#'                            spreadDT event.\cr
+#'   \code{numRetries} \tab The number of re-starts the event did because it got
+#'                          stuck (normally only because \code{exactSize} was used
+#'                          and was not achieved.\cr
+#'   \code{maxSize} \tab The number of pixels that were provided as inputs via
+#'                      \code{maxSize} or \code{exactSize}.\cr
+#'   \code{size} \tab The current size, in pixels, of each event.\cr
+#' }
+#'
+#'
 #' @export
 #' @importFrom raster ncell raster res
+#' @importFrom data.table uniqueN as.data.table data.table set setkeyv setnames
+#' @importFrom data.table ':=' rbindlist setcolorder
 #' @importFrom checkmate assertClass assert checkNumeric checkDataTable qassert assertNumeric
 #' @importFrom checkmate checkLogical checkClass
 #' @importFrom stats runif
@@ -163,14 +213,13 @@ if (getRversion() >= "3.1.0") {
 #'
 setGeneric("spreadDT", function(landscape, start = ncell(landscape)/2 - ncol(landscape)/2,
                                 spreadProb = 0.23, asRaster = TRUE,
-                                maxSize, exactSize = FALSE,
+                                maxSize, exactSize,
                                 directions = 8L, iterations = 1e6L,
                                 returnDistances = FALSE,
                                 plot.it = FALSE,
                                 circle = FALSE,
                                 allowOverlap = FALSE,
-                                neighProbs = NA_real_, skipChecks = FALSE,
-                                ...) {
+                                neighProbs = NA_real_, skipChecks = FALSE) {
   standardGeneric("spreadDT")
 })
 
@@ -179,7 +228,7 @@ setGeneric("spreadDT", function(landscape, start = ncell(landscape)/2 - ncol(lan
 #'
 #' @rdname spreadDT
 #'
-#' @example inst/examples/example_spread.R
+#' @example inst/examples/example_spreadDT.R
 #'
 setMethod(
   "spreadDT",
@@ -189,8 +238,7 @@ setMethod(
                         directions, iterations,
                         returnDistances, plot.it,
                         circle, allowOverlap,
-                        neighProbs, skipChecks,
-                        ...) {
+                        neighProbs, skipChecks) {
 
     #### assertions ###############
     if (!skipChecks) {
@@ -199,6 +247,7 @@ setMethod(
 
       assert(
         checkNumeric(start, min.len = 0, max.len = ncells, lower = 1, upper = ncells),
+        checkClass(start, "Raster"),
         checkDataTable(start, ncols = 3, types = c(rep("numeric", 2), "character")))
 
       qassert(neighProbs, "n[0,1]")
@@ -215,10 +264,35 @@ setMethod(
         qassert(spreadProb, "N1[1,1]")
 
       if(!missing(maxSize)) {
-        assert(
-          checkNumeric(maxSize, min.len = 1, max.len=1),
-          checkNumeric(maxSize, min.len = NROW(start), max.len=NROW(start))
+        if(is.data.table(start)) {
+          N <- uniqueN(start,by = "initialPixels")
+          assert(
+            checkNumeric(maxSize, min.len = 1, max.len=1),
+            checkNumeric(maxSize, min.len = N,
+                         max.len=N)
+          )
+        } else {
+          assert(
+            checkNumeric(maxSize, min.len = 1, max.len=1),
+            checkNumeric(maxSize, min.len = NROW(start), max.len=NROW(start))
+          )
+        }
+      }
+      if(!missing(exactSize)) {
+        if(is.data.table(start)) {
+          N <- uniqueN(start,by = "initialPixels")
+          assert(
+            checkNumeric(exactSize, min.len = 1, max.len=1),
+            checkNumeric(exactSize, min.len = N,
+                         max.len=N)
+          )
+        } else {
+          assert(
+          checkNumeric(exactSize, min.len = 1, max.len=1),
+          checkNumeric(exactSize, min.len = NROW(start), max.len=NROW(start))
         )
+        }
+
       }
     } else {
       ncells <- ncell(landscape)
@@ -234,15 +308,24 @@ setMethod(
       } else {
         resample(i, n, prob=sp/sm)
       }
-    } else function(i, n, sp) resample(i, n, prob=sp/sm)
-    
+    } else function(i, n, sp) resample(i, n, prob=sp/sum(sp, na.rm=TRUE))
+
     ##### Set up dt and clusterDT objects
     if(missing(maxSize)) {
       maxSize <- NA
     }
+
+    if(missing(exactSize)) {
+      exactSize <- NA
+    } else {
+      maxSize <- exactSize
+    }
+    sizeType <- if(!anyNA(exactSize)) "exactSize" else "maxSize"
+
     needDistance <- returnDistances | circle # returnDistances = TRUE and circle = TRUE both require distance calculations
     maxRetriesPerID <- 10 # This means that if an event can not spread any more, it will try 10 times, including 2 jumps
 
+    if(is(start, "Raster")) start <- attr(start, "pixel")
     if (!is.data.table(start)) {
       start <- as.integer(start)
 
@@ -252,20 +335,23 @@ setMethod(
 
       clusterDT=as.data.table(cbind(id=whActive, initialPixels=start, numRetries=0L));
       if(!anyNA(maxSize)) {
-        if(length(maxSize) > 1) {
-          set(clusterDT, , "maxSize", maxSize)
-          set(dt, which(maxSize==1), "state", "inactive") # de-activate ones that are 1 cell
-        }
+        set(clusterDT, , "maxSize", maxSize)
+        set(dt, which(clusterDT$maxSize==1), "state", "inactive") # de-activate ones that are 1 cell
       }
-      setkey(clusterDT, "initialPixels")
+      if(!anyNA(exactSize)) {
+        set(clusterDT, , "exactSize", TRUE)
+      }
+
+      setkeyv(clusterDT, "initialPixels")
     } else {
       clusterDT <- attr(start, "cluster")#data.table(id=unique(start$id), initialPixels=unique(start$initialPixels), key = "initialPixels")
       if (!key(clusterDT) == "initialPixels") # should have key if it came directly from output of spreadDT
-        setkey(clusterDT, "initialPixels")
+        setkeyv(clusterDT, "initialPixels")
       if(!anyNA(maxSize)) {
         if(any(maxSize != clusterDT$maxSize)) {
-          warning("maxSize provided, that does not match with maxSize in the start object. ",
-                  "Using the maxSize in the start object instead, found using: attr(start, 'cluster')")
+          message(sizeType, " provided. It does not match with size attr(start, 'cluster')$maxSize. ",
+                  "Using the new ",sizeType," provided. Perhaps sorted differently?")
+          clusterDT$maxSize <- maxSize
         }
       }
       if(!is.null(clusterDT$maxSize)) maxSize <- clusterDT$maxSize
@@ -357,7 +443,7 @@ setMethod(
         numNeighsByPixel <- unique(dtPotential, by = c("id", "from"))
         if(is.list(neighProbs)) {
           set(numNeighsByPixel, , "numNeighs", unlist(lapply(
-            neighProbs, function(np) sample.int(size = 1, n = length(np), 
+            neighProbs, function(np) sample.int(size = 1, n = length(np),
                                                 replace = TRUE, prob = np))))
         } else {
           set(numNeighsByPixel, , "numNeighs",
@@ -388,13 +474,14 @@ setMethod(
             dtPotential[,list(keepIndex=
                                 resampleZeroProof(.I,numNeighsByPixel$numNeighs[.GRP], spreadProb)),
                         by="from"]$keepIndex]
-          
+
           set(dtPotential, , "spreadProb", NULL)
         }
         setcolorder(dtPotential, dtPotentialColNames)
       } else {
         ## standard algorithm ... runif against spreadProb
         # Extract spreadProb for the current set of potentials
+        #browser()
         actualSpreadProb <- if (length(spreadProb) == 1) {
           spreadProb
         } else {
@@ -437,12 +524,14 @@ setMethod(
       }
 
       # Remove any pixels that push each cluster over their maxSize limit
-      if(!anyNA(maxSize)) {
+      if(!anyNA(maxSize) | !(anyNA(exactSize))) {
         setkeyv(dt,"initialPixels") # must sort because maxSize is sorted
-        currentSize <- dt[,.N,by=initialPixels][,`:=`(maxSize=clusterDT$maxSize,
-                                                      tooBig=N-clusterDT$maxSize)]
+        #currentSize <- dt[,.N,by=initialPixels][,`:=`(maxSize=clusterDT$maxSize,
+        #                                              tooBig=N-clusterDT$maxSize)]
+        set(clusterDT, , "size", dt[,list(size=.N),by="initialPixels"]$size)
+        set(clusterDT, , "tooBig", clusterDT$size-clusterDT$maxSize)
 
-        currentSizeTooBig <- currentSize[tooBig > 0]
+        currentSizeTooBig <- clusterDT[tooBig > 0]
         if (NROW(currentSizeTooBig) > 0) {
           # sort them so .GRP works on 3rd line
           setkeyv(currentSizeTooBig, "initialPixels")
@@ -451,8 +540,8 @@ setMethod(
                          initialPixels %in% currentSizeTooBig$initialPixels, state := "inactive"]
         }
 
-        if (exactSize) {
-          currentSizeTooSmall <- currentSize[tooBig < 0]
+        if (!(anyNA(exactSize))) {
+          currentSizeTooSmall <- clusterDT[tooBig < 0]
           if (NROW(currentSizeTooSmall) > 0) {
             # successful means will become activeSource next iteration
             dt2 <- dt[initialPixels %in% currentSizeTooSmall$initialPixels & (state == "successful" | state == "holding")]
@@ -504,12 +593,12 @@ setMethod(
       }
     } # end of main loop
 
-    ## clean up ##
+    if(!is.null(clusterDT$tooBig)) set(clusterDT, , "tooBig", NULL)
     if (asRaster) {
       ras <- raster(landscape)
       # inside unit tests, this raster gives warnings if it is only NAs
       suppressWarnings(ras[dt$pixels] <- clusterDT[dt]$id)
-      attr(ras, "cluster") <- clusterDT
+      attr(dt, "cluster") <- clusterDT
       attr(ras, "pixel") <- dt
       return(ras)
     }
