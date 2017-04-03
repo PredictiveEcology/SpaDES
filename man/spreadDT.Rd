@@ -7,7 +7,6 @@
 \title{Simulate a contagious spread process on a landscape, with data.table internals}
 \usage{
 spreadDT(landscape, start = ncell(landscape)/2 - ncol(landscape)/2,
-<<<<<<< Updated upstream
   spreadProb = 0.23, asRaster = TRUE, maxSize, exactSize, directions = 8L,
   iterations = 1000000L, returnDistances = FALSE, plot.it = FALSE,
   circle = FALSE, allowOverlap = FALSE, neighProbs = NA_real_,
@@ -18,18 +17,6 @@ spreadDT(landscape, start = ncell(landscape)/2 - ncol(landscape)/2,
   directions = 8L, iterations = 1000000L, returnDistances = FALSE,
   plot.it = FALSE, circle = FALSE, allowOverlap = FALSE,
   neighProbs = NA_real_, skipChecks = FALSE)
-=======
-  spreadProb = 0.23, asRaster = TRUE, maxSize, exactSize = FALSE,
-  directions = 8L, iterations = 1000000L, returnDistances = FALSE,
-  plot.it = FALSE, circle = FALSE, allowOverlap = FALSE,
-  neighProbs = NA_real_, skipChecks = FALSE, ...)
-
-\S4method{spreadDT}{RasterLayer}(landscape, start = ncell(landscape)/2 -
-  ncol(landscape)/2, spreadProb = 0.23, asRaster = TRUE, maxSize,
-  exactSize = FALSE, directions = 8L, iterations = 1000000L,
-  returnDistances = FALSE, plot.it = FALSE, circle = FALSE,
-  allowOverlap = FALSE, neighProbs = NA_real_, skipChecks = FALSE, ...)
->>>>>>> Stashed changes
 }
 \arguments{
 \item{landscape}{A \code{RasterLayer} object. This defines the possible locations
@@ -57,23 +44,12 @@ if it is not as long as \code{start}. This will be overridden if
 \code{exactSize} also provided.
 See section on \code{Breaking out of spreadDT events}.}
 
-<<<<<<< Updated upstream
 \item{exactSize}{Numeric vector, length 1 or \code{length(start)}.
 Similar to \code{maxSize}, but these will be the exact
 final sizes of the events.  i.e., the spreadDT events
 will continue until they are \code{floor(exactSize)}.
 This will override \code{maxSize} if both provided.
 See Details.}
-=======
-\item{exactSize}{Logical. If TRUE, then the \code{maxSize} will be treated as exact sizes,
-i.e., the spreadDT events will continue until they are
-\code{floor(maxSize)}. This is overridden by \code{iterations}, but
-if \code{iterations} is run, and individual events haven't reached
-\code{maxSize}, then the returned \code{data.table} will still have
-at least one active cell per event that did not achieve \code{maxSize},
-so that the events can continue if passed into \code{spreadDT} with
-\code{spreadState}.}
->>>>>>> Stashed changes
 
 \item{directions}{The number adjacent cells in which to look;
 default is 8 (Queen case). Can only be 4 or 8.}
