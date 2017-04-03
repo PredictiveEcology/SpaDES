@@ -5,8 +5,8 @@
 \alias{rasterizeReduced}
 \title{Convert reduced representation to full raster}
 \usage{
-rasterizeReduced(reduced, fullRaster, plotCol, mapcode = names(fullRaster),
-  ...)
+rasterizeReduced(reduced, fullRaster, newRasterCols,
+  mapcode = names(fullRaster), ...)
 }
 \arguments{
 \item{reduced}{\code{data.frame} or \code{data.table} that has at least one
@@ -15,8 +15,9 @@ column of codes that are represented in the \code{fullRaster}.}
 \item{fullRaster}{\code{RasterLayer} of codes used in \code{reduced} that represents
 a spatial representation of the data}
 
-\item{plotCol}{a character, length 1, with the name of the column in \code{reduced} that
-whose value will be plotted}
+\item{newRasterCols}{Character vector, length 1 or more, with the name(s) of the column(s) 
+in \code{reduced} whose value will be returned as a Raster or list of 
+Rasters}
 
 \item{mapcode}{a character, length 1, with the name of the column in \code{reduced} that
 is represented in \code{fullRaster}}
@@ -24,8 +25,9 @@ is represented in \code{fullRaster}}
 \item{...}{Other arguments. None used yet.}
 }
 \value{
-A \code{RasterLayer} of with same dimensions as \code{fullRaster} representing
-\code{plotCol} spatially, according to the join between the \code{mapcodeAll} contained within
+A \code{RasterLayer} or list of \code{RasterLayer} of with same 
+dimensions as \code{fullRaster} representing
+\code{newRasterCols} spatially, according to the join between the \code{mapcode} contained within
 \code{reduced} and \code{fullRaster}
 }
 \description{
