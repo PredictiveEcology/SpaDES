@@ -593,7 +593,7 @@ setMethod(
             grepl(tagKey, pattern = ut) |
             grepl(artifact, pattern = ut)]
           setkey(objsDT2, "artifact")
-          objsDT <- objsDT2
+          objsDT <- objsDT[objsDT2[, artifact]] # merge each userTags
         }
       }
 
