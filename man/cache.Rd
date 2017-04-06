@@ -59,6 +59,13 @@ call to this same cached function with identical arguments).
 If \code{Cache} is called within a SpaDES module, then the cached entry will automatically
 get 3 extra \code{userTags}: eventTime, eventType, and moduleName. These can then be used in
 \code{clearCache} to selectively remove cached objects by eventTime, eventType or moduleName.
+
+\code{Cache} will add a tag to the artifact in the database
+called \code{accessed} which will assign the time that it was
+accessed, either read or write. That way, artifacts can be shown (\code{showCache})
+or removed \code{clearCache} selectively based on their accessed
+ dates, rather than only by their
+creation dates. See example in \code{\link{clearCache}}.
 }
 \description{
 This function is largely copied from \code{\link[archivist]{cache}}, with

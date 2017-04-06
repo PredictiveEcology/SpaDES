@@ -27,7 +27,7 @@ test_that("test cache", {
   sims <- experiment(mySim, replicates = 2, cache = TRUE)
   out <- showCache(sims[[1]])
   expect_output(print(out), "cacheId")
-  expect_true(NROW(out) == 14) # will become 15 with new experiment caching stuff
+  expect_true(NROW(out) == 16) # will become 15 with new experiment caching stuff
   clearCache(sims[[1]])
   out <- showCache(sims[[1]])
   expect_true(NROW(out) == 0)
@@ -178,18 +178,18 @@ test_that("test file-backed raster caching", {
   aa <- Cache(randomPolyToDisk, tmpdir, tmpRasterfile, cacheRepo = tmpdir, userTags = "something2")
 
   # Test clearCache by tags
-  expect_equal(NROW(showCache(tmpdir)), 8)
+  expect_equal(NROW(showCache(tmpdir)), 9)
   clearCache(tmpdir, userTags = "something$")
-  expect_equal(NROW(showCache(tmpdir)), 8)
+  expect_equal(NROW(showCache(tmpdir)), 9)
   clearCache(tmpdir, userTags = "something2")
   expect_equal(NROW(showCache(tmpdir)), 0)
 
   aa <- Cache(randomPolyToDisk, tmpdir, tmpRasterfile, cacheRepo = tmpdir, userTags = "something2")
-  expect_equal(NROW(showCache(tmpdir)), 8)
+  expect_equal(NROW(showCache(tmpdir)), 9)
   clearCache(tmpdir, userTags = c("something$", "testing$"))
-  expect_equal(NROW(showCache(tmpdir)), 8)
+  expect_equal(NROW(showCache(tmpdir)), 9)
   clearCache(tmpdir, userTags = c("something2$", "testing$"))
-  expect_equal(NROW(showCache(tmpdir)), 8)
+  expect_equal(NROW(showCache(tmpdir)), 9)
   clearCache(tmpdir, userTags = c("something2$", "randomPolyToDisk$"))
   expect_equal(NROW(showCache(tmpdir)), 0)
 
@@ -233,7 +233,7 @@ test_that("test file-backed raster caching", {
   expect_true(fromDisk(bb))
 
   bb <- Cache(randomPolyToMemory, tmpdir, cacheRepo = tmpdir)
-  expect_true(NROW(showCache(tmpdir)) == 7)
+  expect_true(NROW(showCache(tmpdir)) == 9)
 
   # Test that factors are saved correctly
   randomPolyToFactorInMemory <- function(tmpdir) {
@@ -304,4 +304,46 @@ test_that("test date-based cache removal", {
   # Example of changing parameter values
 
   clearCache(tmpdir)
+
+
+
+  mySim <- simInit(
+    times = list(start = 0.0, end = 1.0, timeunit = "year"),
+    params = list(
+      .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
+      # Turn off interactive plotting
+      fireSpread = list(.plotInitialTime = NA),
+      caribouMovement = list(.plotInitialTime = NA),
+      randomLandscapes = list(.plotInitialTime = NA, .useCache = "init")
+    ),
+    modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
+    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
+                 outputPath = tmpdir,
+                 cachePath = tmpdir),
+    # Save final state of landscape and caribou
+    outputs = data.frame(objectName = c("landscape", "caribou"),
+                         stringsAsFactors = FALSE)
+  )
+  clearCache(mySim)
+  sims <- spades(Copy(mySim), notOlderThan = Sys.time())
+  simsCacheID <- unlist(gsub(attr(sims, "tags"), pattern = "cacheId:", replacement = ""))
+  ranNums <- Cache(runif, 4, cacheRepo=cachePath(mySim), userTags = "objectName:a")
+  # access it again, but "later"
+  Sys.sleep(1)
+  sims <- spades(Copy(mySim)) # i.e., this is a "read" operation, does not create a new artifact
+  wholeCache <- showCache(mySim)
+  expect_true(length(unique(wholeCache, by="artifact")$artifact)==2)
+  expect_true(sum(wholeCache$tagKey=="accessed")==3)
+  # keep only items accessed "recently"
+  onlyRecentlyAccessed <- showCache(mySim,
+                                    userTags = max(wholeCache[tagKey=="accessed"]$tagValue))
+  # inverse join with 2 data.tables ... using: a[!b]
+      # i.e., return all of wholeCache that was not recently accessed
+  toRemove <- unique(wholeCache[!onlyRecentlyAccessed], by="artifact")$artifact
+  clearCache(mySim, toRemove) # remove ones not recently accessed
+  expect_true(length(unique(showCache(mySim), by="artifact")$artifact)==1)
+  expect_true(sum(showCache(mySim)$tagKey=="accessed")==2)
+  # make sure it is the sims one
+  expect_true(length(unique(showCache(mySim, simsCacheID)$artifact))==1)
+
 })
