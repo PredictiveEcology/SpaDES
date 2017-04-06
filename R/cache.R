@@ -331,10 +331,10 @@ setMethod(
     }
 
     if (length(whRasOrSpatial) > 0) {
-      rasters <- unlist(lapply(tmpl[whRasOrSpatial], is, "Raster"))
-      tmpl[whRasOrSpatial[rasters]] <- lapply(tmpl[whRasOrSpatial[rasters]],
-                                              function(f)
-                                                prepareFileBackedRaster(f, repoDir = cacheRepo))
+      #rasters <- unlist(lapply(tmpl[whRasOrSpatial], is, "Raster"))
+      #tmpl[whRasOrSpatial[rasters]] <- lapply(tmpl[whRasOrSpatial[rasters]],
+      #                                        function(f)
+      #                                          prepareFileBackedRaster(f, repoDir = cacheRepo))
       tmpl[whRasOrSpatial] <- lapply(tmpl[whRasOrSpatial], makeDigestible,
                                      compareRasterFileLength = compareRasterFileLength,
                                      algo = algo)
