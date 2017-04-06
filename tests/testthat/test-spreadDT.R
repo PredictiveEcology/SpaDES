@@ -466,11 +466,23 @@ test_that("spreadDT tests", {
     out
   }
 
-  N <- 2
-  ras <- raster(extent(0,1000, 0, 1000), res=1)
+  N <- 200
+  ras <- raster(extent(0,2000, 0, 2000), res=1)
   sp <- 0.225
+  b <- raster(ras)
+  b[] <- 1
+  bb <-
+    focal(
+      b,
+      matrix(1 / 9, nrow = 3, ncol = 3),
+      fun = sum,
+      pad = TRUE,
+      padValue = 0
+    )
+  innerCells <- Which(bb %==% 1, cells = TRUE)
+
   microbenchmark(
-    times = 500,
+    times = 20,
     iterativeFun(ras, TRUE, N, sp),
     nonIterativeFun(ras, TRUE, N, sp),
     origSpread(ras, TRUE, N, sp),
