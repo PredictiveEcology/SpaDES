@@ -300,7 +300,7 @@ setMethod(
     ##### End assertions
 
     # required function
-    spreadProbHas0 <- if(!is.integer(start) & !is.data.table(start)) {
+    spreadProbHas0 <- if(!is.numeric(spreadProb)) {
         if(is(spreadProb, "Raster")) minValue(spreadProb)==0 else stop("expecting a Raster, data.table or numeric for start")
       } else {
         any(spreadProb==0)
@@ -321,7 +321,7 @@ setMethod(
     needDistance <- returnDistances | circle # returnDistances = TRUE and circle = TRUE both require distance calculations
     maxRetriesPerID <- 10 # This means that if an event can not spread any more, it will try 10 times, including 2 jumps
 
-    if(!is.integer(start) & !is.data.table(start)) {
+    if(!is.numeric(start) & !is.data.table(start)) {
       if(is(start, "Raster")) {
         start <- attr(start, "pixel")
       } else {
@@ -607,7 +607,7 @@ setMethod(
 
       # Change states of cells
       #browser()
-      if(!anyNA(maxSize) | !(anyNA(exactSize))) { # these do resorting via setkeyv
+      if(!anyNA(maxSize) | !(anyNA(exactSize)) | allowOverlap) { # these do resorting via setkeyv
         notInactive <- dt$state!="inactive" # currently activeSource, successful, or holding
         whNotInactive <- which(notInactive)
       } else {
