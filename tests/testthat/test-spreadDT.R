@@ -466,8 +466,8 @@ test_that("spreadDT tests", {
     out
   }
 
-  N <- 200
-  ras <- raster(extent(0,2000, 0, 2000), res=1)
+  N <- 2000
+  ras <- raster(extent(0,1000, 0, 1000), res=1)
   sp <- 0.225
   b <- raster(ras)
   b[] <- 1
@@ -482,11 +482,11 @@ test_that("spreadDT tests", {
   innerCells <- Which(bb %==% 1, cells = TRUE)
 
   microbenchmark(
-    times = 20,
+    times = 3,
     iterativeFun(ras, TRUE, N, sp),
     nonIterativeFun(ras, TRUE, N, sp),
-    origSpread(ras, TRUE, N, sp),
-    origSpreadIterations(ras, TRUE, N, sp)
+    origSpread(ras, TRUE, N, sp)#,
+    #origSpreadIterations(ras, TRUE, N, sp)
   )
   # Unit: milliseconds
   #                                   expr       min        lq      mean    median        uq        max neval
@@ -512,9 +512,9 @@ test_that("spreadDT tests", {
   # origSpreadIterations(ras, FALSE, N, sp) 10.754669 51.524368 141.48620 93.61996 169.10808 2110.2683   300
   #
   profvis::profvis({
-    set.seed(345)
-    for(i in 1:50)
-      iterativeFun(ras, TRUE, N, sp=0.235)
+    set.seed(3451)
+    for(i in 1:4)
+      iterativeFun(ras, TRUE, N, sp=sp)
   })
   profvis::profvis({
     nonIterativeFun()

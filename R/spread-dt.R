@@ -300,15 +300,11 @@ setMethod(
     ##### End assertions
 
     # required function
-    spreadProbHas0 <- if(is(spreadProb, "Raster")) minValue(spreadProb)==0 else any(spreadProb==0)
-    resampleZeroProof <- if(spreadProbHas0) function(i, n, sp) {
-      sm <- sum(sp, na.rm=TRUE)
-      if(sum(sp>0)<=n) {
-        integer()
+    spreadProbHas0 <- if(!is.integer(start) & !is.data.table(start)) {
+        if(is(spreadProb, "Raster")) minValue(spreadProb)==0 else stop("expecting a Raster, data.table or numeric for start")
       } else {
-        resample(i, n, prob=sp/sm)
+        any(spreadProb==0)
       }
-    } else function(i, n, sp) resample(i, n, prob=sp/sum(sp, na.rm=TRUE))
 
     ##### Set up dt and clusterDT objects
     if(missing(maxSize)) {
@@ -325,15 +321,26 @@ setMethod(
     needDistance <- returnDistances | circle # returnDistances = TRUE and circle = TRUE both require distance calculations
     maxRetriesPerID <- 10 # This means that if an event can not spread any more, it will try 10 times, including 2 jumps
 
-    if(is(start, "Raster")) start <- attr(start, "pixel")
+    if(!is.integer(start) & !is.data.table(start)) {
+      if(is(start, "Raster")) {
+        start <- attr(start, "pixel")
+      } else {
+        stop("Start must be either a vector of pixels, a data.table from",
+             "previous spreadDT or a Raster from a previous spreadDT")
+      }
+    }
     if (!is.data.table(start)) {
       start <- as.integer(start)
 
       whActive <- seq_along(start)
-      dt <- as.data.table(cbind(initialPixels=start, pixels=start))
+      whInactive <- integer()
+      #dt <- as.data.table(cbind(initialPixels=start, pixels=start))
+      dt <- data.table(initialPixels=start, pixels=start)
       set(dt, , "state", "activeSource")
 
-      clusterDT=as.data.table(cbind(id=whActive, initialPixels=start, numRetries=0L));
+      #clusterDT=as.data.table(cbind(id=whActive, initialPixels=start, numRetries=0L));
+      clusterDT=data.table(id=whActive, initialPixels=start, numRetries=0L);
+
       if(!anyNA(maxSize)) {
         set(clusterDT, , "maxSize", maxSize)
         set(dt, which(clusterDT$maxSize==1), "state", "inactive") # de-activate ones that are 1 cell
@@ -343,6 +350,7 @@ setMethod(
       }
 
       setkeyv(clusterDT, "initialPixels")
+
     } else {
       clusterDT <- attr(start, "cluster")#data.table(id=unique(start$id), initialPixels=unique(start$initialPixels), key = "initialPixels")
       if (!key(clusterDT) == "initialPixels") # should have key if it came directly from output of spreadDT
@@ -357,7 +365,9 @@ setMethod(
       if(!is.null(clusterDT$maxSize)) maxSize <- clusterDT$maxSize
       set(clusterDT, ,"numRetries", 0)
       dt <- start
-      whActive <- which(dt$state == "activeSource")
+      whActive <- attr(start, "whActive")
+      whInactive <- attr(start, "whInactive")
+
     }
     dtColNames <- colnames(dt)[!colnames(dt) == "state"]
     dtPotentialColNames <- c("id", "from", "to", "state", "distance"[needDistance])
@@ -366,9 +376,8 @@ setMethod(
 
     its <- 0
 
-    needRetryID <- numeric()
-    whNeedRetry <- numeric()
-
+    needRetryID <- integer()
+    whNeedRetry <- integer()
     while ((length(needRetryID) | length(whActive)) &  its < iterations) {
 
       # Step 1
@@ -393,31 +402,34 @@ setMethod(
                                  cells = dtRetry$pixels)
         }
 
-        set(dt, whActive, "state", "holding")
+        set(dt, whActive, "state", "holding") # take them out of commission for this iteration
         set(dt, whNeedRetry, "state", "activeSource")
 
       } else {
         ## Spread to immediate neighbours
-        dtActiveSrc <- dt$state == "activeSource"
         potentialPixels <- adj(landscape, directions = directions,
-                               id = dt$initialPixels[dtActiveSrc],
-                               cells = dt$pixels[dtActiveSrc])
+                               id = dt$initialPixels[whActive],
+                               cells = dt$pixels[whActive])
 
         # only iterate if it is not a Retry situation
         its <- its + 1
       }
 
-      dtPotential <- as.data.table(potentialPixels)
-
       if (length(needRetryID) > 0) {
         # of all possible cells in the jumping range, take just 2
+        dtPotential <- as.data.table(potentialPixels)
+
         dtPotential <- dtPotential[,list(to = resample(to, 2)),by = c("id", "from")]
-        needRetryID <- numeric()
+        needRetryID <- integer()
+        i <- sample.int(NROW(dtPotential))
+        for (x in colnames(dtPotential)) set(dtPotential, , x, dtPotential[[x]][i])
+      } else {
+        i <- sample.int(NROW(potentialPixels))
+        potentialPixels <- potentialPixels[i,]
+        dtPotential <- as.data.table(potentialPixels)
       }
 
       # randomize row order so duplicates are not always in same place
-      i <- sample.int(NROW(dtPotential))
-      for (x in colnames(dtPotential)) set(dtPotential, , x, dtPotential[[x]][i])
 
       # calculate distances, if required ... attach to dt
       if (needDistance) {
@@ -427,12 +439,14 @@ setMethod(
         dists <- pointDistance(p1 = fromPts, p2 = toPts, lonlat = FALSE)
         if (circle) {
           distKeepers <- dists %<=% its & dists %>>% (its - 1)
-          mat <- cbind(from = dtPotential$from[distKeepers],
-                       to = dtPotential$to[distKeepers],
-                       id = dtPotential$id[distKeepers])
+          dtPotential <- data.table(dtPotential[distKeepers])
+          # mat <- cbind(from = dtPotential$from[distKeepers],
+          #              to = dtPotential$to[distKeepers],
+          #              id = dtPotential$id[distKeepers])
           if (needDistance)
-            mat <- cbind(mat, distance = dists[distKeepers])
-          dtPotential <- as.data.table(mat)
+            set(dtPotential, , "distance", dists[distKeepers])
+           # mat <- cbind(mat, distance = dists[distKeepers])
+          #dtPotential <- as.data.table(mat)
         }
       }
 
@@ -454,17 +468,23 @@ setMethod(
 
         # remove duplicates from the existing "pixels" and new "potential pixels", since it must select exactly numNeighs
         dups <- duplicatedInt(c(dt$pixels, dtPotential$to))
-        dups <- dups[-seq_along(dt$pixels)]
-        dtPotential <- dtPotential[!dups]
+        if(any(dups)) {
+          dups <- dups[-seq_along(dt$pixels)]
+          dtPotential <- dtPotential[!dups]
+        }
         setkeyv(dtPotential, c("id", "from")) # sort so it is the same as numNeighsByPixel
         if (NROW(dtPotential)) {
-          set(dtPotential, , "spreadProb", spreadProb[dtPotential$to])
+          if(length(spreadProb)>1)
+            set(dtPotential, , "spreadProb", spreadProb[dtPotential$to])
+          else
+            set(dtPotential, , "spreadProb", spreadProb)
           spreadProbNA <- is.na(dtPotential$spreadProb) # This is where a mask enters
           if(any(spreadProbNA)) {
-            colnamesDtPot <- colnames(dtPotential)
-            ll <-  lapply(colnamesDtPot, function(x) dtPotential[[x]][!spreadProbNA])
-            names(ll) <- colnamesDtPot
-            dtPotential <- as.data.table(ll)
+            dtPotential <- dtPotential[!spreadProbNA]
+            # colnamesDtPot <- colnames(dtPotential)
+            # ll <-  lapply(colnamesDtPot, function(x) dtPotential[[x]][!spreadProbNA])
+            # names(ll) <- colnamesDtPot
+            # dtPotential <- as.data.table(ll)
           }
           # If it is a corner or has had pixels removed bc of duplicates, it may not have enough neighbours
           numNeighsByPixel <- numNeighsByPixel[dtPotential[, .N, by = c("id", "from")]]
@@ -472,7 +492,7 @@ setMethod(
 
           dtPotential <- dtPotential[
             dtPotential[,list(keepIndex=
-                                resampleZeroProof(.I,numNeighsByPixel$numNeighs[.GRP], spreadProb)),
+                                resampleZeroProof(spreadProbHas0, .I,numNeighsByPixel$numNeighs[.GRP], spreadProb)),
                         by="from"]$keepIndex]
 
           set(dtPotential, , "spreadProb", NULL)
@@ -481,7 +501,6 @@ setMethod(
       } else {
         ## standard algorithm ... runif against spreadProb
         # Extract spreadProb for the current set of potentials
-        #browser()
         actualSpreadProb <- if (length(spreadProb) == 1) {
           spreadProb
         } else {
@@ -489,10 +508,13 @@ setMethod(
         }
 
         # Evaluate against spreadProb -- next lines are faster than: dtPotential <- dtPotential[keepers]
-        keepers <- runif(NROW(dtPotential)) < actualSpreadProb
-        ll <- lapply(colnames(dtPotential), function(x) dtPotential[[x]][keepers])
-        names(ll) <- colnames(dtPotential)
-        dtPotential <- as.data.table(ll[dtPotentialColNames])
+        keepers <- runifC(NROW(dtPotential)) < actualSpreadProb
+        if(!all(keepers))
+          dtPotential <- dtPotential[keepers]
+        setcolorder(dtPotential, neworder = dtPotentialColNames)
+        # ll <- lapply(colnames(dtPotential), function(x) dtPotential[[x]][keepers])
+        # names(ll) <- colnames(dtPotential)
+        # dtPotential <- as.data.table(ll[dtPotentialColNames])
 
       }
 
@@ -501,26 +523,41 @@ setMethod(
       set(dtPotential, , "from", dtPotential$to)
       set(dtPotential, , "to", NULL)
 
-      # combine potentials to previous
-      dt <- rbindlist(list(dt, dtPotential))
+      # remove duplicates in potential -- smaller data.table than whole dt
+      # dupDtPot <- duplicatedInt(dtPotential$from)
+      # if(any(dupDtPot))
+      #   dtPotential <- dtPotential[!dupDtPot]
 
       # Remove duplicates, which was already done for neighProbs situation
       if (anyNA(neighProbs)) {
         if (allowOverlap) {
+          dt <- rbindlist(list(dt, dtPotential))
           dt[, `:=`(dups = duplicatedInt(pixels)), by = initialPixels]
           dupes <- dt$dups
           set(dt, , "dups", NULL)
+          dt <- dt[!dupes]
+
         } else {
-          dupes <- duplicatedInt(dt$pixels)
+          dups <- duplicatedInt(c(dt$pixels, dtPotential$from))
+          #browser(expr=NROW(dt)>1e4)
+          #if(any(dups)) {
+          dtPotential <- dtPotential[!dups[seq_along(dtPotential$from)+length(dt$pixels)]]
+          #}
+          dt <- rbindlist(list(dt, dtPotential))
+          # dt <- rbindlist(list(dt, dtPotential))
+          # dupes <- duplicatedInt(dt$pixels)
+          # dt <- dt[!dupes]
+
         }
         # remove any duplicates
-        if (any(dupes)) {
+        #if (any(dupes)) {
           # faster than
-          # dt <- dt[!dupes]
-          ll <- lapply(colnames(dt), function(x) dt[[x]][!dupes])
-          names(ll) <- colnames(dt)
-          dt <- as.data.table(ll)
-        }
+           # ll <- lapply(colnames(dt), function(x) dt[[x]][!dupes])
+           # names(ll) <- colnames(dt)
+           # dt <- as.data.table(ll)
+        #}
+      } else {
+        dt <- rbindlist(list(dt, dtPotential))
       }
 
       # Remove any pixels that push each cluster over their maxSize limit
@@ -569,11 +606,23 @@ setMethod(
       } # end maxSize based removals
 
       # Change states of cells
-      set(dt, which(dt$state == "activeSource"), "state", "inactive")
-      set(dt, which(dt$state == "holding"), "state", "successful")# return holding cells to successful
-      whActive <- which(dt$state == "successful")
-      set(dt, whActive, "state", "activeSource")# return holding cells to successful
-      #set(dt, whActive, "pixels", dt$pixels[whActive])# put successful cells into "pixel" column
+      #browser()
+      if(!anyNA(maxSize) | !(anyNA(exactSize))) { # these do resorting via setkeyv
+        notInactive <- dt$state!="inactive" # currently activeSource, successful, or holding
+        whNotInactive <- which(notInactive)
+      } else {
+        whNotInactive <- seq_len(length(whActive) + NROW(dtPotential))
+        if(length(whInactive))
+          whNotInactive <- max(whInactive) + whNotInactive
+      }
+
+      #if(length(whInactive))
+      #  browser(expr=!identical(whNotInactive, max(whInactive) + seq_len(length(whActive) + NROW(dtPotential))))
+      whActive <- whNotInactive[dt$state[whNotInactive] == "successful"]
+      whInactive <- whNotInactive[dt$state[whNotInactive] == "activeSource"]
+      set(dt, whNotInactive, "state",
+          c("inactive", "activeSource", "activeSource")[
+            fmatch(dt$state[whNotInactive], c("activeSource", "holding", "successful"))])
 
       if (plot.it) {
         newPlot <- FALSE
@@ -599,13 +648,28 @@ setMethod(
       # inside unit tests, this raster gives warnings if it is only NAs
       suppressWarnings(ras[dt$pixels] <- clusterDT[dt]$id)
       attr(dt, "cluster") <- clusterDT
+      attr(dt, "whActive") <- whActive
+      attr(dt, "whInactive") <- whInactive
       attr(ras, "pixel") <- dt
       return(ras)
     }
 
     attr(dt, "cluster") <- clusterDT
+    attr(dt, "whActive") <- whActive
+    attr(dt, "whInactive") <- whInactive
     return(dt)
   }
 )
 
+
+resampleZeroProof <- function(spreadProbHas0, i, n, sp) {
+  if(spreadProbHas0) {
+    sm <- sum(sp, na.rm=TRUE)
+    if(sum(sp>0)<=n) {
+      integer()
+    } else {
+      resample(i, n, prob=sp/sm)
+    }
+  } else resample(i, n, prob=sp/sum(sp, na.rm=TRUE))
+}
 
