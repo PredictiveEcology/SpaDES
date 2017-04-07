@@ -52,3 +52,17 @@ duplicatedInt <- function(x) {
     .Call('SpaDES_duplicatedInt', PACKAGE = 'SpaDES', x)
 }
 
+#' @title
+#' Rcpp Sugar version of runif
+#' @description
+#' Slightly faster than runif, and used a lot
+#'
+#' @param N Integer Vector
+#' @return
+#' A vector of uniform random numbers as per \code{runif}
+#'
+#' @rdname rcpp-extras
+runifC <- function(N) {
+    .Call('SpaDES_runifC', PACKAGE = 'SpaDES', N)
+}
+

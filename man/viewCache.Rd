@@ -76,18 +76,38 @@ mySim <- simInit(
                        stringsAsFactors = FALSE)
 )
 
-sims <- spades(Copy(mySim), notOlderThan = Sys.time()) ## TO DO: fix this test
+## the caching is inside randomLandscape module
+sims <- spades(Copy(mySim), notOlderThan = Sys.time())
+showCache(mySim)
 
 ranNums <- Cache(runif, 4, cacheRepo=cachePath(mySim), userTags = "objectName:a")
 
-showCache(mySim)
-
 showCache(mySim, userTags = c("objectName"))
-showCache(mySim, userTags = c("a"))
+showCache(mySim, userTags = c("^a$")) # regular expression ... "a" exactly
 showCache(mySim, userTags = c("eventTime")) # show only cached objects made during spades call
 
 clearCache(mySim, userTags = c("eventTime")) # remove only cached objects made during spades call
-showCache(mySim) # they are gone
+showCache(mySim) # only those made during spades call they are gone
+
+# example using the "accessed" tag
+ clearCache(mySim)
+ sims <- spades(Copy(mySim), notOlderThan = Sys.time())
+ ranNums <- Cache(runif, 4, cacheRepo=cachePath(mySim), userTags = "objectName:a")
+ # access it again, but "later"
+ Sys.sleep(1)
+ sims <- spades(Copy(mySim)) # i.e., this is a "read" operation, does not create a new artifact
+
+ wholeCache <- showCache(mySim)
+ # keep only items accessed "recently"
+ onlyRecentlyAccessed <- showCache(mySim,
+                                   userTags = max(wholeCache[tagKey=="accessed"]$tagValue))
+ # inverse join with 2 data.tables ... using: a[!b]
+     # i.e., return all of wholeCache that was not recently accessed
+ toRemove <- unique(wholeCache[!onlyRecentlyAccessed], by="artifact")$artifact
+ clearCache(mySim, toRemove) # remove ones not recently accessed
+ showCache(mySim) # still has more recently accessed,
+                  #  based on time passed to onlyRentlyAccessed
+
 }
 \dontrun{
 showCache(mySim)
