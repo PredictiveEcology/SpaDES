@@ -145,3 +145,21 @@ NumericMatrix pointDistance3(NumericVector fromX, NumericVector toX,
 LogicalVector duplicatedInt(IntegerVector x) {
   return duplicated(x);
 }
+
+
+//' @title
+//' Rcpp Sugar version of runif
+//' @description
+//' Slightly faster than runif, and used a lot
+//'
+//' @param N Integer Vector
+//' @return
+//' A vector of uniform random numbers as per \code{runif}
+//'
+//' @rdname rcpp-extras
+// [[Rcpp::export]]
+NumericVector runifC(const int N) {
+  NumericVector X(N);
+  X = runif(N);
+  return X;
+}
