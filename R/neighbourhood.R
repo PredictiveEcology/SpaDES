@@ -56,22 +56,34 @@ if (getRversion() >= "3.1.0") {
 #'                with numCol is a bit faster execution time.
 #'
 #' @param match.adjacent logical. Should the returned object be the same as the \code{adjacent}
-#'                       function in the raster package.
+#'                       function in the raster package. Default FALSE, which is faster.
 #'
 #' @param cutoff.for.data.table numeric. If the number of cells is above this value,
 #'                              the function uses data.table which is
-#'                              faster with large numbers of cells.
+#'                              faster with large numbers of cells. Default is 5000, which appears
+#'                              to be the turning point where data.table becomes faster.
 #'
 #' @param torus Logical. Should the spread event wrap around to the other side of the raster.
-#' Default is FALSE.
+#'                Default is FALSE.
 #'
 #' @param id numeric If not NULL, then function will return "id" column. Default NULL.
 #'
 #' @param numNeighs A numeric scalar, indicating how many neighbours to return. Must be
 #'                  less than or equal to \code{directions}; which neighbours are random
 #'                  with equal probabilities.
+#' @param returnDT A logical. If TRUE, then the function will return the result as a data.table,
+#'                 if the internals used \code{data.table}, i.e., if number of cells is greater than
+#'                 \code{cutoff.for.data.table}. User should be warned that this will therefore
+#'                 cause the output format to change depending \code{cutoff.for.data.table}.
+#'                 This will be faster for situations where \code{cutoff.for.data.table} is \code{TRUE}
 #'
-#' @return a matrix of one or two columns, from and to.
+#' @return Either a matrix (if more than 1 column, i.e., \code{pairs = TRUE}, and/or \code{id}
+#' is provided),  a vector (if only one column), or
+#' a data.table (if \code{cutoff.for.data.table} is less than \code{length(cells)} AND
+#' \code{returnDT} is \code{TRUE}. To get a consistent output, say a matrix, it would
+#' be wise to test the output for its class. The variable output is done
+#' to minimize coersion to maintain speed. The columns will be one or more of \code{id},
+#' \code{from}, \code{to}.
 #'
 #' @seealso \code{\link[raster]{adjacent}}
 #'
@@ -96,8 +108,8 @@ if (getRversion() >= "3.1.0") {
 #'
 adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
                     include = FALSE, target = NULL, numCol = NULL, numCell = NULL,
-                    match.adjacent = FALSE, cutoff.for.data.table = 1e4,
-                    torus = FALSE, id = NULL, numNeighs = NULL) {
+                    match.adjacent = FALSE, cutoff.for.data.table = 2e3,
+                    torus = FALSE, id = NULL, numNeighs = NULL, returnDT = FALSE) {
   to = NULL
   J = NULL
   cells <- as.integer(cells)
@@ -280,14 +292,28 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
               ((from %% numCol + to %% numCol) == 1))# | #right & left edge cells, with neighbours wrapped
           ]
         if (match.adjacent) {
-          return(unique(adj$to))
+          if(returnDT)
+            return(unique(adj[,list(to)]))
+          else
+            return(unique(adj$to))
+
         }
-        return(as.matrix(adj))
+        if(returnDT)
+          return(adj)
+        else
+          return(as.matrix(adj))
       } else {
-        return(as.matrix(adj[
-          !((((to - 1) %% numCell + 1) != to) | #top or bottom of raster
-              ((from %% numCol + to %% numCol) == 1)) # | #right & left edge cells, with neighbours wrapped
-          ]))
+        if(returnDT)
+          return(adj[
+            !((((to - 1) %% numCell + 1) != to) | #top or bottom of raster
+                ((from %% numCol + to %% numCol) == 1)) # | #right & left edge cells, with neighbours wrapped
+            ])
+        else
+          return(as.matrix(adj[
+            !((((to - 1) %% numCell + 1) != to) | #top or bottom of raster
+                ((from %% numCol + to %% numCol) == 1)) # | #right & left edge cells, with neighbours wrapped
+            ]))
+        return()
       }
     } else {
       if (!pairs) {
@@ -300,8 +326,10 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
               as.integer(sign(from[whBotTop] - toWhBotTop) * numCell))
 
         if (match.adjacent) {
-          adj <- unique(adj$to)
-          return(adj)
+          if(returnDT)
+            return(unique(adj[,list(to)]))
+          else
+            return(unique(adj$to))
         }
       } else {
         whLefRig <- (adj$from %% numCol + adj$to %% numCol) == 1
@@ -312,7 +340,10 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
         set(adj, which(whBotTop), "to", toWhBotTop +
               as.integer(sign(adj$from[whBotTop] - toWhBotTop) * numCell))
       }
-      return(as.matrix(adj))
+      if(returnDT)
+        return(adj)
+      else
+        return(as.matrix(adj))
     }
   }
 }
