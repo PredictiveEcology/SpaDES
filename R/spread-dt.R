@@ -330,10 +330,13 @@ setMethod(
       start <- as.integer(start)
 
       whActive <- seq_along(start)
-      dt <- as.data.table(cbind(initialPixels=start, pixels=start))
+      #dt <- as.data.table(cbind(initialPixels=start, pixels=start))
+      dt <- data.table(initialPixels=start, pixels=start)
       set(dt, , "state", "activeSource")
 
-      clusterDT=as.data.table(cbind(id=whActive, initialPixels=start, numRetries=0L));
+      #clusterDT=as.data.table(cbind(id=whActive, initialPixels=start, numRetries=0L));
+      clusterDT=data.table(id=whActive, initialPixels=start, numRetries=0L);
+
       if(!anyNA(maxSize)) {
         set(clusterDT, , "maxSize", maxSize)
         set(dt, which(clusterDT$maxSize==1), "state", "inactive") # de-activate ones that are 1 cell
@@ -427,12 +430,14 @@ setMethod(
         dists <- pointDistance(p1 = fromPts, p2 = toPts, lonlat = FALSE)
         if (circle) {
           distKeepers <- dists %<=% its & dists %>>% (its - 1)
-          mat <- cbind(from = dtPotential$from[distKeepers],
-                       to = dtPotential$to[distKeepers],
-                       id = dtPotential$id[distKeepers])
+          dtPotential <- data.table(dtPotential[distKeepers])
+          # mat <- cbind(from = dtPotential$from[distKeepers],
+          #              to = dtPotential$to[distKeepers],
+          #              id = dtPotential$id[distKeepers])
           if (needDistance)
-            mat <- cbind(mat, distance = dists[distKeepers])
-          dtPotential <- as.data.table(mat)
+            set(dtPotential, , "distance", dists[distKeepers])
+           # mat <- cbind(mat, distance = dists[distKeepers])
+          #dtPotential <- as.data.table(mat)
         }
       }
 
@@ -461,10 +466,11 @@ setMethod(
           set(dtPotential, , "spreadProb", spreadProb[dtPotential$to])
           spreadProbNA <- is.na(dtPotential$spreadProb) # This is where a mask enters
           if(any(spreadProbNA)) {
-            colnamesDtPot <- colnames(dtPotential)
-            ll <-  lapply(colnamesDtPot, function(x) dtPotential[[x]][!spreadProbNA])
-            names(ll) <- colnamesDtPot
-            dtPotential <- as.data.table(ll)
+            dtPotential <- dtPotential[!spreadProbNA]
+            # colnamesDtPot <- colnames(dtPotential)
+            # ll <-  lapply(colnamesDtPot, function(x) dtPotential[[x]][!spreadProbNA])
+            # names(ll) <- colnamesDtPot
+            # dtPotential <- as.data.table(ll)
           }
           # If it is a corner or has had pixels removed bc of duplicates, it may not have enough neighbours
           numNeighsByPixel <- numNeighsByPixel[dtPotential[, .N, by = c("id", "from")]]
@@ -490,9 +496,11 @@ setMethod(
 
         # Evaluate against spreadProb -- next lines are faster than: dtPotential <- dtPotential[keepers]
         keepers <- runif(NROW(dtPotential)) < actualSpreadProb
-        ll <- lapply(colnames(dtPotential), function(x) dtPotential[[x]][keepers])
-        names(ll) <- colnames(dtPotential)
-        dtPotential <- as.data.table(ll[dtPotentialColNames])
+        dtPotential <- dtPotential[keepers]
+        setcolorder(dtPotential, neworder = dtPotentialColNames)
+        # ll <- lapply(colnames(dtPotential), function(x) dtPotential[[x]][keepers])
+        # names(ll) <- colnames(dtPotential)
+        # dtPotential <- as.data.table(ll[dtPotentialColNames])
 
       }
 
@@ -516,10 +524,10 @@ setMethod(
         # remove any duplicates
         if (any(dupes)) {
           # faster than
-          # dt <- dt[!dupes]
-          ll <- lapply(colnames(dt), function(x) dt[[x]][!dupes])
-          names(ll) <- colnames(dt)
-          dt <- as.data.table(ll)
+           dt <- dt[!dupes]
+           # ll <- lapply(colnames(dt), function(x) dt[[x]][!dupes])
+           # names(ll) <- colnames(dt)
+           # dt <- as.data.table(ll)
         }
       }
 
@@ -569,11 +577,53 @@ setMethod(
       } # end maxSize based removals
 
       # Change states of cells
-      set(dt, which(dt$state == "activeSource"), "state", "inactive")
-      set(dt, which(dt$state == "holding"), "state", "successful")# return holding cells to successful
-      whActive <- which(dt$state == "successful")
-      set(dt, whActive, "state", "activeSource")# return holding cells to successful
-      #set(dt, whActive, "pixels", dt$pixels[whActive])# put successful cells into "pixel" column
+      if(FALSE) {
+        dt1 <- data.table::copy(dt)
+        microbenchmark(times = 100, a = {
+          dt2 <- data.table::copy(dt1)
+          whNotInactive <- which(dt2$state!="inactive")
+          whActive <- whNotInactive[dt2$state[whNotInactive] == "successful"]
+          set(dt2, whNotInactive, "state",
+              c("inactive", "activeSource", "activeSource")[
+                fmatch(dt2$state[whNotInactive], c("activeSource", "holding", "successful"))])
+
+        },b={
+          dt3 <- data.table::copy(dt1)
+          set(dt3, which(dt3$state == "activeSource"), "state", "inactive")
+          set(dt3, which(dt3$state == "holding"), "state", "successful")# return holding cells to successful
+          whActive <- which(dt3$state == "successful")
+          set(dt3, whActive, "state", "activeSource")# return holding cells to successful
+          #set(dt, whActive, "pixels", dt$pixels[whActive])# put successful cells into "pixel" column
+
+        },c={
+          dt4 <- data.table::copy(dt1)
+        set(dt4, which(dt4$state == "activeSource"), "state", "inactive")
+        whActive <- which(dt4$state %in% c("holding", "successful"))
+        set(dt4, whActive, "state", "activeSource")# return holding cells to successful
+        }, d = {
+          dt5 <- data.table::copy(dt)
+          whNotInactive <- which(dt5$state!="inactive")
+          set(dt5, whNotInactive[dt5$state[whNotInactive] == "activeSource"], "state", "inactive")
+          set(dt5, whNotInactive[dt5$state[whNotInactive] == "holding"], "state", "successful")# return holding cells to successful
+          whActive <- whNotInactive[dt5$state[whNotInactive] == "successful"]
+          set(dt5, whActive, "state", "activeSource")# return holding cells to successful
+
+        })
+      }
+
+      #browser()
+      #dt <- data.table::copy(dt1)
+      #dt2 <- data.table::copy(dt)
+      whNotInactive <- which(dt$state!="inactive")
+      whActive <- whNotInactive[dt$state[whNotInactive] == "successful"]
+      set(dt, whNotInactive, "state",
+          c("inactive", "activeSource", "activeSource")[
+            fmatch(dt$state[whNotInactive], c("activeSource", "holding", "successful"))])
+
+      # set(dt, which(dt$state == "activeSource"), "state", "inactive")
+      # set(dt, which(dt$state == "holding"), "state", "successful")# return holding cells to successful
+      # whActive <- which(dt$state == "successful")
+      # set(dt, whActive, "state", "activeSource")# return holding cells to successful
 
       if (plot.it) {
         newPlot <- FALSE
