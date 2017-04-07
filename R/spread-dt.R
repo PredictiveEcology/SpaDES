@@ -330,6 +330,10 @@ setMethod(
       }
     }
     if (!is.data.table(start)) {
+      available <- bit(ncell(landscape))
+      available[] <- TRUE
+      available[start] <- FALSE
+
       start <- as.integer(start)
 
       whActive <- seq_along(start)
@@ -367,6 +371,7 @@ setMethod(
       dt <- start
       whActive <- attr(start, "whActive")
       whInactive <- attr(start, "whInactive")
+      available <- attr(dt, "available")
 
     }
     dtColNames <- colnames(dt)[!colnames(dt) == "state"]
@@ -467,6 +472,7 @@ setMethod(
         setkeyv(numNeighsByPixel, c("id", "from"))
 
         # remove duplicates from the existing "pixels" and new "potential pixels", since it must select exactly numNeighs
+        browser()
         dups <- duplicatedInt(c(dt$pixels, dtPotential$to))
         if(any(dups)) {
           dups <- dups[-seq_along(dt$pixels)]
@@ -481,6 +487,7 @@ setMethod(
           spreadProbNA <- is.na(dtPotential$spreadProb) # This is where a mask enters
           if(any(spreadProbNA)) {
             dtPotential <- dtPotential[!spreadProbNA]
+            # code below is a possible replacement for previous line -- faster for small problems
             # colnamesDtPot <- colnames(dtPotential)
             # ll <-  lapply(colnamesDtPot, function(x) dtPotential[[x]][!spreadProbNA])
             # names(ll) <- colnamesDtPot
@@ -509,8 +516,9 @@ setMethod(
 
         # Evaluate against spreadProb -- next lines are faster than: dtPotential <- dtPotential[keepers]
         keepers <- runifC(NROW(dtPotential)) < actualSpreadProb
-        if(!all(keepers))
+        if(!all(keepers)) {
           dtPotential <- dtPotential[keepers]
+        }
         setcolorder(dtPotential, neworder = dtPotentialColNames)
         # ll <- lapply(colnames(dtPotential), function(x) dtPotential[[x]][keepers])
         # names(ll) <- colnames(dtPotential)
@@ -524,9 +532,10 @@ setMethod(
       set(dtPotential, , "to", NULL)
 
       # remove duplicates in potential -- smaller data.table than whole dt
-      # dupDtPot <- duplicatedInt(dtPotential$from)
-      # if(any(dupDtPot))
-      #   dtPotential <- dtPotential[!dupDtPot]
+      dupDtPot <- duplicatedInt(dtPotential$from)
+      if(any(dupDtPot)) {
+        dtPotential <- dtPotential[!dupDtPot]
+      }
 
       # Remove duplicates, which was already done for neighProbs situation
       if (anyNA(neighProbs)) {
@@ -538,10 +547,18 @@ setMethod(
           dt <- dt[!dupes]
 
         } else {
-          dups <- duplicatedInt(c(dt$pixels, dtPotential$from))
+          if(TRUE) {
+            potentialAvailable <- available[dtPotential$from]
+            dtPotential <- dtPotential[potentialAvailable]
+            available[dtPotential$from] <- FALSE
+          } else { # remove duplicatedInt which was slow
+            dups <- duplicatedInt(c(dt$pixels, dtPotential$from))
+            dtPotential <- dtPotential[!dups[seq_along(dtPotential$from)+length(dt$pixels)]]
+
+          }
+
           #browser(expr=NROW(dt)>1e4)
           #if(any(dups)) {
-          dtPotential <- dtPotential[!dups[seq_along(dtPotential$from)+length(dt$pixels)]]
           #}
           dt <- rbindlist(list(dt, dtPotential))
           # dt <- rbindlist(list(dt, dtPotential))
@@ -606,7 +623,6 @@ setMethod(
       } # end maxSize based removals
 
       # Change states of cells
-      #browser()
       if(!anyNA(maxSize) | !(anyNA(exactSize)) | allowOverlap) { # these do resorting via setkeyv
         notInactive <- dt$state!="inactive" # currently activeSource, successful, or holding
         whNotInactive <- which(notInactive)
@@ -643,20 +659,19 @@ setMethod(
     } # end of main loop
 
     if(!is.null(clusterDT$tooBig)) set(clusterDT, , "tooBig", NULL)
+    attr(dt, "cluster") <- clusterDT
+    attr(dt, "whActive") <- whActive
+    attr(dt, "whInactive") <- whInactive
+    attr(dt, "available") <- available
+
     if (asRaster) {
       ras <- raster(landscape)
       # inside unit tests, this raster gives warnings if it is only NAs
       suppressWarnings(ras[dt$pixels] <- clusterDT[dt]$id)
-      attr(dt, "cluster") <- clusterDT
-      attr(dt, "whActive") <- whActive
-      attr(dt, "whInactive") <- whInactive
       attr(ras, "pixel") <- dt
       return(ras)
     }
 
-    attr(dt, "cluster") <- clusterDT
-    attr(dt, "whActive") <- whActive
-    attr(dt, "whInactive") <- whInactive
     return(dt)
   }
 )
