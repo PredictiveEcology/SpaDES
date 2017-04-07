@@ -29,10 +29,10 @@ test_that("timeunit works correctly", {
     parameters = rbind(
       defineParameter("dummyVal", "numeric", 1.0, NA, NA, "vague description")
     ),
-    inputObjects = bind_rows(
+    inputObjects = dplyr::bind_rows(
       expectsInput(objectName = "testInput", objectClass = "list", sourceURL = "", desc = NA_character_)
     ),
-    outputObjects = bind_rows(
+    outputObjects = dplyr::bind_rows(
       createsOutput(objectName = "testOutput", objectClass = "list", desc = NA_character_)
     )
   )
@@ -42,19 +42,19 @@ test_that("timeunit works correctly", {
   expect_message(timeunit(mySim) <- "LeapYear", "^unknown timeunit provided:")
 
   # Test for user defined timeunits, in .GlobalEnv
-  expect_message(timeunit(mySim) <- "fortNight", "^unknown timeunit provided:")
+  expect_message(timeunit(mySim) <- "fortnight", "^unknown timeunit provided:")
   assign("dfortnight", function(x) lubridate::duration(dday(14)),
          envir = .GlobalEnv)
-  expect_match(timeunit(mySim) <- "fortNight", "")
-  expect_match(timeunit(mySim), "fortNight")
+  expect_match(timeunit(mySim) <- "fortnight", "")
+  expect_match(timeunit(mySim), "fortnight")
   expect_equivalent(as.numeric(dfortnight(1)), 1209600)
   rm(dfortnight, envir = .GlobalEnv)
 
   # check for new unit being put into simList
   assign("dfortnight", function(x) lubridate::duration(dday(14)),
          envir = envir(mySim))
-  expect_match(timeunit(mySim) <- "fortNight", "")
-  expect_match(timeunit(mySim), "fortNight")
+  expect_match(timeunit(mySim) <- "fortnight", "")
+  expect_match(timeunit(mySim), "fortnight")
   expect_equivalent(as.numeric(mySim$dfortnight(1)), 1209600)
   rm(dfortnight, envir = envir(mySim))
 
