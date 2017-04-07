@@ -18,8 +18,8 @@
 #' time unit using, and create a function to calculate the number of seconds
 #' in that unit using the "d" prefix (for duration), following the
 #' \code{lubridate} package standard:
-#' \code{dfortNight <- function(x) lubridate::duration(dday(14))}.
-#' Then the module developer can use "fortNight" as the module's time unit.
+#' \code{dfortnight <- function(x) lubridate::duration(dday(14))}.
+#' Then the module developer can use "fortnight" as the module's time unit.
 #'
 #' @param x numeric. Number of the desired units
 #'
@@ -153,9 +153,9 @@ attributes(monthsInSeconds)$unit <- "second"
 #'
 #' Current pre-defined units are found within the \code{spadesTimes()} function.
 #' The user can define a new unit. The unit name can be anything, but the function
-#' definition must be of the form, "dunitName", e.g., dyear or dfortNight. The unit
-#' name is the part without the d and the function name definition includes the "d".
-#' This new function, e.g., #' \code{dfortNight <- function(x) lubridate::duration(dday(14))}
+#' definition must be of the form \code{"dunitName"}, e.g., \code{dyear} or \code{dfortnight}.
+#' The unit name is the part without the \code{d} and the function name definition includes the \code{d}.
+#' This new function, e.g., \code{dfortnight <- function(x) lubridate::duration(dday(14))}
 #' can be placed anywhere in the search path or in a module.
 #'
 #' @param unit   Character. One of the time units used in \code{SpaDES} or user
@@ -163,25 +163,24 @@ attributes(monthsInSeconds)$unit <- "second"
 #' @param envir   An environment. This is where to look up the function definition for
 #'                the time unit. See details.
 #'
-#' @details Because of R scoping, if \code{envir} is a simList environment, then this function
-#' will search there first, then up the current search() path. Thus, it will find a
-#' user defined or module defined unit before a SpaDEs unit. This means that a user can
-#' override the dyear given in SpaDES, for example, which is 365.25 days, with
-#' \code{dyear <- function(x) lubridate::duration(dday(365))}
+#' @details Because of R scoping, if \code{envir} is a simList environment, then
+#' this function will search there first, then up the current \code{search()} path.
+#' Thus, it will find a user defined or module defined unit before a SpaDES unit.
+#' This means that a user can override the \code{dyear} given in SpaDES, for example,
+#' which is 365.25 days, with \code{dyear <- function(x) lubridate::duration(dday(365))}.
 #'
-#' @return A numeric vector of length 1, with \code{unit} attribute set to
-#' "seconds".
+#' @return A numeric vector of length 1, with \code{unit} attribute set to "seconds".
 #'
 #' @export
 #' @author Alex Chubaty & Eliot McIntire
 #' @docType methods
 #' @rdname timeConversion
+#'
 setGeneric("inSeconds", function(unit, envir) {
   standardGeneric("inSeconds")
 })
 
 #' @export
-#' @docType methods
 #' @rdname timeConversion
 setMethod(
   "inSeconds",
@@ -219,7 +218,6 @@ setMethod(
 })
 
 #' @export
-#' @docType methods
 #' @rdname timeConversion
 setMethod("inSeconds",
           signature = c("NULL", "missing"),
@@ -229,7 +227,6 @@ setMethod("inSeconds",
 })
 
 #' @export
-#' @docType methods
 #' @rdname timeConversion
 setMethod("inSeconds",
           signature = c("character", "missing"),
@@ -274,7 +271,7 @@ setMethod(
     }
     if (is.na(pmatch("second", unit)) | is.na(pmatch("second", timeUnit))) {
       if (!is.na(timeUnit) & !is.na(unit)) {
-        # confirm that units are useable by SpaDES
+        # confirm that units are usable by SpaDES
         #  This has been commented out, because it is too slow to check every time
         #  This should be checked at defineMetadata stage, rather than every
         #  time time(sim) is used.

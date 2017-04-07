@@ -9,7 +9,7 @@
 \alias{NetLogoRClasses}
 \alias{griddedClasses}
 \alias{.makeColorMatrix,Raster,Extent,numeric-method}
-\title{Convert Raster to color matrix useable by raster function for plotting}
+\title{Convert Raster to color matrix usable by raster function for plotting}
 \usage{
 .makeColorMatrix(grobToPlot, zoomExtent, maxpixels, legendRange, cols = NULL,
   na.color = "#FFFFFF00", zero.color = NULL, skipSample = TRUE)

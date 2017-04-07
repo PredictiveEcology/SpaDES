@@ -28,14 +28,14 @@ If a vector, they should be cell indices (pixels) on the \code{landscape}.
 If user has x and y coordinates, these can be converted with
 \code{\link[raster]{cellFromXY}}.}
 
-\item{spreadProb}{Numeric or rasterLayer. If numeric of length 1, then this is
+\item{spreadProb}{Numeric or RasterLayer. If numeric of length 1, then this is
 the global probability of
 spreading into each cell from a neighbor. If a raster then this must
 be the cell-specific probability of a "receiving" potential cell.
 Default is \code{0.23}.}
 
 \item{asRaster}{Logical, length 1. If \code{TRUE}, the function will return a \code{Raster}
-where raster non NA values indicate the cells that were "actived", and the
+where raster non NA values indicate the cells that were "active", and the
 value is the initial starting pixel.}
 
 \item{maxSize}{Numeric. Maximum number of cells for a single or
@@ -58,7 +58,7 @@ default is 8 (Queen case). Can only be 4 or 8.}
 Leaving this \code{NULL} allows the spreadDT to continue
 until stops spreading itself (i.e., exhausts itself).}
 
-\item{returnDistances}{Logical. Should the function inclue a column with the
+\item{returnDistances}{Logical. Should the function include a column with the
 individual cell distances from the locus where that event
 started. Default is FALSE. See Details.}
 

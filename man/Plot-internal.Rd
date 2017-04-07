@@ -76,7 +76,7 @@ current call to Plot or from disk}
 
 \item{isBaseSubPlot}{Logical. Is the currently being plotted object a base layer}
 
-\item{isNewPlot}{Logical. Is the currenly being plotted object a new, additional plot}
+\item{isNewPlot}{Logical. Is the currently being plotted object a new, additional plot}
 
 \item{isReplot}{Logical. Is the currently being plotted object a replot due to something
 like a rearrangement}

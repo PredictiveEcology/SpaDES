@@ -38,7 +38,7 @@ setMethod(".inputObjects",
           definition = function() {
             in.df <- data.frame(
               objectName = character(0), objectClass = character(0),
-              desc = character(0), sourceURL = character(0), 
+              desc = character(0), sourceURL = character(0),
               stringsAsFactors = FALSE
             )
             return(in.df)
@@ -63,7 +63,7 @@ setMethod(".outputObjects",
 ################################################################################
 #' The \code{.moduleDeps} class
 #'
-#' Descriptor object for specifying SpaDES module dependecies.
+#' Descriptor object for specifying SpaDES module dependencies.
 #'
 #' @slot name           Name of the module as a character string.
 #'
@@ -95,7 +95,7 @@ setMethod(".outputObjects",
 #'                      Alternatively, list of filenames of \code{.bib} or similar files.
 #'                      Defaults to \code{NA_character_}.
 #'
-#' @slot documentation  List of filenames refering to module documentation sources.
+#' @slot documentation  List of filenames referring to module documentation sources.
 #'
 #' @slot reqdPkgs       Character vector of R package names to be loaded.
 #'                      Defaults to \code{NA_character_}.
@@ -108,7 +108,7 @@ setMethod(".outputObjects",
 #'                      overridden by the user by passing a list of parameters
 #'                      to \code{\link{simInit}}.
 #'
-#' @slot inputObjects   A \code{data.frame} specifying the object dependecies of
+#' @slot inputObjects   A \code{data.frame} specifying the object dependencies of
 #'                      the module, with columns \code{objectName},
 #'                      \code{objectClass}, and \code{other}.
 #'                      For objects that are used within the module as both an

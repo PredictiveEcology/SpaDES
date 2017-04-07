@@ -300,7 +300,7 @@
 #' These dummy maps can later be replaced with actual data maps.
 #'
 #' \tabular{ll}{
-#'   \code{\link{gaussMap}} \tab Creates a random map using gaussian random fields\cr
+#'   \code{\link{gaussMap}} \tab Creates a random map using Gaussian random fields\cr
 #'   \code{\link{randomPolygons}} \tab Creates a random polygon with specified number of classes\cr
 #' }
 #'

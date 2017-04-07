@@ -216,7 +216,7 @@ sampleV <- Vectorize("sample", "size", SIMPLIFY = FALSE)
 #'
 #' @return Nothing. This is used for its side effects, which are "severe".
 #' @keywords internal
-#' @param pkgs The packages that are to be placed at the beginning of the seach path
+#' @param pkgs The packages that are to be placed at the beginning of the search path
 #' @param removeOthers Logical. If \code{TRUE}, then only the packages in \code{pkgs} will remain in
 #'               the search path, i.e., all others will be removed.
 #' @rdname modifySearchPath

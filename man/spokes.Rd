@@ -82,8 +82,8 @@ spokes), and stop, indicating if it was a point that caused a spoke
 to stop going outwards due to \code{stopRule}.
 }
 \description{
-This is a generalized version of a notion of a viewshed. The main difference
-is that there can be many "viewpoints".
+This is a generalized version of a notion of a viewshed.
+The main difference is that there can be many "viewpoints".
 }
 \examples{
 library(raster)

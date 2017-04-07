@@ -925,8 +925,8 @@ setMethod(
 ###############################################################################
 #' Identify outward radiating spokes from initial points
 #'
-#' This is a generalized version of a notion of a viewshed. The main difference
-#' is that there can be many "viewpoints".
+#' This is a generalized version of a notion of a viewshed.
+#' The main difference is that there can be many "viewpoints".
 #'
 #' @inheritParams cir
 #' @param stopRule A function. If the spokes are to stop. This can be a function

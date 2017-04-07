@@ -34,12 +34,12 @@ setColors(object, value, n)
 
 \item{...}{Additional arguments to \code{colorRampPalette}.}
 
-\item{n}{An optional vector of values specifiying the number
+\item{n}{An optional vector of values specifying the number
 of levels from which to interpolate the color palette.}
 
 \item{value}{Named list of hex color codes (e.g., from
 \code{RColorBrewer::brewer.pal}), corresponding to the names
-of RasterLayers in \code{x}.}
+of \code{RasterLayer}s in \code{x}.}
 }
 \value{
 Returns a Raster with the \code{colortable} slot set to \code{values}.

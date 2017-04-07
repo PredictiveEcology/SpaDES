@@ -151,9 +151,9 @@ as values could be complex), for each parameter that is varying.
 6. Module - Parameter - Parameter index triplets are separated by underscore.
 
 e.g., a folder called: \code{01-fir_spr_1-car_N_1-inp_1} would be the first
-experiment level (01), the first parameter value for the spr* parameter of
-the fir* module, the first parameter value of the N parameter of the
-car* module, and the first input dataset provided.
+experiment level (01), the first parameter value for the \code{spr*} parameter
+of the \code{fir*} module, the first parameter value of the N parameter of the
+\code{car*} module, and the first input dataset provided.
 
 This subdirectory name could be long if there are many dimensions to the experiment.
 The parameter \code{substrLength}  determines the level of truncation of the
@@ -182,8 +182,8 @@ The experiment structure is kept in two places: the return object has an attribu
 and a file named \code{experiment.RData} (see argument \code{experimentFile})
 located in \code{outputPath(sim)}.
 
-\code{substrLength}, if \code{0}, will eliminate the subfolder naming convention
-and use only \code{dirPrefix}.
+\code{substrLength}, if \code{0}, will eliminate the subdirectory naming
+convention and use only \code{dirPrefix}.
 
 If \code{cache = TRUE} is passed, then this will pass this to \code{spades},
 with the additional argument \code{replicate = x}, where x is the replicate number.

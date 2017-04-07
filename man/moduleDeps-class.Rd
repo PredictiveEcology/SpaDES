@@ -6,7 +6,7 @@
 \alias{.moduleDeps}
 \title{The \code{.moduleDeps} class}
 \description{
-Descriptor object for specifying SpaDES module dependecies.
+Descriptor object for specifying SpaDES module dependencies.
 }
 \section{Slots}{
 
@@ -41,7 +41,7 @@ simulation time units. Default is \code{NA}.}
 Alternatively, list of filenames of \code{.bib} or similar files.
 Defaults to \code{NA_character_}.}
 
-\item{\code{documentation}}{List of filenames refering to module documentation sources.}
+\item{\code{documentation}}{List of filenames referring to module documentation sources.}
 
 \item{\code{reqdPkgs}}{Character vector of R package names to be loaded.
 Defaults to \code{NA_character_}.}
@@ -54,7 +54,7 @@ of type \code{character}, \code{character}, and
 overridden by the user by passing a list of parameters
 to \code{\link{simInit}}.}
 
-\item{\code{inputObjects}}{A \code{data.frame} specifying the object dependecies of
+\item{\code{inputObjects}}{A \code{data.frame} specifying the object dependencies of
 the module, with columns \code{objectName},
 \code{objectClass}, and \code{other}.
 For objects that are used within the module as both an

@@ -5,7 +5,7 @@
 #' Describes the probability of an agent successfully persisting until next
 #' time step. THIS IS NOT YET FULLY IMPLEMENTED.
 #'
-#' A \code{SELES}-like function to maintain conceptual backwards compatability
+#' A \code{SELES}-like function to maintain conceptual backwards compatibility
 #' with that simulation tool. This is intended to ease transitions from
 #' \href{http://www.gowlland.ca/}{SELES}.
 #'
@@ -35,7 +35,7 @@ transitions <- function(p, agent) {
 #' @description
 #' Sets the the number of agents to initiate. THIS IS NOT YET FULLY IMPLEMENTED.
 #'
-#' A \code{SELES}-like function to maintain conceptual backwards compatability
+#' A \code{SELES}-like function to maintain conceptual backwards compatibility
 #' with that simulation tool. This is intended to ease transitions from
 #' \href{http://www.gowlland.ca/}{SELES}.
 #'
@@ -63,7 +63,7 @@ numAgents <- function(N, probInit) {
 #' @description
 #' Sets the the number of agents to initiate. THIS IS NOT FULLY IMPLEMENTED.
 #'
-#' A \code{SELES}-like function to maintain conceptual backwards compatability
+#' A \code{SELES}-like function to maintain conceptual backwards compatibility
 #' with that simulation tool. This is intended to ease transitions from
 #' \href{http://www.gowlland.ca/}{SELES}.
 #'
@@ -184,7 +184,7 @@ setMethod("initiateAgents",
 #' @description
 #' Sets the the location of the intiating agents. NOT YET FULLY IMPLEMENTED.
 #'
-#' A \code{SELES}-like function to maintain conceptual backwards compatability
+#' A \code{SELES}-like function to maintain conceptual backwards compatibility
 #' with that simulation tool. This is intended to ease transitions from
 #' \href{http://www.gowlland.ca/}{SELES}.
 #'
@@ -219,7 +219,7 @@ agentLocation <- function(map) {
 #' @description
 #' Describes the probability of initiation of agents or events.  THIS IS NOT FULLY IMPLEMENTED.
 #'
-#' A \code{SELES}-like function to maintain conceptual backwards compatability
+#' A \code{SELES}-like function to maintain conceptual backwards compatibility
 #' with that simulation tool. This is intended to ease transitions from
 #' \href{http://www.gowlland.ca/}{SELES}.
 #'

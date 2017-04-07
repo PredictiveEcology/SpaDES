@@ -55,8 +55,7 @@ the time unit. See details.}
 input numeric. See Details.}
 }
 \value{
-A numeric vector of length 1, with \code{unit} attribute set to
-"seconds".
+A numeric vector of length 1, with \code{unit} attribute set to "seconds".
 }
 \description{
 In addition to using the \code{lubridate} package, some additional functions
@@ -70,16 +69,16 @@ If the units passed to argument \code{units} are the same as
 \details{
 Current pre-defined units are found within the \code{spadesTimes()} function.
 The user can define a new unit. The unit name can be anything, but the function
-definition must be of the form, "dunitName", e.g., dyear or dfortNight. The unit
-name is the part without the d and the function name definition includes the "d".
-This new function, e.g., #' \code{dfortNight <- function(x) lubridate::duration(dday(14))}
+definition must be of the form \code{"dunitName"}, e.g., \code{dyear} or \code{dfortnight}.
+The unit name is the part without the \code{d} and the function name definition includes the \code{d}.
+This new function, e.g., \code{dfortnight <- function(x) lubridate::duration(dday(14))}
 can be placed anywhere in the search path or in a module.
 
-Because of R scoping, if \code{envir} is a simList environment, then this function
-will search there first, then up the current search() path. Thus, it will find a
-user defined or module defined unit before a SpaDEs unit. This means that a user can
-override the dyear given in SpaDES, for example, which is 365.25 days, with
-\code{dyear <- function(x) lubridate::duration(dday(365))}
+Because of R scoping, if \code{envir} is a simList environment, then
+this function will search there first, then up the current \code{search()} path.
+Thus, it will find a user defined or module defined unit before a SpaDES unit.
+This means that a user can override the \code{dyear} given in SpaDES, for example,
+which is 365.25 days, with \code{dyear <- function(x) lubridate::duration(dday(365))}.
 
 If \code{time} has no \code{units} attribute, then it is assumed to be
 seconds.

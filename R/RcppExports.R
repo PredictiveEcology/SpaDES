@@ -4,12 +4,14 @@
 #' @title
 #' Point distance with C++
 #' @description
-#' \code{pointDistance2} performs pythagorus and cbinds all columns from \code{to} to new dists column. It
-#' is only defined for one point (\code{from}) to many (\code{to}) points.
-#' \code{pointDistance3} performs pythagorus and is to be used internally within \code{distanceFromEachPoint}
-#' as an alternative to
-#' \code{.pointDistance}, where it does many points (\code{from}) to many (\code{to}) points, one \code{from}
-#' point at a time. The results are then rbinded internally. It does not cbind extra columns from \code{to}.
+#' \code{pointDistance2} performs Pythagorean Theorem and \code{cbind}s all
+#' columns from \code{to} to new dists column.
+#' It is only defined for one point (\code{from}) to many (\code{to}) points.
+#' \code{pointDistance3} performs Pythagorean Theorem and is to be used internally
+#' within \code{distanceFromEachPoint} as an alternative to \code{.pointDistance},
+#' where it does many points (\code{from}) to many (\code{to}) points, one
+#' \code{from} point at a time. The results are then \code{rbind}ed internally.
+#' It does not \code{cbind} extra columns from \code{to}.
 #'
 #' @inheritParams distanceFromEachPoint
 #' @return

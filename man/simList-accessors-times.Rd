@@ -113,7 +113,7 @@ frame timeunit. When used inside a module, then the time is in the units of the 
 If used in an interactive mode, then the time will be in the units of the spades
 simulation.
 
-Additonal methods are provided to access the current, start, and end times
+Additional methods are provided to access the current, start, and end times
 of the simulation:
 \tabular{ll}{
    \code{time} \tab Current simulation time.\cr
@@ -140,10 +140,11 @@ Currently, available units are "second", "hours", day", "week", "month", and
 "year" can be used in the metadata of a module.
 
 The user can also define a new unit. The unit name can be anything, but the
-function definition must be of the form, dunitName, e.g., dyear or dfortnight.
-The unit name is the part without the 'd' and the function name definition
-includes the 'd'. This new function, e.g.,
-\code{dfortNight <- function(x) lubridate::duration(dday(14))}
+function definition must be of the form \code{dunitName}, e.g., \code{dyear}
+or \code{dfortnight}.
+The unit name is the part without the \code{d} and the function name definition
+includes the \code{d}. This new function, e.g.,
+\code{dfortnight <- function(x) lubridate::duration(dday(14))}
 can be placed anywhere in the search path or in a module.
 
 \code{timeunits} will extract the current units of the time of all

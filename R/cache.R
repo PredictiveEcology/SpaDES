@@ -3,7 +3,7 @@ if (getRversion() >= "3.1.0") {
 }
 
 ################################################################################
-#' Cache method that accomodates environments, S4 methods, Rasters
+#' Cache method that accommodates environments, S4 methods, Rasters
 #'
 #' This function is largely copied from \code{\link[archivist]{cache}}, with
 #' three very critical modifications:
@@ -11,7 +11,7 @@ if (getRversion() >= "3.1.0") {
 #' 2) it also does not detect S4 methods correctly due to method inheritance;
 #' 3) it does not detect objects that have file-base storage of information
 #' (specifically \code{\link[raster]{RasterLayer-class}} objects).
-#' This version of the \code{Cache} function accomodates those three special,
+#' This version of the \code{Cache} function accommodates those three special,
 #' though quite common, cases by:
 #' 1) converting any environments into list equivalents;
 #' 2) identifying the dispatched S4 method (including those made through
@@ -41,7 +41,7 @@ if (getRversion() >= "3.1.0") {
 #' \code{archivist::cache} function which will not work in a SpaDES context.
 #' If a user would like to use \code{cache} (lowercase c), then it must be
 #' always prefixed with \code{SpaDES::cache(  )} so that it does not accidentally
-#' call the achivist package version of cache.
+#' call the archivist package version of cache.
 #'
 #' @section Caching as part of SpaDES:
 #'
@@ -92,11 +92,11 @@ if (getRversion() >= "3.1.0") {
 #' to
 #' \code{Cache(projectRaster, raster, crs = crs(newRaster))}
 #'
-#' @note \code{Raster*} class objects have a special behaviour when Cached. Whether they
-#' are file-backed or in-memory objects, they will become file-backed, and their
-#' file will be created in or copied to a "rasters" subfolder of the \code{cacheRepo} using
-#' \code{writeRaster}. Their RAM representation (as an R object) will still be in the usual
-#' "gallery" folder.
+#' @note \code{Raster*} class objects have a special behaviour when Cached.
+#' Whether they are file-backed or in-memory objects, they will become file-backed,
+#' and their file will be created in or copied to a "rasters" subdirectory of the
+#' \code{cacheRepo} using \code{writeRaster}.
+#' Their RAM representation (as an R object) will still be in the usual "gallery" directory.
 #'
 #' @inheritParams archivist::cache
 #' @inheritParams archivist::saveToLocalRepo
@@ -903,7 +903,7 @@ prepareFileBackedRaster <- function(obj, repoDir = NULL, compareRasterFileLength
   return(obj)
 }
 
-#' Copy a file using Robocopy on Windows and rsync on Linux/macOS
+#' Copy a file using \code{Robocopy} on Windows and \code{rsync} on Linux/macOS
 #'
 #' This will copy an individual file faster using \code{Robocopy} on Windows,
 #' and using \code{rsync} on macOS and Linux.

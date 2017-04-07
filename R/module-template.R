@@ -36,7 +36,7 @@
 #' The \code{newModuleDocumentation} will not generate the module file, but will
 #' create the other files.
 #'
-#' All files will be created within a subfolder named \code{name} within the
+#' All files will be created within a subdirectory named \code{name} within the
 #' \code{path}:
 #'
 #' \itemize{
@@ -57,12 +57,12 @@
 #'     }
 #' }
 #'
-#' @param name  Character string specfying the name of the new module.
+#' @param name  Character string specifying the name of the new module.
 #'
 #' @param path  Character string. Subdirectory in which to place the new module code file.
 #'              The default is the current working directory.
 #'
-#' @param ...   Additonal arguments. Currently, only the following are supported:\cr\cr
+#' @param ...   Additional arguments. Currently, only the following are supported:\cr\cr
 #'
 #'              \code{open}. Logical. Should the new module file be opened after creation?
 #'              Default \code{TRUE}.\cr\cr
@@ -78,7 +78,7 @@
 #'
 #' @return Nothing is returned. The new module file is created at
 #' \file{path/name.R}, as well as ancillary files for documentation, citation,
-#' license, readme, and unit tests folder.
+#' \file{LICENSE}, \file{README}, and \file{tests} directory.
 #'
 #' @note On Windows there is currently a bug in RStudio that prevents the editor
 #' from opening when \code{file.edit} is called.
@@ -924,7 +924,7 @@ setMethod("copyModule",
 #' @param name    Character string giving the module name.
 #' @param path    A file path to a directory containing the module subdirectory.
 #' @param version The module version.
-#' @param data    Logical. If \code{TRUE}, then the data subfolder will be included in the zip.
+#' @param data    Logical. If \code{TRUE}, then the data subdirectory will be included in the zip.
 #'                Default is \code{FALSE}.
 #' @param ...     Additional arguments to \code{\link{zip}}:
 #'                e.g., add \code{"-q"} using \code{flags="-q -r9X"}

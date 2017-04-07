@@ -19,7 +19,7 @@ Returns new \code{SpatialPoints*} object with potentially fewer agents.
 Describes the probability of an agent successfully persisting until next
 time step. THIS IS NOT YET FULLY IMPLEMENTED.
 
-A \code{SELES}-like function to maintain conceptual backwards compatability
+A \code{SELES}-like function to maintain conceptual backwards compatibility
 with that simulation tool. This is intended to ease transitions from
 \href{http://www.gowlland.ca/}{SELES}.
 

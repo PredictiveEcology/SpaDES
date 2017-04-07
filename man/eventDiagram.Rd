@@ -22,7 +22,7 @@ completed simulation).}
 
 \item{n}{The number of most recently completed events to plot.}
 
-\item{startDate}{A character representation of date in YYYY-MM-DD format.}
+\item{startDate}{A character representation of date in \code{YYYY-MM-DD} format.}
 
 \item{...}{Additional arguments passed to \code{mermaid}.
 Useful for specifying \code{height} and \code{width}.}

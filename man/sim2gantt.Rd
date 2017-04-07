@@ -17,7 +17,7 @@ completed simulation).}
 
 \item{n}{The number of most recently completed events to plot.}
 
-\item{startDate}{A character representation of date in YYYY-MM-DD format.}
+\item{startDate}{A character representation of date in \code{YYYY-MM-DD} format.}
 
 \item{width}{Numeric. Passed to determine scale of vertical bars.}
 }

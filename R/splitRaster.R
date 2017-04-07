@@ -23,8 +23,8 @@
 #'                Default is \code{c(0, 0)}, which means no buffer.
 #'
 #' @param path    Character specifying the directory to which the split tiles will be saved.
-#'                If missing, the function creates a subfolder in the current working directory
-#'                based on the raster's name (i.e., using \code{names(x)}).
+#'                If missing, the function creates a subdirectory in the current
+#'                working directory based on the raster's name (i.e., using \code{names(x)}).
 #' @param cl      A cluster object. Optional. This would generally be created using
 #'                parallel::makeCluster or equivalent. This is an alternative way, instead
 #'                of \code{beginCluster()}, to use parallelism for this function, allowing for

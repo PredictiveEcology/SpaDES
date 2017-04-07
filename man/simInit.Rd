@@ -33,7 +33,7 @@ simInit(times, params, modules, objects, paths, inputs, outputs, loadOrder,
 \item{params}{A list of lists of the form list(moduleName=list(param1=value, param2=value)).
 See details.}
 
-\item{modules}{A named list of character strings specfying the names
+\item{modules}{A named list of character strings specifying the names
 of modules to be loaded for the simulation. Note: the module name
 should correspond to the R source file from which the module is loaded.
 Example: a module named "caribou" will be sourced form the file
@@ -66,7 +66,7 @@ columns with following column names: \code{objectName} (character, required),
 \code{saveTime} (numeric). See \code{\link{outputs}} and
 \code{vignette("ii-modules")} section about outputs.}
 
-\item{loadOrder}{An optional list of module names specfiying the order in
+\item{loadOrder}{An optional list of module names specifying the order in
 which to load the modules. If not specified, the module
 load order will be determined automatically.}
 
