@@ -466,6 +466,8 @@ test_that("spreadDT tests", {
     out
   }
 
+
+
   N <- 2
   ras <- raster(extent(0,60, 0, 60), res=1)
   N <- 2000
@@ -518,6 +520,43 @@ test_that("spreadDT tests", {
   profvis::profvis({
     nonIterativeFun()
   })
+
+
+  iterativeNeigh <- function(a, skipChecks, N, sp, exactSizes) {
+    sams <- sample(innerCells, N)
+    out <-
+      spreadDT(a,
+               iterations = 1,
+               spreadProb = sp,
+               start = sams,
+               neighProbs = c(0.7, 0.3),
+               exactSize = exactSizes,
+               skipChecks=skipChecks,
+               asRaster = FALSE)
+    stillActive <- TRUE
+    i <- 1
+    while (stillActive) {
+      i <- i + 1
+      message(i)
+      browser(expr=i==51)
+      out <-
+        spreadDT(a,
+                 iterations = 1,
+                 spreadProb = sp,
+                 start = out,
+                 neighProbs = c(0.7, 0.3),
+                 exactSize = exactSizes,
+                 skipChecks=skipChecks,
+                 asRaster = FALSE)
+      stillActive <- any(length(attr(out, "whActive")) | length(attr(out, "whNeedRetry")))
+    }
+    out
+  }
+
+  exactSizes <- c(124, 2342, 4321)
+
+  iterativeNeigh(ras, TRUE, length(exactSizes), sp=sp,  exactSize=exactSizes)
+
 
   # compare original spread and spreadDT -- seems pretty dead on
   NN <- 1000

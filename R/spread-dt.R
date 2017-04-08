@@ -364,6 +364,8 @@ setMethod(
       }
 
       setkeyv(clusterDT, "initialPixels")
+      needRetryID <- integer()
+      whNeedRetry <- integer()
 
     } else { # a "return" entry into spreadDT
       clusterDT <- attr(start, "cluster")#data.table(id=unique(start$id), initialPixels=unique(start$initialPixels), key = "initialPixels")
@@ -381,6 +383,8 @@ setMethod(
       dt <- start
       whActive <- attr(start, "whActive")
       whInactive <- attr(start, "whInactive")
+      whNeedRetry <- attr(dt, "whNeedRetry")
+      needRetryID <- attr(dt, "needRetryID")
       if(canUseAvailable)
         notAvailable <- attr(dt, "notAvailable")
 
@@ -391,8 +395,6 @@ setMethod(
 
     its <- 0
 
-    needRetryID <- integer()
-    whNeedRetry <- integer()
     while ((length(needRetryID) | length(whActive)) &  its < iterations) {
 
       # Step 1
@@ -609,7 +611,7 @@ setMethod(
             # successful means will become activeSource next iteration
             dt2 <- dt[initialPixels %in% currentSizeTooSmall$initialPixels & (state == "successful" | state == "holding")]
             setkeyv(dt2, "initialPixels")
-            setkeyv(currentSizeTooSmall, "initialPixels")
+            #setkeyv(currentSizeTooSmall, "initialPixels")
             currentSizeTooSmall <- currentSizeTooSmall[!dt2]
           }
           # if the ones that are too small are unsuccessful, make them "needRetry"
@@ -646,8 +648,8 @@ setMethod(
       whActive <- whNotInactive[activeStates == "successful"]
       whInactive <- whNotInactive[activeStates == "activeSource"]
       set(dt, whNotInactive, "state",
-          c("inactive", "activeSource", "activeSource")[
-            fmatch(activeStates, c("activeSource", "holding", "successful"))])
+          c("inactive", "activeSource", "activeSource", "needRetry")[
+            fmatch(activeStates, c("activeSource", "holding", "successful", "needRetry"))])
 
       if (plot.it) {
         newPlot <- FALSE
@@ -671,6 +673,8 @@ setMethod(
     attr(dt, "cluster") <- clusterDT
     attr(dt, "whActive") <- whActive
     attr(dt, "whInactive") <- whInactive
+    attr(dt, "whNeedRetry") <- whNeedRetry
+    attr(dt, "needRetryID") <- needRetryID
     if(canUseAvailable)
       attr(dt, "notAvailable") <- notAvailable
 
