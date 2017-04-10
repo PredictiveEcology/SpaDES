@@ -8,13 +8,13 @@
 \usage{
 adj.raw(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
   include = FALSE, target = NULL, numCol = NULL, numCell = NULL,
-  match.adjacent = FALSE, cutoff.for.data.table = 10000, torus = FALSE,
-  id = NULL, numNeighs = NULL)
+  match.adjacent = FALSE, cutoff.for.data.table = 2000, torus = FALSE,
+  id = NULL, numNeighs = NULL, returnDT = FALSE)
 
 adj(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
   include = FALSE, target = NULL, numCol = NULL, numCell = NULL,
-  match.adjacent = FALSE, cutoff.for.data.table = 10000, torus = FALSE,
-  id = NULL, numNeighs = NULL)
+  match.adjacent = FALSE, cutoff.for.data.table = 2000, torus = FALSE,
+  id = NULL, numNeighs = NULL, returnDT = FALSE)
 }
 \arguments{
 \item{x}{Raster* object for which adjacency will be calculated.}
@@ -44,11 +44,12 @@ numCell is a bit faster execution time.}
 with numCol is a bit faster execution time.}
 
 \item{match.adjacent}{logical. Should the returned object be the same as the \code{adjacent}
-function in the raster package.}
+function in the raster package. Default FALSE, which is faster.}
 
 \item{cutoff.for.data.table}{numeric. If the number of cells is above this value,
 the function uses data.table which is
-faster with large numbers of cells.}
+faster with large numbers of cells. Default is 5000, which appears
+to be the turning point where data.table becomes faster.}
 
 \item{torus}{Logical. Should the spread event wrap around to the other side of the raster.
 Default is FALSE.}
@@ -58,9 +59,21 @@ Default is FALSE.}
 \item{numNeighs}{A numeric scalar, indicating how many neighbours to return. Must be
 less than or equal to \code{directions}; which neighbours are random
 with equal probabilities.}
+
+\item{returnDT}{A logical. If TRUE, then the function will return the result as a data.table,
+if the internals used \code{data.table}, i.e., if number of cells is greater than
+\code{cutoff.for.data.table}. User should be warned that this will therefore
+cause the output format to change depending \code{cutoff.for.data.table}.
+This will be faster for situations where \code{cutoff.for.data.table} is \code{TRUE}}
 }
 \value{
-a matrix of one or two columns, from and to.
+Either a matrix (if more than 1 column, i.e., \code{pairs = TRUE}, and/or \code{id}
+is provided),  a vector (if only one column), or
+a data.table (if \code{cutoff.for.data.table} is less than \code{length(cells)} AND
+\code{returnDT} is \code{TRUE}. To get a consistent output, say a matrix, it would
+be wise to test the output for its class. The variable output is done
+to minimize coersion to maintain speed. The columns will be one or more of \code{id},
+\code{from}, \code{to}.
 }
 \description{
 Faster function for determining the cells of the 4, 8 or bishop

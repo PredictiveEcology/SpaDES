@@ -825,3 +825,22 @@ setPaths <- function(cachePath, inputPath, modulePath, outputPath) {
 #' @param ... Passed to \code{\link[base]{sample}}
 #'
 resample <- function(x, ...) x[sample.int(length(x), ...)]
+
+
+#' \code{resampleZeroProof} is a version that works even if sum of all probabilities passed to
+#' \code{sample.int} is zero. This causes an error in \code{sample.int}. This function is
+#' intended for internal use only.
+#' @rdname resample
+#' @param spreadProbHas0 Logical. Does \code{spreadProb} have any zeros on it.
+#' @inheritParams base::sample
+resampleZeroProof <- function(spreadProbHas0, x, n, prob) {
+  if(spreadProbHas0) {
+    sm <- sum(prob, na.rm=TRUE)
+    if(sum(prob>0)<=n) {
+      integer()
+    } else {
+      resample(x, n, prob=prob/sm)
+    }
+  } else resample(x, n, prob=prob/sum(prob, na.rm=TRUE))
+}
+

@@ -18,7 +18,7 @@ test_that("spreadDT tests", {
       pad = TRUE,
       padValue = 0
     )
-  innerCells <- Which(bb %==% 1, cells = TRUE)
+  innerCells <- which(bb[] %==% 1)
 
   set.seed(123)
   for (i in 1:20) {
@@ -466,8 +466,10 @@ test_that("spreadDT tests", {
     out
   }
 
+  N <- 2
+  ras <- raster(extent(0,60, 0, 60), res=1)
   N <- 2000
-  ras <- raster(extent(0,1000, 0, 1000), res=1)
+  ras <- raster(extent(0,6000, 0, 6000), res=1)
   sp <- 0.225
   b <- raster(ras)
   b[] <- 1
@@ -479,26 +481,23 @@ test_that("spreadDT tests", {
       pad = TRUE,
       padValue = 0
     )
-  innerCells <- Which(bb %==% 1, cells = TRUE)
+  innerCells <- which(bb[] %==% 1)
 
   microbenchmark(
     times = 3,
     iterativeFun(ras, TRUE, N, sp),
     nonIterativeFun(ras, TRUE, N, sp),
-    origSpread(ras, TRUE, N, sp)#,
-    #origSpreadIterations(ras, TRUE, N, sp)
+    origSpread(ras, TRUE, N, sp),
+    origSpreadIterations(ras, TRUE, N, sp)
   )
-  # Unit: milliseconds
-  #                                   expr       min        lq      mean    median        uq        max neval
-  #         iterativeFun(ras, TRUE, N, sp)  1.608611  6.722145  33.96692  15.21273  41.83546  304.34354   300
-  #      nonIterativeFun(ras, TRUE, N, sp)  1.158434  4.624206  29.24916  13.59782  41.70378  191.68831   300
-  #           origSpread(ras, TRUE, N, sp)  4.925546  6.871275  13.08495  10.39086  15.57683   58.03609   300
-  # origSpreadIterations(ras, TRUE, N, sp) 10.202139 51.401486 164.02380 107.80227 190.11768 2339.55496   300
-  #
-    #
+  #         iterativeFun(ras, TRUE, N, sp) 2.581752 2.667209 2.727886 2.752666 2.800953 2.849239
+  #      nonIterativeFun(ras, TRUE, N, sp) 2.009914 2.268422 2.486540 2.526930 2.724854 2.922777
+  #           origSpread(ras, TRUE, N, sp) 1.003594 1.043065 1.085511 1.082536 1.126470 1.170404
+  # origSpreadIterations(ras, TRUE, N, sp) 7.267927 7.630435 7.908982 7.992943 8.229510 8.46607
+#
   # without "skipChecks"
   microbenchmark(
-    times = 300,
+    times = 100,
     iterativeFun(ras, FALSE, N, sp),
     nonIterativeFun(ras, FALSE, N, sp),
     origSpread(ras, FALSE, N, sp),
@@ -513,7 +512,7 @@ test_that("spreadDT tests", {
   #
   profvis::profvis({
     set.seed(3451)
-    for(i in 1:4)
+    for(i in 1:8)
       iterativeFun(ras, TRUE, N, sp=sp)
   })
   profvis::profvis({
