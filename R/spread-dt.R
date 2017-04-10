@@ -447,34 +447,25 @@ setMethod(
 
         dtPotential <- dtPotential[,list(to = resample(to, 2)),by = c("id", "from")]
         needRetryID <- integer()
-      } #else {
+      }
 
       # randomize row order so duplicates are not always in same place
       i <- sample.int(NROW(dtPotential))
       if(!is.data.table(dtPotential)) {
         dtPotential <- as.data.table(dtPotential)
-      } #else {
+      }
       for (x in colnames(dtPotential)) set(dtPotential, , x, dtPotential[[x]][i])
-      #}
-      #}
-
 
       # calculate distances, if required ... attach to dt
       if (needDistance) {
         fromPts <- xyFromCell(landscape, dtPotential$id)
         toPts <- xyFromCell(landscape, dtPotential$to)
-        #set(dtPotential, , "distance", pointDistance(p1 = fromPts, p2 = toPts, lonlat=FALSE))
         dists <- pointDistance(p1 = fromPts, p2 = toPts, lonlat = FALSE)
         if (circle) {
           distKeepers <- dists %<=% its & dists %>>% (its - 1)
-          dtPotential <- data.table(dtPotential[distKeepers])
-          # mat <- cbind(from = dtPotential$from[distKeepers],
-          #              to = dtPotential$to[distKeepers],
-          #              id = dtPotential$id[distKeepers])
+          dtPotential <- dtPotential[distKeepers]
           if (needDistance)
             set(dtPotential, , "distance", dists[distKeepers])
-           # mat <- cbind(mat, distance = dists[distKeepers])
-          #dtPotential <- as.data.table(mat)
         }
       }
 
@@ -494,12 +485,20 @@ setMethod(
         }
         setkeyv(numNeighsByPixel, c("id", "from"))
 
-        # remove duplicates from the existing "pixels" and new "potential pixels", since it must select exactly numNeighs
-        dups <- duplicatedInt(c(dt$pixels, dtPotential$to))
-        if(any(dups)) {
-          dups <- dups[-seq_along(dt$pixels)]
-          dtPotential <- dtPotential[!dups]
-        }
+        browser()
+        # remove duplicates within dtPotential
+        dupsWithinDtPotential <- duplicatedInt(dtPotential$to)
+        successCells <- dtPotential$to[!dupsWithinDtPotential] # remove the dupsWithinDtPotential
+        potentialNotAvailable <- notAvailable[successCells]
+        whNoDupsCurItAndAll <- seq_along(dtPotential$to)[!dupsWithinDtPotential][!potentialNotAvailable]
+        notAvailable[successCells[!potentialNotAvailable]] <- TRUE
+        dtPotential <- dtPotential[whNoDupsCurItAndAll]
+
+        # dups <- duplicatedInt(c(dt$pixels, dtPotential$to))
+        # if(any(dups)) {
+        #   dups <- dups[-seq_along(dt$pixels)]
+        #   dtPotential <- dtPotential[!dups]
+        # }
         setkeyv(dtPotential, c("id", "from")) # sort so it is the same as numNeighsByPixel
         if (NROW(dtPotential)) {
           if(length(spreadProb)>1)
@@ -570,9 +569,9 @@ setMethod(
           # remove duplicatedInt which was slow
 
           # 3 reasons why potentials are not selected
-          whKeep <- seq_along(spreadProbSuccess)[spreadProbSuccess][!dupsWithinDtPotential][!potentialNotAvailable]
+          whSuccNoDupsCurItAndAll <- seq_along(spreadProbSuccess)[spreadProbSuccess][!dupsWithinDtPotential][!potentialNotAvailable]
           notAvailable[successCells[!potentialNotAvailable]] <- TRUE
-          dtPotential <- dtPotential[whKeep]
+          dtPotential <- dtPotential[whSuccNoDupsCurItAndAll]
 
           if (needDistance)
             setcolorder(dtPotential, neworder = dtPotentialColNames)
