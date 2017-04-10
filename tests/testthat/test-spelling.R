@@ -1,6 +1,8 @@
 test_that("spelling errors", {
   skip_on_cran()
   skip_if_not_installed("hunspell")
+  skip_on_appveyor() ## temporary
+  skip_on_travis()   ## temporary
 
   curDir <- getwd(); warning(curDir)
   pkgDir <- if (basename(curDir) == "testthat") {
