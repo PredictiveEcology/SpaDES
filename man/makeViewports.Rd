@@ -21,7 +21,7 @@ output a viewport tree to allow plotting.
 \details{
 This function will either create a totally new set of viewports, or simply
 add some nested viewports to an existing arrangement, i.e., is there still
-white space availabe to plot.
+white space available to plot.
 }
 \author{
 Eliot McIntire

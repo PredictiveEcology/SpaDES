@@ -42,7 +42,7 @@ if \code{allowOverlap} is \code{FALSE}. Default is \code{FALSE}.}
 indices and values of successful spread events, or
 return a raster with values. See Details.}
 
-\item{returnDistances}{Logical. Should the function inclue a column with the
+\item{returnDistances}{Logical. Should the function include a column with the
 individual cell distances from the locus where that event
 started. Default is FALSE. See Details.}
 

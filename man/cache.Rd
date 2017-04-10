@@ -6,7 +6,7 @@
 \alias{Cache,ANY-method}
 \alias{cache}
 \alias{cache,ANY-method}
-\title{Cache method that accomodates environments, S4 methods, Rasters}
+\title{Cache method that accommodates environments, S4 methods, Rasters}
 \usage{
 Cache(FUN, ..., notOlderThan = NULL, objects = NULL, outputObjects = NULL,
   algo = "xxhash64", cacheRepo = NULL, compareRasterFileLength = 1e+06,
@@ -74,7 +74,7 @@ three very critical modifications:
 2) it also does not detect S4 methods correctly due to method inheritance;
 3) it does not detect objects that have file-base storage of information
 (specifically \code{\link[raster]{RasterLayer-class}} objects).
-This version of the \code{Cache} function accomodates those three special,
+This version of the \code{Cache} function accommodates those three special,
 though quite common, cases by:
 1) converting any environments into list equivalents;
 2) identifying the dispatched S4 method (including those made through
@@ -105,14 +105,14 @@ To persist between sessions, use \code{SpaDES::setPaths()} every session.
 \code{archivist::cache} function which will not work in a SpaDES context.
 If a user would like to use \code{cache} (lowercase c), then it must be
 always prefixed with \code{SpaDES::cache(  )} so that it does not accidentally
-call the achivist package version of cache.
+call the archivist package version of cache.
 }
 \note{
-\code{Raster*} class objects have a special behaviour when Cached. Whether they
-are file-backed or in-memory objects, they will become file-backed, and their
-file will be created in or copied to a "rasters" subfolder of the \code{cacheRepo} using
-\code{writeRaster}. Their RAM representation (as an R object) will still be in the usual
-"gallery" folder.
+\code{Raster*} class objects have a special behaviour when Cached.
+Whether they are file-backed or in-memory objects, they will become file-backed,
+and their file will be created in or copied to a "rasters" subdirectory of the
+\code{cacheRepo} using \code{writeRaster}.
+Their RAM representation (as an R object) will still be in the usual "gallery" directory.
 
 In general, it is expected that caching will only be used when stochasticity
 is not relevant, or if a user has achieved sufficient stochasticity (e.g., via

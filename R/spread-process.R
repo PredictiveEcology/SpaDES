@@ -74,17 +74,18 @@ if (getRversion() >= "3.1.0") {
 #'                       radius reached, and then the event will stop. This is
 #'                       vectorized, and if length is >1, it will be matched
 #'                       in the order of \code{loci}\cr
-#'   \code{stopRule} \tab This is a func
-#'   tion that can use "landscape", "id", "cells", or any
-#'                       named vector passed into \code{spread} in the \code{...}. This
-#'                       can take on relatively complex functions. Passing in, say, a Raster
-#'                       Layer to \code{spread} can access the individual values on that
-#'                       arbitrary Raster Layer using "cells". These will be calculated
-#'                       within all the cells of the individual event (equivalent to a
-#'                       "group_by(event)" in dplyr. So, \code{sum(arbitraryRaster[cells])}
-#'                       would sum up all the raster values on the arbitraryRaster Raster
-#'                       that are overlaid by the individual event. This can then be used in
-#'                       a logical statement.  See examples.
+#'   \code{stopRule} \tab This is a function that can use "landscape", "id", "cells",
+#'                       or any named vector passed into \code{spread} in the \code{...}.
+#'                       This can take on relatively complex functions.
+#'                       Passing in, say, a \code{RasterLayer} to \code{spread}
+#'                       can access the individual values on that arbitrary
+#'                       \code{RasterLayer} using "cells".
+#'                       These will be calculated within all the cells of the individual
+#'                       event (equivalent to a "group_by(event)" in \code{dplyr}.
+#'                       So, \code{sum(arbitraryRaster[cells])} would sum up all
+#'                       the raster values on the \code{arbitraryRaster} raster
+#'                       that are overlaid by the individual event.
+#'                       This can then be used in a logical statement. See examples.
 #'                       To confirm the cause of stopping, the user can assess the values
 #'                       after the function has finished.\cr
 #' }
@@ -135,7 +136,7 @@ if (getRversion() >= "3.1.0") {
 #'                      If user has x and y coordinates, these can be converted with
 #'                      \code{\link[raster]{cellFromXY}}.
 #'
-#' @param spreadProb    Numeric or rasterLayer. If numeric of length 1, then this is
+#' @param spreadProb    Numeric or RasterLayer. If numeric of length 1, then this is
 #'                      the global probability of
 #'                      spreading into each cell from a neighbor. If a raster (or a vector
 #'                      of length \code{ncell(landscape)}, resolution and extent of
@@ -174,11 +175,11 @@ if (getRversion() >= "3.1.0") {
 #'                      indices and values of successful spread events, or
 #'                      return a raster with values. See Details.
 #'
-#' @param returnDistances Logical. Should the function inclue a column with the
+#' @param returnDistances Logical. Should the function include a column with the
 #'                      individual cell distances from the locus where that event
 #'                      started. Default is FALSE. See Details.
 #'
-#' @param spreadProbLater    Numeric or rasterLayer. If provided, then this
+#' @param spreadProbLater    Numeric or RasterLayer. If provided, then this
 #'                      will become the spreadProb after the first iteration. See details.
 #'
 #' @param spreadState   Data.table. This should be the output of a previous call to

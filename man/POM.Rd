@@ -41,9 +41,9 @@ parallel::makeCluster or equivalent. This is an alternative way, instead
 of \code{beginCluster()}, to use parallelism for this function, allowing for
 more control over cluster use.}
 
-\item{optimizer}{The function to use to optimize. Default is
-"DEoptim". Currently it can also be "optim" or "rgenoud", which
-use \code{stats::optim} or \code{rgenoud::genoud}, respectively.
+\item{optimizer}{The function to use to optimize. Default is \code{"DEoptim"}.
+Currently it can also be \code{"optim"} or \code{"rgenoud"},
+which use \code{stats::optim} or \code{rgenoud::genoud}, respectively.
 The latter two do not seem optimal for stochastic problems and have
 not been widely tested.}
 
@@ -98,12 +98,12 @@ into the control of the optimizer.
 \description{
 This is very much in alpha condition. It has been tested on simple problems,
 as shown in the examples, with up to 2 parameters.
-It appears that DEoptim is the superior package for the stochastic problems.
+It appears that \code{DEoptim} is the superior package for the stochastic problems.
 This should be used with caution as with all optimization routines. This function
-can nevertheless take optim or genoud as optimizers, using
+can nevertheless take \code{optim} or \code{genoud} as optimizers, using
 \code{stats::optim} or \code{rgenoud::genoud}, respectively.
 However, these latter approaches do not seem appropriate for stochastic problems,
-and have not been widely tested and are not supported within POM.
+and have not been widely tested and are not supported within \code{POM}.
 }
 \details{
 There are two ways to use this function, via 1) \code{objFn} or 2) \code{objects}.
@@ -156,32 +156,33 @@ assessing convergence after 3 iterations (WHICH MAY NOT BE SUFFICIENT FOR YOUR P
 \code{NP = 10 * length(params)}
 (meaning the population size is 10 x the number of parameters) and itermax =
 200 (meaning it won't go past 200 iterations). These and others may need to be adjusted to
-obtain good values. NOTE:
-DEoptim does not provide a direct estimate of confidence intervals. Also,
-convergence may be unreliable, and may occur because \code{itermax} is reached. Even
-when convergence is indicated, the estimates are not guaranteed to be global
+obtain good values.
+NOTE: \code{DEoptim} does not provide a direct estimate of confidence intervals.
+Also, convergence may be unreliable, and may occur because \code{itermax} is reached.
+Even when convergence is indicated, the estimates are not guaranteed to be global
 optima. This is different than other optimizers that will normally indicate
 if convergence was not achieved at termination of the optimization.
 
 Using this function with a parallel cluster currently requires that you pass
 \code{optimControl = list(parallelType = 1)}, and possibly package and variable names
  (and does not yet accept the \code{cl} argument). See examples.
-This setting will use all available threads on your computer. Future versions of this
-will allow
-passing of a custom cluster object via \code{cl} argument. \code{POM} will automatically
-determine packages to load in the spawned cluster (via \code{SpaDES::packages}) and it
-will load all objects in the cluster that are necessary, by sending \code{names(objects)}
-to \code{parVar} in \code{DEoptim.control}.
+This setting will use all available threads on your computer.
+Future versions of this will allow passing of a custom cluster object via \code{cl} argument.
+\code{POM} will automatically determine packages to load in the spawned cluster
+(via \code{SpaDES::packages}) and it will load all objects in the cluster that are
+necessary, by sending \code{names(objects)} to \code{parVar} in \code{DEoptim.control}.
 
-Setting \code{logObjFnVals} to TRUE may help diagnosing some problems. Using the POM derived
-objective function, essentially all patterns are treated equally. This may not give the correct
-behavior for the objective function. Because \code{POM} weighs the patterns equally, it may be
-useful to use the log files to examine the behaviour of the pattern--data pairs.
+Setting \code{logObjFnVals} to \code{TRUE} may help diagnosing some problems.
+Using the POM derived objective function, essentially all patterns are treated equally.
+This may not give the correct behavior for the objective function.
+Because \code{POM} weighs the patterns equally, it may be useful to use the
+log files to examine the behaviour of the pattern--data pairs.
 The first file, ObjectiveFnValues.txt, shows the result of each of the
-(possibly logged), pattern--data deviations, standardized, and weighted. The second file,
-ObjectiveFnValues_RawPatterns.txt, shows the actual value of the pattern (unstandardized,
-unweighted, unlogged). If \code{weights} is passed, then these weighted values will be reflected
-in the ObjectiveFnValues.txt file.
+(possibly logged), pattern--data deviations, standardized, and weighted.
+The second file, \file{ObjectiveFnValues_RawPatterns.txt}, shows the actual
+value of the pattern (unstandardized, unweighted, unlogged).
+If \code{weights} is passed, then these weighted values will be reflected
+in the \file{ObjectiveFnValues.txt} file.
 }
 \examples{
 if (interactive()) {

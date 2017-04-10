@@ -32,15 +32,15 @@ of the \code{objName} and \code{layerName}}
 
 \item{\code{envir}}{environment. The environment in which to find the objName}
 
-\item{\code{layerName}}{character. Name of the layer represented by this .spadesGrob. Primarily
-used for RasterStacks}
+\item{\code{layerName}}{character. Name of the layer represented by this \code{.spadesGrob}.
+Primarily used for \code{RasterStack}s.}
 
-\item{\code{objClass}}{character. Class of the object represented by this .spadesGrob}
+\item{\code{objClass}}{character. Class of the object represented by this \code{.spadesGrob}.}
 
 \item{\code{isSpatialObjects}}{logical. TRUE if the object is one of the SpaDES recognized
-spatialObject classes}
+spatialObject classes.}
 
-\item{\code{plotArgs}}{list. Any parameters needed for plotting, set by Plot call.}
+\item{\code{plotArgs}}{list. Any parameters needed for plotting, set by \code{Plot} call.}
 }}
 
 \seealso{

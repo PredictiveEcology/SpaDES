@@ -5,11 +5,11 @@ if (getRversion() >= "3.1.0") {
 ###############################################################################
 #' Produce a \code{raster} of a random Gaussian process.
 #'
-#' This is a wrapper for the \code{RFsimulate} function in the RandomFields
+#' This is a wrapper for the \code{RFsimulate} function in the \code{RandomFields}
 #' package. The main addition is the \code{speedup} argument which allows
 #' for faster map generation. A \code{speedup} of 1 is normal and will get
 #' progressively faster as the number increases, at the expense of coarser
-#' pixel resolution of the pattern generated
+#' pixel resolution of the pattern generated.
 #'
 #' @param x        A spatial object (e.g., a \code{RasterLayer}).
 #'

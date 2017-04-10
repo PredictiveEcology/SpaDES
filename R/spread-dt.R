@@ -69,14 +69,14 @@ if (getRversion() >= "3.1.0") {
 #'                  If user has x and y coordinates, these can be converted with
 #'                  \code{\link[raster]{cellFromXY}}.
 #'
-#' @param spreadProb    Numeric or rasterLayer. If numeric of length 1, then this is
+#' @param spreadProb    Numeric or RasterLayer. If numeric of length 1, then this is
 #'                      the global probability of
 #'                      spreading into each cell from a neighbor. If a raster then this must
 #'                      be the cell-specific probability of a "receiving" potential cell.
 #'                      Default is \code{0.23}.
 #'
 #' @param asRaster Logical, length 1. If \code{TRUE}, the function will return a \code{Raster}
-#'                 where raster non NA values indicate the cells that were "actived", and the
+#'                 where raster non NA values indicate the cells that were "active", and the
 #'                 value is the initial starting pixel.
 #'
 #' @param maxSize       Numeric. Maximum number of cells for a single or
@@ -99,7 +99,7 @@ if (getRversion() >= "3.1.0") {
 #'                      Leaving this \code{NULL} allows the spreadDT to continue
 #'                      until stops spreading itself (i.e., exhausts itself).
 #'
-#' @param returnDistances Logical. Should the function inclue a column with the
+#' @param returnDistances Logical. Should the function include a column with the
 #'                      individual cell distances from the locus where that event
 #'                      started. Default is FALSE. See Details.
 #'

@@ -55,7 +55,7 @@ setMethod("ganttStatus",
 #'
 #' @param n    The number of most recently completed events to plot.
 #'
-#' @param startDate  A character representation of date in YYYY-MM-DD format.
+#' @param startDate  A character representation of date in \code{YYYY-MM-DD} format.
 #'
 #' @param width  Numeric. Passed to determine scale of vertical bars.
 #'
@@ -131,7 +131,7 @@ setMethod(
 #'
 #' @param n    The number of most recently completed events to plot.
 #'
-#' @param startDate  A character representation of date in YYYY-MM-DD format.
+#' @param startDate  A character representation of date in \code{YYYY-MM-DD} format.
 #'
 #' @param ...  Additional arguments passed to \code{mermaid}.
 #'             Useful for specifying \code{height} and \code{width}.
@@ -282,7 +282,7 @@ setMethod(
 #'                    modules will be grouped together by colored blobs. Internally,
 #'                    this is calling \code{\link{moduleGraph}}. Default \code{FALSE}.
 #'
-#' @param ...  Additional arguments passed to plotting function specfied by \code{type}.
+#' @param ...  Additional arguments passed to plotting function specified by \code{type}.
 #'
 #' @return Plots module dependency diagram.
 #'

@@ -42,7 +42,7 @@ move <- function(hypothesis = "crw", ...) {
 #'
 #' @param extent      An optional \code{Extent} object that will be used for \code{torus}.
 #'
-#' @param torus       Logical. Should the crw movement be wrapped to the opposite
+#' @param torus       Logical. Should the movement be wrapped to the opposite
 #'                    side of the map, as determined by the \code{extent} argument.
 #'                    Default \code{FALSE}.
 #'

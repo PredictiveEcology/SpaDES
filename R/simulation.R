@@ -355,7 +355,7 @@ setMethod(
 #' @param params A list of lists of the form list(moduleName=list(param1=value, param2=value)).
 #' See details.
 #'
-#' @param modules A named list of character strings specfying the names
+#' @param modules A named list of character strings specifying the names
 #' of modules to be loaded for the simulation. Note: the module name
 #' should correspond to the R source file from which the module is loaded.
 #' Example: a module named "caribou" will be sourced form the file
@@ -388,7 +388,7 @@ setMethod(
 #' \code{saveTime} (numeric). See \code{\link{outputs}} and
 #' \code{vignette("ii-modules")} section about outputs.
 #'
-#' @param loadOrder  An optional list of module names specfiying the order in
+#' @param loadOrder  An optional list of module names specifying the order in
 #'                   which to load the modules. If not specified, the module
 #'                   load order will be determined automatically.
 #'

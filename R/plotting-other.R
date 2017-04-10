@@ -402,7 +402,7 @@ dev <- function(x, ...) {
 #' window in a platform-generic way; however, doesn't work in RStudio (#116).
 #' Use \code{dev.useRSGD(FALSE)} to avoid RStudio for the remainder of this session,
 #' and \code{dev.useRSGD(TRUE)} to use the RStudio graphics device.
-#' (This sets the default device uvia the \code{device} option.)
+#' (This sets the default device via the \code{device} option.)
 #'
 #' @seealso \code{\link{dev}}.
 #'

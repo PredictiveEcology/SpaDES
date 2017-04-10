@@ -43,7 +43,7 @@ standard deviation of wrapped normal turn angles.}
 If \code{FALSE} coordinates represent planar ('Euclidean')
 space (e.g. units of meters)}
 
-\item{torus}{Logical. Should the crw movement be wrapped to the opposite
+\item{torus}{Logical. Should the movement be wrapped to the opposite
 side of the map, as determined by the \code{extent} argument.
 Default \code{FALSE}.}
 }

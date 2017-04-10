@@ -21,7 +21,7 @@ console.}
 
 \item{filesOnly}{Logical. If TRUE, then the server.R, ui.R files will be written
 to a temp location, with a message indicating where they are.
-Publishing this to shinyapps.io is currently very buggy,
+Publishing this to \url{https://shinyapps.io} is currently very buggy,
 and will likely not work as desired.}
 
 \item{...}{additional arguments. Currently not used}
@@ -58,7 +58,7 @@ Many module parameters are only accessed by modules at the start of a
 
 shine(mySim)
 
-# To publish to shinyapps.io, need files. THis is not reliable yet.
+# To publish to shinyapps.io, need files. This is not reliable yet.
 shine(mySim, filesOnly = TRUE)
 
 # if the user wants to see the events go by, which can help with debugging:
