@@ -469,7 +469,7 @@ test_that("spreadDT tests", {
 
 
   N <- 2
-  ras <- raster(extent(0,60, 0, 60), res=1)
+  ras <- raster(extent(0,160, 0, 160), res=1)
   N <- 2000
   ras <- raster(extent(0,6000, 0, 6000), res=1)
   sp <- 0.225
@@ -522,38 +522,38 @@ test_that("spreadDT tests", {
   })
 
 
-  iterativeNeigh <- function(a, skipChecks, N, sp, exactSizes) {
+  iterativeNeigh <- function(a, skipChecks, N, sp, exactSizes,
+                             neighProbs = c(0.5, 0.4, 0.1), ...) {
     sams <- sample(innerCells, N)
     out <-
       spreadDT(a,
                iterations = 1,
                spreadProb = sp,
-               start = sams,
-               neighProbs = c(0.7, 0.3),
+               start = sort(sams),
+               #neighProbs = neighProbs,
                exactSize = exactSizes,
                skipChecks=skipChecks,
-               asRaster = FALSE)
+               asRaster = FALSE, ...)
     stillActive <- TRUE
-    i <- 1
     while (stillActive) {
-      i <- i + 1
-      message(i)
-      browser(expr=i==51)
       out <-
         spreadDT(a,
                  iterations = 1,
                  spreadProb = sp,
                  start = out,
-                 neighProbs = c(0.7, 0.3),
+                 #neighProbs = neighProbs,
                  exactSize = exactSizes,
                  skipChecks=skipChecks,
-                 asRaster = FALSE)
+                 asRaster = FALSE, ...)
       stillActive <- any(length(attr(out, "whActive")) | length(attr(out, "whNeedRetry")))
     }
     out
   }
 
-  exactSizes <- c(124, 2342, 4321)
+  sp <- randomPolygons(ras, numTypes = 35)
+  #sp[] <- 2^(sp[] %% 5) + 1
+  sp[] <- (sp[] %% 5 + 1)/10
+  exactSizes <- c(123, 2240)
 
   iterativeNeigh(ras, TRUE, length(exactSizes), sp=sp,  exactSize=exactSizes)
 

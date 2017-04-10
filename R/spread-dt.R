@@ -366,6 +366,8 @@ setMethod(
       setkeyv(clusterDT, "initialPixels")
       needRetryID <- integer()
       whNeedRetry <- integer()
+      if (needDistance) set(dt, , "distance", 0) # it is zero distance to self
+      totalIterations <- 0
 
     } else { # a "return" entry into spreadDT
       clusterDT <- attr(start, "cluster")#data.table(id=unique(start$id), initialPixels=unique(start$initialPixels), key = "initialPixels")
@@ -374,28 +376,29 @@ setMethod(
       if(!anyNA(maxSize)) {
         if(any(maxSize != clusterDT$maxSize)) {
           message(sizeType, " provided. It does not match with size attr(start, 'cluster')$maxSize. ",
-                  "Using the new ",sizeType," provided. Perhaps sorted differently?")
+                  "Using the new ",sizeType," provided. Perhaps sorted differently? Try sorting initial ",
+                  "call to spreadDT so that pixel number of start cells is strictly increasing")
           clusterDT$maxSize <- maxSize
         }
       }
       if(any(colnames(clusterDT)=="maxSize")) maxSize <- clusterDT$maxSize
-      set(clusterDT, ,"numRetries", 0)
+      #set(clusterDT, ,"numRetries", 0)
       dt <- start
       whActive <- attr(start, "whActive")
       whInactive <- attr(start, "whInactive")
       whNeedRetry <- attr(dt, "whNeedRetry")
       needRetryID <- attr(dt, "needRetryID")
+      totalIterations <- attr(dt, "totalIterations")
+
       if(canUseAvailable)
         notAvailable <- attr(dt, "notAvailable")
 
     }
     dtPotentialColNames <- c("id", "from", "to", "state", "distance"[needDistance])
 
-    if (needDistance) set(dt, , "distance", 0) # it is zero distance to self
-
     its <- 0
 
-    while ((length(needRetryID) | length(whActive)) &  its < iterations) {
+    while (length(needRetryID) | (length(whActive) &  its < iterations)) {
 
       # Step 1
       # Get neighbours, either via adj (default) or cir (jumping if stuck)
@@ -437,6 +440,7 @@ setMethod(
 
         # only iterate if it is not a Retry situation
         its <- its + 1
+        totalIterations <- totalIterations + 1
       }
 
       if (length(needRetryID) > 0) {
@@ -462,7 +466,7 @@ setMethod(
         toPts <- xyFromCell(landscape, dtPotential$to)
         dists <- pointDistance(p1 = fromPts, p2 = toPts, lonlat = FALSE)
         if (circle) {
-          distKeepers <- dists %<=% its & dists %>>% (its - 1)
+          distKeepers <- dists %<=% totalIterations & dists %>>% (totalIterations - 1)
           dtPotential <- dtPotential[distKeepers]
           if (needDistance)
             set(dtPotential, , "distance", dists[distKeepers])
@@ -485,7 +489,6 @@ setMethod(
         }
         setkeyv(numNeighsByPixel, c("id", "from"))
 
-        browser()
         # remove duplicates within dtPotential
         dupsWithinDtPotential <- duplicatedInt(dtPotential$to)
         successCells <- dtPotential$to[!dupsWithinDtPotential] # remove the dupsWithinDtPotential
@@ -565,6 +568,7 @@ setMethod(
           dupsWithinDtPotential <- duplicatedInt(successCells)
 
           successCells <- successCells[!dupsWithinDtPotential] # remove the dupsWithinDtPotential
+          message(totalIterations)
           potentialNotAvailable <- notAvailable[successCells]
           # remove duplicatedInt which was slow
 
@@ -602,6 +606,7 @@ setMethod(
           dt <- dt[-dt[state == "successful" & (initialPixels %in% currentSizeTooBig$initialPixels),
                        resample(.I, currentSizeTooBig[.GRP]$tooBig), by = initialPixels]$V1][
                          initialPixels %in% currentSizeTooBig$initialPixels, state := "inactive"]
+          clusterDT[currentSizeTooBig[,list(initialPixels)],size:=size-tooBig]
         }
 
         if (!(anyNA(exactSize))) {
@@ -638,13 +643,13 @@ setMethod(
         whNotInactive <- which(notInactive)
       } else {
         whNotInactive <- seq_len(length(whActive) + NROW(dtPotential))
-        if(length(whInactive))
-          whNotInactive <- max(whInactive) + whNotInactive
+        #if(length(whInactive))
+        #  whNotInactive <- max(whInactive) + whNotInactive
       }
 
       #if(length(whInactive))
       activeStates <- dt$state[whNotInactive]
-      whActive <- whNotInactive[activeStates == "successful"]
+      whActive <- whNotInactive[activeStates == "successful" | activeStates == "holding" ]
       whInactive <- whNotInactive[activeStates == "activeSource"]
       set(dt, whNotInactive, "state",
           c("inactive", "activeSource", "activeSource", "needRetry")[
@@ -652,19 +657,19 @@ setMethod(
 
       if (plot.it) {
         newPlot <- FALSE
-        if (!exists("ras", inherits = FALSE)) {
+        if(totalIterations==1) {
           newPlot <- TRUE
         }
-        if (newPlot)
-          ras <- raster(landscape)
+
+        if (newPlot | !(exists("spreadDTRas", inherits = FALSE)))
+          spreadDTRas <- raster(landscape)
         if (returnDistances) {
-          ras[dt$pixels] <- dt$distance
+          spreadDTRas[dt$pixels] <- dt$distance
           newPlot <- TRUE
         } else {
-          setkeyv(dt, "initialPixels")
-          ras[dt$pixels] <- dt[clusterDT]$id
+          spreadDTRas[dt$pixels] <- dt[clusterDT, on="initialPixels"]$id # get id column from clusterDT
         }
-        Plot(ras, new = newPlot)
+        Plot(spreadDTRas, new = newPlot)
       }
     } # end of main loop
 
@@ -674,6 +679,7 @@ setMethod(
     attr(dt, "whInactive") <- whInactive
     attr(dt, "whNeedRetry") <- whNeedRetry
     attr(dt, "needRetryID") <- needRetryID
+    attr(dt, "totalIterations") <- totalIterations
     if(canUseAvailable)
       attr(dt, "notAvailable") <- notAvailable
 
