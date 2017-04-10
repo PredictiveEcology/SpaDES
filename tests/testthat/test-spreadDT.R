@@ -522,7 +522,26 @@ test_that("spreadDT tests", {
   })
 
 
-  iterativeNeigh <- function(a, skipChecks, N, sp, exactSizes,
+
+  library(raster)
+  library(data.table)
+  library(fpCompare)
+  N <- 2
+  ras <- raster(extent(0,160, 0, 160), res=1)
+  sp <- 0.225
+  b <- raster(ras)
+  b[] <- 1
+  bb <-
+    focal(
+      b,
+      matrix(1 / 9, nrow = 3, ncol = 3),
+      fun = sum,
+      pad = TRUE,
+      padValue = 0
+    )
+  innerCells <- which(bb[] %==% 1)
+
+    iterativeNeigh <- function(a, skipChecks, N, sp, exactSizes,
                              neighProbs = c(0.5, 0.4, 0.1), ...) {
     sams <- sample(innerCells, N)
     out <-
@@ -556,6 +575,9 @@ test_that("spreadDT tests", {
   exactSizes <- c(123, 2240)
 
   iterativeNeigh(ras, TRUE, length(exactSizes), sp=sp,  exactSize=exactSizes)
+  dev()
+  iterativeNeigh(ras, TRUE, length(exactSizes), sp=sp,  exactSize=exactSizes, plot.it = TRUE)
+  iterativeNeigh(ras, TRUE, length(exactSizes), sp=sp)#,  plot.it = TRUE)
 
 
   # compare original spread and spreadDT -- seems pretty dead on
