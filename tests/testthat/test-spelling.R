@@ -2,9 +2,11 @@ test_that("spelling errors", {
   skip_on_cran()
   skip_if_not_installed("hunspell")
 
-  curDir <- getwd()
+  curDir <- getwd(); warning(curDir)
   pkgDir <- if (basename(curDir) == "testthat") {
     checkPath(file.path(curDir, "..", ".."))
+  } else if ("SpaDES" %in% basename(list.dirs(curDir))) {
+    checkPath(file.path(curDir, "SpaDES"))
   } else {
     checkPath(file.path(curDir))
   }
