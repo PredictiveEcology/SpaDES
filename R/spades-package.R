@@ -8,6 +8,8 @@
 #'
 #' @description
 #'
+#' \figure{SpaDES.png}{options: width=100 alt="SpaDES logo" align="right"}
+#'
 #' This package allows implementation a variety of simulation-type models,
 #' with a focus on spatially explicit models.
 #' The core simulation components are built upon a discrete event simulation
