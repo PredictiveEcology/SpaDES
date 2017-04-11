@@ -13,7 +13,11 @@ if (getRversion() >= "3.1.0") {
 #' from every loci until all cells in the landscape have been covered.
 #' With \code{id} set to \code{TRUE}, the resulting map will be classified
 #' by the index of the cell where that event propagated from.
-#' This can be used to examine things like fire size distributions.
+#' This can be used to examine things like fire size distributions. \bold{NOTE:}
+#' The function \code{spread2} is more robust and can be used to build custom functions.
+#' However, under some conditions, this \code{spread} function is faster. The two
+#' functions can accomplish many of the same things, and key differences are
+#' internal.
 #'
 #' For large rasters, a combination of \code{lowMemory = TRUE} and
 #' \code{returnIndices = TRUE} will use the least amount of memory.
@@ -288,8 +292,12 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @author Eliot McIntire
 #' @author Steve Cumming
-#' @seealso \code{\link{rings}} which uses \code{spread} but with specific argument
-#' values selected for a specific purpose. \code{\link[raster]{distanceFromPoints}}
+#' @seealso \code{\link{spread2}} for a different implementation of the same alogorithm.
+#' It is more robust, meaning, there will be fewer unexplainable errors, and the behaviour
+#' has been better tested, so it is more likely to be exactly as described under all
+#' argument combinations. Also, \code{\link{rings}} which uses \code{spread} but with specific argument
+#' values selected for a specific purpose. \code{\link[raster]{distanceFromPoints}}. \code{cir}
+#' to create "circles"; it is fast for many small problems.
 #'
 #' @name spread
 #' @aliases spread

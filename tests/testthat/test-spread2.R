@@ -1,4 +1,4 @@
-test_that("spreadDT tests", {
+test_that("spread2 tests", {
   library(raster)
   on.exit(detach("package:raster"), add = TRUE)
   library(data.table)
@@ -23,7 +23,7 @@ test_that("spreadDT tests", {
   set.seed(123)
   for (i in 1:20) {
     sams <- sample(innerCells, 2)
-    out <- spreadDT(a, start = sams, 0.225, asRaster = FALSE)
+    out <- spread2(a, start = sams, 0.225, asRaster = FALSE)
     expect_true(length(unique(out$initialPixels)) == 2)
     expect_true(all(out$active == 0))
   }
@@ -36,7 +36,7 @@ test_that("spreadDT tests", {
     set.seed(seed)
     sams <- sample(innerCells, 2)
     out <-
-      spreadDT(a,
+      spread2(a,
                start = sams,
                0.225,
                maxSize = maxSizes,
@@ -45,11 +45,11 @@ test_that("spreadDT tests", {
   }
 
   if (interactive())
-    print("testing exact maxSize")
-  exactSizes <- c(5, 3)
+    print("testing exactSize")
+  exactSizes <- c(5, 3.1)
   for (i in 1:20) {
     sams <- sample(innerCells, 2)
-    out <- spreadDT(
+    out <- spread2(
       a,
       start = sams,
       0.225,
@@ -59,10 +59,32 @@ test_that("spreadDT tests", {
     attrib <- attr(out, "cluster")$numRetries > 10
     if (any(attrib)) {
       frequ <- out[, .N, by = "initialPixels"]$N
-      expect_true(all(frequ[attrib] < exactSizes[order(sams)][attrib]))
-      expect_true(all(frequ[!attrib] == exactSizes[order(sams)][!attrib]))
+      expect_true(all(frequ[attrib] <= floor(exactSizes[order(sams)][attrib])))
+      expect_true(all(frequ[!attrib] == floor(exactSizes[order(sams)][!attrib])))
     } else {
-      expect_true(all(out[, .N, by = "initialPixels"]$N == exactSizes[order(sams)]))
+      expect_true(all(out[, .N, by = "initialPixels"]$N == floor(exactSizes[order(sams)])))
+    }
+  }
+
+  if (interactive())
+    print("testing exactSize")
+  exactSizes <- c(5.01, 3.1, 4)
+  for (i in 1:20) {
+    sams <- sample(innerCells, length(exactSizes))
+    out <- spread2(
+      a,
+      start = sams,
+      0.225,
+      exactSize = exactSizes,
+      asRaster = FALSE
+    )
+    attrib <- attr(out, "cluster")$numRetries > 10
+    if (any(attrib)) {
+      frequ <- out[, .N, by = "initialPixels"]$N
+      expect_true(all(frequ[attrib] <= floor(exactSizes[order(sams)][attrib])))
+      expect_true(all(frequ[!attrib] == floor(exactSizes[order(sams)][!attrib])))
+    } else {
+      expect_true(all(out[, .N, by = "initialPixels"]$N == floor(exactSizes[order(sams)])))
     }
   }
 
@@ -77,7 +99,7 @@ test_that("spreadDT tests", {
     #print(seed)
     sams <- sample(innerCells, 3)
     out <-
-      spreadDT(
+      spread2(
         a,
         start = sams,
         0.225,
@@ -95,7 +117,7 @@ test_that("spreadDT tests", {
     set.seed(seed)
     #print(seed)
     sams <- sample(innerCells, length(sams))
-    expect_error(spreadDT(
+    expect_error(spread2(
       a,
       start = sams,
       0.225,
@@ -104,7 +126,7 @@ test_that("spreadDT tests", {
       plot.it = TRUE
     ))
     out <-
-      spreadDT(a,
+      spread2(a,
                start = sams,
                1,
                circle = TRUE,
@@ -115,7 +137,7 @@ test_that("spreadDT tests", {
 
   # test circle
   sams <- sort(sample(innerCells, 3)) # sorted -- makes comparisons later easier
-  out <- spreadDT(
+  out <- spread2(
     a,
     start = sams,
     1,
@@ -128,7 +150,7 @@ test_that("spreadDT tests", {
   expect_true(all(out$distance <= (sqrt(2) * ncol(a))))
 
   out <-
-    spreadDT(
+    spread2(
       a,
       start = sams,
       1,
@@ -158,7 +180,7 @@ test_that("spreadDT tests", {
   }
 
   if (interactive())
-    print("compare spreadDT circle with cir circle")
+    print("compare spread2 circle with cir circle")
   cirOut <-
     data.table(
       cir(
@@ -194,7 +216,7 @@ test_that("spreadDT tests", {
   set.seed(21)
   b <- raster(extent(0, 33000 , 0, 33000), res = 1)
   sams <- sample(ncell(b), 2)
-  st1 <- system.time(out <- spreadDT(
+  st1 <- system.time(out <- spread2(
     b,
     start = sams,
     0.225,
@@ -213,7 +235,7 @@ test_that("spreadDT tests", {
   set.seed(2123)
   sams <- sample(innerCells, 2)
   set.seed(321)
-  out <- spreadDT(
+  out <- spread2(
     a,
     spreadProb = sp,
     start = sams,
@@ -232,7 +254,7 @@ test_that("spreadDT tests", {
   for (i in 1:8) {
     alwaysN <- rep(0, i)
     alwaysN[i] <- 1
-    out <- spreadDT(
+    out <- spread2(
       a,
       spreadProb = sp,
       iterations = 1,
@@ -258,9 +280,9 @@ test_that("spreadDT tests", {
   set.seed(654)
   out <- list()
   for (i in 1:10) {
-    #out[[i]] <- spreadDT(a, spreadProb = sp, iterations = 1,
+    #out[[i]] <- spread2(a, spreadProb = sp, iterations = 1,
     #                             start = sams, neighProbs = c(0.7,0.3), maxSize = maxSizes, asRaster=FALSE)
-    out[[i]] <- spreadDT(
+    out[[i]] <- spread2(
       a,
       spreadProb = sp,
       iterations = 1,
@@ -286,7 +308,7 @@ test_that("spreadDT tests", {
   set.seed(654)
   rasts <- list()
   for (i in 1:20) {
-    rasts[[i]] <- spreadDT(a, spreadProb = stats::runif(1, 0, 1))
+    rasts[[i]] <- spread2(a, spreadProb = stats::runif(1, 0, 1))
     expect_that(rasts[[i]], is_a("RasterLayer"))
   }
   if (interactive()) {
@@ -296,41 +318,41 @@ test_that("spreadDT tests", {
 
 
   if (interactive())
-    print("testing iterative calling of spreadDT")
+    print("testing iterative calling of spread2")
   set.seed(299)
   sams <- sample(innerCells, 2)
   set.seed(299)
-  out <- spreadDT(a,
+  out <- spread2(a,
                   iterations = 1,
                   start = sams,
                   asRaster = FALSE)
   stillActive <- TRUE
   while (stillActive) {
     stillActive <- any(out$state == "activeSource")
-    out <- spreadDT(a,
+    out <- spread2(a,
                     iterations = 1,
                     start = out,
                     asRaster = FALSE)
   }
   set.seed(299)
-  out2 <- spreadDT(a, start = sams, asRaster = FALSE)
+  out2 <- spread2(a, start = sams, asRaster = FALSE)
   keyedCols <- c("initialPixels", "pixels")
   expect_equivalent(out2, out)
 
 
   if (interactive())
-    print("testing iterative calling of spreadDT, but asRaster = TRUE")
+    print("testing iterative calling of spread2, but asRaster = TRUE")
   set.seed(299)
   sams <- sample(innerCells, 2)
   set.seed(299)
-  out1 <- spreadDT(a,
+  out1 <- spread2(a,
                   iterations = 1,
                   start = sams,
                   asRaster = TRUE)
   stillActive <- TRUE
   while (stillActive) {
     stillActive <- any(attr(out1, "pixel")$state == "activeSource")
-    out1 <- spreadDT(a,
+    out1 <- spread2(a,
                     iterations = 1,
                     start = out1,
                     asRaster = TRUE)
@@ -346,27 +368,27 @@ test_that("spreadDT tests", {
   set.seed(seed)
   sams <- sample(innerCells, 2)
   exactSizes <- 5:6
-  out <- spreadDT(a, start = sams, 0.225, iterations = 1,
+  out <- spread2(a, start = sams, 0.225, iterations = 1,
                   exactSize = exactSizes, asRaster = FALSE)
   for(i in 1:20)
-  out <- spreadDT(a, start = out, 0.225, iterations = 1,
+  out <- spread2(a, start = out, 0.225, iterations = 1,
                     exactSize = exactSizes, asRaster = FALSE)
 
 
 
 
   ##############################################################
-  skip("benchmarking spreadDT")
+  skip("benchmarking spread2")
   a <- raster(extent(0, 1000, 0, 1000), res = 1)
   set.seed(123)
   sams <- sample(innerCells, 30)
   set.seed(123)
   profvis::profvis({
-    out <- spreadDT(a, start = sams, 0.235, asRaster = FALSE)
+    out <- spread2(a, start = sams, 0.235, asRaster = FALSE)
   })
   set.seed(123)
   profvis::profvis({
-    out <- spreadDT(
+    out <- spread2(
       a,
       start = sams,
       0.235,
@@ -377,7 +399,7 @@ test_that("spreadDT tests", {
 
   set.seed(123)
   microbenchmark(times = 30, {
-    out1 <- spreadDT(a, start = sams, 0.235, asRaster = FALSE)
+    out1 <- spread2(a, start = sams, 0.235, asRaster = FALSE)
   },
   b = {
     out2 <- spread(a, loci = sams, 0.235, id = TRUE)
@@ -391,7 +413,7 @@ test_that("spreadDT tests", {
   })
   set.seed(123)
   profvis::profvis({
-    out <- spreadDT(
+    out <- spread2(
       a,
       start = sams,
       0.235,
@@ -405,7 +427,7 @@ test_that("spreadDT tests", {
   iterativeFun <- function(a, skipChecks, N, sp) {
     sams <- sample(innerCells, N)
     out <-
-      spreadDT(a,
+      spread2(a,
                iterations = 1,
                start = sams, skipChecks=skipChecks,
                asRaster = FALSE, spreadProb = sp)
@@ -413,7 +435,7 @@ test_that("spreadDT tests", {
     while (stillActive) {
       stillActive <- any(out$state == "activeSource")
       out <-
-        spreadDT(
+        spread2(
           a, spreadProb = sp,
           iterations = 1,
           start = out,
@@ -427,7 +449,7 @@ test_that("spreadDT tests", {
   nonIterativeFun <- function(a, skipChecks, N, sp) {
     sams <- sample(innerCells, N)
     out <-
-      spreadDT(a, start = sams, asRaster = FALSE, skipChecks=skipChecks, spreadProb = sp)
+      spread2(a, start = sams, asRaster = FALSE, skipChecks=skipChecks, spreadProb = sp)
     out
   }
 
@@ -466,8 +488,10 @@ test_that("spreadDT tests", {
     out
   }
 
+
+
   N <- 2
-  ras <- raster(extent(0,60, 0, 60), res=1)
+  ras <- raster(extent(0,160, 0, 160), res=1)
   N <- 2000
   ras <- raster(extent(0,6000, 0, 6000), res=1)
   sp <- 0.225
@@ -519,7 +543,111 @@ test_that("spreadDT tests", {
     nonIterativeFun()
   })
 
-  # compare original spread and spreadDT -- seems pretty dead on
+
+
+  library(raster)
+  library(data.table)
+  library(fpCompare)
+  N <- 2
+  ras <- raster(extent(0,160, 0, 160), res=1)
+  sp <- 0.225
+  b <- raster(ras)
+  b[] <- 1
+  bb <-
+    focal(
+      b,
+      matrix(1 / 9, nrow = 3, ncol = 3),
+      fun = sum,
+      pad = TRUE,
+      padValue = 0
+    )
+  innerCells <- which(bb[] %==% 1)
+
+  iterativeNeigh <- function(a, skipChecks, N, sp, exactSizes,
+                           neighProbs, ...) {
+    sams <- sample(innerCells, N)
+    out <-
+      spread2(a,
+               iterations = 1,
+               spreadProb = sp,
+               start = sort(sams),
+               neighProbs = neighProbs,
+               exactSize = exactSizes,
+               skipChecks=skipChecks,
+               asRaster = FALSE, ...)
+    stillActive <- TRUE
+    while (stillActive) {
+      out <-
+        spread2(a,
+                 iterations = 1,
+                 spreadProb = sp,
+                 start = out,
+                 neighProbs = neighProbs,
+                 exactSize = exactSizes,
+                 skipChecks=skipChecks,
+                 asRaster = FALSE, ...)
+      stillActive <- any(length(attr(out, "whActive")) | length(attr(out, "whNeedRetry")))
+    }
+    out
+  }
+
+  origSpreadIterationsNeighs <- function(a, quick, N, sp, neighProbs, exactSize) {
+    sams <- sample(innerCells, N)
+    out <-
+      spread(a, spreadProb = sp, neighProbs = neighProbs,
+             iterations = 1,
+             loci = sams,
+             exactSizes = TRUE,
+             returnIndices = TRUE, maxSize = exactSize)
+    stillActive <- TRUE
+    while (stillActive) {
+      stillActive <- any(out$active)
+      out <-
+        spread(
+          a, spreadProb = sp,
+          iterations = 1, neighProbs = neighProbs,
+          spreadState = out, maxSize = exactSize,
+          exactSizes = TRUE,
+          returnIndices = TRUE,
+          quick = quick
+        )
+    }
+    out
+  }
+
+  sp <- randomPolygons(ras, numTypes = 35)
+  #sp[] <- 2^(sp[] %% 5) + 1
+  sp[] <- (sp[] %% 5 + 1)/10
+  exactSizes <- c(123, 2240)
+  neighProbs <- c(0.5, 0.3, 0.2)
+
+  microbenchmark(times = 9, a = {
+    iterativeNeigh(ras, TRUE, length(exactSizes), sp=sp, exactSize=exactSizes, neighProbs = neighProbs)
+  }, b = {
+    origSpreadIterationsNeighs(ras, TRUE, length(exactSizes), sp=sp, exactSize=exactSizes, neighProbs = neighProbs)
+  })
+
+
+  profvis::profvis({
+    for(i in 1:5){
+      iterativeNeigh(ras, TRUE, length(exactSizes), sp=sp, exactSize=exactSizes, neighProbs = neighProbs)
+    }
+
+  })
+  profvis::profvis({
+    for(i in 1:5){
+      origSpreadIterationsNeighs(ras, TRUE, length(exactSizes), sp=sp, exactSize=exactSizes, neighProbs = neighProbs)
+    }
+
+  })
+
+  dev()
+  iterativeNeigh(ras, TRUE, length(exactSizes), sp=sp,  exactSize=exactSizes, plot.it = TRUE)
+  iterativeNeigh(ras, TRUE, length(exactSizes), sp=sp)#,  plot.it = TRUE)
+  iterativeNeigh(ras, TRUE, length(exactSizes), sp=sp)#,  plot.it = TRUE)
+
+
+  # compare original spread and spread2 -- seems pretty dead on
   NN <- 1000
   outNew <- out <- numeric(NN)
   for(i in 1:NN) {
@@ -545,5 +673,202 @@ test_that("spreadDT tests", {
     times = 100,
     nonIterativeFun(ras, TRUE, N, sp)
   )
+
+})
+
+
+test_that("spread2 tests -- asymmetry", {
+  library(raster)
+  on.exit(detach("package:raster"), add = TRUE)
+  library(data.table)
+  on.exit(detach("package:data.table"), add = TRUE)
+  library(fpCompare)
+  on.exit(detach("package:fpCompare"), add = TRUE)
+
+  # inputs for x
+  a <- raster(extent(0, 100 , 0, 100), res = 1)
+  b <- raster(a)
+  b[] <- 1
+  bb <-
+    focal(
+      b,
+      matrix(1 / 9, nrow = 3, ncol = 3),
+      fun = sum,
+      pad = TRUE,
+      padValue = 0
+    )
+  innerCells <- which(bb[] %==% 1)
+
+  set.seed(123)
+  for (i in 1:20) {
+    sams <- sample(innerCells, 2)
+    expect_silent(out <- spread2(a, start = sams, 0.215, asRaster = FALSE,
+                    asymmetry = 2, asymmetryAngle = 90))
+  }
+
+
+
+  library(CircStats); on.exit(detach("package:CircStats"), add = TRUE)
+  library(raster); on.exit(detach("package:raster"), add = TRUE)
+
+  a <- raster(extent(0, 1e2, 0, 1e2), res = 1)
+  hab <- gaussMap(a, speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
+  names(hab) <- "hab"
+  hab2 <- hab > 0
+  maxRadius <- 25
+  maxVal <- 50
+  set.seed(53432)
+
+  startCells <- as.integer(sample(1:ncell(hab), 1))
+
+  N <- 16
+  avgAngles <- numeric(N)
+  lenAngles <- numeric(N)
+
+  # function to calculate mean angle -- returns in degrees
+  meanAngle <- function(angles) {
+    deg(atan2(mean(sin(rad(angles))), mean(cos(rad(angles)))))
+  }
+
+  if (interactive()) {dev();clearPlot()}
+  seed <- sample(1e6, 1)
+  set.seed(seed)
+  for (asymAng in (2:N)) {
+    circs <- spread2(hab, spreadProb = 0.25, start = ncell(hab) / 2 - ncol(hab) / 2,
+                    asymmetry = 40, asymmetryAngle = asymAng * 20, asRaster = FALSE)
+    ci <- raster(hab)
+    ci[] <- 0
+    ci[circs$pixels] <- circs$initialPixels
+    ciCentre <- raster(ci)
+    ciCentre[] <- 0
+    ciCentre[unique(circs$initialPixels)] <- 1
+    newName <- paste0("ci", asymAng * 20)
+    assign(newName, ci)
+
+    where2 <- function(name, env = parent.frame()) { # simplified from pryr::where
+      if (exists(name, env, inherits = FALSE)) env else where2(name, parent.env(env))
+    }
+    env <- where2(newName)
+    if (interactive()) {
+      objToPlot <- get(newName, envir = env)
+      Plot(objToPlot, addTo = newName)
+      Plot(ciCentre, cols = c("transparent", "black"), addTo = "objToPlot")
+    }
+    # Sys.sleep(1)
+    a <- cbind(id = circs$initialPixels, to = circs$pixels, xyFromCell(hab, circs$pixels))
+    initialLociXY <- cbind(id = unique(circs$initialPixels), xyFromCell(hab, unique(circs$initialPixels)))
+    #dirs <- .matchedPointDirection(a, initialLociXY)
+    dirs <- directionFromEachPoint(from = initialLociXY, to = a)
+    dirs[, "angles"] <- CircStats::deg(dirs[, "angles"])
+    avgAngles[asymAng] <- tapply(dirs[, "angles"], dirs[, "id"], meanAngle) %% 360
+    lenAngles[asymAng] <- tapply(dirs[, "angles"], dirs[, "id"], length)
+  }
+
+  whBig <- which(lenAngles > 50)
+  pred <- (1:N)[whBig] * 20
+  expect_true(abs(coef(lm(avgAngles[whBig]~pred))[[2]] - 1) < 0.1)
+
+
+
+
+  # test that the events spread to the middle
+  # Create a raster with one point at the centre
+  ciCentre[] <- NA
+  ciCentre[ncell(ciCentre)/2 - ncol(ciCentre)/2] <- 1
+  # create a direction raster with all points leading to that point
+  directionRas <- direction(ciCentre)
+  directionRas[] <- deg(directionRas[])
+
+  #directionRas <- raster(hab)
+  #directionRas[] <- seq_len(ncell(directionRas))/ncell(directionRas)*360
+
+  seed <- 6056#sample(1e4, 1)
+  print(seed) # 3387
+  set.seed(seed)
+  sams <- ncol(directionRas) + 2 #sample(ncell(directionRas), 1)
+  circs <- spread2(hab, spreadProb = 0.235, start = sams,
+                    asymmetry = 300, asymmetryAngle = directionRas,
+                    asRaster = TRUE)
+  circs2 <- spread2(hab, spreadProb = 0.235, start = sams,
+                    #asymmetry = 300, asymmetryAngle = directionRas,
+                    asRaster = TRUE)
+  if (interactive()) {
+    Plot(circs, new=TRUE)
+    ciCentre[ciCentre==2] <- NA
+    ciCentre[sams] <- 2
+    Plot(ciCentre, cols = c("black", 'red'), addTo = "circs")
+    Plot(circs2, addTo = "circs", cols = "#1211AA33")
+  }
+  #test whether it stopped before hitting the whole map
+  expect_true(sum(circs[], na.rm=TRUE) < ncell(circs))
+  #test that it reached the centre, but not circs2 that did not have directionality
+  expect_true(circs[sams]== circs[ciCentre==1])
+  expect_true(is.na(circs2[ciCentre==1]))
+  expect_true(!is.na(circs2[sams]))
+
+  # Here, test that the asymmetry version, with adjusted downward spreadProb is creating the
+  #  same size events as the Non-asymmetry one. This is a weak test, really. It should
+  sizes <- data.frame(a = numeric())
+  set.seed(1234)
+  for(i in 1:10) {
+    sams <- ncell(hab)/4 - ncol(hab)/4*3
+    circs <- spread2(hab, spreadProb = 0.212, start = sams,
+                      asymmetry = 2, asymmetryAngle = 135,
+                      asRaster = TRUE)
+    sizes <- rbind(sizes, cbind(a = attr(circs, "pixel")[,.N]))
+    if (FALSE) {
+      Plot(circs, new=TRUE)
+      ciCentre[ciCentre==2] <- NA
+      ciCentre[sams] <- 2
+      Plot(ciCentre, cols = c("black", 'red'), addTo = "circs")
+      Plot(circs2, addTo = "circs", cols = "#1211AA33")
+    }
+  }
+  print(apply(sizes, 2, mean))
+  ttestOut <- t.test(sizes$a, mu = 185.83)
+  expect_true(ttestOut$p.value>0.05)
+
+
+  skip("DEoptim within spread2")
+  # This code is used to get the mean value for the t.test above
+  N = 100
+  sizes <- integer(N)
+  for(i in 1:N) {
+    circs <- spread2(hab, spreadProb = 0.225, start = ncell(hab)/4 - ncol(hab)/4*3,
+                      asRaster = FALSE)
+    sizes[i] <- circs[,.N]
+  }
+  goalSize <- mean(sizes)
+
+
+  library(parallel)
+  cl <- makeCluster(pmin(10, detectCores()-2)) # only need 10 cores for 10 populations in DEoptim
+  parallel::clusterEvalQ(cl, {
+    library(SpaDES)
+    library(raster)
+    library(fpCompare)
+  })
+
+  objFn <- function(sp, N = 20, ras, goalSize) {
+    sizes <- integer(N)
+    for(i in 1:N) {
+      circs <- spread2(ras, spreadProb = sp, start = ncell(ras)/4 - ncol(ras)/4*3,
+                        asymmetry = 2, asymmetryAngle = 135,
+                        asRaster = FALSE)
+      sizes[i] <- circs[,.N]
+    }
+    abs(mean(sizes) - goalSize)
+  }
+  aa <- DEoptim(objFn, lower = 0.2, upper = 0.23,
+                control = DEoptim.control(cluster = cl, NP = 10, VTR = 0.02,
+                                          initialpop = as.matrix(rnorm(10, 0.213, 0.001))),
+                ras = hab, goalSize = goalSize)
+
+  # The value of spreadProb that will give the same expected event sizes to spreadProb = 0.225 is:
+  sp <- aa$optim$bestmem
+  circs <- spread2(ras, spreadProb = sp, start = ncell(ras)/4 - ncol(ras)/4*3,
+                    asymmetry = 2, asymmetryAngle = 135,
+                    asRaster = FALSE)
+
 
 })

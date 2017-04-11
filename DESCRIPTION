@@ -135,7 +135,7 @@ Collate:
     'spades-classes.R'
     'spades-package.R'
     'splitRaster.R'
-    'spread-dt.R'
     'spread-process.R'
+    'spread2.R'
     'zzz.R'
 RoxygenNote: 6.0.1
