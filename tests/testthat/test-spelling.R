@@ -1,31 +1,24 @@
 test_that("spelling errors", {
+  skip_on_appveyor() ## no suitable spellchecker installed
+  skip_on_travis()   ## no suitable spellchecker installed
   skip_on_cran()
   skip_if_not_installed("hunspell")
-  skip_on_appveyor() ## temporary
-  skip_on_travis()   ## temporary
-  skip()             ## temporary
-
-  curDir <- getwd(); warning(curDir)
-  pkgDir <- if (basename(curDir) == "testthat") {
-    checkPath(file.path(curDir, "..", ".."))
-  } else if ("SpaDES" %in% basename(list.dirs(curDir))) {
-    checkPath(file.path(curDir, "SpaDES"))
-  } else {
-    checkPath(file.path(curDir))
-  }
 
   ## ensure that stats terms are included in the word list
-  .words.file <- file.path(pkgDir, ".aspell", "words.pws")
-  .words <- readLines(.words.file)[-1]
+  pkg <- "SpaDES"
+  .words.file <- system.file("dict/words.rds", package = pkg)
+  .words <- readRDS(.words.file)
   .en_stats <- hunspell::en_stats
   .complete <- all(.en_stats %in% .words)
   expect_true(.complete)
 
   ## if needed, add any new stats words to the word list
   if (interactive() && !.complete) {
-    ignore <- unique(c(.en_stats, .words, "SpaDES"))
-    aspell_write_personal_dictionary_file(ignore, .words.file)
+    ignore <- sort(unique(c(.en_stats, .words, pkg)))
+    saveRDS(ignore, .words.file)
   }
+
+  pkgDir <- system.file(package = pkg)
 
   ## check vignettes
   wrds_Rmd <- aspell_package_vignettes(pkgDir)
