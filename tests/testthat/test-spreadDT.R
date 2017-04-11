@@ -45,8 +45,8 @@ test_that("spreadDT tests", {
   }
 
   if (interactive())
-    print("testing exact maxSize")
-  exactSizes <- c(5, 3)
+    print("testing exactSize")
+  exactSizes <- c(5, 3.1)
   for (i in 1:20) {
     sams <- sample(innerCells, 2)
     out <- spreadDT(
@@ -59,10 +59,32 @@ test_that("spreadDT tests", {
     attrib <- attr(out, "cluster")$numRetries > 10
     if (any(attrib)) {
       frequ <- out[, .N, by = "initialPixels"]$N
-      expect_true(all(frequ[attrib] < exactSizes[order(sams)][attrib]))
-      expect_true(all(frequ[!attrib] == exactSizes[order(sams)][!attrib]))
+      expect_true(all(frequ[attrib] <= floor(exactSizes[order(sams)][attrib])))
+      expect_true(all(frequ[!attrib] == floor(exactSizes[order(sams)][!attrib])))
     } else {
-      expect_true(all(out[, .N, by = "initialPixels"]$N == exactSizes[order(sams)]))
+      expect_true(all(out[, .N, by = "initialPixels"]$N == floor(exactSizes[order(sams)])))
+    }
+  }
+
+  if (interactive())
+    print("testing exactSize")
+  exactSizes <- c(5.01, 3.1, 4)
+  for (i in 1:20) {
+    sams <- sample(innerCells, length(exactSizes))
+    out <- spreadDT(
+      a,
+      start = sams,
+      0.225,
+      exactSize = exactSizes,
+      asRaster = FALSE
+    )
+    attrib <- attr(out, "cluster")$numRetries > 10
+    if (any(attrib)) {
+      frequ <- out[, .N, by = "initialPixels"]$N
+      expect_true(all(frequ[attrib] <= floor(exactSizes[order(sams)][attrib])))
+      expect_true(all(frequ[!attrib] == floor(exactSizes[order(sams)][!attrib])))
+    } else {
+      expect_true(all(out[, .N, by = "initialPixels"]$N == floor(exactSizes[order(sams)])))
     }
   }
 
@@ -541,15 +563,15 @@ test_that("spreadDT tests", {
     )
   innerCells <- which(bb[] %==% 1)
 
-    iterativeNeigh <- function(a, skipChecks, N, sp, exactSizes,
-                             neighProbs = c(0.5, 0.4, 0.1), ...) {
+  iterativeNeigh <- function(a, skipChecks, N, sp, exactSizes,
+                           neighProbs, ...) {
     sams <- sample(innerCells, N)
     out <-
       spreadDT(a,
                iterations = 1,
                spreadProb = sp,
                start = sort(sams),
-               #neighProbs = neighProbs,
+               neighProbs = neighProbs,
                exactSize = exactSizes,
                skipChecks=skipChecks,
                asRaster = FALSE, ...)
@@ -560,7 +582,7 @@ test_that("spreadDT tests", {
                  iterations = 1,
                  spreadProb = sp,
                  start = out,
-                 #neighProbs = neighProbs,
+                 neighProbs = neighProbs,
                  exactSize = exactSizes,
                  skipChecks=skipChecks,
                  asRaster = FALSE, ...)
@@ -569,14 +591,59 @@ test_that("spreadDT tests", {
     out
   }
 
+  origSpreadIterationsNeighs <- function(a, quick, N, sp, neighProbs, exactSize) {
+    sams <- sample(innerCells, N)
+    out <-
+      spread(a, spreadProb = sp, neighProbs = neighProbs,
+             iterations = 1,
+             loci = sams,
+             exactSizes = TRUE,
+             returnIndices = TRUE, maxSize = exactSize)
+    stillActive <- TRUE
+    while (stillActive) {
+      stillActive <- any(out$active)
+      out <-
+        spread(
+          a, spreadProb = sp,
+          iterations = 1, neighProbs = neighProbs,
+          spreadState = out, maxSize = exactSize,
+          exactSizes = TRUE,
+          returnIndices = TRUE,
+          quick = quick
+        )
+    }
+    out
+  }
+
   sp <- randomPolygons(ras, numTypes = 35)
   #sp[] <- 2^(sp[] %% 5) + 1
   sp[] <- (sp[] %% 5 + 1)/10
   exactSizes <- c(123, 2240)
+  neighProbs <- c(0.5, 0.3, 0.2)
 
-  iterativeNeigh(ras, TRUE, length(exactSizes), sp=sp,  exactSize=exactSizes)
+  microbenchmark(times = 9, a = {
+    iterativeNeigh(ras, TRUE, length(exactSizes), sp=sp, exactSize=exactSizes, neighProbs = neighProbs)
+  }, b = {
+    origSpreadIterationsNeighs(ras, TRUE, length(exactSizes), sp=sp, exactSize=exactSizes, neighProbs = neighProbs)
+  })
+
+
+  profvis::profvis({
+    for(i in 1:5){
+      iterativeNeigh(ras, TRUE, length(exactSizes), sp=sp, exactSize=exactSizes, neighProbs = neighProbs)
+    }
+
+  })
+  profvis::profvis({
+    for(i in 1:5){
+      origSpreadIterationsNeighs(ras, TRUE, length(exactSizes), sp=sp, exactSize=exactSizes, neighProbs = neighProbs)
+    }
+
+  })
+
   dev()
   iterativeNeigh(ras, TRUE, length(exactSizes), sp=sp,  exactSize=exactSizes, plot.it = TRUE)
+  iterativeNeigh(ras, TRUE, length(exactSizes), sp=sp)#,  plot.it = TRUE)
   iterativeNeigh(ras, TRUE, length(exactSizes), sp=sp)#,  plot.it = TRUE)
 
 
@@ -606,5 +673,114 @@ test_that("spreadDT tests", {
     times = 100,
     nonIterativeFun(ras, TRUE, N, sp)
   )
+
+})
+
+
+test_that("spreadDT tests -- asymmetry", {
+  library(raster)
+  on.exit(detach("package:raster"), add = TRUE)
+  library(data.table)
+  on.exit(detach("package:data.table"), add = TRUE)
+  library(fpCompare)
+  on.exit(detach("package:fpCompare"), add = TRUE)
+
+  # inputs for x
+  a <- raster(extent(0, 100 , 0, 100), res = 1)
+  b <- raster(a)
+  b[] <- 1
+  bb <-
+    focal(
+      b,
+      matrix(1 / 9, nrow = 3, ncol = 3),
+      fun = sum,
+      pad = TRUE,
+      padValue = 0
+    )
+  innerCells <- which(bb[] %==% 1)
+
+  set.seed(123)
+  for (i in 1:20) {
+    sams <- sample(innerCells, 2)
+    out <- spreadDT(a, start = sams, 0.225, asRaster = FALSE, plot.it = TRUE,
+                    asymmetry = TRUE, asymmetryAngle = 90, returnDistances = TRUE)
+    expect_true(length(unique(out$initialPixels)) == 2)
+    expect_true(all(out$active == 0))
+  }
+
+
+
+  library(CircStats); on.exit(detach("package:CircStats"), add = TRUE)
+  library(raster); on.exit(detach("package:raster"), add = TRUE)
+
+  a <- raster(extent(0, 1e2, 0, 1e2), res = 1)
+  hab <- gaussMap(a, speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
+  names(hab) <- "hab"
+  hab2 <- hab > 0
+  maxRadius <- 25
+  maxVal <- 50
+  set.seed(53432)
+
+  startCells <- as.integer(sample(1:ncell(hab), 1))
+
+  N <- 16
+  avgAngles <- numeric(N)
+  lenAngles <- numeric(N)
+
+  # function to calculate mean angle -- returns in degrees
+  meanAngle <- function(angles) {
+    deg(atan2(mean(sin(rad(angles))), mean(cos(rad(angles)))))
+  }
+
+  if (interactive()) clearPlot()
+  seed <- sample(1e6, 1)
+  set.seed(seed)
+  for (asymAng in (2:N)) {
+    circs <- spreadDT(hab, spreadProb = 0.25, start = ncell(hab) / 2 - ncol(hab) / 2,
+                    asymmetry = 40, asymmetryAngle = asymAng * 20, asRaster = FALSE)
+    ci <- raster(hab)
+    ci[] <- 0
+    ci[circs$pixels] <- circs$initialPixels
+    ciCentre <- raster(ci)
+    ciCentre[] <- 0
+    ciCentre[unique(circs$initialPixels)] <- 1
+    newName <- paste0("ci", asymAng * 20)
+    assign(newName, ci)
+
+    where2 <- function(name, env = parent.frame()) { # simplified from pryr::where
+      if (exists(name, env, inherits = FALSE)) env else where2(name, parent.env(env))
+    }
+    env <- where2(newName)
+    if (interactive()) {
+      objToPlot <- get(newName, envir = env)
+      Plot(objToPlot, addTo = newName)
+      Plot(ciCentre, cols = c("transparent", "black"), addTo = "objToPlot")
+    }
+    # Sys.sleep(1)
+    a <- cbind(id = circs$initialPixels, to = circs$pixels, xyFromCell(hab, circs$pixels))
+    initialLociXY <- cbind(id = unique(circs$initialPixels), xyFromCell(hab, unique(circs$initialPixels)))
+    #dirs <- .matchedPointDirection(a, initialLociXY)
+    dirs <- directionFromEachPoint(from = initialLociXY, to = a)
+    dirs[, "angles"] <- CircStats::deg(dirs[, "angles"])
+    avgAngles[asymAng] <- tapply(dirs[, "angles"], dirs[, "id"], meanAngle) %% 360
+    lenAngles[asymAng] <- tapply(dirs[, "angles"], dirs[, "id"], length)
+  }
+
+  whBig <- which(lenAngles > 50)
+  pred <- (1:N)[whBig] * 20
+  expect_true(abs(coef(lm(avgAngles[whBig]~pred))[[2]] - 1) < 0.1)
+
+  # check for rasters
+  #asymmetryAngle <- raster(hab)
+  ciCentre[ciCentre==0] <- NA
+  directionRas <- direction(ciCentre)
+  directionRas[] <- deg(directionRas[])
+  #asymmetryAngle[] <- seq_len(ncell(asymmetryAngle))/ncell(asymmetryAngle)*360
+  circs <- spreadDT(hab, spreadProb = 0.26, start = ncell(hab) / 2 - ncol(hab) / 2+2,
+                    asymmetry = 140, asymmetryAngle = directionRas, asRaster = TRUE)
+  if (interactive()) {
+    Plot(circs, new=TRUE)
+    Plot(ciCentre, cols = c("transparent", "black"), addTo = "circs")
+  }
 
 })

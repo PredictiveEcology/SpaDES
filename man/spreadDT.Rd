@@ -9,14 +9,15 @@
 spreadDT(landscape, start = ncell(landscape)/2 - ncol(landscape)/2,
   spreadProb = 0.23, asRaster = TRUE, maxSize, exactSize, directions = 8L,
   iterations = 1000000L, returnDistances = FALSE, plot.it = FALSE,
-  circle = FALSE, allowOverlap = FALSE, neighProbs = NA_real_,
-  skipChecks = FALSE)
+  circle = FALSE, asymmetry = NA_real_, asymmetryAngle = NA_real_,
+  allowOverlap = FALSE, neighProbs = NA_real_, skipChecks = FALSE)
 
 \S4method{spreadDT}{RasterLayer}(landscape, start = ncell(landscape)/2 -
   ncol(landscape)/2, spreadProb = 0.23, asRaster = TRUE, maxSize, exactSize,
   directions = 8L, iterations = 1000000L, returnDistances = FALSE,
-  plot.it = FALSE, circle = FALSE, allowOverlap = FALSE,
-  neighProbs = NA_real_, skipChecks = FALSE)
+  plot.it = FALSE, circle = FALSE, asymmetry = NA_real_,
+  asymmetryAngle = NA_real_, allowOverlap = FALSE, neighProbs = NA_real_,
+  skipChecks = FALSE)
 }
 \arguments{
 \item{landscape}{A \code{RasterLayer} object. This defines the possible locations
@@ -69,6 +70,13 @@ so one can watch the spreadDT event grow.}
 rather than solely by adjacent cells (via \code{directions} arg.). Default
 is FALSE. Using \code{circle = TRUE} can be dramatically slower for large
 problems. Note, this will likely create unexpected results if \code{spreadProb} < 1.}
+
+\item{asymmetry}{A numeric indicating the ratio of the asymmetry to be used. Default is
+NA, indicating no asymmetry. See details. This is still experimental.
+Use with caution.}
+
+\item{asymmetryAngle}{A numeric indicating the angle in degrees (0 is "up", as in North on a map),
+that describes which way the \code{asymmetry} is.}
 
 \item{allowOverlap}{Logical. If \code{TRUE}, then individual events can overlap with one
 another, i.e., they do not interact. Currently, this is slower than
@@ -156,6 +164,21 @@ change before a spreadDT event is completed.
 For example, if it is desired that the \code{spreadProb} change before a
 spreadDT event is completed because, for example, a fire is spreading, and a
 new set of conditions arise due to a change in weather.
+
+\code{asymmetry} is currently used to modify the \code{spreadProb} in the following way.
+First for each active cell, spreadProb is converted into a length 2 numeric of Low and High
+spread probabilities for that
+cell: \code{spreadProbsLH <- (spreadProb*2) // (asymmetry+1)*c(1,asymmetry)},
+whose ratio is equal to
+\code{asymmetry}.
+Then, using \code{asymmetryAngle}, the angle between the
+initial starting point of the event and all potential
+cells is found. These are converted into a proportion of the angle from
+\code{-asymmetryAngle}
+to
+\code{asymmetryAngle}
+using:
+\code{angleQuality <- (cos(angles - rad(asymmetryAngle))+1)/2}
 
 
 

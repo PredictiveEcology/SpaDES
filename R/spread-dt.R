@@ -1,5 +1,6 @@
 if (getRversion() >= "3.1.0") {
-  utils::globalVariables(c(".GRP", "N", "distance", "initialPixels", "pixels", "state", "tooBig"))
+  utils::globalVariables(c(".GRP", "N", "distance", "initialPixels", "pixels", "state", "tooBig",
+                           "size"))
 }
 
 ###############################################################################
@@ -34,6 +35,22 @@ if (getRversion() >= "3.1.0") {
 #' For example, if it is desired that the \code{spreadProb} change before a
 #' spreadDT event is completed because, for example, a fire is spreading, and a
 #' new set of conditions arise due to a change in weather.
+#'
+#' \code{asymmetry} is currently used to modify the \code{spreadProb} in the following way.
+#' First for each active cell, spreadProb is converted into a length 2 numeric of Low and High
+#' spread probabilities for that
+#' cell: \code{spreadProbsLH <- (spreadProb*2) // (asymmetry+1)*c(1,asymmetry)},
+#' whose ratio is equal to
+#' \code{asymmetry}.
+#' Then, using \code{asymmetryAngle}, the angle between the
+#' initial starting point of the event and all potential
+#' cells is found. These are converted into a proportion of the angle from
+#' \code{-asymmetryAngle}
+#' to
+#' \code{asymmetryAngle}
+#' using:
+#' \code{angleQuality <- (cos(angles - rad(asymmetryAngle))+1)/2}
+#'
 #'
 #' @section Breaking out of spreadDT events:
 #'
@@ -108,10 +125,6 @@ if (getRversion() >= "3.1.0") {
 #'                      is FALSE. Using \code{circle = TRUE} can be dramatically slower for large
 #'                      problems. Note, this will likely create unexpected results if \code{spreadProb} < 1.
 #'
-#' @param allowOverlap  Logical. If \code{TRUE}, then individual events can overlap with one
-#'                      another, i.e., they do not interact. Currently, this is slower than
-#'                      if \code{allowOverlap} is \code{FALSE}. Default is \code{FALSE}.
-#'
 #' @param skipChecks Logical. If TRUE, the argument checking (i.e., assertions) will be
 #'              skipped. This should likely only be used once it is clear that the function
 #'              arguments are well understood and function speed is of the primary improtance.
@@ -123,6 +136,20 @@ if (getRversion() >= "3.1.0") {
 #'                   spread iteration will spread to \code{1, 2, ..., length(neighProbs)}
 #'                   neighbours, respectively. If this is used (i.e., something other than
 #'                   NA), \code{circle} and \code{returnDistances} will not work currently.
+#'
+#' @param asymmetry     A numeric or \code{RasterLayer} indicating the ratio of the
+#'                      asymmetry to be used. i.e., 1 is no asymmetry; 2 means that the
+#'                      angles in the direction of the \code{asymmetryAngle} are 2x the
+#'                      \code{spreadProb}
+#'                      of the angles opposite tot he \code{asymmetryAngle}  Default is
+#'                      NA, indicating no asymmetry. See details. This is still experimental.
+#'                      Use with caution.
+#'
+#' @param asymmetryAngle A numeric or \code{RasterLayer} indicating the angle in degrees
+#'                      (0 is "up", as in North on a map),
+#'                      that describes which way the \code{asymmetry} is.
+#'
+#' @inheritParams spread
 #'
 #' @details
 #'
@@ -219,6 +246,7 @@ setGeneric("spreadDT", function(landscape, start = ncell(landscape)/2 - ncol(lan
                                 returnDistances = FALSE,
                                 plot.it = FALSE,
                                 circle = FALSE,
+                                asymmetry = NA_real_, asymmetryAngle = NA_real_,
                                 allowOverlap = FALSE,
                                 neighProbs = NA_real_, skipChecks = FALSE) {
   standardGeneric("spreadDT")
@@ -238,7 +266,9 @@ setMethod(
                         maxSize, exactSize,
                         directions, iterations,
                         returnDistances, plot.it,
-                        circle, allowOverlap,
+                        circle,
+                        asymmetry, asymmetryAngle,
+                        allowOverlap,
                         neighProbs, skipChecks) {
 
     #### assertions ###############
@@ -258,6 +288,14 @@ setMethod(
       assert(
         checkNumeric(spreadProb, 0, 1, min.len = 1, max.len = ncells),
         checkClass(spreadProb, "RasterLayer")
+      )
+      assert(
+        checkNumeric(asymmetry, 0, Inf, min.len = 1, max.len = 1),
+        checkClass(asymmetry, "RasterLayer")
+      )
+      assert(
+        checkNumeric(asymmetryAngle, 0, 360, min.len = 1, max.len = 1),
+        checkClass(asymmetryAngle, "RasterLayer")
       )
       qassert(directions, "N1[4,8]")
       qassert(iterations, "N1[1,Inf]")
@@ -394,9 +432,9 @@ setMethod(
         notAvailable <- attr(dt, "notAvailable")
 
     }
-    dtPotentialColNames <- c("id", "from", "to", "state", "distance"[needDistance])
+    dtPotentialColNames <- c("id", "from", "to", "state", "distance"[needDistance]) # keep for use later
 
-    its <- 0
+    its <- 0 # start at iteration 0, note: totalIterations is also maintained, which persists during iterative calls to spreadDT
 
     while (length(needRetryID) | (length(whActive) &  its < iterations)) {
 
@@ -468,13 +506,12 @@ setMethod(
         if (circle) {
           distKeepers <- dists %<=% totalIterations & dists %>>% (totalIterations - 1)
           dtPotential <- dtPotential[distKeepers]
-          if (needDistance)
-            set(dtPotential, , "distance", dists[distKeepers])
+          dists <- dists[distKeepers]
         }
+        set(dtPotential, , "distance", dists)
       }
 
       set(dtPotential, , "state", "successful")
-
       ## Alternative algorithm for finding potential neighbours -- uses a specific number of neighbours
       if (!anyNA(neighProbs)) {
         numNeighsByPixel <- unique(dtPotential, by = c("id", "from"))
@@ -538,9 +575,78 @@ setMethod(
 
         # Extract spreadProb for the current set of potentials
         actualSpreadProb <- if (length(spreadProb) == 1) {
-          spreadProb
+          rep(spreadProb, NROW(dtPotential))
         } else {
           spreadProb[dtPotential$to]
+        }
+
+        # modify actualSpreadProb if there is asymmetry
+        if (!is.na(asymmetry)) {
+          actualAsymmetry <- if (length(asymmetry) == 1) {
+            asymmetry
+          } else {
+            asymmetry[dtPotential$to]
+          }
+          actualAsymmetryAngle <- if (length(asymmetryAngle) == 1) {
+            asymmetryAngle
+          } else {
+            asymmetryAngle[dtPotential$to]
+          }
+          browser()
+
+          from <- cbind(id = dtPotential$id, xyFromCell(landscape, dtPotential$from))
+          to <- cbind(id = dtPotential$id, xyFromCell(landscape, dtPotential$to))
+          d <- directionFromEachPoint(from = from, to = to)
+
+          angleQuality <- ((cos(d[, "angles"] - rad(actualAsymmetryAngle)) + 1) / 2) #
+          angleQuality <- angleQuality * length(angleQuality)/sum(angleQuality*2)
+          x <- actualSpreadProb2 <- actualSpreadProb * angleQuality * 2
+
+          cc <- sum(x)*(max(x)- min(x))/(  3*(max(x) - min(x)) + 139 * (sum(x - min(x))))
+          bb <- 139 * cc / (max(x) - min(x))
+          newSpreadProbs <- (x - min(x))* bb + cc
+
+          #bb <- (actualAsymmetry - 1)*cc/( (max(actualSpreadProb2) - min(actualSpreadProb2) ))
+
+          #newSpreadProbs <- ((actualSpreadProb2 - min(actualSpreadProb2))*bb + cc)
+
+          x <- actualSpreadProb2
+
+          len <- length(actualSpreadProb2)
+          sumASP <- sum(actualSpreadProb2)
+          minASP <- min(actualSpreadProb2)
+          objs2 <- function(b) actualAsymmetry * (sumASP - (sumASP - len*minASP)*b/len)
+          obj <- function(b) abs(actualAsymmetry * (sumASP - (sumASP - len*minASP)*b/len) - sumASP)
+          obj <- function(b) abs(actualAsymmetry * b*(sumASP - minASP)/len - sumASP)
+
+          obj <- function(b) abs(actualAsymmetry * (sumASP - b*(sumASP - minASP)   )/len     - sumASP)
+
+          b <- optimize(obj, interval = c(0, 100))$minimum
+          cc <- sumASP - (sumASP - minASP)*b/len
+          cc <- b*(sumASP - minASP)/len
+
+          newSpreadProbs <- actualSpreadProb2 - minASP*b + cc
+          newSpreadProbs <- ((actualSpreadProb2 - minASP) * b + cc)/len
+          mean(newSpreadProbs)
+          max(newSpreadProbs)/min(newSpreadProbs)
+
+
+
+
+          meanActualSpreadProb2 <- mean(actualSpreadProb2, na.rm = TRUE)
+          lower <- (meanActualSpreadProb2*2)/(actualAsymmetry+1)
+          upper <- meanActualSpreadProb2*2 - meanActualSpreadProb2*2/(actualAsymmetry+1)
+          newSpreadProbExtremes <- c(lower, upper)
+
+          actualSpreadProb1 <- actualSpreadProb2 / max(actualSpreadProb2) * (diff(newSpreadProbExtremes)) + lower
+          # makes numbers whose ratio is actualAsymmetry, and whose mean is mean(spreadProb)
+          #newSpreadProbExtremes <- (actualSpreadProb * 2) / (actualAsymmetry + 1) * c(1, actualAsymmetry)
+          # actualSpreadProb1 <- newSpreadProbExtremes[1] + (angleQuality  * diff(newSpreadProbExtremes))
+          # if(anyNA(angleQuality)) {
+          #   naDueToAngleNA <- is.na(angleQuality)
+          #   actualSpreadProb1[naDueToAngleNA] <- actualSpreadProb[naDueToAngleNA]
+          # }
+          # actualSpreadProb <- actualSpreadProb1 + diff(c(actualSpreadProb2, mean(actualSpreadProb2)))
         }
 
         # Evaluate against spreadProb -- next lines are faster than: dtPotential <- dtPotential[spreadProbSuccess]
@@ -577,7 +683,7 @@ setMethod(
           notAvailable[successCells[!potentialNotAvailable]] <- TRUE
           dtPotential <- dtPotential[whSuccNoDupsCurItAndAll]
 
-          if (needDistance)
+          if (needDistance) # distance column is second last, but needs to be last: to merge with dt, need: from, to, state in that order
             setcolorder(dtPotential, neworder = dtPotentialColNames)
 
           set(dtPotential, , "from", dtPotential$id)
@@ -596,8 +702,8 @@ setMethod(
         setkeyv(dt,"initialPixels") # must sort because maxSize is sorted
         #currentSize <- dt[,.N,by=initialPixels][,`:=`(maxSize=clusterDT$maxSize,
         #                                              tooBig=N-clusterDT$maxSize)]
-        set(clusterDT, , "size", dt[,list(size=.N),by="initialPixels"]$size)
-        set(clusterDT, , "tooBig", clusterDT$size-clusterDT$maxSize)
+        set(clusterDT, , "size", dt[,list(size=as.integer(.N)),by="initialPixels"]$size)
+        set(clusterDT, , "tooBig", clusterDT$size-as.integer(clusterDT$maxSize))
 
         currentSizeTooBig <- clusterDT[tooBig > 0]
         if (NROW(currentSizeTooBig) > 0) {
@@ -643,11 +749,10 @@ setMethod(
         whNotInactive <- which(notInactive)
       } else {
         whNotInactive <- seq_len(length(whActive) + NROW(dtPotential))
-        #if(length(whInactive))
-        #  whNotInactive <- max(whInactive) + whNotInactive
+        if(length(whInactive))
+          whNotInactive <- max(whInactive) + whNotInactive
       }
 
-      #if(length(whInactive))
       activeStates <- dt$state[whNotInactive]
       whActive <- whNotInactive[activeStates == "successful" | activeStates == "holding" ]
       whInactive <- whNotInactive[activeStates == "activeSource"]
@@ -660,12 +765,11 @@ setMethod(
         if(totalIterations==1) {
           newPlot <- TRUE
         }
-
         if (newPlot | !(exists("spreadDTRas", inherits = FALSE)))
           spreadDTRas <- raster(landscape)
         if (returnDistances) {
           spreadDTRas[dt$pixels] <- dt$distance
-          newPlot <- TRUE
+          newPlot <- TRUE # need to rescale legend each time
         } else {
           spreadDTRas[dt$pixels] <- dt[clusterDT, on="initialPixels"]$id # get id column from clusterDT
         }
