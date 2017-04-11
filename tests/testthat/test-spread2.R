@@ -684,6 +684,7 @@ test_that("spread2 tests -- asymmetry", {
   on.exit(detach("package:data.table"), add = TRUE)
   library(fpCompare)
   on.exit(detach("package:fpCompare"), add = TRUE)
+  library(CircStats); on.exit(detach("package:CircStats"), add = TRUE)
 
   # inputs for x
   a <- raster(extent(0, 100 , 0, 100), res = 1)
@@ -708,8 +709,6 @@ test_that("spread2 tests -- asymmetry", {
 
 
 
-  library(CircStats); on.exit(detach("package:CircStats"), add = TRUE)
-  library(raster); on.exit(detach("package:raster"), add = TRUE)
 
   a <- raster(extent(0, 1e2, 0, 1e2), res = 1)
   hab <- gaussMap(a, speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
