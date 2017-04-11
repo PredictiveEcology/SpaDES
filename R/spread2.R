@@ -281,7 +281,7 @@ setGeneric("spread2", function(landscape, start = ncell(landscape)/2 - ncol(land
 #'
 #' @rdname spread2
 #'
-#' @example inst/examples/example_spreadDT.R
+#' @example inst/examples/example_spread2.R
 #'
 setMethod(
   "spread2",
@@ -791,19 +791,19 @@ setMethod(
         if(totalIterations==1) {
           newPlot <- TRUE
         }
-        if (newPlot | !(exists("spreadDTRas", inherits = FALSE)))
-          spreadDTRas <- raster(landscape)
+        if (newPlot | !(exists("spread2Ras", inherits = FALSE)))
+          spread2Ras <- raster(landscape)
         if (returnDistances) {
-          spreadDTRas[dt$pixels] <- dt$distance
+          spread2Ras[dt$pixels] <- dt$distance
           newPlot <- TRUE # need to rescale legend each time
         } else {
           set(dt, , "order", seq_along(dt$initialPixels))
           setkeyv(dt, "initialPixels")
-          spreadDTRas[dt$pixels] <- dt[clusterDT]$id # get id column from clusterDT
+          spread2Ras[dt$pixels] <- dt[clusterDT]$id # get id column from clusterDT
           setkeyv(dt, "order")
           set(dt, , "order", NULL)
         }
-        Plot(spreadDTRas, new = newPlot)
+        Plot(spread2Ras, new = newPlot)
       }
     } # end of main loop
 

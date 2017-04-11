@@ -4,7 +4,7 @@ a <- raster(extent(0, 10 , 0, 10), res = 1)
 sams <- sort(sample(ncell(a), 3))
 
 # Simple use -- similar to spread(...)
-out <- spreadDT(a, start = sams, 0.225)
+out <- spread2(a, start = sams, 0.225)
 if(interactive()) {
   clearPlot()
   Plot(out)
@@ -12,26 +12,26 @@ if(interactive()) {
 
 # Use maxSize -- this gives an upper limit
 maxSizes <- sort(sample(1:10, size = length(sams)))
-out <- spreadDT(a, start = sams, 0.225, maxSize = maxSizes, asRaster=FALSE)
+out <- spread2(a, start = sams, 0.225, maxSize = maxSizes, asRaster=FALSE)
 # check TRUE using data.table .N
 out[,.N,by="initialPixels"]$N <= maxSizes
 
 # Use exactSize -- gives an exact size, if there is enough space on the Raster
 exactSizes <- maxSizes
-out <- spreadDT(a, start = sams, spreadProb = 0.225,
+out <- spread2(a, start = sams, spreadProb = 0.225,
                 exactSize = exactSizes, asRaster=FALSE)
 out[,.N,by="initialPixels"]$N == maxSizes # should be TRUE TRUE TRUE
 
 # Use exactSize -- but where it can't be achieved
 exactSizes <- sort(sample(100:110, size = length(sams)))
-out <- spreadDT(a, start = sams, 1, exactSize = exactSizes)
+out <- spread2(a, start = sams, 1, exactSize = exactSizes)
 
 # Iterative calling -- create a function with a high escape probability
 spreadWithEscape <- function(ras, start, escapeProb, spreadProb) {
-  out <- spreadDT(ras, start = sams, spreadProb = escapeProb, asRaster = FALSE)
+  out <- spread2(ras, start = sams, spreadProb = escapeProb, asRaster = FALSE)
   while(any(out$state=="sourceActive")) {
     # pass in previous output as start
-    out <- spreadDT(ras, start = out, spreadProb = spreadProb,
+    out <- spread2(ras, start = out, spreadProb = spreadProb,
                     asRaster = FALSE, skipChecks = TRUE) # skipChecks for speed
   }
   out
@@ -40,7 +40,7 @@ spreadWithEscape <- function(ras, start, escapeProb, spreadProb) {
 set.seed(421)
 out1 <- spreadWithEscape(a, sams, escapeProb = 0.25, spreadProb = 0.225)
 set.seed(421)
-out2 <- spreadDT(a, sams, 0.225, asRaster = FALSE)
+out2 <- spread2(a, sams, 0.225, asRaster = FALSE)
 # The one with high escape probability is larger (most of the time)
 NROW(out1)>NROW(out2)
 
@@ -56,7 +56,7 @@ sp <- raster(extent(0,3,0,3), res = 1, vals = 1:9) #small raster, simple values
 # Check neighProbs worked
 out <- list()
 for(i in 1:100) { # enough replicates to see stabilized probabilities
-  out[[i]] <- spreadDT(sp, spreadProb = sp, start = 5, iterations = 1,
+  out[[i]] <- spread2(sp, spreadProb = sp, start = 5, iterations = 1,
                 neighProbs = c(1), asRaster = FALSE)
 }
 out <- data.table::rbindlist(out)[pixels!=5] # remove starting cell
@@ -67,7 +67,7 @@ chisq.test(c(1:4,6:9), unname(table(sp[out$pixels])), simulate.p.value = TRUE)
 
 ## Example showing asymmetry
 sams <- ncell(a)/4 - ncol(a)/4*3
-circs <- spreadDT(a, spreadProb = 0.213, start = sams,
+circs <- spread2(a, spreadProb = 0.213, start = sams,
                   asymmetry = 2, asymmetryAngle = 135,
                   asRaster = TRUE)
 
@@ -77,7 +77,7 @@ if(interactive()) {
   N = 100
   sizes <- integer(N)
   for(i in 1:N) {
-    circs <- spreadDT(ras, spreadProb = 0.225, start = ncell(ras)/4 - ncol(ras)/4*3,
+    circs <- spread2(ras, spreadProb = 0.225, start = ncell(ras)/4 - ncol(ras)/4*3,
                       asRaster = FALSE)
     sizes[i] <- circs[,.N]
   }
@@ -95,7 +95,7 @@ if(interactive()) {
   objFn <- function(sp, N = 20, ras, goalSize) {
     sizes <- integer(N)
     for(i in 1:N) {
-      circs <- spreadDT(ras, spreadProb = sp, start = ncell(ras)/4 - ncol(ras)/4*3,
+      circs <- spread2(ras, spreadProb = sp, start = ncell(ras)/4 - ncol(ras)/4*3,
                         asymmetry = 2, asymmetryAngle = 135,
                         asRaster = FALSE)
       sizes[i] <- circs[,.N]
@@ -109,7 +109,7 @@ if(interactive()) {
 
   # The value of spreadProb that will give the same expected event sizes to spreadProb = 0.225 is:
   sp <- aa$optim$bestmem
-  circs <- spreadDT(ras, spreadProb = sp, start = ncell(ras)/4 - ncol(ras)/4*3,
+  circs <- spread2(ras, spreadProb = sp, start = ncell(ras)/4 - ncol(ras)/4*3,
                     asymmetry = 2, asymmetryAngle = 135,
                     asRaster = FALSE)
 
