@@ -610,8 +610,12 @@ hab3[events2[] > 0]
 sum(hab3[events1[] > 0]) >= sum(hab3[events2[] > 0]) ## should be usually TRUE
 }
 \seealso{
-\code{\link{rings}} which uses \code{spread} but with specific argument
-values selected for a specific purpose. \code{\link[raster]{distanceFromPoints}}
+\code{\link{spread2}} for a different implementation of the same alogorithm.
+It is more robust, meaning, there will be fewer unexplainable errors, and the behaviour
+has been better tested, so it is more likely to be exactly as described under all
+argument combinations. Also, \code{\link{rings}} which uses \code{spread} but with specific argument
+values selected for a specific purpose. \code{\link[raster]{distanceFromPoints}}. \code{cir}
+to create "circles"; it is fast for many small problems.
 }
 \author{
 Eliot McIntire

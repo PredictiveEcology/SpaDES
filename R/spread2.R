@@ -10,7 +10,9 @@ if (getRversion() >= "3.1.0") {
 #' concentric, symmetric (currently) landscape values and many other things.
 #' Essentially, it starts from a collection of cells (\code{start}, called "events")
 #' and spreads to neighbours, according to the \code{directions}
-#' and \code{spreadProb} with modifications due to other arguments.
+#' and \code{spreadProb} with modifications due to other arguments. \bold{NOTE:}
+#' the \code{spread} function is similar, but sometimes slightly faster, but less
+#' robust, and more difficult to use iteratively.
 #'
 #' There are 2 main underlying algorithms for active cells to "spread" to
 #' nearby cells (adjacent cells): \code{spreadProb} and \code{neighProb}.
@@ -256,8 +258,8 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @author Eliot McIntire
 #' @author Steve Cumming
-#' @seealso \code{\link{rings}} which uses \code{spread2} but with specific argument
-#' values selected for a specific purpose. \code{\link[raster]{distanceFromPoints}}
+#' @seealso \code{\link{spread}} for a different implementation of the same alogorithm.
+#' \code{spread} is less robust but it is often slightly faster.
 #'
 #' @name spread2
 #' @aliases spread2
