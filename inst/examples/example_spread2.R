@@ -63,3 +63,55 @@ out <- data.table::rbindlist(out)[pixels!=5] # remove starting cell
 table(sp[out$pixels])
 # should be non-significant
 chisq.test(c(1:4,6:9), unname(table(sp[out$pixels])), simulate.p.value = TRUE)
+
+
+## Example showing asymmetry
+sams <- ncell(a)/4 - ncol(a)/4*3
+circs <- spreadDT(a, spreadProb = 0.213, start = sams,
+                  asymmetry = 2, asymmetryAngle = 135,
+                  asRaster = TRUE)
+
+# ADVANCED: Estimate spreadProb when using asymmetry, such that the expected event size is the same
+#   as without using asymmetry
+if(interactive()) {
+  N = 100
+  sizes <- integer(N)
+  for(i in 1:N) {
+    circs <- spreadDT(ras, spreadProb = 0.225, start = ncell(ras)/4 - ncol(ras)/4*3,
+                      asRaster = FALSE)
+    sizes[i] <- circs[,.N]
+  }
+  goalSize <- mean(sizes)
+
+
+  library(parallel)
+  cl <- makeCluster(pmin(10, detectCores()-2)) # only need 10 cores for 10 populations in DEoptim
+  parallel::clusterEvalQ(cl, {
+    library(SpaDES)
+    library(raster)
+    library(fpCompare)
+  })
+
+  objFn <- function(sp, N = 20, ras, goalSize) {
+    sizes <- integer(N)
+    for(i in 1:N) {
+      circs <- spreadDT(ras, spreadProb = sp, start = ncell(ras)/4 - ncol(ras)/4*3,
+                        asymmetry = 2, asymmetryAngle = 135,
+                        asRaster = FALSE)
+      sizes[i] <- circs[,.N]
+    }
+    abs(mean(sizes) - goalSize)
+  }
+  aa <- DEoptim(objFn, lower = 0.2, upper = 0.23,
+                control = DEoptim.control(cluster = cl, NP = 10, VTR = 0.02,
+                                          initialpop = as.matrix(rnorm(10, 0.213, 0.001))),
+                ras = a, goalSize = goalSize)
+
+  # The value of spreadProb that will give the same expected event sizes to spreadProb = 0.225 is:
+  sp <- aa$optim$bestmem
+  circs <- spreadDT(ras, spreadProb = sp, start = ncell(ras)/4 - ncol(ras)/4*3,
+                    asymmetry = 2, asymmetryAngle = 135,
+                    asRaster = FALSE)
+
+  stopCluster(cl)
+}

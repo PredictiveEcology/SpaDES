@@ -1,6 +1,6 @@
 if (getRversion() >= "3.1.0") {
   utils::globalVariables(c(".GRP", "N", "distance", "initialPixels", "pixels", "state", "tooBig",
-                           "size"))
+                           "size", "actualSpreadProbAdj", "actualSpreadProbAdj2"))
 }
 
 ###############################################################################
@@ -27,37 +27,40 @@ if (getRversion() >= "3.1.0") {
 #'
 #' This function can be interrupted before all active cells are exhausted if
 #' the \code{iterations} value is reached before there are no more active
-#' cells to spreadDT into. The interrupted output (a data.table) can be passed
+#' cells to spread2 into. The interrupted output (a data.table) can be passed
 #' subsequently as an input to this same function (as \code{start}).
 #' This is intended to be used for situations where external events happen during
-#' a spreadDT event, or where one or more arguments to the spreadDT function
-#' change before a spreadDT event is completed.
+#' a spread2 event, or where one or more arguments to the spread2 function
+#' change before a spread2 event is completed.
 #' For example, if it is desired that the \code{spreadProb} change before a
-#' spreadDT event is completed because, for example, a fire is spreading, and a
+#' spread2 event is completed because, for example, a fire is spreading, and a
 #' new set of conditions arise due to a change in weather.
 #'
-#' \code{asymmetry} is currently used to modify the \code{spreadProb} in the following way.
-#' First for each active cell, spreadProb is converted into a length 2 numeric of Low and High
-#' spread probabilities for that
-#' cell: \code{spreadProbsLH <- (spreadProb*2) // (asymmetry+1)*c(1,asymmetry)},
-#' whose ratio is equal to
-#' \code{asymmetry}.
-#' Then, using \code{asymmetryAngle}, the angle between the
-#' initial starting point of the event and all potential
-#' cells is found. These are converted into a proportion of the angle from
-#' \code{-asymmetryAngle}
-#' to
-#' \code{asymmetryAngle}
-#' using:
-#' \code{angleQuality <- (cos(angles - rad(asymmetryAngle))+1)/2}
+#' \code{asymmetry} here is slightly different than in the \code{spread} function,
+#' so that it can deal with a RasterLayer of \code{asymmetryAngle}.
+#' Here, the \code{spreadProb} values of a given set of neighbours around each active pixel
+#' are adjusted to create \code{adjustedSpreadProb} which is calculated maintain the
+#' following
+#' two qualities: \deqn{mean(spreadProb) = mean(ajustedSpreadProb)} and
+#' \deqn{max(spreadProb)/min(spreadProb) = asymmetry} along the axis of
+#' \code{asymmetryAngle}. NOTE: this means that the 8 neighbours around an active
+#' cell may not fulfill the preceeding equality if \code{asymmetryAngle} is not
+#' exactly one of the 8 angles of the 8 neighbours. This means that
+#' \deqn{max(spreadProb)/min(spreadProb)} will generally be less than
+#' \code{asymmetry}, for the 8 neighbours. The exact adjustment to the spreadProb
+#' is calculated with:
+#' \deqn{angleQuality <- (cos(angles - rad(asymmetryAngle))+1)/2}
+#' which is multiplied to get an angle-adjusted spreadProb:
+#' \deqn{spreadProbAdj <- actualSpreadProb * angleQuality}
+#' which is then rescaled:
+#' \deqn{adjustedSpreadProb = (spreadProbAdj - min(spreadProbAdj)) * par2 + par1},
+#' where par1 and par2 are parameters calculated internally to make the 2 conditions above true.
 #'
+#' @section Breaking out of spread2 events:
 #'
-#' @section Breaking out of spreadDT events:
-#'
-#' There are 3 ways for the spreadDT to "stop" spreading.
+#' There are 3 ways for the spread2 to "stop" spreading.
 #' Here, each "event" is defined as all cells that are spawned from each unique
 #' \code{start} location.
-#' So, one spreadDT call can have multiple spreading "events".
 #' The ways outlined below are all acting at all times, i.e., they are not
 #' mutually exclusive.
 #' Therefore, it is the user's responsibility to make sure the different rules
@@ -66,22 +69,29 @@ if (getRversion() >= "3.1.0") {
 #' \tabular{ll}{
 #'   \code{spreadProb} \tab Probabilistically, if spreadProb is low enough,
 #'                          active spreading events will stop. In practice,
-#'                          active spreading events will stop. In practice,
 #'                          this number generally should be below 0.3 to actually
 #'                          see an event stop\cr
 #'   \code{maxSize} \tab This is the number of cells that are "successfully" turned
-#'                       on during a spreading event. This can be vectorized, one value
-#'                       for each event   \cr
+#'                       on during a spreading event. \code{spreadProb} will still
+#'                       be active, so, it is possible that the end size of each event
+#'                       is smaller than \code{maxSize}, but they will not be greater
+#'                       than \code{maxSize}\cr
+#'   \code{exactSize} \tab This is the number of cells that are "successfully" turned
+#'                       on during a spreading event. This will override an event that stops probabilistically
+#'                       via \code{spreadProb}, but forcing its last set of active cells to
+#'                       try again to find neighbours. It will try 10 times per event, before giving up.
+#'                       During those 10 times, it will try twice to "jump" up to 4 cells outwards
+#'                       from each of the active cells\cr
 #'   \code{iterations} \tab This is a hard cap on the number of internal iterations to
 #'                          complete before returning the current state of the system
 #'                          as a data.table \cr
 #' }
 #'
 #' @param landscape     A \code{RasterLayer} object. This defines the possible locations
-#'                      for spreading events to start and spreadDT into. Required.
+#'                      for spreading events to start and spread2 into. Required.
 #'
 #' @param start     Either a vector of pixel numbers to initiate spreading, or a
-#'                  data.table that is the output of a previous \code{spreadDT}.
+#'                  data.table that is the output of a previous \code{spread2}.
 #'                  If a vector, they should be cell indices (pixels) on the \code{landscape}.
 #'                  If user has x and y coordinates, these can be converted with
 #'                  \code{\link[raster]{cellFromXY}}.
@@ -97,14 +107,14 @@ if (getRversion() >= "3.1.0") {
 #'                 value is the initial starting pixel.
 #'
 #' @param maxSize       Numeric. Maximum number of cells for a single or
-#'                      all events to be spreadDT. Recycled to match \code{start} length,
+#'                      all events to be spread2. Recycled to match \code{start} length,
 #'                      if it is not as long as \code{start}. This will be overridden if
 #'                      \code{exactSize} also provided.
-#'                      See section on \code{Breaking out of spreadDT events}.
+#'                      See section on \code{Breaking out of spread2 events}.
 #'
 #' @param exactSize Numeric vector, length 1 or \code{length(start)}.
 #'                  Similar to \code{maxSize}, but these will be the exact
-#'                  final sizes of the events.  i.e., the spreadDT events
+#'                  final sizes of the events.  i.e., the spread2 events
 #'                  will continue until they are \code{floor(exactSize)}.
 #'                  This will override \code{maxSize} if both provided.
 #'                  See Details.
@@ -112,15 +122,15 @@ if (getRversion() >= "3.1.0") {
 #' @param directions    The number adjacent cells in which to look;
 #'                      default is 8 (Queen case). Can only be 4 or 8.
 #'
-#' @param iterations    Number of iterations to spreadDT.
-#'                      Leaving this \code{NULL} allows the spreadDT to continue
+#' @param iterations    Number of iterations to spread2.
+#'                      Leaving this \code{NULL} allows the spread2 to continue
 #'                      until stops spreading itself (i.e., exhausts itself).
 #'
 #' @param returnDistances Logical. Should the function include a column with the
 #'                      individual cell distances from the locus where that event
 #'                      started. Default is FALSE. See Details.
 #'
-#' @param circle        Logical. If TRUE, then outward spreadDT will be by equidistant rings,
+#' @param circle        Logical. If TRUE, then outward spread2 will be by equidistant rings,
 #'                      rather than solely by adjacent cells (via \code{directions} arg.). Default
 #'                      is FALSE. Using \code{circle = TRUE} can be dramatically slower for large
 #'                      problems. Note, this will likely create unexpected results if \code{spreadProb} < 1.
@@ -159,7 +169,7 @@ if (getRversion() >= "3.1.0") {
 #' may (if \code{maxSize}) or will (if \code{exactSize}) have at least one active
 #' cell per event that did not already achieve \code{maxSize} or \code{exactSize}. This
 #' will be very useful to build new, customized higher-level wrapper functions that iteratively
-#' call \code{spreadDT}.
+#' call \code{spread2}.
 #'
 #' @note
 #' \code{exactSize} may not be achieved if there aren't enough cells in the map. Also,
@@ -173,12 +183,26 @@ if (getRversion() >= "3.1.0") {
 #' A common way to use this function is to build wrappers around this, followed by iterative
 #' calls in a \code{while} loop. See example.
 #'
-#' When using this function iteratively, there are several things to be wary about. 1) The output
+#' @section Building custom spreading events:
+#'
+#' This function can be used iteratively, with relatively little overhead compared to using
+#' it non-iteratively. In general, this function can be called with arguments set as user
+#' needs, and with specifying iterations = 1 (say). This means that the function will spread
+#' outwards 1 iteration, then stop. The returned object will be a data.table or RasterLayer
+#' that can be passed immediately back as the start argument into a subsequent
+#' call to \code{spread2}. This means that every argument can be updated at each iteration.
+#'
+#' When using this function iteratively, there are several things to
+#' keep in mind. 1) The output
 #' will likely be sorted differently than the input (i.e., the order of start, if a vector,
 #' may not be the same order as that returned). This means that when passing the same object
 #' back into the next iteration of the function call, \code{maxSize} or \code{exactSize} may
-#' not be in the same order. To get the same order, use e.g.,
-#' \code{maxSize=attr(out, "cluster")$maxSize}.
+#' not be in the same order. To get the same order, the easiest thing to do is sort the
+#' initial \code{start} objects by their pixel location, increasing. Then, of course, sorting
+#' any vectorized arguments (e.g., \code{maxSize} accordingly.
+#'
+#' \bold{NOTE}: the \code{data.table} or \code{RasterLayer} should not use be altered
+#' when passed back into \code{spread2}.
 #'
 #' @return Either a \code{data.table} (\code{asRaster=FALSE}) or a \code{RasterLayer}
 #' (\code{asRaster=TRUE}, the default). The \code{data.table} will have one attribute named
@@ -187,7 +211,7 @@ if (getRversion() >= "3.1.0") {
 #' to the Raster as an attribute named "pixel" as it provides pixel-level information about
 #' the spread events.
 #'
-#' The \code{RasterLayer} represents every cell in which a successful spreadDT event occurred.
+#' The \code{RasterLayer} represents every cell in which a successful spread2 event occurred.
 #' For the case of, say, a fire this would represent every cell that burned.
 #' If \code{allowOverlap} is \code{TRUE}, the return will always be a \code{data.table}.
 #'
@@ -196,9 +220,9 @@ if (getRversion() >= "3.1.0") {
 #'
 #' \tabular{ll}{
 #'   \code{initialPixels} \tab the initial cell number of that particular
-#'                            spreadDT event.\cr
+#'                            spread2 event.\cr
 #'   \code{pixels} \tab The cell indices of cells that have
-#'                        been touched by the spreadDT algorithm.\cr
+#'                        been touched by the spread2 algorithm.\cr
 #'   \code{state} \tab a logical indicating whether the cell is active (i.e.,
 #'                        could still be a source for spreading) or not (no
 #'                        spreading will occur from these cells).\cr
@@ -209,7 +233,7 @@ if (getRversion() >= "3.1.0") {
 #' \tabular{ll}{
 #'   \code{id} \tab An arbitrary code, from 1 to \code{length(start)} for each "event".\cr
 #'   \code{initialPixels} \tab the initial cell number of that particular
-#'                            spreadDT event.\cr
+#'                            spread2 event.\cr
 #'   \code{numRetries} \tab The number of re-starts the event did because it got
 #'                          stuck (normally only because \code{exactSize} was used
 #'                          and was not achieved.\cr
@@ -232,14 +256,14 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @author Eliot McIntire
 #' @author Steve Cumming
-#' @seealso \code{\link{rings}} which uses \code{spreadDT} but with specific argument
+#' @seealso \code{\link{rings}} which uses \code{spread2} but with specific argument
 #' values selected for a specific purpose. \code{\link[raster]{distanceFromPoints}}
 #'
-#' @name spreadDT
-#' @aliases spreadDT
-#' @rdname spreadDT
+#' @name spread2
+#' @aliases spread2
+#' @rdname spread2
 #'
-setGeneric("spreadDT", function(landscape, start = ncell(landscape)/2 - ncol(landscape)/2,
+setGeneric("spread2", function(landscape, start = ncell(landscape)/2 - ncol(landscape)/2,
                                 spreadProb = 0.23, asRaster = TRUE,
                                 maxSize, exactSize,
                                 directions = 8L, iterations = 1e6L,
@@ -249,18 +273,18 @@ setGeneric("spreadDT", function(landscape, start = ncell(landscape)/2 - ncol(lan
                                 asymmetry = NA_real_, asymmetryAngle = NA_real_,
                                 allowOverlap = FALSE,
                                 neighProbs = NA_real_, skipChecks = FALSE) {
-  standardGeneric("spreadDT")
+  standardGeneric("spread2")
 })
 
 #' @param plot.it  If TRUE, then plot the raster at every iteraction,
-#'                   so one can watch the spreadDT event grow.
+#'                   so one can watch the spread2 event grow.
 #'
-#' @rdname spreadDT
+#' @rdname spread2
 #'
 #' @example inst/examples/example_spreadDT.R
 #'
 setMethod(
-  "spreadDT",
+  "spread2",
   signature(landscape = "RasterLayer"),
   definition = function(landscape, start, spreadProb, asRaster,
                         maxSize, exactSize,
@@ -369,10 +393,10 @@ setMethod(
         start <- attr(start, "pixel")
       } else {
         stop("Start must be either a vector of pixels, a data.table from",
-             "previous spreadDT or a Raster from a previous spreadDT")
+             "previous spread2 or a Raster from a previous spread2")
       }
     }
-    if (!is.data.table(start)) { # A "new" entry into spreadDT -- need to set up stuff
+    if (!is.data.table(start)) { # A "new" entry into spread2 -- need to set up stuff
       if(canUseAvailable) {
         if(smallRaster) {
           notAvailable <- bit(ncells)
@@ -407,15 +431,15 @@ setMethod(
       if (needDistance) set(dt, , "distance", 0) # it is zero distance to self
       totalIterations <- 0
 
-    } else { # a "return" entry into spreadDT
+    } else { # a "return" entry into spread2
       clusterDT <- attr(start, "cluster")#data.table(id=unique(start$id), initialPixels=unique(start$initialPixels), key = "initialPixels")
-      if (!key(clusterDT) == "initialPixels") # should have key if it came directly from output of spreadDT
+      if (!key(clusterDT) == "initialPixels") # should have key if it came directly from output of spread2
         setkeyv(clusterDT, "initialPixels")
       if(!anyNA(maxSize)) {
         if(any(maxSize != clusterDT$maxSize)) {
           message(sizeType, " provided. It does not match with size attr(start, 'cluster')$maxSize. ",
                   "Using the new ",sizeType," provided. Perhaps sorted differently? Try sorting initial ",
-                  "call to spreadDT so that pixel number of start cells is strictly increasing")
+                  "call to spread2 so that pixel number of start cells is strictly increasing")
           clusterDT$maxSize <- maxSize
         }
       }
@@ -434,7 +458,7 @@ setMethod(
     }
     dtPotentialColNames <- c("id", "from", "to", "state", "distance"[needDistance]) # keep for use later
 
-    its <- 0 # start at iteration 0, note: totalIterations is also maintained, which persists during iterative calls to spreadDT
+    its <- 0 # start at iteration 0, note: totalIterations is also maintained, which persists during iterative calls to spread2
 
     while (length(needRetryID) | (length(whActive) &  its < iterations)) {
 
@@ -592,61 +616,64 @@ setMethod(
           } else {
             asymmetryAngle[dtPotential$to]
           }
-          browser()
 
           from <- cbind(id = dtPotential$id, xyFromCell(landscape, dtPotential$from))
           to <- cbind(id = dtPotential$id, xyFromCell(landscape, dtPotential$to))
           d <- directionFromEachPoint(from = from, to = to)
 
-          angleQuality <- ((cos(d[, "angles"] - rad(actualAsymmetryAngle)) + 1) / 2) #
-          angleQuality <- angleQuality * length(angleQuality)/sum(angleQuality*2)
-          x <- actualSpreadProb2 <- actualSpreadProb * angleQuality * 2
+          angleQuality <- ((cos(d[, "angles"] - rad(actualAsymmetryAngle)) + 1)) #
+          naAQ <- is.na(angleQuality)
+          angleQuality[naAQ] <- actualSpreadProb[naAQ]
+          if(sum(angleQuality) %==% 0) { # the case where there is no difference in the angles, and they are all zero
+            newSpreadProbs <- actualSpreadProb
+          } else {
 
-          cc <- sum(x)*(max(x)- min(x))/(  3*(max(x) - min(x)) + 139 * (sum(x - min(x))))
-          bb <- 139 * cc / (max(x) - min(x))
-          newSpreadProbs <- (x - min(x))* bb + cc
+            dd <- data.table(d, angleQuality, actualSpreadProb)
+            #dd[,angleQuality:=angleQuality * 2 * length(angleQuality)/sum(angleQuality*2, na.rm = TRUE),by="id"]
+            dd[,actualSpreadProbAdj := actualSpreadProb * angleQuality]
+            dd[,actualSpreadProbAdj2 :=
+                actualSpreadProbAdj/(mean(actualSpreadProbAdj)/mean(actualSpreadProb)),
+                by = "id"]
 
-          #bb <- (actualAsymmetry - 1)*cc/( (max(actualSpreadProb2) - min(actualSpreadProb2) ))
+            dd1 <- dd[,list(maxASP=max(actualSpreadProb*2)), by = "id"]
 
-          #newSpreadProbs <- ((actualSpreadProb2 - min(actualSpreadProb2))*bb + cc)
+            dd[,newSpreadProbs:={
+              minASP <- 0
+              maxASP <- max(2*actualSpreadProb)
+              aaMinus1 <- (actualAsymmetry - 1)
+              par2 <- aaMinus1*sum(actualSpreadProbAdj)/( (length(actualSpreadProbAdj) *(maxASP-minASP) +
+                                                           aaMinus1 * (sum(actualSpreadProbAdj-minASP)) ))
+              par1 <- par2/aaMinus1*(maxASP-minASP)
+              (actualSpreadProbAdj2 - minASP)* par2 + par1
+            },by = "id"]
 
-          x <- actualSpreadProb2
+            if(FALSE) {
+              dd[,newSpreadProbs1:={
+                minASP <- min(actualSpreadProbAdj2)
+                maxASP <- max(actualSpreadProbAdj2)
+                aaMinus1 <- (actualAsymmetry - 1)
+                par2 <- aaMinus1*sum(actualSpreadProbAdj2)/( (length(actualSpreadProbAdj2) *(maxASP-minASP) +
+                                                               aaMinus1 * (sum(actualSpreadProbAdj2-minASP)) ))
+                par1 <- par2/aaMinus1*(maxASP-minASP)
+                (actualSpreadProbAdj2 - minASP)* par2 + par1
+              },by = "id"]
+              browser(expr = any(dd[,max(newSpreadProbs1)/min(newSpreadProbs1),by=id]$V1 %!=% actualAsymmetry))
+              browser(expr = any(dd[,mean(newSpreadProbs1)%!=% mean(actualSpreadProb),by=id]$V1 ))
+            }
 
-          len <- length(actualSpreadProb2)
-          sumASP <- sum(actualSpreadProb2)
-          minASP <- min(actualSpreadProb2)
-          objs2 <- function(b) actualAsymmetry * (sumASP - (sumASP - len*minASP)*b/len)
-          obj <- function(b) abs(actualAsymmetry * (sumASP - (sumASP - len*minASP)*b/len) - sumASP)
-          obj <- function(b) abs(actualAsymmetry * b*(sumASP - minASP)/len - sumASP)
-
-          obj <- function(b) abs(actualAsymmetry * (sumASP - b*(sumASP - minASP)   )/len     - sumASP)
-
-          b <- optimize(obj, interval = c(0, 100))$minimum
-          cc <- sumASP - (sumASP - minASP)*b/len
-          cc <- b*(sumASP - minASP)/len
-
-          newSpreadProbs <- actualSpreadProb2 - minASP*b + cc
-          newSpreadProbs <- ((actualSpreadProb2 - minASP) * b + cc)/len
-          mean(newSpreadProbs)
-          max(newSpreadProbs)/min(newSpreadProbs)
-
-
-
-
-          meanActualSpreadProb2 <- mean(actualSpreadProb2, na.rm = TRUE)
-          lower <- (meanActualSpreadProb2*2)/(actualAsymmetry+1)
-          upper <- meanActualSpreadProb2*2 - meanActualSpreadProb2*2/(actualAsymmetry+1)
-          newSpreadProbExtremes <- c(lower, upper)
-
-          actualSpreadProb1 <- actualSpreadProb2 / max(actualSpreadProb2) * (diff(newSpreadProbExtremes)) + lower
-          # makes numbers whose ratio is actualAsymmetry, and whose mean is mean(spreadProb)
-          #newSpreadProbExtremes <- (actualSpreadProb * 2) / (actualAsymmetry + 1) * c(1, actualAsymmetry)
-          # actualSpreadProb1 <- newSpreadProbExtremes[1] + (angleQuality  * diff(newSpreadProbExtremes))
-          # if(anyNA(angleQuality)) {
-          #   naDueToAngleNA <- is.na(angleQuality)
-          #   actualSpreadProb1[naDueToAngleNA] <- actualSpreadProb[naDueToAngleNA]
-          # }
-          # actualSpreadProb <- actualSpreadProb1 + diff(c(actualSpreadProb2, mean(actualSpreadProb2)))
+            # actualSpreadProbAdj <- actualSpreadProb * angleQuality
+            # # rescale so mean is same as mean of actualSpreadProb
+            # actualSpreadProbAdj <- actualSpreadProbAdj/(mean(actualSpreadProbAdj)/mean(actualSpreadProb))
+            #
+            # minASP <- min(actualSpreadProbAdj)
+            # maxASP <- max(actualSpreadProbAdj)
+            # aaMinus1 <- (actualAsymmetry - 1)
+            # par2 <- aaMinus1*sum(actualSpreadProbAdj)/( (length(actualSpreadProbAdj) *(maxASP-minASP) +
+            #                                              aaMinus1 * (sum(actualSpreadProbAdj-minASP)) ))
+            # par1 <- par2/aaMinus1*(maxASP-minASP)
+            # newSpreadProbs <- (actualSpreadProbAdj - minASP)* par2 + par1
+          }
+          actualSpreadProb <- dd$newSpreadProbs
         }
 
         # Evaluate against spreadProb -- next lines are faster than: dtPotential <- dtPotential[spreadProbSuccess]
@@ -674,7 +701,6 @@ setMethod(
           dupsWithinDtPotential <- duplicatedInt(successCells)
 
           successCells <- successCells[!dupsWithinDtPotential] # remove the dupsWithinDtPotential
-          message(totalIterations)
           potentialNotAvailable <- notAvailable[successCells]
           # remove duplicatedInt which was slow
 
@@ -771,7 +797,11 @@ setMethod(
           spreadDTRas[dt$pixels] <- dt$distance
           newPlot <- TRUE # need to rescale legend each time
         } else {
-          spreadDTRas[dt$pixels] <- dt[clusterDT, on="initialPixels"]$id # get id column from clusterDT
+          set(dt, , "order", seq_along(dt$initialPixels))
+          setkeyv(dt, "initialPixels")
+          spreadDTRas[dt$pixels] <- dt[clusterDT]$id # get id column from clusterDT
+          setkeyv(dt, "order")
+          set(dt, , "order", NULL)
         }
         Plot(spreadDTRas, new = newPlot)
       }

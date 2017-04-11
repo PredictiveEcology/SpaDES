@@ -199,7 +199,11 @@ This can become quite general, if \code{spreadProb} is 1 as it will expand
 from every loci until all cells in the landscape have been covered.
 With \code{id} set to \code{TRUE}, the resulting map will be classified
 by the index of the cell where that event propagated from.
-This can be used to examine things like fire size distributions.
+This can be used to examine things like fire size distributions. \bold{NOTE:}
+The function \code{spread2} is more robust and can be used to build custom functions.
+However, under some conditions, this \code{spread} function is faster. The two
+functions can accomplish many of the same things, and key differences are
+internal.
 }
 \details{
 For large rasters, a combination of \code{lowMemory = TRUE} and
