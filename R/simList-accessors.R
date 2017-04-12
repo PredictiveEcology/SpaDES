@@ -492,7 +492,6 @@ setGeneric(".callingModuleName", function(sim) {
 
 #' @export
 #' @docType methods
-#' @importFrom stringr str_detect
 #' @rdname namespacing
 setMethod(
   ".callingModuleName",
@@ -1952,8 +1951,6 @@ setReplaceMethod(
 #' @export
 #' @docType methods
 #' @rdname simList-accessors-times
-#' @importFrom stringr str_detect
-#'
 setGeneric("time", function(x, unit, ...) {
   stats::time(x, ...)
 })
@@ -2017,7 +2014,6 @@ setReplaceMethod(
 
 ################################################################################
 #' @inheritParams times
-#' @importFrom stringr str_detect
 #' @include times.R
 #' @include simList-class.R
 #' @export
@@ -2085,7 +2081,6 @@ setReplaceMethod(
 
 ################################################################################
 #' @inheritParams times
-#' @importFrom stringr str_detect
 #' @include simList-class.R
 #' @include times.R
 #' @export
@@ -2213,7 +2208,6 @@ setMethod(
 #' \code{dfortnight <- function(x) lubridate::duration(dday(14))}
 #' can be placed anywhere in the search path or in a module.
 #'
-#' @importFrom stringr str_detect
 #' @include simList-class.R
 #' @export
 #' @docType methods
@@ -2247,9 +2241,6 @@ setReplaceMethod(
   signature = ".simList",
   function(x, value) {
     value <- as.character(value)
-#     if (any(str_detect(.spadesTimes, pattern = value), na.rm = TRUE)) {
-#       x@simtimes$timeunit <- value
-#     } else
     if (checkTimeunit(value, envir = x@.envir)) {
         x@simtimes$timeunit <- value
     } else {
