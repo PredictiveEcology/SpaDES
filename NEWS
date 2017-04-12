@@ -29,7 +29,7 @@ version 1.3.1.9000
 * event queues (event, completed, current) now do shallow copies of pre-existing data.tables, rather than `rblindlist( )`. This improved DES speed by > 40%. Benchmarking of 1400 events in 1.6 seconds now; previously 3.0 seconds.
 * add `Copy` (capital C) as replacement for `copy` which conflicts with `data.table::copy`, and add `queues` argument to do a deep copy of the event queues.
 * spread function: minor speedups, plus 3 new parameters `relativeSpreadProb`, `numNeighs` & `exactSizes`
-* spreadDT function: new function that is more robust than spread, slightly slower under some situations, but faster in many others. The function is designed to be used as a building block for more complex spreading, where the user can wrap spreadDT inside a custom function that iteratively recalls spreadDT, while optionally changing any of the input arguments.
+* spread2 function: new function that is more robust than spread, slightly slower under some situations, but faster in many others. The function is designed to be used as a building block for more complex spreading, where the user can wrap spread2 inside a custom function that iteratively calls spread2, while optionally changing any of the input arguments.
 * adj - has a new argument returnDT, which slightly improves speed in cases where the user wants the output to become a data.table. This simply prevents a call to as.matrix() in the return(), which was occurring if the return value was a data.table.
 * new function `copyModule` for creating a copy of an existing module
 * change default value for `speedup` in `gaussMap`; now 1.
