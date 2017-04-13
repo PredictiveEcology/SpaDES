@@ -635,30 +635,30 @@ test_that("spread2 tests", {
 
   })
   profvis::profvis({
-    for(i in 1:5){
-      origSpreadIterationsNeighs(ras, TRUE, length(exactSizes), sp=sp, exactSize=exactSizes, neighProbs = neighProbs)
+    for (i in 1:5) {
+      origSpreadIterationsNeighs(ras, TRUE, length(exactSizes), sp = sp,
+                                 exactSize = exactSizes, neighProbs = neighProbs)
     }
-
   })
 
   dev()
-  iterativeNeigh(ras, TRUE, length(exactSizes), sp=sp,  exactSize=exactSizes, plot.it = TRUE)
-  iterativeNeigh(ras, TRUE, length(exactSizes), sp=sp)#,  plot.it = TRUE)
-  iterativeNeigh(ras, TRUE, length(exactSizes), sp=sp)#,  plot.it = TRUE)
+  iterativeNeigh(ras, TRUE, length(exactSizes), sp = sp,  exactSize = exactSizes, plot.it = TRUE)
+  iterativeNeigh(ras, TRUE, length(exactSizes), sp = sp)#,  plot.it = TRUE)
+  iterativeNeigh(ras, TRUE, length(exactSizes), sp = sp)#,  plot.it = TRUE)
 
 
   # compare original spread and spread2 -- seems pretty dead on
   NN <- 1000
   outNew <- out <- numeric(NN)
-  for(i in 1:NN) {
+  for (i in 1:NN) {
     outNew[i] <- NROW(nonIterativeFun(ras, TRUE, N, sp))
     out[i] <- NROW(origSpread(ras, TRUE, N, sp))
   }
 
   library(ggplot2)
-  out <- data.table(x=out)
-  outNew <- data.table(x=outNew)
-  ggplot(out, aes(x)) + geom_histogram() + geom_histogram(data=outNew, mapping=aes(x, fill="transparent"))
+  out <- data.table(x = out)
+  outNew <- data.table(x = outNew)
+  ggplot(out, aes(x)) + geom_histogram() + geom_histogram(data = outNew, mapping = aes(x, fill = "transparent"))
   mean(out$x)
   mean(outNew$x)
   sd(out$x)

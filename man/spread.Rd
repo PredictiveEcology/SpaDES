@@ -166,10 +166,10 @@ the landscape or a \code{data.table} if \code{returnIndices} is \code{TRUE}.
 If a \code{RasterLayer}, then it represents
 every cell in which a successful spread event occurred. For the case of, say, a fire
 this would represent every cell that burned. If \code{allowOverlap} is \code{TRUE},
-This Raster layer will represent the sum of the individual event ids (which
-are numerics \code{seq_along(loci)}. This will
-generally be of minimal use because it won't be possible to distinguish if
-event 2 overlapped with event 5 or if it was just event 7.
+This \code{RasterLayer} will represent the sum of the individual event ids
+(which are numerics \code{seq_along(loci)}.
+This will generally be of minimal use because it won't be possible to distinguish
+if event 2 overlapped with event 5 or if it was just event 7.
 
 If \code{returnIndices} is \code{TRUE},
 then this function returns a \code{data.table} with columns:
@@ -199,11 +199,12 @@ This can become quite general, if \code{spreadProb} is 1 as it will expand
 from every loci until all cells in the landscape have been covered.
 With \code{id} set to \code{TRUE}, the resulting map will be classified
 by the index of the cell where that event propagated from.
-This can be used to examine things like fire size distributions. \bold{NOTE:}
-The function \code{spread2} is more robust and can be used to build custom functions.
-However, under some conditions, this \code{spread} function is faster. The two
-functions can accomplish many of the same things, and key differences are
-internal.
+This can be used to examine things like fire size distributions.
+\bold{NOTE:} See also \code{\link{spread2}}, which is more robust and can be
+used to build custom functions.
+However, under some conditions, this \code{spread} function is faster.
+The two functions can accomplish many of the same things, and key differences
+are internal.
 }
 \details{
 For large rasters, a combination of \code{lowMemory = TRUE} and
@@ -222,8 +223,8 @@ a change in weather.
 
 \code{asymmetry} is currently used to modify the \code{spreadProb} in the following way.
 First for each active cell, spreadProb is converted into a length 2 numeric of Low and High
-spread probabilities for that
-cell: \code{spreadProbsLH <- (spreadProb*2) // (asymmetry+1)*c(1,asymmetry)},
+spread probabilities for that cell:
+\code{spreadProbsLH <- (spreadProb*2) // (asymmetry+1)*c(1,asymmetry)},
 whose ratio is equal to
 \code{asymmetry}.
 Then, using \code{asymmetryAngle}, the angle between the
@@ -558,7 +559,6 @@ if (interactive()) {
 ## Using alternative algorithm, not probabilistic diffusion
 ## Will give exactly correct sizes, yet still with variability
 ## within the spreading (i.e., cells with and without successes)
-dev();
 seed <- sample(1e6,1)
 #seed <- 576534
 set.seed(seed); print(seed)
@@ -571,6 +571,7 @@ fires <- spread(hab, loci = startCells, 1, persistence = 0,
 all(table(fires[fires > 0][]) == floor(maxSizes))
 
 if (interactive()) {
+  dev()
   clearPlot()
   Plot(fires, new = TRUE, cols = c("red", "yellow"), zero.color = "white")
   Plot(hist(table(fires[][fires[] > 0])), title = "fire size distribution")
@@ -613,9 +614,11 @@ sum(hab3[events1[] > 0]) >= sum(hab3[events2[] > 0]) ## should be usually TRUE
 \code{\link{spread2}} for a different implementation of the same alogorithm.
 It is more robust, meaning, there will be fewer unexplainable errors, and the behaviour
 has been better tested, so it is more likely to be exactly as described under all
-argument combinations. Also, \code{\link{rings}} which uses \code{spread} but with specific argument
-values selected for a specific purpose. \code{\link[raster]{distanceFromPoints}}. \code{cir}
-to create "circles"; it is fast for many small problems.
+argument combinations.
+Also, \code{\link{rings}} which uses \code{spread} but with specific argument
+values selected for a specific purpose.
+\code{\link[raster]{distanceFromPoints}}.
+\code{cir} to create "circles"; it is fast for many small problems.
 }
 \author{
 Eliot McIntire
