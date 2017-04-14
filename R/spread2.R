@@ -310,7 +310,7 @@ setMethod(
       assert(
         checkNumeric(start, min.len = 0, max.len = ncells, lower = 1, upper = ncells),
         checkClass(start, "Raster"),
-        checkDataTable(start, ncols = 3, types = c(rep("numeric", 2), "character")))
+        checkDataTable(start))
 
       qassert(neighProbs, "n[0,1]")
       assertNumeric(sum(neighProbs), lower = 1, upper = 1)
