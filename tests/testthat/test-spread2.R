@@ -908,3 +908,38 @@ test_that("spread2 tests -- asymmetry", {
 
 
 })
+
+test_that("spread2 returnFrom", {
+  library(raster)
+  on.exit(detach("package:raster"), add = TRUE)
+  library(data.table)
+  on.exit(detach("package:data.table"), add = TRUE)
+  library(fpCompare)
+  on.exit(detach("package:fpCompare"), add = TRUE)
+  library(CircStats); on.exit(detach("package:CircStats"), add = TRUE)
+
+  # inputs for x
+  a <- raster(extent(0, 100 , 0, 100), res = 1)
+  b <- raster(a)
+  b[] <- 1
+  bb <-
+    focal(
+      b,
+      matrix(1 / 9, nrow = 3, ncol = 3),
+      fun = sum,
+      pad = TRUE,
+      padValue = 0
+    )
+  innerCells <- which(bb[] %==% 1)
+
+  set.seed(123)
+  for (i in 1:20) {
+    sams <- sample(innerCells, 2)
+    expect_silent(out <- spread2(a, start = sams, 0.215, asRaster = FALSE,
+                                 returnFrom = TRUE))
+    out <- spread2(a, start = sams, 0.215, asRaster = FALSE,
+                                 returnFrom = TRUE)
+    expect_true("from" %in% colnames(out))
+    expect_true(sum(is.na(out$from))==length(sams))
+  }
+})

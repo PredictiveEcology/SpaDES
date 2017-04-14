@@ -601,13 +601,14 @@ setMethod(
         }
 
         setcolorder(dtPotential, dtPotentialColNames)
-        if(!returnFrom) {
-          set(dtPotential, , "from", dtPotential$id)
-          set(dtPotential, , "id", NULL)
-        }
-        setnames(dtPotential, old = c("id", "to"), new = c("initialPixels", "pixels"))
-
-        dt <- rbindlist(list(dt, dtPotential), fill = TRUE) # need fill = TRUE if user has passed extra columns
+        dt <- rbindlistDtDtpot(dt, dtPotential, returnFrom)
+        # if(!returnFrom) {
+        #   set(dtPotential, , "from", dtPotential$id)
+        #   set(dtPotential, , "id", NULL)
+        # }
+        # setnames(dtPotential, old = c("id", "to"), new = c("initialPixels", "pixels"))
+        #
+        # dt <- rbindlist(list(dt, dtPotential), fill = TRUE) # need fill = TRUE if user has passed extra columns
       } else { ## standard algorithm ... runif against spreadProb
 
         # Extract spreadProb for the current set of potentials
@@ -700,12 +701,14 @@ setMethod(
 
           dtPotential <- dtPotential[spreadProbSuccess]
 
-          if(!returnFrom) {
-            set(dtPotential, , "from", dtPotential$id)
-            set(dtPotential, , "id", NULL)
-          }
-          setnames(dtPotential, old = c("id", "to"), new = c("initialPixels", "pixels"))
-          dt <- rbindlist(list(dt, dtPotential), fill = TRUE) # need fill = TRUE if user has passed extra columns
+          dt <- rbindlistDtDtpot(dt, dtPotential, returnFrom)
+
+          # if(!returnFrom) {
+          #   set(dtPotential, , "from", dtPotential$id)
+          #   set(dtPotential, , "id", NULL)
+          # }
+          # setnames(dtPotential, old = c("id", "to"), new = c("initialPixels", "pixels"))
+          # dt <- rbindlist(list(dt, dtPotential), fill = TRUE) # need fill = TRUE if user has passed extra columns
 
           dt[, `:=`(dups = duplicatedInt(pixels)), by = initialPixels]
           dupes <- dt$dups
@@ -728,15 +731,19 @@ setMethod(
           if (needDistance) # distance column is second last, but needs to be last: to merge with dt, need: from, to, state in that order
             setcolorder(dtPotential, neworder = dtPotentialColNames)
 
-          if(!returnFrom) {
-            set(dtPotential, , "from", dtPotential$id)
-            set(dtPotential, , "id", NULL)
-          }
-          setnames(dtPotential, old = c("id", "to"), new = c("initialPixels", "pixels"))
-
-          #setcolorder(dtPotential, neworder = dtPotentialColNames)
-          # convert state of all those still left, move potentialPixels into pixels column
-          dt <- rbindlist(list(dt, dtPotential), fill = TRUE) # need fill = TRUE if user has passed extra columns
+          dt <- rbindlistDtDtpot(dt, dtPotential, returnFrom)
+          #
+          # if(!returnFrom) {
+          #   set(dtPotential, , "from", dtPotential$id)
+          #   set(dtPotential, , "id", NULL)
+          #   setnames(dtPotential, old = c("from", "to"), new = c("initialPixels", "pixels"))
+          # } else {
+          #   setnames(dtPotential, old = c("id", "to"), new = c("initialPixels", "pixels"))
+          # }
+          # browser()
+          # #setcolorder(dtPotential, neworder = dtPotentialColNames)
+          # # convert state of all those still left, move potentialPixels into pixels column
+          # dt <- rbindlist(list(dt, dtPotential), fill = TRUE) # need fill = TRUE if user has passed extra columns
         }
 #      } else {
 
@@ -849,3 +856,15 @@ setMethod(
 )
 
 
+rbindlistDtDtpot <- function(dt, dtPotential, returnFrom) {
+  if(!returnFrom) {
+    set(dtPotential, , "from", dtPotential$id)
+    set(dtPotential, , "id", NULL)
+    setnames(dtPotential, old = c("from", "to"), new = c("initialPixels", "pixels"))
+  } else {
+    setnames(dtPotential, old = c("id", "to"), new = c("initialPixels", "pixels"))
+  }
+  #setcolorder(dtPotential, neworder = dtPotentialColNames)
+  # convert state of all those still left, move potentialPixels into pixels column
+  dt <- rbindlist(list(dt, dtPotential), fill = TRUE) # need fill = TRUE if user has passed extra columns
+}

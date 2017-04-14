@@ -8,16 +8,17 @@
 \usage{
 spread2(landscape, start = ncell(landscape)/2 - ncol(landscape)/2,
   spreadProb = 0.23, asRaster = TRUE, maxSize, exactSize, directions = 8L,
-  iterations = 1000000L, returnDistances = FALSE, plot.it = FALSE,
-  circle = FALSE, asymmetry = NA_real_, asymmetryAngle = NA_real_,
-  allowOverlap = FALSE, neighProbs = NA_real_, skipChecks = FALSE)
+  iterations = 1000000L, returnDistances = FALSE, returnFrom = FALSE,
+  plot.it = FALSE, circle = FALSE, asymmetry = NA_real_,
+  asymmetryAngle = NA_real_, allowOverlap = FALSE, neighProbs = NA_real_,
+  skipChecks = FALSE)
 
 \S4method{spread2}{RasterLayer}(landscape, start = ncell(landscape)/2 -
   ncol(landscape)/2, spreadProb = 0.23, asRaster = TRUE, maxSize, exactSize,
   directions = 8L, iterations = 1000000L, returnDistances = FALSE,
-  plot.it = FALSE, circle = FALSE, asymmetry = NA_real_,
-  asymmetryAngle = NA_real_, allowOverlap = FALSE, neighProbs = NA_real_,
-  skipChecks = FALSE)
+  returnFrom = FALSE, plot.it = FALSE, circle = FALSE,
+  asymmetry = NA_real_, asymmetryAngle = NA_real_, allowOverlap = FALSE,
+  neighProbs = NA_real_, skipChecks = FALSE)
 }
 \arguments{
 \item{landscape}{A \code{RasterLayer} object. This defines the possible locations
@@ -62,6 +63,9 @@ until stops spreading itself (i.e., exhausts itself).}
 \item{returnDistances}{Logical. Should the function include a column with the
 individual cell distances from the locus where that event
 started. Default is FALSE. See Details.}
+
+\item{returnFrom}{Logical. Should the function return a column with the
+source, i.e, "from" pixel, for each iteration.}
 
 \item{plot.it}{If TRUE, then plot the raster at every iteraction,
 so one can watch the spread2 event grow.}
