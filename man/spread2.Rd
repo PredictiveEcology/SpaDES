@@ -8,16 +8,17 @@
 \usage{
 spread2(landscape, start = ncell(landscape)/2 - ncol(landscape)/2,
   spreadProb = 0.23, asRaster = TRUE, maxSize, exactSize, directions = 8L,
-  iterations = 1000000L, returnDistances = FALSE, plot.it = FALSE,
-  circle = FALSE, asymmetry = NA_real_, asymmetryAngle = NA_real_,
-  allowOverlap = FALSE, neighProbs = NA_real_, skipChecks = FALSE)
+  iterations = 1000000L, returnDistances = FALSE, returnFrom = FALSE,
+  plot.it = FALSE, circle = FALSE, asymmetry = NA_real_,
+  asymmetryAngle = NA_real_, allowOverlap = FALSE, neighProbs = NA_real_,
+  skipChecks = FALSE)
 
 \S4method{spread2}{RasterLayer}(landscape, start = ncell(landscape)/2 -
   ncol(landscape)/2, spreadProb = 0.23, asRaster = TRUE, maxSize, exactSize,
   directions = 8L, iterations = 1000000L, returnDistances = FALSE,
-  plot.it = FALSE, circle = FALSE, asymmetry = NA_real_,
-  asymmetryAngle = NA_real_, allowOverlap = FALSE, neighProbs = NA_real_,
-  skipChecks = FALSE)
+  returnFrom = FALSE, plot.it = FALSE, circle = FALSE,
+  asymmetry = NA_real_, asymmetryAngle = NA_real_, allowOverlap = FALSE,
+  neighProbs = NA_real_, skipChecks = FALSE)
 }
 \arguments{
 \item{landscape}{A \code{RasterLayer} object. This defines the possible locations
@@ -63,6 +64,9 @@ until stops spreading itself (i.e., exhausts itself).}
 individual cell distances from the locus where that event
 started. Default is FALSE. See Details.}
 
+\item{returnFrom}{Logical. Should the function return a column with the
+source, i.e, "from" pixel, for each iteration.}
+
 \item{plot.it}{If TRUE, then plot the raster at every iteraction,
 so one can watch the spread2 event grow.}
 
@@ -99,45 +103,6 @@ skipped. This should likely only be used once it is clear that the function
 arguments are well understood and function speed is of the primary improtance.
 This is likely most useful in repeated iteration cases i.e., if this call
 is using the previous output from this same function.}
-}
-\value{
-Either a \code{data.table} (\code{asRaster=FALSE}) or a \code{RasterLayer}
-(\code{asRaster=TRUE}, the default). The \code{data.table} will have one attribute named
-"cluster" as it provides cluster-level or event-level information about the
-spread events. If \code{asRaster} is TRUE, then the \code{data.table} will be attached
-to the Raster as an attribute named "pixel" as it provides pixel-level information about
-the spread events.
-
-The \code{RasterLayer} represents every cell in which a successful spread2 event occurred.
-For the case of, say, a fire this would represent every cell that burned.
-If \code{allowOverlap} is \code{TRUE}, the return will always be a \code{data.table}.
-
-If \code{asRaster} is \code{FALSE}, then this function returns a
-\code{data.table} with columns:
-
-\tabular{ll}{
-  \code{initialPixels} \tab the initial cell number of that particular
-                           spread2 event.\cr
-  \code{pixels} \tab The cell indices of cells that have
-                       been touched by the spread2 algorithm.\cr
-  \code{state} \tab a logical indicating whether the cell is active (i.e.,
-                       could still be a source for spreading) or not (no
-                       spreading will occur from these cells).\cr
-}
-
-The attribute saved with the name "cluster" (e.g., \code{attr(output, "cluster")}) is
-a \code{data.table} with columns:
-\tabular{ll}{
-  \code{id} \tab An arbitrary code, from 1 to \code{length(start)} for each "event".\cr
-  \code{initialPixels} \tab the initial cell number of that particular
-                           spread2 event.\cr
-  \code{numRetries} \tab The number of re-starts the event did because it got
-                         stuck (normally only because \code{exactSize} was used
-                         and was not achieved.\cr
-  \code{maxSize} \tab The number of pixels that were provided as inputs via
-                     \code{maxSize} or \code{exactSize}.\cr
-  \code{size} \tab The current size, in pixels, of each event.\cr
-}
 }
 \description{
 This can be used to simulate fires, seed dispersal, calculation of iterative,
