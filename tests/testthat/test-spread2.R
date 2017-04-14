@@ -120,7 +120,15 @@ test_that("spread2 tests", {
     expect_error(spread2(
       a,
       start = sams,
-      0.225,
+      runif(1,1.00000001,1e4),
+      circle = TRUE,
+      asRaster = FALSE,
+      plot.it = TRUE
+    ))
+    expect_error(spread2(
+      a,
+      start = sams,
+      runif(1,-1e5,-0.00000001,1e4),
       circle = TRUE,
       asRaster = FALSE,
       plot.it = TRUE
