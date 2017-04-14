@@ -233,7 +233,6 @@ if (interactive()) {
 ## Using alternative algorithm, not probabilistic diffusion
 ## Will give exactly correct sizes, yet still with variability
 ## within the spreading (i.e., cells with and without successes)
-dev();
 seed <- sample(1e6,1)
 #seed <- 576534
 set.seed(seed); print(seed)
@@ -246,6 +245,7 @@ fires <- spread(hab, loci = startCells, 1, persistence = 0,
 all(table(fires[fires > 0][]) == floor(maxSizes))
 
 if (interactive()) {
+  dev()
   clearPlot()
   Plot(fires, new = TRUE, cols = c("red", "yellow"), zero.color = "white")
   Plot(hist(table(fires[][fires[] > 0])), title = "fire size distribution")

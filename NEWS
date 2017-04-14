@@ -3,7 +3,7 @@ Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 version 1.3.1.9000
 ==================
 * minimum R version increased from `3.2.2` to `3.3.0` as required by dependency `RandomFieldsUtils`.
-* modules are now run with their required packages (reqdPkgs in metadata) temporarily bumped to the top of the search path (i.e., `search()`) during each event. `search()` path is restored `on.exit` from `spades` or `simInit` call
+* modules are now run with their required packages (reqdPkgs in metadata) temporarily bumped to the top of the search path (*i.e.*, `search()`) during each event. `search` path is restored `on.exit` from `spades` or `simInit` call
 * add Rcpp-based internal functions for speed, added to imports
 * `downloadModule` checks for and uses environment variable `GITHUB_PAT` if it exists (alleviates 403 download errors caused by GitHub download limits)
 * `shine` can now take characters in parameters

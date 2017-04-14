@@ -83,9 +83,10 @@ Use with caution.}
 (0 is "up", as in North on a map),
 that describes which way the \code{asymmetry} is.}
 
-\item{allowOverlap}{Logical. If \code{TRUE}, then individual events can overlap with one
-another, i.e., they do not interact. Currently, this is slower than
-if \code{allowOverlap} is \code{FALSE}. Default is \code{FALSE}.}
+\item{allowOverlap}{Logical. If \code{TRUE}, then individual events can overlap
+with one another, i.e., they do not interact (this is slower
+than if \code{allowOverlap = FALSE}).
+Default is \code{FALSE}.}
 
 \item{neighProbs}{An optional numeric vector, whose sum is 1. It indicates the
 probabilities that an individual

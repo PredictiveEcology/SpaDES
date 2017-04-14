@@ -215,7 +215,7 @@ setGeneric("Cache", signature = "...",
                     cacheRepo = NULL, compareRasterFileLength = 1e6,
                     userTags = c()) {
              archivist::cache(cacheRepo, FUN, ..., notOlderThan, algo, userTags = userTags)
-           })
+})
 
 #' @export
 #' @rdname cache
@@ -885,13 +885,12 @@ prepareFileBackedRaster <- function(obj, repoDir = NULL, compareRasterFileLength
   isRasterLayer <- TRUE
   if (!inMemory(obj)) {
     isFilebacked <- TRUE
-    if(is(obj, "RasterLayer")) {
-      curFilename <- normalizePath(filename(obj), winslash = "/", mustWork=FALSE)
+    if (is(obj, "RasterLayer")) {
+      curFilename <- normalizePath(filename(obj), winslash = "/", mustWork = FALSE)
     } else {
       isRasterLayer <- FALSE
       curFilename <- unlist(lapply(obj@layers, function(x)
-        normalizePath(filename(x), winslash = "/", mustWork=FALSE)))
-
+        normalizePath(filename(x), winslash = "/", mustWork = FALSE)))
     }
   } else {
     isFilebacked <- FALSE
@@ -914,9 +913,9 @@ prepareFileBackedRaster <- function(obj, repoDir = NULL, compareRasterFileLength
         file.path(repoDir, splittedFilenames),
         winslash = "/")
 
-    if(any(!file.exists(trySaveFilename))) {
+    if (any(!file.exists(trySaveFilename))) {
       stop("please rename raster that thinks is on disk with this or these filename(s) ",
-           curFilename, " or rerun cache")
+           curFilename, " or rerun cache.")
     } else {
       curFilename <- trySaveFilename
       saveFilename <- curFilename
@@ -958,19 +957,17 @@ prepareFileBackedRaster <- function(obj, repoDir = NULL, compareRasterFileLength
           #                           from = curFilename, silent = TRUE))
         }
       }
-      if(length(curFilename) > 1) {
-        for(i in seq_along(curFilename)) {
+      if (length(curFilename) > 1) {
+        for (i in seq_along(curFilename)) {
           slot(slot(slot(obj, "layers")[[1]], "file"), "name") <- saveFilename[i]
         }
       } else {
         slot(slot(obj, "file"), "name") <- saveFilename
       }
-
     } else {
       checkPath(dirname(saveFilename), create = TRUE)
       obj <- writeRaster(obj, filename = saveFilename, datatype = dataType(obj))
     }
-
   } else {
     saveFilename <- slot(slot(obj, "file"), "name")
   }
