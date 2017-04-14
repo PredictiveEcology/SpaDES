@@ -602,13 +602,7 @@ setMethod(
 
         setcolorder(dtPotential, dtPotentialColNames)
         dt <- rbindlistDtDtpot(dt, dtPotential, returnFrom)
-        # if(!returnFrom) {
-        #   set(dtPotential, , "from", dtPotential$id)
-        #   set(dtPotential, , "id", NULL)
-        # }
-        # setnames(dtPotential, old = c("id", "to"), new = c("initialPixels", "pixels"))
-        #
-        # dt <- rbindlist(list(dt, dtPotential), fill = TRUE) # need fill = TRUE if user has passed extra columns
+
       } else { ## standard algorithm ... runif against spreadProb
 
         # Extract spreadProb for the current set of potentials
@@ -703,13 +697,6 @@ setMethod(
 
           dt <- rbindlistDtDtpot(dt, dtPotential, returnFrom)
 
-          # if(!returnFrom) {
-          #   set(dtPotential, , "from", dtPotential$id)
-          #   set(dtPotential, , "id", NULL)
-          # }
-          # setnames(dtPotential, old = c("id", "to"), new = c("initialPixels", "pixels"))
-          # dt <- rbindlist(list(dt, dtPotential), fill = TRUE) # need fill = TRUE if user has passed extra columns
-
           dt[, `:=`(dups = duplicatedInt(pixels)), by = initialPixels]
           dupes <- dt$dups
           set(dt, , "dups", NULL)
@@ -732,20 +719,7 @@ setMethod(
             setcolorder(dtPotential, neworder = dtPotentialColNames)
 
           dt <- rbindlistDtDtpot(dt, dtPotential, returnFrom)
-          #
-          # if(!returnFrom) {
-          #   set(dtPotential, , "from", dtPotential$id)
-          #   set(dtPotential, , "id", NULL)
-          #   setnames(dtPotential, old = c("from", "to"), new = c("initialPixels", "pixels"))
-          # } else {
-          #   setnames(dtPotential, old = c("id", "to"), new = c("initialPixels", "pixels"))
-          # }
-          # browser()
-          # #setcolorder(dtPotential, neworder = dtPotentialColNames)
-          # # convert state of all those still left, move potentialPixels into pixels column
-          # dt <- rbindlist(list(dt, dtPotential), fill = TRUE) # need fill = TRUE if user has passed extra columns
         }
-#      } else {
 
       }
 

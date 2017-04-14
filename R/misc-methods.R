@@ -1,3 +1,4 @@
+
 if (getRversion() >= "3.1.0") {
   utils::globalVariables(".")
 }
@@ -844,3 +845,24 @@ resampleZeroProof <- function(spreadProbHas0, x, n, prob) {
   } else resample(x, n, prob=prob/sum(prob, na.rm=TRUE))
 }
 
+#' Internal helper
+#'
+#' Not for users. A function to setnames and rbindlist that is used 3 places in spread2.
+#'
+#' @param dt Data.table
+#' @param dtPotential Data.table
+#' @param returnFrom Logical
+#' @keywords internal
+#'
+rbindlistDtDtpot <- function(dt, dtPotential, returnFrom) {
+  if(!returnFrom) {
+    set(dtPotential, , "from", dtPotential$id)
+    set(dtPotential, , "id", NULL)
+    setnames(dtPotential, old = c("from", "to"), new = c("initialPixels", "pixels"))
+  } else {
+    setnames(dtPotential, old = c("id", "to"), new = c("initialPixels", "pixels"))
+  }
+  #setcolorder(dtPotential, neworder = dtPotentialColNames)
+  # convert state of all those still left, move potentialPixels into pixels column
+  dt <- rbindlist(list(dt, dtPotential), fill = TRUE) # need fill = TRUE if user has passed extra columns
+}
