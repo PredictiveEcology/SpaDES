@@ -330,8 +330,8 @@ setMethod(
       qassert(directions, "N1[4,8]")
       qassert(iterations, "N1[0,Inf]")
       qassert(circle, "B")
-      if (circle)
-        qassert(spreadProb, "N1[1,1]")
+      # if (circle)
+      #   qassert(spreadProb, "N1[1,1]")
 
       if(!missing(maxSize)) {
         if(is.data.table(start)) {
