@@ -132,6 +132,9 @@ if (getRversion() >= "3.1.0") {
 #'                      individual cell distances from the locus where that event
 #'                      started. Default is FALSE. See Details.
 #'
+#' @param returnFrom Logical. Should the function return a column with the
+#'                      source, i.e, "from" pixel, for each iteration.
+#'
 #' @param circle        Logical. If TRUE, then outward spread2 will be by equidistant rings,
 #'                      rather than solely by adjacent cells (via \code{directions} arg.). Default
 #'                      is FALSE. Using \code{circle = TRUE} can be dramatically slower for large
@@ -269,7 +272,7 @@ setGeneric("spread2", function(landscape, start = ncell(landscape)/2 - ncol(land
                                 spreadProb = 0.23, asRaster = TRUE,
                                 maxSize, exactSize,
                                 directions = 8L, iterations = 1e6L,
-                                returnDistances = FALSE,
+                                returnDistances = FALSE, returnFrom = FALSE,
                                 plot.it = FALSE,
                                 circle = FALSE,
                                 asymmetry = NA_real_, asymmetryAngle = NA_real_,
@@ -291,7 +294,8 @@ setMethod(
   definition = function(landscape, start, spreadProb, asRaster,
                         maxSize, exactSize,
                         directions, iterations,
-                        returnDistances, plot.it,
+                        returnDistances, returnFrom,
+                        plot.it,
                         circle,
                         asymmetry, asymmetryAngle,
                         allowOverlap,
@@ -413,7 +417,11 @@ setMethod(
       whActive <- seq_along(start)
       whInactive <- integer()
       #dt <- as.data.table(cbind(initialPixels=start, pixels=start))
-      dt <- data.table(initialPixels=start, pixels=start)
+      dt <- data.table(initialPixels=start)
+      if(returnFrom) {
+        set(dt, , "from", NA_integer_)
+      }
+      set(dt, , "pixels", start)
       set(dt, , "state", "activeSource")
 
       #clusterDT=as.data.table(cbind(id=whActive, initialPixels=start, numRetries=0L));
@@ -593,10 +601,13 @@ setMethod(
         }
 
         setcolorder(dtPotential, dtPotentialColNames)
-        set(dtPotential, , "from", dtPotential$id)
-        set(dtPotential, , "id", NULL)
+        if(!returnFrom) {
+          set(dtPotential, , "from", dtPotential$id)
+          set(dtPotential, , "id", NULL)
+        }
+        setnames(dtPotential, old = c("id", "to"), new = c("initialPixels", "pixels"))
 
-        dt <- rbindlist(list(dt, dtPotential))
+        dt <- rbindlist(list(dt, dtPotential), fill = TRUE) # need fill = TRUE if user has passed extra columns
       } else { ## standard algorithm ... runif against spreadProb
 
         # Extract spreadProb for the current set of potentials
@@ -688,10 +699,13 @@ setMethod(
             setcolorder(dtPotential, neworder = dtPotentialColNames)
 
           dtPotential <- dtPotential[spreadProbSuccess]
-          set(dtPotential, , "from", dtPotential$id)
-          set(dtPotential, , "id", NULL)
 
-          dt <- rbindlist(list(dt, dtPotential))
+          if(!returnFrom) {
+            set(dtPotential, , "from", dtPotential$id)
+            set(dtPotential, , "id", NULL)
+          }
+          setnames(dtPotential, old = c("id", "to"), new = c("initialPixels", "pixels"))
+          dt <- rbindlist(list(dt, dtPotential), fill = TRUE) # need fill = TRUE if user has passed extra columns
 
           dt[, `:=`(dups = duplicatedInt(pixels)), by = initialPixels]
           dupes <- dt$dups
@@ -714,12 +728,15 @@ setMethod(
           if (needDistance) # distance column is second last, but needs to be last: to merge with dt, need: from, to, state in that order
             setcolorder(dtPotential, neworder = dtPotentialColNames)
 
-          set(dtPotential, , "from", dtPotential$id)
-          set(dtPotential, , "id", NULL)
+          if(!returnFrom) {
+            set(dtPotential, , "from", dtPotential$id)
+            set(dtPotential, , "id", NULL)
+          }
+          setnames(dtPotential, old = c("id", "to"), new = c("initialPixels", "pixels"))
 
           #setcolorder(dtPotential, neworder = dtPotentialColNames)
           # convert state of all those still left, move potentialPixels into pixels column
-          dt <- rbindlist(list(dt, dtPotential))
+          dt <- rbindlist(list(dt, dtPotential), fill = TRUE) # need fill = TRUE if user has passed extra columns
         }
 #      } else {
 
