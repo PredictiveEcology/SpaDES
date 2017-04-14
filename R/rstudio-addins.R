@@ -2,7 +2,6 @@
 #'
 #' @importFrom miniUI gadgetTitleBar miniContentPanel miniPage
 #' @importFrom shiny dialogViewer observeEvent reactive runGadget selectInput textInput stopApp
-#' @importFrom stringr str_trim
 #' @author Alex Chubaty
 #'
 addin_copyModule <- function() {
@@ -34,7 +33,7 @@ addin_copyModule <- function() {
 #'
 #' @importFrom miniUI gadgetTitleBar miniContentPanel miniPage
 #' @importFrom shiny conditionalPanel dialogViewer observeEvent reactive runGadget selectInput textInput stopApp
-#' @importFrom stringr str_trim
+#' @importFrom stringi stri_trim
 #' @author Alex Chubaty
 #'
 addin_newModule <- function() {
@@ -60,7 +59,7 @@ addin_newModule <- function() {
       input$childModules %>%
       strsplit(., split = ",") %>%
       unlist() %>%
-      str_trim()
+      stri_trim()
     })
 
     observeEvent(input$done, {

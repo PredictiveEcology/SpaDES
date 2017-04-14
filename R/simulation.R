@@ -981,6 +981,7 @@ setMethod(
 #'
 #' @include helpers.R
 #' @importFrom data.table data.table rbindlist setkey
+#' @importFrom stringi stri_pad_right stri_pad stri_length
 # @importFrom utils tail
 #' @export
 #' @keywords internal
@@ -1057,16 +1058,17 @@ setMethod(
             if (isTRUE(debug[[i]]) | debug[[i]] == "current") {
               if (NROW(cur) > 0) {
                 evnts1 <- data.frame(current(sim))
-                widths <- str_length(format(evnts1))
+                widths <- stri_length(format(evnts1))
                 .spadesEnv[[".spadesDebugWidth"]] <-
                   pmax(widths, .spadesEnv[[".spadesDebugWidth"]])
                 evnts1[1L, ] <-
-                  str_pad(format(evnts1), side = "right", .spadesEnv[[".spadesDebugWidth"]])
+                  stri_pad_right(format(evnts1), .spadesEnv[[".spadesDebugWidth"]])
 
                 if (.spadesEnv[[".spadesDebugFirst"]]) {
                   evnts2 <- evnts1
+                  browser()
                   evnts2[1L:2L, ] <- rbind(
-                    str_pad(names(evnts1), .spadesEnv[[".spadesDebugWidth"]]),
+                    stri_pad(names(evnts1), .spadesEnv[[".spadesDebugWidth"]]),
                     evnts1)
                   cat("This is the current event, printed as it is happening:\n")
                   write.table(
@@ -1513,7 +1515,6 @@ setMethod(
 #' @export
 #' @docType methods
 #' @rdname spades
-#' @importFrom stringr str_pad str_length
 #' @seealso \code{\link{experiment}} for using replication with \code{spades}.
 #'
 #' @author Alex Chubaty

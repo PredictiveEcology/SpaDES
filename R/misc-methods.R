@@ -401,12 +401,12 @@ setMethod("checkPath",
 #'              If not enough, \code{pad} will be used to pad.
 #'
 #' @param pad character to use as padding (\code{nchar(pad)==1} must be \code{TRUE}).
-#'            Passed to \code{\link[stringr]{str_pad}}
+#'            Passed to \code{\link[stringi]{stri_pad}}
 #'
 #' @return Character string representing the filename.
 #'
 #' @importFrom fpCompare %==%
-#' @importFrom stringr str_pad
+#' @importFrom stringi stri_pad_left stri_pad_right
 #' @export
 #' @docType methods
 #' @rdname paddedFloatToChar
@@ -421,11 +421,11 @@ setMethod("checkPath",
 paddedFloatToChar <- function(x, padL = ceiling(log10(x + 1)), padR = 3, pad = "0") {
   xIC <- x %/% 1 %>%
     format(., trim = TRUE, digits = 5, scientific = FALSE) %>%
-    str_pad(., pad = pad, width = padL, side = "left")
+    stri_pad_left(., pad = pad, width = padL)
   xf <- x %% 1
   xFC <- ifelse(xf %==% 0, "",
     strsplit(format(xf, digits = padR, scientific = FALSE), split = "\\.")[[1]][2] %>%
-      str_pad(., width = padR, side = "right", pad = pad) %>%
+      stri_pad_right(., width = padR, pad = pad) %>%
       paste0(".", .))
 
   return(paste0(xIC, xFC))
