@@ -328,7 +328,7 @@ setMethod(
         checkClass(asymmetryAngle, "RasterLayer")
       )
       qassert(directions, "N1[4,8]")
-      qassert(iterations, "N1[1,Inf]")
+      qassert(iterations, "N1[0,Inf]")
       qassert(circle, "B")
       if (circle)
         qassert(spreadProb, "N1[1,1]")
