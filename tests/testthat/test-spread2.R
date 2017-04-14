@@ -379,7 +379,7 @@ test_that("spread2 tests", {
   out <- spread2(a, start = sams, 0.225, iterations = 1,
                   exactSize = exactSizes, asRaster = FALSE)
   for(i in 1:20)
-  out <- spread2(a, start = out, 0.225, iterations = 1,
+    out <- spread2(a, start = out, 0.225, iterations = 1,
                     exactSize = exactSizes, asRaster = FALSE)
 
 
@@ -780,8 +780,9 @@ test_that("spread2 tests -- asymmetry", {
 
   # test that the events spread to the middle
   # Create a raster with one point at the centre
-  ciCentre[] <- NA
-  ciCentre[ncell(ciCentre)/2 - ncol(ciCentre)/2] <- 1
+  ciCentre <- raster(hab)
+  ciCentre <- setValues(ciCentre, 1)
+  ciCentre[seq_len(ncell(ciCentre))[-(ncell(ciCentre)/2 - ncol(ciCentre)/2)]] <- NA_integer_
   # create a direction raster with all points leading to that point
   directionRas <- direction(ciCentre)
   directionRas[] <- deg(directionRas[])
@@ -803,7 +804,7 @@ test_that("spread2 tests -- asymmetry", {
     Plot(circs, new=TRUE)
     ciCentre[ciCentre==2] <- NA
     ciCentre[sams] <- 2
-    Plot(ciCentre, cols = c("black", 'red'), addTo = "circs")
+    Plot(ciCentre, cols = c("transparent", "black", 'red'), addTo = "circs")
     Plot(circs2, addTo = "circs", cols = "#1211AA33")
   }
   #test whether it stopped before hitting the whole map
