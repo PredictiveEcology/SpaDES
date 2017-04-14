@@ -252,7 +252,7 @@ if (getRversion() >= "3.1.0") {
 #' @importFrom raster ncell raster res ncol
 #' @importFrom bit bit
 #' @importFrom data.table uniqueN as.data.table data.table set setkeyv setnames
-#' @importFrom data.table ':=' rbindlist setcolorder
+#' @importFrom data.table ':=' rbindlist setcolorder setattr alloc.col
 #' @importFrom checkmate assertClass assert checkNumeric checkDataTable qassert assertNumeric
 #' @importFrom checkmate checkLogical checkClass
 #' @importFrom stats runif
@@ -755,6 +755,8 @@ setMethod(
         #currentSize <- dt[,.N,by=initialPixels][,`:=`(maxSize=clusterDT$maxSize,
         #                                              tooBig=N-clusterDT$maxSize)]
         set(clusterDT, , "size", dt[,list(size=as.integer(.N)),by="initialPixels"]$size)
+        # THis next line is a work around for a problem that doesn't make sense -- See: https://stackoverflow.com/questions/29615181/r-warning-when-creating-a-long-list-of-dummies
+        alloc.col(clusterDT, 7)
         set(clusterDT, , "tooBig", clusterDT$size-as.integer(clusterDT$maxSize))
 
         currentSizeTooBig <- clusterDT[tooBig > 0]
