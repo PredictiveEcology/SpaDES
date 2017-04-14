@@ -827,20 +827,20 @@ setMethod(
     } # end of main loop
 
     if(!is.null(clusterDT$tooBig)) set(clusterDT, , "tooBig", NULL)
-    attr(dt, "cluster") <- clusterDT
-    attr(dt, "whActive") <- whActive
-    attr(dt, "whInactive") <- whInactive
-    attr(dt, "whNeedRetry") <- whNeedRetry
-    attr(dt, "needRetryID") <- needRetryID
-    attr(dt, "totalIterations") <- totalIterations
+    setattr(dt, "cluster", clusterDT)
+    setattr(dt, "whActive", whActive)
+    setattr(dt, "whInactive", whInactive)
+    setattr(dt, "whNeedRetry", whNeedRetry)
+    setattr(dt, "needRetryID", needRetryID)
+    setattr(dt, "totalIterations", totalIterations)
     if(canUseAvailable)
-      attr(dt, "notAvailable") <- notAvailable
+      setattr(dt, "notAvailable", notAvailable)
 
     if (asRaster) {
       ras <- raster(landscape)
       # inside unit tests, this raster gives warnings if it is only NAs
       suppressWarnings(ras[dt$pixels] <- clusterDT[dt]$id)
-      attr(ras, "pixel") <- dt
+      setattr(ras, "pixel", dt)
       return(ras)
     }
 
