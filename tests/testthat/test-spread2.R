@@ -403,8 +403,8 @@ test_that("spread2 tests", {
   }
   expect_true(is.data.table(out))
   expect_true(is.data.table(out2))
-  expect_true(attr(out2, "spreadState")$clusterDT)
-  expect_true(attr(out, "spreadState")$clusterDT)
+  expect_true(all(attr(out2, "spreadState")$clusterDT$numRetries==0))
+  expect_true(all(attr(out, "spreadState")$clusterDT$numRetries>10))
   # because loses info on how many retries, it will always be smaller
   expect_true(all(attr(out, "spreadState")$clusterDT$numRetries>attr(out2, "spreadState")$clusterDT$numRetries))
 
