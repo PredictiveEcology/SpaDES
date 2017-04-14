@@ -211,8 +211,9 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @return Either a \code{data.table} (\code{asRaster=FALSE}) or a \code{RasterLayer}
 #' (\code{asRaster=TRUE}, the default). The \code{data.table} will have one attribute named
-#' "cluster" as it provides cluster-level or event-level information about the
-#' spread events. If \code{asRaster} is TRUE, then the \code{data.table} will be attached
+#' "spreadState", which is a list containing a \code{data.table} of current cluster-level
+#' information about the spread events. If \code{asRaster} is TRUE, then the
+#' \code{data.table} that would have been returned is attached
 #' to the Raster as an attribute named "pixel" as it provides pixel-level information about
 #' the spread events.
 #'
@@ -233,8 +234,8 @@ if (getRversion() >= "3.1.0") {
 #'                        spreading will occur from these cells).\cr
 #' }
 #'
-#' The attribute saved with the name "cluster" (e.g., \code{attr(output, "cluster")}) is
-#' a \code{data.table} with columns:
+#' The attribute saved with the name "spreadState" (e.g., \code{attr(output, "spreadState")})
+#' includes a \code{data.table} with columns:
 #' \tabular{ll}{
 #'   \code{id} \tab An arbitrary code, from 1 to \code{length(start)} for each "event".\cr
 #'   \code{initialPixels} \tab the initial cell number of that particular
@@ -246,6 +247,15 @@ if (getRversion() >= "3.1.0") {
 #'                      \code{maxSize} or \code{exactSize}.\cr
 #'   \code{size} \tab The current size, in pixels, of each event.\cr
 #' }
+#' and several other objects that provide significant speed ups in iterative calls to
+#' spread2. If the user runs \code{spread2} iteratively, there will likely be significant
+#' speed gains if the \code{data.table} passed in to \code{start} should have the attribute
+#' attached, or re-attached if it was lost, e.g., via
+#' \code{setattr(outInput, "spreadState", attr(out, "spreadState))}, where \code{out} is the
+#' returned \code{data.table} from the previous call to \code{spread2}, and \code{outInput} is
+#' the modified \code{data.table}. Currently, the modified \code{data.table} \bold{must have the
+#' same order as \code{out}.
+#'
 #'
 #'
 #' @export
@@ -402,6 +412,7 @@ setMethod(
              "previous spread2 or a Raster from a previous spread2")
       }
     }
+
     if (!is.data.table(start)) { # A "new" entry into spread2 -- need to set up stuff
       if(canUseAvailable) {
         if(smallRaster) {
@@ -436,36 +447,51 @@ setMethod(
       }
 
       setkeyv(clusterDT, "initialPixels")
-      needRetryID <- integer()
-      whNeedRetry <- integer()
       if (needDistance) set(dt, , "distance", 0) # it is zero distance to self
       totalIterations <- 0
 
     } else { # a "return" entry into spread2
-      clusterDT <- attr(start, "cluster")#data.table(id=unique(start$id), initialPixels=unique(start$initialPixels), key = "initialPixels")
-      if (!key(clusterDT) == "initialPixels") # should have key if it came directly from output of spread2
-        setkeyv(clusterDT, "initialPixels")
-      if(!anyNA(maxSize)) {
-        if(any(maxSize != clusterDT$maxSize)) {
-          message(sizeType, " provided. It does not match with size attr(start, 'cluster')$maxSize. ",
-                  "Using the new ",sizeType," provided. Perhaps sorted differently? Try sorting initial ",
-                  "call to spread2 so that pixel number of start cells is strictly increasing")
-          clusterDT$maxSize <- maxSize
+      dt <- start
+      if(!is.null(attr(start, "spreadState"))) {
+        clusterDT <- attr(start, "spreadState")$clusterDT #data.table(id=unique(start$id), initialPixels=unique(start$initialPixels), key = "initialPixels")
+        if (!key(clusterDT) == "initialPixels") # should have key if it came directly from output of spread2
+          setkeyv(clusterDT, "initialPixels")
+        if(!anyNA(maxSize)) {
+          if(any(maxSize != clusterDT$maxSize)) {
+            message(sizeType, " provided. It does not match with size attr(start, 'cluster')$maxSize. ",
+                    "Using the new ",sizeType," provided. Perhaps sorted differently? Try sorting initial ",
+                    "call to spread2 so that pixel number of start cells is strictly increasing")
+            clusterDT$maxSize <- maxSize
+          }
+        }
+        if(any(colnames(clusterDT)=="maxSize")) maxSize <- clusterDT$maxSize
+        whActive <- attr(start, "spreadState")$whActive
+        whInactive <- attr(start, "spreadState")$whInactive
+        totalIterations <- attr(start, "spreadState")$totalIterations
+        if(canUseAvailable)
+          notAvailable <- attr(start, "spreadState")$notAvailable
+
+      } else { # case where user has deleted the attributes
+        whActive <- which(start$state=="activeSource")
+        whInactive <- which(start$state=="inactive")
+        canUseAvailable <- FALSE # not worth it if it has to be remade each time
+        totalIterations <- if(needDistance) max(start$distance) else 0
+        unIP <- unique(dt$initialPixels)
+        clusterDT=data.table(id=seq_along(unIP),
+                             initialPixels=unIP, numRetries=0L)
+        if(!anyNA(maxSize)) {
+          set(clusterDT, , "maxSize", maxSize)
+          if(!anyNA(exactSize)) {
+            set(clusterDT, , "exactSize", TRUE)
+          }
+          set(clusterDT, , "size", dt[,.N,by="initialPixels"]$N)
+          setkeyv(clusterDT, "initialPixels")
         }
       }
-      if(any(colnames(clusterDT)=="maxSize")) maxSize <- clusterDT$maxSize
-      #set(clusterDT, ,"numRetries", 0)
-      dt <- start
-      whActive <- attr(start, "whActive")
-      whInactive <- attr(start, "whInactive")
-      whNeedRetry <- attr(dt, "whNeedRetry")
-      needRetryID <- attr(dt, "needRetryID")
-      totalIterations <- attr(dt, "totalIterations")
-
-      if(canUseAvailable)
-        notAvailable <- attr(dt, "notAvailable")
 
     }
+    needRetryID <- integer()
+    whNeedRetry <- integer()
     dtPotentialColNames <- c("id", "from", "to", "state", "distance"[needDistance]) # keep for use later
 
     its <- 0 # start at iteration 0, note: totalIterations is also maintained, which persists during iterative calls to spread2
@@ -689,7 +715,7 @@ setMethod(
 
 
       # Remove duplicates, which was already done for neighProbs situation
-       if (allowOverlap) {
+       if (allowOverlap | !canUseAvailable) {
           if (needDistance)
             setcolorder(dtPotential, neworder = dtPotentialColNames)
 
@@ -810,14 +836,21 @@ setMethod(
     } # end of main loop
 
     if(!is.null(clusterDT$tooBig)) set(clusterDT, , "tooBig", NULL)
-    setattr(dt, "cluster", clusterDT)
-    setattr(dt, "whActive", whActive)
-    setattr(dt, "whInactive", whInactive)
-    setattr(dt, "whNeedRetry", whNeedRetry)
-    setattr(dt, "needRetryID", needRetryID)
-    setattr(dt, "totalIterations", totalIterations)
+    attrList <- list(clusterDT=clusterDT, whActive=whActive,
+                     whInactive=whInactive, whNeedRetry=whNeedRetry,
+                     needRetryID=needRetryID, totalIterations=totalIterations)
     if(canUseAvailable)
-      setattr(dt, "notAvailable", notAvailable)
+      attrList <- append(attrList, list(notAvailable=notAvailable))
+
+    setattr(dt, "spreadState", attrList)
+    # setattr(dt, "clusterDT", clusterDT)
+    # setattr(dt, "whActive", whActive)
+    # setattr(dt, "whInactive", whInactive)
+    # setattr(dt, "whNeedRetry", whNeedRetry)
+    # setattr(dt, "needRetryID", needRetryID)
+    # setattr(dt, "totalIterations", totalIterations)
+    # if(canUseAvailable)
+    #   setattr(dt, "notAvailable", notAvailable)
 
     if (asRaster) {
       ras <- raster(landscape)
@@ -832,15 +865,3 @@ setMethod(
 )
 
 
-rbindlistDtDtpot <- function(dt, dtPotential, returnFrom) {
-  if(!returnFrom) {
-    set(dtPotential, , "from", dtPotential$id)
-    set(dtPotential, , "id", NULL)
-    setnames(dtPotential, old = c("from", "to"), new = c("initialPixels", "pixels"))
-  } else {
-    setnames(dtPotential, old = c("id", "to"), new = c("initialPixels", "pixels"))
-  }
-  #setcolorder(dtPotential, neworder = dtPotentialColNames)
-  # convert state of all those still left, move potentialPixels into pixels column
-  dt <- rbindlist(list(dt, dtPotential), fill = TRUE) # need fill = TRUE if user has passed extra columns
-}

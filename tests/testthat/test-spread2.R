@@ -56,7 +56,7 @@ test_that("spread2 tests", {
       exactSize = exactSizes,
       asRaster = FALSE
     )
-    attrib <- attr(out, "cluster")$numRetries > 10
+    attrib <- attr(out, "spreadState")$cluster$numRetries > 10
     if (any(attrib)) {
       frequ <- out[, .N, by = "initialPixels"]$N
       expect_true(all(frequ[attrib] <= floor(exactSizes[order(sams)][attrib])))
@@ -78,7 +78,7 @@ test_that("spread2 tests", {
       exactSize = exactSizes,
       asRaster = FALSE
     )
-    attrib <- attr(out, "cluster")$numRetries > 10
+    attrib <- attr(out, "spreadState")$clusterDT$numRetries > 10
     if (any(attrib)) {
       frequ <- out[, .N, by = "initialPixels"]$N
       expect_true(all(frequ[attrib] <= floor(exactSizes[order(sams)][attrib])))
@@ -383,10 +383,87 @@ test_that("spread2 tests", {
                     exactSize = exactSizes, asRaster = FALSE)
 
 
+  if (interactive())
+    print("testing iterative with maxSize -- where needRetry occurs")
+  set.seed(299)
+  seed <- sample(1e6, 1)
+  set.seed(seed)
+  sams <- sample(innerCells, 2)
+  exactSizes <- 60:61
+  out <- spread2(a, start = sams, 0.225, iterations = 1,
+                 exactSize = exactSizes, asRaster = FALSE)
+  out2 <- spread2(a, start = sams, 0.225, iterations = 1,
+                  exactSize = exactSizes, asRaster = FALSE)
+  for(i in 1:25) {
+    out <- spread2(a, start = out, 0.225, iterations = 1,
+                   exactSize = exactSizes, asRaster = FALSE)
+    attr(out2, "spreadState") <- NULL
+    out2 <- spread2(a, start = out2, 0.225, iterations = 1,
+                    exactSize = exactSizes, asRaster = FALSE)
+  }
+  expect_true(is.data.table(out))
+  expect_true(is.data.table(out2))
+  expect_true(attr(out2, "spreadState")$clusterDT)
+  expect_true(attr(out, "spreadState")$clusterDT)
+  # because loses info on how many retries, it will always be smaller
+  expect_true(all(attr(out, "spreadState")$clusterDT$numRetries>attr(out2, "spreadState")$clusterDT$numRetries))
 
+  sams <- c(25, 75)
+  set.seed(234)
+  out <- spread2(a, start = sams, 0.225, iterations = 1,
+                 exactSize = exactSizes, asRaster = FALSE)
+  set.seed(234)
+  out2 <- spread2(a, start = sams, 0.225, iterations = 1,
+                  exactSize = exactSizes, asRaster = FALSE)
+  for(i in 1:4) { # limit this so it doesn't get into retries, which will cause them to differ
+    set.seed(234)
+    out <- spread2(a, start = out, 0.225, iterations = 1,
+                   exactSize = exactSizes, asRaster = FALSE)
+
+    attr(out2, "spreadState") <- NULL
+    set.seed(234)
+    out2 <- spread2(a, start = out2, 0.225, iterations = 1,
+                    exactSize = exactSizes, asRaster = FALSE)
+  }
+  # they start to diverge if there is a jump that occurs, because the one without memory doesn't
+  #   know how many retries it has had
+  expect_identical(data.table(out2), data.table(out))
+
+  for(i in 1:25) { #
+    set.seed(234)
+    out <- spread2(a, start = out, 0.225, iterations = 1,
+                   exactSize = exactSizes, asRaster = FALSE)
+
+    attr(out2, "spreadState") <- NULL
+    set.seed(234)
+    out2 <- spread2(a, start = out2, 0.225, iterations = 1,
+                    exactSize = exactSizes, asRaster = FALSE)
+  }
+  expect_false(identical(data.table(out2), data.table(out)))
 
   ##############################################################
   skip("benchmarking spread2")
+  exactSizes <- 60:61
+  microbenchmark(times = 10, a={
+  out <- spread2(a, start = sams, 0.225, iterations = 1,
+                 exactSize = exactSizes, asRaster = FALSE)
+  for(i in 1:25) {
+    out <- spread2(a, start = out, 0.225, iterations = 1,
+                   exactSize = exactSizes, asRaster = FALSE)
+      }},b = {
+    out2 <- spread2(a, start = sams, 0.225, iterations = 1,
+                    exactSize = exactSizes, asRaster = FALSE)
+    for(i in 1:25) {
+      attr(out2, "spreadState") <- NULL
+      out2 <- spread2(a, start = out2, 0.225, iterations = 1,
+                      exactSize = exactSizes, asRaster = FALSE)
+    }
+  })
+
+
+
+
+
   a <- raster(extent(0, 1000, 0, 1000), res = 1)
   set.seed(123)
   sams <- sample(innerCells, 30)
@@ -594,7 +671,7 @@ test_that("spread2 tests", {
                  exactSize = exactSizes,
                  skipChecks=skipChecks,
                  asRaster = FALSE, ...)
-      stillActive <- any(length(attr(out, "whActive")) | length(attr(out, "whNeedRetry")))
+      stillActive <- any(length(attr(out, "spreadState")$whActive) | length(attr(out, "spreadState")$whNeedRetry))
     }
     out
   }
