@@ -1066,7 +1066,7 @@ setMethod(
 
                 if (.spadesEnv[[".spadesDebugFirst"]]) {
                   evnts2 <- evnts1
-                  browser()
+                  #browser()
                   evnts2[1L:2L, ] <- rbind(
                     stri_pad(names(evnts1), .spadesEnv[[".spadesDebugWidth"]]),
                     evnts1)
