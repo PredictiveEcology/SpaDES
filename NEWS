@@ -6,7 +6,7 @@ version 1.3.1.9000
 ## Dependency changes
 
 * minimum R version increased from `3.2.2` to `3.3.0` as required by dependency `RandomFieldsUtils`.
-* Imports `bit` package
+* added `bit`, `fastmatch`, and `Rcpp` packages to Imports
 * removed `stringr` package from Imports
 
 ## Defunct
@@ -17,11 +17,11 @@ version 1.3.1.9000
 ## Other updates
 
 * modules are now run with their required packages (reqdPkgs in metadata) temporarily bumped to the top of the search path (*i.e.*, `search()`) during each event. `search` path is restored `on.exit` from `spades` or `simInit` call
-* add Rcpp-based internal functions for speed, added to imports
 * `downloadModule` checks for and uses environment variable `GITHUB_PAT` if it exists (alleviates 403 download errors caused by GitHub download limits)
 * `shine` can now take characters in parameters
 * change order of parsing of modules: `defineModule` is last, so can use objects defined within module for parameters
 * improved `simInit` debug mechanism -- passing character string of module name will enter into a `browser` call inside `doEvent`
+* add C++ internal functions for speed
 * improvements to caching:
 
     * improved caching for `Raster*` objects & S4 methods - now it normally persists across sessions;
@@ -34,7 +34,7 @@ version 1.3.1.9000
 * improved documentation
 * new function `getPaths()` to return the list of working dirs from the options
 * new function `setPaths()` as wrapper for setting the options for working dirs; uses `~/SpaDES` as default base path
-* import `fastmatch`, and add `%fin%` as replacement for `%in%`
+* add `%fin%` as replacement for `%in%`
 * implemented `checkModuleLocal()` to check for presence of module files in the module dir before attempting download from remote module repository
 * `distanceFromEachPoint`: uses faster Rcpp code for some use cases & can now take arbitrary columns in either `from` or `to` arguments
 * some performance improvements throughout (minimizing use of simList accessors where possible)
