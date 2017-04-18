@@ -56,7 +56,7 @@ test_that("spread2 tests", {
       exactSize = exactSizes,
       asRaster = FALSE
     )
-    attrib <- attr(out, "cluster")$numRetries > 10
+    attrib <- attr(out, "spreadState")$cluster$numRetries > 10
     if (any(attrib)) {
       frequ <- out[, .N, by = "initialPixels"]$N
       expect_true(all(frequ[attrib] <= floor(exactSizes[order(sams)][attrib])))
@@ -78,7 +78,7 @@ test_that("spread2 tests", {
       exactSize = exactSizes,
       asRaster = FALSE
     )
-    attrib <- attr(out, "cluster")$numRetries > 10
+    attrib <- attr(out, "spreadState")$clusterDT$numRetries > 10
     if (any(attrib)) {
       frequ <- out[, .N, by = "initialPixels"]$N
       expect_true(all(frequ[attrib] <= floor(exactSizes[order(sams)][attrib])))
@@ -120,7 +120,15 @@ test_that("spread2 tests", {
     expect_error(spread2(
       a,
       start = sams,
-      0.225,
+      runif(1,1.00000001,1e4),
+      circle = TRUE,
+      asRaster = FALSE,
+      plot.it = TRUE
+    ))
+    expect_error(spread2(
+      a,
+      start = sams,
+      runif(1,-1e5,-0.00000001,1e4),
       circle = TRUE,
       asRaster = FALSE,
       plot.it = TRUE
@@ -371,14 +379,91 @@ test_that("spread2 tests", {
   out <- spread2(a, start = sams, 0.225, iterations = 1,
                   exactSize = exactSizes, asRaster = FALSE)
   for(i in 1:20)
-  out <- spread2(a, start = out, 0.225, iterations = 1,
+    out <- spread2(a, start = out, 0.225, iterations = 1,
                     exactSize = exactSizes, asRaster = FALSE)
 
 
+  if (interactive())
+    print("testing iterative with maxSize -- where needRetry occurs")
+  set.seed(299)
+  seed <- sample(1e6, 1)
+  set.seed(seed)
+  sams <- sample(innerCells, 2)
+  exactSizes <- 60:61
+  out <- spread2(a, start = sams, 0.225, iterations = 1,
+                 exactSize = exactSizes, asRaster = FALSE)
+  out2 <- spread2(a, start = sams, 0.225, iterations = 1,
+                  exactSize = exactSizes, asRaster = FALSE)
+  for(i in 1:25) {
+    out <- spread2(a, start = out, 0.225, iterations = 1,
+                   exactSize = exactSizes, asRaster = FALSE)
+    attr(out2, "spreadState") <- NULL
+    out2 <- spread2(a, start = out2, 0.225, iterations = 1,
+                    exactSize = exactSizes, asRaster = FALSE)
+  }
+  expect_true(is.data.table(out))
+  expect_true(is.data.table(out2))
+  expect_true(all(attr(out2, "spreadState")$clusterDT$numRetries==0))
+  expect_true(all(attr(out, "spreadState")$clusterDT$numRetries>10))
+  # because loses info on how many retries, it will always be smaller
+  expect_true(all(attr(out, "spreadState")$clusterDT$numRetries>attr(out2, "spreadState")$clusterDT$numRetries))
 
+  sams <- c(25, 75)
+  set.seed(234)
+  out <- spread2(a, start = sams, 0.225, iterations = 1,
+                 exactSize = exactSizes, asRaster = FALSE)
+  set.seed(234)
+  out2 <- spread2(a, start = sams, 0.225, iterations = 1,
+                  exactSize = exactSizes, asRaster = FALSE)
+  for(i in 1:4) { # limit this so it doesn't get into retries, which will cause them to differ
+    set.seed(234)
+    out <- spread2(a, start = out, 0.225, iterations = 1,
+                   exactSize = exactSizes, asRaster = FALSE)
+
+    attr(out2, "spreadState") <- NULL
+    set.seed(234)
+    out2 <- spread2(a, start = out2, 0.225, iterations = 1,
+                    exactSize = exactSizes, asRaster = FALSE)
+  }
+  # they start to diverge if there is a jump that occurs, because the one without memory doesn't
+  #   know how many retries it has had
+  expect_identical(data.table(out2), data.table(out))
+
+  for(i in 1:25) { #
+    set.seed(234)
+    out <- spread2(a, start = out, 0.225, iterations = 1,
+                   exactSize = exactSizes, asRaster = FALSE)
+
+    attr(out2, "spreadState") <- NULL
+    set.seed(234)
+    out2 <- spread2(a, start = out2, 0.225, iterations = 1,
+                    exactSize = exactSizes, asRaster = FALSE)
+  }
+  expect_false(identical(data.table(out2), data.table(out)))
 
   ##############################################################
   skip("benchmarking spread2")
+  exactSizes <- 60:61
+  microbenchmark(times = 10, a={
+  out <- spread2(a, start = sams, 0.225, iterations = 1,
+                 exactSize = exactSizes, asRaster = FALSE)
+  for(i in 1:25) {
+    out <- spread2(a, start = out, 0.225, iterations = 1,
+                   exactSize = exactSizes, asRaster = FALSE)
+      }},b = {
+    out2 <- spread2(a, start = sams, 0.225, iterations = 1,
+                    exactSize = exactSizes, asRaster = FALSE)
+    for(i in 1:25) {
+      attr(out2, "spreadState") <- NULL
+      out2 <- spread2(a, start = out2, 0.225, iterations = 1,
+                      exactSize = exactSizes, asRaster = FALSE)
+    }
+  })
+
+
+
+
+
   a <- raster(extent(0, 1000, 0, 1000), res = 1)
   set.seed(123)
   sams <- sample(innerCells, 30)
@@ -586,7 +671,7 @@ test_that("spread2 tests", {
                  exactSize = exactSizes,
                  skipChecks=skipChecks,
                  asRaster = FALSE, ...)
-      stillActive <- any(length(attr(out, "whActive")) | length(attr(out, "whNeedRetry")))
+      stillActive <- any(length(attr(out, "spreadState")$whActive) | length(attr(out, "spreadState")$whNeedRetry))
     }
     out
   }
@@ -635,30 +720,30 @@ test_that("spread2 tests", {
 
   })
   profvis::profvis({
-    for(i in 1:5){
-      origSpreadIterationsNeighs(ras, TRUE, length(exactSizes), sp=sp, exactSize=exactSizes, neighProbs = neighProbs)
+    for (i in 1:5) {
+      origSpreadIterationsNeighs(ras, TRUE, length(exactSizes), sp = sp,
+                                 exactSize = exactSizes, neighProbs = neighProbs)
     }
-
   })
 
   dev()
-  iterativeNeigh(ras, TRUE, length(exactSizes), sp=sp,  exactSize=exactSizes, plot.it = TRUE)
-  iterativeNeigh(ras, TRUE, length(exactSizes), sp=sp)#,  plot.it = TRUE)
-  iterativeNeigh(ras, TRUE, length(exactSizes), sp=sp)#,  plot.it = TRUE)
+  iterativeNeigh(ras, TRUE, length(exactSizes), sp = sp,  exactSize = exactSizes, plot.it = TRUE)
+  iterativeNeigh(ras, TRUE, length(exactSizes), sp = sp)#,  plot.it = TRUE)
+  iterativeNeigh(ras, TRUE, length(exactSizes), sp = sp)#,  plot.it = TRUE)
 
 
   # compare original spread and spread2 -- seems pretty dead on
   NN <- 1000
   outNew <- out <- numeric(NN)
-  for(i in 1:NN) {
+  for (i in 1:NN) {
     outNew[i] <- NROW(nonIterativeFun(ras, TRUE, N, sp))
     out[i] <- NROW(origSpread(ras, TRUE, N, sp))
   }
 
   library(ggplot2)
-  out <- data.table(x=out)
-  outNew <- data.table(x=outNew)
-  ggplot(out, aes(x)) + geom_histogram() + geom_histogram(data=outNew, mapping=aes(x, fill="transparent"))
+  out <- data.table(x = out)
+  outNew <- data.table(x = outNew)
+  ggplot(out, aes(x)) + geom_histogram() + geom_histogram(data = outNew, mapping = aes(x, fill = "transparent"))
   mean(out$x)
   mean(outNew$x)
   sd(out$x)
@@ -772,8 +857,9 @@ test_that("spread2 tests -- asymmetry", {
 
   # test that the events spread to the middle
   # Create a raster with one point at the centre
-  ciCentre[] <- NA
-  ciCentre[ncell(ciCentre)/2 - ncol(ciCentre)/2] <- 1
+  ciCentre <- raster(hab)
+  ciCentre <- setValues(ciCentre, 1)
+  ciCentre[seq_len(ncell(ciCentre))[-(ncell(ciCentre)/2 - ncol(ciCentre)/2)]] <- NA_integer_
   # create a direction raster with all points leading to that point
   directionRas <- direction(ciCentre)
   directionRas[] <- deg(directionRas[])
@@ -795,7 +881,7 @@ test_that("spread2 tests -- asymmetry", {
     Plot(circs, new=TRUE)
     ciCentre[ciCentre==2] <- NA
     ciCentre[sams] <- 2
-    Plot(ciCentre, cols = c("black", 'red'), addTo = "circs")
+    Plot(ciCentre, cols = c("transparent", "black", 'red'), addTo = "circs")
     Plot(circs2, addTo = "circs", cols = "#1211AA33")
   }
   #test whether it stopped before hitting the whole map
@@ -869,5 +955,77 @@ test_that("spread2 tests -- asymmetry", {
                     asymmetry = 2, asymmetryAngle = 135,
                     asRaster = FALSE)
 
+  ####### Calibration curve
+  skip("Calibration curves")
+  N <- 500
+  ras <- raster(extent(0,1000, 0, 1000), res=1)
+  sp <- runif(N, 0.15, 0.25)
+  sizes <- integer()
+  for(i in 1:N) {
+    circs <- spread2(ras, spreadProb = sp[i], start = ncell(ras)/2 - ncol(ras)/2,
+                   asRaster = FALSE)
+    sizes[i] <- NROW(circs)
+    message(i)
+  }
+  dt1 <- data.table(sp, sizes)
+  library(mgcv)
+  aa <- gam(log10(dt1$sizes) ~ s(dt1$sp))
+  aap <- predict(aa, se.fit = FALSE)
+  plot(dt1$sp, log10(dt1$sizes), axes = FALSE, ylab = "Fire Size, ha", xlab = "Spread Probability")
+  axis(2, 0:5, labels = 10^(0:5))
+  axis(1)
+  aapOrd <- order(dt1$sp)
+  lines(dt1$sp[aapOrd], aap[aapOrd], lwd = 2, col = "red")
+  mtext(side = 3, "Resulting fire sizes, for given spread probabilities\nRed line shows expected size")
 
+
+  aa1 <- gam(dt1$sp ~ s(log10(dt1$sizes)))
+  aap1 <- predict(aa1, se.fit = FALSE, type = "response")
+  plot(log10(dt1$sizes), dt1$sp, axes = FALSE, xlab = "Fire Size, ha", ylab = "Spread Probability")
+  axis(2)
+  axis(1, 0:5, labels = 10^(0:5))
+  aap1Ord <- order(log10(dt1$sizes))
+  lines(log10(dt1$sizes)[aap1Ord], aap1[aap1Ord], lwd = 2, col = "red")
+  mtext(side = 3, "Resulting fire sizes, for given spread probabilities\nRed line shows expected size")
+
+
+
+
+
+
+})
+
+test_that("spread2 returnFrom", {
+  library(raster)
+  on.exit(detach("package:raster"), add = TRUE)
+  library(data.table)
+  on.exit(detach("package:data.table"), add = TRUE)
+  library(fpCompare)
+  on.exit(detach("package:fpCompare"), add = TRUE)
+  library(CircStats); on.exit(detach("package:CircStats"), add = TRUE)
+
+  # inputs for x
+  a <- raster(extent(0, 100 , 0, 100), res = 1)
+  b <- raster(a)
+  b[] <- 1
+  bb <-
+    focal(
+      b,
+      matrix(1 / 9, nrow = 3, ncol = 3),
+      fun = sum,
+      pad = TRUE,
+      padValue = 0
+    )
+  innerCells <- which(bb[] %==% 1)
+
+  set.seed(123)
+  for (i in 1:20) {
+    sams <- sample(innerCells, 2)
+    expect_silent(out <- spread2(a, start = sams, 0.215, asRaster = FALSE,
+                                 returnFrom = TRUE))
+    out <- spread2(a, start = sams, 0.215, asRaster = FALSE,
+                                 returnFrom = TRUE)
+    expect_true("from" %in% colnames(out))
+    expect_true(sum(is.na(out$from))==length(sams))
+  }
 })

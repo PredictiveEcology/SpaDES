@@ -13,11 +13,12 @@ if (getRversion() >= "3.1.0") {
 #' from every loci until all cells in the landscape have been covered.
 #' With \code{id} set to \code{TRUE}, the resulting map will be classified
 #' by the index of the cell where that event propagated from.
-#' This can be used to examine things like fire size distributions. \bold{NOTE:}
-#' The function \code{spread2} is more robust and can be used to build custom functions.
-#' However, under some conditions, this \code{spread} function is faster. The two
-#' functions can accomplish many of the same things, and key differences are
-#' internal.
+#' This can be used to examine things like fire size distributions.
+#' \bold{NOTE:} See also \code{\link{spread2}}, which is more robust and can be
+#' used to build custom functions.
+#' However, under some conditions, this \code{spread} function is faster.
+#' The two functions can accomplish many of the same things, and key differences
+#' are internal.
 #'
 #' For large rasters, a combination of \code{lowMemory = TRUE} and
 #' \code{returnIndices = TRUE} will use the least amount of memory.
@@ -35,8 +36,8 @@ if (getRversion() >= "3.1.0") {
 #'
 #' \code{asymmetry} is currently used to modify the \code{spreadProb} in the following way.
 #' First for each active cell, spreadProb is converted into a length 2 numeric of Low and High
-#' spread probabilities for that
-#' cell: \code{spreadProbsLH <- (spreadProb*2) // (asymmetry+1)*c(1,asymmetry)},
+#' spread probabilities for that cell:
+#' \code{spreadProbsLH <- (spreadProb*2) // (asymmetry+1)*c(1,asymmetry)},
 #' whose ratio is equal to
 #' \code{asymmetry}.
 #' Then, using \code{asymmetryAngle}, the angle between the
@@ -132,30 +133,31 @@ if (getRversion() >= "3.1.0") {
 #' }
 #'
 #'
-#' @param landscape     A \code{RasterLayer} object. This defines the possible locations
-#'                      for spreading events to start and spread into. This can also
-#'                      be used as part of \code{stopRule}. Require input.
+#' @param landscape     A \code{RasterLayer} object. This defines the possible
+#'                      locations for spreading events to start and spread into.
+#'                      This can also be used as part of \code{stopRule}.
 #'
-#' @param loci          A vector of locations in \code{landscape}. These should be cell indexes.
-#'                      If user has x and y coordinates, these can be converted with
-#'                      \code{\link[raster]{cellFromXY}}.
+#' @param loci          A vector of locations in \code{landscape}.
+#'                      These should be cell indices.
+#'                      If user has x and y coordinates, these can be converted
+#'                      with \code{\link[raster]{cellFromXY}}.
 #'
-#' @param spreadProb    Numeric or RasterLayer. If numeric of length 1, then this is
-#'                      the global probability of
-#'                      spreading into each cell from a neighbor. If a raster (or a vector
-#'                      of length \code{ncell(landscape)}, resolution and extent of
-#'                      \code{landscape}), then this will be the cell-specific
-#'                      probability. Default is \code{0.23}.
+#' @param spreadProb    Numeric, or \code{RasterLayer}.
+#'                      If numeric of length 1, then this is the global probability
+#'                      of spreading into each cell from a neighbour.
+#'                      If a raster (or a vector of length \code{ncell(landscape)},
+#'                      resolution and extent of \code{landscape}), then this will
+#'                      be the cell-specific probability. Default is \code{0.23}.
 #'                      If a \code{spreadProbLater} is provided, then this is
-#'                      only used for the first iteration. Also called Escape
-#'                      probability. See section on "Breaking out of spread events".
+#'                      only used for the first iteration. Also called "escape
+#'                      probability". See section on "Breaking out of spread events".
 #'
-#' @param persistence   A length 1 probability that an active cell will continue to burn,
-#'                      per time step.
+#' @param persistence   A length 1 probability that an active cell will continue
+#'                      to burn, per time step.
 #'
-#' @param mask          non-NULL, a \code{RasterLayer} object congruent with
-#'                      \code{landscape} whose elements are \code{0,1},
-#'                      where 1 indicates "cannot spread to".
+#' @param mask          non-\code{NULL}, a \code{RasterLayer} object congruent with
+#'                      \code{landscape} whose elements are \code{0,1}, where
+#'                      \code{1} indicates "cannot spread to".
 #'                      Currently not implemented, but identical behavior can be
 #'                      achieved if \code{spreadProb} has zeros in all unspreadable
 #'                      locations.
@@ -165,7 +167,7 @@ if (getRversion() >= "3.1.0") {
 #'                      if it is not as long as \code{loci}.
 #'                      See section on \code{Breaking out of spread events}.
 #'
-#' @param directions    The number adjacent cells in which to look;
+#' @param directions    The number of adjacent cells in which to look;
 #'                      default is 8 (Queen case). Can only be 4 or 8.
 #'
 #' @param iterations    Number of iterations to spread.
@@ -175,72 +177,86 @@ if (getRversion() >= "3.1.0") {
 #' @param lowMemory     Logical. If true, then function uses package \code{ff}
 #'                      internally. This is slower, but much lower memory footprint.
 #'
-#' @param returnIndices Logical. Should the function return a data.table with
-#'                      indices and values of successful spread events, or
+#' @param returnIndices Logical. Should the function return a \code{data.table}
+#'                      with indices and values of successful spread events, or
 #'                      return a raster with values. See Details.
 #'
 #' @param returnDistances Logical. Should the function include a column with the
 #'                      individual cell distances from the locus where that event
-#'                      started. Default is FALSE. See Details.
+#'                      started. Default is \code{FALSE}. See Details.
 #'
-#' @param spreadProbLater    Numeric or RasterLayer. If provided, then this
-#'                      will become the spreadProb after the first iteration. See details.
+#' @param spreadProbLater Numeric, or \code{RasterLayer}. If provided, then this
+#'                      will become the spreadProb after the first iteration.
+#'                      See Details.
 #'
-#' @param spreadState   Data.table. This should be the output of a previous call to
-#'                      \code{spread}, where \code{returnIndices} was \code{TRUE}. Default NA,
-#'                      meaning the spread is starting from \code{loci}. See Details.
+#' @param spreadState   \code{data.table}. This should be the output of a previous call
+#'                      to \code{spread}, where \code{returnIndices} was \code{TRUE}.
+#'                      Default \code{NA}, meaning the spread is starting from \code{loci}.
+#'                      See Details.
 #'
-#' @param circle        Logical. If TRUE, then outward spread will be by equidistant rings,
-#'                      rather than solely by adjacent cells (via \code{directions} arg.). Default
-#'                      is FALSE. Using \code{circle = TRUE} can be dramatically slower for large
-#'                      problems. Note, this should usually be used with spreadProb = 1.
+#' @param circle        Logical. If \code{TRUE}, then outward spread will be by
+#'                      equidistant rings, rather than solely by adjacent cells
+#'                      (via \code{directions} arg.). Default is \code{FALSE}.
+#'                      Using \code{circle = TRUE} can be dramatically slower for
+#'                      large problems.
+#'                      Note, this should usually be used with \code{spreadProb = 1}.
 #'
-#' @param circleMaxRadius Numeric. A further way to stop the outward spread of events. If
-#'                      \code{circle} is \code{TRUE}, then it will grow to this maximum radius.
-#'                      See section on
-#'                      \code{Breaking out of spread events}. Default to NA.
+#' @param circleMaxRadius Numeric. A further way to stop the outward spread of events.
+#'                      If \code{circle} is \code{TRUE}, then it will grow to this maximum radius.
+#'                      See section on \code{Breaking out of spread events}.
+#'                      Default is \code{NA}.
 #'
-#' @param stopRule      A function which will be used to assess whether each individual cluster
-#'                      should stop growing. This function can be an argument of "landscape",
-#'                      "id", "cells", and
-#'                      any other named vectors, a named list of named vectors,
-#'                      or a named data.frame of with column names passed to spread in
-#'                      the ... . Default NA meaning that
-#'                      spreading will not stop as a function of the landscape. See section on
-#'                      \code{Breaking out of spread events} and examples.
+#' @param stopRule      A function which will be used to assess whether each
+#'                      individual cluster should stop growing.
+#'                      This function can be an argument of \code{"landscape"},
+#'                      \code{"id"}, \code{"cells"}, and any other named vectors,
+#'                      a named list of named vectors, or a named \code{data.frame}
+#'                      with column names passed to \code{spread} in the \code{...}.
+#'                      Default \code{NA}, meaning that spreading will not stop
+#'                      as a function of the landscape.
+#'                      See section on "Breaking out of spread events" and examples.
 #'
-#' @param stopRuleBehavior Character. Can be one of "includePixel", "excludePixel", "includeRing",
-#'                      "excludeRing". If \code{stopRule} contains a function, this argument is
-#'                      used determine what to do with the cell(s) that caused the rule to be
-#'                      \code{TRUE}. See details. Default is "includeRing" which means to
-#'                      accept the entire ring of cells that caused the rule to be \code{TRUE}.
+#' @param stopRuleBehavior Character. Can be one of \code{"includePixel"},
+#'                      \code{"excludePixel"}, \code{"includeRing"}, or
+#'                      \code{"excludeRing"}.
+#'                      If \code{stopRule} contains a function, this argument is
+#'                      used determine what to do with the cell(s) that caused
+#'                      the rule to be \code{TRUE}. See details.
+#'                      Default is \code{"includeRing"} which means to accept the
+#'                      entire ring of cells that caused the rule to be \code{TRUE}.
 #'
-#' @param allowOverlap  Logical. If \code{TRUE}, then individual events can overlap with one
-#'                      another, i.e., they do not interact. Currently, this is slower than
-#'                      if \code{allowOverlap} is \code{FALSE}. Default is \code{FALSE}.
+#' @param allowOverlap  Logical. If \code{TRUE}, then individual events can overlap
+#'                      with one another, i.e., they do not interact (this is slower
+#'                      than if \code{allowOverlap = FALSE}).
+#'                      Default is \code{FALSE}.
 #'
-#' @param asymmetry     A numeric indicating the ratio of the asymmetry to be used. Default is
-#'                      NA, indicating no asymmetry. See details. This is still experimental.
-#'                      Use with caution.
+#' @param asymmetry     A numeric indicating the ratio of the asymmetry to be used.
+#'                      Default is \code{NA}, indicating no asymmetry.
+#'                      See details. This is still experimental.
+#'                      \bold{Use with caution.}
 #'
-#' @param asymmetryAngle A numeric indicating the angle in degrees (0 is "up", as in North on a map),
-#'                      that describes which way the \code{asymmetry} is.
+#' @param asymmetryAngle A numeric indicating the angle in degrees (0 is "up",
+#'                      as in North on a map), that describes which way the
+#'                      \code{asymmetry} is.
 #'
-#' @param quick Logical. If TRUE, then several potentially time consuming checking (such as
-#'              \code{inRange}) will be skipped. This should only be used if there is no
-#'              concern about checking to ensure that inputs are legal.
+#' @param quick  Logical. If \code{TRUE}, then several potentially time consuming
+#'               checking (such as \code{inRange}) will be skipped.
+#'               This should only be used if there is no concern about checking
+#'               to ensure that inputs are legal.
 #'
-#' @param neighProbs A numeric vector, whose sum is 1. It indicates the probabilities an individual
-#'                   spread iteration spreading to \code{1:length(neighProbs)} neighbours.
+#' @param neighProbs A numeric vector, whose sum is 1.
+#'                   It indicates the probabilities an individual spread iteration
+#'                   spreading to \code{1:length(neighProbs)} neighbours.
 #'
-#' @param exactSizes Logical. If TRUE, then the \code{maxSize} will be treated as exact sizes,
-#'                   i.e., the spread events will continue until they are
-#'                   \code{floor(maxSize)}. This is overridden by \code{iterations}, but
-#'                   if \code{iterations} is run, and individual events haven't reached
-#'                   \code{maxSize}, then the returned \code{data.table} will still have
-#'                   at least one active cell per event that did not achieve \code{maxSize},
-#'                   so that the events can continue if passed into \code{spread} with
-#'                   \code{spreadState}.
+#' @param exactSizes Logical. If \code{TRUE}, then the \code{maxSize} will be
+#'                   treated as exact sizes, i.e., the spread events will continue
+#'                   until they are \code{floor(maxSize)}.
+#'                   This is overridden by \code{iterations}, but if \code{iterations}
+#'                   is run, and individual events haven't reached \code{maxSize},
+#'                   then the returned \code{data.table} will still have at least
+#'                   one active cell per event that did not achieve \code{maxSize},
+#'                   so that the events can continue if passed into \code{spread}
+#'                   with \code{spreadState}.
 #'
 #' @param relativeSpreadProb Logical. If \code{TRUE}, then \code{spreadProb} will
 #'                      be rescaled *within* the \code{directions} neighbours, such that
@@ -259,10 +275,10 @@ if (getRversion() >= "3.1.0") {
 #' If a \code{RasterLayer}, then it represents
 #' every cell in which a successful spread event occurred. For the case of, say, a fire
 #' this would represent every cell that burned. If \code{allowOverlap} is \code{TRUE},
-#' This Raster layer will represent the sum of the individual event ids (which
-#' are numerics \code{seq_along(loci)}. This will
-#' generally be of minimal use because it won't be possible to distinguish if
-#' event 2 overlapped with event 5 or if it was just event 7.
+#' This \code{RasterLayer} will represent the sum of the individual event ids
+#' (which are numerics \code{seq_along(loci)}.
+#' This will generally be of minimal use because it won't be possible to distinguish
+#' if event 2 overlapped with event 5 or if it was just event 7.
 #'
 #' If \code{returnIndices} is \code{TRUE},
 #' then this function returns a \code{data.table} with columns:
@@ -295,12 +311,12 @@ if (getRversion() >= "3.1.0") {
 #' @seealso \code{\link{spread2}} for a different implementation of the same alogorithm.
 #' It is more robust, meaning, there will be fewer unexplainable errors, and the behaviour
 #' has been better tested, so it is more likely to be exactly as described under all
-#' argument combinations. Also, \code{\link{rings}} which uses \code{spread} but with specific argument
-#' values selected for a specific purpose. \code{\link[raster]{distanceFromPoints}}. \code{cir}
-#' to create "circles"; it is fast for many small problems.
+#' argument combinations.
+#' Also, \code{\link{rings}} which uses \code{spread} but with specific argument
+#' values selected for a specific purpose.
+#' \code{\link[raster]{distanceFromPoints}}.
+#' \code{cir} to create "circles"; it is fast for many small problems.
 #'
-#' @name spread
-#' @aliases spread
 #' @rdname spread
 #'
 setGeneric("spread", function(landscape, loci = NA_real_,
