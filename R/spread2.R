@@ -686,13 +686,13 @@ setMethod(
                 minASP <- min(actualSpreadProbAdj2)
                 maxASP <- max(actualSpreadProbAdj2)
                 aaMinus1 <- (actualAsymmetry - 1)
-                par2 <- aaMinus1*sum(actualSpreadProbAdj2)/( (length(actualSpreadProbAdj2) *(maxASP-minASP) +
-                                                               aaMinus1 * (sum(actualSpreadProbAdj2-minASP)) ))
-                par1 <- par2/aaMinus1*(maxASP-minASP)
-                (actualSpreadProbAdj2 - minASP)* par2 + par1
+                par2 <- aaMinus1 * sum(actualSpreadProbAdj2) / ((length(actualSpreadProbAdj2) * (maxASP - minASP) +
+                                                               aaMinus1 * (sum(actualSpreadProbAdj2 - minASP)) ))
+                par1 <- par2 / aaMinus1 * (maxASP - minASP)
+                (actualSpreadProbAdj2 - minASP) * par2 + par1
               },by = "id"]
-              browser(expr = any(dd[,max(newSpreadProbs1)/min(newSpreadProbs1),by=id]$V1 %!=% actualAsymmetry))
-              browser(expr = any(dd[,mean(newSpreadProbs1)%!=% mean(actualSpreadProb),by=id]$V1 ))
+              #browser(expr = any(dd[,max(newSpreadProbs1)/min(newSpreadProbs1),by=id]$V1 %!=% actualAsymmetry))
+              #browser(expr = any(dd[,mean(newSpreadProbs1)%!=% mean(actualSpreadProb),by=id]$V1 ))
             }
 
             # actualSpreadProbAdj <- actualSpreadProb * angleQuality
