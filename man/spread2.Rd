@@ -224,7 +224,7 @@ that can be passed immediately back as the start argument into a subsequent
 call to \code{spread2}. This means that every argument can be updated at each iteration.
 
 When using this function iteratively, there are several things to keep in mind.
-1) The output will likely be sorted differently than the input (i.e., the
+The output will likely be sorted differently than the input (i.e., the
 order of start, if a vector, may not be the same order as that returned).
 This means that when passing the same object back into the next iteration of the
 function call, \code{maxSize} or \code{exactSize} may not be in the same order.

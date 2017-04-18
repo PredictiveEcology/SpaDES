@@ -198,7 +198,7 @@ if (getRversion() >= "3.1.0") {
 #' call to \code{spread2}. This means that every argument can be updated at each iteration.
 #'
 #' When using this function iteratively, there are several things to keep in mind.
-#' 1) The output will likely be sorted differently than the input (i.e., the
+#' The output will likely be sorted differently than the input (i.e., the
 #' order of start, if a vector, may not be the same order as that returned).
 #' This means that when passing the same object back into the next iteration of the
 #' function call, \code{maxSize} or \code{exactSize} may not be in the same order.
@@ -210,12 +210,13 @@ if (getRversion() >= "3.1.0") {
 #' when passed back into \code{spread2}.
 #'
 #' @return Either a \code{data.table} (\code{asRaster=FALSE}) or a \code{RasterLayer}
-#' (\code{asRaster=TRUE}, the default). The \code{data.table} will have one attribute named
-#' "spreadState", which is a list containing a \code{data.table} of current cluster-level
-#' information about the spread events. If \code{asRaster=TRUE}, then the
-#' \code{data.table} that would have been returned is attached
-#' to the Raster as an attribute named "pixel" as it provides pixel-level information about
-#' the spread events.
+#' (\code{asRaster=TRUE}, the default).
+#' The \code{data.table} will have one attribute named \code{spreadState}, which
+#' is a list containing a \code{data.table} of current cluster-level information
+#' about the spread events.
+#' If \code{asRaster=TRUE}, then the \code{data.table} that would have been
+#' returned is attached to the Raster as an attribute named \code{pixel} as it
+#' provides pixel-level information about the spread events.
 #'
 #' The \code{RasterLayer} represents every cell in which a successful spread2 event occurred.
 #' For the case of, say, a fire this would represent every cell that burned.
@@ -255,8 +256,6 @@ if (getRversion() >= "3.1.0") {
 #' returned \code{data.table} from the previous call to \code{spread2}, and \code{outInput} is
 #' the modified \code{data.table}. Currently, the modified \code{data.table} \bold{must have the
 #' same order as \code{out}.
-#'
-#'
 #'
 #' @export
 #' @importFrom raster ncell raster res ncol
