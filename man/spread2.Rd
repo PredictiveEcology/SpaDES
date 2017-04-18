@@ -169,16 +169,17 @@ will be very useful to build new, customized higher-level wrapper functions that
 call \code{spread2}.
 }
 \note{
-\code{exactSize} may not be achieved if there aren't enough cells in the map. Also,
-\code{exactSize} may not be achieved because 2) the active cells are "stuck", i.e.,
-they have no unactivated cells to move to or 3) the \code{spreadProb} is low. In the
-latter 2 cases, the algorithm will retry again, but it will only re-try from the last
-iterations active cells. The algorithm will only retry 10 times before quitting. Currently,
-there will also be an attempt to "jump" up to 4 cells away from the active cells to
-try to continue spreading.
+\code{exactSize} may not be achieved if there aren't enough cells in the map.
+Also, \code{exactSize} may not be achieved because the active cells are "stuck",
+i.e., they have no unactivated cells to move to; or the \code{spreadProb} is low.
+In the latter two cases, the algorithm will retry again, but it will only
+re-try from the last iterations active cells.
+The algorithm will only retry 10 times before quitting.
+Currently, there will also be an attempt to "jump" up to four cells away from
+the active cells to try to continue spreading.
 
-A common way to use this function is to build wrappers around this, followed by iterative
-calls in a \code{while} loop. See example.
+A common way to use this function is to build wrappers around this, followed
+by iterative calls in a \code{while} loop. See example.
 }
 \section{Breaking out of spread2 events}{
 
