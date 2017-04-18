@@ -197,14 +197,14 @@ if (getRversion() >= "3.1.0") {
 #' that can be passed immediately back as the start argument into a subsequent
 #' call to \code{spread2}. This means that every argument can be updated at each iteration.
 #'
-#' When using this function iteratively, there are several things to
-#' keep in mind. 1) The output
-#' will likely be sorted differently than the input (i.e., the order of start, if a vector,
-#' may not be the same order as that returned). This means that when passing the same object
-#' back into the next iteration of the function call, \code{maxSize} or \code{exactSize} may
-#' not be in the same order. To get the same order, the easiest thing to do is sort the
-#' initial \code{start} objects by their pixel location, increasing. Then, of course, sorting
-#' any vectorized arguments (e.g., \code{maxSize} accordingly.
+#' When using this function iteratively, there are several things to keep in mind.
+#' 1) The output will likely be sorted differently than the input (i.e., the
+#' order of start, if a vector, may not be the same order as that returned).
+#' This means that when passing the same object back into the next iteration of the
+#' function call, \code{maxSize} or \code{exactSize} may not be in the same order.
+#' To get the same order, the easiest thing to do is sort the initial \code{start}
+#' objects by their pixel location, increasing.
+#' Then, of course, sorting any vectorized arguments (e.g., \code{maxSize}) accordingly.
 #'
 #' \bold{NOTE}: the \code{data.table} or \code{RasterLayer} should not use be altered
 #' when passed back into \code{spread2}.
@@ -212,7 +212,7 @@ if (getRversion() >= "3.1.0") {
 #' @return Either a \code{data.table} (\code{asRaster=FALSE}) or a \code{RasterLayer}
 #' (\code{asRaster=TRUE}, the default). The \code{data.table} will have one attribute named
 #' "spreadState", which is a list containing a \code{data.table} of current cluster-level
-#' information about the spread events. If \code{asRaster} is TRUE, then the
+#' information about the spread events. If \code{asRaster=TRUE}, then the
 #' \code{data.table} that would have been returned is attached
 #' to the Raster as an attribute named "pixel" as it provides pixel-level information about
 #' the spread events.

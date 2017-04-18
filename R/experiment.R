@@ -1,10 +1,10 @@
 ################################################################################
 #' Run an experiment using \code{\link{spades}}
 #'
-#' This is essentially a wrapper around the \code{spades} call that allows for multiple
-#' calls to spades. This function will use a single processor, or multiple processors if
-#' \code{\link[raster]{beginCluster}} has been run first or a cluster objects is passed
-#' in the \code{cl} argument (gives more control to user).
+#' This is essentially a wrapper around the \code{spades} call that allows for
+#' multiple calls to \code{spades}. This function will use a single processor,
+#' or multiple processors if \code{\link[raster]{beginCluster}} has been run
+#' first or a cluster object is passed in the \code{cl} argument (gives more control to user).
 #'
 #' Generally, there are 2 reasons to do this: replication and varying simulation inputs
 #' to accomplish some sort of simulation experiment. This function deals with both of these
