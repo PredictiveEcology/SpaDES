@@ -1013,17 +1013,21 @@ copyFile <- function(from = NULL, to = NULL, useRobocopy = TRUE,
   if (os == "windows") {
     if (useRobocopy) {
       if (silent) {
-        suppressWarnings(useFileCopy <- tryCatch(system(paste0("robocopy ","/purge"[delDestination]," /ETA /NDL /NFL /NJH /NJS ",
-                                                               normalizePath(dirname(from), winslash = "\\"),
-                                                               "\\ ", normalizePath(to, winslash = "\\"),
-                                                               " ", basename(from)), intern = TRUE), error = function(x) TRUE))
+        suppressWarnings(useFileCopy <- tryCatch(
+          system(paste0("robocopy ", "/purge"[delDestination], " /ETA /NDL /NFL /NJH /NJS ",
+                        normalizePath(dirname(from), winslash = "\\"),
+                        "\\ ", normalizePath(to, winslash = "\\"),
+                        " ", basename(from)), intern = TRUE),
+          error = function(x) TRUE)
+        )
       } else {
-        useFileCopy <- tryCatch(system(paste0("robocopy ", "/purge"[delDestination], " /ETA ",
-                                              normalizePath(dirname(from), winslash = "\\"), "\\ ",
-                                              normalizePath(to, winslash = "\\"), " ", basename(from)), intern = TRUE),
-                                error = function(x) TRUE)
-        #         system(paste0("robocopy /E ","/purge"[delDestination]," /ETA ", normalizePath(fromDir, winslash = "\\"),
-        #                       "\\ ", normalizePath(toDir, winslash = "\\"), "\\"))
+        useFileCopy <- tryCatch(
+          system(paste0("robocopy ", "/purge"[delDestination], " /ETA ",
+                        normalizePath(dirname(from), winslash = "\\"), "\\ ",
+                        normalizePath(to, winslash = "\\"), " ", basename(from)), intern = TRUE),
+          error = function(x) TRUE)
+        # system(paste0("robocopy /E ","/purge"[delDestination]," /ETA ", normalizePath(fromDir, winslash = "\\"),
+        #               "\\ ", normalizePath(toDir, winslash = "\\"), "\\"))
       }
     } else {
       useFileCopy <- TRUE
