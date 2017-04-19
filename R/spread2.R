@@ -563,8 +563,40 @@ setMethod(
         fromPts <- xyFromCell(landscape, dtPotential$id)
         toPts <- xyFromCell(landscape, dtPotential$to)
         dists <- pointDistance(p1 = fromPts, p2 = toPts, lonlat = FALSE)
+        if(TRUE ) {
+          if (!is.na(asymmetry)) {
+            actualAsymmetry <- if (length(asymmetry) == 1) {
+              asymmetry
+            } else {
+              asymmetry[dtPotential$to]
+            }
+            actualAsymmetryAngle <- if (length(asymmetryAngle) == 1) {
+              asymmetryAngle
+            } else {
+              asymmetryAngle[dtPotential$to]
+            }
+
+            angleQualities <- angleQuality(dtPotential, landscape, -actualAsymmetryAngle)
+
+            naAQ <- is.na(angleQualities[,"angleQuality"])
+            angleQualities[naAQ,"angleQuality"] <- 1
+            browser()
+
+            angleQualities[,"angleQuality"] <- angleQualities[,"angleQuality"]*actualAsymmetry
+            distsAdj <- asymmetryAdjust(angleQualities, dists, actualAsymmetry)
+            #distsAdj <- distsAdj/distsAdj[which(angleQualities[,"angleQuality"]==2)]
+            #dists <- distsAdj
+
+          }
+        }
+
         if (circle) {
-          distKeepers <- dists %<=% totalIterations & dists %>>% (totalIterations - 1)
+          distKeepers <- distsAdj %<=% totalIterations #& dists %<=% totalIterations  #& dists %>>% (totalIterations - 1)
+          #distKeepers <- dists %<=% totalIterations  & dists %>>% (totalIterations - 1)
+          if(!is.na(asymmetry)) {
+            dtPotentialAsymmetry <- dtPotential[!distKeepers]
+            dt[pixels %in% unique(dtPotentialAsymmetry$from),state:="successful"]
+          }
           dtPotential <- dtPotential[distKeepers]
           dists <- dists[distKeepers]
         }
@@ -639,7 +671,7 @@ setMethod(
         }
 
         # modify actualSpreadProb if there is asymmetry
-        if (!is.na(asymmetry)) {
+        if (!is.na(asymmetry) & !circle) {
           actualAsymmetry <- if (length(asymmetry) == 1) {
             asymmetry
           } else {
@@ -651,63 +683,13 @@ setMethod(
             asymmetryAngle[dtPotential$to]
           }
 
-          from <- cbind(id = dtPotential$id, xyFromCell(landscape, dtPotential$from))
-          to <- cbind(id = dtPotential$id, xyFromCell(landscape, dtPotential$to))
-          d <- directionFromEachPoint(from = from, to = to)
+          angleQualities <- angleQuality(dtPotential, landscape, actualAsymmetryAngle)
 
-          angleQuality <- ((cos(d[, "angles"] - rad(actualAsymmetryAngle)) + 1)) #
-          naAQ <- is.na(angleQuality)
-          angleQuality[naAQ] <- actualSpreadProb[naAQ]
-          if(sum(angleQuality) %==% 0) { # the case where there is no difference in the angles, and they are all zero
-            newSpreadProbs <- actualSpreadProb
-          } else {
+          naAQ <- is.na(angleQualities[,"angleQuality"])
+          angleQualities[naAQ,"angleQuality"] <- actualSpreadProb[naAQ]
 
-            dd <- data.table(d, angleQuality, actualSpreadProb)
-            #dd[,angleQuality:=angleQuality * 2 * length(angleQuality)/sum(angleQuality*2, na.rm = TRUE),by="id"]
-            dd[,actualSpreadProbAdj := actualSpreadProb * angleQuality]
-            dd[,actualSpreadProbAdj2 :=
-                actualSpreadProbAdj/(mean(actualSpreadProbAdj)/mean(actualSpreadProb)),
-                by = "id"]
+          actualSpreadProb <- asymmetryAdjust(angleQualities, actualSpreadProb, actualAsymmetry)
 
-            dd1 <- dd[,list(maxASP=max(actualSpreadProb*2)), by = "id"]
-
-            dd[,newSpreadProbs:={
-              minASP <- 0
-              maxASP <- max(2*actualSpreadProb)
-              aaMinus1 <- (actualAsymmetry - 1)
-              par2 <- aaMinus1*sum(actualSpreadProbAdj)/( (length(actualSpreadProbAdj) *(maxASP-minASP) +
-                                                           aaMinus1 * (sum(actualSpreadProbAdj-minASP)) ))
-              par1 <- par2/aaMinus1*(maxASP-minASP)
-              (actualSpreadProbAdj2 - minASP)* par2 + par1
-            },by = "id"]
-
-            if(FALSE) {
-              dd[,newSpreadProbs1:={
-                minASP <- min(actualSpreadProbAdj2)
-                maxASP <- max(actualSpreadProbAdj2)
-                aaMinus1 <- (actualAsymmetry - 1)
-                par2 <- aaMinus1 * sum(actualSpreadProbAdj2) / ((length(actualSpreadProbAdj2) * (maxASP - minASP) +
-                                                               aaMinus1 * (sum(actualSpreadProbAdj2 - minASP)) ))
-                par1 <- par2 / aaMinus1 * (maxASP - minASP)
-                (actualSpreadProbAdj2 - minASP) * par2 + par1
-              },by = "id"]
-              #browser(expr = any(dd[,max(newSpreadProbs1)/min(newSpreadProbs1),by=id]$V1 %!=% actualAsymmetry))
-              #browser(expr = any(dd[,mean(newSpreadProbs1)%!=% mean(actualSpreadProb),by=id]$V1 ))
-            }
-
-            # actualSpreadProbAdj <- actualSpreadProb * angleQuality
-            # # rescale so mean is same as mean of actualSpreadProb
-            # actualSpreadProbAdj <- actualSpreadProbAdj/(mean(actualSpreadProbAdj)/mean(actualSpreadProb))
-            #
-            # minASP <- min(actualSpreadProbAdj)
-            # maxASP <- max(actualSpreadProbAdj)
-            # aaMinus1 <- (actualAsymmetry - 1)
-            # par2 <- aaMinus1*sum(actualSpreadProbAdj)/( (length(actualSpreadProbAdj) *(maxASP-minASP) +
-            #                                              aaMinus1 * (sum(actualSpreadProbAdj-minASP)) ))
-            # par1 <- par2/aaMinus1*(maxASP-minASP)
-            # newSpreadProbs <- (actualSpreadProbAdj - minASP)* par2 + par1
-          }
-          actualSpreadProb <- dd$newSpreadProbs
         }
 
         # Evaluate against spreadProb -- next lines are faster than: dtPotential <- dtPotential[spreadProbSuccess]
@@ -798,14 +780,14 @@ setMethod(
       } # end maxSize based removals
 
       # Change states of cells
-      if(!anyNA(maxSize) | !(anyNA(exactSize)) | allowOverlap) { # these do resorting via setkeyv
+      #if(!anyNA(maxSize) | !(anyNA(exactSize)) | allowOverlap) { # these do resorting via setkeyv
         notInactive <- dt$state!="inactive" # currently activeSource, successful, or holding
         whNotInactive <- which(notInactive)
-      } else {
-        whNotInactive <- seq_len(length(whActive) + NROW(dtPotential))
-        if(length(whInactive))
-          whNotInactive <- max(whInactive) + whNotInactive
-      }
+      # } else {
+      #   whNotInactive <- seq_len(length(whActive) + NROW(dtPotential))
+      #   if(length(whInactive))
+      #     whNotInactive <- max(whInactive) + whNotInactive
+      # }
 
       activeStates <- dt$state[whNotInactive]
       whActive <- whNotInactive[activeStates == "successful" | activeStates == "holding" ]

@@ -866,3 +866,61 @@ rbindlistDtDtpot <- function(dt, dtPotential, returnFrom) {
   # convert state of all those still left, move potentialPixels into pixels column
   dt <- rbindlist(list(dt, dtPotential), fill = TRUE) # need fill = TRUE if user has passed extra columns
 }
+
+
+
+#' Internal helper
+#'
+#' Not for users. A function used in spread2.
+#'
+#' @param dt Data.table
+#' @param dtPotential Data.table
+#' @param returnFrom Logical
+#' @keywords internal
+#'
+angleQuality <- function(dtPotential, landscape, actualAsymmetryAngle) {
+  #browser()
+  from <- cbind(id = dtPotential$id, xyFromCell(landscape, dtPotential$id))
+  to <- cbind(id = dtPotential$id, xyFromCell(landscape, dtPotential$to))
+  d <- .pointDirection(from = from, to = to)
+
+  browser()
+  angleQuality <- cbind(angleQuality=(cos(d[, "angles"] - rad(actualAsymmetryAngle)) + 1), d)
+  angleQuality
+}
+
+
+#' Internal helper
+#'
+#' Not for users. A function used in spread2.
+#'
+#' @param dt Data.table
+#' @param dtPotential Data.table
+#' @param returnFrom Logical
+#' @keywords internal
+#'
+asymmetryAdjust <- function(angleQualities, quantity, actualAsymmetry) {
+  if(sum(angleQualities[,"angleQuality"]) %==% 0) { # the case where there is no difference in the angles, and they are all zero
+    return(quantity)
+  } else {
+
+    dd <- data.table(angleQualities, quantity)
+    dd[,quantityAdj := quantity * angleQualities[,"angleQuality"]]
+    dd[,quantityAdj2 :=
+         quantityAdj/(mean(quantityAdj)/mean(quantity)),
+       by = "id"]
+
+    dd[,newQuantity:={
+      minQuantity <- 0#min(2*quantity)
+      maxQuantity <- max(2*quantity)
+      aaMinus1 <- (actualAsymmetry - 1)
+      par2 <- aaMinus1*sum(quantityAdj)/( (length(quantityAdj) *(maxQuantity-minQuantity) +
+                                                     aaMinus1 * (sum(quantityAdj-minQuantity)) ))
+      par1 <- par2/aaMinus1*(maxQuantity-minQuantity)
+      (quantityAdj2 - minQuantity)* par2 + par1
+    },by = "id"]
+
+
+  }
+  dd$newQuantity
+}
