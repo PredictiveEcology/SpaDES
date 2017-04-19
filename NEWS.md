@@ -50,7 +50,7 @@ version 1.3.1.9000
 * improvements to caching:
 
     - improved caching for `Raster*` objects & S4 methods - now it normally persists across sessions;
-    - add `Cache` (upper case) which derives cacheRepo arg automatically from either the cachePath(sim), if used within a module, or getPath()$cachePath if not within a module. Also, the upper case removes the name conflict with `archivist::cache`;
+    - add `Cache` (upper case) which derives `cacheRepo` arg automatically from either the `cachePath(sim)`, if used within a module, or `getPath()$cachePath` if not within a module. Also, the upper case removes the name conflict with `archivist::cache`;
     - add caching mechanisms at the module-level and event-level (via new `.useCache` parameter, which can be logical indicating whole module or character indicating individual events);
     - add caching for `.inputObjects` function in `simInit`, via `.useCache` parameter in module
     - detailed caching overview now in cache help: `?Cache` for details.
@@ -132,7 +132,7 @@ version 1.1.3
 * lots of documentation enhancements, esp. `?inputs` and `?outputs`
 * add `.plotInitialTime` and `.saveInitialTime` arguments to `spades()` to easily allow turning off plotting and saving
 * more robust `inputs` and `outputs`, including extension-based automated outputs, using `data.frame` instead of `data.table` allowing lists to be passed for "arguments"
-* allow vectorized `n` in `setColors` (#70), and partial n if named
+* allow vectorized `n` in `setColors` (#70), and partial `n` if named
 * many more unit tests (#139)
 * other bug fixes
 
@@ -269,7 +269,8 @@ version 1.0.0
 
 * added "metamodules" which specify module groups (#176)
 * improved test coverage (see #139)
-* all functions imported explicity (@importFrom). 3 entire packages imported: methods, graphics, igraph (because of classes which are not exported from igraph) (#201)
+* all functions imported explicity (`@importFrom`).
+* three entire packages imported: `methods`, `graphics`, `igraph` (because of classes which are not exported from `igraph`) (#201)
 * removed package dependencies on raster, sp, data.table, grid. Use importFrom instead (#207).
 * improved documentation and vignettes
 * added cache mechanism to hash function calls to spades (#206)
@@ -307,16 +308,20 @@ version 0.6.1
 * updated vignettes and documentation improvements
 * transfered project to `PredictiveEcology/SpaDES` from `achubaty/SpaDES`.
 * overhaul to `Plot` function:
-    * no longer needs `*Named` objects.
-    * now handles `SpatialPolygons` objects much faster than default `plot`:
-        * Uses package `fastshp`.
-            * The suggested package `fastshp` can be installed with:
+
+    - no longer needs `*Named` objects.
+    - now handles `SpatialPolygons` objects much faster than default `plot`:
+        - Uses package `fastshp`.
+            - The suggested package `fastshp` can be installed with:
 
                     install_github("s-u/fastshp")
 
-    * numerous other `Plot` improvements
+    - numerous other `Plot` improvements
+
 * deprecated all `*Named` functionality
-    * All code will break that uses `*Named` objects
+
+    - All code will break that uses `*Named` objects
+
 * new function, `clearPlot` can be used to clean all hidden metadata about a plot
 * new function, `randomPolygons`, will create random raster maps (not vector maps) of polygons
 * numerous bugfixes
@@ -331,7 +336,6 @@ version 0.4.0
 
 version 0.3.1
 =============
-
 * first public ("beta") release
 * reworked plotting and visualization (it's faster, more reliable)
 * added additional parameter checks and improved debugging
@@ -343,11 +347,9 @@ version 0.3.1
 
 version 0.2
 =============
-
-* renamed package to SpaDES
+* renamed package to `SpaDES`
 
 version 0.1
 =============
-
 * first working alpha version
 * lots of "wishlist" items still to be implemented
