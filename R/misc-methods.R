@@ -884,7 +884,6 @@ angleQuality <- function(dtPotential, landscape, actualAsymmetryAngle) {
   to <- cbind(id = dtPotential$id, xyFromCell(landscape, dtPotential$to))
   d <- .pointDirection(from = from, to = to)
 
-  browser()
   angleQuality <- cbind(angleQuality=(cos(d[, "angles"] - rad(actualAsymmetryAngle)) + 1), d)
   angleQuality
 }

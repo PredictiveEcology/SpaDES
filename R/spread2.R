@@ -563,36 +563,28 @@ setMethod(
         fromPts <- xyFromCell(landscape, dtPotential$id)
         toPts <- xyFromCell(landscape, dtPotential$to)
         dists <- pointDistance(p1 = fromPts, p2 = toPts, lonlat = FALSE)
-        if(TRUE ) {
-          if (!is.na(asymmetry)) {
-            actualAsymmetry <- if (length(asymmetry) == 1) {
-              asymmetry
-            } else {
-              asymmetry[dtPotential$to]
-            }
-            actualAsymmetryAngle <- if (length(asymmetryAngle) == 1) {
-              asymmetryAngle
-            } else {
-              asymmetryAngle[dtPotential$to]
-            }
-
-            angleQualities <- angleQuality(dtPotential, landscape, -actualAsymmetryAngle)
-
-            naAQ <- is.na(angleQualities[,"angleQuality"])
-            angleQualities[naAQ,"angleQuality"] <- 1
-            browser()
-
-            angleQualities[,"angleQuality"] <- angleQualities[,"angleQuality"]*actualAsymmetry
-            distsAdj <- asymmetryAdjust(angleQualities, dists, actualAsymmetry)
-            #distsAdj <- distsAdj/distsAdj[which(angleQualities[,"angleQuality"]==2)]
-            #dists <- distsAdj
-
+        if (!is.na(asymmetry)) {
+          actualAsymmetry <- if (length(asymmetry) == 1) {
+            asymmetry
+          } else {
+            asymmetry[dtPotential$to]
           }
+          actualAsymmetryAngle <- if (length(asymmetryAngle) == 1) {
+            asymmetryAngle
+          } else {
+            asymmetryAngle[dtPotential$to]
+          }
+
+          angleQualities <- angleQuality(dtPotential, landscape, actualAsymmetryAngle)
+          naAQ <- is.na(angleQualities[,"angleQuality"])
+          angleQualities[naAQ,"angleQuality"] <- 1
+          # convert dists to effective distance
+          dists <- dists * ( (2 - angleQualities[,"angleQuality"])/2 * (actualAsymmetry - 1) + 1)
         }
 
         if (circle) {
-          distKeepers <- distsAdj %<=% totalIterations #& dists %<=% totalIterations  #& dists %>>% (totalIterations - 1)
-          #distKeepers <- dists %<=% totalIterations  & dists %>>% (totalIterations - 1)
+          #distKeepers <- dists %<=% totalIterations #& dists %<=% totalIterations  #& dists %>>% (totalIterations - 1)
+          distKeepers <- dists %<=% totalIterations & dists %>>% (totalIterations - 1)
           if(!is.na(asymmetry)) {
             dtPotentialAsymmetry <- dtPotential[!distKeepers]
             dt[pixels %in% unique(dtPotentialAsymmetry$from),state:="successful"]
