@@ -942,10 +942,10 @@ prepareFileBackedRaster <- function(obj, repoDir = NULL, compareRasterFileLength
       if (shouldCopy) {
         pathExists <- file.exists(dirname(saveFilename))
         if (any(!pathExists)) dir.create(dirname(saveFilename))
-        if (any(saveFilename %>% grepl(., pattern = ".grd$"))) {
+        if (any(saveFilename %>% grepl(., pattern = "[.]grd$"))) {
           copyFile(to = saveFilename, overwrite = TRUE, from = curFilename, silent = TRUE)
-          griFilename <- sub(saveFilename, pattern = ".grd$", replacement = ".gri")
-          curGriFilename <- sub(curFilename, pattern = ".grd$", replacement = ".gri")
+          griFilename <- sub(saveFilename, pattern = "[.]grd$", replacement = ".gri")
+          curGriFilename <- sub(curFilename, pattern = "[.]grd$", replacement = ".gri")
           copyFile(to = griFilename, overwrite = TRUE, from = curGriFilename, silent = TRUE)
           #           file.copy(to = griFilename, overwrite = TRUE,
           #                     recursive = FALSE, copy.mode = TRUE,

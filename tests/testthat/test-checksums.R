@@ -2,7 +2,7 @@ test_that("checksums read and written correctly", {
   library(magrittr)
 
   sampleDir <- system.file("maps", package = "SpaDES")
-  sampleFiles <- list.files(sampleDir, pattern = ".tif", full.names = TRUE)
+  sampleFiles <- list.files(sampleDir, pattern = "[.]tif", full.names = TRUE)
   tmpdir <- file.path(tempdir(), "test_checksums", "data") %>%
     checkPath(create = TRUE)
   on.exit(unlink(dirname(tmpdir), recursive = TRUE), add = TRUE)

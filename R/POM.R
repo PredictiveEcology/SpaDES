@@ -319,7 +319,7 @@ setMethod(
           if (parallelType > 0  | (logObjFnVals != "objectiveFnValues.txt"))
             sink()
           if (parallelType > 0 | (logObjFnVals != "objectiveFnValues.txt"))
-            sink(file = paste0(gsub(logObjFnVals, pattern = ".txt", replacement = ""),
+            sink(file = paste0(gsub(logObjFnVals, pattern = "[.]txt", replacement = ""),
                                "_RawPattern.txt"), append = TRUE)
           cat(format(unlist(lapply(objectiveRes, function(x) x[["value"]])), digits = 4), dep = "\t")
           cat("\n")
@@ -422,7 +422,7 @@ setMethod(
         if (deoptimArgs$parallelType > 0)
           sink()
         if (deoptimArgs$parallelType > 0 | (logObjFnVals != "objectiveFnValues.txt"))
-          sink(file = paste0(gsub(logObjFnVals, pattern = ".txt", replacement = ""),
+          sink(file = paste0(gsub(logObjFnVals, pattern = "[.]txt", replacement = ""),
                              "_RawPattern.txt"), append = FALSE)
 
         cat(names(objects), sep = "\t")
