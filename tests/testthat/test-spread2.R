@@ -1033,7 +1033,6 @@ test_that("spread2 returnFrom", {
 
 
 test_that("spread2 tests", {
-  skip("This is in progress")
   library(raster)
   on.exit(detach("package:raster"), add = TRUE)
   library(data.table)
@@ -1054,13 +1053,14 @@ test_that("spread2 tests", {
       padValue = 0
     )
   innerCells <- which(bb[] %==% 1)
-  sams <- sample(innerCells, 2)
-  sams <- ncell(a)/2 - ncol(a)/2
+  sams <- sample(innerCells, 9)
+  #sams <- ncell(a)/2 - ncol(a)/2
   dev()
-  out <- spread2(a, start = sams, 1, circle = TRUE, asymmetry = 4, asymmetryAngle = 90,
-                 iterations = 2, asRaster = FALSE, returnDistances = TRUE, plot.it = TRUE)
-  expect_true(NROW(out) == ncell(a))
-  expect_true(all(out$state == "inactive"))
-  expect_true(all(out$distance <= (sqrt(2) * ncol(a))))
+  expect_silent(out <- spread2(a, start = sams, 1, circle = TRUE, asymmetry = 4, asymmetryAngle = 120,
+                 iterations = 20, asRaster = FALSE, returnDistances = TRUE, #plot.it = TRUE,
+                 allowOverlap = TRUE))
+  expect_true("effectiveDistance" %in% colnames(out))
+  expect_true(all(out$state == "activeSource"))
+  expect_true(all(out$distance[out$distance>0] <= out$effectiveDistance[out$distance>0]))
 
 })

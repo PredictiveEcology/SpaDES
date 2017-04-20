@@ -279,15 +279,15 @@ if (getRversion() >= "3.1.0") {
 #' @rdname spread2
 #'
 setGeneric("spread2", function(landscape, start = ncell(landscape)/2 - ncol(landscape)/2,
-                                spreadProb = 0.23, asRaster = TRUE,
-                                maxSize, exactSize,
-                                directions = 8L, iterations = 1e6L,
-                                returnDistances = FALSE, returnFrom = FALSE,
-                                plot.it = FALSE,
-                                circle = FALSE,
-                                asymmetry = NA_real_, asymmetryAngle = NA_real_,
-                                allowOverlap = FALSE,
-                                neighProbs = NA_real_, skipChecks = FALSE) {
+                               spreadProb = 0.23, asRaster = TRUE,
+                               maxSize, exactSize,
+                               directions = 8L, iterations = 1e6L,
+                               returnDistances = FALSE, returnFrom = FALSE,
+                               plot.it = FALSE,
+                               circle = FALSE,
+                               asymmetry = NA_real_, asymmetryAngle = NA_real_,
+                               allowOverlap = FALSE,
+                               neighProbs = NA_real_, skipChecks = FALSE) {
   standardGeneric("spread2")
 })
 
@@ -368,9 +368,9 @@ setMethod(
           )
         } else {
           assert(
-          checkNumeric(exactSize, min.len = 1, max.len=1),
-          checkNumeric(exactSize, min.len = NROW(start), max.len=NROW(start))
-        )
+            checkNumeric(exactSize, min.len = 1, max.len=1),
+            checkNumeric(exactSize, min.len = NROW(start), max.len=NROW(start))
+          )
         }
 
       }
@@ -384,10 +384,10 @@ setMethod(
     canUseAvailable <- !allowOverlap
     # required function
     spreadProbHas0 <- if(!is.numeric(spreadProb)) {
-        if(is(spreadProb, "Raster")) minValue(spreadProb)==0 else stop("expecting a Raster, data.table or numeric for start")
-      } else {
-        any(spreadProb==0)
-      }
+      if(is(spreadProb, "Raster")) minValue(spreadProb)==0 else stop("expecting a Raster, data.table or numeric for start")
+    } else {
+      any(spreadProb==0)
+    }
 
     ##### Set up dt and clusterDT objects
     if(missing(maxSize)) {
@@ -507,20 +507,20 @@ setMethod(
           resCur <- res(landscape)[1]
           fromPixels <- dtRetry$pixels
           dtPotential <- cir(landscape, loci = fromPixels, includeBehavior = "excludePixels",
-                                 minRadius = resCur, maxRadius = 4*resCur, allowOverlap = TRUE)[,c("id","indices")]
+                             minRadius = resCur, maxRadius = 4*resCur, allowOverlap = TRUE)[,c("id","indices")]
           dtPotential <- matrix(as.integer(dtPotential), ncol = 2)
           colnames(dtPotential) <- c("id", "to")
           dtPotential <- cbind(id = dtRetry$initialPixels[dtPotential[,"id"]],
-                                   from = fromPixels[dtPotential[,"id"]],
-                                   to = dtPotential[, "to"])
+                               from = fromPixels[dtPotential[,"id"]],
+                               to = dtPotential[, "to"])
         } else {
           ## get adjacent neighbours
           dtPotential <- adj(#landscape,
-                             directions = directions,
-                             numCell = ncells,
-                             numCol = numCols,
-                             id = dtRetry$initialPixels,
-                             cells = dtRetry$pixels)
+            directions = directions,
+            numCell = ncells,
+            numCol = numCols,
+            id = dtRetry$initialPixels,
+            cells = dtRetry$pixels)
         }
 
         set(dt, whActive, "state", "holding") # take them out of commission for this iteration
@@ -529,12 +529,12 @@ setMethod(
       } else {
         ## Spread to immediate neighbours
         dtPotential <- adj(#landscape,
-                            numCell = ncells,
-                            numCol = numCols,
-                           directions = directions,
-                           id = dt$initialPixels[whActive],
-                           cells = dt$pixels[whActive], cutoff.for.data.table = 5e2,
-                           returnDT = TRUE)
+          numCell = ncells,
+          numCol = numCols,
+          directions = directions,
+          id = dt$initialPixels[whActive],
+          cells = dt$pixels[whActive], cutoff.for.data.table = 5e2,
+          returnDT = TRUE)
 
         # only iterate if it is not a Retry situation
         its <- its + 1
@@ -579,20 +579,36 @@ setMethod(
           naAQ <- is.na(angleQualities[,"angleQuality"])
           angleQualities[naAQ,"angleQuality"] <- 1
           # convert dists to effective distance
-          dists <- dists * ( (2 - angleQualities[,"angleQuality"])/2 * (actualAsymmetry - 1) + 1)
+          effDists <- dists * ( (2 - angleQualities[,"angleQuality"])/2 * (actualAsymmetry - 1) + 1)
         }
 
         if (circle) {
           #distKeepers <- dists %<=% totalIterations #& dists %<=% totalIterations  #& dists %>>% (totalIterations - 1)
-          distKeepers <- dists %<=% totalIterations & dists %>>% (totalIterations - 1)
           if(!is.na(asymmetry)) {
+            distKeepers <- effDists %<=% totalIterations & effDists %>>% (totalIterations - 1)
             dtPotentialAsymmetry <- dtPotential[!distKeepers]
-            dt[pixels %in% unique(dtPotentialAsymmetry$from),state:="successful"]
+            if(sum(distKeepers)==0) { # all failed
+              set(dt, ,"state","successful")
+            } else {
+              unDTPotAssym <- unique(dtPotentialAsymmetry$from)
+              if(length(unDTPotAssym) == length(unique(dt$pixel))) {
+                set(dt, ,"state","successful")
+              } else {
+                dt[pixels %in% unDTPotAssym,state:="successful"]
+              }
+
+            }
+
+          } else {
+            distKeepers <- dists %<=% totalIterations & dists %>>% (totalIterations - 1)
           }
           dtPotential <- dtPotential[distKeepers]
           dists <- dists[distKeepers]
         }
         set(dtPotential, , "distance", dists)
+        if(!is.na(asymmetry)) {
+          set(dtPotential, , "effectiveDistance", effDists[distKeepers])
+        }
       }
 
       set(dtPotential, , "state", "successful")
@@ -688,10 +704,12 @@ setMethod(
         spreadProbSuccess <- runifC(NROW(dtPotential)) <= actualSpreadProb
 
 
-      # Remove duplicates, which was already done for neighProbs situation
-       if (allowOverlap | !canUseAvailable) {
+        # Remove duplicates, which was already done for neighProbs situation
+        if (allowOverlap | !canUseAvailable) {
           if (needDistance)
-            setcolorder(dtPotential, neworder = dtPotentialColNames)
+            setcolorder(dtPotential, neworder = c(dtPotentialColNames[(dtPotentialColNames %in% colnames(dtPotential))],
+                                                  colnames(dtPotential)[!(colnames(dtPotential) %in% dtPotentialColNames)]))
+
 
           dtPotential <- dtPotential[spreadProbSuccess]
 
@@ -716,7 +734,8 @@ setMethod(
           dtPotential <- dtPotential[whSuccNoDupsCurItAndAll]
 
           if (needDistance) # distance column is second last, but needs to be last: to merge with dt, need: from, to, state in that order
-            setcolorder(dtPotential, neworder = dtPotentialColNames)
+            setcolorder(dtPotential, neworder = c(dtPotentialColNames[(dtPotentialColNames %in% colnames(dtPotential))],
+                                                  colnames(dtPotential)[!(colnames(dtPotential) %in% dtPotentialColNames)]))
 
           dt <- rbindlistDtDtpot(dt, dtPotential, returnFrom)
         }
@@ -754,14 +773,14 @@ setMethod(
           }
           # if the ones that are too small are unsuccessful, make them "needRetry"
           whNeedRetry <- which(dt$initialPixels %in% currentSizeTooSmall$initialPixels &
-                          (dt$state != "successful" & dt$state != "inactive"))
+                                 (dt$state != "successful" & dt$state != "inactive"))
           if (length(whNeedRetry)) {
             needRetryID <- clusterDT$initialPixels %in% unique(dt$initialPixels[whNeedRetry])
             tooManyRetries <- clusterDT$numRetries > maxRetriesPerID
             if (sum(tooManyRetries * needRetryID) > 0) {
               needRetryID <- needRetryID & !(needRetryID * tooManyRetries)
               whNeedRetry <- whNeedRetry[dt$initialPixels[whNeedRetry] %in%
-                             clusterDT$initialPixels[needRetryID]]
+                                           clusterDT$initialPixels[needRetryID]]
             }
             needRetryID <- which(needRetryID)
 
@@ -773,8 +792,8 @@ setMethod(
 
       # Change states of cells
       #if(!anyNA(maxSize) | !(anyNA(exactSize)) | allowOverlap) { # these do resorting via setkeyv
-        notInactive <- dt$state!="inactive" # currently activeSource, successful, or holding
-        whNotInactive <- which(notInactive)
+      notInactive <- dt$state!="inactive" # currently activeSource, successful, or holding
+      whNotInactive <- which(notInactive)
       # } else {
       #   whNotInactive <- seq_len(length(whActive) + NROW(dtPotential))
       #   if(length(whInactive))

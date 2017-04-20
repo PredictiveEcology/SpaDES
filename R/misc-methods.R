@@ -852,6 +852,7 @@ resampleZeroProof <- function(spreadProbHas0, x, n, prob) {
 #' @param dt Data.table
 #' @param dtPotential Data.table
 #' @param returnFrom Logical
+#' @rdname spread2-internals
 #' @keywords internal
 #'
 rbindlistDtDtpot <- function(dt, dtPotential, returnFrom) {
@@ -873,9 +874,10 @@ rbindlistDtDtpot <- function(dt, dtPotential, returnFrom) {
 #'
 #' Not for users. A function used in spread2.
 #'
-#' @param dt Data.table
-#' @param dtPotential Data.table
-#' @param returnFrom Logical
+#' @param dtPotential Data.table of potential spread locations.
+#' @param landscape RasterLayer passed from \code{spread2}
+#' @param actualAsymmetryAngle Angle in degrees, either a vector length 1 or vector NROW(dtPotential)
+#' @rdname spread2-internals
 #' @keywords internal
 #'
 angleQuality <- function(dtPotential, landscape, actualAsymmetryAngle) {
@@ -893,10 +895,11 @@ angleQuality <- function(dtPotential, landscape, actualAsymmetryAngle) {
 #'
 #' Not for users. A function used in spread2.
 #'
-#' @param dt Data.table
-#' @param dtPotential Data.table
-#' @param returnFrom Logical
+#' @param angleQualities Matrix. The output from \code{angleQuality}
+#' @param quantity Variable of interest to adjust, e.g., \code{spreadProb}
+#' @param actualAsymmetry Asymmetry intensity. Derived from \code{asymmetry} arg in \code{spread2}
 #' @keywords internal
+#' @rdname spread2-internals
 #'
 asymmetryAdjust <- function(angleQualities, quantity, actualAsymmetry) {
   if(sum(angleQualities[,"angleQuality"]) %==% 0) { # the case where there is no difference in the angles, and they are all zero
