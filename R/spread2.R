@@ -256,7 +256,7 @@ if (getRversion() >= "3.1.0") {
 #' attached, or re-attached if it was lost, e.g., via
 #' \code{setattr(outInput, "spreadState", attr(out, "spreadState))}, where \code{out} is the
 #' returned \code{data.table} from the previous call to \code{spread2}, and \code{outInput} is
-#' the modified \code{data.table}. Currently, the modified \code{data.table} \bold{must have the
+#' the modified \code{data.table}. Currently, the modified \code{data.table} \bold{must} have the
 #' same order as \code{out}.
 #'
 #' @export

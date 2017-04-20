@@ -104,6 +104,55 @@ arguments are well understood and function speed is of the primary improtance.
 This is likely most useful in repeated iteration cases i.e., if this call
 is using the previous output from this same function.}
 }
+\value{
+Either a \code{data.table} (\code{asRaster=FALSE}) or a \code{RasterLayer}
+(\code{asRaster=TRUE}, the default).
+The \code{data.table} will have one attribute named \code{spreadState}, which
+is a list containing a \code{data.table} of current cluster-level information
+about the spread events.
+If \code{asRaster=TRUE}, then the \code{data.table} that would have been
+returned is attached to the Raster as an attribute named \code{pixel} as it
+provides pixel-level information about the spread events.
+
+The \code{RasterLayer} represents every cell in which a successful spread2 event occurred.
+For the case of, say, a fire this would represent every cell that burned.
+If \code{allowOverlap} is \code{TRUE}, the return will always be a \code{data.table}.
+
+If \code{asRaster} is \code{FALSE}, then this function returns a
+\code{data.table} with columns:
+
+\tabular{ll}{
+  \code{initialPixels} \tab the initial cell number of that particular
+                           spread2 event.\cr
+  \code{pixels} \tab The cell indices of cells that have
+                       been touched by the spread2 algorithm.\cr
+  \code{state} \tab a logical indicating whether the cell is active (i.e.,
+                       could still be a source for spreading) or not (no
+                       spreading will occur from these cells).\cr
+}
+
+The attribute saved with the name "spreadState" (e.g., \code{attr(output, "spreadState")})
+includes a \code{data.table} with columns:
+\tabular{ll}{
+  \code{id} \tab An arbitrary code, from 1 to \code{length(start)} for each "event".\cr
+  \code{initialPixels} \tab the initial cell number of that particular
+                           spread2 event.\cr
+  \code{numRetries} \tab The number of re-starts the event did because it got
+                         stuck (normally only because \code{exactSize} was used
+                         and was not achieved.\cr
+  \code{maxSize} \tab The number of pixels that were provided as inputs via
+                     \code{maxSize} or \code{exactSize}.\cr
+  \code{size} \tab The current size, in pixels, of each event.\cr
+}
+and several other objects that provide significant speed ups in iterative calls to
+spread2. If the user runs \code{spread2} iteratively, there will likely be significant
+speed gains if the \code{data.table} passed in to \code{start} should have the attribute
+attached, or re-attached if it was lost, e.g., via
+\code{setattr(outInput, "spreadState", attr(out, "spreadState))}, where \code{out} is the
+returned \code{data.table} from the previous call to \code{spread2}, and \code{outInput} is
+the modified \code{data.table}. Currently, the modified \code{data.table} \bold{must} have the
+same order as \code{out}.
+}
 \description{
 This can be used to simulate fires, seed dispersal, calculation of iterative,
 concentric, symmetric (currently) landscape values and many other things.
@@ -174,7 +223,7 @@ Also, \code{exactSize} may not be achieved because the active cells are "stuck",
 i.e., they have no unactivated cells to move to; or the \code{spreadProb} is low.
 In the latter two cases, the algorithm will retry again, but it will only
 re-try from the last iterations active cells.
-The algorithm will only retry 10 times before quitting.
+The algorithm will only retry 1 times before quitting.
 Currently, there will also be an attempt to "jump" up to four cells away from
 the active cells to try to continue spreading.
 
@@ -205,8 +254,8 @@ are interacting with each other correctly.
   \code{exactSize} \tab This is the number of cells that are "successfully" turned
                       on during a spreading event. This will override an event that stops probabilistically
                       via \code{spreadProb}, but forcing its last set of active cells to
-                      try again to find neighbours. It will try 10 times per event, before giving up.
-                      During those 10 times, it will try twice to "jump" up to 4 cells outwards
+                      try again to find neighbours. It will try 1 times per event, before giving up.
+                      During those 1 times, it will try twice to "jump" up to 4 cells outwards
                       from each of the active cells\cr
   \code{iterations} \tab This is a hard cap on the number of internal iterations to
                          complete before returning the current state of the system
