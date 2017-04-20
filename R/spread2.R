@@ -81,8 +81,8 @@ if (getRversion() >= "3.1.0") {
 #'   \code{exactSize} \tab This is the number of cells that are "successfully" turned
 #'                       on during a spreading event. This will override an event that stops probabilistically
 #'                       via \code{spreadProb}, but forcing its last set of active cells to
-#'                       try again to find neighbours. It will try 10 times per event, before giving up.
-#'                       During those 10 times, it will try twice to "jump" up to 4 cells outwards
+#'                       try again to find neighbours. It will try 1 times per event, before giving up.
+#'                       During those 1 times, it will try twice to "jump" up to 4 cells outwards
 #'                       from each of the active cells\cr
 #'   \code{iterations} \tab This is a hard cap on the number of internal iterations to
 #'                          complete before returning the current state of the system
@@ -182,7 +182,7 @@ if (getRversion() >= "3.1.0") {
 #' i.e., they have no unactivated cells to move to; or the \code{spreadProb} is low.
 #' In the latter two cases, the algorithm will retry again, but it will only
 #' re-try from the last iterations active cells.
-#' The algorithm will only retry 10 times before quitting.
+#' The algorithm will only retry 1 times before quitting.
 #' Currently, there will also be an attempt to "jump" up to four cells away from
 #' the active cells to try to continue spreading.
 #'
@@ -402,7 +402,7 @@ setMethod(
     sizeType <- if(!anyNA(exactSize)) "exactSize" else "maxSize"
 
     needDistance <- returnDistances | circle # returnDistances = TRUE and circle = TRUE both require distance calculations
-    maxRetriesPerID <- 10 # This means that if an event can not spread any more, it will try 10 times, including 2 jumps
+    maxRetriesPerID <- 1 # This means that if an event can not spread any more, it will try 1 times, including 2 jumps
 
     if(!is.numeric(start) & !is.data.table(start)) {
       if(is(start, "Raster")) {
@@ -576,9 +576,16 @@ setMethod(
       if (!anyNA(neighProbs)) {
         numNeighsByPixel <- unique(dtPotential, by = c("id", "from"))
         if(is.list(neighProbs)) {
+          if(NROW(numNeighsByPixel)!=length(neighProbs)) {
+            neighProbs1 <- neighProbs[match(numNeighsByPixel$from, start[state=="activeSource"]$pixels)]
+            
+          } else {
+            neighProbs1 <- neighProbs
+          }
           set(numNeighsByPixel, , "numNeighs", unlist(lapply(
-            neighProbs, function(np) sample.int(size = 1, n = length(np),
+            neighProbs1, function(np) sample.int(size = 1, n = length(np),
                                                 replace = TRUE, prob = np))))
+          
         } else {
           set(numNeighsByPixel, , "numNeighs",
               sample.int(size = NROW(numNeighsByPixel), n = length(neighProbs),
@@ -601,10 +608,11 @@ setMethod(
         # }
         setkeyv(dtPotential, c("id", "from")) # sort so it is the same as numNeighsByPixel
         if (NROW(dtPotential)) {
-          if(length(spreadProb)>1)
-            set(dtPotential, , "spreadProb", spreadProb[dtPotential$to])
-          else
+          if(length(spreadProb)>1) {
+            set(dtPotential, , "spreadProb", spreadProb[][dtPotential$to])
+          } else {
             set(dtPotential, , "spreadProb", spreadProb)
+          }
           spreadProbNA <- is.na(dtPotential$spreadProb) # This is where a mask enters
           if(any(spreadProbNA)) {
             dtPotential <- dtPotential[!spreadProbNA]
@@ -614,15 +622,15 @@ setMethod(
             # names(ll) <- colnamesDtPot
             # dtPotential <- as.data.table(ll)
           }
-          # If it is a corner or has had pixels removed bc of duplicates, it may not have enough neighbours
-          numNeighsByPixel <- numNeighsByPixel[dtPotential[, .N, by = c("id", "from")]]
-          set(numNeighsByPixel, , "numNeighs", pmin(numNeighsByPixel$N, numNeighsByPixel$numNeighs, na.rm=TRUE))
-
-          dtPotential <- dtPotential[
-            dtPotential[,list(keepIndex=
-                                resampleZeroProof(spreadProbHas0, .I,numNeighsByPixel$numNeighs[.GRP], spreadProb)),
-                        by="from"]$keepIndex]
-
+          # might be zero length because of spreadProb NAs
+          if(NROW(dtPotential)) {
+            # If it is a corner or has had pixels removed bc of duplicates, it may not have enough neighbours
+            numNeighsByPixel <- numNeighsByPixel[dtPotential[, .N, by = c("id", "from")]]
+            set(numNeighsByPixel, , "numNeighs", pmin(numNeighsByPixel$N, numNeighsByPixel$numNeighs, na.rm=TRUE))
+            dtPotential <- dtPotential[numNeighsByPixel[dtPotential][,
+                                  resampleZeroProof(spreadProbHas0, .I, n = numNeighs, prob=spreadProb), by = "from"]$V1]
+          }
+          
           set(dtPotential, , "spreadProb", NULL)
         }
 
@@ -763,10 +771,20 @@ setMethod(
         if (NROW(currentSizeTooBig) > 0) {
           # sort them so .GRP works on 3rd line
           setkeyv(currentSizeTooBig, "initialPixels")
-          dt <- dt[-dt[state == "successful" & (initialPixels %in% currentSizeTooBig$initialPixels),
-                       resample(.I, currentSizeTooBig[.GRP]$tooBig), by = initialPixels]$V1][
-                         initialPixels %in% currentSizeTooBig$initialPixels, state := "inactive"]
+          #dt <- data.table::copy(dt2)
+          set(dt, ,"origIndex", seq_len(NROW(dt)))
+          dt1 <- dt[state=="successful"]
+          dt1b <- dt1[currentSizeTooBig] # attach tooBig
+          dt1a <- dt1b[,list(omit=resample(origIndex,tooBig)),by="initialPixels"]
+          dt <- dt[-dt1a$omit][,list(initialPixels, pixels, state)]
+          dt[dt1a, state:="inactive"]
+          #set(dt, , "origIndex", NULL)
+              
+          # dt <- dt[-dt[state == "successful" & (initialPixels %in% currentSizeTooBig$initialPixels),
+          #              resample(.I, currentSizeTooBig[.GRP]$tooBig), by = initialPixels]$V1][
+          #                initialPixels %in% currentSizeTooBig$initialPixels, state := "inactive"]
           clusterDT[currentSizeTooBig[,list(initialPixels)],size:=size-tooBig]
+          
         }
 
         if (!(anyNA(exactSize))) {
