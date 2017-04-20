@@ -1,6 +1,7 @@
 if (getRversion() >= "3.1.0") {
   utils::globalVariables(c(".GRP", "N", "distance", "initialPixels", "pixels", "state", "tooBig",
-                           "size", "actualSpreadProbAdj", "actualSpreadProbAdj2"))
+                           "size", "actualSpreadProbAdj", "actualSpreadProbAdj2",
+                           "newQuantity", "quantityAdj", "quantityAdj2"))
 }
 
 ###############################################################################
