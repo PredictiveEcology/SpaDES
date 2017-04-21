@@ -211,7 +211,8 @@ if (getRversion() >= "3.1.0") {
 #' \bold{NOTE}: the \code{data.table} or \code{RasterLayer} should not use be altered
 #' when passed back into \code{spread2}.
 #'
-#' @return Either a \code{data.table} (\code{asRaster=FALSE}) or a \code{RasterLayer}
+#' @return
+#' Either a \code{data.table} (\code{asRaster=FALSE}) or a \code{RasterLayer}
 #' (\code{asRaster=TRUE}, the default).
 #' The \code{data.table} will have one attribute named \code{spreadState}, which
 #' is a list containing a \code{data.table} of current cluster-level information
@@ -254,7 +255,7 @@ if (getRversion() >= "3.1.0") {
 #' spread2. If the user runs \code{spread2} iteratively, there will likely be significant
 #' speed gains if the \code{data.table} passed in to \code{start} should have the attribute
 #' attached, or re-attached if it was lost, e.g., via
-#' \code{setattr(outInput, "spreadState", attr(out, "spreadState))}, where \code{out} is the
+#' \code{setattr(outInput, "spreadState", attr(out, "spreadState"))}, where \code{out} is the
 #' returned \code{data.table} from the previous call to \code{spread2}, and \code{outInput} is
 #' the modified \code{data.table}. Currently, the modified \code{data.table} \bold{must} have the
 #' same order as \code{out}.
