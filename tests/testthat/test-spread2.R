@@ -19,6 +19,7 @@ test_that("spread2 tests", {
       padValue = 0
     )
   innerCells <- which(bb[] %==% 1)
+  sams <- sample(innerCells, 2)
 
   set.seed(123)
   for (i in 1:20) {
@@ -867,27 +868,28 @@ test_that("spread2 tests -- asymmetry", {
   #directionRas <- raster(hab)
   #directionRas[] <- seq_len(ncell(directionRas))/ncell(directionRas)*360
 
-  seed <- 6056#sample(1e4, 1)
-  print(seed) # 3387
+  seed <- 4406#sample(1e4, 1)
+  #print(seed) # 3387
   set.seed(seed)
   sams <- ncol(directionRas) + 2 #sample(ncell(directionRas), 1)
-  circs <- spread2(hab, spreadProb = 0.235, start = sams,
+  circs <- spread2(hab, spreadProb = 0.265, start = sams,
                     asymmetry = 300, asymmetryAngle = directionRas,
                     asRaster = TRUE)
-  circs2 <- spread2(hab, spreadProb = 0.235, start = sams,
+  circs2 <- spread2(hab, spreadProb = 0.265, start = sams,
                     #asymmetry = 300, asymmetryAngle = directionRas,
                     asRaster = TRUE)
   if (interactive()) {
     Plot(circs, new=TRUE)
-    ciCentre[ciCentre==2] <- NA
-    ciCentre[sams] <- 2
-    Plot(ciCentre, cols = c("transparent", "black", 'red'), addTo = "circs")
+    ciCentrePlot <- ciCentre
+    ciCentrePlot[ciCentrePlot==2] <- NA
+    ciCentrePlot[sams] <- 2
+    Plot(ciCentrePlot, cols = c("transparent", "black", 'red'), addTo = "circs")
     Plot(circs2, addTo = "circs", cols = "#1211AA33")
   }
   #test whether it stopped before hitting the whole map
   expect_true(sum(circs[], na.rm=TRUE) < ncell(circs))
   #test that it reached the centre, but not circs2 that did not have directionality
-  expect_true(circs[sams]== circs[ciCentre==1])
+  expect_true(circs[sams]== circs[ciCentre[]==1])
   expect_true(is.na(circs2[ciCentre==1]))
   expect_true(!is.na(circs2[sams]))
 
@@ -897,7 +899,7 @@ test_that("spread2 tests -- asymmetry", {
   set.seed(1234)
   for(i in 1:10) {
     sams <- ncell(hab)/4 - ncol(hab)/4*3
-    circs <- spread2(hab, spreadProb = 0.212, start = sams,
+    circs <- spread2(hab, spreadProb = 0.18, start = sams,
                       asymmetry = 2, asymmetryAngle = 135,
                       asRaster = TRUE)
     sizes <- rbind(sizes, cbind(a = attr(circs, "pixel")[,.N]))
@@ -909,8 +911,8 @@ test_that("spread2 tests -- asymmetry", {
       Plot(circs2, addTo = "circs", cols = "#1211AA33")
     }
   }
-  print(apply(sizes, 2, mean))
-  ttestOut <- t.test(sizes$a, mu = 185.83)
+  #print(apply(sizes, 2, mean))
+  ttestOut <- t.test(sizes$a, mu = 994)
   expect_true(ttestOut$p.value>0.05)
 
 
@@ -1005,7 +1007,7 @@ test_that("spread2 returnFrom", {
   library(CircStats); on.exit(detach("package:CircStats"), add = TRUE)
 
   # inputs for x
-  a <- raster(extent(0, 100 , 0, 100), res = 1)
+  a <- raster(extent(0, 10 , 0, 10), res = 1)
   b <- raster(a)
   b[] <- 1
   bb <-
@@ -1028,4 +1030,38 @@ test_that("spread2 returnFrom", {
     expect_true("from" %in% colnames(out))
     expect_true(sum(is.na(out$from))==length(sams))
   }
+})
+
+
+test_that("spread2 tests", {
+  library(raster)
+  on.exit(detach("package:raster"), add = TRUE)
+  library(data.table)
+  on.exit(detach("package:data.table"), add = TRUE)
+  library(fpCompare)
+  on.exit(detach("package:fpCompare"), add = TRUE)
+
+  # inputs for x
+  a <- raster(extent(0, 100 , 0, 100), res = 1)
+  b <- raster(a)
+  b[] <- 1
+  bb <-
+    focal(
+      b,
+      matrix(1 / 9, nrow = 3, ncol = 3),
+      fun = sum,
+      pad = TRUE,
+      padValue = 0
+    )
+  innerCells <- which(bb[] %==% 1)
+  sams <- sample(innerCells, 9)
+  #sams <- ncell(a)/2 - ncol(a)/2
+  dev()
+  expect_silent(out <- spread2(a, start = sams, 1, circle = TRUE, asymmetry = 4, asymmetryAngle = 120,
+                 iterations = 20, asRaster = FALSE, returnDistances = TRUE, #plot.it = TRUE,
+                 allowOverlap = TRUE))
+  expect_true("effectiveDistance" %in% colnames(out))
+  expect_true(all(out$state == "activeSource"))
+  expect_true(all(out$distance[out$distance>0] <= out$effectiveDistance[out$distance>0]))
+
 })

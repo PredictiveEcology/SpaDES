@@ -902,24 +902,22 @@ prepareFileBackedRaster <- function(obj, repoDir = NULL, compareRasterFileLength
     curFilename <- basename(tempfile(pattern = "raster", fileext = fileExt, tmpdir = ""))
   }
 
-  if(any(!file.exists(curFilename)) & isFilebacked & isRasterLayer) {
+  if (any(!file.exists(curFilename)) & isFilebacked & isRasterLayer) {
     splittedFilenames <- strsplit(curFilename, split = basename(repoDir))
-    if(length(splittedFilenames)==1)
-      trySaveFilename <- normalizePath(
+    trySaveFilename <- if (length(splittedFilenames) == 1) {
+      normalizePath(
         file.path(repoDir, splittedFilenames[[1]][[length(splittedFilenames)]]),
         winslash = "/")
-    else
-      trySaveFilename <- normalizePath(
+    } else {
+      normalizePath(
         file.path(repoDir, splittedFilenames),
         winslash = "/")
-
+    }
     if (any(!file.exists(trySaveFilename))) {
       stop("please rename raster that thinks is on disk with this or these filename(s) ",
            curFilename, " or rerun cache.")
     } else {
-      curFilename <- trySaveFilename
-      saveFilename <- curFilename
-      slot(slot(obj, "file"), "name") <- saveFilename
+      slot(slot(obj, "file"), "name") <- saveFilename <- curFilename <- trySaveFilename
     }
   } else {
     saveFilename <- file.path(repoDir, "rasters", basename(curFilename)) %>%
@@ -941,7 +939,11 @@ prepareFileBackedRaster <- function(obj, repoDir = NULL, compareRasterFileLength
       }
       if (shouldCopy) {
         pathExists <- file.exists(dirname(saveFilename))
-        if (any(!pathExists)) dir.create(dirname(saveFilename))
+        if (any(!pathExists)) {
+          dirname(saveFilename) %>%
+            unique() %>%
+            sapply(., dir.create, recursive = TRUE)
+        }
         if (any(saveFilename %>% grepl(., pattern = "[.]grd$"))) {
           copyFile(to = saveFilename, overwrite = TRUE, from = curFilename, silent = TRUE)
           griFilename <- sub(saveFilename, pattern = "[.]grd$", replacement = ".gri")
