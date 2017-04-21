@@ -1,5 +1,5 @@
 if (getRversion() >= "3.1.0") {
-  utils::globalVariables(c(".GRP", "N", "distance", "initialPixels", "pixels", "state", "tooBig",
+  utils::globalVariables(c(".GRP", "N", "distance", "initialPixels", "pixels", "state", "tooBigByNCells",
                            "size", "actualSpreadProbAdj", "actualSpreadProbAdj2"))
 }
 
@@ -81,8 +81,8 @@ if (getRversion() >= "3.1.0") {
 #'   \code{exactSize} \tab This is the number of cells that are "successfully" turned
 #'                       on during a spreading event. This will override an event that stops probabilistically
 #'                       via \code{spreadProb}, but forcing its last set of active cells to
-#'                       try again to find neighbours. It will try 1 times per event, before giving up.
-#'                       During those 1 times, it will try twice to "jump" up to 4 cells outwards
+#'                       try again to find neighbours. It will try 5 times per event, before giving up.
+#'                       During those 5 times, it will try twice to "jump" up to 4 cells outwards
 #'                       from each of the active cells\cr
 #'   \code{iterations} \tab This is a hard cap on the number of internal iterations to
 #'                          complete before returning the current state of the system
@@ -182,7 +182,7 @@ if (getRversion() >= "3.1.0") {
 #' i.e., they have no unactivated cells to move to; or the \code{spreadProb} is low.
 #' In the latter two cases, the algorithm will retry again, but it will only
 #' re-try from the last iterations active cells.
-#' The algorithm will only retry 1 times before quitting.
+#' The algorithm will only retry 5 times before quitting.
 #' Currently, there will also be an attempt to "jump" up to four cells away from
 #' the active cells to try to continue spreading.
 #'
@@ -402,7 +402,7 @@ setMethod(
     sizeType <- if(!anyNA(exactSize)) "exactSize" else "maxSize"
 
     needDistance <- returnDistances | circle # returnDistances = TRUE and circle = TRUE both require distance calculations
-    maxRetriesPerID <- 1 # This means that if an event can not spread any more, it will try 1 times, including 2 jumps
+    maxRetriesPerID <- 5 # This means that if an event can not spread any more, it will try 5 times, including 2 jumps
 
     if(!is.numeric(start) & !is.data.table(start)) {
       if(is(start, "Raster")) {
@@ -503,6 +503,7 @@ setMethod(
       if (length(needRetryID) > 0) {
         ## get slightly further neighbours
         dtRetry <- dt[whNeedRetry]
+        browser()
         if (any(((clusterDT$numRetries + 1) %% 5) == 0)) { # jump every 5, starting at 4
           resCur <- res(landscape)[1]
           fromPixels <- dtRetry$pixels
@@ -527,6 +528,7 @@ setMethod(
         set(dt, whNeedRetry, "state", "activeSource")
 
       } else {
+        browser()
         ## Spread to immediate neighbours
         dtPotential <- adj(#landscape,
                             numCell = ncells,
@@ -609,6 +611,7 @@ setMethod(
         setkeyv(dtPotential, c("id", "from")) # sort so it is the same as numNeighsByPixel
         if (NROW(dtPotential)) {
           if(length(spreadProb)>1) {
+            browser()
             set(dtPotential, , "spreadProb", spreadProb[][dtPotential$to])
           } else {
             set(dtPotential, , "spreadProb", spreadProb)
@@ -759,36 +762,37 @@ setMethod(
 
       # Remove any pixels that push each cluster over their maxSize limit
       if(!anyNA(maxSize) | !(anyNA(exactSize))) {
+        browser()
         setkeyv(dt,"initialPixels") # must sort because maxSize is sorted
         #currentSize <- dt[,.N,by=initialPixels][,`:=`(maxSize=clusterDT$maxSize,
-        #                                              tooBig=N-clusterDT$maxSize)]
+        #                                              tooBigByNCells=N-clusterDT$maxSize)]
         set(clusterDT, , "size", dt[,list(size=as.integer(.N)),by="initialPixels"]$size)
         # THis next line is a work around for a problem that doesn't make sense -- See: https://stackoverflow.com/questions/29615181/r-warning-when-creating-a-long-list-of-dummies
         alloc.col(clusterDT, 7)
-        set(clusterDT, , "tooBig", clusterDT$size-as.integer(clusterDT$maxSize))
+        set(clusterDT, , "tooBigByNCells", clusterDT$size-as.integer(clusterDT$maxSize))
 
-        currentSizeTooBig <- clusterDT[tooBig > 0]
-        if (NROW(currentSizeTooBig) > 0) {
+        currentSizetooBigByNCells <- clusterDT[tooBigByNCells > 0]
+        if (NROW(currentSizetooBigByNCells) > 0) {
           # sort them so .GRP works on 3rd line
-          setkeyv(currentSizeTooBig, "initialPixels")
+          setkeyv(currentSizetooBigByNCells, "initialPixels")
           #dt <- data.table::copy(dt2)
           set(dt, ,"origIndex", seq_len(NROW(dt)))
           dt1 <- dt[state=="successful"]
-          dt1b <- dt1[currentSizeTooBig] # attach tooBig
-          dt1a <- dt1b[,list(omit=resample(origIndex,tooBig)),by="initialPixels"]
+          dt1b <- dt1[currentSizetooBigByNCells] # attach tooBigByNCells
+          dt1a <- dt1b[,list(omit=resample(origIndex,tooBigByNCells)),by="initialPixels"]
           dt <- dt[-dt1a$omit][,list(initialPixels, pixels, state)]
           dt[dt1a, state:="inactive"]
           #set(dt, , "origIndex", NULL)
               
-          # dt <- dt[-dt[state == "successful" & (initialPixels %in% currentSizeTooBig$initialPixels),
-          #              resample(.I, currentSizeTooBig[.GRP]$tooBig), by = initialPixels]$V1][
-          #                initialPixels %in% currentSizeTooBig$initialPixels, state := "inactive"]
-          clusterDT[currentSizeTooBig[,list(initialPixels)],size:=size-tooBig]
+          # dt <- dt[-dt[state == "successful" & (initialPixels %in% currentSizetooBigByNCells$initialPixels),
+          #              resample(.I, currentSizetooBigByNCells[.GRP]$tooBigByNCells), by = initialPixels]$V1][
+          #                initialPixels %in% currentSizetooBigByNCells$initialPixels, state := "inactive"]
+          clusterDT[currentSizetooBigByNCells[,list(initialPixels)],size:=size-tooBigByNCells]
           
         }
 
         if (!(anyNA(exactSize))) {
-          currentSizeTooSmall <- clusterDT[tooBig < 0]
+          currentSizeTooSmall <- clusterDT[tooBigByNCells < 0]
           if (NROW(currentSizeTooSmall) > 0) {
             # successful means will become activeSource next iteration
             dt2 <- dt[initialPixels %in% currentSizeTooSmall$initialPixels & (state == "successful" | state == "holding")]
@@ -853,7 +857,7 @@ setMethod(
       }
     } # end of main loop
 
-    if(!is.null(clusterDT$tooBig)) set(clusterDT, , "tooBig", NULL)
+    if(!is.null(clusterDT$tooBigByNCells)) set(clusterDT, , "tooBigByNCells", NULL)
     attrList <- list(clusterDT=clusterDT, whActive=whActive,
                      whInactive=whInactive, whNeedRetry=whNeedRetry,
                      needRetryID=needRetryID, totalIterations=totalIterations)
