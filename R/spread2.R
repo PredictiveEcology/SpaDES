@@ -505,7 +505,6 @@ setMethod(
       if (length(needRetryID) > 0) {
         ## get slightly further neighbours
         dtRetry <- dt[whNeedRetry]
-        browser()
         if (any(((clusterDT$numRetries + 1) %% 5) == 0)) { # jump every 5, starting at 4
           resCur <- res(landscape)[1]
           fromPixels <- dtRetry$pixels
@@ -530,7 +529,6 @@ setMethod(
         set(dt, whNeedRetry, "state", "activeSource")
 
       } else {
-        browser()
         ## Spread to immediate neighbours
         dtPotential <- adj(#landscape,
           numCell = ncells,
@@ -642,7 +640,6 @@ setMethod(
         successCells <- dtPotential$to[!dupsWithinDtPotential] # remove the dupsWithinDtPotential
         potentialNotAvailable <- notAvailable[successCells]
         whNoDupsCurItAndAll <- seq_along(dtPotential$to)[!dupsWithinDtPotential][!potentialNotAvailable]
-        notAvailable[successCells[!potentialNotAvailable]] <- TRUE
         dtPotential <- dtPotential[whNoDupsCurItAndAll]
 
         # dups <- duplicatedInt(c(dt$pixels, dtPotential$to))
@@ -653,7 +650,6 @@ setMethod(
         setkeyv(dtPotential, c("id", "from")) # sort so it is the same as numNeighsByPixel
         if (NROW(dtPotential)) {
           if(length(spreadProb)>1) {
-            browser()
             set(dtPotential, , "spreadProb", spreadProb[][dtPotential$to])
           } else {
             set(dtPotential, , "spreadProb", spreadProb)
@@ -675,7 +671,9 @@ setMethod(
             dtPotential <- dtPotential[numNeighsByPixel[dtPotential][,
                                   resampleZeroProof(spreadProbHas0, .I, n = numNeighs, prob=spreadProb), by = "from"]$V1]
           }
-
+          
+          notAvailable[dtPotential$to] <- TRUE
+          
           set(dtPotential, , "spreadProb", NULL)
         }
 
@@ -757,7 +755,6 @@ setMethod(
 
       # Remove any pixels that push each cluster over their maxSize limit
       if(!anyNA(maxSize) | !(anyNA(exactSize))) {
-        browser()
         setkeyv(dt,"initialPixels") # must sort because maxSize is sorted
         #currentSize <- dt[,.N,by=initialPixels][,`:=`(maxSize=clusterDT$maxSize,
         #                                              tooBigByNCells=N-clusterDT$maxSize)]
