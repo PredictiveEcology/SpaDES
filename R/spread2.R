@@ -1,7 +1,8 @@
 if (getRversion() >= "3.1.0") {
   utils::globalVariables(c(".GRP", "N", "distance", "initialPixels", "pixels", "state", "tooBig",
                            "size", "actualSpreadProbAdj", "actualSpreadProbAdj2",
-                           "newQuantity", "quantityAdj", "quantityAdj2"))
+                           "newQuantity", "quantityAdj", "quantityAdj2", "numNeighs",
+                           "origIndex", "tooBigByNCells"))
 }
 
 ###############################################################################
@@ -211,7 +212,8 @@ if (getRversion() >= "3.1.0") {
 #' \bold{NOTE}: the \code{data.table} or \code{RasterLayer} should not use be altered
 #' when passed back into \code{spread2}.
 #'
-#' @return Either a \code{data.table} (\code{asRaster=FALSE}) or a \code{RasterLayer}
+#' @return
+#' Either a \code{data.table} (\code{asRaster=FALSE}) or a \code{RasterLayer}
 #' (\code{asRaster=TRUE}, the default).
 #' The \code{data.table} will have one attribute named \code{spreadState}, which
 #' is a list containing a \code{data.table} of current cluster-level information
@@ -254,9 +256,9 @@ if (getRversion() >= "3.1.0") {
 #' spread2. If the user runs \code{spread2} iteratively, there will likely be significant
 #' speed gains if the \code{data.table} passed in to \code{start} should have the attribute
 #' attached, or re-attached if it was lost, e.g., via
-#' \code{setattr(outInput, "spreadState", attr(out, "spreadState))}, where \code{out} is the
+#' \code{setattr(outInput, "spreadState", attr(out, "spreadState"))}, where \code{out} is the
 #' returned \code{data.table} from the previous call to \code{spread2}, and \code{outInput} is
-#' the modified \code{data.table}. Currently, the modified \code{data.table} \bold{must have the
+#' the modified \code{data.table}. Currently, the modified \code{data.table} \bold{must} have the
 #' same order as \code{out}.
 #'
 #' @export
@@ -504,7 +506,7 @@ setMethod(
       if (length(needRetryID) > 0) {
         ## get slightly further neighbours
         dtRetry <- dt[whNeedRetry]
-        if (any(((clusterDT$numRetries + 1) %% 5) == 0)) { # jump every 5, starting at 4
+        if (any(((clusterDT$numRetries + 1) %% 10) == 0)) { # jump every 10, starting at 4
           resCur <- res(landscape)[1]
           fromPixels <- dtRetry$pixels
           dtPotential <- cir(landscape, loci = fromPixels, includeBehavior = "excludePixels",
@@ -617,9 +619,16 @@ setMethod(
       if (!anyNA(neighProbs)) {
         numNeighsByPixel <- unique(dtPotential, by = c("id", "from"))
         if(is.list(neighProbs)) {
+          if(NROW(numNeighsByPixel)!=length(neighProbs)) {
+            neighProbs1 <- neighProbs[match(numNeighsByPixel$from, start[state=="activeSource"]$pixels)]
+
+          } else {
+            neighProbs1 <- neighProbs
+          }
           set(numNeighsByPixel, , "numNeighs", unlist(lapply(
-            neighProbs, function(np) sample.int(size = 1, n = length(np),
+            neighProbs1, function(np) sample.int(size = 1, n = length(np),
                                                 replace = TRUE, prob = np))))
+
         } else {
           set(numNeighsByPixel, , "numNeighs",
               sample.int(size = NROW(numNeighsByPixel), n = length(neighProbs),
@@ -632,7 +641,6 @@ setMethod(
         successCells <- dtPotential$to[!dupsWithinDtPotential] # remove the dupsWithinDtPotential
         potentialNotAvailable <- notAvailable[successCells]
         whNoDupsCurItAndAll <- seq_along(dtPotential$to)[!dupsWithinDtPotential][!potentialNotAvailable]
-        notAvailable[successCells[!potentialNotAvailable]] <- TRUE
         dtPotential <- dtPotential[whNoDupsCurItAndAll]
 
         # dups <- duplicatedInt(c(dt$pixels, dtPotential$to))
@@ -642,10 +650,11 @@ setMethod(
         # }
         setkeyv(dtPotential, c("id", "from")) # sort so it is the same as numNeighsByPixel
         if (NROW(dtPotential)) {
-          if(length(spreadProb)>1)
-            set(dtPotential, , "spreadProb", spreadProb[dtPotential$to])
-          else
+          if(length(spreadProb)>1) {
+            set(dtPotential, , "spreadProb", spreadProb[][dtPotential$to])
+          } else {
             set(dtPotential, , "spreadProb", spreadProb)
+          }
           spreadProbNA <- is.na(dtPotential$spreadProb) # This is where a mask enters
           if(any(spreadProbNA)) {
             dtPotential <- dtPotential[!spreadProbNA]
@@ -655,14 +664,16 @@ setMethod(
             # names(ll) <- colnamesDtPot
             # dtPotential <- as.data.table(ll)
           }
-          # If it is a corner or has had pixels removed bc of duplicates, it may not have enough neighbours
-          numNeighsByPixel <- numNeighsByPixel[dtPotential[, .N, by = c("id", "from")]]
-          set(numNeighsByPixel, , "numNeighs", pmin(numNeighsByPixel$N, numNeighsByPixel$numNeighs, na.rm=TRUE))
+          # might be zero length because of spreadProb NAs
+          if(NROW(dtPotential)) {
+            # If it is a corner or has had pixels removed bc of duplicates, it may not have enough neighbours
+            numNeighsByPixel <- numNeighsByPixel[dtPotential[, .N, by = c("id", "from")]]
+            set(numNeighsByPixel, , "numNeighs", pmin(numNeighsByPixel$N, numNeighsByPixel$numNeighs, na.rm=TRUE))
+            dtPotential <- dtPotential[numNeighsByPixel[dtPotential][,
+                                  resampleZeroProof(spreadProbHas0, .I, n = numNeighs, prob=spreadProb), by = "from"]$V1]
+          }
 
-          dtPotential <- dtPotential[
-            dtPotential[,list(keepIndex=
-                                resampleZeroProof(spreadProbHas0, .I,numNeighsByPixel$numNeighs[.GRP], spreadProb)),
-                        by="from"]$keepIndex]
+          notAvailable[dtPotential$to] <- TRUE
 
           set(dtPotential, , "spreadProb", NULL)
         }
@@ -747,24 +758,34 @@ setMethod(
       if(!anyNA(maxSize) | !(anyNA(exactSize))) {
         setkeyv(dt,"initialPixels") # must sort because maxSize is sorted
         #currentSize <- dt[,.N,by=initialPixels][,`:=`(maxSize=clusterDT$maxSize,
-        #                                              tooBig=N-clusterDT$maxSize)]
+        #                                              tooBigByNCells=N-clusterDT$maxSize)]
         set(clusterDT, , "size", dt[,list(size=as.integer(.N)),by="initialPixels"]$size)
         # THis next line is a work around for a problem that doesn't make sense -- See: https://stackoverflow.com/questions/29615181/r-warning-when-creating-a-long-list-of-dummies
         alloc.col(clusterDT, 7)
-        set(clusterDT, , "tooBig", clusterDT$size-as.integer(clusterDT$maxSize))
+        set(clusterDT, , "tooBigByNCells", clusterDT$size-as.integer(clusterDT$maxSize))
 
-        currentSizeTooBig <- clusterDT[tooBig > 0]
-        if (NROW(currentSizeTooBig) > 0) {
+        currentSizetooBigByNCells <- clusterDT[tooBigByNCells > 0]
+        if (NROW(currentSizetooBigByNCells) > 0) {
           # sort them so .GRP works on 3rd line
-          setkeyv(currentSizeTooBig, "initialPixels")
-          dt <- dt[-dt[state == "successful" & (initialPixels %in% currentSizeTooBig$initialPixels),
-                       resample(.I, currentSizeTooBig[.GRP]$tooBig), by = initialPixels]$V1][
-                         initialPixels %in% currentSizeTooBig$initialPixels, state := "inactive"]
-          clusterDT[currentSizeTooBig[,list(initialPixels)],size:=size-tooBig]
+          setkeyv(currentSizetooBigByNCells, "initialPixels")
+          #dt <- data.table::copy(dt2)
+          set(dt, ,"origIndex", seq_len(NROW(dt)))
+          dt1 <- dt[state=="successful"]
+          dt1b <- dt1[currentSizetooBigByNCells] # attach tooBigByNCells
+          dt1a <- dt1b[,list(omit=resample(origIndex,tooBigByNCells)),by="initialPixels"]
+          dt <- dt[-dt1a$omit][,list(initialPixels, pixels, state)]
+          dt[dt1a, state:="inactive"]
+          #set(dt, , "origIndex", NULL)
+
+          # dt <- dt[-dt[state == "successful" & (initialPixels %in% currentSizetooBigByNCells$initialPixels),
+          #              resample(.I, currentSizetooBigByNCells[.GRP]$tooBigByNCells), by = initialPixels]$V1][
+          #                initialPixels %in% currentSizetooBigByNCells$initialPixels, state := "inactive"]
+          clusterDT[currentSizetooBigByNCells[,list(initialPixels)],size:=size-tooBigByNCells]
+
         }
 
         if (!(anyNA(exactSize))) {
-          currentSizeTooSmall <- clusterDT[tooBig < 0]
+          currentSizeTooSmall <- clusterDT[tooBigByNCells < 0]
           if (NROW(currentSizeTooSmall) > 0) {
             # successful means will become activeSource next iteration
             dt2 <- dt[initialPixels %in% currentSizeTooSmall$initialPixels & (state == "successful" | state == "holding")]
@@ -829,7 +850,7 @@ setMethod(
       }
     } # end of main loop
 
-    if(!is.null(clusterDT$tooBig)) set(clusterDT, , "tooBig", NULL)
+    if(!is.null(clusterDT$tooBigByNCells)) set(clusterDT, , "tooBigByNCells", NULL)
     attrList <- list(clusterDT=clusterDT, whActive=whActive,
                      whInactive=whInactive, whNeedRetry=whNeedRetry,
                      needRetryID=needRetryID, totalIterations=totalIterations)
