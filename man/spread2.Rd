@@ -223,7 +223,7 @@ Also, \code{exactSize} may not be achieved because the active cells are "stuck",
 i.e., they have no unactivated cells to move to; or the \code{spreadProb} is low.
 In the latter two cases, the algorithm will retry again, but it will only
 re-try from the last iterations active cells.
-The algorithm will only retry 5 times before quitting.
+The algorithm will only retry 10 times before quitting.
 Currently, there will also be an attempt to "jump" up to four cells away from
 the active cells to try to continue spreading.
 
@@ -254,8 +254,8 @@ are interacting with each other correctly.
   \code{exactSize} \tab This is the number of cells that are "successfully" turned
                       on during a spreading event. This will override an event that stops probabilistically
                       via \code{spreadProb}, but forcing its last set of active cells to
-                      try again to find neighbours. It will try 5 times per event, before giving up.
-                      During those 5 times, it will try twice to "jump" up to 4 cells outwards
+                      try again to find neighbours. It will try 10 times per event, before giving up.
+                      During those 10 times, it will try twice to "jump" up to 4 cells outwards
                       from each of the active cells\cr
   \code{iterations} \tab This is a hard cap on the number of internal iterations to
                          complete before returning the current state of the system
