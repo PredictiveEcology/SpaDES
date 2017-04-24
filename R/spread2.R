@@ -437,7 +437,7 @@ setMethod(
       set(dt, , "state", "activeSource")
 
       #clusterDT=as.data.table(cbind(id=whActive, initialPixels=start, numRetries=0L));
-      clusterDT=data.table(id=whActive, initialPixels=start, numRetries=0L);
+      clusterDT=data.table(id=whActive, initialPixels=start, numRetries=0L, size=as.integer(iterations>0));
 
       if(!anyNA(maxSize)) {
         set(clusterDT, , "maxSize", maxSize)
@@ -478,8 +478,7 @@ setMethod(
         canUseAvailable <- FALSE # not worth it if it has to be remade each time
         totalIterations <- if(needDistance) max(start$distance) else 0
         unIP <- unique(dt$initialPixels)
-        clusterDT=data.table(id=seq_along(unIP),
-                             initialPixels=unIP, numRetries=0L)
+        clusterDT=data.table(id=seq_along(unIP), initialPixels=unIP, numRetries=0L)
         if(!anyNA(maxSize)) {
           set(clusterDT, , "maxSize", maxSize)
           if(!anyNA(exactSize)) {
@@ -757,7 +756,10 @@ setMethod(
         setkeyv(dt,"initialPixels") # must sort because maxSize is sorted
         #currentSize <- dt[,.N,by=initialPixels][,`:=`(maxSize=clusterDT$maxSize,
         #                                              tooBigByNCells=N-clusterDT$maxSize)]
-        set(clusterDT, , "size", dt[,list(size=as.integer(.N)),by="initialPixels"]$size)
+        setkeyv(dtPotential, "initialPixels")
+        dtPotClusterDT <- dtPotential[,list(size=as.integer(.N)),by="initialPixels"]
+        clusterDT[dtPotClusterDT, size:=size + i.size]
+        #set(clusterDT, , "size", dt[,list(size=as.integer(.N)),by="initialPixels"]$size)
         # THis next line is a work around for a problem that doesn't make sense -- See: https://stackoverflow.com/questions/29615181/r-warning-when-creating-a-long-list-of-dummies
         alloc.col(clusterDT, 7)
         set(clusterDT, , "tooBigByNCells", clusterDT$size-as.integer(clusterDT$maxSize))
