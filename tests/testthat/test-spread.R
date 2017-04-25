@@ -763,7 +763,7 @@ test_that("distanceFromPoints does not work correctly", {
         cir20 = cir(coords = coords[, c("x", "y")], landscape = hab, maxRadius = 20,
                     minRadius = 0, returnDistances = TRUE, allowOverlap = TRUE)
       ))
-      print(paste("numLoci =", numLoci, "numPix =", numPix))
+      #print(paste("numLoci =", numLoci, "numPix =", numPix))
     }
   }
 
@@ -965,7 +965,7 @@ test_that("distanceFromPoints does not work correctly", {
     tmp[count, 2:4] <- c(size1, j, all(table(getValues(ras1ClumpSm)) > 2))
     #expect_true(all(table(getValues(ras1ClumpSm)) > 2))
     TEST <- all(table(getValues(ras1ClumpSm)) > 2)
-    print(count)
+    #print(count)
   }
   if (interactive()) Plot(ras1, ras1Clump, new = TRUE)
 

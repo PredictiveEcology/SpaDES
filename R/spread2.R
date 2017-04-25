@@ -1,7 +1,8 @@
 if (getRversion() >= "3.1.0") {
   utils::globalVariables(c(".GRP", "N", "distance", "initialPixels", "pixels", "state", "tooBig",
                            "size", "actualSpreadProbAdj", "actualSpreadProbAdj2",
-                           "newQuantity", "quantityAdj", "quantityAdj2"))
+                           "newQuantity", "quantityAdj", "quantityAdj2", "numNeighs",
+                           "origIndex", "tooBigByNCells"))
 }
 
 ###############################################################################
@@ -82,8 +83,8 @@ if (getRversion() >= "3.1.0") {
 #'   \code{exactSize} \tab This is the number of cells that are "successfully" turned
 #'                       on during a spreading event. This will override an event that stops probabilistically
 #'                       via \code{spreadProb}, but forcing its last set of active cells to
-#'                       try again to find neighbours. It will try 5 times per event, before giving up.
-#'                       During those 5 times, it will try twice to "jump" up to 4 cells outwards
+#'                       try again to find neighbours. It will try 10 times per event, before giving up.
+#'                       During those 10 times, it will try twice to "jump" up to 4 cells outwards
 #'                       from each of the active cells\cr
 #'   \code{iterations} \tab This is a hard cap on the number of internal iterations to
 #'                          complete before returning the current state of the system
@@ -183,7 +184,7 @@ if (getRversion() >= "3.1.0") {
 #' i.e., they have no unactivated cells to move to; or the \code{spreadProb} is low.
 #' In the latter two cases, the algorithm will retry again, but it will only
 #' re-try from the last iterations active cells.
-#' The algorithm will only retry 5 times before quitting.
+#' The algorithm will only retry 10 times before quitting.
 #' Currently, there will also be an attempt to "jump" up to four cells away from
 #' the active cells to try to continue spreading.
 #'
@@ -211,7 +212,8 @@ if (getRversion() >= "3.1.0") {
 #' \bold{NOTE}: the \code{data.table} or \code{RasterLayer} should not use be altered
 #' when passed back into \code{spread2}.
 #'
-#' @return Either a \code{data.table} (\code{asRaster=FALSE}) or a \code{RasterLayer}
+#' @return
+#' Either a \code{data.table} (\code{asRaster=FALSE}) or a \code{RasterLayer}
 #' (\code{asRaster=TRUE}, the default).
 #' The \code{data.table} will have one attribute named \code{spreadState}, which
 #' is a list containing a \code{data.table} of current cluster-level information
@@ -254,7 +256,7 @@ if (getRversion() >= "3.1.0") {
 #' spread2. If the user runs \code{spread2} iteratively, there will likely be significant
 #' speed gains if the \code{data.table} passed in to \code{start} should have the attribute
 #' attached, or re-attached if it was lost, e.g., via
-#' \code{setattr(outInput, "spreadState", attr(out, "spreadState))}, where \code{out} is the
+#' \code{setattr(outInput, "spreadState", attr(out, "spreadState"))}, where \code{out} is the
 #' returned \code{data.table} from the previous call to \code{spread2}, and \code{outInput} is
 #' the modified \code{data.table}. Currently, the modified \code{data.table} \bold{must} have the
 #' same order as \code{out}.
@@ -403,7 +405,7 @@ setMethod(
     sizeType <- if(!anyNA(exactSize)) "exactSize" else "maxSize"
 
     needDistance <- returnDistances | circle # returnDistances = TRUE and circle = TRUE both require distance calculations
-    maxRetriesPerID <- 5 # This means that if an event can not spread any more, it will try 5 times, including 2 jumps
+    maxRetriesPerID <- 10 # This means that if an event can not spread any more, it will try 10 times, including 2 jumps
 
     if(!is.numeric(start) & !is.data.table(start)) {
       if(is(start, "Raster")) {
@@ -503,7 +505,7 @@ setMethod(
       if (length(whNeedRetryClusterDT) > 0) {
         ## get slightly further neighbours
         dtRetry <- dt[whNeedRetry]
-        if (any(((clusterDT$numRetries + 1) %% 5) == 0)) { # jump every 5, starting at 4
+        if (any(((clusterDT$numRetries + 1) %% 10) == 0)) { # jump every 10, starting at 4
           resCur <- res(landscape)[1]
           fromPixels <- dtRetry$pixels
           dtPotential <- cir(landscape, loci = fromPixels, includeBehavior = "excludePixels",
@@ -669,9 +671,9 @@ setMethod(
             dtPotential <- dtPotential[numNeighsByPixel[dtPotential][,
                                   resampleZeroProof(spreadProbHas0, .I, n = numNeighs, prob=spreadProb), by = "from"]$V1]
           }
-          
+
           notAvailable[dtPotential$to] <- TRUE
-          
+
           set(dtPotential, , "spreadProb", NULL)
         }
 

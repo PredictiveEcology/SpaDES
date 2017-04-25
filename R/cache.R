@@ -883,14 +883,15 @@ setMethod(
 #'
 prepareFileBackedRaster <- function(obj, repoDir = NULL, compareRasterFileLength = 1e6, ...) {
   isRasterLayer <- TRUE
+  isStack <- is(obj, "RasterStack")
   if (!inMemory(obj)) {
     isFilebacked <- TRUE
     if (is(obj, "RasterLayer")) {
       curFilename <- normalizePath(filename(obj), winslash = "/", mustWork = FALSE)
-    } else {
-      isRasterLayer <- FALSE
-      curFilename <- unlist(lapply(obj@layers, function(x)
+    } else  {
+      curFilenames <- unlist(lapply(obj@layers, function(x)
         normalizePath(filename(x), winslash = "/", mustWork = FALSE)))
+      curFilename <- unique(curFilenames)
     }
   } else {
     isFilebacked <- FALSE
@@ -938,7 +939,7 @@ prepareFileBackedRaster <- function(obj, repoDir = NULL, compareRasterFileLength
         }
       }
       if (shouldCopy) {
-        pathExists <- file.exists(dirname(saveFilename))
+        pathExists <- dir.exists(dirname(saveFilename))
         if (any(!pathExists)) {
           dirname(saveFilename) %>%
             unique() %>%
@@ -964,7 +965,16 @@ prepareFileBackedRaster <- function(obj, repoDir = NULL, compareRasterFileLength
           slot(slot(slot(obj, "layers")[[1]], "file"), "name") <- saveFilename[i]
         }
       } else {
-        slot(slot(obj, "file"), "name") <- saveFilename
+        if(!isStack) {
+          slot(slot(obj, "file"), "name") <- saveFilename
+        } else {
+          for(i in seq_len(nlayers(obj))) {
+            whFilename <- match(basename(saveFilename), basename(curFilenames))
+            slot(slot(obj@layers[[i]], "file"), "name") <- saveFilename[whFilename]
+          }
+
+        }
+
       }
     } else {
       checkPath(dirname(saveFilename), create = TRUE)
