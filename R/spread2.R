@@ -492,17 +492,17 @@ setMethod(
       }
 
     }
-    needRetryID <- integer()
+    whNeedRetryClusterDT <- integer()
     whNeedRetry <- integer()
     dtPotentialColNames <- c("id", "from", "to", "state", "distance"[needDistance]) # keep for use later
 
     its <- 0 # start at iteration 0, note: totalIterations is also maintained, which persists during iterative calls to spread2
 
-    while (length(needRetryID) | (length(whActive) &  its < iterations)) {
+    while (length(whNeedRetryClusterDT) | (length(whActive) &  its < iterations)) {
 
       # Step 1
       # Get neighbours, either via adj (default) or cir (jumping if stuck)
-      if (length(needRetryID) > 0) {
+      if (length(whNeedRetryClusterDT) > 0) {
         ## get slightly further neighbours
         dtRetry <- dt[whNeedRetry]
         if (any(((clusterDT$numRetries + 1) %% 10) == 0)) { # jump every 10, starting at 4
@@ -543,14 +543,14 @@ setMethod(
         totalIterations <- totalIterations + 1
       }
 
-      if (length(needRetryID) > 0) {
+      if (length(whNeedRetryClusterDT) > 0) {
         # of all possible cells in the jumping range, take just 2
         if(!is.data.table(dtPotential)) {
           dtPotential <- as.data.table(dtPotential)
         }
 
         dtPotential <- dtPotential[,list(to = resample(to, 2)),by = c("id", "from")]
-        needRetryID <- integer()
+        whNeedRetryClusterDT <- integer()
       }
 
       # randomize row order so duplicates are not always in same place
@@ -770,9 +770,9 @@ setMethod(
         if (NROW(currentSizetooBigByNCells) > 0) {
           # sort them so .GRP works on 3rd line
           setkeyv(currentSizetooBigByNCells, "initialPixels")
-          #dt <- data.table::copy(dt2)
           set(dt, ,"origIndex", seq_len(NROW(dt)))
-          dt1 <- dt[state=="successful"]
+          dt1 <- dt["successful", on="state"]
+          #setkeyv(dt1, "initialPixels")
           dt1b <- dt1[currentSizetooBigByNCells] # attach tooBigByNCells
           dt1a <- dt1b[,list(omit=resample(origIndex,tooBigByNCells)),by="initialPixels"]
           dt <- dt[-dt1a$omit][,list(initialPixels, pixels, state)]
@@ -790,26 +790,96 @@ setMethod(
           currentSizeTooSmall <- clusterDT[tooBigByNCells < 0]
           if (NROW(currentSizeTooSmall) > 0) {
             # successful means will become activeSource next iteration
-            dt2 <- dt[initialPixels %in% currentSizeTooSmall$initialPixels & (state == "successful" | state == "holding")]
-            setkeyv(dt2, "initialPixels")
-            #setkeyv(currentSizeTooSmall, "initialPixels")
-            currentSizeTooSmall <- currentSizeTooSmall[!dt2]
+            # browser()
+            # microbenchmark(times = 15,a={
+            #   dt <- data.table::copy(dtCopy);
+            #   currentSizeTooSmall <- data.table::copy(cstsCopy)
+            #   dt2 <- dt[initialPixels %in% currentSizeTooSmall$initialPixels & (state == "successful" | state == "holding")]
+            #   setkeyv(dt2, "initialPixels")
+            #   #setkeyv(currentSizeTooSmall, "initialPixels")
+            #   currentSizeTooSmall <- currentSizeTooSmall[!dt2]
+            # }, b={
+            #   dt <- data.table::copy(dtCopy);
+            #   currentSizeTooSmall <- data.table::copy(cstsCopy)
+              currentSizeTooSmall <- currentSizeTooSmall[!dt[c("successful", "holding"),on="state",nomatch=0]]
+            # }, d = {aa <- data.table::copy(cstsCopy)},
+            # ee = {dt <- data.table::copy(dtCopy);dt[(state %in% c("successful", "holding"))]}, 
+            # ff= {dt <- data.table::copy(dtCopy); setkey(dt, state); dt[c("successful", "holding")]},
+            # gg = {dt <- data.table::copy(dtCopy); dt[c("successful", "holding"), on="state", nomatch=0]})
+            
+            
           }
           # if the ones that are too small are unsuccessful, make them "needRetry"
-          whNeedRetry <- which(dt$initialPixels %in% currentSizeTooSmall$initialPixels &
-                                 (dt$state != "successful" & dt$state != "inactive"))
+          # browser()
+          # dtCopy <- data.table::copy(dt)
+          # cstsCopy <- data.table::copy(currentSizeTooSmall)
+          # 
+          # 
+          # microbenchmark(times = 15, a = {
+          #   dt <- data.table::copy(dtCopy)
+          #   currentSizeTooSmall <- data.table::copy(cstsCopy)
+          #   whNeedRetry <- which(dt$initialPixels %in% currentSizeTooSmall$initialPixels &
+          #                          (dt$state != "successful" & dt$state != "inactive"))
+          #   
+          # }, b = {
+          #   dt <- data.table::copy(dtCopy)
+          #   currentSizeTooSmall <- data.table::copy(cstsCopy)
+          #   dt[,ind:=.I]
+          #   whNeedRetry <- dt[!c("successful","inactive"),on="state"][currentSizeTooSmall]$ind
+          #   
+          # }, bb = {
+          #   dt <- data.table::copy(dtCopy)
+          #   currentSizeTooSmall <- data.table::copy(cstsCopy)
+          #   whNeedRetry <- dt[,ind:=.I][!c("successful","inactive"),on="state"][currentSizeTooSmall]$ind
+          # 
+          #   
+          # })
+          # 
+          # whNeedRetry <- which(dt$initialPixels %in% currentSizeTooSmall$initialPixels &
+          #                        (dt$state != "successful" & dt$state != "inactive"))
+          dt[,ind:=.I]
+          whNeedRetry <- dt[!c("successful","inactive"),on="state"][currentSizeTooSmall,nomatch=0]$ind
+
           if (length(whNeedRetry)) {
-            needRetryID <- clusterDT$initialPixels %in% unique(dt$initialPixels[whNeedRetry])
-            tooManyRetries <- clusterDT$numRetries > maxRetriesPerID
-            if (sum(tooManyRetries * needRetryID) > 0) {
-              needRetryID <- needRetryID & !(needRetryID * tooManyRetries)
-              whNeedRetry <- whNeedRetry[dt$initialPixels[whNeedRetry] %in%
-                                           clusterDT$initialPixels[needRetryID]]
-            }
-            needRetryID <- which(needRetryID)
+            
+            # clusterDTCp <- data.table::copy(clusterDT)
+            # clusterDTCp2 <- data.table::copy(clusterDT)
+            # 
+            # 
+            # microbenchmark(times = 16, a={
+            #   whNeedRetry <- dt[!c("successful","inactive"),on="state"][currentSizeTooSmall]$ind
+            #   clusterDT <- data.table::copy(clusterDTCp2)
+            #   needRetryID <- clusterDT$initialPixels %in% unique(dt$initialPixels[whNeedRetry])
+            #   # tooManyRetries <- clusterDT$numRetries > maxRetriesPerID
+            #   # if (sum(tooManyRetries * needRetryID) > 0) {
+            #   #   needRetryID <- needRetryID & !(needRetryID * tooManyRetries)
+            #   #   whNeedRetry <- whNeedRetry[dt$initialPixels[whNeedRetry] %in%
+            #   #                                clusterDT$initialPixels[needRetryID]]
+            #   # }
+            # }, b={
+            #   whNeedRetry <- dt[!c("successful","inactive"),on="state"][currentSizeTooSmall]$ind
+              
+              clusterDT[,indClDT:=.I]
+              whNeedRetryClusterDT <- unique(clusterDT[dt[whNeedRetry]], on="initialPixels")$indClDT
+              tooManyRetries <- clusterDT[whNeedRetryClusterDT,numRetries>maxRetriesPerID]
+              if(sum(tooManyRetries) > 0) {
+                whNeedRetryClusterDT <- whNeedRetryClusterDT[!tooManyRetries]
+                whNeedRetry <- whNeedRetry[!tooManyRetries]
+              }
+            # }
+            # )
+            
+            
+            # tooManyRetries <- clusterDT$numRetries > maxRetriesPerID
+            # if (sum(tooManyRetries * needRetryID) > 0) {
+            #   needRetryID <- needRetryID & !(needRetryID * tooManyRetries)
+            #   whNeedRetry <- whNeedRetry[dt$initialPixels[whNeedRetry] %in%
+            #                                clusterDT$initialPixels[needRetryID]]
+            # }
+            #needRetryID <- which(needRetryID)
 
             set(dt, whNeedRetry, "state", "needRetry")
-            set(clusterDT, needRetryID, "numRetries", clusterDT$numRetries[needRetryID] + 1L)
+            set(clusterDT, whNeedRetryClusterDT, "numRetries", clusterDT$numRetries[whNeedRetryClusterDT] + 1L)
           }
         }
       } # end maxSize based removals
@@ -855,7 +925,7 @@ setMethod(
     if(!is.null(clusterDT$tooBigByNCells)) set(clusterDT, , "tooBigByNCells", NULL)
     attrList <- list(clusterDT=clusterDT, whActive=whActive,
                      whInactive=whInactive, whNeedRetry=whNeedRetry,
-                     needRetryID=needRetryID, totalIterations=totalIterations)
+                     whNeedRetryClusterDT=whNeedRetryClusterDT, totalIterations=totalIterations)
     if(canUseAvailable)
       attrList <- append(attrList, list(notAvailable=notAvailable))
 
@@ -864,7 +934,7 @@ setMethod(
     # setattr(dt, "whActive", whActive)
     # setattr(dt, "whInactive", whInactive)
     # setattr(dt, "whNeedRetry", whNeedRetry)
-    # setattr(dt, "needRetryID", needRetryID)
+    # setattr(dt, "whNeedRetryClusterDT", whNeedRetryClusterDT)
     # setattr(dt, "totalIterations", totalIterations)
     # if(canUseAvailable)
     #   setattr(dt, "notAvailable", notAvailable)
