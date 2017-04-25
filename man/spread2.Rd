@@ -65,7 +65,7 @@ individual cell distances from the locus where that event
 started. Default is FALSE. See Details.}
 
 \item{returnFrom}{Logical. Should the function return a column with the
-source, i.e, "from" pixel, for each iteration.}
+source, i.e, the lag 1 "from" pixel, for each iteration.}
 
 \item{plot.it}{If TRUE, then plot the raster at every iteraction,
 so one can watch the spread2 event grow.}
@@ -110,8 +110,8 @@ Either a \code{data.table} (\code{asRaster=FALSE}) or a \code{RasterLayer}
 The \code{data.table} will have one attribute named \code{spreadState}, which
 is a list containing a \code{data.table} of current cluster-level information
 about the spread events.
-If \code{asRaster=TRUE}, then the \code{data.table} that would have been
-returned is attached to the Raster as an attribute named \code{pixel} as it
+If \code{asRaster=TRUE}, then the \code{data.table} (with its \code{spreadState}
+attribute) will be attached to the \code{Raster} as an attribute named \code{pixel} as it
 provides pixel-level information about the spread events.
 
 The \code{RasterLayer} represents every cell in which a successful spread2 event occurred.
@@ -119,7 +119,7 @@ For the case of, say, a fire this would represent every cell that burned.
 If \code{allowOverlap} is \code{TRUE}, the return will always be a \code{data.table}.
 
 If \code{asRaster} is \code{FALSE}, then this function returns a
-\code{data.table} with columns:
+\code{data.table} with 3 (or 4 if \code{returnFrom} is \code{TRUE}) columns:
 
 \tabular{ll}{
   \code{initialPixels} \tab the initial cell number of that particular
@@ -129,6 +129,9 @@ If \code{asRaster} is \code{FALSE}, then this function returns a
   \code{state} \tab a logical indicating whether the cell is active (i.e.,
                        could still be a source for spreading) or not (no
                        spreading will occur from these cells).\cr
+  \code{from} \tab The pixel indices that were the immediately preceeding
+                   "source" for each \code{pixels}, i.e., the lag 1 pixels.
+                   Only returned if \code{returnFrom} is \code{TRUE} \cr
 }
 
 The attribute saved with the name "spreadState" (e.g., \code{attr(output, "spreadState")})
