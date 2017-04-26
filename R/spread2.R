@@ -40,7 +40,7 @@ if (getRversion() >= "3.1.0") {
 #' new set of conditions arise due to a change in weather.
 #'
 #' \code{asymmetry} here is slightly different than in the \code{spread} function,
-#' so that it can deal with a RasterLayer of \code{asymmetryAngle}.
+#' so that it can deal with a \code{RasterLayer} of \code{asymmetryAngle}.
 #' Here, the \code{spreadProb} values of a given set of neighbours around each active pixel
 #' are adjusted to create \code{adjustedSpreadProb} which is calculated maintain the
 #' following
@@ -90,20 +90,35 @@ if (getRversion() >= "3.1.0") {
 #'                          as a data.table \cr
 #' }
 #'
-#' @param landscape     A \code{RasterLayer} object. This defines the possible locations
+#' @param landscape     Required. A \code{RasterLayer} object. This defines the possible locations
 #'                      for spreading events to start and spread2 into. Required.
 #'
-#' @param start     Either a vector of pixel numbers to initiate spreading, or a
+#' @param start     Required. Either a vector of pixel numbers to initiate spreading, or a
 #'                  data.table that is the output of a previous \code{spread2}.
 #'                  If a vector, they should be cell indices (pixels) on the \code{landscape}.
 #'                  If user has x and y coordinates, these can be converted with
 #'                  \code{\link[raster]{cellFromXY}}.
 #'
-#' @param spreadProb    Numeric or RasterLayer. If numeric of length 1, then this is
-#'                      the global probability of
+#' @param spreadProb    Numeric of length 1 or \code{RasterLayer}. If numeric of length 1, then this is
+#'                      the global (absolute) probability of
 #'                      spreading into each cell from a neighbor. If a raster then this must
-#'                      be the cell-specific probability of a "receiving" potential cell.
-#'                      Default is \code{0.23}.
+#'                      be the cell-specific (absolute) probability of a "receiving" potential cell.
+#'                      Default is \code{0.23}. If relative probabilities are required,
+#'                      use \code{spreadProbRel}. If used together, then the relative
+#'                      probabilities will be re-scaled so that the mean relative probability of
+#'                      potential neighbours is
+#'                      equal to the mean of \code{spreadProb} of the potential neighbours.
+#'
+#' @param spreadProbRel Optional \code{RasterLayer} indicating a surface of relative probabilities
+#'                      useful when using \code{neighProbs} (which provides a mechanism for selecting
+#'                      a specific number of cells at each iteration). This
+#'                      indicates the relative probabilities for the selection of successful neighbours.
+#'                      \code{spreadProb} will still be evaluated
+#'                      \emph{after} the relative probabilities and \code{neighProbs} has been
+#'                      evaluated, i.e., potential cells will be identified, then some could be
+#'                      rejected via \code{spreadProb}. If absolute \code{spreadProb} is not
+#'                      desired, \emph{be sure to set} \code{spreadProb=1}.
+#'                      Ignored if \code{neighProbs} is not provided.
 #'
 #' @param asRaster Logical, length 1. If \code{TRUE}, the function will return a \code{Raster}
 #'                 where raster non NA values indicate the cells that were "active", and the
@@ -195,7 +210,7 @@ if (getRversion() >= "3.1.0") {
 #' This function can be used iteratively, with relatively little overhead compared to using
 #' it non-iteratively. In general, this function can be called with arguments set as user
 #' needs, and with specifying iterations = 1 (say). This means that the function will spread
-#' outwards 1 iteration, then stop. The returned object will be a data.table or RasterLayer
+#' outwards 1 iteration, then stop. The returned object will be a data.table or \code{RasterLayer}
 #' that can be passed immediately back as the start argument into a subsequent
 #' call to \code{spread2}. This means that every argument can be updated at each iteration.
 #'
@@ -269,7 +284,7 @@ if (getRversion() >= "3.1.0") {
 #' @importFrom data.table uniqueN as.data.table data.table set setkeyv setnames
 #' @importFrom data.table ':=' rbindlist setcolorder setattr alloc.col
 #' @importFrom checkmate assertClass assert checkNumeric checkDataTable qassert assertNumeric
-#' @importFrom checkmate checkLogical checkClass
+#' @importFrom checkmate checkLogical checkClass checkScalarNA
 #' @importFrom stats runif
 #' @importFrom fpCompare %<=% %>>%
 #' @docType methods
@@ -288,6 +303,7 @@ setGeneric("spread2", function(landscape, start = ncell(landscape)/2 - ncol(land
                                maxSize, exactSize,
                                directions = 8L, iterations = 1e6L,
                                returnDistances = FALSE, returnFrom = FALSE,
+                               spreadProbRel = NA_real_,
                                plot.it = FALSE,
                                circle = FALSE,
                                asymmetry = NA_real_, asymmetryAngle = NA_real_,
@@ -310,6 +326,7 @@ setMethod(
                         maxSize, exactSize,
                         directions, iterations,
                         returnDistances, returnFrom,
+                        spreadProbRel,
                         plot.it,
                         circle,
                         asymmetry, asymmetryAngle,
@@ -331,8 +348,12 @@ setMethod(
       assertNumeric(sum(neighProbs), lower = 1, upper = 1)
 
       assert(
-        checkNumeric(spreadProb, 0, 1, min.len = 1, max.len = ncells),
+        checkNumeric(spreadProb, 0, 1, min.len = 1, max.len = 1),
         checkClass(spreadProb, "RasterLayer")
+      )
+      assert(
+        checkScalarNA(spreadProbRel),
+        checkClass(spreadProbRel, "RasterLayer")
       )
       assert(
         checkNumeric(asymmetry, 0, Inf, min.len = 1, max.len = 1),
@@ -552,6 +573,7 @@ setMethod(
           dtPotential <- as.data.table(dtPotential)
         }
 
+        # pick 2 randomly
         dtPotential <- dtPotential[,list(to = resample(to, 2)),by = c("id", "from")]
         whNeedRetryClusterDT <- integer()
       }
@@ -648,12 +670,12 @@ setMethod(
         setkeyv(dtPotential, c("id", "from")) # sort so it is the same as numNeighsByPixel
 
         if (NROW(dtPotential)) {
-          if(length(spreadProb)>1) {
-            set(dtPotential, , "spreadProb", spreadProb[][dtPotential$to])
+          if(is(spreadProbRel, "RasterLayer")) {
+            set(dtPotential, , "spreadProbRel", spreadProbRel[][dtPotential$to])
           } else {
-            set(dtPotential, , "spreadProb", spreadProb)
+            set(dtPotential, , "spreadProbRel", 1)
           }
-          spreadProbNA <- is.na(dtPotential$spreadProb) # This is where a mask enters
+          spreadProbNA <- is.na(dtPotential$spreadProbRel) # This is where a mask enters
           if(any(spreadProbNA)) {
             dtPotential <- dtPotential[!spreadProbNA]
             # code below is a possible replacement for previous line -- faster for small problems
@@ -668,53 +690,53 @@ setMethod(
             numNeighsByPixel <- numNeighsByPixel[dtPotential[, .N, by = c("id", "from")]]
             set(numNeighsByPixel, , "numNeighs", pmin(numNeighsByPixel$N, numNeighsByPixel$numNeighs, na.rm=TRUE))
             dtPotential <- dtPotential[numNeighsByPixel[dtPotential][,
-                                  resampleZeroProof(spreadProbHas0, .I, n = numNeighs, prob=spreadProb), by = "from"]$V1]
+                                  resampleZeroProof(spreadProbHas0, .I, n = numNeighs, prob=spreadProbRel), by = "from"]$V1]
           }
 
-          notAvailable[dtPotential$to] <- TRUE
-
-          set(dtPotential, , "spreadProb", NULL)
+          set(dtPotential, , "spreadProbRel", NULL)
         }
 
-        setcolorder(dtPotential, dtPotentialColNames)
-        dt <- rbindlistDtDtpot(dt, dtPotential, returnFrom)
+        #setcolorder(dtPotential, dtPotentialColNames)
+        #dt <- rbindlistDtDtpot(dt, dtPotential, returnFrom)
 
-      } else { ## standard algorithm ... runif against spreadProb
+      } #else { ## standard algorithm ... runif against spreadProb
 
         # Extract spreadProb for the current set of potentials
-        actualSpreadProb <- if (length(spreadProb) == 1) {
-          rep(spreadProb, NROW(dtPotential))
+      actualSpreadProb <- if (length(spreadProb) == 1) {
+        rep(spreadProb, NROW(dtPotential))
+      } else {
+        spreadProb[dtPotential$to]
+      }
+
+      # modify actualSpreadProb if there is asymmetry
+      if (!is.na(asymmetry) & !circle) {
+        actualAsymmetry <- if (length(asymmetry) == 1) {
+          asymmetry
         } else {
-          spreadProb[dtPotential$to]
+          asymmetry[dtPotential$to]
+        }
+        actualAsymmetryAngle <- if (length(asymmetryAngle) == 1) {
+          asymmetryAngle
+        } else {
+          asymmetryAngle[dtPotential$to]
         }
 
-        # modify actualSpreadProb if there is asymmetry
-        if (!is.na(asymmetry) & !circle) {
-          actualAsymmetry <- if (length(asymmetry) == 1) {
-            asymmetry
-          } else {
-            asymmetry[dtPotential$to]
-          }
-          actualAsymmetryAngle <- if (length(asymmetryAngle) == 1) {
-            asymmetryAngle
-          } else {
-            asymmetryAngle[dtPotential$to]
-          }
+        angleQualities <- angleQuality(dtPotential, landscape, actualAsymmetryAngle)
 
-          angleQualities <- angleQuality(dtPotential, landscape, actualAsymmetryAngle)
+        naAQ <- is.na(angleQualities[,"angleQuality"])
+        angleQualities[naAQ,"angleQuality"] <- actualSpreadProb[naAQ]
 
-          naAQ <- is.na(angleQualities[,"angleQuality"])
-          angleQualities[naAQ,"angleQuality"] <- actualSpreadProb[naAQ]
+        actualSpreadProb <- asymmetryAdjust(angleQualities, actualSpreadProb, actualAsymmetry)
 
-          actualSpreadProb <- asymmetryAdjust(angleQualities, actualSpreadProb, actualAsymmetry)
+      }
 
-        }
-
-        # Evaluate against spreadProb
-        spreadProbSuccess <- runifC(NROW(dtPotential)) <= actualSpreadProb
+      # Evaluate against spreadProb
+      spreadProbSuccess <- runifC(NROW(dtPotential)) <= actualSpreadProb
 
 
-        # Remove duplicates, which was already done for neighProbs situation
+      # Remove duplicates, which was already done for neighProbs situation
+
+      if (anyNA(neighProbs)) { # numNeighs algorithm
         if (allowOverlap | !canUseAvailable) {
           if (needDistance)
             setcolorder(dtPotential, neworder = c(dtPotentialColNames[(dtPotentialColNames %in% colnames(dtPotential))],
@@ -745,6 +767,13 @@ setMethod(
 
           dt <- rbindlistDtDtpot(dt, dtPotential, returnFrom)
         }
+
+      } else { # neighProbs
+        setcolorder(dtPotential, dtPotentialColNames)
+        dtPotential <- dtPotential[spreadProbSuccess]
+        dt <- rbindlistDtDtpot(dt, dtPotential, returnFrom)
+        if(NROW(dtPotential))
+          notAvailable[dtPotential$pixels] <- TRUE
 
       }
 

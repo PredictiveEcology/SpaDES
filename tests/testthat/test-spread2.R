@@ -9,6 +9,9 @@ test_that("spread2 tests", {
   # inputs for x
   a <- raster(extent(0, 10 , 0, 10), res = 1)
   b <- raster(a)
+  sp <- 0.225
+  spRas <- gaussMap(b)
+  spRas[] <- spRas[]/maxValue(spRas)*sp/2+sp/2*1.5
   b[] <- 1
   bb <-
     focal(
@@ -246,7 +249,8 @@ test_that("spread2 tests", {
   set.seed(321)
   out <- spread2(
     a,
-    spreadProb = sp,
+    spreadProb = 1,
+    spreadProbRel = sp,
     start = sams,
     neighProbs = c(0.7, 0.3),
     maxSize = maxSizes,
@@ -265,7 +269,8 @@ test_that("spread2 tests", {
     alwaysN[i] <- 1
     out <- spread2(
       a,
-      spreadProb = sp,
+      spreadProb = 1,
+      spreadProbRel = sp,
       iterations = 1,
       start = sams,
       neighProbs = alwaysN,
@@ -293,7 +298,8 @@ test_that("spread2 tests", {
     #                             start = sams, neighProbs = c(0.7,0.3), maxSize = maxSizes, asRaster=FALSE)
     out[[i]] <- spread2(
       a,
-      spreadProb = sp,
+      spreadProbRel = sp,
+      spreadProb = 1,
       iterations = 1,
       start = sams,
       neighProbs = c(1),
@@ -311,6 +317,27 @@ test_that("spread2 tests", {
   suppressWarnings(cht <- chisq.test(x = cbind(aa, actual)))
   expect_true(cht$p.value > 0.05)
 
+
+  print("Scales with number of starts, not maxSize of raster")
+  set.seed(21)
+  b <- raster(extent(0, 10, 0, 10), res = 1)
+  bProb <- gaussMap(b, speedup = 1)
+
+  set.seed(1232)
+  out <- spread2(spreadProb = 0.5,landscape = b, asRaster = FALSE,
+                 start = ncell(b)/2 - ncol(b)/2,
+                 spreadProbRel = bProb,
+                 returnFrom = TRUE,
+                 #iterations = 1,
+                 neighProbs = c(0.3, 0.7),
+                 exactSize = 30)
+
+  set(out, , "relProb", bProb[][out$pixels])
+
+
+
+
+  out
   #
   if (interactive())
     print("check wide range of spreadProbs and that it makes a RasterLayer")

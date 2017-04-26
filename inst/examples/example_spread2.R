@@ -56,8 +56,9 @@ sp <- raster(extent(0,3,0,3), res = 1, vals = 1:9) #small raster, simple values
 # Check neighProbs worked
 out <- list()
 for(i in 1:100) { # enough replicates to see stabilized probabilities
-  out[[i]] <- spread2(sp, spreadProb = sp, start = 5, iterations = 1,
-                neighProbs = c(1), asRaster = FALSE)
+  out[[i]] <- spread2(sp, spreadProbRel = sp, spreadProb = 1,
+                      start = 5, iterations = 1,
+                      neighProbs = c(1), asRaster = FALSE)
 }
 out <- data.table::rbindlist(out)[pixels!=5] # remove starting cell
 table(sp[out$pixels])
