@@ -851,10 +851,15 @@ resampleZeroProof <- function(spreadProbHas0, x, n, prob) {
 #' @param dt Data.table
 #' @param dtPotential Data.table
 #' @param returnFrom Logical
+#' @param needDistance Logical
+#' @param dtPotentialColNames Character Vector.
 #' @rdname spread2-internals
 #' @keywords internal
 #'
-rbindlistDtDtpot <- function(dt, dtPotential, returnFrom) {
+rbindlistDtDtpot <- function(dt, dtPotential, returnFrom, needDistance, dtPotentialColNames) {
+  # distance column is second last, but needs to be last: to merge with dt, need: from, to, state in that order
+  reorderColsWDistance(needDistance, dtPotential, dtPotentialColNames)
+
   if(!returnFrom) {
     set(dtPotential, , "from", dtPotential$id)
     set(dtPotential, , "id", NULL)
@@ -871,6 +876,17 @@ rbindlistDtDtpot <- function(dt, dtPotential, returnFrom) {
   }
 }
 
+#' Internal helper
+#'
+#' @inheritParams rbindlistDtDtpot
+#' @rdname spread2-internals
+#' @keywords internal
+#'
+reorderColsWDistance <- function(needDistance, dtPotential, dtPotentialColNames) {
+  if (needDistance)
+    setcolorder(dtPotential, neworder = c(dtPotentialColNames[(dtPotentialColNames %in% colnames(dtPotential))],
+                                          colnames(dtPotential)[!(colnames(dtPotential) %in% dtPotentialColNames)]))
+}
 
 
 #' Internal helper

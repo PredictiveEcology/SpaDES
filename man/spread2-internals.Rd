@@ -2,11 +2,14 @@
 % Please edit documentation in R/misc-methods.R
 \name{rbindlistDtDtpot}
 \alias{rbindlistDtDtpot}
+\alias{reorderColsWDistance}
 \alias{angleQuality}
 \alias{asymmetryAdjust}
 \title{Internal helper}
 \usage{
-rbindlistDtDtpot(dt, dtPotential, returnFrom)
+rbindlistDtDtpot(dt, dtPotential, returnFrom, needDistance, dtPotentialColNames)
+
+reorderColsWDistance(needDistance, dtPotential, dtPotentialColNames)
 
 angleQuality(dtPotential, landscape, actualAsymmetryAngle)
 
@@ -18,6 +21,10 @@ asymmetryAdjust(angleQualities, quantity, actualAsymmetry)
 \item{dtPotential}{Data.table}
 
 \item{returnFrom}{Logical}
+
+\item{needDistance}{Logical}
+
+\item{dtPotentialColNames}{Character Vector.}
 
 \item{landscape}{RasterLayer passed from \code{spread2}}
 
@@ -33,6 +40,8 @@ asymmetryAdjust(angleQualities, quantity, actualAsymmetry)
 }
 \description{
 Not for users. A function to setnames and rbindlist that is used 3 places in spread2.
+
+Internal helper
 
 Not for users. A function used in spread2.
 
