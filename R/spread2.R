@@ -891,12 +891,15 @@ setMethod(
             currentSizeTooSmall <- currentSizeTooSmall[!dt[c("successful", "holding"),on="state",nomatch=0]]
           }
           # if the ones that are too small are unsuccessful, make them "needRetry"
-          dt[,ind:=.I]
+          #dt[,ind:=.I]
+          set(dt, , "ind", seq_len(NROW(dt)))
           whNeedRetry <- dt[!c("successful","inactive"),on="state"][currentSizeTooSmall,nomatch=0]$ind
 
           if (length(whNeedRetry)) {
-            clusterDT[,indClDT:=.I]
+            #clusterDT[,indClDT:=.I]
+            set(clusterDT, , "indClDT", seq_len(NROW(clusterDT)))
             whNeedRetryClusterDT <- unique(clusterDT[dt[whNeedRetry]], on="initialPixels")$indClDT
+            set(clusterDT, , "indClDT", NULL)
             tooManyRetries <- clusterDT[whNeedRetryClusterDT,numRetries>maxRetriesPerID]
             if(sum(tooManyRetries) > 0) {
               whNeedRetryClusterDT <- whNeedRetryClusterDT[!tooManyRetries]
