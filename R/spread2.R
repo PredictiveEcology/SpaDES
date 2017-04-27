@@ -428,7 +428,7 @@ setMethod(
     sizeType <- if(!anyNA(exactSize)) "exactSize" else "maxSize"
 
     needDistance <- returnDistances | circle # returnDistances = TRUE and circle = TRUE both require distance calculations
-    maxRetriesPerID <- 10 # This means that if an event can not spread any more, it will try 10 times, including 2 jumps
+    maxRetriesPerID <- 100 # This means that if an event can not spread any more, it will try 10 times, including 2 jumps
 
     if(!is.numeric(start) & !is.data.table(start)) {
       if(is(start, "Raster")) {
@@ -565,9 +565,9 @@ setMethod(
             dtPotential <- rbind(dtPotential, dtPotentialJump)
           }
           rm("dtPotentialJump")
-          whNeedRetryClusterDT <- integer()
         }
-
+        whNeedRetryClusterDT <- integer()
+        
         set(dt, whActive, "state", "holding") # take them out of commission for this iteration
         set(dt, whNeedRetry, "state", "activeSource")
 
@@ -585,7 +585,8 @@ setMethod(
         its <- its + 1
         totalIterations <- totalIterations + 1
       }
-      #message("totalIterations", totalIterations, ", length whNeedRetry:", length(whNeedRetry))
+      #message("totalIterations", totalIterations, ", length whNeedRetry:", length(whNeedRetry), " largest fire:", max(dt[,.N,by=initialPixels]$N),
+      #        " needs to be:", max(exactSize))
       
       # # Convert dtPotential to data.table if it is a matrix, returned from cir and adj
       # if (length(whNeedRetryClusterDT) > 0) {
