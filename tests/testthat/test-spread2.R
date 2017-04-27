@@ -1,9 +1,9 @@
 test_that("spread2 tests", {
   library(raster)
-  on.exit(detach("package:raster"), add = TRUE)
   library(data.table)
-  on.exit(detach("package:data.table"), add = TRUE)
   library(fpCompare)
+  on.exit(detach("package:raster"), add = TRUE)
+  on.exit(detach("package:data.table"), add = TRUE)
   on.exit(detach("package:fpCompare"), add = TRUE)
 
   # inputs for x

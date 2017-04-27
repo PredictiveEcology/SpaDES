@@ -529,7 +529,6 @@ setMethod(
         ## get slightly further neighbours
         dtRetry <- dt[whNeedRetry]
         set(dtRetry, , "state", NULL)
-        set(dtRetry, , "ind", NULL)
         whNeedJump <- which( ((clusterDT$numRetries + 1) %% 10)==0)
         if (length(whNeedJump)) { # jump every 10, starting at 4
           resCur <- res(landscape)[1]
@@ -871,7 +870,6 @@ setMethod(
         setkeyv(dt,"initialPixels") # must sort because maxSize is sorted
         setkeyv(dtPotential, "initialPixels")
         dtPotClusterDT <- dtPotential[,list(size=as.integer(.N)),by="initialPixels"]
-        clusterDT2 <- data.table::copy(clusterDT)
         clusterDT[dtPotClusterDT, size:=size + i.size]
         browser(expr=!all(clusterDT$size == dt[,.N,by="initialPixels"]$N))
         # THis next line is a work around for a problem that doesn't make sense -- See: https://stackoverflow.com/questions/29615181/r-warning-when-creating-a-long-list-of-dummies
@@ -905,6 +903,7 @@ setMethod(
           #dt[,ind:=.I]
           set(dt, , "ind", seq_len(NROW(dt)))
           whNeedRetry <- dt[!(state %in% c("successful", "inactive"))][currentSizeTooSmall,nomatch=0]$ind
+          set(dt, , "ind", NULL)
 
           if (length(whNeedRetry)) {
             #clusterDT[,indClDT:=.I]
@@ -929,6 +928,12 @@ setMethod(
       activeStates <- dt$state[whNotInactive]
       whActive <- whNotInactive[activeStates == "successful" | activeStates == "holding" ]
       whInactive <- whNotInactive[activeStates == "activeSource"]
+
+      # convert previous states to new states
+      #   activeSource -> inactive
+      #   holding -> activeSource
+      #   successful -> activeSource
+      #   needRetry -> needRetry
       set(dt, whNotInactive, "state",
           c("inactive", "activeSource", "activeSource", "needRetry")[
             fmatch(activeStates, c("activeSource", "holding", "successful", "needRetry"))])
