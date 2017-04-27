@@ -117,6 +117,7 @@ test_that("spread2 tests", {
   if (interactive())
     print("test circle = TRUE")
   for (i in 1:20) {
+    message(i)
     seed <- sample(1e6, 1)
     set.seed(seed)
     #print(seed)
@@ -414,8 +415,8 @@ test_that("spread2 tests", {
   if (interactive())
     print("testing iterative with maxSize -- where needRetry occurs")
   set.seed(299)
-  seed <- sample(1e6, 1)
-  set.seed(seed)
+  #seed <- sample(1e6, 1)
+  #set.seed(seed)
   sams <- sample(innerCells, 2)
   exactSizes <- 60:61
   out <- spread2(a, start = sams, 0.225, iterations = 1,

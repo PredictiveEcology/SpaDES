@@ -428,7 +428,7 @@ setMethod(
     sizeType <- if(!anyNA(exactSize)) "exactSize" else "maxSize"
 
     needDistance <- returnDistances | circle # returnDistances = TRUE and circle = TRUE both require distance calculations
-    maxRetriesPerID <- 100 # This means that if an event can not spread any more, it will try 10 times, including 2 jumps
+    maxRetriesPerID <- 10 # This means that if an event can not spread any more, it will try 10 times, including 2 jumps
 
     if(!is.numeric(start) & !is.data.table(start)) {
       if(is(start, "Raster")) {
@@ -536,19 +536,19 @@ setMethod(
           dtRetryJump <- dtRetry[clusterDT[whNeedJump], nomatch=0]
           fromPixels <- dtRetryJump$pixels
           dtPotential <- lapply(seq_along(fromPixels), function(fp) cbind(id=fp,
-                                                                          cir(landscape, loci=fromPixels[fp], 
-                                                             includeBehavior = "excludePixels", 
-                                                             minRadius=resCur, 
-                                                             maxRadius = 4*resCur)[,'indices'])) %>% 
+                                                                          cir(landscape, loci=fromPixels[fp],
+                                                             includeBehavior = "excludePixels",
+                                                             minRadius=resCur,
+                                                             maxRadius = 4*resCur)[,'indices'])) %>%
             do.call(what=rbind)
-          
+
           dtPotential <- matrix(as.integer(dtPotential), ncol = 2)
           colnames(dtPotential) <- c("id", "to")
           dtPotentialJump <- cbind(from = fromPixels[dtPotential[,"id"]],
                                to = dtPotential[, "to"],
-                               id = dtRetryJump$initialPixels[dtPotential[,"id"]]) 
+                               id = dtRetryJump$initialPixels[dtPotential[,"id"]])
           dtRetry <- dtRetry[!clusterDT[whNeedJump]] # remove jumped neighbours
-        } 
+        }
         ## get adjacent neighbours
         dtPotential <- adj(#landscape,
           directions = directions,
@@ -567,7 +567,7 @@ setMethod(
           rm("dtPotentialJump")
         }
         whNeedRetryClusterDT <- integer()
-        
+
         set(dt, whActive, "state", "holding") # take them out of commission for this iteration
         set(dt, whNeedRetry, "state", "activeSource")
 
@@ -585,16 +585,17 @@ setMethod(
         its <- its + 1
         totalIterations <- totalIterations + 1
       }
+
       #message("totalIterations", totalIterations, ", length whNeedRetry:", length(whNeedRetry), " largest fire:", max(dt[,.N,by=initialPixels]$N),
       #        " needs to be:", max(exactSize))
-      
+
       # # Convert dtPotential to data.table if it is a matrix, returned from cir and adj
       # if (length(whNeedRetryClusterDT) > 0) {
       #   # of all possible cells in the jumping range, take just 2
       #   if(!is.data.table(dtPotential)) {
       #     dtPotential <- as.data.table(dtPotential)
       #   }
-      # 
+      #
       #   # pick 2 randomly
       #   #dtPotential <- dtPotential[,list(to = resample(to, 2)),by = c("id", "from")]
       #   whNeedRetryClusterDT <- integer()
@@ -713,9 +714,9 @@ setMethod(
             set(numNeighsByPixel, , "numNeighs", pmin(numNeighsByPixel$N, numNeighsByPixel$numNeighs, na.rm=TRUE))
             #dtCp <- data.table::copy(dtPotential)
             #nnbp <- data.table::copy(numNeighsByPixel)
-            
-            
-            # microbenchmark(times = 3, 
+
+
+            # microbenchmark(times = 3,
             #               #  a = {
                           # ranNums <- runifC(sum(numNeighsByPixel$numNeighs))
                           # dt1 <- data.table(from=rep(numNeighsByPixel$from,numNeighsByPixel$numNeighs), ranNum=ranNums) %>% setkey("from")
@@ -725,7 +726,7 @@ setMethod(
                           # dt2 <- dt1[b1][,list(from=from,ranVal=ceiling(ranNum * max))] %>% setkey("from")
                           # dt3 <- b[dt2, .I[which.max(ranVal <= cs)],by=.EACHI]$V1
                           # dtPotential3 <- dtPotential[dt3]
-                          # }, 
+                          # },
             dtPotential <- dtPotential[numNeighsByPixel[dtPotential][,
                                 .I[sample.int(length(numNeighs), size=numNeighs, prob = spreadProbRel)], by="from"]$V1]
                              #      resampleZeroProof(spreadProbHas0, .I, n = numNeighs, prob=spreadProbRel), by = "from"]$V1]
@@ -771,11 +772,11 @@ setMethod(
             #   dt2 <- dt1[b1][,list(from=from,ranVal=ceiling(ranNum * max))] %>% setkey("from")
             #   dt3 <- b[dt2, which.max(ranVal <= cs),by=.EACHI]
             #   dtPotential3 <- dtPotential[dt3]}
-            # 
+            #
             # )
           }
-          
-          
+
+
           set(dtPotential, , "spreadProbRel", NULL)
         }
 
@@ -825,11 +826,16 @@ setMethod(
             setcolorder(dtPotential, neworder = c(dtPotentialColNames[(dtPotentialColNames %in% colnames(dtPotential))],
                                                   colnames(dtPotential)[!(colnames(dtPotential) %in% dtPotentialColNames)]))
           dtPotential <- dtPotential[spreadProbSuccess]
+          dtNROW <- NROW(dt)
           dt <- rbindlistDtDtpot(dt, dtPotential, returnFrom)
+
           dt[, `:=`(dups = duplicatedInt(pixels)), by = initialPixels]
           dupes <- dt$dups
           set(dt, , "dups", NULL)
           dt <- dt[!dupes]
+
+          # remove all the duplicated ones from dtPotential
+          dtPotential <- dt[-seq_len(dtNROW)]
 
         } else {
           successCells <- dtPotential$to[spreadProbSuccess]
@@ -865,7 +871,9 @@ setMethod(
         setkeyv(dt,"initialPixels") # must sort because maxSize is sorted
         setkeyv(dtPotential, "initialPixels")
         dtPotClusterDT <- dtPotential[,list(size=as.integer(.N)),by="initialPixels"]
+        clusterDT2 <- data.table::copy(clusterDT)
         clusterDT[dtPotClusterDT, size:=size + i.size]
+        browser(expr=!all(clusterDT$size == dt[,.N,by="initialPixels"]$N))
         # THis next line is a work around for a problem that doesn't make sense -- See: https://stackoverflow.com/questions/29615181/r-warning-when-creating-a-long-list-of-dummies
         alloc.col(clusterDT, 7)
         set(clusterDT, , "tooBigByNCells", clusterDT$size-as.integer(clusterDT$maxSize))
@@ -875,9 +883,11 @@ setMethod(
           # sort them so join works between dt1 and currentSizetooBigByNCells
           setkeyv(currentSizetooBigByNCells, "initialPixels")
           set(dt, ,"origIndex", seq_len(NROW(dt)))
-          dt1 <- dt["successful", on="state"]
+          dt1 <- dt[state=="successful"]
           dt1b <- dt1[currentSizetooBigByNCells] # attach tooBigByNCells
-          dt1a <- dt1b[,list(omit=origIndex[sample.int(.N,tooBigByNCells)]),by="initialPixels"]
+          dt1a <- tryCatch(dt1b[,list(omit=origIndex[sample.int(.N,tooBigByNCells)]),by="initialPixels"],
+                   error = function(x) TRUE)
+          browser(expr=isTRUE(dt1a))
           #dt1a <- dt1b[,list(omit=resample(origIndex,tooBigByNCells)),by="initialPixels"]
           dt <- dt[-dt1a$omit][,list(initialPixels, pixels, state)]
           dt[dt1a, state:="inactive"]
@@ -887,16 +897,21 @@ setMethod(
         if (!(anyNA(exactSize))) { # push those that are too small into "needRetry"
           currentSizeTooSmall <- clusterDT[tooBigByNCells < 0]
           if (NROW(currentSizeTooSmall) > 0) {
-            # successful means will become activeSource next iteration
-            currentSizeTooSmall <- currentSizeTooSmall[!dt[c("successful", "holding"),on="state",nomatch=0]]
+            # successful means will become activeSource next iteration, so they don't need any special treatment
+            currentSizeTooSmall <- currentSizeTooSmall[!dt[state %in% c("successful", "holding"),nomatch=0]]
+
           }
           # if the ones that are too small are unsuccessful, make them "needRetry"
-          dt[,ind:=.I]
-          whNeedRetry <- dt[!c("successful","inactive"),on="state"][currentSizeTooSmall,nomatch=0]$ind
+          #dt[,ind:=.I]
+          set(dt, , "ind", seq_len(NROW(dt)))
+          whNeedRetry <- dt[!(state %in% c("successful", "inactive"))][currentSizeTooSmall,nomatch=0]$ind
 
           if (length(whNeedRetry)) {
-            clusterDT[,indClDT:=.I]
-            whNeedRetryClusterDT <- unique(clusterDT[dt[whNeedRetry]], on="initialPixels")$indClDT
+            #clusterDT[,indClDT:=.I]
+            set(clusterDT, , "indClDT", seq_len(NROW(clusterDT)))
+            whNeedRetryClusterDT <- clusterDT[dt[whNeedRetry]]$indClDT
+            set(clusterDT, , "indClDT", NULL)
+            browser(expr=any(duplicated(clusterDT$initialPixels))) # test to see if can do without the unique function
             tooManyRetries <- clusterDT[whNeedRetryClusterDT,numRetries>maxRetriesPerID]
             if(sum(tooManyRetries) > 0) {
               whNeedRetryClusterDT <- whNeedRetryClusterDT[!tooManyRetries]
