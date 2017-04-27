@@ -864,7 +864,11 @@ rbindlistDtDtpot <- function(dt, dtPotential, returnFrom) {
   }
   #setcolorder(dtPotential, neworder = dtPotentialColNames)
   # convert state of all those still left, move potentialPixels into pixels column
-  dt <- rbindlist(list(dt, dtPotential), fill = TRUE) # need fill = TRUE if user has passed extra columns
+  if(NROW(dtPotential)) {
+    dt <- rbindlist(list(dt, dtPotential), fill = TRUE) # need fill = TRUE if user has passed extra columns
+  } else {
+    dt
+  }
 }
 
 
