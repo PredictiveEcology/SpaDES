@@ -528,24 +528,44 @@ setMethod(
       if (length(whNeedRetryClusterDT) > 0) { # cir
         ## get slightly further neighbours
         dtRetry <- dt[whNeedRetry]
-        if (any(((clusterDT$numRetries + 1) %% 10) == 0)) { # jump every 10, starting at 4
+        set(dtRetry, , "state", NULL)
+        set(dtRetry, , "ind", NULL)
+        whNeedJump <- which( ((clusterDT$numRetries + 1) %% 10)==0)
+        if (length(whNeedJump)) { # jump every 10, starting at 4
           resCur <- res(landscape)[1]
-          fromPixels <- dtRetry$pixels
-          dtPotential <- cir(landscape, loci = fromPixels, includeBehavior = "excludePixels",
-                             minRadius = resCur, maxRadius = 4*resCur, allowOverlap = TRUE)[,c("id","indices")]
+          dtRetryJump <- dtRetry[clusterDT[whNeedJump], nomatch=0]
+          fromPixels <- dtRetryJump$pixels
+          dtPotential <- lapply(seq_along(fromPixels), function(fp) cbind(id=fp,
+                                                                          cir(landscape, loci=fromPixels[fp], 
+                                                             includeBehavior = "excludePixels", 
+                                                             minRadius=resCur, 
+                                                             maxRadius = 4*resCur)[,'indices'])) %>% 
+            do.call(what=rbind)
+          
           dtPotential <- matrix(as.integer(dtPotential), ncol = 2)
           colnames(dtPotential) <- c("id", "to")
-          dtPotential <- cbind(id = dtRetry$initialPixels[dtPotential[,"id"]],
-                               from = fromPixels[dtPotential[,"id"]],
-                               to = dtPotential[, "to"])
-        } else {
-          ## get adjacent neighbours
-          dtPotential <- adj(#landscape,
-            directions = directions,
-            numCell = ncells,
-            numCol = numCols,
-            id = dtRetry$initialPixels,
-            cells = dtRetry$pixels)
+          dtPotentialJump <- cbind(from = fromPixels[dtPotential[,"id"]],
+                               to = dtPotential[, "to"],
+                               id = dtRetryJump$initialPixels[dtPotential[,"id"]]) 
+          dtRetry <- dtRetry[!clusterDT[whNeedJump]] # remove jumped neighbours
+        } 
+        ## get adjacent neighbours
+        dtPotential <- adj(#landscape,
+          directions = directions,
+          numCell = ncells,
+          numCol = numCols,
+          id = dtRetry$initialPixels,
+          cells = dtRetry$pixels, cutoff.for.data.table = 5e2,
+          returnDT = TRUE)
+
+        if(exists("dtPotentialJump")) {
+          if(is.data.table(dtPotential)) {
+            dtPotential <- rbindlist(list(dtPotential, as.data.table(dtPotentialJump)))
+          } else {
+            dtPotential <- rbind(dtPotential, dtPotentialJump)
+          }
+          rm("dtPotentialJump")
+          whNeedRetryClusterDT <- integer()
         }
 
         set(dt, whActive, "state", "holding") # take them out of commission for this iteration
@@ -565,18 +585,19 @@ setMethod(
         its <- its + 1
         totalIterations <- totalIterations + 1
       }
-
-      # Convert dtPotential to data.table if it is a matrix, returned from cir and adj
-      if (length(whNeedRetryClusterDT) > 0) {
-        # of all possible cells in the jumping range, take just 2
-        if(!is.data.table(dtPotential)) {
-          dtPotential <- as.data.table(dtPotential)
-        }
-
-        # pick 2 randomly
-        dtPotential <- dtPotential[,list(to = resample(to, 2)),by = c("id", "from")]
-        whNeedRetryClusterDT <- integer()
-      }
+      #message("totalIterations", totalIterations, ", length whNeedRetry:", length(whNeedRetry))
+      
+      # # Convert dtPotential to data.table if it is a matrix, returned from cir and adj
+      # if (length(whNeedRetryClusterDT) > 0) {
+      #   # of all possible cells in the jumping range, take just 2
+      #   if(!is.data.table(dtPotential)) {
+      #     dtPotential <- as.data.table(dtPotential)
+      #   }
+      # 
+      #   # pick 2 randomly
+      #   #dtPotential <- dtPotential[,list(to = resample(to, 2)),by = c("id", "from")]
+      #   whNeedRetryClusterDT <- integer()
+      # }
 
       # randomize row order so duplicates are not always in same place
       i <- sample.int(NROW(dtPotential))
@@ -689,10 +710,71 @@ setMethod(
             # If it is a corner or has had pixels removed bc of duplicates, it may not have enough neighbours
             numNeighsByPixel <- numNeighsByPixel[dtPotential[, .N, by = c("id", "from")]]
             set(numNeighsByPixel, , "numNeighs", pmin(numNeighsByPixel$N, numNeighsByPixel$numNeighs, na.rm=TRUE))
+            #dtCp <- data.table::copy(dtPotential)
+            #nnbp <- data.table::copy(numNeighsByPixel)
+            
+            
+            # microbenchmark(times = 3, 
+            #               #  a = {
+                          # ranNums <- runifC(sum(numNeighsByPixel$numNeighs))
+                          # dt1 <- data.table(from=rep(numNeighsByPixel$from,numNeighsByPixel$numNeighs), ranNum=ranNums) %>% setkey("from")
+                          # b <- numNeighsByPixel[dtPotential]
+                          # b[,`:=`(cs=cumsum(spreadProbRel)),by="from"]  %>% setkeyv("from")
+                          # b1 <- b[, list(max=max(cs)),by="from"]
+                          # dt2 <- dt1[b1][,list(from=from,ranVal=ceiling(ranNum * max))] %>% setkey("from")
+                          # dt3 <- b[dt2, .I[which.max(ranVal <= cs)],by=.EACHI]$V1
+                          # dtPotential3 <- dtPotential[dt3]
+                          # }, 
             dtPotential <- dtPotential[numNeighsByPixel[dtPotential][,
-                                  resampleZeroProof(spreadProbHas0, .I, n = numNeighs, prob=spreadProbRel), by = "from"]$V1]
+                                .I[sample.int(length(numNeighs), size=numNeighs, prob = spreadProbRel)], by="from"]$V1]
+                             #      resampleZeroProof(spreadProbHas0, .I, n = numNeighs, prob=spreadProbRel), by = "from"]$V1]
+            # },
+            # ranNums <- runifC(sum(numNeighsByPixel$numNeighs)),
+            # bb={ranNums <- runifC(sum(numNeighsByPixel$numNeighs))
+            # dt1 <- data.table(from=rep(numNeighsByPixel$from,numNeighsByPixel$numNeighs), ranNum=ranNums) %>% setkey("from")},
+            # bb2={
+            #   ranNums <- runifC(sum(numNeighsByPixel$numNeighs))
+            #   dt1 <- data.table(from=rep(numNeighsByPixel$from,numNeighsByPixel$numNeighs), ranNum=ranNums) %>% setkey("from")
+            #   b <- numNeighsByPixel[dtPotential]},
+            # cc = {ranNums <- runifC(sum(numNeighsByPixel$numNeighs))
+            #     dt1 <- data.table(from=rep(numNeighsByPixel$from,numNeighsByPixel$numNeighs), ranNum=ranNums) %>% setkey("from")
+            #     b <- numNeighsByPixel[dtPotential]
+            #     b[,`:=`(cs=cumsum(spreadProbRel)),by="from"]  %>% setkeyv("from")},
+            # dd = {
+            #   ranNums <- runifC(sum(numNeighsByPixel$numNeighs))
+            #   dt1 <- data.table(from=rep(numNeighsByPixel$from,numNeighsByPixel$numNeighs), ranNum=ranNums) %>% setkey("from")
+            #   b <- numNeighsByPixel[dtPotential]
+            #   b[,`:=`(cs=cumsum(spreadProbRel)),by="from"]  %>% setkeyv("from")
+            #   b1 <- b[, list(max=max(cs)),by="from"]},
+            # ee = {
+            #   ranNums <- runifC(sum(numNeighsByPixel$numNeighs))
+            #   dt1 <- data.table(from=rep(numNeighsByPixel$from,numNeighsByPixel$numNeighs), ranNum=ranNums) %>% setkey("from")
+            #   b <- numNeighsByPixel[dtPotential]
+            #   b[,`:=`(cs=cumsum(spreadProbRel)),by="from"]  %>% setkeyv("from")
+            #   b1 <- b[, list(max=max(cs)),by="from"]
+            #   dt2 <- dt1[b1][,list(from=from,ranVal=ceiling(ranNum * max))] %>% setkey("from")},
+            # ff = {
+            #   ranNums <- runifC(sum(numNeighsByPixel$numNeighs))
+            #   dt1 <- data.table(from=rep(numNeighsByPixel$from,numNeighsByPixel$numNeighs), ranNum=ranNums) %>% setkey("from")
+            #   b <- numNeighsByPixel[dtPotential]
+            #   b[,`:=`(cs=cumsum(spreadProbRel)),by="from"]  %>% setkeyv("from")
+            #   b1 <- b[, list(max=max(cs)),by="from"]
+            #   dt2 <- dt1[b1][,list(from=from,ranVal=ceiling(ranNum * max))] %>% setkey("from")
+            #   dt3 <- b[dt2, .I[which.max(ranVal <= cs)],by=.EACHI]$V1},
+            # gg = {
+            #   ranNums <- runifC(sum(numNeighsByPixel$numNeighs))
+            #   dt1 <- data.table(from=rep(numNeighsByPixel$from,numNeighsByPixel$numNeighs), ranNum=ranNums) %>% setkey("from")
+            #   b <- numNeighsByPixel[dtPotential]
+            #   b[,`:=`(cs=cumsum(spreadProbRel)),by="from"]  %>% setkeyv("from")
+            #   b1 <- b[, list(max=max(cs)),by="from"]
+            #   dt2 <- dt1[b1][,list(from=from,ranVal=ceiling(ranNum * max))] %>% setkey("from")
+            #   dt3 <- b[dt2, which.max(ranVal <= cs),by=.EACHI]
+            #   dtPotential3 <- dtPotential[dt3]}
+            # 
+            # )
           }
-
+          
+          
           set(dtPotential, , "spreadProbRel", NULL)
         }
 
@@ -794,7 +876,8 @@ setMethod(
           set(dt, ,"origIndex", seq_len(NROW(dt)))
           dt1 <- dt["successful", on="state"]
           dt1b <- dt1[currentSizetooBigByNCells] # attach tooBigByNCells
-          dt1a <- dt1b[,list(omit=resample(origIndex,tooBigByNCells)),by="initialPixels"]
+          dt1a <- dt1b[,list(omit=origIndex[sample.int(.N,tooBigByNCells)]),by="initialPixels"]
+          #dt1a <- dt1b[,list(omit=resample(origIndex,tooBigByNCells)),by="initialPixels"]
           dt <- dt[-dt1a$omit][,list(initialPixels, pixels, state)]
           dt[dt1a, state:="inactive"]
           clusterDT[currentSizetooBigByNCells[,list(initialPixels)],size:=size-tooBigByNCells]
