@@ -9,7 +9,7 @@
 # Alternatively, you can try the code below which effectively unloads
 # all dependencies of SpaDES, including the ones that RStudio holds onto
 
-installSpaDES <- function() {
+installSpaDES <- function(autoRestart = FALSE) {
 
 
   ip <- installed.packages(lib.loc = .libPaths()[1])
@@ -107,6 +107,10 @@ installSpaDES <- function() {
     message("SpaDES was already up to date")
   }
 
+  if(autoRestart) {
+    message("Restarting R")
+    as.environment("tools:rstudio")$.rs.restartR()
+  }
 
 }
 
