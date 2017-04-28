@@ -99,11 +99,11 @@ installSpaDES <- function(autoRestart = FALSE) {
     # install SpaDES
     #message("Update only those packages that are needed to be updated")
     #install.packages(rev(SpaDESDeps[!needUpdated & !needInstalled])) # specifying lib means it will look for dependencies also in the install location{
-    message("SpaDES and all its dependencies are up to date.\n",
-            "You may need to restart the R session (e.g., Ctrl-Shift-F10 in Rstudio)")
-    if(autoRestart) {
+    message("SpaDES and all its dependencies are up to date.")
+    env <- tryCatch(as.environment("tools:rstudio"), error = function(x) FALSE)
+    if(autoRestart & is.environment(env)) {
       message("Restarting R")
-      as.environment("tools:rstudio")$.rs.restartR()
+      env$.rs.restartR()
     } else {
       message("You MUST restart your R session (e.g., Ctrl-Shift-F10 in Rstudio)")
     }
