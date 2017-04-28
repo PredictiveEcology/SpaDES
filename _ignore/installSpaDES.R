@@ -11,6 +11,7 @@
 
 installSpaDES <- function() {
 
+
   ip <- installed.packages(lib.loc = .libPaths()[1])
   if(!("SpaDES" %in% ip[,"Package"])) {
     SpaDESDeps <- c("SpaDES", "archivist", "chron", "CircStats", "data.table",
