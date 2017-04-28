@@ -1795,7 +1795,7 @@ setMethod(
 #' @keywords internal
 #' @rdname plotGrob
 #'
-#' @importFrom data.table data.table ':='
+#' @importFrom data.table ':=' data.table
 #' @importFrom raster extent pointDistance xmin xmax ymin ymax
 #'
 #' @importFrom sp proj4string
