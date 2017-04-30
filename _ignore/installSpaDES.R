@@ -11,10 +11,13 @@
 
 installSpaDES <- function(autoRestart = FALSE) {
 
-
+  loadN <- loadedNamespaces()
   ip <- installed.packages(lib.loc = .libPaths()[1])
-  if(!("SpaDES" %in% ip[,"Package"])) {
-    SpaDESDeps <- c("SpaDES", "archivist", "chron", "CircStats", "data.table",
+  #if(!("SpaDES" %in% ip[,"Package"])) {
+    SpaDESDeps <- c("SpaDES", "archivist", "broom", #"backports",
+                    "checkmate",
+                    "tidyr",
+                    "chron", "CircStats", "data.table", #"nlme",
                     "DEoptim", "DiagrammeR", "digest", "dplyr", "DT", "fastmatch",
                     "ff", "ffbase", "fpCompare", "ggplot2", "gridBase", "httr", "igraph",
                     "lazyeval", "lubridate", "miniUI", "R.utils", "RandomFields",
@@ -24,19 +27,20 @@ installSpaDES <- function(autoRestart = FALSE) {
                     "visNetwork", "assertthat", "R6", "Rcpp", "BH", "htmltools",
                     "bit", "gtable", "plyr", "reshape2", "jsonlite", "mime", "curl",
                     "openssl", "Matrix", "NMF", "irlba", "R.oo", "R.methodsS3", "RandomFieldsUtils",
-                    "httpuv", "xtable", "sourcetools", "lattice", "yaml", "pkgmaker",
+                    "httpuv", "xtable", "sourcetools", #"lattice",
+                    "yaml", "pkgmaker",
                     "registry", "rngtools", "cluster", "colorspace", "foreach", "doParallel",
                     "bitops", "XML", "Rook", "memoise", "plogr", "dichromat", "munsell",
                     "labeling", "viridisLite", "gridExtra", "iterators", "codetools",
                     "brew")
-  } else {
-
-  # Need miniCRAN to get ALL the dependencies of SpaDES and other packages
-    if(!require("miniCRAN"))
-      install.packages("miniCRAN")
-    message("Determining SpaDES dependencies")
-    SpaDESDeps <- miniCRAN::pkgDep("SpaDES")
-  }
+  # } else {
+  #
+  # # Need miniCRAN to get ALL the dependencies of SpaDES and other packages
+  #   if(!require("miniCRAN"))
+  #     install.packages("miniCRAN")
+  #   message("Determining SpaDES dependencies")
+  #   SpaDESDeps <- miniCRAN::pkgDep("SpaDES")
+  # }
   # determine all dependencies of packages in the search path
   pkgsOnly <- grep(search(), pattern="package:", value = TRUE)
   otherPkgs <- gsub(pkgsOnly, pattern = "package:", replacement = "")
@@ -54,7 +58,14 @@ installSpaDES <- function(autoRestart = FALSE) {
       a <- detach(search_item, unload = TRUE, character.only = TRUE, force = TRUE)
     }
 
-    unloaded <- tryCatch(unloadNamespace(pkg), error = function(x) FALSE)
+    unloaded <- NULL
+    if(pkg %in% loadN) {
+      unloaded <- tryCatch(unloadNamespace(pkg), error = function(x) FALSE)
+
+      if(is.null(unloaded))
+        loadN <<- loadN[!(loadN %in% pkg)]
+    }
+    #unloaded <- tryCatch(unloadNamespace(pkg), error = function(x) FALSE)
     return(invisible(unloaded))
   }
 
@@ -73,23 +84,60 @@ installSpaDES <- function(autoRestart = FALSE) {
     message("Update only those packages that are needed to be updated")
     # unload everything
     message("Unloading all dependencies and their dependencies and theirs etc.")
-    packs <- unique(c("miniCRAN", otherDeps, SpaDESDeps))
+    packs <- unique(c("devtools", "miniCRAN", otherDeps, SpaDESDeps))
     packsLeft <- packs
     # depending on order of dependencies, unloading may not work. Use while to put
     #  errors to the bottom of the list to be unloaded at the end
+    #packsLeft <- c(packsLeft, loadedNamespaces())
+    #packsLeft <- packsLeft[!(packsLeft %in% c("base", "methods", "datasets", "utils", "grDevices", "graphics", "stats"))]
+    shortest <- NROW(packsLeft)
     while(length(packsLeft)) {
+
+      print(packsLeft[1])
       done <- detach_package(packsLeft[1])
       if(is.null(done))  {
         packsLeft <- packsLeft[-1]
       } else  {
+        message("Couldn't unload ", packsLeft[1])
         packsLeft <- c(packsLeft[-1],packsLeft[1]) # put at end
       }
+
+      if(shortest==NROW(packsLeft)) {
+        retries = retries + 1
+      } else {
+        retries = 0
+      }
+
+      if(retries >= 10) {
+        stillGoing <- packsLeft[1]
+        while(nzchar(stillGoing)) {
+          b <- tryCatch(unloadNamespace(stillGoing),
+                        error = function(x) as.character(x))
+          if(is.null(b)) {
+            stillGoing <- ""
+          } else {
+            stillGoing <- strsplit(b, split = "imported by ‘|’")[[1]][3]
+          }
+        }
+
+      }
+      shortest <- NROW(packsLeft)
+      print(NROW(packsLeft))
+      #if(all(packsLeft %in% c("stringr", "stringi", "magrittr"))) {
+      #  unloadNamespace("lubridate")
+      #}
     }
 
     if(length(needUpdated)) {
       message("Updating ", paste(needUpdated, collapse = ", "))
-      install.packages(needUpdated)
+      for(i in needUpdated) {
+        print(i)
+        browser()
+        try(install.packages(i))
+      }
+
     }
+
     if(length(needInstalled)) {
       message("Installing ", paste(needInstalled, collapse = ", "))
       install.packages(needInstalled)
@@ -117,7 +165,35 @@ installSpaDES <- function(autoRestart = FALSE) {
 
 
 # install dev version of SpaDES
+
 # install.packages("devtools")
 # devtools::install_github("PredictiveEcology/SpaDES@development")
 # source("https://gist.githubusercontent.com/eliotmcintire/bcf54af7bffab0c619196ba223e88e80/raw/13d500485a7978b20d82a18bb3b727b285efddbb/installSpaDES.R")
+installSpaDES2 <- function() {
+  libPath <- .libPaths()[1]
+  #
+  # assign('.First', function(x) {
+  #   #require('plyr')
+  #   options(repos=c(CRAN="https://cran.rstudio.com/"))
+  #   library(utils)
+  #   library(methods)
+  #   library(stats)
+  #   #library(devtools)
+  #   #install.packages("SpaDES", lib = libPath)
+  #   devtools::install_github("PredictiveEcology/SpadES@development")
+  #   #and whatever other packages you're using
+  #   file.remove(".RData") #already been loaded
+  #   rm(".Last", pos=.GlobalEnv) #otherwise won't be able to quit R without it restarting
+  # }, pos=.GlobalEnv)
+  # save.image()
+  if(!require(nothing))
+    devtools::install.packages("romainfrancois/nothing")
+  file.path(R.home("bin"),"Rscript")
+  system(paste0(file.path(R.home("bin"),"Rscript"),' -e "update.packages(ask=FALSE, lib=\'',libPath,'\')"'), wait=TRUE)
+  system(paste0(file.path(R.home("bin"),"Rscript"),' -e "install.packages(\'SpaDES\', lib=\'',libPath,'\')"'), wait=TRUE)
+  message("Please restart R.\nIf you want the development version of SpaDES",
+          "try devtools::install_github('PredictiveEcology/SpaDES@development')")
+  #devtools::install_github('PredictiveEcology/SpaDES@development')
+}
+#
 
