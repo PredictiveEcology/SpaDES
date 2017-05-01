@@ -20,6 +20,10 @@ matrix:
 #  - os: linux
 #    dist: trusty
 #    r: oldrel
+#    addons:
+#      apt:
+#        packages:
+#          - libgdal1-dev
 #    before_install:
 #    - tlmgr install xcolor
 #    - export DISPLAY=:99.0
@@ -46,6 +50,10 @@ matrix:
   - os: linux
     dist: trusty
     r: devel
+    addons:
+      apt:
+        packages:
+          - libgdal1-dev
     before_install:
     - tlmgr install xcolor
     - export DISPLAY=:99.0
@@ -59,6 +67,8 @@ matrix:
     r_check_args: '--as-cran --ignore-vignettes --no-examples'
     before_install:
     - echo "options(repos = c(CRAN='https://cran.rstudio.com'))" >> ~/.Rprofile
+    before_script:
+    - Rscript -e "install.packages('rgdal', type = 'source')"
 
 r_build_args: " "
 
