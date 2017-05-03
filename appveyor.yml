@@ -26,7 +26,7 @@ environment:
   - R_VERSION: release
 
   - R_VERSION: oldrel
-    RTOOLS_VERSION: 32
+    RTOOLS_VERSION: 33
 
   - R_VERSION: 3.2.2
     RTOOLS_VERSION: 32
