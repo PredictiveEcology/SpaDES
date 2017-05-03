@@ -16,9 +16,12 @@ matrix:
   include:
 
   - os: linux
-    dist: precise
+    dist: trusty
     r: oldrel
-    cran: http://cran.rstudio.com/
+    addons:
+      apt:
+        packages:
+          - libgdal1-dev
     before_install:
     - tlmgr install xcolor
     - export DISPLAY=:99.0
@@ -38,7 +41,10 @@ matrix:
   - os: linux
     dist: precise
     r: devel
-    cran: http://cran.rstudio.com/
+    addons:
+      apt:
+        packages:
+          - libgdal1-dev
     before_install:
     - tlmgr install xcolor
     - export DISPLAY=:99.0
@@ -69,6 +75,8 @@ matrix:
     - MangoTheCat/VisualTest
     before_install:
     - echo "options(repos = c(CRAN='https://cran.rstudio.com'))" >> ~/.Rprofile
+    before_script:
+    - Rscript -e "install.packages('rgdal', type = 'source')"
 
 r_build_args: " "
 
