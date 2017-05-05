@@ -714,24 +714,28 @@ setMethod(
     envirHash <- (sapply(objectsToDigest, function(x) {
       if (!(x == ".sessionInfo")) {
         obj <- get(x, envir = envir(object))
-        if (!is(obj, "function") & !is(obj, "expression")) {
-          if (is(obj, "Raster")) {
-            # convert Rasters in the simList to some of their metadata.
-            obj <- makeDigestible(obj,
-                                  compareRasterFileLength = compareRasterFileLength,
-                                  algo = algo)
-            dig <- digest::digest(obj, algo = algo)
-          } else if (is(obj, "Spatial")) {
-            dig <- makeDigestible(obj,
-                                  algo = algo)
-          } else {
-            # convert functions in the simList to their digest.
-            #  functions have environments so are always unique
-            dig <- digest::digest(obj, algo = algo)
-          }
+        if(is(obj, "cluster")) {
+          dig <- NULL
         } else {
-          # for functions, use a character representation via format
-          dig <- digest::digest(format(obj), algo = algo)
+          if (!is(obj, "function") & !is(obj, "expression")) {
+            if (is(obj, "Raster")) {
+              # convert Rasters in the simList to some of their metadata.
+              obj <- makeDigestible(obj,
+                                    compareRasterFileLength = compareRasterFileLength,
+                                    algo = algo)
+              dig <- digest::digest(obj, algo = algo)
+            } else if (is(obj, "Spatial")) {
+              dig <- makeDigestible(obj,
+                                    algo = algo)
+            } else {
+              # convert functions in the simList to their digest.
+              #  functions have environments so are always unique
+              dig <- digest::digest(obj, algo = algo)
+            }
+          } else {
+            # for functions, use a character representation via format
+            dig <- digest::digest(format(obj), algo = algo)
+          }
         }
       } else {
         # for .sessionInfo, just keep the major and minor R version
