@@ -29,17 +29,25 @@ matrix:
 #    - echo "options(repos = c(CRAN='http://cran.rstudio.com'))" >> ~/.Rprofile
 
   - os: linux
-    dist: precise
+    dist: trusty
     r: release
-    cran: http://cran.rstudio.com/
+    cran: https://cran.rstudio.com/
+    addons:
+      apt:
+        packages:
+          - libgdal1-dev
     before_install:
     - tlmgr install xcolor
     - export DISPLAY=:99.0
     - sh -e /etc/init.d/xvfb start
-    - echo "options(repos = c(CRAN='http://cran.rstudio.com'))" >> ~/.Rprofile
+    - echo "options(repos = c(CRAN='https://cran.rstudio.com'))" >> ~/.Rprofile
+    - chmod 755 ./_push_vignettes.sh
+    after_success:
+    - ./_push_vignettes.sh
+    - Rscript -e 'library(covr); coveralls(coverage = print(package_coverage(quiet = FALSE)))'
 
   - os: linux
-    dist: precise
+    dist: trusty
     r: devel
     addons:
       apt:
@@ -50,19 +58,6 @@ matrix:
     - export DISPLAY=:99.0
     - sh -e /etc/init.d/xvfb start
     - echo "options(repos = c(CRAN='http://cran.rstudio.com'))" >> ~/.Rprofile
-
-  - os: linux
-    dist: trusty
-    cran: https://cran.rstudio.com/
-    before_install:
-    - tlmgr install xcolor
-    - export DISPLAY=:99.0
-    - sh -e /etc/init.d/xvfb start
-    - echo "options(repos = c(CRAN='https://cran.rstudio.com'))" >> ~/.Rprofile
-    - chmod 755 ./_push_vignettes.sh
-    after_success:
-    - ./_push_vignettes.sh
-    - Rscript -e 'library(covr); coveralls(coverage = print(package_coverage(quiet = FALSE)))'
 
   - os: osx
     osx_image: xcode8
