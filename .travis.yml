@@ -15,39 +15,27 @@ env:
 matrix:
   include:
 
-  - os: linux
-    dist: precise
-    r: oldrel
-    cran: http://cran.rstudio.com/
-    before_install:
-    - tlmgr install xcolor
-    - export DISPLAY=:99.0
-    - sh -e /etc/init.d/xvfb start
-    - echo "options(repos = c(CRAN='http://cran.rstudio.com'))" >> ~/.Rprofile
-
-  - os: linux
-    dist: precise
-    r: release
-    cran: http://cran.rstudio.com/
-    before_install:
-    - tlmgr install xcolor
-    - export DISPLAY=:99.0
-    - sh -e /etc/init.d/xvfb start
-    - echo "options(repos = c(CRAN='http://cran.rstudio.com'))" >> ~/.Rprofile
-
-  - os: linux
-    dist: precise
-    r: devel
-    cran: http://cran.rstudio.com/
-    before_install:
-    - tlmgr install xcolor
-    - export DISPLAY=:99.0
-    - sh -e /etc/init.d/xvfb start
-    - echo "options(repos = c(CRAN='http://cran.rstudio.com'))" >> ~/.Rprofile
+#  - os: linux
+#    dist: trusty
+#    r: oldrel
+#    addons:
+#      apt:
+#        packages:
+#          - libgdal1-dev
+#    before_install:
+#    - tlmgr install xcolor
+#    - export DISPLAY=:99.0
+#    - sh -e /etc/init.d/xvfb start
+#    - echo "options(repos = c(CRAN='http://cran.rstudio.com'))" >> ~/.Rprofile
 
   - os: linux
     dist: trusty
+    r: release
     cran: https://cran.rstudio.com/
+    addons:
+      apt:
+        packages:
+          - libgdal1-dev
     before_install:
     - tlmgr install xcolor
     - export DISPLAY=:99.0
@@ -57,6 +45,19 @@ matrix:
     after_success:
     - ./_push_vignettes.sh
     - Rscript -e 'library(covr); coveralls(coverage = print(package_coverage(quiet = FALSE)))'
+
+  - os: linux
+    dist: trusty
+    r: devel
+    addons:
+      apt:
+        packages:
+          - libgdal1-dev
+    before_install:
+    - tlmgr install xcolor
+    - export DISPLAY=:99.0
+    - sh -e /etc/init.d/xvfb start
+    - echo "options(repos = c(CRAN='http://cran.rstudio.com'))" >> ~/.Rprofile
 
   - os: osx
     osx_image: xcode8
@@ -69,6 +70,8 @@ matrix:
     - MangoTheCat/VisualTest
     before_install:
     - echo "options(repos = c(CRAN='https://cran.rstudio.com'))" >> ~/.Rprofile
+    before_script:
+    - Rscript -e "install.packages('rgdal', type = 'source')"
 
 r_build_args: " "
 
