@@ -349,6 +349,7 @@ setMethod(
     if (nrow(isInRepo) > 0) {
       lastEntry <- max(isInRepo$createdDate)
       lastOne <- order(isInRepo$createdDate, decreasing = TRUE)[1]
+
       if (is.null(notOlderThan) || (notOlderThan < lastEntry)) {
         if (grepl(format(FUN)[1], pattern = "function \\(sim, eventTime")) {
           # very coarse way of determining doEvent call
@@ -380,12 +381,22 @@ setMethod(
         }
         return(out)
       }
+    }
+
+    # RUN the function call
+    output <- do.call(FUN, list(...))
+
+    # Delete previous version if notOlderThan violoated --
+    #   but do this AFTER new run on prev line, in case function call
+    #   makes it crash, or user interrupts long function call and wants
+    #   a previous verions
+    if (nrow(isInRepo) > 0) {
       if (notOlderThan >= lastEntry) {
         # flush it if notOlderThan is violated
         rmFromLocalRepo(isInRepo$artifact[lastOne], repoDir = cacheRepo)
       }
     }
-    output <- do.call(FUN, list(...))
+
     attr(output, "tags") <- paste0("cacheId:", outputHash)
     attr(output, "call") <- ""
     if (isS4(FUN)) attr(output, "function") <- FUN@generic
@@ -703,24 +714,28 @@ setMethod(
     envirHash <- (sapply(objectsToDigest, function(x) {
       if (!(x == ".sessionInfo")) {
         obj <- get(x, envir = envir(object))
-        if (!is(obj, "function") & !is(obj, "expression")) {
-          if (is(obj, "Raster")) {
-            # convert Rasters in the simList to some of their metadata.
-            obj <- makeDigestible(obj,
-                                  compareRasterFileLength = compareRasterFileLength,
-                                  algo = algo)
-            dig <- digest::digest(obj, algo = algo)
-          } else if (is(obj, "Spatial")) {
-            dig <- makeDigestible(obj,
-                                  algo = algo)
-          } else {
-            # convert functions in the simList to their digest.
-            #  functions have environments so are always unique
-            dig <- digest::digest(obj, algo = algo)
-          }
+        if(is(obj, "cluster")) {
+          dig <- NULL
         } else {
-          # for functions, use a character representation via format
-          dig <- digest::digest(format(obj), algo = algo)
+          if (!is(obj, "function") & !is(obj, "expression")) {
+            if (is(obj, "Raster")) {
+              # convert Rasters in the simList to some of their metadata.
+              obj <- makeDigestible(obj,
+                                    compareRasterFileLength = compareRasterFileLength,
+                                    algo = algo)
+              dig <- digest::digest(obj, algo = algo)
+            } else if (is(obj, "Spatial")) {
+              dig <- makeDigestible(obj,
+                                    algo = algo)
+            } else {
+              # convert functions in the simList to their digest.
+              #  functions have environments so are always unique
+              dig <- digest::digest(obj, algo = algo)
+            }
+          } else {
+            # for functions, use a character representation via format
+            dig <- digest::digest(format(obj), algo = algo)
+          }
         }
       } else {
         # for .sessionInfo, just keep the major and minor R version

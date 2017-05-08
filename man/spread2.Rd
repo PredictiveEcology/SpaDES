@@ -9,32 +9,36 @@
 spread2(landscape, start = ncell(landscape)/2 - ncol(landscape)/2,
   spreadProb = 0.23, asRaster = TRUE, maxSize, exactSize, directions = 8L,
   iterations = 1000000L, returnDistances = FALSE, returnFrom = FALSE,
-  plot.it = FALSE, circle = FALSE, asymmetry = NA_real_,
-  asymmetryAngle = NA_real_, allowOverlap = FALSE, neighProbs = NA_real_,
-  skipChecks = FALSE)
+  spreadProbRel = NA_real_, plot.it = FALSE, circle = FALSE,
+  asymmetry = NA_real_, asymmetryAngle = NA_real_, allowOverlap = FALSE,
+  neighProbs = NA_real_, skipChecks = FALSE)
 
 \S4method{spread2}{RasterLayer}(landscape, start = ncell(landscape)/2 -
   ncol(landscape)/2, spreadProb = 0.23, asRaster = TRUE, maxSize, exactSize,
   directions = 8L, iterations = 1000000L, returnDistances = FALSE,
-  returnFrom = FALSE, plot.it = FALSE, circle = FALSE,
-  asymmetry = NA_real_, asymmetryAngle = NA_real_, allowOverlap = FALSE,
-  neighProbs = NA_real_, skipChecks = FALSE)
+  returnFrom = FALSE, spreadProbRel = NA_real_, plot.it = FALSE,
+  circle = FALSE, asymmetry = NA_real_, asymmetryAngle = NA_real_,
+  allowOverlap = FALSE, neighProbs = NA_real_, skipChecks = FALSE)
 }
 \arguments{
-\item{landscape}{A \code{RasterLayer} object. This defines the possible locations
+\item{landscape}{Required. A \code{RasterLayer} object. This defines the possible locations
 for spreading events to start and spread2 into. Required.}
 
-\item{start}{Either a vector of pixel numbers to initiate spreading, or a
+\item{start}{Required. Either a vector of pixel numbers to initiate spreading, or a
 data.table that is the output of a previous \code{spread2}.
 If a vector, they should be cell indices (pixels) on the \code{landscape}.
 If user has x and y coordinates, these can be converted with
 \code{\link[raster]{cellFromXY}}.}
 
-\item{spreadProb}{Numeric or RasterLayer. If numeric of length 1, then this is
-the global probability of
+\item{spreadProb}{Numeric of length 1 or \code{RasterLayer}. If numeric of length 1, then this is
+the global (absolute) probability of
 spreading into each cell from a neighbor. If a raster then this must
-be the cell-specific probability of a "receiving" potential cell.
-Default is \code{0.23}.}
+be the cell-specific (absolute) probability of a "receiving" potential cell.
+Default is \code{0.23}. If relative probabilities are required,
+use \code{spreadProbRel}. If used together, then the relative
+probabilities will be re-scaled so that the mean relative probability of
+potential neighbours is
+equal to the mean of \code{spreadProb} of the potential neighbours.}
 
 \item{asRaster}{Logical, length 1. If \code{TRUE}, the function will return a \code{Raster}
 where raster non NA values indicate the cells that were "active", and the
@@ -65,7 +69,18 @@ individual cell distances from the locus where that event
 started. Default is FALSE. See Details.}
 
 \item{returnFrom}{Logical. Should the function return a column with the
-source, i.e, "from" pixel, for each iteration.}
+source, i.e, the lag 1 "from" pixel, for each iteration.}
+
+\item{spreadProbRel}{Optional \code{RasterLayer} indicating a surface of relative probabilities
+useful when using \code{neighProbs} (which provides a mechanism for selecting
+a specific number of cells at each iteration). This
+indicates the relative probabilities for the selection of successful neighbours.
+\code{spreadProb} will still be evaluated
+\emph{after} the relative probabilities and \code{neighProbs} has been
+evaluated, i.e., potential cells will be identified, then some could be
+rejected via \code{spreadProb}. If absolute \code{spreadProb} is not
+desired, \emph{be sure to set} \code{spreadProb=1}.
+Ignored if \code{neighProbs} is not provided.}
 
 \item{plot.it}{If TRUE, then plot the raster at every iteraction,
 so one can watch the spread2 event grow.}
@@ -110,8 +125,8 @@ Either a \code{data.table} (\code{asRaster=FALSE}) or a \code{RasterLayer}
 The \code{data.table} will have one attribute named \code{spreadState}, which
 is a list containing a \code{data.table} of current cluster-level information
 about the spread events.
-If \code{asRaster=TRUE}, then the \code{data.table} that would have been
-returned is attached to the Raster as an attribute named \code{pixel} as it
+If \code{asRaster=TRUE}, then the \code{data.table} (with its \code{spreadState}
+attribute) will be attached to the \code{Raster} as an attribute named \code{pixel} as it
 provides pixel-level information about the spread events.
 
 The \code{RasterLayer} represents every cell in which a successful spread2 event occurred.
@@ -119,7 +134,7 @@ For the case of, say, a fire this would represent every cell that burned.
 If \code{allowOverlap} is \code{TRUE}, the return will always be a \code{data.table}.
 
 If \code{asRaster} is \code{FALSE}, then this function returns a
-\code{data.table} with columns:
+\code{data.table} with 3 (or 4 if \code{returnFrom} is \code{TRUE}) columns:
 
 \tabular{ll}{
   \code{initialPixels} \tab the initial cell number of that particular
@@ -129,6 +144,9 @@ If \code{asRaster} is \code{FALSE}, then this function returns a
   \code{state} \tab a logical indicating whether the cell is active (i.e.,
                        could still be a source for spreading) or not (no
                        spreading will occur from these cells).\cr
+  \code{from} \tab The pixel indices that were the immediately preceeding
+                   "source" for each \code{pixels}, i.e., the lag 1 pixels.
+                   Only returned if \code{returnFrom} is \code{TRUE} \cr
 }
 
 The attribute saved with the name "spreadState" (e.g., \code{attr(output, "spreadState")})
@@ -188,7 +206,7 @@ spread2 event is completed because, for example, a fire is spreading, and a
 new set of conditions arise due to a change in weather.
 
 \code{asymmetry} here is slightly different than in the \code{spread} function,
-so that it can deal with a RasterLayer of \code{asymmetryAngle}.
+so that it can deal with a \code{RasterLayer} of \code{asymmetryAngle}.
 Here, the \code{spreadProb} values of a given set of neighbours around each active pixel
 are adjusted to create \code{adjustedSpreadProb} which is calculated maintain the
 following
@@ -269,7 +287,7 @@ are interacting with each other correctly.
 This function can be used iteratively, with relatively little overhead compared to using
 it non-iteratively. In general, this function can be called with arguments set as user
 needs, and with specifying iterations = 1 (say). This means that the function will spread
-outwards 1 iteration, then stop. The returned object will be a data.table or RasterLayer
+outwards 1 iteration, then stop. The returned object will be a data.table or \code{RasterLayer}
 that can be passed immediately back as the start argument into a subsequent
 call to \code{spread2}. This means that every argument can be updated at each iteration.
 
@@ -345,8 +363,9 @@ sp <- raster(extent(0,3,0,3), res = 1, vals = 1:9) #small raster, simple values
 # Check neighProbs worked
 out <- list()
 for(i in 1:100) { # enough replicates to see stabilized probabilities
-  out[[i]] <- spread2(sp, spreadProb = sp, start = 5, iterations = 1,
-                neighProbs = c(1), asRaster = FALSE)
+  out[[i]] <- spread2(sp, spreadProbRel = sp, spreadProb = 1,
+                      start = 5, iterations = 1,
+                      neighProbs = c(1), asRaster = FALSE)
 }
 out <- data.table::rbindlist(out)[pixels!=5] # remove starting cell
 table(sp[out$pixels])

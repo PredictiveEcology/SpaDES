@@ -1,6 +1,5 @@
-
 if (getRversion() >= "3.1.0") {
-  utils::globalVariables(".")
+  utils::globalVariables(c("newQuantity", "quantityAdj", "quantityAdj2"))
 }
 
 #' Get the name of a \code{source}-ed file
@@ -852,10 +851,15 @@ resampleZeroProof <- function(spreadProbHas0, x, n, prob) {
 #' @param dt Data.table
 #' @param dtPotential Data.table
 #' @param returnFrom Logical
+#' @param needDistance Logical
+#' @param dtPotentialColNames Character Vector.
 #' @rdname spread2-internals
 #' @keywords internal
 #'
-rbindlistDtDtpot <- function(dt, dtPotential, returnFrom) {
+rbindlistDtDtpot <- function(dt, dtPotential, returnFrom, needDistance, dtPotentialColNames) {
+  # distance column is second last, but needs to be last: to merge with dt, need: from, to, state in that order
+  reorderColsWDistance(needDistance, dtPotential, dtPotentialColNames)
+
   if(!returnFrom) {
     set(dtPotential, , "from", dtPotential$id)
     set(dtPotential, , "id", NULL)
@@ -865,9 +869,24 @@ rbindlistDtDtpot <- function(dt, dtPotential, returnFrom) {
   }
   #setcolorder(dtPotential, neworder = dtPotentialColNames)
   # convert state of all those still left, move potentialPixels into pixels column
-  dt <- rbindlist(list(dt, dtPotential), fill = TRUE) # need fill = TRUE if user has passed extra columns
+  if(NROW(dtPotential)) {
+    dt <- rbindlist(list(dt, dtPotential), fill = TRUE) # need fill = TRUE if user has passed extra columns
+  } else {
+    dt
+  }
 }
 
+#' Internal helper
+#'
+#' @inheritParams rbindlistDtDtpot
+#' @rdname spread2-internals
+#' @keywords internal
+#'
+reorderColsWDistance <- function(needDistance, dtPotential, dtPotentialColNames) {
+  if (needDistance)
+    setcolorder(dtPotential, neworder = c(dtPotentialColNames[(dtPotentialColNames %in% colnames(dtPotential))],
+                                          colnames(dtPotential)[!(colnames(dtPotential) %in% dtPotentialColNames)]))
+}
 
 
 #' Internal helper
