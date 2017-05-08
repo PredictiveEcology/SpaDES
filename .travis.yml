@@ -10,7 +10,7 @@ language: r
 
 env:
   global:
-    - secure: "KxcKSH4TFMbNMKAj6ePl4yq6SCeYQJcDkw0PMuEdImomwxqY3mP8p+GWVmNN1PKl8k7C/rgLNPAiBoJmddXMzFvGoGRWvyeER0lDN49rzNPHANF9wnMBBYN27mp98hBZlX2Vxu48M3jbmy+wRpmKKvKxTxOa8tUkt0GVEUTPeGQ="
+    secure: "VjmV4Tyjtmdk8QzPdWAI7WLksk0E4NzzTBf3yzABLW/MBoDthtLuuOcnm4RmNp6hUIaCgPWzcNAcwnKjjPiCSGq0w+0gklyvtQSXAJSG8zmm3Fyd1s2F02XhiRYaCBqqhcK1F5cNVG6XsutTT97A71SegQKvTfcO0K6MuRs1vL0="
 
 matrix:
   include:
