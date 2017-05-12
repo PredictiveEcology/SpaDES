@@ -1161,7 +1161,7 @@ setMethod(
 
       } else {
         allCells <- rbindlist(list(active, completed)) # active first, so next line will keep active
-        allCells <- allCells[!duplicated(allCells$indices)] # some "completed" cells are still active. Keep the active ones.
+        #allCells <- allCells[!duplicated(allCells$indices)] # some "completed" cells are still active. Keep the active ones.
         # setkeyv(completed, c("id","indices"))
         # setkeyv(active, c("id","indices"))
         # allCells <- completed[active, active := TRUE] #rbindlist(list(completed, active)) # not a copy
