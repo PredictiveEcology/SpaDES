@@ -15,9 +15,9 @@ if (getRversion() >= "3.1.0") {
 #' though quite common, cases by:
 #' 1) converting any environments into list equivalents;
 #' 2) identifying the dispatched S4 method (including those made through
-#' inheritance) before \code{\link[digest]{digest}} is called so the correct
+#' inheritance) before \code{\link[fastdigest]{fastdigest}} is called so the correct
 #' method is being cached;
-#' and 3) by running \code{\link[digest]{digest}} on the linked file. Currently,
+#' and 3) by running \code{\link[fastdigest]{fastdigest}} on the linked file. Currently,
 #' only file-backed \code{Raster*} objects are digested (e.g., not \code{ff} objects,
 #' or any other R object where the data is in a file, rather than RAM object).
 #' In the \code{SpaDES} context, the \code{simList} has an environment as one of
@@ -27,7 +27,7 @@ if (getRversion() >= "3.1.0") {
 #' We remove all elements that have an environment as part of their attributes.
 #' This is generally functions that are loaded from the modules,
 #' but also the \code{.envir} slot in the \code{simList}.
-#' Functions are formatted to text before running digest.
+#' Functions are formatted to text before running \code{fastdigest}.
 #'
 #' Cache (capital C) is a short cut to using SpaDES::cache as it
 #' can be called from inside a SpaDES module without
@@ -114,6 +114,7 @@ if (getRversion() >= "3.1.0") {
 #' @param compareRasterFileLength Numeric. Optional. When there are Rasters, that
 #'        have file-backed storage, this is passed to the length arg in \code{digest}
 #'        when determining if the Raster file is already in the database.
+#'        Note: uses \code{\link[digest]{digest}} for file-backed Raster.
 #'        Default 1e6. Passed to \code{prepareFileBackedRaster}.
 #'
 #' @inheritParams digest::digest
@@ -143,6 +144,7 @@ if (getRversion() >= "3.1.0") {
 #' @export
 #' @importFrom archivist cache loadFromLocalRepo saveToLocalRepo showLocalRepo
 #' @importFrom digest digest
+#' @importFrom fastdigest fastdigest
 #' @importFrom R.utils isAbsolutePath
 #' @include simList-class.R
 #' @docType methods
@@ -343,7 +345,8 @@ setMethod(
     if (length(whFun) > 0) tmpl[whFun] <- lapply(tmpl[whFun], format)
     if (!is.null(tmpl$progress)) if (!is.na(tmpl$progress)) tmpl$progress <- NULL
 
-    outputHash <- digest::digest(tmpl, algo = algo)
+    #outputHash <- digest::digest(tmpl, algo = algo)
+    outputHash <- fastdigest::fastdigest(tmpl)
     localTags <- showLocalRepo(cacheRepo, "tags")
     isInRepo <- localTags[localTags$tag == paste0("cacheId:", outputHash), , drop = FALSE]
     if (nrow(isInRepo) > 0) {
@@ -354,6 +357,8 @@ setMethod(
         if (grepl(format(FUN)[1], pattern = "function \\(sim, eventTime")) {
           # very coarse way of determining doEvent call
           message("Using cached copy of ", cur$eventType, " event in ", cur$moduleName, " module")
+        } else {
+          message("loading cached result from previous ", functionName, " call.")
         }
 
         out <- loadFromLocalRepo(isInRepo$artifact[lastOne],
@@ -652,10 +657,10 @@ setMethod(
 ################################################################################
 #' Remove any reference to environments or filepaths in objects
 #'
-#' Using digest::digest will include every detail of an object, including
+#' Using \code{\link[fastdigest]{fastdigest}} will include every detail of an object, including
 #' environments of functions, including those that are session-specific. Since
-#' the goal of using digest::digest is not session specific, this function
-#' attempts to strip all session specific information so that the digest
+#' the goal of using fastdigest::fastdigest is not session specific, this function
+#' attempts to strip all session specific information so that the fastdigest
 #' works between sessions and operating systems. It is tested under many
 #' conditions and object types, there are bound to be others that don't
 #' work correctly.
@@ -668,7 +673,7 @@ setMethod(
 #' Specifically, all functions (which are contained within environments) are
 #' converted to a text representation via a call to \code{format(FUN)}.
 #' Also the objects that were contained within the \code{.envir} slot are hashed
-#' using \code{digest::digest}.
+#' using \code{\link[fastdigest]{fastdigest}}.
 #' The \code{paths} slot is not used (to allow comparison across platforms); it's
 #' not relevant where the objects are gotten from, so long as they are the same.
 #' The \code{.envir} slot is emptied (\code{NULL}).
@@ -720,27 +725,25 @@ setMethod(
           if (!is(obj, "function") & !is(obj, "expression")) {
             if (is(obj, "Raster")) {
               # convert Rasters in the simList to some of their metadata.
-              obj <- makeDigestible(obj,
+              dig <- makeDigestible(obj,
                                     compareRasterFileLength = compareRasterFileLength,
                                     algo = algo)
-              dig <- digest::digest(obj, algo = algo)
             } else if (is(obj, "Spatial")) {
-              dig <- makeDigestible(obj,
-                                    algo = algo)
+              dig <- makeDigestible(obj, algo = algo)
             } else {
               # convert functions in the simList to their digest.
               #  functions have environments so are always unique
-              dig <- digest::digest(obj, algo = algo)
+              dig <- fastdigest::fastdigest(obj)
             }
           } else {
             # for functions, use a character representation via format
-            dig <- digest::digest(format(obj), algo = algo)
+            dig <- fastdigest::fastdigest(format(obj))
           }
         }
       } else {
         # for .sessionInfo, just keep the major and minor R version
-        dig <- digest::digest(get(x, envir = envir(object))[[1]] %>%
-                                .[c("major", "minor")], algo = algo)
+        dig <- fastdigest::fastdigest(get(x, envir = envir(object))[[1]] %>%
+                                .[c("major", "minor")])
       }
       return(dig)
     }))
@@ -783,7 +786,12 @@ setMethod(
     if (is(object, "RasterStack") | is(object, "RasterBrick")) {
       dig <- suppressWarnings(list(dim(object), res(object), crs(object), extent(object),
                                    lapply(object@layers, function(yy) {
-                                     digest::digest(yy@data, length = compareRasterFileLength, algo = algo)
+                                     if(inMemory(yy)) {
+                                       fastdigest::fastdigest(yy)
+                                     } else {
+                                       digest::digest(yy@data, length = compareRasterFileLength, algo = algo)
+                                     }
+
                                    })))
       if (nchar(object@filename) > 0) {
         # if the Raster is on disk, has the first compareRasterFileLength characters;
@@ -791,8 +799,14 @@ setMethod(
         dig <- append(dig, digest(file = object@filename, length = compareRasterFileLength))
       }
     } else {
-      dig <- suppressWarnings(list(dim(object), res(object), crs(object), extent(object),
-                                   digest::digest(object@data, length = compareRasterFileLength, algo = algo)))
+      if(inMemory(object)) {
+        dig <- suppressWarnings(list(dim(object), res(object), crs(object), extent(object),
+                                     fastdigest::fastdigest(object)))
+      } else {
+        dig <- suppressWarnings(list(dim(object), res(object), crs(object), extent(object),
+                                     digest::digest(object@data, length = compareRasterFileLength, algo = algo)))
+
+      }
       if (nchar(object@file@name) > 0) {
         # if the Raster is on disk, has the first compareRasterFileLength characters;
         dig <- append(dig,
@@ -814,7 +828,8 @@ setMethod(
 
     # The following Rounding is necessary to make digest equal on linux and windows
     bbb <- as.data.frame(lapply(aaa, function(x) if (is(x,"numeric")) round(x, 4) else x))
-    dig <- digest::digest(bbb, algo = algo)
+    dig <- fastdigest::fastdigest(bbb)
+    #dig <- digest::digest(bbb, algo = algo)
     return(dig)
   })
 

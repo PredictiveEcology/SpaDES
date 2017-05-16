@@ -47,6 +47,7 @@ This is optional if \code{Cache} is used inside a SpaDES module.}
 \item{compareRasterFileLength}{Numeric. Optional. When there are Rasters, that
 have file-backed storage, this is passed to the length arg in \code{digest}
 when determining if the Raster file is already in the database.
+Note: uses \code{\link[digest]{digest}} for file-backed Raster.
 Default 1e6. Passed to \code{prepareFileBackedRaster}.}
 
 \item{userTags}{A character vector with Tags. These Tags will be added to the repository along with the artifact.}
@@ -78,9 +79,9 @@ This version of the \code{Cache} function accommodates those three special,
 though quite common, cases by:
 1) converting any environments into list equivalents;
 2) identifying the dispatched S4 method (including those made through
-inheritance) before \code{\link[digest]{digest}} is called so the correct
+inheritance) before \code{\link[fastdigest]{fastdigest}} is called so the correct
 method is being cached;
-and 3) by running \code{\link[digest]{digest}} on the linked file. Currently,
+and 3) by running \code{\link[fastdigest]{fastdigest}} on the linked file. Currently,
 only file-backed \code{Raster*} objects are digested (e.g., not \code{ff} objects,
 or any other R object where the data is in a file, rather than RAM object).
 In the \code{SpaDES} context, the \code{simList} has an environment as one of
@@ -91,7 +92,7 @@ Some of the details of the changes include:
 We remove all elements that have an environment as part of their attributes.
 This is generally functions that are loaded from the modules,
 but also the \code{.envir} slot in the \code{simList}.
-Functions are formatted to text before running digest.
+Functions are formatted to text before running \code{fastdigest}.
 
 Cache (capital C) is a short cut to using SpaDES::cache as it
 can be called from inside a SpaDES module without
