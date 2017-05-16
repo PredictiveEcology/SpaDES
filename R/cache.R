@@ -963,20 +963,26 @@ prepareFileBackedRaster <- function(obj, repoDir = NULL, compareRasterFileLength
       normalizePath(., winslash = "/", mustWork = FALSE)
   }
 
-  if (any(saveFilename != curFilename)) {
+  if (any(saveFilename != curFilename)) { # filenames are not the same
     if (isFilebacked) {
-      shouldCopy <- TRUE
-      if (any(file.exists(saveFilename))) {
-        if (!(compareRasterFileLength == Inf)) {
-          if (digest(file = saveFilename, length = compareRasterFileLength) ==
-              digest(file = curFilename, length = compareRasterFileLength)) {
-            shouldCopy <- FALSE
-          }
-        } else {
-          shouldCopy = TRUE
-        }
-      }
-      if (shouldCopy) {
+      shouldCopy <- rep(TRUE, length(curFilename))
+      # if (any(file.exists(saveFilename))) {
+      #   if (!(compareRasterFileLength == Inf)) {
+      #     shouldCopy <- lapply(seq_along(saveFilename), function(ind) {
+      #       if (digest(file = saveFilename[ind], length = compareRasterFileLength) ==
+      #           digest(file = curFilename[ind], length = compareRasterFileLength)) {
+      #         shouldCopy <- FALSE
+      #       }
+      #     })
+      #     if (digest(file = saveFilename, length = compareRasterFileLength) ==
+      #         digest(file = curFilename, length = compareRasterFileLength)) {
+      #       shouldCopy <- FALSE
+      #     }
+      #   } else {
+      #     shouldCopy = TRUE
+      #   }
+      # }
+      if (any(shouldCopy)) {
         pathExists <- dir.exists(dirname(saveFilename))
         if (any(!pathExists)) {
           dirname(saveFilename) %>%
@@ -988,19 +994,17 @@ prepareFileBackedRaster <- function(obj, repoDir = NULL, compareRasterFileLength
           griFilename <- sub(saveFilename, pattern = "[.]grd$", replacement = ".gri")
           curGriFilename <- sub(curFilename, pattern = "[.]grd$", replacement = ".gri")
           copyFile(to = griFilename, overwrite = TRUE, from = curGriFilename, silent = TRUE)
-          #           file.copy(to = griFilename, overwrite = TRUE,
-          #                     recursive = FALSE, copy.mode = TRUE,
-          #                     from = curGriFilename)
         } else {
-          suppressWarnings(lapply(seq_along(curFilename), function(x) copyFile(to = saveFilename[x], overwrite = TRUE,
-                                                                               from = curFilename[x], silent = TRUE)))
-          # suppressWarnings(copyFile(to = saveFilename, overwrite = TRUE,
-          #                           from = curFilename, silent = TRUE))
+          suppressWarnings(
+            lapply(seq_along(curFilename),
+                   function(x) copyFile(to = saveFilename[x],
+                                        overwrite = TRUE,
+                                        from = curFilename[x], silent = TRUE)))
         }
       }
-      if (length(curFilename) > 1) {
+      if (length(curFilename) > 1) { # for a stack with independent Raster Layers (each with own file)
         for (i in seq_along(curFilename)) {
-          slot(slot(slot(obj, "layers")[[1]], "file"), "name") <- saveFilename[i]
+          slot(slot(slot(obj, "layers")[[i]], "file"), "name") <- saveFilename[i]
         }
       } else {
         if(!isStack) {
