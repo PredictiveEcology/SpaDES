@@ -384,7 +384,11 @@ setMethod(
           }
           return(simListOut)
         }
-        return(out)
+
+        isNullOutput <- if(length(out)==1) if(out=="Null") TRUE else FALSE else FALSE # need something to attach tags to if it is actually NULL
+        if(isNullOutput) return(NULL) else return(out)
+
+        #if(isTRUE(tryCatch(out=="NULL", error = function(x) FALSE))) return(NULL) else return(out)
       }
     }
 
@@ -401,6 +405,9 @@ setMethod(
         rmFromLocalRepo(isInRepo$artifact[lastOne], repoDir = cacheRepo)
       }
     }
+
+    isNullOutput <- if(is.null(output)) TRUE else FALSE # need something to attach tags to if it is actually NULL
+    if(isNullOutput) output <- "NULL"
 
     attr(output, "tags") <- paste0("cacheId:", outputHash)
     attr(output, "call") <- ""
@@ -478,7 +485,8 @@ setMethod(
         TRUE
       }
     }
-    return(output)
+
+    if(isNullOutput) return(NULL) else return(output)
   })
 
 #' @inheritParams spades
