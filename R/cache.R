@@ -651,9 +651,10 @@ setMethod(
 
     objsDT <- showLocalRepo(x) %>% data.table()
     objsDT <- objsDT[createdDate <= before & createdDate >= after]
+    setkeyv(objsDT, "md5hash")
     if (NROW(objsDT) > 0) {
       objsDT2 <- data.table(splitTagsLocal(x), key = "artifact")
-      objsDT <- objsDT2[objsDT, on="artifact"]
+      objsDT <- objsDT2[objsDT]
       if (length(userTags) > 0) {
         for (ut in userTags) {
           objsDT2 <- objsDT[
