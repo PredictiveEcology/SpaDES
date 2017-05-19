@@ -586,7 +586,10 @@ setGeneric("clearCache", function(x, userTags = character(), after, before, ...)
 setMethod(
   "clearCache",
   definition = function(x, userTags, after, before, ...) {
-    if (missing(x)) stop("Must provide a simList or repository")
+    if (missing(x)) {
+      message("x not specified; using ", getPaths()$cache)
+      x <- getPaths()$cache
+    }
     if (missing(after)) after <- "1970-01-01"
     if (missing(before)) before <- Sys.Date() + 1
     if (is(x, "simList")) x <- x@paths$cachePath
@@ -638,7 +641,10 @@ setGeneric("showCache", function(x, userTags = character(),
 setMethod(
   "showCache",
   definition = function(x, userTags, after, before, ...) {
-    if (missing(x)) stop("Must provide a simList or repository")
+    if (missing(x)) {
+      message("x not specified; using ", getPaths()$cache)
+      x <- getPaths()$cache
+    }
     if (missing(after)) after <- "1970-01-01"
     if (missing(before)) before <- Sys.Date() + 1
     if (is(x, "simList")) x <- x@paths$cachePath
@@ -646,7 +652,8 @@ setMethod(
     objsDT <- showLocalRepo(x) %>% data.table()
     objsDT <- objsDT[createdDate <= before & createdDate >= after]
     if (NROW(objsDT) > 0) {
-      objsDT <- data.table(splitTagsLocal(x), key = "artifact")
+      objsDT2 <- data.table(splitTagsLocal(x), key = "artifact")
+      objsDT <- objsDT2[objsDT, on="artifact"]
       if (length(userTags) > 0) {
         for (ut in userTags) {
           objsDT2 <- objsDT[
@@ -1022,8 +1029,11 @@ prepareFileBackedRaster <- function(obj, repoDir = NULL, compareRasterFileLength
       checkPath(dirname(saveFilename), create = TRUE)
       obj <- writeRaster(obj, filename = saveFilename, datatype = dataType(obj))
     }
-  } else {
-    saveFilename <- slot(slot(obj, "file"), "name")
+  # } else {
+  #   if(isStack) {
+  #     slot(obj, "filename")
+  #   }
+  #   saveFilename <- slot(slot(obj, "file"), "name")
   }
 
   return(obj)
