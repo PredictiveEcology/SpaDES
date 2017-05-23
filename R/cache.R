@@ -803,6 +803,7 @@ setMethod(
       dig <- suppressWarnings(list(dim(object), res(object), crs(object), extent(object),
                                    lapply(object@layers, function(yy) {
                                      if(inMemory(yy)) {
+                                       yy@legend@colortable <- character()
                                        fastdigest::fastdigest(yy)
                                      } else {
                                        digest::digest(yy@data, length = compareRasterFileLength, algo = algo)
@@ -816,6 +817,7 @@ setMethod(
       }
     } else {
       if(inMemory(object)) {
+        object@legend@colortable <- character()
         dig <- suppressWarnings(list(dim(object), res(object), crs(object), extent(object),
                                      fastdigest::fastdigest(object)))
       } else {
