@@ -646,6 +646,7 @@ setMethod(
 #' @seealso \code{\link[archivist]{splitTagsLocal}}.
 #' @export
 #' @importFrom archivist splitTagsLocal
+#' @importFrom data.table data.table set
 #' @include simList-class.R
 #' @docType methods
 #' @rdname viewCache
@@ -677,6 +678,7 @@ setMethod(
     if (NROW(objsDT) > 0) {
       objsDT2 <- data.table(splitTagsLocal(x), key = "artifact")
       objsDT <- objsDT2[objsDT]
+      set(objsDT, , "i.createdDate", NULL)
       if (length(userTags) > 0) {
         for (ut in userTags) {
           objsDT2 <- objsDT[
