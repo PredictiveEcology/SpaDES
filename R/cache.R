@@ -6,20 +6,24 @@ if (getRversion() >= "3.1.0") {
 #' Cache method that accommodates environments, S4 methods, Rasters
 #'
 #' This function is largely copied from \code{\link[archivist]{cache}}, with
-#' three very critical modifications:
+#' four very critical modifications:
 #' 1) the \code{archivist} package detects different environments as different;
 #' 2) it also does not detect S4 methods correctly due to method inheritance;
 #' 3) it does not detect objects that have file-base storage of information
 #' (specifically \code{\link[raster]{RasterLayer-class}} objects).
+#' 4) the default hashing method is relatively slow
 #' This version of the \code{Cache} function accommodates those three special,
 #' though quite common, cases by:
 #' 1) converting any environments into list equivalents;
 #' 2) identifying the dispatched S4 method (including those made through
 #' inheritance) before \code{\link[fastdigest]{fastdigest}} is called so the correct
 #' method is being cached;
-#' and 3) by running \code{\link[fastdigest]{fastdigest}} on the linked file. Currently,
+#' and 3) by running \code{\link[digest]{digest}} on the linked file. Currently,
 #' only file-backed \code{Raster*} objects are digested (e.g., not \code{ff} objects,
 #' or any other R object where the data is in a file, rather than RAM object).
+#' 4) We use \code{\link[fastdigest]{fastdigest}} internally when the object is
+#' in RAM (i.e., not for file-backed objects0) which appears to be up to
+#' 10x faster than \code{\link[digest]{digest}}.
 #' In the \code{SpaDES} context, the \code{simList} has an environment as one of
 #' its slots, thus using \code{archivist::cache} will not work correctly.
 #'
@@ -29,9 +33,10 @@ if (getRversion() >= "3.1.0") {
 #' but also the \code{.envir} slot in the \code{simList}.
 #' Functions are formatted to text before running \code{fastdigest}.
 #'
-#' Cache (capital C) is a short cut to using SpaDES::cache as it
-#' can be called from inside a SpaDES module without
-#' specifying the \code{cacheRepo}. SpaDES will use the cacheRepo from a call
+#' Cache (capital C) is a short cut to using SpaDES::cache (which is
+#' being deprecated). It has the added benefit that if no cacheRepo is
+#' specified, it will choose a smart option. If called
+#' from inside a SpaDES module, \code{Cache} will use the cacheRepo from a call
 #' to \code{cachePath(sim)}, taking the sim from the call stack. Similarly, if no
 #' \code{cacheRepo} is specified, then it will use \code{getPaths()$cachePath}, which
 #' will, by default, be a temporary location with no persistence between R sessions!
@@ -45,23 +50,27 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @section Caching as part of SpaDES:
 #'
-#' SpaDES has several levels of caching. Each level can be used to a modelers
-#' advantage; and, each can be used simultaneously.
+#' SpaDES has several levels of caching. Each level can be used to a modeler's
+#' advantage; and, all can be -- and are often -- used concurrently.
 #'
 #' @section \code{spades} or \code{experiment}:
 #'
 #' And entire call
 #' to \code{spades} or \code{experiment} can be cached. This will have the effect
 #' of eliminating any stochasticity in the model as the output will simply be
-#' the cached version of the \code{simList}.
+#' the cached version of the \code{simList}. This is likely most useful in
+#' situations where reproducibility is more important than "new" stochasticity
+#' (e.g., building decision support systems, apps, final version of a manuscript).
 #'
 #' @section Module-level caching:
 #'
-#' If the parameter \code{.useCache} is set to TRUE, then the \code{doEvent.moduleName}
+#' If the parameter \code{.useCache} in the module's metadata
+#' is set to TRUE, then the \code{doEvent.moduleName}
 #' will be cached. That means that every time that module
-#' is called from within a spades or experiment call, cache will be used. Only
-#' the objects inside the \code{simList} that correspond to the inputObjects of the
-#' module and the outputObjects to the module will be assessed for caching
+#' is called from within a spades or experiment call, \code{Cache} will be called. Only
+#' the objects inside the \code{simList} that correspond to the \code{inputObjects} of the
+#' module and the \code{outputObjects} from the module (as specified in the module
+#' metadata) will be assessed for caching
 #' inputs or output, respectively.
 #'
 #' In general use, module level caching would be mostly useful for modules that have
@@ -69,16 +78,19 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @section Event-level caching:
 #'
-#' If the parameter \code{.useCache} is set to a character or character vector,
+#' If the parameter \code{.useCache} in the module's metadata
+#' is set to a character or character vector,
 #' then that or those event(s) will be cached. That means that every time the event
-#' is called from within a spades or experiment call, cache will be used. Only
-#' the objects inside the \code{simList} that correspond to the inputObjects of the
-#' module and the outputObjects to the module will be assessed for caching
-#' inputs or output, respectively. The fact that all and only the named inputObjects
-#' and outputObjects are cached and returned may be inefficient (i.e., it may
+#' is called from within a spades or experiment call, \code{Cache} will be called.
+#' Only
+#' the objects inside the \code{simList} that correspond to the \code{inputObjects} or the
+#' \code{outputObjects} as defined in the module metadata  will be assessed for caching
+#' inputs or output, respectively. The fact that all and only the named \code{inputObjects}
+#' and \code{outputObjects} are cached and returned may be inefficient (i.e., it may
 #' cache more objects than are necessary) for individual events.
 #'
-#' In general use, event-level caching would be mostly useful for events that have
+#' Similar to module-level caching, event-level caching would be mostly
+#' useful for events that have
 #' no stochasticity, such as data-preparation events, GIS events etc.
 #'
 #' @section Function-level caching:
@@ -92,11 +104,21 @@ if (getRversion() >= "3.1.0") {
 #' to
 #' \code{Cache(projectRaster, raster, crs = crs(newRaster))}
 #'
-#' @note \code{Raster*} class objects have a special behaviour when Cached.
-#' Whether they are file-backed or in-memory objects, they will become file-backed,
-#' and their file will be created in or copied to a "rasters" subdirectory of the
-#' \code{cacheRepo} using \code{writeRaster}.
+#' @note Several objects require pre-treatment before successful caching will
+#' work. \code{Raster*} objects have the potential for disk-backed storage. If
+#' the object in the R session is cached using \code{archivist::cache}, only
+#' the header component will be assessed for caching. Thus, objects like this
+#' require more work. Also, because \code{Raster*} have an internal representation
+#' for having their data content located on disk, it makes more sense if caching to
+#' use the internal file storage mechanism, rather than a binary \code{.rdata} file
+#' for caching a raster object to disk. Thus, \code{Raster*} class objects when
+#' cached, whether file-backed or in-memory objects, they will become file-backed using
+#' .tif or .grd format and and their file will be created in or copied to
+#' a "rasters" subdirectory of the \code{cacheRepo} using \code{writeRaster}. This means that
+#' the cached object can be accessed directly as a geo-referenced geoTiff, for example.
 #' Their RAM representation (as an R object) will still be in the usual "gallery" directory.
+#'
+#' See \code{\link{makeDigestible}} for other specifics for other classes.
 #'
 #' @inheritParams archivist::cache
 #' @inheritParams archivist::saveToLocalRepo
@@ -140,7 +162,7 @@ if (getRversion() >= "3.1.0") {
 #' of stochastic outcomes are required. It will also be very useful in a
 #' reproducible work flow
 #'
-#' @seealso \code{\link[archivist]{cache}}.
+#' @seealso \code{\link[archivist]{cache}}, \code{\link{makeDigestible}}
 #' @export
 #' @importFrom archivist cache loadFromLocalRepo saveToLocalRepo showLocalRepo
 #' @importFrom digest digest
@@ -715,6 +737,7 @@ setMethod(
 #' @keywords internal
 #' @rdname makeDigestible
 #' @author Eliot McIntire
+#' @export
 setGeneric("makeDigestible", function(object, objects,
                                       compareRasterFileLength = 1e6,
                                       algo = "xxhash64") {
@@ -722,6 +745,7 @@ setGeneric("makeDigestible", function(object, objects,
 })
 
 #' @rdname makeDigestible
+#' @exportMethod makeDigestible
 setMethod(
   "makeDigestible",
   signature = "simList",
@@ -794,6 +818,9 @@ setMethod(
     return(object)
   })
 
+
+#' @rdname makeDigestible
+#' @exportMethod makeDigestible
 setMethod(
   "makeDigestible",
   signature = "Raster",
@@ -835,6 +862,8 @@ setMethod(
     return(dig)
   })
 
+#' @rdname makeDigestible
+#' @exportMethod makeDigestible
 setMethod(
   "makeDigestible",
   signature = "Spatial",
