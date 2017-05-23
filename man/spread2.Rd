@@ -369,8 +369,14 @@ for(i in 1:100) { # enough replicates to see stabilized probabilities
 }
 out <- data.table::rbindlist(out)[pixels!=5] # remove starting cell
 table(sp[out$pixels])
-# should be non-significant
-chisq.test(c(1:4,6:9), unname(table(sp[out$pixels])), simulate.p.value = TRUE)
+# should be non-significant -- note no 5 because that was the starting cell
+#  This tests whether the null model is true ... there should be proportions
+#  equivalent to 1:2:3:4:6:7:8:9 ... i.e,. cell 9 should have 9x as many events
+#  spread to it as cell 1. This comes from sp object above which is providing
+#  the relative spread probabilities
+keep <- c(1:4,6:9)
+chisq.test(keep, unname(tabulate(sp[out$pixels],9)[keep]),
+           simulate.p.value = TRUE)
 
 
 ## Example showing asymmetry
