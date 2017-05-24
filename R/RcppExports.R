@@ -20,7 +20,7 @@
 #'
 #' @rdname distances
 pointDistance2 <- function(to, from) {
-    .Call('SpaDES_pointDistance2', PACKAGE = 'SpaDES', to, from)
+    .Call(SpaDES_pointDistance2, to, from)
 }
 
 #' @param fromX Numeric vector of x coordinates for 'from' points
@@ -34,7 +34,7 @@ pointDistance2 <- function(to, from) {
 #' @details
 #' A slightly faster way to calculate distances.
 pointDistance3 <- function(fromX, toX, fromY, toY, maxDistance) {
-    .Call('SpaDES_pointDistance3', PACKAGE = 'SpaDES', fromX, toX, fromY, toY, maxDistance)
+    .Call(SpaDES_pointDistance3, fromX, toX, fromY, toY, maxDistance)
 }
 
 #' @title
@@ -49,7 +49,7 @@ pointDistance3 <- function(fromX, toX, fromY, toY, maxDistance) {
 #'
 #' @rdname duplicated
 duplicatedInt <- function(x) {
-    .Call('SpaDES_duplicatedInt', PACKAGE = 'SpaDES', x)
+    .Call(SpaDES_duplicatedInt, x)
 }
 
 #' @title
@@ -63,6 +63,6 @@ duplicatedInt <- function(x) {
 #'
 #' @rdname rcpp-extras
 runifC <- function(N) {
-    .Call('SpaDES_runifC', PACKAGE = 'SpaDES', N)
+    .Call(SpaDES_runifC, N)
 }
 

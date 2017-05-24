@@ -210,15 +210,14 @@ sampleV <- Vectorize("sample", "size", SIMPLIFY = FALSE)
 #' such that the packages required by the current module are placed first in the
 #' search path. Note, several "core" packages are not touched; or more specifically,
 #' they will remain in the search path, but may move down if packages are rearranged.
-#' The current
-#' set of these core packages used by SpaDES can be found here:
+#' The current set of these core packages used by SpaDES can be found here:
 #' \code{SpaDES:::.spadesEnv$corePackages}
 #'
 #' @return Nothing. This is used for its side effects, which are "severe".
 #' @keywords internal
 #' @param pkgs The packages that are to be placed at the beginning of the search path
-#' @param removeOthers Logical. If \code{TRUE}, then only the packages in \code{pkgs} will remain in
-#'               the search path, i.e., all others will be removed.
+#' @param removeOthers Logical. If \code{TRUE}, then only the packages in \code{pkgs}
+#'                     will remain in the search path, i.e., all others will be removed.
 #' @rdname modifySearchPath
 .modifySearchPath <- function(pkgs, removeOthers = FALSE) {
   pkgs <- c("SpaDES", pkgs)

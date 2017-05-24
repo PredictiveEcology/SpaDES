@@ -831,17 +831,17 @@ resample <- function(x, ...) x[sample.int(length(x), ...)]
 #' \code{sample.int} is zero. This causes an error in \code{sample.int}. This function is
 #' intended for internal use only.
 #' @rdname resample
-#' @param spreadProbHas0 Logical. Does \code{spreadProb} have any zeros on it.
+#' @param spreadProbHas0 /ogical. Does \code{spreadProb} have any zeros on it.
 #' @inheritParams base::sample
 resampleZeroProof <- function(spreadProbHas0, x, n, prob) {
-  if(spreadProbHas0) {
-    sm <- sum(prob, na.rm=TRUE)
-    if(sum(prob>0)<=n) {
+  if (spreadProbHas0) {
+    sm <- sum(prob, na.rm = TRUE)
+    if (sum(prob > 0) <= n) {
       integer()
     } else {
-      resample(x, n, prob=prob/sm)
+      resample(x, n, prob = prob / sm)
     }
-  } else resample(x, n, prob=prob/sum(prob, na.rm=TRUE))
+  } else resample(x, n, prob = prob / sum(prob, na.rm = TRUE))
 }
 
 #' Internal helper
@@ -860,7 +860,7 @@ rbindlistDtDtpot <- function(dt, dtPotential, returnFrom, needDistance, dtPotent
   # distance column is second last, but needs to be last: to merge with dt, need: from, to, state in that order
   reorderColsWDistance(needDistance, dtPotential, dtPotentialColNames)
 
-  if(!returnFrom) {
+  if (!returnFrom) {
     set(dtPotential, , "from", dtPotential$id)
     set(dtPotential, , "id", NULL)
     setnames(dtPotential, old = c("from", "to"), new = c("initialPixels", "pixels"))
@@ -869,7 +869,7 @@ rbindlistDtDtpot <- function(dt, dtPotential, returnFrom, needDistance, dtPotent
   }
   #setcolorder(dtPotential, neworder = dtPotentialColNames)
   # convert state of all those still left, move potentialPixels into pixels column
-  if(NROW(dtPotential)) {
+  if (NROW(dtPotential)) {
     dt <- rbindlist(list(dt, dtPotential), fill = TRUE) # need fill = TRUE if user has passed extra columns
   } else {
     dt
@@ -905,7 +905,7 @@ angleQuality <- function(dtPotential, landscape, actualAsymmetryAngle) {
   to <- cbind(id = dtPotential$id, xyFromCell(landscape, dtPotential$to))
   d <- .pointDirection(from = from, to = to)
 
-  angleQuality <- cbind(angleQuality=(cos(d[, "angles"] - rad(actualAsymmetryAngle)) + 1), d)
+  angleQuality <- cbind(angleQuality = (cos(d[, "angles"] - rad(actualAsymmetryAngle)) + 1), d)
   angleQuality
 }
 
@@ -921,27 +921,22 @@ angleQuality <- function(dtPotential, landscape, actualAsymmetryAngle) {
 #' @rdname spread2-internals
 #'
 asymmetryAdjust <- function(angleQualities, quantity, actualAsymmetry) {
-  if(sum(angleQualities[,"angleQuality"]) %==% 0) { # the case where there is no difference in the angles, and they are all zero
+  if (sum(angleQualities[,"angleQuality"]) %==% 0) { # the case where there is no difference in the angles, and they are all zero
     return(quantity)
   } else {
-
     dd <- data.table(angleQualities, quantity)
-    dd[,quantityAdj := quantity * angleQualities[,"angleQuality"]]
-    dd[,quantityAdj2 :=
-         quantityAdj/(mean(quantityAdj)/mean(quantity)),
-       by = "id"]
+    dd[, quantityAdj := quantity * angleQualities[,"angleQuality"]]
+    dd[, quantityAdj2 := quantityAdj/(mean(quantityAdj)/mean(quantity)), by = "id"]
 
-    dd[,newQuantity:={
+    dd[, newQuantity := {
       minQuantity <- 0#min(2*quantity)
       maxQuantity <- max(2*quantity)
       aaMinus1 <- (actualAsymmetry - 1)
-      par2 <- aaMinus1*sum(quantityAdj)/( (length(quantityAdj) *(maxQuantity-minQuantity) +
-                                                     aaMinus1 * (sum(quantityAdj-minQuantity)) ))
-      par1 <- par2/aaMinus1*(maxQuantity-minQuantity)
-      (quantityAdj2 - minQuantity)* par2 + par1
-    },by = "id"]
-
-
+      par2 <- aaMinus1 * sum(quantityAdj) / ((length(quantityAdj) * (maxQuantity - minQuantity) +
+                                                aaMinus1 * (sum(quantityAdj - minQuantity)) ))
+      par1 <- par2 / aaMinus1 * (maxQuantity - minQuantity)
+      (quantityAdj2 - minQuantity) * par2 + par1
+    }, by = "id"]
   }
   dd$newQuantity
 }
