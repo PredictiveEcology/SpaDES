@@ -10,17 +10,17 @@ resample(x, ...)
 resampleZeroProof(spreadProbHas0, x, n, prob)
 }
 \arguments{
-\item{x}{Either a vector of one or more elements from which to choose,
+\item{x}{either a vector of one or more elements from which to choose,
     or a positive integer.  See \sQuote{Details.}}
 
 \item{...}{Passed to \code{\link[base]{sample}}}
 
-\item{spreadProbHas0}{Logical. Does \code{spreadProb} have any zeros on it.}
+\item{spreadProbHas0}{/ogical. Does \code{spreadProb} have any zeros on it.}
 
 \item{n}{a positive number, the number of items to choose from.  See
     \sQuote{Details.}}
 
-\item{prob}{A vector of probability weights for obtaining the elements
+\item{prob}{a vector of probability weights for obtaining the elements
     of the vector being sampled.}
 }
 \description{
