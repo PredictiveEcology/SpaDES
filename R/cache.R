@@ -407,7 +407,8 @@ setMethod(
           return(simListOut)
         }
 
-        isNullOutput <- if(length(out)==1) if(out=="Null") TRUE else FALSE else FALSE # need something to attach tags to if it is actually NULL
+        isNullOutput <- FALSE
+        if(is.character(out)) {if(length(out)==1) {if(out=="Null") isNullOutput <- TRUE}} # need something to attach tags to if it is actually NULL
         if(isNullOutput) return(NULL) else return(out)
 
         #if(isTRUE(tryCatch(out=="NULL", error = function(x) FALSE))) return(NULL) else return(out)
