@@ -108,15 +108,13 @@ if (getRversion() >= "3.1.0") {
 #' work. \code{Raster*} objects have the potential for disk-backed storage. If
 #' the object in the R session is cached using \code{archivist::cache}, only
 #' the header component will be assessed for caching. Thus, objects like this
-#' require more work. Also, because \code{Raster*} have an internal representation
-#' for having their data content located on disk, it makes more sense if caching to
-#' use the internal file storage mechanism, rather than a binary \code{.rdata} file
-#' for caching a raster object to disk. Thus, \code{Raster*} class objects when
-#' cached, whether file-backed or in-memory objects, they will become file-backed using
-#' .tif or .grd format and and their file will be created in or copied to
-#' a "rasters" subdirectory of the \code{cacheRepo} using \code{writeRaster}. This means that
-#' the cached object can be accessed directly as a geo-referenced geoTiff, for example.
+#' require more work. Also, because \code{Raster*} can have a built-in representation
+#' for having their data content located on disk, this format will be maintained
+#' if the raster already is file-backed, i.e., to create .tif or .grd backed rasters,
+#' use writeRaster first, then Cache. The .tif or .grd will be copied to the "raster"
+#' subdirectory of the \code{cacheRepo}.
 #' Their RAM representation (as an R object) will still be in the usual "gallery" directory.
+#' For \code{inMemory} raster objects, they will remain as binary .rdata files.
 #'
 #' See \code{\link{makeDigestible}} for other specifics for other classes.
 #'
@@ -1070,7 +1068,10 @@ prepareFileBackedRaster <- function(obj, repoDir = NULL, compareRasterFileLength
       }
     } else {
       checkPath(dirname(saveFilename), create = TRUE)
-      obj <- writeRaster(obj, filename = saveFilename, datatype = dataType(obj))
+      if(!inMemory(obj)) {
+        obj <- writeRaster(obj, filename = saveFilename, datatype = dataType(obj))
+      }
+
     }
   # } else {
   #   if(isStack) {
