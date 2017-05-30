@@ -67,6 +67,12 @@ test_that("test event-level cache", {
   firesHash <- digest::digest(object = SpaDES:::makeDigestible(
     sims$landscape$Fires), algo = "xxhash64")
 
+  testFileName <<- "c:/Eliot/GitHub/SpaDES/test.csv"
+  lineNum <- "Test70"
+  write.table(append = TRUE, cbind(lineNum, landscapeObjHash), file = testFileName,
+              sep=",", col.names = FALSE, row.names = FALSE)
+  write.table(append = TRUE, cbind(lineNum, firesHash), file = testFileName,
+              sep=",", col.names = FALSE, row.names = FALSE)
   expect_true(any(c("a0a8a742a1e9a205") %in% landscapeObjHash))
   expect_true(any(c("abacbb68dfddab74") %in% firesHash))
 
@@ -77,6 +83,11 @@ test_that("test event-level cache", {
   firesHash <- digest::digest(object = SpaDES:::makeDigestible(
     sims$landscape$Fires), algo = "xxhash64")
 
+  lineNum <- "Test84"
+  write.table(append = TRUE, cbind(lineNum, landscapeObjHash), file = testFileName,
+              sep=",", col.names = FALSE, row.names = FALSE)
+  write.table(append = TRUE, cbind(lineNum, firesHash), file = testFileName,
+              sep=",", col.names = FALSE, row.names = FALSE)
   expect_true(any(c("a0a8a742a1e9a205") %in% landscapeObjHash))
   expect_false(any(c("abacbb68dfddab74") %in% firesHash)) # The non cached stuff goes ahead as normal
 
@@ -127,6 +138,11 @@ test_that("test module-level cache", {
   firesHash <- digest::digest(object = SpaDES:::makeDigestible(
     sims$landscape$Fires), algo = "xxhash64")
 
+  lineNum <- "Test138"
+  write.table(append = TRUE, cbind(lineNum, landscapeObjHash), file = testFileName,
+              sep=",", col.names = FALSE, row.names = FALSE)
+  write.table(append = TRUE, cbind(lineNum, firesHash), file = testFileName,
+              sep=",", col.names = FALSE, row.names = FALSE)
   expect_true(any(c("a0a8a742a1e9a205") %in% landscapeObjHash))
   expect_true(any(c("abacbb68dfddab74") %in% firesHash))
 
@@ -145,6 +161,11 @@ test_that("test module-level cache", {
   firesHash <- digest::digest(object = SpaDES:::makeDigestible(
     sims$landscape$Fires), algo = "xxhash64")
 
+  lineNum <- "Test161"
+  write.table(append = TRUE, cbind(lineNum, landscapeObjHash), file = testFileName,
+              sep=",", col.names = FALSE, row.names = FALSE)
+  write.table(append = TRUE, cbind(lineNum, firesHash), file = testFileName,
+              sep=",", col.names = FALSE, row.names = FALSE)
   expect_true(landscapeObjHash == "a0a8a742a1e9a205")
   expect_false(firesHash == "abacbb68dfddab74") # non-cached stuff goes ahead as normal
 
@@ -229,8 +250,8 @@ test_that("test file-backed raster caching", {
   }
 
   bb <- Cache(randomPolyToMemory, tmpdir, cacheRepo = tmpdir)
-  expect_true(nzchar(filename(bb)))
-  expect_true(fromDisk(bb))
+  expect_true(filename(bb)=="")
+  expect_true(inMemory(bb))
 
   bb <- Cache(randomPolyToMemory, tmpdir, cacheRepo = tmpdir)
   expect_true(NROW(showCache(tmpdir)) == 9)
@@ -244,7 +265,6 @@ test_that("test file-backed raster caching", {
     r
   }
   bb <- Cache(randomPolyToFactorInMemory, tmpdir, cacheRepo = tmpdir)
-  expect_true(dirname(filename(bb)) == file.path(tmpdir, "rasters"))
   expect_true(dataType(bb) == "INT1U")
   expect_true(is.factor(bb))
   expect_true(is(levels(bb)[[1]], "data.frame"))
