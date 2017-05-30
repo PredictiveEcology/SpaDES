@@ -80,11 +80,13 @@ circs <- spread2(a, spreadProb = 0.213, start = sams,
 
 # ADVANCED: Estimate spreadProb when using asymmetry, such that the expected event size is the same
 #   as without using asymmetry
+ras <- raster(a)
+ras[] <- 1
 if(interactive()) {
   N = 100
   sizes <- integer(N)
   for(i in 1:N) {
-    circs <- spread2(ras, spreadProb = 0.225, start = ncell(ras)/4 - ncol(ras)/4*3,
+    circs <- spread2(ras, spreadProb = 0.225, start = round(ncell(ras)/4 - ncol(ras)/4*3),
                       asRaster = FALSE)
     sizes[i] <- circs[,.N]
   }
@@ -92,6 +94,7 @@ if(interactive()) {
 
 
   library(parallel)
+  library(DEoptim)
   cl <- makeCluster(pmin(10, detectCores()-2)) # only need 10 cores for 10 populations in DEoptim
   parallel::clusterEvalQ(cl, {
     library(SpaDES)

@@ -6,11 +6,11 @@
 \alias{POM,simList,character-method}
 \title{Use Pattern Oriented Modeling to fit unknown parameters}
 \usage{
-POM(sim, params, objects, objFn, cl, optimizer = "DEoptim", sterr = FALSE,
-  ..., objFnCompare = "MAD", optimControl = NULL, NaNRetries = NA,
-  logObjFnVals = FALSE, weights, useLog = FALSE)
+POM(sim, params, objects = NULL, objFn, cl, optimizer = "DEoptim",
+  sterr = FALSE, ..., objFnCompare = "MAD", optimControl = NULL,
+  NaNRetries = NA, logObjFnVals = FALSE, weights, useLog = FALSE)
 
-\S4method{POM}{simList,character}(sim, params, objects, objFn, cl,
+\S4method{POM}{simList,character}(sim, params, objects = NULL, objFn, cl,
   optimizer = "DEoptim", sterr = FALSE, ..., objFnCompare = "MAD",
   optimControl = NULL, NaNRetries = NA, logObjFnVals = FALSE, weights,
   useLog = FALSE)
