@@ -67,8 +67,8 @@ test_that("test event-level cache", {
   firesHash <- digest::digest(object = SpaDES:::makeDigestible(
     sims$landscape$Fires), algo = "xxhash64")
 
-  expect_true(any(c("8b62c052c79b0dc8") %in% landscapeObjHash))
-  expect_true(any(c("5832b0ce8b9b66fe") %in% firesHash))
+  expect_true(any(c("a0a8a742a1e9a205") %in% landscapeObjHash))
+  expect_true(any(c("abacbb68dfddab74") %in% firesHash))
 
   mess1 <- capture_messages(sims <- spades(Copy(mySim)))
   expect_true(any(grepl(pattern = "Using cached copy of init event in randomLandscapes module", mess1)))
@@ -77,8 +77,8 @@ test_that("test event-level cache", {
   firesHash <- digest::digest(object = SpaDES:::makeDigestible(
     sims$landscape$Fires), algo = "xxhash64")
 
-  expect_true(any(c("8b62c052c79b0dc8") %in% landscapeObjHash))
-  expect_false(any(c("5832b0ce8b9b66fe") %in% firesHash)) # The non cached stuff goes ahead as normal
+  expect_true(any(c("a0a8a742a1e9a205") %in% landscapeObjHash))
+  expect_false(any(c("abacbb68dfddab74") %in% firesHash)) # The non cached stuff goes ahead as normal
 
   clearCache(sims)
 })
@@ -127,8 +127,8 @@ test_that("test module-level cache", {
   firesHash <- digest::digest(object = SpaDES:::makeDigestible(
     sims$landscape$Fires), algo = "xxhash64")
 
-  expect_true(any(c("8b62c052c79b0dc8") %in% landscapeObjHash))
-  expect_true(any(c("5832b0ce8b9b66fe") %in% firesHash))
+  expect_true(any(c("a0a8a742a1e9a205") %in% landscapeObjHash))
+  expect_true(any(c("abacbb68dfddab74") %in% firesHash))
 
   # The cached version will be identical for both events (init and plot),
   # but will not actually complete the plot, because plotting isn't cacheable
@@ -145,8 +145,8 @@ test_that("test module-level cache", {
   firesHash <- digest::digest(object = SpaDES:::makeDigestible(
     sims$landscape$Fires), algo = "xxhash64")
 
-  expect_true(landscapeObjHash == "8b62c052c79b0dc8")
-  expect_false(firesHash == "5832b0ce8b9b66fe") # non-cached stuff goes ahead as normal
+  expect_true(landscapeObjHash == "a0a8a742a1e9a205")
+  expect_false(firesHash == "abacbb68dfddab74") # non-cached stuff goes ahead as normal
 
   clearCache(sims)
 })

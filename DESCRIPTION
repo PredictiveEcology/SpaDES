@@ -1,3 +1,4 @@
+
 Package: SpaDES
 Type: Package
 Title: Develop and Run Spatially Explicit Discrete Event Simulation Models
@@ -11,7 +12,7 @@ Description: Implement a variety of event-based models, with a focus on
     'install.packages("fastshp", repos = "http://rforge.net", type = "source")'.
 URL: http://spades.predictiveecology.org,
     https://github.com/PredictiveEcology/SpaDES
-Version: 1.3.1.9071
+Version: 1.3.1.9072
 Date: 2017-05-12
 Authors@R: c(
     person(c("Alex", "M"), "Chubaty", email = "alexander.chubaty@canada.ca",
@@ -55,6 +56,7 @@ Imports:
     digest (>= 0.6.12),
     dplyr (>= 0.5.0),
     DT (>= 0.2),
+    fastdigest (>= 0.6-3),
     fastmatch (>= 1.1-0),
     ff (>= 2.2-13),
     ffbase (>= 0.12.3),
