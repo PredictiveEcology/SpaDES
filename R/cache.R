@@ -872,13 +872,21 @@ setMethod(
   signature = "Spatial",
   definition = function(object, compareRasterFileLength, algo) {
 
-    #if (is(object, "SpatialPolygonsDataFrame") ) {
-
-    aaa <- suppressMessages(broom::tidy(object))
+    if(is(object, "SpatialPoints")) {
+      aaa <- as.data.frame(object)
+    } else {
+      aaa <- suppressMessages(broom::tidy(object))
+    }
 
     # The following Rounding is necessary to make digest equal on linux and windows
-    bbb <- as.data.frame(lapply(aaa, function(x) if (is(x,"numeric")) round(x, 4) else x))
-    dig <- fastdigest::fastdigest(bbb)
+    for(i in names(aaa)) {
+      if(!is.integer(aaa[,i])) {
+        if(is.numeric(aaa[,i]))
+          aaa[,i] <- round(aaa[,i],4)
+      }
+    }
+
+    dig <- fastdigest::fastdigest(aaa)
     #dig <- digest::digest(bbb, algo = algo)
     return(dig)
   })
