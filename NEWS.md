@@ -39,6 +39,7 @@ version 1.3.1.9000
 * `checksums(..., write = TRUE)` ignores the contents of `CHECKSUMS.txt`, overwriting that file with the checksums of all files in the module's `data/` directory. This makes it easier to update the checksum file, *e.g.*, when adding new data (#332).
 * improved module versioning (#321)
 * minor bugfixes for unusual cases
+* some broken examples were fixed
 
 ## Other updates
 
@@ -51,10 +52,11 @@ version 1.3.1.9000
 
     - improved caching for `Raster*` objects & S4 methods - now it normally persists across sessions;
     - add `Cache` (upper case) which derives `cacheRepo` arg automatically from either the `cachePath(sim)`, if used within a module, or `getPath()$cachePath` if not within a module. Also, the upper case removes the name conflict with `archivist::cache`;
+    - uses fastdigest::fastdigest for RAM objects and digest::digest for disk-backed objects;
     - add caching mechanisms at the module-level and event-level (via new `.useCache` parameter, which can be logical indicating whole module or character indicating individual events);
     - add caching for `.inputObjects` function in `simInit`, via `.useCache` parameter in module
     - detailed caching overview now in cache help: `?Cache` for details.
-    - strips dirname for outputs and inputs, *i.e.*, only keeps basename. This may not be stringent enough in some cases.
+    - strips dirname for outputs and inputs, *i.e.*, only keeps the filename, not absolute paths. This may not be stringent enough in some cases.
 
 * implemented `checkModuleLocal()` to check for presence of module files in the module dir before attempting download from remote module repository
 * improve module template to auto fill module author info using `devtools.desc.author` option if set.
