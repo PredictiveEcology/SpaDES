@@ -62,34 +62,18 @@ test_that("test event-level cache", {
   #expect_true(!grepl(pattern = "Using cached copy of init event in randomLandscapes module",
   #                   capture_messages(sims <- spades(Copy(mySim), notOlderThan = Sys.time()))))
   sims <- spades(Copy(mySim), notOlderThan = Sys.time()) ## TO DO: fix this test
-  landscapeObjHash <- digest::digest(SpaDES:::makeDigestible(
-    raster::dropLayer(sims$landscape, "Fires")), algo = "xxhash64")
-  firesHash <- digest::digest(object = SpaDES:::makeDigestible(
-    sims$landscape$Fires), algo = "xxhash64")
-
-  # testFileName <<- "~/Documents/GitHub/SpaDES/test.csv"
-  # lineNum <- "Test70"
-  # write.table(append = TRUE, cbind(lineNum, landscapeObjHash), file = testFileName,
-  #             sep=",", col.names = FALSE, row.names = FALSE)
-  # write.table(append = TRUE, cbind(lineNum, firesHash), file = testFileName,
-  #             sep=",", col.names = FALSE, row.names = FALSE)
-  expect_true(any(c("a0a8a742a1e9a205") %in% landscapeObjHash))
-  expect_true(any(c("abacbb68dfddab74") %in% firesHash))
+  landscapeMaps1 <- raster::dropLayer(sims$landscape, "Fires")
+  fireMap1 <- sims$landscape$Fires
 
   mess1 <- capture_messages(sims <- spades(Copy(mySim)))
   expect_true(any(grepl(pattern = "Using cached copy of init event in randomLandscapes module", mess1)))
-  landscapeObjHash <- digest::digest(SpaDES:::makeDigestible(
-    raster::dropLayer(sims$landscape, "Fires")), algo = "xxhash64")
-  firesHash <- digest::digest(object = SpaDES:::makeDigestible(
-    sims$landscape$Fires), algo = "xxhash64")
+  landscapeMaps2 <- raster::dropLayer(sims$landscape, "Fires")
+  fireMap2 <- sims$landscape$Fires
 
-  # lineNum <- "Test84"
-  # write.table(append = TRUE, cbind(lineNum, landscapeObjHash), file = testFileName,
-  #             sep=",", col.names = FALSE, row.names = FALSE)
-  # write.table(append = TRUE, cbind(lineNum, firesHash), file = testFileName,
-  #             sep=",", col.names = FALSE, row.names = FALSE)
-  expect_true(any(c("a0a8a742a1e9a205") %in% landscapeObjHash))
-  expect_false(any(c("abacbb68dfddab74") %in% firesHash)) # The non cached stuff goes ahead as normal
+  # Test that cached part comes up identical in both (all maps but Fires),
+  #   but non-cached part are different (Fires should be different because stochastic)
+  expect_equal(landscapeMaps1, landscapeMaps2)
+  expect_false(isTRUE(all.equal(fireMap1, fireMap2)))
 
   clearCache(sims)
 })
@@ -133,18 +117,8 @@ test_that("test module-level cache", {
   expect_true(file.info(tmpfile)$size > 20000)
   unlink(tmpfile)
 
-  landscapeObjHash <- digest::digest(SpaDES:::makeDigestible(
-    raster::dropLayer(sims$landscape, "Fires")), algo = "xxhash64")
-  firesHash <- digest::digest(object = SpaDES:::makeDigestible(
-    sims$landscape$Fires), algo = "xxhash64")
-
-  # lineNum <- "Test138"
-  # write.table(append = TRUE, cbind(lineNum, landscapeObjHash), file = testFileName,
-  #             sep=",", col.names = FALSE, row.names = FALSE)
-  # write.table(append = TRUE, cbind(lineNum, firesHash), file = testFileName,
-  #             sep=",", col.names = FALSE, row.names = FALSE)
-  expect_true(any(c("a0a8a742a1e9a205") %in% landscapeObjHash))
-  expect_true(any(c("abacbb68dfddab74") %in% firesHash))
+  landscapeMaps1 <- raster::dropLayer(sims$landscape, "Fires")
+  fireMap1 <- sims$landscape$Fires
 
   # The cached version will be identical for both events (init and plot),
   # but will not actually complete the plot, because plotting isn't cacheable
@@ -156,18 +130,13 @@ test_that("test module-level cache", {
   unlink(tmpfile)
 
   expect_true(any(grepl(pattern = "Using cached copy of init event in randomLandscapes module", mess1)))
-  landscapeObjHash <- digest::digest(SpaDES:::makeDigestible(
-    raster::dropLayer(sims$landscape, "Fires")), algo = "xxhash64")
-  firesHash <- digest::digest(object = SpaDES:::makeDigestible(
-    sims$landscape$Fires), algo = "xxhash64")
+  landscapeMaps2 <- raster::dropLayer(sims$landscape, "Fires")
+  fireMap2 <- sims$landscape$Fires
 
-  # lineNum <- "Test161"
-  # write.table(append = TRUE, cbind(lineNum, landscapeObjHash), file = testFileName,
-  #             sep=",", col.names = FALSE, row.names = FALSE)
-  # write.table(append = TRUE, cbind(lineNum, firesHash), file = testFileName,
-  #             sep=",", col.names = FALSE, row.names = FALSE)
-  expect_true(landscapeObjHash == "a0a8a742a1e9a205")
-  expect_false(firesHash == "abacbb68dfddab74") # non-cached stuff goes ahead as normal
+  # Test that cached part comes up identical in both (all maps but Fires),
+  #   but non-cached part are different (Fires should be different because stochastic)
+  expect_equal(landscapeMaps1, landscapeMaps2)
+  expect_false(isTRUE(all.equal(fireMap1, fireMap2)))
 
   clearCache(sims)
 })
