@@ -52,7 +52,7 @@ version 1.3.1.9000
 
     - improved caching for `Raster*` objects & S4 methods - now it normally persists across sessions;
     - add `Cache` (upper case) which derives `cacheRepo` arg automatically from either the `cachePath(sim)`, if used within a module, or `getPath()$cachePath` if not within a module. Also, the upper case removes the name conflict with `archivist::cache`;
-    - uses fastdigest::fastdigest for RAM objects and digest::digest for disk-backed objects;
+    - uses `fastdigest::fastdigest` for RAM objects and `digest::digest` for disk-backed objects;
     - add caching mechanisms at the module-level and event-level (via new `.useCache` parameter, which can be logical indicating whole module or character indicating individual events);
     - add caching for `.inputObjects` function in `simInit`, via `.useCache` parameter in module
     - detailed caching overview now in cache help: `?Cache` for details.
