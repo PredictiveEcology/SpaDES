@@ -343,12 +343,13 @@ setMethod(
     } else {
       functionCall <- grep(sys.calls(), pattern = "^Cache|^SpaDES::Cache", value = TRUE)
       if(length(functionCall)) {
-        functionName <- match.call(Cache, parse(text = functionCall))$FUN
+        functionName <- match.call(Cache, 
+                                   parse(text = functionCall[length(functionCall)]))$FUN
         functionName <- deparse(functionName)
       } else {
         functionName <- ""
       }
-
+      
       tmpl$.FUN <- format(FUN) # This is changed to allow copying between computers
     }
 
