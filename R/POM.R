@@ -183,7 +183,7 @@
 #'
 setGeneric(
   "POM",
-  function(sim, params, objects, objFn, cl, optimizer = "DEoptim",
+  function(sim, params, objects = NULL, objFn, cl, optimizer = "DEoptim",
            sterr = FALSE, ..., objFnCompare = "MAD", optimControl = NULL,
            NaNRetries = NA, logObjFnVals = FALSE, weights, useLog = FALSE) {
     standardGeneric("POM")
@@ -408,7 +408,7 @@ setMethod(
         deoptimArgs$control$packages <- SpaDES::packages(sim)
       }
 
-      deoptimArgs$parallelType <- deoptimArgs$control$parallelType
+      #deoptimArgs$parallelType <- deoptimArgs$control$parallelType
 
       deoptimArgs$control <- do.call(DEoptim.control, deoptimArgs$control)
 
@@ -432,6 +432,7 @@ setMethod(
       }
 
       print(params)
+      #browser()
       output <- do.call("DEoptim", deoptimArgs)
 
     } else {

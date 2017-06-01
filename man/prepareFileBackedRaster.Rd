@@ -16,6 +16,7 @@ prepareFileBackedRaster(obj, repoDir = NULL,
 \item{compareRasterFileLength}{Numeric. Optional. When there are Rasters, that
 have file-backed storage, this is passed to the length arg in \code{digest}
 when determining if the Raster file is already in the database.
+Note: uses \code{\link[digest]{digest}} for file-backed Raster.
 Default 1e6. Passed to \code{prepareFileBackedRaster}.}
 
 \item{...}{passed to \code{archivist::saveToRepo}}
