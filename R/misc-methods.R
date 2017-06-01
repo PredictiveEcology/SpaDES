@@ -687,6 +687,8 @@ setMethod(
 sortDotsUnderscoreFirst <- function(obj) {
   names(obj) <- gsub(names(obj), pattern="\\.", replacement = "DOT")
   names(obj) <- gsub(names(obj), pattern="_", replacement = "US")
+  allLower <- which(tolower(names(obj))==names(obj))
+  names(obj)[allLower] <- paste0("ALLLOWER",names(obj)[allLower])
   obj[order(names(obj))]
   # if (length(dotObjs) > 0) {
   #   append(obj[dotObjs][order(names(obj[dotObjs]))],

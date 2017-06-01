@@ -754,7 +754,7 @@ setMethod(
   definition = function(object, objects, compareRasterFileLength,
                         algo) {
 
-    objectsToDigest <- sort(ls(object@.envir, all.names = TRUE))
+    objectsToDigest <- sort(ls(object@.envir, all.names = TRUE), method="radix")
     if (!missing(objects)) {
       objectsToDigest <- objectsToDigest[objectsToDigest %in% objects]
     }
@@ -773,6 +773,11 @@ setMethod(
             } else if (is(obj, "Spatial")) {
               dig <- makeDigestible(obj, algo = algo)
             } else {
+              if(is.character(obj)) {
+                if(any(grepl("\\/", obj))) { # test for paths
+                  obj <- basename(obj)
+                }
+              }
               # convert functions in the simList to their digest.
               #  functions have environments so are always unique
               dig <- fastdigest::fastdigest(obj)
@@ -791,7 +796,7 @@ setMethod(
     }))
 
     # Remove the NULL entries in the @.list
-
+    
     envirHash <- envirHash[!sapply(envirHash, is.null)]
     envirHash <- sortDotsUnderscoreFirst(envirHash)
 
