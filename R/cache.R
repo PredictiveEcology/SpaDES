@@ -137,6 +137,14 @@ if (getRversion() >= "3.1.0") {
 #'        Note: uses \code{\link[digest]{digest}} for file-backed Raster.
 #'        Default 1e6. Passed to \code{prepareFileBackedRaster}.
 #'
+#' @param debugCache Logical. If \code{TRUE}, then the returned object from the Cache
+#'        function will have two attributes, "debugCache1" and "debugCache2" which 
+#'        are the entire list(...) and that same object, but 
+#'        after all "makeDigestible" calls, at the moment that it is digested using
+#'        \code{fastdigest}, respectively. This \code{attr(mySimOut, "debugCache2")} can 
+#'        then be compared to 
+#'        a subsequent call and individual items within the object 
+#'        \code{attr(mySimOut, "debugCache1")} can be compared.
 #' @inheritParams digest::digest
 #'
 #' @return As with \code{\link[archivist]{cache}}, the return is either the return
@@ -235,7 +243,7 @@ setGeneric("Cache", signature = "...",
            function(FUN, ..., notOlderThan = NULL,
                     objects = NULL, outputObjects = NULL, algo = "xxhash64",
                     cacheRepo = NULL, compareRasterFileLength = 1e6,
-                    userTags = c()) {
+                    userTags = c(), debugCache = FALSE) {
              archivist::cache(cacheRepo, FUN, ..., notOlderThan, algo, userTags = userTags)
 })
 
@@ -244,7 +252,7 @@ setGeneric("Cache", signature = "...",
 setMethod(
   "Cache",
   definition = function(FUN, ..., notOlderThan, objects, outputObjects,
-                        algo, cacheRepo, compareRasterFileLength, userTags) {
+                        algo, cacheRepo, compareRasterFileLength, userTags, debugCache) {
     tmpl <- list(...)
 
     if (missing(notOlderThan)) notOlderThan <- NULL
@@ -367,6 +375,7 @@ setMethod(
     if (!is.null(tmpl$progress)) if (!is.na(tmpl$progress)) tmpl$progress <- NULL
 
     #outputHash <- digest::digest(tmpl, algo = algo)
+    browser(expr=functionName=="experiment")
     outputHash <- fastdigest::fastdigest(tmpl)
     localTags <- showLocalRepo(cacheRepo, "tags")
     isInRepo <- localTags[localTags$tag == paste0("cacheId:", outputHash), , drop = FALSE]
@@ -476,6 +485,11 @@ setMethod(
       #archiveSessionInfo = FALSE,
       #archiveMiniature = FALSE, rememberName = FALSE, silent = TRUE)
     }
+    if(debugCache) {
+      attr(output, "debugCache1") <- attr(outputToSave, "debugCache1") <- list(...)
+      attr(output, "debugCache2") <- attr(outputToSave, "debugCache2") <- tmpl
+      }
+    
     while (!written) {
       objSize <- object.size(outputToSave)
       if (length(whSimList) > 0) { # can be a simList or list of simLists
