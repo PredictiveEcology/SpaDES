@@ -406,6 +406,7 @@ setMethod(
           return(simListOut)
         }
 
+        if(is(out, "RasterLayer")) out <-  prepareFileBackedRaster(out, repoDir = cacheRepo)
         isNullOutput <- FALSE
         if(is.character(out)) {if(length(out)==1) {if(out=="Null") isNullOutput <- TRUE}} # need something to attach tags to if it is actually NULL
         if(isNullOutput) return(NULL) else return(out)
@@ -999,7 +1000,7 @@ prepareFileBackedRaster <- function(obj, repoDir = NULL, compareRasterFileLength
     splittedFilenames <- strsplit(curFilename, split = basename(repoDir))
     trySaveFilename <- if (length(splittedFilenames) == 1) {
       normalizePath(
-        file.path(repoDir, splittedFilenames[[1]][[length(splittedFilenames)]]),
+        file.path(repoDir, splittedFilenames[[1]][[length(splittedFilenames[[1]])]]),
         winslash = "/")
     } else {
       normalizePath(
