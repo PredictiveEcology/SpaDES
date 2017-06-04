@@ -375,7 +375,6 @@ setMethod(
     if (!is.null(tmpl$progress)) if (!is.na(tmpl$progress)) tmpl$progress <- NULL
 
     #outputHash <- digest::digest(tmpl, algo = algo)
-    browser(expr=functionName=="experiment")
     outputHash <- fastdigest::fastdigest(tmpl)
     localTags <- showLocalRepo(cacheRepo, "tags")
     isInRepo <- localTags[localTags$tag == paste0("cacheId:", outputHash), , drop = FALSE]
