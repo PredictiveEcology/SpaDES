@@ -4,6 +4,8 @@
 \name{makeDigestible}
 \alias{makeDigestible}
 \alias{makeDigestible,simList-method}
+\alias{makeDigestible,Raster-method}
+\alias{makeDigestible,Spatial-method}
 \title{Remove any reference to environments or filepaths in objects}
 \usage{
 makeDigestible(object, objects, compareRasterFileLength = 1e+06,
@@ -11,6 +13,10 @@ makeDigestible(object, objects, compareRasterFileLength = 1e+06,
 
 \S4method{makeDigestible}{simList}(object, objects,
   compareRasterFileLength = 1e+06, algo = "xxhash64")
+
+\S4method{makeDigestible}{Raster}(object, compareRasterFileLength, algo)
+
+\S4method{makeDigestible}{Spatial}(object, compareRasterFileLength, algo)
 }
 \arguments{
 \item{object}{an object to convert to a 'digestible' state}
@@ -21,6 +27,7 @@ be considered while making digestible.}
 \item{compareRasterFileLength}{Numeric. Optional. When there are Rasters, that
 have file-backed storage, this is passed to the length arg in \code{digest}
 when determining if the Raster file is already in the database.
+Note: uses \code{\link[digest]{digest}} for file-backed Raster.
 Default 1e6. Passed to \code{prepareFileBackedRaster}.}
 
 \item{algo}{The algorithms to be used; currently available choices are
@@ -33,10 +40,10 @@ A simplified version of the \code{simList} object, but with no
         reference to any environments, or other session-specific information.
 }
 \description{
-Using digest::digest will include every detail of an object, including
+Using \code{\link[fastdigest]{fastdigest}} will include every detail of an object, including
 environments of functions, including those that are session-specific. Since
-the goal of using digest::digest is not session specific, this function
-attempts to strip all session specific information so that the digest
+the goal of using fastdigest::fastdigest is not session specific, this function
+attempts to strip all session specific information so that the fastdigest
 works between sessions and operating systems. It is tested under many
 conditions and object types, there are bound to be others that don't
 work correctly.
@@ -50,7 +57,7 @@ to local environments are removed.
 Specifically, all functions (which are contained within environments) are
 converted to a text representation via a call to \code{format(FUN)}.
 Also the objects that were contained within the \code{.envir} slot are hashed
-using \code{digest::digest}.
+using \code{\link[fastdigest]{fastdigest}}.
 The \code{paths} slot is not used (to allow comparison across platforms); it's
 not relevant where the objects are gotten from, so long as they are the same.
 The \code{.envir} slot is emptied (\code{NULL}).

@@ -7,6 +7,9 @@ test_that("spelling errors", {
 
   ## ensure that stats terms are included in the word list
   pkg <- "SpaDES"
+  if (interactive() && requireNamespace("devtools")) {
+    devtools::dev_mode(TRUE)
+  }
   .words.file <- system.file("dict/words.rds", package = pkg)
   .words <- readRDS(.words.file)
   .en_stats <- hunspell::en_stats

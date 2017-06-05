@@ -6,20 +6,24 @@ if (getRversion() >= "3.1.0") {
 #' Cache method that accommodates environments, S4 methods, Rasters
 #'
 #' This function is largely copied from \code{\link[archivist]{cache}}, with
-#' three very critical modifications:
+#' four very critical modifications:
 #' 1) the \code{archivist} package detects different environments as different;
 #' 2) it also does not detect S4 methods correctly due to method inheritance;
 #' 3) it does not detect objects that have file-base storage of information
 #' (specifically \code{\link[raster]{RasterLayer-class}} objects).
+#' 4) the default hashing method is relatively slow
 #' This version of the \code{Cache} function accommodates those three special,
 #' though quite common, cases by:
 #' 1) converting any environments into list equivalents;
 #' 2) identifying the dispatched S4 method (including those made through
-#' inheritance) before \code{\link[digest]{digest}} is called so the correct
+#' inheritance) before \code{\link[fastdigest]{fastdigest}} is called so the correct
 #' method is being cached;
 #' and 3) by running \code{\link[digest]{digest}} on the linked file. Currently,
 #' only file-backed \code{Raster*} objects are digested (e.g., not \code{ff} objects,
 #' or any other R object where the data is in a file, rather than RAM object).
+#' 4) We use \code{\link[fastdigest]{fastdigest}} internally when the object is
+#' in RAM (i.e., not for file-backed objects0) which appears to be up to
+#' 10x faster than \code{\link[digest]{digest}}.
 #' In the \code{SpaDES} context, the \code{simList} has an environment as one of
 #' its slots, thus using \code{archivist::cache} will not work correctly.
 #'
@@ -27,11 +31,12 @@ if (getRversion() >= "3.1.0") {
 #' We remove all elements that have an environment as part of their attributes.
 #' This is generally functions that are loaded from the modules,
 #' but also the \code{.envir} slot in the \code{simList}.
-#' Functions are formatted to text before running digest.
+#' Functions are formatted to text before running \code{fastdigest}.
 #'
-#' Cache (capital C) is a short cut to using SpaDES::cache as it
-#' can be called from inside a SpaDES module without
-#' specifying the \code{cacheRepo}. SpaDES will use the cacheRepo from a call
+#' Cache (capital C) is a short cut to using SpaDES::cache (which is
+#' being deprecated). It has the added benefit that if no cacheRepo is
+#' specified, it will choose a smart option. If called
+#' from inside a SpaDES module, \code{Cache} will use the cacheRepo from a call
 #' to \code{cachePath(sim)}, taking the sim from the call stack. Similarly, if no
 #' \code{cacheRepo} is specified, then it will use \code{getPaths()$cachePath}, which
 #' will, by default, be a temporary location with no persistence between R sessions!
@@ -45,23 +50,27 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @section Caching as part of SpaDES:
 #'
-#' SpaDES has several levels of caching. Each level can be used to a modelers
-#' advantage; and, each can be used simultaneously.
+#' SpaDES has several levels of caching. Each level can be used to a modeler's
+#' advantage; and, all can be -- and are often -- used concurrently.
 #'
 #' @section \code{spades} or \code{experiment}:
 #'
 #' And entire call
 #' to \code{spades} or \code{experiment} can be cached. This will have the effect
 #' of eliminating any stochasticity in the model as the output will simply be
-#' the cached version of the \code{simList}.
+#' the cached version of the \code{simList}. This is likely most useful in
+#' situations where reproducibility is more important than "new" stochasticity
+#' (e.g., building decision support systems, apps, final version of a manuscript).
 #'
 #' @section Module-level caching:
 #'
-#' If the parameter \code{.useCache} is set to TRUE, then the \code{doEvent.moduleName}
+#' If the parameter \code{.useCache} in the module's metadata
+#' is set to TRUE, then the \code{doEvent.moduleName}
 #' will be cached. That means that every time that module
-#' is called from within a spades or experiment call, cache will be used. Only
-#' the objects inside the \code{simList} that correspond to the inputObjects of the
-#' module and the outputObjects to the module will be assessed for caching
+#' is called from within a spades or experiment call, \code{Cache} will be called. Only
+#' the objects inside the \code{simList} that correspond to the \code{inputObjects} of the
+#' module and the \code{outputObjects} from the module (as specified in the module
+#' metadata) will be assessed for caching
 #' inputs or output, respectively.
 #'
 #' In general use, module level caching would be mostly useful for modules that have
@@ -69,16 +78,19 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @section Event-level caching:
 #'
-#' If the parameter \code{.useCache} is set to a character or character vector,
+#' If the parameter \code{.useCache} in the module's metadata
+#' is set to a character or character vector,
 #' then that or those event(s) will be cached. That means that every time the event
-#' is called from within a spades or experiment call, cache will be used. Only
-#' the objects inside the \code{simList} that correspond to the inputObjects of the
-#' module and the outputObjects to the module will be assessed for caching
-#' inputs or output, respectively. The fact that all and only the named inputObjects
-#' and outputObjects are cached and returned may be inefficient (i.e., it may
+#' is called from within a spades or experiment call, \code{Cache} will be called.
+#' Only
+#' the objects inside the \code{simList} that correspond to the \code{inputObjects} or the
+#' \code{outputObjects} as defined in the module metadata  will be assessed for caching
+#' inputs or output, respectively. The fact that all and only the named \code{inputObjects}
+#' and \code{outputObjects} are cached and returned may be inefficient (i.e., it may
 #' cache more objects than are necessary) for individual events.
 #'
-#' In general use, event-level caching would be mostly useful for events that have
+#' Similar to module-level caching, event-level caching would be mostly
+#' useful for events that have
 #' no stochasticity, such as data-preparation events, GIS events etc.
 #'
 #' @section Function-level caching:
@@ -92,11 +104,19 @@ if (getRversion() >= "3.1.0") {
 #' to
 #' \code{Cache(projectRaster, raster, crs = crs(newRaster))}
 #'
-#' @note \code{Raster*} class objects have a special behaviour when Cached.
-#' Whether they are file-backed or in-memory objects, they will become file-backed,
-#' and their file will be created in or copied to a "rasters" subdirectory of the
-#' \code{cacheRepo} using \code{writeRaster}.
+#' @note Several objects require pre-treatment before successful caching will
+#' work. \code{Raster*} objects have the potential for disk-backed storage. If
+#' the object in the R session is cached using \code{archivist::cache}, only
+#' the header component will be assessed for caching. Thus, objects like this
+#' require more work. Also, because \code{Raster*} can have a built-in representation
+#' for having their data content located on disk, this format will be maintained
+#' if the raster already is file-backed, i.e., to create .tif or .grd backed rasters,
+#' use writeRaster first, then Cache. The .tif or .grd will be copied to the "raster"
+#' subdirectory of the \code{cacheRepo}.
 #' Their RAM representation (as an R object) will still be in the usual "gallery" directory.
+#' For \code{inMemory} raster objects, they will remain as binary .rdata files.
+#'
+#' See \code{\link{makeDigestible}} for other specifics for other classes.
 #'
 #' @inheritParams archivist::cache
 #' @inheritParams archivist::saveToLocalRepo
@@ -114,6 +134,7 @@ if (getRversion() >= "3.1.0") {
 #' @param compareRasterFileLength Numeric. Optional. When there are Rasters, that
 #'        have file-backed storage, this is passed to the length arg in \code{digest}
 #'        when determining if the Raster file is already in the database.
+#'        Note: uses \code{\link[digest]{digest}} for file-backed Raster.
 #'        Default 1e6. Passed to \code{prepareFileBackedRaster}.
 #'
 #' @inheritParams digest::digest
@@ -139,10 +160,11 @@ if (getRversion() >= "3.1.0") {
 #' of stochastic outcomes are required. It will also be very useful in a
 #' reproducible work flow
 #'
-#' @seealso \code{\link[archivist]{cache}}.
+#' @seealso \code{\link[archivist]{cache}}, \code{\link{makeDigestible}}
 #' @export
 #' @importFrom archivist cache loadFromLocalRepo saveToLocalRepo showLocalRepo
 #' @importFrom digest digest
+#' @importFrom fastdigest fastdigest
 #' @importFrom R.utils isAbsolutePath
 #' @include simList-class.R
 #' @docType methods
@@ -321,12 +343,13 @@ setMethod(
     } else {
       functionCall <- grep(sys.calls(), pattern = "^Cache|^SpaDES::Cache", value = TRUE)
       if(length(functionCall)) {
-        functionName <- match.call(Cache, parse(text = functionCall))$FUN
+        functionName <- match.call(Cache, 
+                                   parse(text = functionCall[length(functionCall)]))$FUN
         functionName <- deparse(functionName)
       } else {
         functionName <- ""
       }
-
+      
       tmpl$.FUN <- format(FUN) # This is changed to allow copying between computers
     }
 
@@ -343,7 +366,8 @@ setMethod(
     if (length(whFun) > 0) tmpl[whFun] <- lapply(tmpl[whFun], format)
     if (!is.null(tmpl$progress)) if (!is.na(tmpl$progress)) tmpl$progress <- NULL
 
-    outputHash <- digest::digest(tmpl, algo = algo)
+    #outputHash <- digest::digest(tmpl, algo = algo)
+    outputHash <- fastdigest::fastdigest(tmpl)
     localTags <- showLocalRepo(cacheRepo, "tags")
     isInRepo <- localTags[localTags$tag == paste0("cacheId:", outputHash), , drop = FALSE]
     if (nrow(isInRepo) > 0) {
@@ -354,6 +378,8 @@ setMethod(
         if (grepl(format(FUN)[1], pattern = "function \\(sim, eventTime")) {
           # very coarse way of determining doEvent call
           message("Using cached copy of ", cur$eventType, " event in ", cur$moduleName, " module")
+        } else {
+          message("loading cached result from previous ", functionName, " call.")
         }
 
         out <- loadFromLocalRepo(isInRepo$artifact[lastOne],
@@ -379,7 +405,13 @@ setMethod(
           }
           return(simListOut)
         }
-        return(out)
+
+        if(is(out, "RasterLayer")) out <-  prepareFileBackedRaster(out, repoDir = cacheRepo)
+        isNullOutput <- FALSE
+        if(is.character(out)) {if(length(out)==1) {if(out=="Null") isNullOutput <- TRUE}} # need something to attach tags to if it is actually NULL
+        if(isNullOutput) return(NULL) else return(out)
+
+        #if(isTRUE(tryCatch(out=="NULL", error = function(x) FALSE))) return(NULL) else return(out)
       }
     }
 
@@ -396,6 +428,9 @@ setMethod(
         rmFromLocalRepo(isInRepo$artifact[lastOne], repoDir = cacheRepo)
       }
     }
+
+    isNullOutput <- if(is.null(output)) TRUE else FALSE # need something to attach tags to if it is actually NULL
+    if(isNullOutput) output <- "NULL"
 
     attr(output, "tags") <- paste0("cacheId:", outputHash)
     attr(output, "call") <- ""
@@ -473,7 +508,8 @@ setMethod(
         TRUE
       }
     }
-    return(output)
+
+    if(isNullOutput) return(NULL) else return(output)
   })
 
 #' @inheritParams spades
@@ -573,7 +609,10 @@ setGeneric("clearCache", function(x, userTags = character(), after, before, ...)
 setMethod(
   "clearCache",
   definition = function(x, userTags, after, before, ...) {
-    if (missing(x)) stop("Must provide a simList or repository")
+    if (missing(x)) {
+      message("x not specified; using ", getPaths()$cache)
+      x <- getPaths()$cache
+    }
     if (missing(after)) after <- "1970-01-01"
     if (missing(before)) before <- Sys.Date() + 1
     if (is(x, "simList")) x <- x@paths$cachePath
@@ -608,6 +647,7 @@ setMethod(
 #' @seealso \code{\link[archivist]{splitTagsLocal}}.
 #' @export
 #' @importFrom archivist splitTagsLocal
+#' @importFrom data.table data.table set
 #' @include simList-class.R
 #' @docType methods
 #' @rdname viewCache
@@ -625,15 +665,21 @@ setGeneric("showCache", function(x, userTags = character(),
 setMethod(
   "showCache",
   definition = function(x, userTags, after, before, ...) {
-    if (missing(x)) stop("Must provide a simList or repository")
+    if (missing(x)) {
+      message("x not specified; using ", getPaths()$cache)
+      x <- getPaths()$cache
+    }
     if (missing(after)) after <- "1970-01-01"
     if (missing(before)) before <- Sys.Date() + 1
     if (is(x, "simList")) x <- x@paths$cachePath
 
     objsDT <- showLocalRepo(x) %>% data.table()
     objsDT <- objsDT[createdDate <= before & createdDate >= after]
+    setkeyv(objsDT, "md5hash")
     if (NROW(objsDT) > 0) {
-      objsDT <- data.table(splitTagsLocal(x), key = "artifact")
+      objsDT2 <- data.table(splitTagsLocal(x), key = "artifact")
+      objsDT <- objsDT2[objsDT]
+      set(objsDT, , "i.createdDate", NULL)
       if (length(userTags) > 0) {
         for (ut in userTags) {
           objsDT2 <- objsDT[
@@ -652,10 +698,10 @@ setMethod(
 ################################################################################
 #' Remove any reference to environments or filepaths in objects
 #'
-#' Using digest::digest will include every detail of an object, including
+#' Using \code{\link[fastdigest]{fastdigest}} will include every detail of an object, including
 #' environments of functions, including those that are session-specific. Since
-#' the goal of using digest::digest is not session specific, this function
-#' attempts to strip all session specific information so that the digest
+#' the goal of using fastdigest::fastdigest is not session specific, this function
+#' attempts to strip all session specific information so that the fastdigest
 #' works between sessions and operating systems. It is tested under many
 #' conditions and object types, there are bound to be others that don't
 #' work correctly.
@@ -668,7 +714,7 @@ setMethod(
 #' Specifically, all functions (which are contained within environments) are
 #' converted to a text representation via a call to \code{format(FUN)}.
 #' Also the objects that were contained within the \code{.envir} slot are hashed
-#' using \code{digest::digest}.
+#' using \code{\link[fastdigest]{fastdigest}}.
 #' The \code{paths} slot is not used (to allow comparison across platforms); it's
 #' not relevant where the objects are gotten from, so long as they are the same.
 #' The \code{.envir} slot is emptied (\code{NULL}).
@@ -694,6 +740,7 @@ setMethod(
 #' @keywords internal
 #' @rdname makeDigestible
 #' @author Eliot McIntire
+#' @export
 setGeneric("makeDigestible", function(object, objects,
                                       compareRasterFileLength = 1e6,
                                       algo = "xxhash64") {
@@ -701,13 +748,14 @@ setGeneric("makeDigestible", function(object, objects,
 })
 
 #' @rdname makeDigestible
+#' @exportMethod makeDigestible
 setMethod(
   "makeDigestible",
   signature = "simList",
   definition = function(object, objects, compareRasterFileLength,
                         algo) {
 
-    objectsToDigest <- sort(ls(object@.envir, all.names = TRUE))
+    objectsToDigest <- sort(ls(object@.envir, all.names = TRUE), method="radix")
     if (!missing(objects)) {
       objectsToDigest <- objectsToDigest[objectsToDigest %in% objects]
     }
@@ -720,33 +768,36 @@ setMethod(
           if (!is(obj, "function") & !is(obj, "expression")) {
             if (is(obj, "Raster")) {
               # convert Rasters in the simList to some of their metadata.
-              obj <- makeDigestible(obj,
+              dig <- makeDigestible(obj,
                                     compareRasterFileLength = compareRasterFileLength,
                                     algo = algo)
-              dig <- digest::digest(obj, algo = algo)
             } else if (is(obj, "Spatial")) {
-              dig <- makeDigestible(obj,
-                                    algo = algo)
+              dig <- makeDigestible(obj, algo = algo)
             } else {
+              if(is.character(obj)) {
+                if(any(grepl("\\/", obj))) { # test for paths
+                  obj <- basename(obj)
+                }
+              }
               # convert functions in the simList to their digest.
               #  functions have environments so are always unique
-              dig <- digest::digest(obj, algo = algo)
+              dig <- fastdigest::fastdigest(obj)
             }
           } else {
             # for functions, use a character representation via format
-            dig <- digest::digest(format(obj), algo = algo)
+            dig <- fastdigest::fastdigest(format(obj))
           }
         }
       } else {
         # for .sessionInfo, just keep the major and minor R version
-        dig <- digest::digest(get(x, envir = envir(object))[[1]] %>%
-                                .[c("major", "minor")], algo = algo)
+        dig <- fastdigest::fastdigest(get(x, envir = envir(object))[[1]] %>%
+                                .[c("major", "minor")])
       }
       return(dig)
     }))
 
     # Remove the NULL entries in the @.list
-
+    
     envirHash <- envirHash[!sapply(envirHash, is.null)]
     envirHash <- sortDotsUnderscoreFirst(envirHash)
 
@@ -775,6 +826,9 @@ setMethod(
     return(object)
   })
 
+
+#' @rdname makeDigestible
+#' @exportMethod makeDigestible
 setMethod(
   "makeDigestible",
   signature = "Raster",
@@ -783,7 +837,13 @@ setMethod(
     if (is(object, "RasterStack") | is(object, "RasterBrick")) {
       dig <- suppressWarnings(list(dim(object), res(object), crs(object), extent(object),
                                    lapply(object@layers, function(yy) {
-                                     digest::digest(yy@data, length = compareRasterFileLength, algo = algo)
+                                     if(inMemory(yy)) {
+                                       yy@legend@colortable <- character()
+                                       fastdigest::fastdigest(yy)
+                                     } else {
+                                       digest::digest(yy@data, length = compareRasterFileLength, algo = algo)
+                                     }
+
                                    })))
       if (nchar(object@filename) > 0) {
         # if the Raster is on disk, has the first compareRasterFileLength characters;
@@ -791,8 +851,15 @@ setMethod(
         dig <- append(dig, digest(file = object@filename, length = compareRasterFileLength))
       }
     } else {
-      dig <- suppressWarnings(list(dim(object), res(object), crs(object), extent(object),
-                                   digest::digest(object@data, length = compareRasterFileLength, algo = algo)))
+      if(inMemory(object)) {
+        object@legend@colortable <- character()
+        dig <- suppressWarnings(list(dim(object), res(object), crs(object), extent(object),
+                                     fastdigest::fastdigest(object)))
+      } else {
+        dig <- suppressWarnings(list(dim(object), res(object), crs(object), extent(object),
+                                     digest::digest(object@data, length = compareRasterFileLength, algo = algo)))
+
+      }
       if (nchar(object@file@name) > 0) {
         # if the Raster is on disk, has the first compareRasterFileLength characters;
         dig <- append(dig,
@@ -803,18 +870,29 @@ setMethod(
     return(dig)
   })
 
+#' @rdname makeDigestible
+#' @exportMethod makeDigestible
 setMethod(
   "makeDigestible",
   signature = "Spatial",
   definition = function(object, compareRasterFileLength, algo) {
 
-    #if (is(object, "SpatialPolygonsDataFrame") ) {
-
-    aaa <- suppressMessages(broom::tidy(object))
+    if(is(object, "SpatialPoints")) {
+      aaa <- as.data.frame(object)
+    } else {
+      aaa <- suppressMessages(broom::tidy(object))
+    }
 
     # The following Rounding is necessary to make digest equal on linux and windows
-    bbb <- as.data.frame(lapply(aaa, function(x) if (is(x,"numeric")) round(x, 4) else x))
-    dig <- digest::digest(bbb, algo = algo)
+    for(i in names(aaa)) {
+      if(!is.integer(aaa[,i])) {
+        if(is.numeric(aaa[,i]))
+          aaa[,i] <- round(aaa[,i],4)
+      }
+    }
+
+    dig <- fastdigest::fastdigest(aaa)
+    #dig <- digest::digest(bbb, algo = algo)
     return(dig)
   })
 
@@ -922,7 +1000,7 @@ prepareFileBackedRaster <- function(obj, repoDir = NULL, compareRasterFileLength
     splittedFilenames <- strsplit(curFilename, split = basename(repoDir))
     trySaveFilename <- if (length(splittedFilenames) == 1) {
       normalizePath(
-        file.path(repoDir, splittedFilenames[[1]][[length(splittedFilenames)]]),
+        file.path(repoDir, splittedFilenames[[1]][[length(splittedFilenames[[1]])]]),
         winslash = "/")
     } else {
       normalizePath(
@@ -940,20 +1018,26 @@ prepareFileBackedRaster <- function(obj, repoDir = NULL, compareRasterFileLength
       normalizePath(., winslash = "/", mustWork = FALSE)
   }
 
-  if (any(saveFilename != curFilename)) {
+  if (any(saveFilename != curFilename)) { # filenames are not the same
     if (isFilebacked) {
-      shouldCopy <- TRUE
-      if (any(file.exists(saveFilename))) {
-        if (!(compareRasterFileLength == Inf)) {
-          if (digest(file = saveFilename, length = compareRasterFileLength) ==
-              digest(file = curFilename, length = compareRasterFileLength)) {
-            shouldCopy <- FALSE
-          }
-        } else {
-          shouldCopy = TRUE
-        }
-      }
-      if (shouldCopy) {
+      shouldCopy <- rep(TRUE, length(curFilename))
+      # if (any(file.exists(saveFilename))) {
+      #   if (!(compareRasterFileLength == Inf)) {
+      #     shouldCopy <- lapply(seq_along(saveFilename), function(ind) {
+      #       if (digest(file = saveFilename[ind], length = compareRasterFileLength) ==
+      #           digest(file = curFilename[ind], length = compareRasterFileLength)) {
+      #         shouldCopy <- FALSE
+      #       }
+      #     })
+      #     if (digest(file = saveFilename, length = compareRasterFileLength) ==
+      #         digest(file = curFilename, length = compareRasterFileLength)) {
+      #       shouldCopy <- FALSE
+      #     }
+      #   } else {
+      #     shouldCopy = TRUE
+      #   }
+      # }
+      if (any(shouldCopy)) {
         pathExists <- dir.exists(dirname(saveFilename))
         if (any(!pathExists)) {
           dirname(saveFilename) %>%
@@ -965,19 +1049,17 @@ prepareFileBackedRaster <- function(obj, repoDir = NULL, compareRasterFileLength
           griFilename <- sub(saveFilename, pattern = "[.]grd$", replacement = ".gri")
           curGriFilename <- sub(curFilename, pattern = "[.]grd$", replacement = ".gri")
           copyFile(to = griFilename, overwrite = TRUE, from = curGriFilename, silent = TRUE)
-          #           file.copy(to = griFilename, overwrite = TRUE,
-          #                     recursive = FALSE, copy.mode = TRUE,
-          #                     from = curGriFilename)
         } else {
-          suppressWarnings(lapply(seq_along(curFilename), function(x) copyFile(to = saveFilename[x], overwrite = TRUE,
-                                                                               from = curFilename[x], silent = TRUE)))
-          # suppressWarnings(copyFile(to = saveFilename, overwrite = TRUE,
-          #                           from = curFilename, silent = TRUE))
+          suppressWarnings(
+            lapply(seq_along(curFilename),
+                   function(x) copyFile(to = saveFilename[x],
+                                        overwrite = TRUE,
+                                        from = curFilename[x], silent = TRUE)))
         }
       }
-      if (length(curFilename) > 1) {
+      if (length(curFilename) > 1) { # for a stack with independent Raster Layers (each with own file)
         for (i in seq_along(curFilename)) {
-          slot(slot(slot(obj, "layers")[[1]], "file"), "name") <- saveFilename[i]
+          slot(slot(slot(obj, "layers")[[i]], "file"), "name") <- saveFilename[i]
         }
       } else {
         if(!isStack) {
@@ -993,10 +1075,16 @@ prepareFileBackedRaster <- function(obj, repoDir = NULL, compareRasterFileLength
       }
     } else {
       checkPath(dirname(saveFilename), create = TRUE)
-      obj <- writeRaster(obj, filename = saveFilename, datatype = dataType(obj))
+      if(!inMemory(obj)) {
+        obj <- writeRaster(obj, filename = saveFilename, datatype = dataType(obj))
+      }
+
     }
-  } else {
-    saveFilename <- slot(slot(obj, "file"), "name")
+  # } else {
+  #   if(isStack) {
+  #     slot(obj, "filename")
+  #   }
+  #   saveFilename <- slot(slot(obj, "file"), "name")
   }
 
   return(obj)

@@ -1,6 +1,7 @@
 if (interactive()) {
   set.seed(89462)
   library(parallel)
+  library(raster)
   mySim <- simInit(
     times = list(start = 0.0, end = 2.0, timeunit = "year"),
     params = list(

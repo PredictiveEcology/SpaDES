@@ -62,23 +62,18 @@ test_that("test event-level cache", {
   #expect_true(!grepl(pattern = "Using cached copy of init event in randomLandscapes module",
   #                   capture_messages(sims <- spades(Copy(mySim), notOlderThan = Sys.time()))))
   sims <- spades(Copy(mySim), notOlderThan = Sys.time()) ## TO DO: fix this test
-  landscapeObjHash <- digest::digest(SpaDES:::makeDigestible(
-    raster::dropLayer(sims$landscape, "Fires")), algo = "xxhash64")
-  firesHash <- digest::digest(object = SpaDES:::makeDigestible(
-    sims$landscape$Fires), algo = "xxhash64")
-
-  expect_true(any(c("8b62c052c79b0dc8") %in% landscapeObjHash))
-  expect_true(any(c("5832b0ce8b9b66fe") %in% firesHash))
+  landscapeMaps1 <- raster::dropLayer(sims$landscape, "Fires")
+  fireMap1 <- sims$landscape$Fires
 
   mess1 <- capture_messages(sims <- spades(Copy(mySim)))
   expect_true(any(grepl(pattern = "Using cached copy of init event in randomLandscapes module", mess1)))
-  landscapeObjHash <- digest::digest(SpaDES:::makeDigestible(
-    raster::dropLayer(sims$landscape, "Fires")), algo = "xxhash64")
-  firesHash <- digest::digest(object = SpaDES:::makeDigestible(
-    sims$landscape$Fires), algo = "xxhash64")
+  landscapeMaps2 <- raster::dropLayer(sims$landscape, "Fires")
+  fireMap2 <- sims$landscape$Fires
 
-  expect_true(any(c("8b62c052c79b0dc8") %in% landscapeObjHash))
-  expect_false(any(c("5832b0ce8b9b66fe") %in% firesHash)) # The non cached stuff goes ahead as normal
+  # Test that cached part comes up identical in both (all maps but Fires),
+  #   but non-cached part are different (Fires should be different because stochastic)
+  expect_equal(landscapeMaps1, landscapeMaps2)
+  expect_false(isTRUE(all.equal(fireMap1, fireMap2)))
 
   clearCache(sims)
 })
@@ -122,13 +117,8 @@ test_that("test module-level cache", {
   expect_true(file.info(tmpfile)$size > 20000)
   unlink(tmpfile)
 
-  landscapeObjHash <- digest::digest(SpaDES:::makeDigestible(
-    raster::dropLayer(sims$landscape, "Fires")), algo = "xxhash64")
-  firesHash <- digest::digest(object = SpaDES:::makeDigestible(
-    sims$landscape$Fires), algo = "xxhash64")
-
-  expect_true(any(c("8b62c052c79b0dc8") %in% landscapeObjHash))
-  expect_true(any(c("5832b0ce8b9b66fe") %in% firesHash))
+  landscapeMaps1 <- raster::dropLayer(sims$landscape, "Fires")
+  fireMap1 <- sims$landscape$Fires
 
   # The cached version will be identical for both events (init and plot),
   # but will not actually complete the plot, because plotting isn't cacheable
@@ -140,13 +130,13 @@ test_that("test module-level cache", {
   unlink(tmpfile)
 
   expect_true(any(grepl(pattern = "Using cached copy of init event in randomLandscapes module", mess1)))
-  landscapeObjHash <- digest::digest(SpaDES:::makeDigestible(
-    raster::dropLayer(sims$landscape, "Fires")), algo = "xxhash64")
-  firesHash <- digest::digest(object = SpaDES:::makeDigestible(
-    sims$landscape$Fires), algo = "xxhash64")
+  landscapeMaps2 <- raster::dropLayer(sims$landscape, "Fires")
+  fireMap2 <- sims$landscape$Fires
 
-  expect_true(landscapeObjHash == "8b62c052c79b0dc8")
-  expect_false(firesHash == "5832b0ce8b9b66fe") # non-cached stuff goes ahead as normal
+  # Test that cached part comes up identical in both (all maps but Fires),
+  #   but non-cached part are different (Fires should be different because stochastic)
+  expect_equal(landscapeMaps1, landscapeMaps2)
+  expect_false(isTRUE(all.equal(fireMap1, fireMap2)))
 
   clearCache(sims)
 })
@@ -229,8 +219,8 @@ test_that("test file-backed raster caching", {
   }
 
   bb <- Cache(randomPolyToMemory, tmpdir, cacheRepo = tmpdir)
-  expect_true(nzchar(filename(bb)))
-  expect_true(fromDisk(bb))
+  expect_true(filename(bb)=="")
+  expect_true(inMemory(bb))
 
   bb <- Cache(randomPolyToMemory, tmpdir, cacheRepo = tmpdir)
   expect_true(NROW(showCache(tmpdir)) == 9)
@@ -244,7 +234,6 @@ test_that("test file-backed raster caching", {
     r
   }
   bb <- Cache(randomPolyToFactorInMemory, tmpdir, cacheRepo = tmpdir)
-  expect_true(dirname(filename(bb)) == file.path(tmpdir, "rasters"))
   expect_true(dataType(bb) == "INT1U")
   expect_true(is.factor(bb))
   expect_true(is(levels(bb)[[1]], "data.frame"))
