@@ -12,13 +12,13 @@ Description: Implement a variety of event-based models, with a focus on
 URL: http://spades.predictiveecology.org,
     https://github.com/PredictiveEcology/SpaDES
 Version: 1.3.1.9071
-Date: 2017-05-12
+Date: 2017-06-05
 Authors@R: c(
     person(c("Alex", "M"), "Chubaty", email = "alexander.chubaty@canada.ca",
     role = c("aut", "cre")),
     person(c("Eliot", "J", "B"), "McIntire", email = "eliot.mcintire@canada.ca",
     role = c("aut")),
-    person("Yong", "Luo", email = "yong.luo@canada.ca",
+    person("Yong", "Luo", email = "yluo1@lakeheadu.ca",
     role = c("ctb")),
     person("Steve", "Cumming", email = "Steve.Cumming@sbf.ulaval.ca",
     role = c("ctb")),
