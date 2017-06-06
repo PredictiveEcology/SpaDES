@@ -867,7 +867,7 @@ setMethod(
       if(inMemory(object)) {
         object@legend@colortable <- character()
         dig <- suppressWarnings(list(dim(object), res(object), crs(object), extent(object),
-                                     fastdigest::fastdigest(object)))
+                                     fastdigest::fastdigest(object@data)))
       } else {
         dig <- suppressWarnings(list(dim(object), res(object), crs(object), extent(object),
                                      digest::digest(object@data, length = compareRasterFileLength, algo = algo)))
