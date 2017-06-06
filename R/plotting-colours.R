@@ -66,12 +66,12 @@ setMethod("getColors",
 #'
 #' @param ...   Additional arguments to \code{colorRampPalette}.
 #'
-#' @param n     An optional vector of values specifiying the number
+#' @param n     An optional vector of values specifying the number
 #'              of levels from which to interpolate the color palette.
 #'
 #' @param value  Named list of hex color codes (e.g., from
 #'               \code{RColorBrewer::brewer.pal}), corresponding to the names
-#'               of RasterLayers in \code{x}.
+#'               of \code{RasterLayer}s in \code{x}.
 #'
 #' @return Returns a Raster with the \code{colortable} slot set to \code{values}.
 #'
@@ -283,7 +283,7 @@ setMethod(
 })
 
 ################################################################################
-#' Convert Raster to color matrix useable by raster function for plotting
+#' Convert Raster to color matrix usable by raster function for plotting
 #'
 #' Internal function.
 #'

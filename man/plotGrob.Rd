@@ -76,7 +76,7 @@ make plotting faster.}
 
 \item{name}{Character string of name of object being plotted.}
 
-\item{vp}{whole viewport tree of SpaDESGrob}
+\item{vp}{whole viewport tree of \code{spadesGrob}}
 
 \item{...}{Additional arguments. None currently implemented.}
 }
@@ -101,7 +101,7 @@ The suggested package \code{fastshp} can be installed with:
 
 NOTE: you may get errors relating to not having installed the software tools
 required for building R packages on your system.
-For building on Windows, you'll need to install Rtools from
+For building on Windows, you'll need to install \code{Rtools} from
 \url{https://cran.r-project.org/bin/windows/Rtools/}.
 }
 \author{

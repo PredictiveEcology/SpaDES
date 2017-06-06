@@ -1,5 +1,5 @@
 if (getRversion() >= "3.1.0") {
-  utils::globalVariables(".")
+  utils::globalVariables(c("newQuantity", "quantityAdj", "quantityAdj2"))
 }
 
 #' Get the name of a \code{source}-ed file
@@ -401,12 +401,12 @@ setMethod("checkPath",
 #'              If not enough, \code{pad} will be used to pad.
 #'
 #' @param pad character to use as padding (\code{nchar(pad)==1} must be \code{TRUE}).
-#'            Passed to \code{\link[stringr]{str_pad}}
+#'            Passed to \code{\link[stringi]{stri_pad}}
 #'
 #' @return Character string representing the filename.
 #'
 #' @importFrom fpCompare %==%
-#' @importFrom stringr str_pad
+#' @importFrom stringi stri_pad_left stri_pad_right
 #' @export
 #' @docType methods
 #' @rdname paddedFloatToChar
@@ -421,11 +421,11 @@ setMethod("checkPath",
 paddedFloatToChar <- function(x, padL = ceiling(log10(x + 1)), padR = 3, pad = "0") {
   xIC <- x %/% 1 %>%
     format(., trim = TRUE, digits = 5, scientific = FALSE) %>%
-    str_pad(., pad = pad, width = padL, side = "left")
+    stri_pad_left(., pad = pad, width = padL)
   xf <- x %% 1
   xFC <- ifelse(xf %==% 0, "",
     strsplit(format(xf, digits = padR, scientific = FALSE), split = "\\.")[[1]][2] %>%
-      str_pad(., width = padR, side = "right", pad = pad) %>%
+      stri_pad_right(., width = padR, pad = pad) %>%
       paste0(".", .))
 
   return(paste0(xIC, xFC))
@@ -687,6 +687,8 @@ setMethod(
 sortDotsUnderscoreFirst <- function(obj) {
   names(obj) <- gsub(names(obj), pattern="\\.", replacement = "DOT")
   names(obj) <- gsub(names(obj), pattern="_", replacement = "US")
+  allLower <- which(tolower(names(obj))==names(obj))
+  names(obj)[allLower] <- paste0("ALLLOWER",names(obj)[allLower])
   obj[order(names(obj))]
   # if (length(dotObjs) > 0) {
   #   append(obj[dotObjs][order(names(obj[dotObjs]))],
@@ -825,3 +827,118 @@ setPaths <- function(cachePath, inputPath, modulePath, outputPath) {
 #' @param ... Passed to \code{\link[base]{sample}}
 #'
 resample <- function(x, ...) x[sample.int(length(x), ...)]
+
+
+#' \code{resampleZeroProof} is a version that works even if sum of all probabilities passed to
+#' \code{sample.int} is zero. This causes an error in \code{sample.int}. This function is
+#' intended for internal use only.
+#' @rdname resample
+#' @param spreadProbHas0 /ogical. Does \code{spreadProb} have any zeros on it.
+#' @inheritParams base::sample
+resampleZeroProof <- function(spreadProbHas0, x, n, prob) {
+  if (spreadProbHas0) {
+    sm <- sum(prob, na.rm = TRUE)
+    if (sum(prob > 0) <= n) {
+      integer()
+    } else {
+      resample(x, n, prob = prob / sm)
+    }
+  } else resample(x, n, prob = prob / sum(prob, na.rm = TRUE))
+}
+
+#' Internal helper
+#'
+#' Not for users. A function to setnames and rbindlist that is used 3 places in spread2.
+#'
+#' @param dt Data.table
+#' @param dtPotential Data.table
+#' @param returnFrom Logical
+#' @param needDistance Logical
+#' @param dtPotentialColNames Character Vector.
+#' @rdname spread2-internals
+#' @keywords internal
+#'
+rbindlistDtDtpot <- function(dt, dtPotential, returnFrom, needDistance, dtPotentialColNames) {
+  # distance column is second last, but needs to be last: to merge with dt, need: from, to, state in that order
+  reorderColsWDistance(needDistance, dtPotential, dtPotentialColNames)
+
+  if (!returnFrom) {
+    set(dtPotential, , "from", dtPotential$id)
+    set(dtPotential, , "id", NULL)
+    setnames(dtPotential, old = c("from", "to"), new = c("initialPixels", "pixels"))
+  } else {
+    setnames(dtPotential, old = c("id", "to"), new = c("initialPixels", "pixels"))
+  }
+  #setcolorder(dtPotential, neworder = dtPotentialColNames)
+  # convert state of all those still left, move potentialPixels into pixels column
+  if (NROW(dtPotential)) {
+    dt <- rbindlist(list(dt, dtPotential), fill = TRUE) # need fill = TRUE if user has passed extra columns
+  } else {
+    dt
+  }
+}
+
+#' Internal helper
+#'
+#' @inheritParams rbindlistDtDtpot
+#' @rdname spread2-internals
+#' @keywords internal
+#'
+reorderColsWDistance <- function(needDistance, dtPotential, dtPotentialColNames) {
+  if (needDistance)
+    setcolorder(dtPotential, neworder = c(dtPotentialColNames[(dtPotentialColNames %in% colnames(dtPotential))],
+                                          colnames(dtPotential)[!(colnames(dtPotential) %in% dtPotentialColNames)]))
+}
+
+
+#' Internal helper
+#'
+#' Not for users. A function used in spread2.
+#'
+#' @param dtPotential Data.table of potential spread locations.
+#' @param landscape RasterLayer passed from \code{spread2}
+#' @param actualAsymmetryAngle Angle in degrees, either a vector length 1 or vector NROW(dtPotential)
+#' @rdname spread2-internals
+#' @keywords internal
+#'
+angleQuality <- function(dtPotential, landscape, actualAsymmetryAngle) {
+  #browser()
+  from <- cbind(id = dtPotential$id, xyFromCell(landscape, dtPotential$id))
+  to <- cbind(id = dtPotential$id, xyFromCell(landscape, dtPotential$to))
+  d <- .pointDirection(from = from, to = to)
+
+  angleQuality <- cbind(angleQuality = (cos(d[, "angles"] - rad(actualAsymmetryAngle)) + 1), d)
+  angleQuality
+}
+
+
+#' Internal helper
+#'
+#' Not for users. A function used in spread2.
+#'
+#' @param angleQualities Matrix. The output from \code{angleQuality}
+#' @param quantity Variable of interest to adjust, e.g., \code{spreadProb}
+#' @param actualAsymmetry Asymmetry intensity. Derived from \code{asymmetry} arg in \code{spread2}
+#' @keywords internal
+#' @rdname spread2-internals
+#'
+asymmetryAdjust <- function(angleQualities, quantity, actualAsymmetry) {
+  if (sum(angleQualities[,"angleQuality"]) %==% 0) { # the case where there is no difference in the angles, and they are all zero
+    return(quantity)
+  } else {
+    dd <- data.table(angleQualities, quantity)
+    dd[, quantityAdj := quantity * angleQualities[,"angleQuality"]]
+    dd[, quantityAdj2 := quantityAdj/(mean(quantityAdj)/mean(quantity)), by = "id"]
+
+    dd[, newQuantity := {
+      minQuantity <- 0#min(2*quantity)
+      maxQuantity <- max(2*quantity)
+      aaMinus1 <- (actualAsymmetry - 1)
+      par2 <- aaMinus1 * sum(quantityAdj) / ((length(quantityAdj) * (maxQuantity - minQuantity) +
+                                                aaMinus1 * (sum(quantityAdj - minQuantity)) ))
+      par1 <- par2 / aaMinus1 * (maxQuantity - minQuantity)
+      (quantityAdj2 - minQuantity) * par2 + par1
+    }, by = "id"]
+  }
+  dd$newQuantity
+}

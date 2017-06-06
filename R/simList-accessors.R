@@ -492,7 +492,6 @@ setGeneric(".callingModuleName", function(sim) {
 
 #' @export
 #' @docType methods
-#' @importFrom stringr str_detect
 #' @rdname namespacing
 setMethod(
   ".callingModuleName",
@@ -1851,7 +1850,7 @@ setReplaceMethod(
 #' If used in an interactive mode, then the time will be in the units of the spades
 #' simulation.
 #'
-#' Additonal methods are provided to access the current, start, and end times
+#' Additional methods are provided to access the current, start, and end times
 #' of the simulation:
 #' \tabular{ll}{
 #'    \code{time} \tab Current simulation time.\cr
@@ -1952,8 +1951,6 @@ setReplaceMethod(
 #' @export
 #' @docType methods
 #' @rdname simList-accessors-times
-#' @importFrom stringr str_detect
-#'
 setGeneric("time", function(x, unit, ...) {
   stats::time(x, ...)
 })
@@ -2017,7 +2014,6 @@ setReplaceMethod(
 
 ################################################################################
 #' @inheritParams times
-#' @importFrom stringr str_detect
 #' @include times.R
 #' @include simList-class.R
 #' @export
@@ -2085,7 +2081,6 @@ setReplaceMethod(
 
 ################################################################################
 #' @inheritParams times
-#' @importFrom stringr str_detect
 #' @include simList-class.R
 #' @include times.R
 #' @export
@@ -2206,13 +2201,13 @@ setMethod(
 #' "year" can be used in the metadata of a module.
 #'
 #' The user can also define a new unit. The unit name can be anything, but the
-#' function definition must be of the form, dunitName, e.g., dyear or dfortnight.
-#' The unit name is the part without the 'd' and the function name definition
-#' includes the 'd'. This new function, e.g.,
-#' \code{dfortNight <- function(x) lubridate::duration(dday(14))}
+#' function definition must be of the form \code{dunitName}, e.g., \code{dyear}
+#' or \code{dfortnight}.
+#' The unit name is the part without the \code{d} and the function name definition
+#' includes the \code{d}. This new function, e.g.,
+#' \code{dfortnight <- function(x) lubridate::duration(dday(14))}
 #' can be placed anywhere in the search path or in a module.
 #'
-#' @importFrom stringr str_detect
 #' @include simList-class.R
 #' @export
 #' @docType methods
@@ -2246,9 +2241,6 @@ setReplaceMethod(
   signature = ".simList",
   function(x, value) {
     value <- as.character(value)
-#     if (any(str_detect(.spadesTimes, pattern = value), na.rm = TRUE)) {
-#       x@simtimes$timeunit <- value
-#     } else
     if (checkTimeunit(value, envir = x@.envir)) {
         x@simtimes$timeunit <- value
     } else {
@@ -2660,7 +2652,7 @@ setMethod(
 ################################################################################
 #' Define a new module.
 #'
-#' Specify a new module's metadata as well as object and package dependecies.
+#' Specify a new module's metadata as well as object and package dependencies.
 #' Packages are loaded during this call.
 #'
 #' @section Required metadata elements:
@@ -2710,7 +2702,7 @@ setMethod(
 #'                         Alternatively, a list of filenames of \code{.bib} or similar files.
 #'                         This is currently not parsed by SpaDES;
 #'                         it is for human readers only.\cr
-#'    \code{documentation} \tab List of filenames refering to module documentation sources.
+#'    \code{documentation} \tab List of filenames referring to module documentation sources.
 #'                              This is currently not parsed by SpaDES;
 #'                              it is for human readers only.\cr\cr
 #'    \code{reqdPkgs} \tab List of R package names required by the module. These
@@ -2758,7 +2750,7 @@ setMethod(
 #'
 #' @inheritParams objs
 #'
-#' @param x A list with a number of named elements, refered to as the metadata. See details.
+#' @param x A list with a number of named elements, referred to as the metadata. See details.
 #'
 #' @return Updated \code{simList} object.
 #'

@@ -2,17 +2,32 @@
 % Please edit documentation in R/misc-methods.R
 \name{resample}
 \alias{resample}
+\alias{resampleZeroProof}
 \title{Resample}
 \usage{
 resample(x, ...)
+
+resampleZeroProof(spreadProbHas0, x, n, prob)
 }
 \arguments{
-\item{x}{Either a vector of one or more elements from which to choose,
+\item{x}{either a vector of one or more elements from which to choose,
     or a positive integer.  See \sQuote{Details.}}
 
 \item{...}{Passed to \code{\link[base]{sample}}}
+
+\item{spreadProbHas0}{/ogical. Does \code{spreadProb} have any zeros on it.}
+
+\item{n}{a positive number, the number of items to choose from.  See
+    \sQuote{Details.}}
+
+\item{prob}{a vector of probability weights for obtaining the elements
+    of the vector being sampled.}
 }
 \description{
 A version of sample that doesn't have awkward behaviour when \code{length(x) == 1}.
 Adapted directly from the \code{\link[base]{sample}} help file.
+
+\code{resampleZeroProof} is a version that works even if sum of all probabilities passed to
+\code{sample.int} is zero. This causes an error in \code{sample.int}. This function is
+intended for internal use only.
 }

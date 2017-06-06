@@ -237,7 +237,7 @@ original layer takes precedence and all subsequent plots to that same frame
 are overplots only.
 
 \code{speedup} is not a precise number because it is faster to plot an
-un-resampled raster if the new resampling is close to the original number of
+non-resampled raster if the new resampling is close to the original number of
 pixels.
 At the moment, for rasters, this is set to 1/3 of the original pixels.
 In other words, \code{speedup} will not do anything if the factor for

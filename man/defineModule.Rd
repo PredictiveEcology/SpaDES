@@ -14,13 +14,13 @@ defineModule(sim, x)
 \item{sim}{A \code{simList} object from which to extract element(s) or
 in which to replace element(s).}
 
-\item{x}{A list with a number of named elements, refered to as the metadata. See details.}
+\item{x}{A list with a number of named elements, referred to as the metadata. See details.}
 }
 \value{
 Updated \code{simList} object.
 }
 \description{
-Specify a new module's metadata as well as object and package dependecies.
+Specify a new module's metadata as well as object and package dependencies.
 Packages are loaded during this call.
 }
 \section{Required metadata elements}{
@@ -71,7 +71,7 @@ Packages are loaded during this call.
                         Alternatively, a list of filenames of \code{.bib} or similar files.
                         This is currently not parsed by SpaDES;
                         it is for human readers only.\cr
-   \code{documentation} \tab List of filenames refering to module documentation sources.
+   \code{documentation} \tab List of filenames referring to module documentation sources.
                              This is currently not parsed by SpaDES;
                              it is for human readers only.\cr\cr
    \code{reqdPkgs} \tab List of R package names required by the module. These

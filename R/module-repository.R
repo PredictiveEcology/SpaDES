@@ -498,18 +498,18 @@ setMethod(
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("digest", function(file, ...) {
-  standardGeneric("digest")
+setGeneric(".digest", function(file, ...) {
+  standardGeneric(".digest")
 })
 
 #' @rdname digest
 setMethod(
-  "digest",
+  ".digest",
   signature = c(file = "character"),
   definition = function(file, algo = "xxhash64", ...) {
-    sapply(file, function(f) {
+    lapply(file, function(f) {
       digest::digest(object = f, file = TRUE, algo = algo, ...)
-    }) %>% unname() %>% as.character() # need as.character for empty case
+    }) %>% unlist() %>% unname() %>% as.character() # need as.character for empty case
 })
 
 ################################################################################
@@ -518,7 +518,7 @@ setMethod(
 #' Verify (and optionally write) checksums for data files in a module's
 #' \code{data/} subdirectory. The file \code{data/CHECKSUMS.txt} contains the
 #' expected checksums for each data file.
-#' Checksums are computed using \code{SpaDES:::digest}, which is simply a
+#' Checksums are computed using \code{SpaDES:::.digest}, which is simply a
 #' wrapper around \code{digest::digest}.
 #'
 #' Modules may require data that for various reasons cannot be distributed with
@@ -630,7 +630,7 @@ setMethod(
     } else {
       filesToCheck <- files
     }
-    checksums <- do.call(digest, args = append(list(file = filesToCheck), dots))
+    checksums <- do.call(.digest, args = append(list(file = filesToCheck), dots))
     message("Finished checking local files.")
 
     if (length(filesToCheck)) {

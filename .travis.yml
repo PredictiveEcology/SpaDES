@@ -8,51 +8,36 @@ sudo: required
 
 language: r
 
+cran: https://cran.rstudio.com/
+
 env:
   global:
-    - secure: "KxcKSH4TFMbNMKAj6ePl4yq6SCeYQJcDkw0PMuEdImomwxqY3mP8p+GWVmNN1PKl8k7C/rgLNPAiBoJmddXMzFvGoGRWvyeER0lDN49rzNPHANF9wnMBBYN27mp98hBZlX2Vxu48M3jbmy+wRpmKKvKxTxOa8tUkt0GVEUTPeGQ="
+    - secure: "VjmV4Tyjtmdk8QzPdWAI7WLksk0E4NzzTBf3yzABLW/MBoDthtLuuOcnm4RmNp6hUIaCgPWzcNAcwnKjjPiCSGq0w+0gklyvtQSXAJSG8zmm3Fyd1s2F02XhiRYaCBqqhcK1F5cNVG6XsutTT97A71SegQKvTfcO0K6MuRs1vL0="
+    - secure: "JTsEuU+Htu027oOMYXXqDc6adgN7jK6i1fcx5n1PKWUn30CsCmq5bLJcBm4a94BhSGBYEkI5HArWdiiw8U6GAOS3vcVg0coDjfRZcdQGbjiULS5Ep8SOQf+0tNcTlF0JjTK4Kw3OjstGJNhxKH9A8Ak9+acXAIsYqQQ2LeyjVQ4="
 
 matrix:
   include:
 
-  - os: linux
-    dist: precise
-    r: oldrel
-    cran: http://cran.rstudio.com/
-    before_install:
-    - tlmgr install xcolor
-    - export DISPLAY=:99.0
-    - sh -e /etc/init.d/xvfb start
-    - echo "options(repos = c(CRAN='http://cran.rstudio.com'))" >> ~/.Rprofile
-
-  - os: linux
-    dist: precise
-    r: release
-    cran: http://cran.rstudio.com/
-    before_install:
-    - tlmgr install xcolor
-    - export DISPLAY=:99.0
-    - sh -e /etc/init.d/xvfb start
-    - echo "options(repos = c(CRAN='http://cran.rstudio.com'))" >> ~/.Rprofile
-
-  - os: linux
-    dist: precise
-    r: devel
-    cran: http://cran.rstudio.com/
-    before_install:
-    - tlmgr install xcolor
-    - export DISPLAY=:99.0
-    - sh -e /etc/init.d/xvfb start
-    - echo "options(repos = c(CRAN='http://cran.rstudio.com'))" >> ~/.Rprofile
+#  - os: linux
+#    dist: trusty
+#    r: oldrel
+#    addons:
+#      apt:
+#        packages:
+#          - libgdal1-dev
+#    before_install:
+#    - tlmgr install xcolor
+#    - export DISPLAY=:99.0
+#    - sh -e /etc/init.d/xvfb start
+#    - echo "options(repos = c(CRAN='https://cran.rstudio.com'))" >> ~/.Rprofile
 
   - os: linux
     dist: trusty
-    cran: https://cran.rstudio.com/
+    r: release
     addons:
       apt:
         packages:
           - libgdal1-dev
-
     before_install:
     - tlmgr install xcolor
     - export DISPLAY=:99.0
@@ -63,14 +48,28 @@ matrix:
     - ./_push_vignettes.sh
     - Rscript -e 'library(covr); coveralls(coverage = print(package_coverage(quiet = FALSE)))'
 
+  - os: linux
+    dist: trusty
+    r: devel
+    addons:
+      apt:
+        packages:
+          - libgdal1-dev
+    before_install:
+    - tlmgr install xcolor
+    - export DISPLAY=:99.0
+    - sh -e /etc/init.d/xvfb start
+    - echo "options(repos = c(CRAN='https://cran.rstudio.com'))" >> ~/.Rprofile
+
   - os: osx
     osx_image: xcode8
-    cran: https://cran.rstudio.com/
     latex: false
     r_build_args: '--no-build-vignettes'
     r_check_args: '--as-cran --ignore-vignettes --no-examples'
     before_install:
     - echo "options(repos = c(CRAN='https://cran.rstudio.com'))" >> ~/.Rprofile
+    before_script:
+    - Rscript -e "install.packages('rgdal', type = 'source')"
 
 r_build_args: " "
 
@@ -108,7 +107,6 @@ r_binary_packages:
   - secr
   - snow
   - sp
-  - stringr
   - testthat
   - tkrplot
   - xts

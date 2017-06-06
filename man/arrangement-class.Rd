@@ -27,7 +27,7 @@ i.e, \code{landscape$DEM}.
 \describe{
 \item{\code{rows}}{numeric. Number of rows in the arrangement.}
 
-\item{\code{columns}}{numeric. Number of columns in the arragnement.}
+\item{\code{columns}}{numeric. Number of columns in the arrangement.}
 
 \item{\code{actual.ratio}}{numeric. Ratio of columns to rows}
 

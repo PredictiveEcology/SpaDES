@@ -7,7 +7,7 @@
 fileExt(x)
 }
 \arguments{
-\item{x}{List or charcter vector of file names.}
+\item{x}{List or character vector of file names.}
 }
 \value{
 A character vector of file extensions.

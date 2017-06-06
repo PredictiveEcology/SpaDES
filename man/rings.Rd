@@ -15,13 +15,14 @@ rings(landscape, loci = NA_real_, id = FALSE, minRadius = 2,
   returnIndices = FALSE, returnDistances = TRUE, ...)
 }
 \arguments{
-\item{landscape}{A \code{RasterLayer} object. This defines the possible locations
-for spreading events to start and spread into. This can also
-be used as part of \code{stopRule}. Require input.}
+\item{landscape}{A \code{RasterLayer} object. This defines the possible
+locations for spreading events to start and spread into.
+This can also be used as part of \code{stopRule}.}
 
-\item{loci}{A vector of locations in \code{landscape}. These should be cell indexes.
-If user has x and y coordinates, these can be converted with
-\code{\link[raster]{cellFromXY}}.}
+\item{loci}{A vector of locations in \code{landscape}.
+These should be cell indices.
+If user has x and y coordinates, these can be converted
+with \code{\link[raster]{cellFromXY}}.}
 
 \item{id}{Logical. If TRUE, returns a raster of events ids.
 If FALSE, returns a raster of iteration numbers,
@@ -34,17 +35,18 @@ this is inclusive, i.e., >=}
 \item{maxRadius}{Numeric. Maximum radius to be included in the ring. Note:
 this is inclusive, i.e., <=}
 
-\item{allowOverlap}{Logical. If \code{TRUE}, then individual events can overlap with one
-another, i.e., they do not interact. Currently, this is slower than
-if \code{allowOverlap} is \code{FALSE}. Default is \code{FALSE}.}
+\item{allowOverlap}{Logical. If \code{TRUE}, then individual events can overlap
+with one another, i.e., they do not interact (this is slower
+than if \code{allowOverlap = FALSE}).
+Default is \code{FALSE}.}
 
-\item{returnIndices}{Logical. Should the function return a data.table with
-indices and values of successful spread events, or
+\item{returnIndices}{Logical. Should the function return a \code{data.table}
+with indices and values of successful spread events, or
 return a raster with values. See Details.}
 
-\item{returnDistances}{Logical. Should the function inclue a column with the
+\item{returnDistances}{Logical. Should the function include a column with the
 individual cell distances from the locus where that event
-started. Default is FALSE. See Details.}
+started. Default is \code{FALSE}. See Details.}
 
 \item{...}{Any other argument passed to \code{spread}}
 }

@@ -3,7 +3,7 @@
 \docType{methods}
 \name{copyFile}
 \alias{copyFile}
-\title{Copy a file using Robocopy on Windows and rsync on Linux/macOS}
+\title{Copy a file using \code{Robocopy} on Windows and \code{rsync} on Linux/macOS}
 \usage{
 copyFile(from = NULL, to = NULL, useRobocopy = TRUE, overwrite = TRUE,
   delDestination = FALSE, create = TRUE, silent = FALSE)

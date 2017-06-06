@@ -16,7 +16,7 @@ the specific grob types, e.g., rasterGrob, polygonGrob, etc.}
 
 \item{numSpadesPlotObjects}{Numeric. The number of \code{.spadesPlotObjects}.
 This can't easily be deduced from the \code{plotArgs} because
-of the RasterStacks. So passed manually.}
+of the \code{RasterStack}s. So passed manually.}
 }
 \description{
 Internal function. Take the inputs as plotArgs to the Plot function, and make

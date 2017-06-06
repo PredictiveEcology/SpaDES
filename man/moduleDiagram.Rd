@@ -25,7 +25,7 @@ or \code{"tk"} for \code{igraph::tkplot}. Default missing, which uses regular
 modules will be grouped together by colored blobs. Internally,
 this is calling \code{\link{moduleGraph}}. Default \code{FALSE}.}
 
-\item{...}{Additional arguments passed to plotting function specfied by \code{type}.}
+\item{...}{Additional arguments passed to plotting function specified by \code{type}.}
 }
 \value{
 Plots module dependency diagram.

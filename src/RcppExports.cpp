@@ -32,3 +32,25 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// duplicatedInt
+LogicalVector duplicatedInt(IntegerVector x);
+RcppExport SEXP SpaDES_duplicatedInt(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(duplicatedInt(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// runifC
+NumericVector runifC(const int N);
+RcppExport SEXP SpaDES_runifC(SEXP NSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const int >::type N(NSEXP);
+    rcpp_result_gen = Rcpp::wrap(runifC(N));
+    return rcpp_result_gen;
+END_RCPP
+}

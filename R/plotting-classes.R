@@ -122,15 +122,15 @@ setClassUnion(name = ".spadesPlotObjects",
 #'
 #' @slot envir environment. The environment in which to find the objName
 #'
-#' @slot layerName character. Name of the layer represented by this .spadesGrob. Primarily
-#' used for RasterStacks
+#' @slot layerName character. Name of the layer represented by this \code{.spadesGrob}.
+#' Primarily used for \code{RasterStack}s.
 #'
-#' @slot objClass character. Class of the object represented by this .spadesGrob
+#' @slot objClass character. Class of the object represented by this \code{.spadesGrob}.
 #'
 #' @slot isSpatialObjects logical. TRUE if the object is one of the SpaDES recognized
-#' spatialObject classes
+#' spatialObject classes.
 #'
-#' @slot plotArgs list. Any parameters needed for plotting, set by Plot call.
+#' @slot plotArgs list. Any parameters needed for plotting, set by \code{Plot} call.
 #'
 #' @aliases .spadesGrob
 #' @keywords internal
@@ -175,7 +175,7 @@ setClass(".spadesGrob",
 #'
 #' @slot rows    numeric. Number of rows in the arrangement.
 #'
-#' @slot columns numeric. Number of columns in the arragnement.
+#' @slot columns numeric. Number of columns in the arrangement.
 #'
 #' @slot actual.ratio numeric. Ratio of columns to rows
 #'

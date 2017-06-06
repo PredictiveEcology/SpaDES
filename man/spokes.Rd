@@ -67,8 +67,8 @@ data.table that reports the angle from \code{coords} to every
 point that was in the circle/donut surrounding \code{coords}. Default
 FALSE.}
 
-\item{returnIndices}{Logical. Should the function return a data.table with
-indices and values of successful spread events, or
+\item{returnIndices}{Logical. Should the function return a \code{data.table}
+with indices and values of successful spread events, or
 return a raster with values. See Details.}
 
 \item{...}{Objects to be used by stopRule function. See examples.}
@@ -82,8 +82,8 @@ spokes), and stop, indicating if it was a point that caused a spoke
 to stop going outwards due to \code{stopRule}.
 }
 \description{
-This is a generalized version of a notion of a viewshed. The main difference
-is that there can be many "viewpoints".
+This is a generalized version of a notion of a viewshed.
+The main difference is that there can be many "viewpoints".
 }
 \examples{
 library(raster)

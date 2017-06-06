@@ -14,12 +14,12 @@ newModule(name, path, ...)
 \S4method{newModule}{character,missing}(name, path, ...)
 }
 \arguments{
-\item{name}{Character string specfying the name of the new module.}
+\item{name}{Character string specifying the name of the new module.}
 
 \item{path}{Character string. Subdirectory in which to place the new module code file.
 The default is the current working directory.}
 
-\item{...}{Additonal arguments. Currently, only the following are supported:\cr\cr
+\item{...}{Additional arguments. Currently, only the following are supported:\cr\cr
 
              \code{open}. Logical. Should the new module file be opened after creation?
              Default \code{TRUE}.\cr\cr
@@ -36,7 +36,7 @@ The default is the current working directory.}
 \value{
 Nothing is returned. The new module file is created at
 \file{path/name.R}, as well as ancillary files for documentation, citation,
-license, readme, and unit tests folder.
+\file{LICENSE}, \file{README}, and \file{tests} directory.
 }
 \description{
 Autogenerate a skeleton for a new SpaDES module, a template for a
@@ -46,7 +46,7 @@ The \code{newModuleDocumentation} will not generate the module file, but will
 create the other files.
 }
 \details{
-All files will be created within a subfolder named \code{name} within the
+All files will be created within a subdirectory named \code{name} within the
 \code{path}:
 
 \itemize{

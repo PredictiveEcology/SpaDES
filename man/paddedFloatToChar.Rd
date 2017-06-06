@@ -17,7 +17,7 @@ If not enough, \code{pad} will be used to pad.}
 If not enough, \code{pad} will be used to pad.}
 
 \item{pad}{character to use as padding (\code{nchar(pad)==1} must be \code{TRUE}).
-Passed to \code{\link[stringr]{str_pad}}}
+Passed to \code{\link[stringi]{stri_pad}}}
 }
 \value{
 Character string representing the filename.

@@ -1,6 +1,6 @@
-#' Split a RasterLayer into multiple tiles
+#' Split and re-merge RasterLayer(s)
 #'
-#' Divides up a raster into an arbitrary number of pieces (tiles).
+#' \code{splitRaster} divides up a raster into an arbitrary number of pieces (tiles).
 #' Split rasters can be recombined using \code{do.call(merge, y)} or \code{mergeRaster(y)},
 #' where \code{y <- splitRaster(x)}.
 #'
@@ -23,16 +23,16 @@
 #'                Default is \code{c(0, 0)}, which means no buffer.
 #'
 #' @param path    Character specifying the directory to which the split tiles will be saved.
-#'                If missing, the function creates a subfolder in the current working directory
-#'                based on the raster's name (i.e., using \code{names(x)}).
+#'                If missing, the function creates a subdirectory in the current
+#'                working directory based on the raster's name (i.e., using \code{names(x)}).
 #' @param cl      A cluster object. Optional. This would generally be created using
 #'                parallel::makeCluster or equivalent. This is an alternative way, instead
 #'                of \code{beginCluster()}, to use parallelism for this function, allowing for
 #'                more control over cluster use.
 #'
-#' @return A list (length \code{nx*ny}) of cropped raster tiles.
+#' @return \code{splitRaster} returns a list (length \code{nx*ny}) of cropped raster tiles.
 #'
-#' @seealso \code{\link{do.call}}, \code{\link[raster]{merge}}, \code{\link{mergeRaster}}.
+#' @seealso \code{\link{do.call}}, \code{\link[raster]{merge}}.
 #'
 # igraph exports %>% from magrittr
 #' @importFrom parallel clusterApplyLB
@@ -45,7 +45,8 @@
 #'
 #' @example inst/examples/example_splitRaster.R
 #'
-setGeneric("splitRaster", function(r, nx, ny, buffer, path, cl) {
+setGeneric("splitRaster", function(r, nx = 1, ny = 1, buffer = c(0,0),
+                                   path = file.path(getwd(), names(r)), cl) {
   standardGeneric("splitRaster")
 })
 
@@ -53,9 +54,15 @@ setGeneric("splitRaster", function(r, nx, ny, buffer, path, cl) {
 #' @rdname splitRaster
 setMethod(
   "splitRaster",
-  signature = signature(r = "RasterLayer", nx = "integer", ny = "integer",
-                        buffer = "numeric", path = "character"),
-  definition = function(r, nx, ny, buffer, path, cl) {
+  signature = signature(r = "RasterLayer"),
+  definition = function(r, nx, ny, buffer,
+                        path, cl) {
+
+    if (!is.numeric(nx) | !is.numeric(ny) | !is.numeric(buffer)) stop("nx, ny, and buffer must be numeric")
+    if (!is.integer(nx)) nx <- as.integer(nx)
+    if (!is.integer(ny)) ny <- as.integer(ny)
+    if (is.integer(buffer)) buffer <- as.numeric(buffer)
+
     checkPath(path, create = TRUE)
 
     if (missing(cl)) {
@@ -108,88 +115,4 @@ setMethod(
     }
 
     return(tiles)
-})
-
-#' @export
-#' @rdname splitRaster
-setMethod(
-  "splitRaster",
-  signature = signature(r = "RasterLayer", nx = "numeric", ny = "numeric",
-                        buffer = "integer", path = "character"),
-  definition = function(r, nx, ny, buffer, path) {
-    return(splitRaster(r, as.integer(nx), as.integer(ny), as.numeric(buffer), path))
-})
-
-#' @export
-#' @rdname splitRaster
-setMethod(
-  "splitRaster",
-  signature = signature(r = "RasterLayer", nx = "numeric", ny = "numeric",
-                        buffer = "integer", path = "missing"),
-  definition = function(r, nx, ny, buffer) {
-    return(splitRaster(r, as.integer(nx), as.integer(ny), as.numeric(buffer),
-                       path = file.path(getwd(), names(r))))
-})
-
-#' @export
-#' @rdname splitRaster
-setMethod(
-  "splitRaster",
-  signature = signature(r = "RasterLayer", nx = "numeric", ny = "numeric",
-                        buffer = "numeric", path = "character"),
-  definition = function(r, nx, ny, buffer, path) {
-    return(splitRaster(r, as.integer(nx), as.integer(ny), buffer, path))
-})
-
-#' @export
-#' @rdname splitRaster
-setMethod(
-  "splitRaster",
-  signature = signature(r = "RasterLayer", nx = "numeric", ny = "numeric",
-                        buffer = "numeric", path = "missing"),
-  definition = function(r, nx, ny, buffer) {
-    return(splitRaster(r, as.integer(nx), as.integer(ny), buffer,
-                       path = file.path(getwd(), names(r))))
-})
-
-#' @export
-#' @rdname splitRaster
-setMethod(
-  "splitRaster",
-  signature = signature(r = "RasterLayer", nx = "numeric", ny = "numeric",
-                        buffer = "missing", path = "character"),
-  definition = function(r, nx, ny, path) {
-    return(splitRaster(r, as.integer(nx), as.integer(ny), buffer = c(0, 0), path))
-})
-
-#' @export
-#' @rdname splitRaster
-setMethod(
-  "splitRaster",
-  signature = signature(r = "RasterLayer", nx = "numeric", ny = "numeric",
-                        buffer = "missing", path = "missing"),
-  definition = function(r, nx, ny) {
-    return(splitRaster(r, as.integer(nx), as.integer(ny), buffer = c(0, 0),
-                       path = file.path(getwd(), names(r))))
-})
-
-#' @export
-#' @rdname splitRaster
-setMethod(
-  "splitRaster",
-  signature = signature(r = "RasterLayer", nx = "integer", ny = "integer",
-                        buffer = "missing", path = "character"),
-  definition = function(r, nx, ny, path) {
-    return(splitRaster(r, nx, ny, buffer = c(0, 0), path))
-})
-
-#' @export
-#' @rdname splitRaster
-setMethod(
-  "splitRaster",
-  signature = signature(r = "RasterLayer", nx = "integer", ny = "integer",
-                        buffer = "missing", path = "missing"),
-  definition = function(r, nx, ny) {
-    return(splitRaster(r, nx, ny, buffer = c(0, 0),
-                       path = file.path(getwd(), names(r))))
 })

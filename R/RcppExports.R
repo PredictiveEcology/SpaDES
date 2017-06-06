@@ -4,12 +4,14 @@
 #' @title
 #' Point distance with C++
 #' @description
-#' \code{pointDistance2} performs pythagorus and cbinds all columns from \code{to} to new dists column. It
-#' is only defined for one point (\code{from}) to many (\code{to}) points.
-#' \code{pointDistance3} performs pythagorus and is to be used internally within \code{distanceFromEachPoint}
-#' as an alternative to
-#' \code{.pointDistance}, where it does many points (\code{from}) to many (\code{to}) points, one \code{from}
-#' point at a time. The results are then rbinded internally. It does not cbind extra columns from \code{to}.
+#' \code{pointDistance2} performs Pythagorean Theorem and \code{cbind}s all
+#' columns from \code{to} to new dists column.
+#' It is only defined for one point (\code{from}) to many (\code{to}) points.
+#' \code{pointDistance3} performs Pythagorean Theorem and is to be used internally
+#' within \code{distanceFromEachPoint} as an alternative to \code{.pointDistance},
+#' where it does many points (\code{from}) to many (\code{to}) points, one
+#' \code{from} point at a time. The results are then \code{rbind}ed internally.
+#' It does not \code{cbind} extra columns from \code{to}.
 #'
 #' @inheritParams distanceFromEachPoint
 #' @return
@@ -18,7 +20,7 @@
 #'
 #' @rdname distances
 pointDistance2 <- function(to, from) {
-    .Call('SpaDES_pointDistance2', PACKAGE = 'SpaDES', to, from)
+    .Call(SpaDES_pointDistance2, to, from)
 }
 
 #' @param fromX Numeric vector of x coordinates for 'from' points
@@ -32,6 +34,35 @@ pointDistance2 <- function(to, from) {
 #' @details
 #' A slightly faster way to calculate distances.
 pointDistance3 <- function(fromX, toX, fromY, toY, maxDistance) {
-    .Call('SpaDES_pointDistance3', PACKAGE = 'SpaDES', fromX, toX, fromY, toY, maxDistance)
+    .Call(SpaDES_pointDistance3, fromX, toX, fromY, toY, maxDistance)
+}
+
+#' @title
+#' Rcpp duplicated on integers using Rcpp Sugar
+#' @description
+#' \code{.duplicatedInt} does same as \code{duplicated} in R, but only on integers, and faster.
+#' It uses Rcpp sugar
+#'
+#' @param x Integer Vector
+#' @return
+#' A logical vector, as per \code{duplicated}
+#'
+#' @rdname duplicated
+duplicatedInt <- function(x) {
+    .Call(SpaDES_duplicatedInt, x)
+}
+
+#' @title
+#' Rcpp Sugar version of runif
+#' @description
+#' Slightly faster than runif, and used a lot
+#'
+#' @param N Integer Vector
+#' @return
+#' A vector of uniform random numbers as per \code{runif}
+#'
+#' @rdname rcpp-extras
+runifC <- function(N) {
+    .Call(SpaDES_runifC, N)
 }
 

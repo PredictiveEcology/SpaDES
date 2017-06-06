@@ -28,7 +28,7 @@ if (getRversion() >= "3.1.0") {
 
 #' Extract filename (without extension) of a file
 #'
-#' @param x  List or charcter vector
+#' @param x  List or character vector
 #'
 #' @return A character vector.
 #'
@@ -39,7 +39,7 @@ fileName <- function(x) {
 
 #' Extract the file extension of a file
 #'
-#' @param x  List or charcter vector of file names.
+#' @param x  List or character vector of file names.
 #'
 #' @return A character vector of file extensions.
 #'

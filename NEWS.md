@@ -2,45 +2,66 @@ Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
 version 1.3.1.9000
 ==================
-* modules are now run with their required packages (reqdPkgs in metadata) temporarily bumped to the top of the search path (i.e., `search()`) during each event. `search()` path is restored `on.exit` from `spades` or `simInit` call
-* add Rcpp-based internal functions for speed, added to imports
+
+## Dependency changes
+
+* minimum R version increased from `3.2.2` to `3.3.0` as required by dependency `RandomFieldsUtils`.
+* added `bit`, `fastmatch`, `fastdigest` and `Rcpp` packages to Imports
+* removed `stringr` package from Imports
+
+## Defunct
+
+* `p`. Use `params` or `P` instead.
+* `versionWarning`. Wasn't used.
+
+## New functionality
+
+* change default value for `speedup` in `gaussMap`; now 1.
+* new function `getPaths()` to return the list of working dirs from the options
+* new function `setPaths()` as wrapper for setting the options for working dirs; uses `~/SpaDES` as default base path
 * `downloadModule` checks for and uses environment variable `GITHUB_PAT` if it exists (alleviates 403 download errors caused by GitHub download limits)
+* `spread2`: new function that is more robust than spread, slightly slower under some situations, but faster in many others. The function is designed to be used as a building block for more complex spreading, where the user can wrap `spread2` inside a custom function that iteratively calls `spread2`, while optionally changing any of the input arguments.
+* adj - has a new argument `returnDT`, which slightly improves speed in cases where the user wants the output to become a `data.table`. This simply prevents a call to `as.matrix` in the `return()`, which was occurring if the return value was a `data.table`.
+* new function `copyModule` for creating a copy of an existing module
+
+## Performance
+
+* add C++ internal functions for speed
+* event queues (event, completed, current) now do shallow copies of pre-existing data.tables, rather than `rblindlist( )`. This improved DES speed by > 40%. Benchmarking of 1400 events in 1.6 seconds now; previously 3.0 seconds.
+* add `Copy` (capital C) as replacement for `copy` which conflicts with `data.table::copy`, and add `queues` argument to do a deep copy of the event queues.
+* `spread`: minor speedups, plus 3 new parameters `relativeSpreadProb`, `numNeighs` & `exactSizes`
+* `distanceFromEachPoint`: uses faster Rcpp code for some use cases & can now take arbitrary columns in either `from` or `to` arguments
+* use `%fin%` as faster replacement for `%in%`
+
+## Bug fixes
+
+* workaround issues with RStudio graphics on Linux (with #116): use `dev.noRSGD()` to bypass the Rstudio graphics device for your current session (sets the `device` option for your platform).
+* `checksums(..., write = TRUE)` ignores the contents of `CHECKSUMS.txt`, overwriting that file with the checksums of all files in the module's `data/` directory. This makes it easier to update the checksum file, *e.g.*, when adding new data (#332).
+* improved module versioning (#321)
+* minor bugfixes for unusual cases
+* some broken examples were fixed
+
+## Other updates
+
+* improved documentation
+* modules are now run with their required packages (reqdPkgs in metadata) temporarily bumped to the top of the search path (*i.e.*, `search()`) during each event. `search` path is restored `on.exit` from `spades` or `simInit` call
 * `shine` can now take characters in parameters
 * change order of parsing of modules: `defineModule` is last, so can use objects defined within module for parameters
 * improved `simInit` debug mechanism -- passing character string of module name will enter into a `browser` call inside `doEvent`
 * improvements to caching:
 
-    * improved caching for `Raster*` objects & S4 methods - now it normally persists across sessions;
-    * add `Cache` (upper case) which derives cacheRepo arg automatically from either the cachePath(sim), if used within a module, or getPath()$cachePath if not within a module. Also, the upper case removes the name conflict with `archivist::cache`;
-    * add caching mechanisms at the module-level and event-level (via new *.useCache* parameter, which can be logical indicating whole module or character indicating individual events);
-    * add caching for .inputObjects function in `simInit`, via .useCache parameter in module
-    * detailed caching overview now in cache help: `?Cache` for details.
-    * strips dirname for outputs and inputs, i.e., only keeps basename. This may not be stringent enough in some cases.
+    - improved caching for `Raster*` objects & S4 methods - now it normally persists across sessions;
+    - add `Cache` (upper case) which derives `cacheRepo` arg automatically from either the `cachePath(sim)`, if used within a module, or `getPath()$cachePath` if not within a module. Also, the upper case removes the name conflict with `archivist::cache`;
+    - uses `fastdigest::fastdigest` for RAM objects and `digest::digest` for disk-backed objects;
+    - add caching mechanisms at the module-level and event-level (via new `.useCache` parameter, which can be logical indicating whole module or character indicating individual events);
+    - add caching for `.inputObjects` function in `simInit`, via `.useCache` parameter in module
+    - detailed caching overview now in cache help: `?Cache` for details.
+    - strips dirname for outputs and inputs, *i.e.*, only keeps the filename, not absolute paths. This may not be stringent enough in some cases.
 
-* improved documentation
-* new function `getPaths()` to return the list of working dirs from the options
-* new function `setPaths()` as wrapper for setting the options for working dirs; uses `~/SpaDES` as default base path
-* import `fastmatch`, and add `%fin%` as replacement for `%in%`
 * implemented `checkModuleLocal()` to check for presence of module files in the module dir before attempting download from remote module repository
-* `distanceFromEachPoint`: uses faster Rcpp code for some use cases & can now take arbitrary columns in either `from` or `to` arguments
-* some performance improvements throughout (minimizing use of simList accessors where possible)
-* workaround issues with RStudio graphics on Linux (with #116): use `dev.noRSGD()` to bypass the Rstudio graphics device for your current session (sets the `device` option for your platform).
-* event queues (event, completed, current) now do shallow copies of pre-existing data.tables, rather than `rblindlist( )`. This improved DES speed by > 40%. Benchmarking of 1400 events in 1.6 seconds now; previously 3.0 seconds.
-* add `Copy` (capital C) as replacement for `copy` which conflicts with `data.table::copy`, and add `queues` argument to do a deep copy of the event queues.
-* spread function: minor speedups, plus 3 new parameters `relativeSpreadProb`, `numNeighs` & `exactSizes`
-* new function `copyModule` for creating a copy of an existing module
-* change default value for `speedup` in `gaussMap`; now 1.
 * improve module template to auto fill module author info using `devtools.desc.author` option if set.
 * `zipModule` now has `data` argument, allowing data to be omitted from zipped module.
 * improved `moduleDiagram` to show `_INPUT_` node in different colour from the other modules
-* `checksums(..., write = TRUE)` ignores the contents of `CHECKSUMS.txt`, overwriting that file with the checksums of all files in the module's `data/` directory. This makes it easier to update the checksum file, *e.g.*, when adding new data (#332).
-* improved module versioning (#321)
-* minor bugfixes for unusual cases
-
-* **Defunct**:
-
-    * `p`. Use `params` or `P` instead.
-    * `versionWarning`. Wasn't used.
 
 version 1.3.1
 =============
@@ -56,14 +77,14 @@ version 1.3.0
 * timeunits: when there are parent and grandparent modules, if timeunit is defined, it overrides the "smallest unit" rule. Thus, a parent module can force a timeunit.
 * Plot - enhancements and fixes:
 
-    * more robust base plotting and many visual tests on Windows;
-    * re-add `col` arg to `Plot` (mimicks `cols`). Was lost from version 1.1.2;
-    * allow any arbitrary function to be used internally to `Plot` (*e.g.*, barplot, plot, etc.);
-    * add `arr` argument to `Plot()`, allowing passing of arrangement;
-    * allow `title` arg in `Plot()` to accept character for plot title;
-    * `Plot` can use character passed to `title` as a title;
-    * some additional functionality for plotting of factor rasters, incl. `clickValues`, legends correct for wide variety of types;
-    * change `new` arg in `Plot()`. Now it does one plot at a time, not whole device. Use `clearPlot()` to wipe whole device.
+    - more robust base plotting and many visual tests on Windows;
+    - re-add `col` arg to `Plot` (mimicks `cols`). Was lost from version 1.1.2;
+    - allow any arbitrary function to be used internally to `Plot` (*e.g.*, barplot, plot, etc.);
+    - add `arr` argument to `Plot()`, allowing passing of arrangement;
+    - allow `title` arg in `Plot()` to accept character for plot title;
+    - `Plot` can use character passed to `title` as a title;
+    - some additional functionality for plotting of factor rasters, incl. `clickValues`, legends correct for wide variety of types;
+    - change `new` arg in `Plot()`. Now it does one plot at a time, not whole device. Use `clearPlot()` to wipe whole device.
 
 * Add `modulesGraph`, showing parent and child module relationships.
 * Add `filesOnly` arg to `shine()`. This can be in preparation for publishing to www.shinyapps.io or other pages. Currently still alpha.
@@ -113,7 +134,7 @@ version 1.1.3
 * lots of documentation enhancements, esp. `?inputs` and `?outputs`
 * add `.plotInitialTime` and `.saveInitialTime` arguments to `spades()` to easily allow turning off plotting and saving
 * more robust `inputs` and `outputs`, including extension-based automated outputs, using `data.frame` instead of `data.table` allowing lists to be passed for "arguments"
-* allow vectorized `n` in `setColors` (#70), and partial n if named
+* allow vectorized `n` in `setColors` (#70), and partial `n` if named
 * many more unit tests (#139)
 * other bug fixes
 
@@ -250,7 +271,8 @@ version 1.0.0
 
 * added "metamodules" which specify module groups (#176)
 * improved test coverage (see #139)
-* all functions imported explicity (@importFrom). 3 entire packages imported: methods, graphics, igraph (because of classes which are not exported from igraph) (#201)
+* all functions imported explicity (`@importFrom`).
+* three entire packages imported: `methods`, `graphics`, `igraph` (because of classes which are not exported from `igraph`) (#201)
 * removed package dependencies on raster, sp, data.table, grid. Use importFrom instead (#207).
 * improved documentation and vignettes
 * added cache mechanism to hash function calls to spades (#206)
@@ -288,16 +310,20 @@ version 0.6.1
 * updated vignettes and documentation improvements
 * transfered project to `PredictiveEcology/SpaDES` from `achubaty/SpaDES`.
 * overhaul to `Plot` function:
-    * no longer needs `*Named` objects.
-    * now handles `SpatialPolygons` objects much faster than default `plot`:
-        * Uses package `fastshp`.
-            * The suggested package `fastshp` can be installed with:
+
+    - no longer needs `*Named` objects.
+    - now handles `SpatialPolygons` objects much faster than default `plot`:
+        - Uses package `fastshp`.
+            - The suggested package `fastshp` can be installed with:
 
                     install_github("s-u/fastshp")
 
-    * numerous other `Plot` improvements
+    - numerous other `Plot` improvements
+
 * deprecated all `*Named` functionality
-    * All code will break that uses `*Named` objects
+
+    - All code will break that uses `*Named` objects
+
 * new function, `clearPlot` can be used to clean all hidden metadata about a plot
 * new function, `randomPolygons`, will create random raster maps (not vector maps) of polygons
 * numerous bugfixes
@@ -312,7 +338,6 @@ version 0.4.0
 
 version 0.3.1
 =============
-
 * first public ("beta") release
 * reworked plotting and visualization (it's faster, more reliable)
 * added additional parameter checks and improved debugging
@@ -324,11 +349,9 @@ version 0.3.1
 
 version 0.2
 =============
-
-* renamed package to SpaDES
+* renamed package to `SpaDES`
 
 version 0.1
 =============
-
 * first working alpha version
 * lots of "wishlist" items still to be implemented

@@ -13,6 +13,7 @@ output/
 src/*.o
 src/*.so
 src/*.dll
+src-*/
 tests/testthat/*.pdf
 tests/testthat/*.RData
 vignettes/.build.timestamp

@@ -7,7 +7,7 @@
 fileName(x)
 }
 \arguments{
-\item{x}{List or charcter vector}
+\item{x}{List or character vector}
 }
 \value{
 A character vector.

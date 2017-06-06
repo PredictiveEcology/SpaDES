@@ -6,8 +6,8 @@ library(raster)
 # nlayers = 3
 b <- brick(system.file("external/rlogo.grd", package = "raster"))
 r <- b[[1]] # use first layer only
-nx <- 3
-ny <- 4
+nx <- 1
+ny <- 2
 
 tmpdir <- file.path(tempdir(), "splitRaster-example")
 dir.create(tmpdir)

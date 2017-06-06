@@ -241,7 +241,6 @@ test_that("Unit tests for image content is not error-free", {
     Windows = "BB1FC0E03E1E3B30"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
-
   #################
 
   # test non contiguous factor raster
@@ -261,7 +260,7 @@ test_that("Unit tests for image content is not error-free", {
 
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
-    Darwin = "EEC0911E4AE16E6E",
+    Darwin = "EEC0913E4AE16E2E",
     Linux = "EEC0913E4AE16E2E",
     Windows = "EEC0911E4BE16E2E"
   )
@@ -684,7 +683,6 @@ test_that("Plot with base is not error-free", {
     unlink(tmpdir, recursive = TRUE)
   }, add = TRUE)
 
-  #dev(2, width = 13, height = 7)
   set.seed(123)
   rasOrig <- raster(extent(0, 40, 0, 20), vals = sample(1:8, replace = TRUE, size = 800), res = 1)
   ras <- rasOrig
@@ -803,7 +801,7 @@ test_that("Plot with base is not error-free", {
 
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
-                 Darwin = "F3B5A64A8C0FF049",
+                 Darwin = "F3B5264A8C0FF04B",
                  Linux = "F3B5264A8C0FF04B",
                  Windows = "F3B4264A8C8FF04B"
   )
@@ -998,7 +996,7 @@ test_that("Plot lists", {
 
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
-                 Darwin = "8F62630DCC8DF05B",
+                 Darwin = "8F627399CC8CF05A",
                  Linux = "877273AD8C8DF04A",
                  Windows = "8773738D8C89F04E"
   )

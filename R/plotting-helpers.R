@@ -334,7 +334,7 @@ setMethod(
 #'
 #' @param numSpadesPlotObjects Numeric. The number of \code{.spadesPlotObjects}.
 #'                 This can't easily be deduced from the \code{plotArgs} because
-#'                 of the RasterStacks. So passed manually.
+#'                 of the \code{RasterStack}s. So passed manually.
 #'
 #' @author Eliot McIntire
 #' @docType methods
@@ -1031,7 +1031,7 @@ setMethod(
 
 #' @param spadesSubPlots List of many spadesGrobs
 #' @param isBaseSubPlot Logical. Is the currently being plotted object a base layer
-#' @param isNewPlot Logical. Is the currenly being plotted object a new, additional plot
+#' @param isNewPlot Logical. Is the currently being plotted object a new, additional plot
 #' @param isReplot Logical. Is the currently being plotted object a replot due to something
 #'                 like a rearrangement
 #' @param zMat List resulting from \code{.convertSpatialToPlotGrob}
@@ -1743,7 +1743,7 @@ setMethod(
 #'
 #' NOTE: you may get errors relating to not having installed the software tools
 #' required for building R packages on your system.
-#' For building on Windows, you'll need to install Rtools from
+#' For building on Windows, you'll need to install \code{Rtools} from
 #' \url{https://cran.r-project.org/bin/windows/Rtools/}.
 #'
 #' @param grobToPlot  \code{Raster*}, \code{SpatialLines*},
@@ -1785,7 +1785,7 @@ setMethod(
 #'                subsampled. The vertices are already subsampled by default to
 #'                make plotting faster.
 #'
-#' @param vp      whole viewport tree of SpaDESGrob
+#' @param vp      whole viewport tree of \code{spadesGrob}
 #'
 #' @param name    Character string of name of object being plotted.
 #'
@@ -1795,7 +1795,7 @@ setMethod(
 #' @keywords internal
 #' @rdname plotGrob
 #'
-#' @importFrom data.table data.table ':='
+#' @importFrom data.table ':=' data.table
 #' @importFrom raster extent pointDistance xmin xmax ymin ymax
 #'
 #' @importFrom sp proj4string
@@ -2269,7 +2269,7 @@ setMethod(
 #'
 #' This function will either create a totally new set of viewports, or simply
 #' add some nested viewports to an existing arrangement, i.e., is there still
-#' white space availabe to plot.
+#' white space available to plot.
 #'
 #' @param sPlot An object of class \code{.spadesPlot}.
 #'

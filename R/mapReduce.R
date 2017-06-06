@@ -11,16 +11,18 @@ if (getRversion() >= "3.1.0") {
 #' @param fullRaster \code{RasterLayer} of codes used in \code{reduced} that represents
 #' a spatial representation of the data
 #'
-#' @param plotCol a character, length 1, with the name of the column in \code{reduced} that
-#' whose value will be plotted
+#' @param newRasterCols Character vector, length 1 or more, with the name(s) of the column(s) 
+#'                      in \code{reduced} whose value will be returned as a Raster or list of 
+#'                      Rasters
 #'
 #' @param mapcode a character, length 1, with the name of the column in \code{reduced} that
 #' is represented in \code{fullRaster}
 #'
 #' @param ... Other arguments. None used yet.
 #'
-#' @return A \code{RasterLayer} of with same dimensions as \code{fullRaster} representing
-#' \code{plotCol} spatially, according to the join between the \code{mapcodeAll} contained within
+#' @return A \code{RasterLayer} or list of \code{RasterLayer} of with same 
+#' dimensions as \code{fullRaster} representing
+#' \code{newRasterCols} spatially, according to the join between the \code{mapcode} contained within
 #' \code{reduced} and \code{fullRaster}
 #'
 #' @seealso \code{\link{raster}}
@@ -54,7 +56,7 @@ if (getRversion() >= "3.1.0") {
 #'   clearPlot()
 #'   Plot(biomass, communities, fullRas)
 #' }
-rasterizeReduced <- function(reduced, fullRaster, plotCol, mapcode = names(fullRaster), ...) {
+rasterizeReduced <- function(reduced, fullRaster, newRasterCols, mapcode = names(fullRaster), ...) {
 
   reduced <- data.table(reduced)
   if (!is.null(key(reduced))) {
@@ -69,11 +71,27 @@ rasterizeReduced <- function(reduced, fullRaster, plotCol, mapcode = names(fullR
   fullRasterVals <- fullRasterVals[, row_number := 1L:.N]
   setkeyv(fullRasterVals, mapcode)
 
-  BsumVec <- reduced[fullRasterVals]
-  BsumVec[is.na(get(plotCol)), c(plotCol) := NA]
+  BsumVec <- reduced[fullRasterVals] # join
+  if(length(newRasterCols)>1) {
+    for(i in seq_along(newRasterCols)) {
+      BsumVec[is.na(get(newRasterCols[i])), c(newRasterCols[i]) := NA]
+    }
+  } else {
+    BsumVec[is.na(get(newRasterCols)), c(newRasterCols) := NA]
+  }
   setkey(BsumVec, row_number)
-  ras <- as.character(match.call(expand.dots = TRUE)$reduced)
-  assign(ras, value = raster(res = res(fullRaster), ext = extent(fullRaster),
-                             vals = BsumVec[[plotCol]]))
-  return(get(ras))
+  if(length(newRasterCols)>1) {
+    ras <- list()
+    for(i in newRasterCols) {
+      #ras[[i]] <- as.character(match.call(expand.dots = TRUE)$reduced)
+      ras[[i]] <- raster(res = res(fullRaster), ext = extent(fullRaster),
+                               vals = BsumVec[[i]])
+    }
+  } else {
+    #ras <- as.character(match.call(expand.dots = TRUE)$reduced)
+    ras <- raster(res = res(fullRaster), ext = extent(fullRaster),
+                                    vals = BsumVec[[newRasterCols]])
+    
+  }
+  return(ras)
 }

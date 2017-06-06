@@ -8,6 +8,9 @@
 #'
 #' @description
 #'
+#' \if{html}{\figure{SpaDES.png}{options: width=100 alt="SpaDES logo" align="right"}}
+#' \if{latex}{\figure{SpaDES.png}{options: width=0.5in}}
+#'
 #' This package allows implementation a variety of simulation-type models,
 #' with a focus on spatially explicit models.
 #' The core simulation components are built upon a discrete event simulation
@@ -300,7 +303,7 @@
 #' These dummy maps can later be replaced with actual data maps.
 #'
 #' \tabular{ll}{
-#'   \code{\link{gaussMap}} \tab Creates a random map using gaussian random fields\cr
+#'   \code{\link{gaussMap}} \tab Creates a random map using Gaussian random fields\cr
 #'   \code{\link{randomPolygons}} \tab Creates a random polygon with specified number of classes\cr
 #' }
 #'

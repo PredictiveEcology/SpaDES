@@ -30,7 +30,7 @@ zipModule(name, path, version, data = FALSE, ...)
 
 \item{version}{The module version.}
 
-\item{data}{Logical. If \code{TRUE}, then the data subfolder will be included in the zip.
+\item{data}{Logical. If \code{TRUE}, then the data subdirectory will be included in the zip.
 Default is \code{FALSE}.}
 
 \item{...}{Additional arguments to \code{\link{zip}}:

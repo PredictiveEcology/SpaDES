@@ -5,12 +5,14 @@ using namespace Rcpp;
 //' @title
 //' Point distance with C++
 //' @description
-//' \code{pointDistance2} performs pythagorus and cbinds all columns from \code{to} to new dists column. It
-//' is only defined for one point (\code{from}) to many (\code{to}) points.
-//' \code{pointDistance3} performs pythagorus and is to be used internally within \code{distanceFromEachPoint}
-//' as an alternative to
-//' \code{.pointDistance}, where it does many points (\code{from}) to many (\code{to}) points, one \code{from}
-//' point at a time. The results are then rbinded internally. It does not cbind extra columns from \code{to}.
+//' \code{pointDistance2} performs Pythagorean Theorem and \code{cbind}s all
+//' columns from \code{to} to new dists column.
+//' It is only defined for one point (\code{from}) to many (\code{to}) points.
+//' \code{pointDistance3} performs Pythagorean Theorem and is to be used internally
+//' within \code{distanceFromEachPoint} as an alternative to \code{.pointDistance},
+//' where it does many points (\code{from}) to many (\code{to}) points, one
+//' \code{from} point at a time. The results are then \code{rbind}ed internally.
+//' It does not \code{cbind} extra columns from \code{to}.
 //'
 //' @inheritParams distanceFromEachPoint
 //' @return
@@ -20,7 +22,7 @@ using namespace Rcpp;
 //' @rdname distances
 // [[Rcpp::export]]
 NumericMatrix pointDistance2(NumericMatrix to, NumericMatrix from) { // from = x1 and y1; to = x0 and y0
-// NumericVector pointDistance2(NumericMatrix to, NumericMatrix from) { // from = x1 and y1; to = x0 and y0
+  // NumericVector pointDistance2(NumericMatrix to, NumericMatrix from) { // from = x1 and y1; to = x0 and y0
 
   int nr = to.nrow();
   int nc = to.ncol();
@@ -128,4 +130,38 @@ NumericMatrix pointDistance3(NumericVector fromX, NumericVector toX,
 
   colnames(out) = CharacterVector::create("x", "y", "dists");
   return out;
+}
+
+//' @title
+//' Rcpp duplicated on integers using Rcpp Sugar
+//' @description
+//' \code{.duplicatedInt} does same as \code{duplicated} in R, but only on integers, and faster.
+//' It uses Rcpp sugar
+//'
+//' @param x Integer Vector
+//' @return
+//' A logical vector, as per \code{duplicated}
+//'
+//' @rdname duplicated
+// [[Rcpp::export]]
+LogicalVector duplicatedInt(IntegerVector x) {
+  return duplicated(x);
+}
+
+
+//' @title
+//' Rcpp Sugar version of runif
+//' @description
+//' Slightly faster than runif, and used a lot
+//'
+//' @param N Integer Vector
+//' @return
+//' A vector of uniform random numbers as per \code{runif}
+//'
+//' @rdname rcpp-extras
+// [[Rcpp::export]]
+NumericVector runifC(const int N) {
+  NumericVector X(N);
+  X = runif(N);
+  return X;
 }

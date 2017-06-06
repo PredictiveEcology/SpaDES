@@ -1,5 +1,5 @@
 if (getRversion() >= "3.1.0") {
-  utils::globalVariables(c("indices", "id", "initialLocus", "dists", "dup"))
+  utils::globalVariables(c("indices", "id", "initialLocus", "dists", "dup", ".I"))
 }
 
 ###############################################################################
@@ -8,12 +8,17 @@ if (getRversion() >= "3.1.0") {
 #' This can be used to simulate fires, seed dispersal, calculation of iterative,
 #' concentric landscape values (symmetric or asymmetric) and many other things.
 #' Essentially, it starts from a collection of cells (\code{loci}) and spreads
-#' to neighbours, according to the \code{directions} and \code{spreadProbLater} arguments.
-#' This can become quite general, if \code{spreadProbLater} is 1 as it will expand
+#' to neighbours, according to the \code{directions} and \code{spreadProb} arguments.
+#' This can become quite general, if \code{spreadProb} is 1 as it will expand
 #' from every loci until all cells in the landscape have been covered.
 #' With \code{id} set to \code{TRUE}, the resulting map will be classified
 #' by the index of the cell where that event propagated from.
 #' This can be used to examine things like fire size distributions.
+#' \bold{NOTE:} See also \code{\link{spread2}}, which is more robust and can be
+#' used to build custom functions.
+#' However, under some conditions, this \code{spread} function is faster.
+#' The two functions can accomplish many of the same things, and key differences
+#' are internal.
 #'
 #' For large rasters, a combination of \code{lowMemory = TRUE} and
 #' \code{returnIndices = TRUE} will use the least amount of memory.
@@ -31,8 +36,8 @@ if (getRversion() >= "3.1.0") {
 #'
 #' \code{asymmetry} is currently used to modify the \code{spreadProb} in the following way.
 #' First for each active cell, spreadProb is converted into a length 2 numeric of Low and High
-#' spread probabilities for that
-#' cell: \code{spreadProbsLH <- (spreadProb*2) // (asymmetry+1)*c(1,asymmetry)},
+#' spread probabilities for that cell:
+#' \code{spreadProbsLH <- (spreadProb*2) // (asymmetry+1)*c(1,asymmetry)},
 #' whose ratio is equal to
 #' \code{asymmetry}.
 #' Then, using \code{asymmetryAngle}, the angle between the
@@ -74,17 +79,18 @@ if (getRversion() >= "3.1.0") {
 #'                       radius reached, and then the event will stop. This is
 #'                       vectorized, and if length is >1, it will be matched
 #'                       in the order of \code{loci}\cr
-#'   \code{stopRule} \tab This is a func
-#'   tion that can use "landscape", "id", "cells", or any
-#'                       named vector passed into \code{spread} in the \code{...}. This
-#'                       can take on relatively complex functions. Passing in, say, a Raster
-#'                       Layer to \code{spread} can access the individual values on that
-#'                       arbitrary Raster Layer using "cells". These will be calculated
-#'                       within all the cells of the individual event (equivalent to a
-#'                       "group_by(event)" in dplyr. So, \code{sum(arbitraryRaster[cells])}
-#'                       would sum up all the raster values on the arbitraryRaster Raster
-#'                       that are overlaid by the individual event. This can then be used in
-#'                       a logical statement.  See examples.
+#'   \code{stopRule} \tab This is a function that can use "landscape", "id", "cells",
+#'                       or any named vector passed into \code{spread} in the \code{...}.
+#'                       This can take on relatively complex functions.
+#'                       Passing in, say, a \code{RasterLayer} to \code{spread}
+#'                       can access the individual values on that arbitrary
+#'                       \code{RasterLayer} using "cells".
+#'                       These will be calculated within all the cells of the individual
+#'                       event (equivalent to a "group_by(event)" in \code{dplyr}.
+#'                       So, \code{sum(arbitraryRaster[cells])} would sum up all
+#'                       the raster values on the \code{arbitraryRaster} raster
+#'                       that are overlaid by the individual event.
+#'                       This can then be used in a logical statement. See examples.
 #'                       To confirm the cause of stopping, the user can assess the values
 #'                       after the function has finished.\cr
 #' }
@@ -127,30 +133,31 @@ if (getRversion() >= "3.1.0") {
 #' }
 #'
 #'
-#' @param landscape     A \code{RasterLayer} object. This defines the possible locations
-#'                      for spreading events to start and spread into. This can also
-#'                      be used as part of \code{stopRule}. Require input.
+#' @param landscape     A \code{RasterLayer} object. This defines the possible
+#'                      locations for spreading events to start and spread into.
+#'                      This can also be used as part of \code{stopRule}.
 #'
-#' @param loci          A vector of locations in \code{landscape}. These should be cell indexes.
-#'                      If user has x and y coordinates, these can be converted with
-#'                      \code{\link[raster]{cellFromXY}}.
+#' @param loci          A vector of locations in \code{landscape}.
+#'                      These should be cell indices.
+#'                      If user has x and y coordinates, these can be converted
+#'                      with \code{\link[raster]{cellFromXY}}.
 #'
-#' @param spreadProb    Numeric or rasterLayer. If numeric of length 1, then this is
-#'                      the global probability of
-#'                      spreading into each cell from a neighbor. If a raster (or a vector
-#'                      of length \code{ncell(landscape)}, resolution and extent of
-#'                      \code{landscape}), then this will be the cell-specific
-#'                      probability. Default is \code{0.23}.
+#' @param spreadProb    Numeric, or \code{RasterLayer}.
+#'                      If numeric of length 1, then this is the global probability
+#'                      of spreading into each cell from a neighbour.
+#'                      If a raster (or a vector of length \code{ncell(landscape)},
+#'                      resolution and extent of \code{landscape}), then this will
+#'                      be the cell-specific probability. Default is \code{0.23}.
 #'                      If a \code{spreadProbLater} is provided, then this is
-#'                      only used for the first iteration. Also called Escape
-#'                      probability. See section on "Breaking out of spread events".
+#'                      only used for the first iteration. Also called "escape
+#'                      probability". See section on "Breaking out of spread events".
 #'
-#' @param persistence   A length 1 probability that an active cell will continue to burn,
-#'                      per time step.
+#' @param persistence   A length 1 probability that an active cell will continue
+#'                      to burn, per time step.
 #'
-#' @param mask          non-NULL, a \code{RasterLayer} object congruent with
-#'                      \code{landscape} whose elements are \code{0,1},
-#'                      where 1 indicates "cannot spread to".
+#' @param mask          non-\code{NULL}, a \code{RasterLayer} object congruent with
+#'                      \code{landscape} whose elements are \code{0,1}, where
+#'                      \code{1} indicates "cannot spread to".
 #'                      Currently not implemented, but identical behavior can be
 #'                      achieved if \code{spreadProb} has zeros in all unspreadable
 #'                      locations.
@@ -160,7 +167,7 @@ if (getRversion() >= "3.1.0") {
 #'                      if it is not as long as \code{loci}.
 #'                      See section on \code{Breaking out of spread events}.
 #'
-#' @param directions    The number adjacent cells in which to look;
+#' @param directions    The number of adjacent cells in which to look;
 #'                      default is 8 (Queen case). Can only be 4 or 8.
 #'
 #' @param iterations    Number of iterations to spread.
@@ -170,72 +177,86 @@ if (getRversion() >= "3.1.0") {
 #' @param lowMemory     Logical. If true, then function uses package \code{ff}
 #'                      internally. This is slower, but much lower memory footprint.
 #'
-#' @param returnIndices Logical. Should the function return a data.table with
-#'                      indices and values of successful spread events, or
+#' @param returnIndices Logical. Should the function return a \code{data.table}
+#'                      with indices and values of successful spread events, or
 #'                      return a raster with values. See Details.
 #'
-#' @param returnDistances Logical. Should the function inclue a column with the
+#' @param returnDistances Logical. Should the function include a column with the
 #'                      individual cell distances from the locus where that event
-#'                      started. Default is FALSE. See Details.
+#'                      started. Default is \code{FALSE}. See Details.
 #'
-#' @param spreadProbLater    Numeric or rasterLayer. If provided, then this
-#'                      will become the spreadProb after the first iteration. See details.
+#' @param spreadProbLater Numeric, or \code{RasterLayer}. If provided, then this
+#'                      will become the spreadProb after the first iteration.
+#'                      See Details.
 #'
-#' @param spreadState   Data.table. This should be the output of a previous call to
-#'                      \code{spread}, where \code{returnIndices} was \code{TRUE}. Default NA,
-#'                      meaning the spread is starting from \code{loci}. See Details.
+#' @param spreadState   \code{data.table}. This should be the output of a previous call
+#'                      to \code{spread}, where \code{returnIndices} was \code{TRUE}.
+#'                      Default \code{NA}, meaning the spread is starting from \code{loci}.
+#'                      See Details.
 #'
-#' @param circle        Logical. If TRUE, then outward spread will be by equidistant rings,
-#'                      rather than solely by adjacent cells (via \code{directions} arg.). Default
-#'                      is FALSE. Using \code{circle = TRUE} can be dramatically slower for large
-#'                      problems. Note, this should usually be used with spreadProb = 1.
+#' @param circle        Logical. If \code{TRUE}, then outward spread will be by
+#'                      equidistant rings, rather than solely by adjacent cells
+#'                      (via \code{directions} arg.). Default is \code{FALSE}.
+#'                      Using \code{circle = TRUE} can be dramatically slower for
+#'                      large problems.
+#'                      Note, this should usually be used with \code{spreadProb = 1}.
 #'
-#' @param circleMaxRadius Numeric. A further way to stop the outward spread of events. If
-#'                      \code{circle} is \code{TRUE}, then it will grow to this maximum radius.
-#'                      See section on
-#'                      \code{Breaking out of spread events}. Default to NA.
+#' @param circleMaxRadius Numeric. A further way to stop the outward spread of events.
+#'                      If \code{circle} is \code{TRUE}, then it will grow to this maximum radius.
+#'                      See section on \code{Breaking out of spread events}.
+#'                      Default is \code{NA}.
 #'
-#' @param stopRule      A function which will be used to assess whether each individual cluster
-#'                      should stop growing. This function can be an argument of "landscape",
-#'                      "id", "cells", and
-#'                      any other named vectors, a named list of named vectors,
-#'                      or a named data.frame of with column names passed to spread in
-#'                      the ... . Default NA meaning that
-#'                      spreading will not stop as a function of the landscape. See section on
-#'                      \code{Breaking out of spread events} and examples.
+#' @param stopRule      A function which will be used to assess whether each
+#'                      individual cluster should stop growing.
+#'                      This function can be an argument of \code{"landscape"},
+#'                      \code{"id"}, \code{"cells"}, and any other named vectors,
+#'                      a named list of named vectors, or a named \code{data.frame}
+#'                      with column names passed to \code{spread} in the \code{...}.
+#'                      Default \code{NA}, meaning that spreading will not stop
+#'                      as a function of the landscape.
+#'                      See section on "Breaking out of spread events" and examples.
 #'
-#' @param stopRuleBehavior Character. Can be one of "includePixel", "excludePixel", "includeRing",
-#'                      "excludeRing". If \code{stopRule} contains a function, this argument is
-#'                      used determine what to do with the cell(s) that caused the rule to be
-#'                      \code{TRUE}. See details. Default is "includeRing" which means to
-#'                      accept the entire ring of cells that caused the rule to be \code{TRUE}.
+#' @param stopRuleBehavior Character. Can be one of \code{"includePixel"},
+#'                      \code{"excludePixel"}, \code{"includeRing"}, or
+#'                      \code{"excludeRing"}.
+#'                      If \code{stopRule} contains a function, this argument is
+#'                      used determine what to do with the cell(s) that caused
+#'                      the rule to be \code{TRUE}. See details.
+#'                      Default is \code{"includeRing"} which means to accept the
+#'                      entire ring of cells that caused the rule to be \code{TRUE}.
 #'
-#' @param allowOverlap  Logical. If \code{TRUE}, then individual events can overlap with one
-#'                      another, i.e., they do not interact. Currently, this is slower than
-#'                      if \code{allowOverlap} is \code{FALSE}. Default is \code{FALSE}.
+#' @param allowOverlap  Logical. If \code{TRUE}, then individual events can overlap
+#'                      with one another, i.e., they do not interact (this is slower
+#'                      than if \code{allowOverlap = FALSE}).
+#'                      Default is \code{FALSE}.
 #'
-#' @param asymmetry     A numeric indicating the ratio of the asymmetry to be used. Default is
-#'                      NA, indicating no asymmetry. See details. This is still experimental.
-#'                      Use with caution.
+#' @param asymmetry     A numeric indicating the ratio of the asymmetry to be used.
+#'                      Default is \code{NA}, indicating no asymmetry.
+#'                      See details. This is still experimental.
+#'                      \bold{Use with caution.}
 #'
-#' @param asymmetryAngle A numeric indicating the angle in degrees (0 is "up", as in North on a map),
-#'                      that describes which way the \code{asymmetry} is.
+#' @param asymmetryAngle A numeric indicating the angle in degrees (0 is "up",
+#'                      as in North on a map), that describes which way the
+#'                      \code{asymmetry} is.
 #'
-#' @param quick Logical. If TRUE, then several potentially time consuming checking (such as
-#'              \code{inRange}) will be skipped. This should only be used if there is no
-#'              concern about checking to ensure that inputs are legal.
+#' @param quick  Logical. If \code{TRUE}, then several potentially time consuming
+#'               checking (such as \code{inRange}) will be skipped.
+#'               This should only be used if there is no concern about checking
+#'               to ensure that inputs are legal.
 #'
-#' @param neighProbs A numeric vector, whose sum is 1. It indicates the probabilities an individual
-#'                   spread iteration spreading to \code{1:length(neighProbs)} neighbours.
+#' @param neighProbs A numeric vector, whose sum is 1.
+#'                   It indicates the probabilities an individual spread iteration
+#'                   spreading to \code{1:length(neighProbs)} neighbours.
 #'
-#' @param exactSizes Logical. If TRUE, then the \code{maxSize} will be treated as exact sizes,
-#'                   i.e., the spread events will continue until they are
-#'                   \code{floor(maxSize)}. This is overridden by \code{iterations}, but
-#'                   if \code{iterations} is run, and individual events haven't reached
-#'                   \code{maxSize}, then the returned \code{data.table} will still have
-#'                   at least one active cell per event that did not achieve \code{maxSize},
-#'                   so that the events can continue if passed into \code{spread} with
-#'                   \code{spreadState}.
+#' @param exactSizes Logical. If \code{TRUE}, then the \code{maxSize} will be
+#'                   treated as exact sizes, i.e., the spread events will continue
+#'                   until they are \code{floor(maxSize)}.
+#'                   This is overridden by \code{iterations}, but if \code{iterations}
+#'                   is run, and individual events haven't reached \code{maxSize},
+#'                   then the returned \code{data.table} will still have at least
+#'                   one active cell per event that did not achieve \code{maxSize},
+#'                   so that the events can continue if passed into \code{spread}
+#'                   with \code{spreadState}.
 #'
 #' @param relativeSpreadProb Logical. If \code{TRUE}, then \code{spreadProb} will
 #'                      be rescaled *within* the \code{directions} neighbours, such that
@@ -254,10 +275,10 @@ if (getRversion() >= "3.1.0") {
 #' If a \code{RasterLayer}, then it represents
 #' every cell in which a successful spread event occurred. For the case of, say, a fire
 #' this would represent every cell that burned. If \code{allowOverlap} is \code{TRUE},
-#' This Raster layer will represent the sum of the individual event ids (which
-#' are numerics \code{seq_along(loci)}. This will
-#' generally be of minimal use because it won't be possible to distinguish if
-#' event 2 overlapped with event 5 or if it was just event 7.
+#' This \code{RasterLayer} will represent the sum of the individual event ids
+#' (which are numerics \code{seq_along(loci)}.
+#' This will generally be of minimal use because it won't be possible to distinguish
+#' if event 2 overlapped with event 5 or if it was just event 7.
 #'
 #' If \code{returnIndices} is \code{TRUE},
 #' then this function returns a \code{data.table} with columns:
@@ -287,11 +308,15 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @author Eliot McIntire
 #' @author Steve Cumming
-#' @seealso \code{\link{rings}} which uses \code{spread} but with specific argument
-#' values selected for a specific purpose. \code{\link[raster]{distanceFromPoints}}
+#' @seealso \code{\link{spread2}} for a different implementation of the same alogorithm.
+#' It is more robust, meaning, there will be fewer unexplainable errors, and the behaviour
+#' has been better tested, so it is more likely to be exactly as described under all
+#' argument combinations.
+#' Also, \code{\link{rings}} which uses \code{spread} but with specific argument
+#' values selected for a specific purpose.
+#' \code{\link[raster]{distanceFromPoints}}.
+#' \code{cir} to create "circles"; it is fast for many small problems.
 #'
-#' @name spread
-#' @aliases spread
 #' @rdname spread
 #'
 setGeneric("spread", function(landscape, loci = NA_real_,
@@ -351,7 +376,7 @@ setMethod(
     spreadProbLaterExists <- TRUE
 
     if (!is(spreadProbLater, "Raster")) {
-      if (is.na(spreadProbLater)) {
+      if (anyNA(spreadProbLater)) {
         spreadProbLaterExists <- FALSE
         spreadProbLater <- spreadProb
       }
@@ -363,6 +388,8 @@ setMethod(
       if (!spreadStateExists)
         loci <- (nrow(landscape) / 2L + 0.5) * ncol(landscape)
     }
+
+    if (length(loci) == 0) stop("No loci. Nothing to do")
 
     if (any(!is.na(maxSize))) {
       msEqZero <- maxSize < 1
@@ -411,7 +438,7 @@ setMethod(
 
     ncells <- ncell(landscape)
 
-    if (allowOverlap | returnDistances) {
+    if (allowOverlap | returnDistances | spreadStateExists) {
       if (spreadStateExists) {
         spreads <- as.matrix(spreadState[,list(initialLocus, indices, id, active)])
 
@@ -483,11 +510,11 @@ setMethod(
       landRas <- landscape[] # For speed
     }
 
-    if (!allowOverlap & !returnDistances) {
+    if (!allowOverlap & !returnDistances) {#} & !spreadStateExists) {
       if (id | returnIndices | relativeSpreadProb) {
-        if (spreadStateExists) {
-          spreads[spreadState$indices] <- spreadState$id
-        } else {
+        if (!spreadStateExists) {
+        #   #spreads[spreadState$indices] <- spreadState$id
+        # } else {
           # give values to spreads vector at initialLoci
           spreads[loci] <- 1L:length(loci)
         }
@@ -500,9 +527,12 @@ setMethod(
     # Convert mask and NAs to 0 on the spreadProb Raster
     if (is(spreadProb, "Raster")) {
       # convert NA to 0s
-      isNASpreadProb <- is.na(spreadProb[])
-      if (any(isNASpreadProb))
-        spreadProb[isNASpreadProb] <- 0L
+      #isNASpreadProb <- is.na(spreadProb[])
+      # if (anyNA(spreadProb[])) {
+      #   isNASpreadProb <- is.na(spreadProb[])
+      #   spreadProb[isNASpreadProb] <- 0L
+      # }
+
     } else if (is.numeric(spreadProb)) {
       # Translate numeric spreadProb into a Raster, if there is a mask
       if (is(mask, "Raster")) {
@@ -513,12 +543,14 @@ setMethod(
     # Convert mask and NAs to 0 on the spreadProbLater Raster
     if (is(spreadProbLater, "Raster")) {
       # convert NA to 0s
-      if (!spreadProbLaterExists) {
-        isNASpreadProbLater <- isNASpreadProb
-      } else {
-        isNASpreadProbLater <- is.na(spreadProbLater[])
-      }
-      if (any(isNASpreadProbLater)) spreadProbLater[isNASpreadProbLater] <- 0L
+      # if (!spreadProbLaterExists) {
+      #   if (exists("isNASpreadProb", inherits = FALSE))
+      #     isNASpreadProbLater <- isNASpreadProb
+      # } else {
+      #   if (anyNA(spreadProbLater[]))
+      #     isNASpreadProbLater <- is.na(spreadProbLater[])
+      # }
+      # if (exists("isNASpreadProbLater", inherits = FALSE)) spreadProbLater[isNASpreadProbLater] <- 0L
 
     } else if (is.numeric(spreadProbLater)) {
        # Translate numeric spreadProbLater into a Raster, if there is a mask
@@ -574,7 +606,11 @@ setMethod(
       numNeighs <- NULL
     }
 
-    numRetries <- rep(0, length(initialLoci))
+    if (!exists("numRetries", envir = .spadesEnv))
+      assign("numRetries", rep(0, length(initialLoci)), envir = .spadesEnv)
+
+    toColumn <- c("to", "indices")
+
     # while there are active cells
     while (length(loci) & (n <= iterations) ) {
       if (!is.null(neighProbs)) {
@@ -589,7 +625,7 @@ setMethod(
       }
 
       # identify neighbours
-      if (allowOverlap | returnDistances) {
+      if (allowOverlap | returnDistances | spreadStateExists) {
         whActive <- spreads[,"active"] == 1 # spreads carries over
         potentials <- adj(landscape, loci, directions, pairs = TRUE,
                           id = spreads[whActive, "id"])#, numNeighs = numNeighs)
@@ -611,21 +647,45 @@ setMethod(
         potentials <- cbind(potentials, dists = 0)
 
       # keep only neighbours that have not been spread to yet
-      if (allowOverlap | returnDistances) {
-        colnames(potentials) <- colnames(spreads)
-        potentials[, "initialLocus"] <- initialLoci[potentials[, "id"]]
-        d <- rbind(spreads, potentials)
-
+      if (allowOverlap | returnDistances | spreadStateExists) {
         #faster alternative to tapply, but cumbersome
-        ids <- as.integer(unique(d[, "id"]))
-        d <- do.call(rbind, lapply(ids, function(id) {
-          cbind(d[d[, "id"] == id, , drop = FALSE],
-                duplicated = duplicated(d[d[, "id"] == id, "indices"]))
-        }))
+        #potentialsOrig <- potentials
 
-        lastCol <- ncol(d)
-        potentials <- d[d[, "duplicated"] == 0 &
-                          d[, "active"] == 1, , drop = FALSE][, -lastCol, drop = FALSE]
+        if (TRUE) { # data.table version is faster for potentials > 500 or so
+          #potentials <- potentialsOrig
+
+          spreadsDT <- data.table(spreads)
+          potentialsDT <- data.table(potentials)
+          potentialsDT[, initialLocus := initialLoci[potentialsDT$id]]
+          colnamesPDT <- colnames(potentialsDT)
+          whIL <- which(colnamesPDT == "initialLocus")
+          whFrom <- which(colnamesPDT == "from")
+          setcolorder(potentialsDT, c(colnamesPDT[whIL], colnamesPDT[-c(whIL, whFrom)], colnamesPDT[whFrom]))
+          setnames(potentialsDT, old = "to", new = "indices")
+          d <- rbindlist(list(spreadsDT, potentialsDT), fill = TRUE)
+          d <- data.table(d); setkey(d, "id");
+          d[, duplicated := duplicated(indices), by = id]
+          d <- d[duplicated == 0 & active == 1];
+          set(d,, "duplicated", NULL)
+          potentials <- as.matrix(d)
+        } else {
+          #potentials <- potentialsOrig
+          potentialsFrom <- potentials[, "from"]
+          colnames(potentials) <- colnames(spreads)
+          # get rid of immediate "from" and replace with original "from"
+          potentials[, "initialLocus"] <- initialLoci[potentials[, "id"]]
+          d <- rbind(spreads, potentials)
+          d <- cbind(d, "from" = c(rep(NA, NROW(spreads)), potentialsFrom))
+          ids <- as.integer(unique(d[, "id"]))
+          d <- do.call(rbind, lapply(ids, function(id) {
+            cbind(d[d[, "id"] == id, , drop = FALSE],
+                  duplicated = duplicated(d[d[, "id"] == id, "indices"]))
+          }))
+
+          lastCol <- ncol(d)
+          potentials <- d[d[, "duplicated"] == 0 &
+                            d[, "active"] == 1, , drop = FALSE][, -lastCol, drop = FALSE]
+        }
 
       } else {
         keep <- spreads[potentials[, 2L]] == 0L
@@ -662,6 +722,8 @@ setMethod(
         }
       }
 
+      if (anyNA(spreadProbs)) spreadProbs[is.na(spreadProbs)] <- 0
+
       if (!is.na(asymmetry)) {
         if (allowOverlap | returnDistances) {
           a <- cbind(id = potentials[, 3L], to = potentials[, 2L],
@@ -692,7 +754,8 @@ setMethod(
         # }
         # potentials <- as.matrix(bbb[, list(to = resample(to, numNeighs[.GRP])), by = "from"])
 
-        aaa <- split(seq_along(potentials[, "to"]), potentials[, "from"]);
+        aaa <- split(seq_along(potentials[, toColumn[spreadStateExists+1]]),
+                     potentials[, "from"]);
         if (length(aaa) != length(numNeighs)) {
           activeCellContinue <- loci %in% unique(potentials[, "from"])
           numNeighs <- numNeighs[activeCellContinue]
@@ -744,6 +807,9 @@ setMethod(
         potentials <- potentials[!duplicated(potentials[, 2L]), , drop = FALSE]
       }
 
+      # increment iteration
+      n <- n + 1L
+
       if (length(potentials) > 0) {# potentials can become zero because all active cells are edge cells
         # implement circle
         if (!missing(circle)) {
@@ -758,10 +824,10 @@ setMethod(
             a <- a[, !(colnames(a) %fin% c("dists")), drop = FALSE]
             # need 3 columns, id, x, y in both initialLociXY and a
             d <- distanceFromEachPoint(initialLociXY, a, angles = asymmetry) # d is sorted
-            cMR <- n
+            cMR <- (n-1) * res(landscape)[1]
             if (!any(is.na(circleMaxRadius))) {
               # don't bother proceeding if circleMaxRadius is larger than current iteration
-              if (any(circleMaxRadius <= n)) {
+              if (any(circleMaxRadius <= ( (n-1) * res(landscape)[1]))) {
                 if (length(circleMaxRadius) > 1) { # if it is a vector of values
                   cMR <- circleMaxRadius[d[, "id"]]
                 } else {
@@ -780,7 +846,7 @@ setMethod(
         events <- potentials[, 2L]
 
         if (!noMaxSize) {
-          if (allowOverlap | returnDistances) {
+          if (allowOverlap | returnDistances | spreadStateExists) {
             len <- tabulate(potentials[, 3L], length(maxSize))
           } else {
             len <- tabulate(spreads[potentials[, 1L]], length(maxSize)) # actually interested in potential[,2L], but they don't have values yet... can use their source
@@ -789,17 +855,21 @@ setMethod(
             whichID <- which(size + len > maxSize)
             toRm <- (size + len)[whichID] - maxSize[whichID] # remove some active cells, if more than maxSize
             for (i in 1:length(whichID)) {
-              if (allowOverlap | returnDistances) {
+              if (allowOverlap | returnDistances | spreadStateExists) {
                 thisID <- which(potentials[, 3L] == whichID[i])
               } else {
                 thisID <- which(spreads[potentials[, 1L]] == whichID[i])
               }
 
-              if(length(thisID)) # some unusual cases where there are none on the spreads. Unsure how this occurs
+              if (length(thisID)) # some unusual cases where there are none on the spreads. Unsure how this occurs
                 potentials <- potentials[-resample(thisID, toRm[i]), , drop = FALSE]
             }
             events <- potentials[, 2L]
           }
+
+          #size <- size + len
+          # which ones were removed
+          #size[whichID] <- size[whichID] - toRm
           size <- pmin(size + len, maxSize) ## Quick? and dirty. fast but loose (too flexible)
         }
 
@@ -902,14 +972,13 @@ setMethod(
           }
         }
 
-        # increment iteration
-        n <- n + 1L
-
         if (length(events) > 0) {
           # place new value at new cells that became active
-          if (allowOverlap | returnDistances) {
-            spreads <- rbind(spreads, potentials)
-            if (returnDistances & !allowOverlap) {
+          if (allowOverlap | returnDistances | spreadStateExists) {
+            fromCol <- colnames(potentials)=="from"
+
+            spreads <- rbind(spreads, potentials[,!fromCol])
+            if ((returnDistances | spreadStateExists) & !allowOverlap) {
               # 2nd place where allowOverlap and returnDistances differ
               notDups <- !duplicated(spreads[, "indices"])
               nrSpreads <- NROW(spreads)
@@ -963,28 +1032,52 @@ setMethod(
             rm(toKeepSR)
           }
         }
-      } else {
+      } else { # there are no potentials -- possibly from failed runif, or spreadProbs all 0
         events <- NULL
       }
 
       if (exactSizes) {
-        if (all(numRetries < 10)) {
+        if (all(get("numRetries", inherits = FALSE, envir = .spadesEnv) < 10)) {
           if (spreadStateExists) {
-            tooSmall <- tabulate(spreads[c(spreadState[!keepers]$indices, spreadsIndices)],
-                                 length(maxSize)) < maxSize
+            # tooSmall <- tabulate(spreads[c(spreadState[!keepers]$indices, spreadsIndices)],
+            #                      length(maxSize)) < maxSize
+            tooSmall <- tabulate(spreads[,"id"], length(maxSize)) < maxSize
+            inactive <- tabulate(spreads[spreads[,"active"]==1,"id"], length(maxSize)) == 0
+
           } else {
             tooSmall <- tabulate(spreads, length(maxSize)) < maxSize
+            inactive <- tabulate(spreads[events], length(maxSize)) == 0
           }
-          inactive <- tabulate(spreads[events], length(maxSize)) == 0
 
-          #size <- pmin(size + len, maxSize) ## Quick? and dirty. fast but loose (too flexible)
-
-          needPersist <- tooSmall & inactive
+          needPersist <- tooSmall & inactive # these are ones that are stuck ... i.e., too small, and inactive
+          needPersistJump <- TRUE
           if (any(needPersist)) {
-            numRetries <- numRetries + needPersist
+            assign("numRetries", envir = .spadesEnv,
+               get("numRetries", inherits = FALSE, envir = .spadesEnv) + needPersist)
 
-            keepLoci <- spreads[loci] %fin% which(tooSmall & inactive)
-            events <- c(loci[keepLoci], events)
+            if (spreadStateExists) {
+              whSmallInactive <- which(tooSmall & inactive)
+              spreadsSmallInactive <- spreads[spreads[, "id"] %in% whSmallInactive, , drop = FALSE]
+              if (needPersistJump) {
+                message("Jumping to new active location, up to 1000 m away")
+                mmm <- SpaDES::rings(landscape, loci = spreadsSmallInactive[, "indices"],
+                                     maxRadius = 1000, minRadius = 1,
+                                     returnIndices = TRUE)
+                wh <- mmm[, list(whKeepLoci = resample(.I, 1)), by = id]$whKeepLoci
+              } else {
+                for (whSI in whSmallInactive) {
+                  wh <- which(spreads[, "id"] == whSI)
+                  wh <- tail(wh, 2) # pick last two ones from all inactive cells
+                  keepLoci <- spreads[wh, "indices"]
+                  events <- c(keepLoci, events)
+                  spreads[wh, "active"] <- 1
+                }
+              }
+            } else {
+              keepLoci <- spreads[loci] %fin% which(tooSmall & inactive)
+              events <- c(loci[keepLoci], events)
+            }
+
           }
         }
       }
@@ -1020,7 +1113,7 @@ setMethod(
     } # end of while loop
 
     # Convert the data back to raster
-    if (!allowOverlap & !returnDistances) {
+    if (!allowOverlap & !returnDistances & !spreadStateExists) {
       if (lowMemory) {
         wh <- ffwhich(spreads, spreads > 0) %>% as.ram
         if (returnIndices) {
@@ -1059,14 +1152,16 @@ setMethod(
     }
 
     if (returnIndices) {
-      if (allowOverlap | returnDistances) {
+      if (allowOverlap | returnDistances | spreadStateExists) {
         keepCols <- c(3, 1, 2, 4)
         if (circle) keepCols <- c(keepCols, 5)
-        allCells <- data.table(spreads[, keepCols]) # change column order to match non allowOverlap
+        allCells <- data.table(spreads[, keepCols, drop=FALSE]) # change column order to match non allowOverlap
         set(allCells, , j = "active", as.logical(allCells$active))
+        setkeyv(allCells, "id")
+
       } else {
         allCells <- rbindlist(list(active, completed)) # active first, so next line will keep active
-        allCells <- allCells[!duplicated(allCells$indices)] # some "completed" cells are still active. Keep the active ones.
+        #allCells <- allCells[!duplicated(allCells$indices)] # some "completed" cells are still active. Keep the active ones.
         # setkeyv(completed, c("id","indices"))
         # setkeyv(active, c("id","indices"))
         # allCells <- completed[active, active := TRUE] #rbindlist(list(completed, active)) # not a copy
@@ -1092,6 +1187,9 @@ setMethod(
         allCells <- dtToJoin[allCells]
       }
       allCells[]
+      if (exists("numRetries", envir = .spadesEnv)) {
+        if (sum(allCells$active) == 0) rm("numRetries", envir = .spadesEnv)
+      }
       return(allCells)
     }
 

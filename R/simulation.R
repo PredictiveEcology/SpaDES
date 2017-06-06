@@ -272,7 +272,8 @@ setMethod(
             sim <- Cache(FUN = sim@.envir$.inputObjects, sim = sim,
                          objects = moduleSpecificObjects,
                          notOlderThan = notOlderThan,
-                         outputObjects = moduleSpecificOutputObjects)
+                         outputObjects = moduleSpecificOutputObjects,
+                         userTags=c(paste0("module:",m),paste0("eventType:.inputObjects")))
           } else {
             message("Running .inputObjects for ", m)
             .modifySearchPath(pkgs = sim@depends@dependencies[[i]]@reqdPkgs)
@@ -354,7 +355,7 @@ setMethod(
 #' @param params A list of lists of the form list(moduleName=list(param1=value, param2=value)).
 #' See details.
 #'
-#' @param modules A named list of character strings specfying the names
+#' @param modules A named list of character strings specifying the names
 #' of modules to be loaded for the simulation. Note: the module name
 #' should correspond to the R source file from which the module is loaded.
 #' Example: a module named "caribou" will be sourced form the file
@@ -387,7 +388,7 @@ setMethod(
 #' \code{saveTime} (numeric). See \code{\link{outputs}} and
 #' \code{vignette("ii-modules")} section about outputs.
 #'
-#' @param loadOrder  An optional list of module names specfiying the order in
+#' @param loadOrder  An optional list of module names specifying the order in
 #'                   which to load the modules. If not specified, the module
 #'                   load order will be determined automatically.
 #'
@@ -980,6 +981,7 @@ setMethod(
 #'
 #' @include helpers.R
 #' @importFrom data.table data.table rbindlist setkey
+#' @importFrom stringi stri_pad_right stri_pad stri_length
 # @importFrom utils tail
 #' @export
 #' @keywords internal
@@ -1056,16 +1058,17 @@ setMethod(
             if (isTRUE(debug[[i]]) | debug[[i]] == "current") {
               if (NROW(cur) > 0) {
                 evnts1 <- data.frame(current(sim))
-                widths <- str_length(format(evnts1))
+                widths <- stri_length(format(evnts1))
                 .spadesEnv[[".spadesDebugWidth"]] <-
                   pmax(widths, .spadesEnv[[".spadesDebugWidth"]])
                 evnts1[1L, ] <-
-                  str_pad(format(evnts1), side = "right", .spadesEnv[[".spadesDebugWidth"]])
+                  stri_pad_right(format(evnts1), .spadesEnv[[".spadesDebugWidth"]])
 
                 if (.spadesEnv[[".spadesDebugFirst"]]) {
                   evnts2 <- evnts1
+                  #browser()
                   evnts2[1L:2L, ] <- rbind(
-                    str_pad(names(evnts1), .spadesEnv[[".spadesDebugWidth"]]),
+                    stri_pad(names(evnts1), .spadesEnv[[".spadesDebugWidth"]]),
                     evnts1)
                   cat("This is the current event, printed as it is happening:\n")
                   write.table(
@@ -1152,7 +1155,8 @@ setMethod(
                             objects = moduleSpecificObjects,
                             notOlderThan = notOlderThan,
                             outputObjects = moduleSpecificOutputObjects,
-                            cacheRepo = sim@paths[["cachePath"]])
+                            cacheRepo = sim@paths[["cachePath"]],
+                            userTags = c("function:doEvent"))
              } else {
 
                sim <- get(moduleCall,
@@ -1511,7 +1515,6 @@ setMethod(
 #' @export
 #' @docType methods
 #' @rdname spades
-#' @importFrom stringr str_pad str_length
 #' @seealso \code{\link{experiment}} for using replication with \code{spades}.
 #'
 #' @author Alex Chubaty
@@ -1672,8 +1675,8 @@ setMethod(
          archivist::createLocalRepo(paths(sim)$cachePath)
 
       return(
-        SpaDES::cache(
-          sim@paths$cachePath,
+        Cache(
+          cacheRepo=sim@paths$cachePath,
           spades,
           sim = sim,
           debug = debug,
