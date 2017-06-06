@@ -850,12 +850,12 @@ setMethod(
     if (is(object, "RasterStack") | is(object, "RasterBrick")) {
       dig <- suppressWarnings(list(dim(object), res(object), crs(object), extent(object),
                                    lapply(object@layers, function(yy) {
-                                     if(inMemory(yy)) {
+                                     #if(inMemory(yy)) {
                                        #yy@legend@colortable <- character()
-                                       digestRasterInMemory(yy)
-                                     } else {
-                                       digest::digest(yy@data, length = compareRasterFileLength, algo = algo)
-                                     }
+                                       digestRaster(yy, compareRasterFileLength, algo)
+                                     #} else {
+                                      # digestRasterFromDisk(object, compareRasterFileLength, algo)
+                                     #}
 
                                    })))
       if (nchar(object@filename) > 0) {
@@ -864,20 +864,14 @@ setMethod(
         dig <- append(dig, digest(file = object@filename, length = compareRasterFileLength))
       }
     } else {
-      if(inMemory(object)) {
+      #if(inMemory(object)) {
         #object@legend@colortable <- character()
-        dig <- suppressWarnings(digestRasterInMemory(object))
-      } else {
-        dig <- suppressWarnings(list(dim(object), res(object), crs(object), extent(object),
-                                     digest::digest(object@data, length = compareRasterFileLength, algo = algo)))
+      dig <- suppressWarnings(digestRaster(object, compareRasterFileLength, algo))
+      #} else {
+      #  dig <- suppressWarnings(digestRasterFromDisk(object, compareRasterFileLength, algo))
 
-      }
-      if (nchar(object@file@name) > 0) {
-        # if the Raster is on disk, has the first compareRasterFileLength characters;
-        dig <- append(dig,
-                      digest::digest(file = object@file@name, length = compareRasterFileLength,
-                                     algo = algo))
-      }
+      #}
+      
     }
     return(dig)
   })
@@ -910,10 +904,18 @@ setMethod(
 
 
 #' @rdname makeDigestible
-digestRasterInMemory <- function(object) {
-  fastdigest::fastdigest(list(dim(object), res(object), crs(object), extent(object),
+digestRaster <- function(object, compareRasterFileLength, algo) {
+  dig <- fastdigest::fastdigest(list(dim(object), res(object), crs(object), extent(object),
        object@data))
+  if (nchar(object@file@name) > 0) {
+    # if the Raster is on disk, has the first compareRasterFileLength characters;
+    dig <- fastdigest(
+                append(dig,
+                      digest::digest(file = object@file@name, length = compareRasterFileLength,
+                                 algo = algo)))
+  }
 }
+
 
 ################################################################################
 #' Clear erroneous archivist artifacts
