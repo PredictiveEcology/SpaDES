@@ -851,8 +851,8 @@ setMethod(
       dig <- suppressWarnings(list(dim(object), res(object), crs(object), extent(object),
                                    lapply(object@layers, function(yy) {
                                      if(inMemory(yy)) {
-                                       yy@legend@colortable <- character()
-                                       fastdigest::fastdigest(yy)
+                                       #yy@legend@colortable <- character()
+                                       digestRasterInMemory(yy)
                                      } else {
                                        digest::digest(yy@data, length = compareRasterFileLength, algo = algo)
                                      }
@@ -865,9 +865,8 @@ setMethod(
       }
     } else {
       if(inMemory(object)) {
-        object@legend@colortable <- character()
-        dig <- suppressWarnings(list(dim(object), res(object), crs(object), extent(object),
-                                     fastdigest::fastdigest(object@data)))
+        #object@legend@colortable <- character()
+        dig <- suppressWarnings(digestRasterInMemory(object))
       } else {
         dig <- suppressWarnings(list(dim(object), res(object), crs(object), extent(object),
                                      digest::digest(object@data, length = compareRasterFileLength, algo = algo)))
@@ -908,6 +907,13 @@ setMethod(
     #dig <- digest::digest(bbb, algo = algo)
     return(dig)
   })
+
+
+#' @rdname makeDigestible
+digestRasterInMemory <- function(object) {
+  fastdigest::fastdigest(list(dim(object), res(object), crs(object), extent(object),
+       object@data))
+}
 
 ################################################################################
 #' Clear erroneous archivist artifacts
