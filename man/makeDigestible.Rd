@@ -6,6 +6,7 @@
 \alias{makeDigestible,simList-method}
 \alias{makeDigestible,Raster-method}
 \alias{makeDigestible,Spatial-method}
+\alias{digestRaster}
 \title{Remove any reference to environments or filepaths in objects}
 \usage{
 makeDigestible(object, objects, compareRasterFileLength = 1e+06,
@@ -17,6 +18,8 @@ makeDigestible(object, objects, compareRasterFileLength = 1e+06,
 \S4method{makeDigestible}{Raster}(object, compareRasterFileLength, algo)
 
 \S4method{makeDigestible}{Spatial}(object, compareRasterFileLength, algo)
+
+digestRaster(object, compareRasterFileLength, algo)
 }
 \arguments{
 \item{object}{an object to convert to a 'digestible' state}

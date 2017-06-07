@@ -10,11 +10,11 @@
 \usage{
 Cache(FUN, ..., notOlderThan = NULL, objects = NULL, outputObjects = NULL,
   algo = "xxhash64", cacheRepo = NULL, compareRasterFileLength = 1e+06,
-  userTags = c())
+  userTags = c(), debugCache = FALSE)
 
 \S4method{Cache}{ANY}(FUN, ..., notOlderThan = NULL, objects = NULL,
   outputObjects = NULL, algo = "xxhash64", cacheRepo = NULL,
-  compareRasterFileLength = 1e+06, userTags = c())
+  compareRasterFileLength = 1e+06, userTags = c(), debugCache = FALSE)
 
 cache(cacheRepo = NULL, FUN, ..., notOlderThan = NULL, objects = NULL,
   outputObjects = NULL, algo = "xxhash64")
@@ -51,6 +51,15 @@ Note: uses \code{\link[digest]{digest}} for file-backed Raster.
 Default 1e6. Passed to \code{prepareFileBackedRaster}.}
 
 \item{userTags}{A character vector with Tags. These Tags will be added to the repository along with the artifact.}
+
+\item{debugCache}{Logical. If \code{TRUE}, then the returned object from the Cache
+function will have two attributes, "debugCache1" and "debugCache2" which 
+are the entire list(...) and that same object, but 
+after all "makeDigestible" calls, at the moment that it is digested using
+\code{fastdigest}, respectively. This \code{attr(mySimOut, "debugCache2")} can 
+then be compared to 
+a subsequent call and individual items within the object 
+\code{attr(mySimOut, "debugCache1")} can be compared.}
 }
 \value{
 As with \code{\link[archivist]{cache}}, the return is either the return
