@@ -351,9 +351,13 @@ setMethod(
     } else {
       functionCall <- grep(sys.calls(), pattern = "^Cache|^SpaDES::Cache", value = TRUE)
       if(length(functionCall)) {
-        functionName <- match.call(Cache, 
-                                   parse(text = functionCall[length(functionCall)]))$FUN
-        functionName <- deparse(functionName)
+        for(fns in rev(functionCall)) { # this is a work around for R-devel that produces a different final call in the 
+                                        #  sys.calls() stack which is NOT .Method ... and produces a Cache(FUN = FUN...)
+          functionName <- match.call(Cache, 
+                                   parse(text = fns))$FUN
+          functionName <- deparse(functionName)
+          if(functionName!="FUN") break
+        }
       } else {
         functionName <- ""
       }
