@@ -138,12 +138,12 @@ if (getRversion() >= "3.1.0") {
 #'        Default 1e6. Passed to \code{prepareFileBackedRaster}.
 #'
 #' @param debugCache Logical. If \code{TRUE}, then the returned object from the Cache
-#'        function will have two attributes, "debugCache1" and "debugCache2" which 
-#'        are the entire list(...) and that same object, but 
+#'        function will have two attributes, "debugCache1" and "debugCache2" which
+#'        are the entire list(...) and that same object, but
 #'        after all "makeDigestible" calls, at the moment that it is digested using
-#'        \code{fastdigest}, respectively. This \code{attr(mySimOut, "debugCache2")} can 
-#'        then be compared to 
-#'        a subsequent call and individual items within the object 
+#'        \code{fastdigest}, respectively. This \code{attr(mySimOut, "debugCache2")} can
+#'        then be compared to
+#'        a subsequent call and individual items within the object
 #'        \code{attr(mySimOut, "debugCache1")} can be compared.
 #' @inheritParams digest::digest
 #'
@@ -351,9 +351,9 @@ setMethod(
     } else {
       functionCall <- grep(sys.calls(), pattern = "^Cache|^SpaDES::Cache", value = TRUE)
       if(length(functionCall)) {
-        for(fns in rev(functionCall)) { # this is a work around for R-devel that produces a different final call in the 
+        for(fns in rev(functionCall)) { # this is a work around for R-devel that produces a different final call in the
                                         #  sys.calls() stack which is NOT .Method ... and produces a Cache(FUN = FUN...)
-          functionName <- match.call(Cache, 
+          functionName <- match.call(Cache,
                                    parse(text = fns))$FUN
           functionName <- deparse(functionName)
           if(functionName!="FUN") break
@@ -361,7 +361,7 @@ setMethod(
       } else {
         functionName <- ""
       }
-      
+
       tmpl$.FUN <- format(FUN) # This is changed to allow copying between computers
     }
 
@@ -492,7 +492,7 @@ setMethod(
       attr(output, "debugCache1") <- attr(outputToSave, "debugCache1") <- list(...)
       attr(output, "debugCache2") <- attr(outputToSave, "debugCache2") <- tmpl
       }
-    
+
     while (!written) {
       objSize <- object.size(outputToSave)
       if (length(whSimList) > 0) { # can be a simList or list of simLists
@@ -814,7 +814,7 @@ setMethod(
     }))
 
     # Remove the NULL entries in the @.list
-    
+
     envirHash <- envirHash[!sapply(envirHash, is.null)]
     envirHash <- sortDotsUnderscoreFirst(envirHash)
 
@@ -875,7 +875,7 @@ setMethod(
       #  dig <- suppressWarnings(digestRasterFromDisk(object, compareRasterFileLength, algo))
 
       #}
-      
+
     }
     return(dig)
   })
@@ -954,7 +954,7 @@ setMethod(
     md5hashInBackpack[toRemove] %>%
       sapply(., rmFromLocalRepo, repoDir = repoDir)
     return(invisible(md5hashInBackpack[toRemove]))
-  })
+})
 
 #' @export
 #' @importFrom archivist showLocalRepo rmFromLocalRepo
@@ -964,7 +964,7 @@ setGeneric("cache", signature = "...",
            function(cacheRepo = NULL, FUN, ..., notOlderThan = NULL,
                     objects = NULL, outputObjects = NULL, algo = "xxhash64") {
              archivist::cache(cacheRepo, FUN, ..., notOlderThan, algo)
-           })
+})
 
 #' @export
 #' @rdname cache
@@ -974,7 +974,7 @@ setMethod(
                         outputObjects, algo) {
     Cache(FUN = FUN, ..., notOlderThan = notOlderThan, objects = objects,
           outputObjects = outputObjects, algo = algo, cacheRepo = cacheRepo)
-  })
+})
 
 #' Alternative to \code{archivist::saveToRepo} for rasters
 #'
@@ -1087,23 +1087,20 @@ prepareFileBackedRaster <- function(obj, repoDir = NULL, compareRasterFileLength
           slot(slot(slot(obj, "layers")[[i]], "file"), "name") <- saveFilename[i]
         }
       } else {
-        if(!isStack) {
+        if (!isStack) {
           slot(slot(obj, "file"), "name") <- saveFilename
         } else {
-          for(i in seq_len(nlayers(obj))) {
+          for (i in seq_len(nlayers(obj))) {
             whFilename <- match(basename(saveFilename), basename(curFilenames))
             slot(slot(obj@layers[[i]], "file"), "name") <- saveFilename[whFilename]
           }
-
         }
-
       }
     } else {
       checkPath(dirname(saveFilename), create = TRUE)
-      if(!inMemory(obj)) {
+      if (!inMemory(obj)) {
         obj <- writeRaster(obj, filename = saveFilename, datatype = dataType(obj))
       }
-
     }
   # } else {
   #   if(isStack) {
