@@ -350,18 +350,18 @@ setMethod(
       functionName <- FUN@generic
     } else {
       functionCall <- grep(sys.calls(), pattern = "^Cache|^SpaDES::Cache", value = TRUE)
-      if(length(functionCall)) {
-        for(fns in rev(functionCall)) { # this is a work around for R-devel that produces a different final call in the
-                                        #  sys.calls() stack which is NOT .Method ... and produces a Cache(FUN = FUN...)
+      if (length(functionCall)) {
+        # for() loop is a work around for R-devel that produces a different final call in the
+        # sys.calls() stack which is NOT .Method ... and produces a Cache(FUN = FUN...)
+        for (fns in rev(functionCall)) {
           functionName <- match.call(Cache,
                                    parse(text = fns))$FUN
           functionName <- deparse(functionName)
-          if(functionName!="FUN") break
+          if (functionName != "FUN") break
         }
       } else {
         functionName <- ""
       }
-
       tmpl$.FUN <- format(FUN) # This is changed to allow copying between computers
     }
 
@@ -397,7 +397,8 @@ setMethod(
         out <- loadFromLocalRepo(isInRepo$artifact[lastOne],
                                  repoDir = cacheRepo, value = TRUE)
         archivist::addTagsRepo(isInRepo$artifact[lastOne],
-                               repoDir = cacheRepo, tags = paste0("accessed:",Sys.time()))
+                               repoDir = cacheRepo,
+                               tags = paste0("accessed:", Sys.time()))
 
         if (length(whSimList) > 0) {
           simListOut <- out # gets all items except objects in list(...)
@@ -418,10 +419,17 @@ setMethod(
           return(simListOut)
         }
 
-        if(is(out, "RasterLayer")) out <-  prepareFileBackedRaster(out, repoDir = cacheRepo)
+        if (is(out, "RasterLayer")) {
+          out <-  prepareFileBackedRaster(out, repoDir = cacheRepo)
+        }
         isNullOutput <- FALSE
-        if(is.character(out)) {if(length(out)==1) {if(out=="Null") isNullOutput <- TRUE}} # need something to attach tags to if it is actually NULL
-        if(isNullOutput) return(NULL) else return(out)
+        if (is.character(out)) {
+          if (length(out) == 1) {
+            # need something to attach tags to if it is actually NULL
+            if (out == "Null") isNullOutput <- TRUE
+          }
+        }
+        if (isNullOutput) return(NULL) else return(out)
 
         #if(isTRUE(tryCatch(out=="NULL", error = function(x) FALSE))) return(NULL) else return(out)
       }
@@ -441,8 +449,8 @@ setMethod(
       }
     }
 
-    isNullOutput <- if(is.null(output)) TRUE else FALSE # need something to attach tags to if it is actually NULL
-    if(isNullOutput) output <- "NULL"
+    isNullOutput <- if (is.null(output)) TRUE else FALSE # need something to attach tags to if it is actually NULL
+    if (isNullOutput) output <- "NULL"
 
     attr(output, "tags") <- paste0("cacheId:", outputHash)
     attr(output, "call") <- ""
@@ -468,13 +476,13 @@ setMethod(
     # written
     written <- FALSE
     outputToSaveIsList <- is.list(outputToSave)
-    if(outputToSaveIsList) {
+    if (outputToSaveIsList) {
       rasters <- unlist(lapply(outputToSave, is, "Raster"))
     } else {
       rasters <- is(outputToSave, "Raster")
     }
     if (any(rasters)) {
-      if(outputToSaveIsList) {
+      if (outputToSaveIsList) {
         outputToSave[rasters] <- lapply(outputToSave[rasters], function(x)
           prepareFileBackedRaster(x, repoDir = cacheRepo))#, archiveData = TRUE,
       } else {
@@ -488,16 +496,16 @@ setMethod(
       #archiveSessionInfo = FALSE,
       #archiveMiniature = FALSE, rememberName = FALSE, silent = TRUE)
     }
-    if(debugCache) {
+    if (debugCache) {
       attr(output, "debugCache1") <- attr(outputToSave, "debugCache1") <- list(...)
       attr(output, "debugCache2") <- attr(outputToSave, "debugCache2") <- tmpl
-      }
+    }
 
     while (!written) {
       objSize <- object.size(outputToSave)
       if (length(whSimList) > 0) { # can be a simList or list of simLists
 
-        if(is.list(output)) { # list of simLists
+        if (is.list(output)) { # list of simLists
           objS <- lapply(output, function(x) lapply(x@.envir, object.size))
         } else {
           objS <- lapply(output@.envir, object.size)
@@ -526,8 +534,8 @@ setMethod(
       }
     }
 
-    if(isNullOutput) return(NULL) else return(output)
-  })
+    if (isNullOutput) return(NULL) else return(output)
+})
 
 #' @inheritParams spades
 #' @inheritParams cache
@@ -672,8 +680,7 @@ setMethod(
 #' \dontrun{
 #' showCache(mySim)
 #' }
-setGeneric("showCache", function(x, userTags = character(),
-                                 after, before, ...) {
+setGeneric("showCache", function(x, userTags = character(), after, before, ...) {
   standardGeneric("showCache")
 })
 
@@ -704,13 +711,12 @@ setMethod(
               grepl(tagKey, pattern = ut) |
               grepl(artifact, pattern = ut)]
           setkey(objsDT2, "artifact")
-          objsDT <- objsDT[unique(objsDT2,by="artifact")[, artifact]] # merge each userTags
+          objsDT <- objsDT[unique(objsDT2, by = "artifact")[, artifact]] # merge each userTags
         }
       }
-
     }
     objsDT
-  })
+})
 
 ################################################################################
 #' Remove any reference to environments or filepaths in objects
@@ -769,17 +775,15 @@ setGeneric("makeDigestible", function(object, objects,
 setMethod(
   "makeDigestible",
   signature = "simList",
-  definition = function(object, objects, compareRasterFileLength,
-                        algo) {
-
-    objectsToDigest <- sort(ls(object@.envir, all.names = TRUE), method="radix")
+  definition = function(object, objects, compareRasterFileLength, algo) {
+    objectsToDigest <- sort(ls(object@.envir, all.names = TRUE), method = "radix")
     if (!missing(objects)) {
       objectsToDigest <- objectsToDigest[objectsToDigest %in% objects]
     }
     envirHash <- (sapply(objectsToDigest, function(x) {
       if (!(x == ".sessionInfo")) {
         obj <- get(x, envir = envir(object))
-        if(is(obj, "cluster")) {
+        if (is(obj, "cluster")) {
           dig <- NULL
         } else {
           if (!is(obj, "function") & !is(obj, "expression")) {
@@ -791,8 +795,8 @@ setMethod(
             } else if (is(obj, "Spatial")) {
               dig <- makeDigestible(obj, algo = algo)
             } else {
-              if(is.character(obj)) {
-                if(any(grepl("\\/", obj))) { # test for paths
+              if (is.character(obj)) {
+                if (any(grepl("\\/", obj))) { # test for paths
                   obj <- basename(obj)
                 }
               }
@@ -808,7 +812,7 @@ setMethod(
       } else {
         # for .sessionInfo, just keep the major and minor R version
         dig <- fastdigest::fastdigest(get(x, envir = envir(object))[[1]] %>%
-                                .[c("major", "minor")])
+                                        .[c("major", "minor")])
       }
       return(dig)
     }))
@@ -841,8 +845,7 @@ setMethod(
     object@params <- lapply(object@params, function(x) sortDotsUnderscoreFirst(x))
 
     return(object)
-  })
-
+})
 
 #' @rdname makeDigestible
 #' @exportMethod makeDigestible
@@ -852,16 +855,18 @@ setMethod(
   definition = function(object, compareRasterFileLength, algo) {
 
     if (is(object, "RasterStack") | is(object, "RasterBrick")) {
-      dig <- suppressWarnings(list(dim(object), res(object), crs(object), extent(object),
-                                   lapply(object@layers, function(yy) {
-                                     #if(inMemory(yy)) {
-                                       #yy@legend@colortable <- character()
-                                       digestRaster(yy, compareRasterFileLength, algo)
-                                     #} else {
-                                      # digestRasterFromDisk(object, compareRasterFileLength, algo)
-                                     #}
-
-                                   })))
+      dig <- suppressWarnings(
+        list(dim(object), res(object), crs(object), extent(object),
+             lapply(object@layers, function(yy) {
+               #if(inMemory(yy)) {
+               #yy@legend@colortable <- character()
+               digestRaster(yy, compareRasterFileLength, algo)
+               #} else {
+               # digestRasterFromDisk(object, compareRasterFileLength, algo)
+               #}
+              })
+        )
+      )
       if (nchar(object@filename) > 0) {
         # if the Raster is on disk, has the first compareRasterFileLength characters;
         # uses SpaDES:::digest on the file
@@ -873,12 +878,10 @@ setMethod(
       dig <- suppressWarnings(digestRaster(object, compareRasterFileLength, algo))
       #} else {
       #  dig <- suppressWarnings(digestRasterFromDisk(object, compareRasterFileLength, algo))
-
       #}
-
     }
     return(dig)
-  })
+})
 
 #' @rdname makeDigestible
 #' @exportMethod makeDigestible
@@ -886,17 +889,16 @@ setMethod(
   "makeDigestible",
   signature = "Spatial",
   definition = function(object, compareRasterFileLength, algo) {
-
-    if(is(object, "SpatialPoints")) {
+    if (is(object, "SpatialPoints")) {
       aaa <- as.data.frame(object)
     } else {
       aaa <- suppressMessages(broom::tidy(object))
     }
 
     # The following Rounding is necessary to make digest equal on linux and windows
-    for(i in names(aaa)) {
-      if(!is.integer(aaa[,i])) {
-        if(is.numeric(aaa[,i]))
+    for (i in names(aaa)) {
+      if (!is.integer(aaa[,i])) {
+        if (is.numeric(aaa[,i]))
           aaa[,i] <- round(aaa[,i],4)
       }
     }
@@ -906,20 +908,18 @@ setMethod(
     return(dig)
   })
 
-
 #' @rdname makeDigestible
 digestRaster <- function(object, compareRasterFileLength, algo) {
-  dig <- fastdigest::fastdigest(list(dim(object), res(object), crs(object), extent(object),
-       object@data))
+  dig <- fastdigest::fastdigest(list(dim(object), res(object), crs(object),
+                                     extent(object), object@data))
   if (nchar(object@file@name) > 0) {
     # if the Raster is on disk, has the first compareRasterFileLength characters;
     dig <- fastdigest(
-                append(dig,
-                      digest::digest(file = object@file@name, length = compareRasterFileLength,
+      append(dig, digest::digest(file = object@file@name,
+                                 length = compareRasterFileLength,
                                  algo = algo)))
   }
 }
-
 
 ################################################################################
 #' Clear erroneous archivist artifacts
