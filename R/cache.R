@@ -283,7 +283,9 @@ setMethod(
     if (length(whFilename) > 0) {
       tmpl[whFilename] <- lapply(whFilename, function(xx) {
         if (any(unlist(lapply(tmpl[[xx]], file.exists))))
-          basename(tmpl[[xx]])
+          digest::digest(file = tmpl[[xx]],
+                         length = compareRasterFileLength,
+                         algo=algo)
         else
           tmpl[[xx]]
       })
