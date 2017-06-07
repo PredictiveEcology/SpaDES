@@ -73,7 +73,7 @@ test_that("test event-level cache", {
   # Test that cached part comes up identical in both (all maps but Fires),
   #   but non-cached part are different (Fires should be different because stochastic)
   expect_equal(landscapeMaps1, landscapeMaps2)
-  expect_false(isTRUE(all.equal(fireMap1, fireMap2)))
+  expect_false(isTRUE(suppressWarnings(all.equal(fireMap1, fireMap2))))
 
   clearCache(sims)
 })
@@ -136,7 +136,7 @@ test_that("test module-level cache", {
   # Test that cached part comes up identical in both (all maps but Fires),
   #   but non-cached part are different (Fires should be different because stochastic)
   expect_equal(landscapeMaps1, landscapeMaps2)
-  expect_false(isTRUE(all.equal(fireMap1, fireMap2)))
+  expect_false(isTRUE(suppressWarnings(all.equal(fireMap1, fireMap2))))
 
   clearCache(sims)
 })
