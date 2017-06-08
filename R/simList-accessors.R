@@ -637,9 +637,9 @@ setMethod("P",
                 return(sim@params[[module]][[param]])
               }
             } else {
-              inSimInit <- grep(sys.calls(), pattern=".parseModule")
+              inSimInit <- grep(sys.calls(), pattern = ".parseModule")
               if (any(inSimInit)) {
-                module <- get("m", sys.frame(grep(sys.calls(), pattern=".parseModule")[2]))
+                module <- get("m", sys.frame(grep(sys.calls(), pattern = ".parseModule")[2]))
                 if (is.null(param)) {
                   return(sim@params[[module]])
                 } else {
@@ -725,19 +725,17 @@ setMethod("parameters",
           definition = function(sim, asDF) {
             if (any(!unlist(lapply(depends(sim)@dependencies, is.null)))) {
               if (asDF) {
-                tmp <- lapply(depends(sim)@dependencies,
-                              function(x) {
-                                out <- x@parameters
-                       })
+                tmp <- lapply(depends(sim)@dependencies, function(x) {
+                  out <- x@parameters
+                })
                 tmp <- do.call(rbind, tmp)
               } else {
-                tmp <- lapply(depends(sim)@dependencies,
-                              function(x) {
-                                out <- lapply(seq_len(NROW(x@parameters)),
-                                              function(y) x@parameters[y, -1])
-                                names(out) <- x@parameters$paramName
-                                out
-                       })
+                tmp <- lapply(depends(sim)@dependencies, function(x) {
+                  out <- lapply(seq_len(NROW(x@parameters)),
+                                function(y) x@parameters[y, -1])
+                  names(out) <- x@parameters$paramName
+                  out
+                })
               }
             } else {
               tmp <- NULL
@@ -833,7 +831,7 @@ setReplaceMethod("checkpointInterval",
 #' Progress type can be one of  \code{"text"}, \code{"graphical"}, or \code{"shiny"}.
 #' Progress interval can be a numeric.
 #' These both can get set by passing a
-#' \code{.progress=list(type="graphical", interval=1)} into the \code{simInit} call.
+#' \code{.progress = list(type = "graphical", interval = 1)} into the \code{simInit} call.
 #' See examples.
 #'
 #' @inheritParams params
@@ -845,12 +843,12 @@ setReplaceMethod("checkpointInterval",
 #'
 #' @examples
 #' \dontrun{
-#' mySim <- simInit(times=list(start=0.0, end=100.0),
-#'                  params=list(.globals=list(stackName="landscape"),
-#'                              .progress=list(type="text", interval=10),
+#' mySim <- simInit(times = list(start=0.0, end=100.0),
+#'                  params = list(.globals = list(stackName = "landscape"),
+#'                              .progress = list(type = "text", interval = 10),
 #'                              .checkpoint = list(interval = 10, file = "chkpnt.RData")),
-#'                  modules=list("randomLandscapes"),
-#'                  paths=list(modulePath=system.file("sampleModules", package="SpaDES")))
+#'                  modules = list("randomLandscapes"),
+#'                  paths = list(modulePath=system.file("sampleModules", package = "SpaDES")))
 #'
 #' # progress bar
 #' progressType(mySim) # "text"
@@ -1155,7 +1153,7 @@ setReplaceMethod(
         value <- data.frame(value, stringsAsFactors = FALSE)
      }
 #      fileTable <- .fileTableIn()
-#      needRenameArgs <- grepl(names(value), pattern="arg[s]?$")
+#      needRenameArgs <- grepl(names(value), pattern = "arg[s]?$")
 #      if (any(needRenameArgs)) {
 #        colnames(value)[needRenameArgs] <-
 #          .fileTableInCols[pmatch("arg", .fileTableInCols)]
@@ -1166,7 +1164,7 @@ setReplaceMethod(
 #      columns2 <- pmatch(names(value), names(fileTable))
 #      sim@inputs <- rbind(value[,na.omit(columns), drop = FALSE], fileTable[,columns2])
 #      if (any(is.na(columns))) {
-#        sim@inputs[,names(fileTable[,is.na(columns)])] <- NA
+#        sim@inputs[,names(fileTable[, is.na(columns)])] <- NA
 #      }
      sim@inputs <- .fillInputRows(value, start(sim))
    } else {
@@ -1245,12 +1243,11 @@ setReplaceMethod(
 #' i.e., at the very end. \cr
 #'
 #' \code{arguments} \tab is a list of lists of named arguments, one list for each
-#' \code{fun}. For example, if \code{fun="write.csv"},
-#' \code{arguments = list(row.names = TRUE)}
-#' will pass the argument "row.names = TRUE" to write.csv  If there is only one list,
+#' \code{fun}. For example, if \code{fun = "write.csv"},
+#' \code{arguments = list(row.names = TRUE)} will pass the argument
+#' \code{row.names = TRUE} to \code{write.csv}  If there is only one list,
 #' then it is assumed to apply to all files and will be recycled as per normal R
 #' rules of recycling for each \code{fun}.\cr
-#'
 #' }
 #'
 #' See the modules vignette for more details (\code{browseVignettes("SpaDES")}).
@@ -1283,27 +1280,26 @@ setReplaceMethod(
 #' tempObj <- 1:10
 #'
 #' # Can add data.frame of outputs directly into simInit call
-#' sim <- simInit(objects=c("tempObj"),
-#'   outputs=data.frame(objectName="tempObj"),
-#'   paths=list(outputPath=tmpdir))
+#' sim <- simInit(objects = c("tempObj"),
+#'                outputs = data.frame(objectName = "tempObj"),
+#'                paths = list(outputPath = tmpdir))
 #' outputs(sim) # To see what will be saved, when, what filename
 #' sim <- spades(sim)
 #' outputs(sim) # To see that it was saved, when, what filename
 #'
 #' # Also can add using assignment after a simList object has been made
-#' sim <- simInit(objects=c("tempObj"),
-#'   paths=list(outputPath=tmpdir))
-#' outputs(sim) <- data.frame(objectName = "tempObj", saveTime=1:10)
+#' sim <- simInit(objects = c("tempObj"), paths = list(outputPath = tmpdir))
+#' outputs(sim) <- data.frame(objectName = "tempObj", saveTime = 1:10)
 #' sim <- spades(sim)
 #' outputs(sim) # To see that it was saved, when, what filename.
 #'
 #' # can do highly variable saving
 #' tempObj2 <- paste("val",1:10)
 #' df1 <- data.frame(col1 = tempObj, col2 = tempObj2)
-#' sim <- simInit(objects=c("tempObj", "tempObj2", "df1"),
-#'   paths=list(outputPath=tmpdir))
+#' sim <- simInit(objects = c("tempObj", "tempObj2", "df1"),
+#'   paths=list(outputPath = tmpdir))
 #' outputs(sim) = data.frame(
-#'      objectName = c(rep("tempObj",2), rep("tempObj2", 3), "df1"),
+#'      objectName = c(rep("tempObj", 2), rep("tempObj2", 3), "df1"),
 #'      saveTime = c(c(1,4), c(2,6,7), end(sim)),
 #'      fun = c(rep("saveRDS", 5), "write.csv"),
 #'      package = c(rep("base", 5), "utils"),
@@ -1315,7 +1311,7 @@ setReplaceMethod(
 #' outputs(sim)
 #'
 #' # read one back in just to test it all worked as planned
-#' newObj <- read.csv(dir(tmpdir, pattern="second10.csv", full.name=TRUE))
+#' newObj <- read.csv(dir(tmpdir, pattern = "second10.csv", full.name = TRUE))
 #' newObj
 #'
 #' # using saving with SpaDES-aware methods
@@ -1324,22 +1320,21 @@ setReplaceMethod(
 #'
 #' library(raster)
 #' if (require(rgdal)) {
-#'   ras <- raster(ncol=4, nrow=5)
+#'   ras <- raster(ncol = 4, nrow = 5)
 #'   ras[] <- 1:20
 #'
-#'   sim <- simInit(objects=c("ras"),
-#'     paths=list(outputPath=tmpdir))
+#'   sim <- simInit(objects = c("ras"), paths = list(outputPath = tmpdir))
 #'   outputs(sim) = data.frame(
-#'        file="test",
-#'        fun = "writeRaster",
-#'        package = "raster",
-#'        objectName = "ras",
-#'        stringsAsFactors = FALSE)
+#'     file = "test",
+#'     fun = "writeRaster",
+#'     package = "raster",
+#'     objectName = "ras",
+#'     stringsAsFactors = FALSE)
 #'
-#'   outputArgs(sim)[[1]] <- list(format="GTiff") # see ?raster::writeFormats
+#'   outputArgs(sim)[[1]] <- list(format = "GTiff") # see ?raster::writeFormats
 #'   simOut <- spades(sim)
 #'   outputs(simOut)
-#'   newRas <- raster(dir(tmpdir, full.name=TRUE, pattern=".tif"))
+#'   newRas <- raster(dir(tmpdir, full.name = TRUE, pattern = ".tif"))
 #'   all.equal(newRas, ras) # Should be TRUE
 #' }
 #' # Clean up after
@@ -2776,7 +2771,7 @@ setMethod(
 #'     description = "insert module description here",
 #'     keywords = c("insert key words here"),
 #'     authors = c(person(c("First", "Middle"), "Last",
-#'                      email="email@example.com", role=c("aut", "cre"))),
+#'                        email = "email@example.com", role = c("aut", "cre"))),
 #'     childModules = character(0),
 #'     version = list(SpaDES = "1.3.1.9044", test = "0.0.1"),
 #'     spatialExtent = raster::extent(rep(NA_real_, 4)),

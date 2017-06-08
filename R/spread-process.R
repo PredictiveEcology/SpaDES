@@ -743,7 +743,7 @@ setMethod(
         # This commented block is the data.table way of doing the neighProbs -- ]
         # seems slower under early tests, because of the on the fly creation of a data.table
         # bbb <- data.table(potentials)
-        # numNeighsAvailable <- bbb[,.N,by="from"]$N
+        # numNeighsAvailable <- bbb[, .N, by = "from"]$N
         # if (length(numNeighsAvailable) != length(numNeighs)) {
         #   activeCellContinue <- loci %in% unique(potentials[, "from"])
         #   numNeighs <- numNeighs[activeCellContinue]
@@ -754,7 +754,7 @@ setMethod(
         # }
         # potentials <- as.matrix(bbb[, list(to = resample(to, numNeighs[.GRP])), by = "from"])
 
-        aaa <- split(seq_along(potentials[, toColumn[spreadStateExists+1]]),
+        aaa <- split(seq_along(potentials[, toColumn[spreadStateExists + 1]]),
                      potentials[, "from"]);
         if (length(aaa) != length(numNeighs)) {
           activeCellContinue <- loci %in% unique(potentials[, "from"])
@@ -767,7 +767,7 @@ setMethod(
           numNeighs[tmpB] <- unname(tmpA[tmpB])
 
         if (relativeSpreadProb) {
-          rescaledProbs <- tapply(spreadProbs, potentials[,"from"], function(x) {
+          rescaledProbs <- tapply(spreadProbs, potentials[, "from"], function(x) {
             x / sum(x, na.rm = TRUE)
           }, simplify = FALSE)
           neighIndexToKeep <- unlist(lapply(seq_along(aaa), function(x)
@@ -776,9 +776,9 @@ setMethod(
           neighIndexToKeep <- unlist(lapply(seq_along(aaa), function(x)
             resample(aaa[[x]], size = numNeighs[x])))
         }
-        potentials <- potentials[neighIndexToKeep,,drop=FALSE]
+        potentials <- potentials[neighIndexToKeep, , drop = FALSE]
         spreadProbs <- spreadProbs[neighIndexToKeep]
-        spreadProbs[spreadProbs>0] <- 1
+        spreadProbs[spreadProbs > 0] <- 1
 
       }
 
@@ -794,7 +794,7 @@ setMethod(
       #
       #   },dt={
       #   spreadProbs <- data.table(potentials, spreadProb = spreadProbs) %>%
-      #     .[,spreadProb:=spreadProb/sum(spreadProb),by="from"] %>% .$spreadProb
+      #     .[,spreadProb := spreadProb/sum(spreadProb), by = "from"] %>% .$spreadProb
       #   })
       #   print(paste("iteration", n, "; length =", NROW(potentials)))
       #   print(mb)
@@ -824,10 +824,10 @@ setMethod(
             a <- a[, !(colnames(a) %fin% c("dists")), drop = FALSE]
             # need 3 columns, id, x, y in both initialLociXY and a
             d <- distanceFromEachPoint(initialLociXY, a, angles = asymmetry) # d is sorted
-            cMR <- (n-1) * res(landscape)[1]
+            cMR <- (n - 1) * res(landscape)[1]
             if (!any(is.na(circleMaxRadius))) {
               # don't bother proceeding if circleMaxRadius is larger than current iteration
-              if (any(circleMaxRadius <= ( (n-1) * res(landscape)[1]))) {
+              if (any(circleMaxRadius <= ((n - 1) * res(landscape)[1]))) {
                 if (length(circleMaxRadius) > 1) { # if it is a vector of values
                   cMR <- circleMaxRadius[d[, "id"]]
                 } else {
@@ -975,7 +975,7 @@ setMethod(
         if (length(events) > 0) {
           # place new value at new cells that became active
           if (allowOverlap | returnDistances | spreadStateExists) {
-            fromCol <- colnames(potentials)=="from"
+            fromCol <- colnames(potentials) == "from"
 
             spreads <- rbind(spreads, potentials[,!fromCol])
             if ((returnDistances | spreadStateExists) & !allowOverlap) {
@@ -1032,7 +1032,8 @@ setMethod(
             rm(toKeepSR)
           }
         }
-      } else { # there are no potentials -- possibly from failed runif, or spreadProbs all 0
+      } else {
+        # there are no potentials -- possibly from failed runif, or spreadProbs all 0
         events <- NULL
       }
 
@@ -1041,9 +1042,8 @@ setMethod(
           if (spreadStateExists) {
             # tooSmall <- tabulate(spreads[c(spreadState[!keepers]$indices, spreadsIndices)],
             #                      length(maxSize)) < maxSize
-            tooSmall <- tabulate(spreads[,"id"], length(maxSize)) < maxSize
-            inactive <- tabulate(spreads[spreads[,"active"]==1,"id"], length(maxSize)) == 0
-
+            tooSmall <- tabulate(spreads[, "id"], length(maxSize)) < maxSize
+            inactive <- tabulate(spreads[spreads[, "active"] == 1, "id"], length(maxSize)) == 0
           } else {
             tooSmall <- tabulate(spreads, length(maxSize)) < maxSize
             inactive <- tabulate(spreads[events], length(maxSize)) == 0
@@ -1155,7 +1155,7 @@ setMethod(
       if (allowOverlap | returnDistances | spreadStateExists) {
         keepCols <- c(3, 1, 2, 4)
         if (circle) keepCols <- c(keepCols, 5)
-        allCells <- data.table(spreads[, keepCols, drop=FALSE]) # change column order to match non allowOverlap
+        allCells <- data.table(spreads[, keepCols, drop = FALSE]) # change column order to match non allowOverlap
         set(allCells, , j = "active", as.logical(allCells$active))
         setkeyv(allCells, "id")
 

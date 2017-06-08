@@ -46,17 +46,17 @@ Progress Bar:
 Progress type can be one of  \code{"text"}, \code{"graphical"}, or \code{"shiny"}.
 Progress interval can be a numeric.
 These both can get set by passing a
-\code{.progress=list(type="graphical", interval=1)} into the \code{simInit} call.
+\code{.progress = list(type = "graphical", interval = 1)} into the \code{simInit} call.
 See examples.
 }
 \examples{
 \dontrun{
-mySim <- simInit(times=list(start=0.0, end=100.0),
-                 params=list(.globals=list(stackName="landscape"),
-                             .progress=list(type="text", interval=10),
+mySim <- simInit(times = list(start=0.0, end=100.0),
+                 params = list(.globals = list(stackName = "landscape"),
+                             .progress = list(type = "text", interval = 10),
                              .checkpoint = list(interval = 10, file = "chkpnt.RData")),
-                 modules=list("randomLandscapes"),
-                 paths=list(modulePath=system.file("sampleModules", package="SpaDES")))
+                 modules = list("randomLandscapes"),
+                 paths = list(modulePath=system.file("sampleModules", package = "SpaDES")))
 
 # progress bar
 progressType(mySim) # "text"

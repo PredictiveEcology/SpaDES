@@ -287,7 +287,7 @@ setMethod(
         } else if(any(unlist(lapply(tmpl[[xx]], file.exists)))) {
           digest::digest(file = tmpl[[xx]],
                          length = compareRasterFileLength,
-                         algo=algo)
+                         algo = algo)
         } else  {
           tmpl[[xx]]
         }

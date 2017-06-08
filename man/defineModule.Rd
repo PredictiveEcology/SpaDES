@@ -132,7 +132,7 @@ Packages are loaded during this call.
     description = "insert module description here",
     keywords = c("insert key words here"),
     authors = c(person(c("First", "Middle"), "Last",
-                     email="email@example.com", role=c("aut", "cre"))),
+                       email = "email@example.com", role = c("aut", "cre"))),
     childModules = character(0),
     version = list(SpaDES = "1.3.1.9044", test = "0.0.1"),
     spatialExtent = raster::extent(rep(NA_real_, 4)),
