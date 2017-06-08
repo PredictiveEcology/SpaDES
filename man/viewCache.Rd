@@ -123,6 +123,10 @@ showCache(mySim) # only those made during spades call they are gone
 \dontrun{
 showCache(mySim)
 }
+\dontrun{
+  # keep only those cached items from the last 24 hours
+  keepCache(mySim, after = Sys.time() - dday(1))
+}
 }
 \seealso{
 \code{\link[archivist]{splitTagsLocal}}.

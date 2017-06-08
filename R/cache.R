@@ -285,9 +285,10 @@ setMethod(
         if (any(unlist(lapply(tmpl[[xx]], dir.exists)))) {
           basename(tmpl[[xx]])
         } else if(any(unlist(lapply(tmpl[[xx]], file.exists)))) {
-          digest::digest(file = tmpl[[xx]],
+          sapply(tmpl[[xx]], function(yyy) 
+            digest::digest(file = yyy,
                          length = compareRasterFileLength,
-                         algo = algo)
+                         algo = algo))
         } else  {
           tmpl[[xx]]
         }
@@ -628,6 +629,15 @@ setMethod(
 #'  clearCache(mySim, toRemove) # remove ones not recently accessed
 #'  showCache(mySim) # still has more recently accessed,
 #'                   #  based on time passed to onlyRentlyAccessed
+#'                   
+#'  # keepCache examples
+#'  # keep only those cached items from the last 24 hours
+#'  keepCache(mySim, after = Sys.time() - dday(1))
+#'  
+#'  # Keep all Cache items that happened within a spades call
+#'  keepCache(mySim, userTags = "spades")
+#'  # Remove all Cache items that happened within a spades call
+#'  clearCache(mySim, userTags = "spades")
 #'
 #' }
 setGeneric("clearCache", function(x, userTags = character(), after, before, ...) {
