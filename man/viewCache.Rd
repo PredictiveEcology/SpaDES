@@ -26,12 +26,16 @@ keepCache(x, userTags = character(), after, before, ...)
 \item{x}{A simList or a directory containing a valid archivist repository}
 
 \item{userTags}{Character vector. If used, this will be used in place of the \code{after} and
-\code{before}. Specifying one or more \code{userTag} here will clear all objects that
-match those tags. Matching is via regular expresssion, meaning partial matches
-will work unless strict beginning (^) and end ($) of string characters are used. Matching
+\code{before}. Specifying one or more \code{userTag} here will
+clear all objects that
+match those tags. Matching is via regular expresssion, meaning
+partial matches
+will work unless strict beginning (^) and end ($) of string
+characters are used. Matching
 will be against any of the 3 columns returned by \code{showCache()},
-i.e., artifact, tagValue or tagName. Also, length \code{userTags} > 1, then matching is by
-`and`.}
+i.e., artifact, tagValue or tagName. Also, length \code{userTags} > 1,
+then matching is by `and`. For `or` matching, use | in a single character
+string. See examples.}
 
 \item{after}{A time (POSIX, character understandable by data.table).
 Objects cached after this time will be shown or deleted.}
@@ -119,13 +123,28 @@ showCache(mySim) # only those made during spades call they are gone
  showCache(mySim) # still has more recently accessed,
                   #  based on time passed to onlyRentlyAccessed
 
+ # keepCache examples
+ # keep only those cached items from the last 24 hours
+ keepCache(mySim, after = Sys.time() - dday(1))
+
+ # Keep all Cache items that happened within a spades call
+ keepCache(mySim, userTags = "spades")
+ # Remove all Cache items that happened within a spades call
+ clearCache(mySim, userTags = "spades")
+
+ # Default userTags is "and" matching. For "or" matching use |
+ ranNums <- Cache(runif, 4, cacheRepo=cachePath(mySim), userTags = "objectName:a")
+ ranNums <- Cache(rnorm, 4, cacheRepo=cachePath(mySim), userTags = "objectName:a")
+ showCache(mySim) # shows spades, runif and rnorm objects
+ showCache(mySim, userTags = c("spades","rnorm")) # shows nothing because object
+                                                  #  has both spades and rnorm
+ showCache(mySim, userTags = "spades|rnorm") # "or" search
+ keepCache(mySim, userTags = "spades|rnorm") # keep all with spades or rnorm
+ showCache(mySim) # shows spades, runif and rnorm objects
+
 }
 \dontrun{
 showCache(mySim)
-}
-\dontrun{
-  # keep only those cached items from the last 24 hours
-  keepCache(mySim, after = Sys.time() - dday(1))
 }
 }
 \seealso{

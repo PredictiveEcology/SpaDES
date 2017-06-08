@@ -365,5 +365,14 @@ test_that("test keepCach", {
   expect_true(NROW(keepCache(tmpdir, before=st))==8)
   expect_true(NROW(showCache(tmpdir))==8)
 
+  ranNums <- Cache(runif, 4, cacheRepo=cachePath(mySim), userTags = "objectName:a")
+  ranNums <- Cache(rnorm, 4, cacheRepo=cachePath(mySim), userTags = "objectName:a")
+  showCache(mySim) # shows spades, runif and rnorm objects
+  expect_true(NROW(showCache(mySim, userTags = c("spades","rnorm")))==0) # shows nothing because object
+                                                   #  has both spades and rnorm
+  expect_true(length(unique(showCache(mySim, userTags = "spades|rnorm")$artifact))==2) # "or" search
+  expect_true(length(unique(keepCache(mySim, userTags = "spades|rnorm")$artifact))==2)  # keep all with spades or rnorm
+  expect_true(length(unique(showCache(mySim)$artifact))==2) # shows spades, runif and rnorm objects
+
 
  })
