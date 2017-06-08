@@ -282,12 +282,15 @@ setMethod(
     whFilename <- which(sapply(tmpl, function(x) is.character(x)))
     if (length(whFilename) > 0) {
       tmpl[whFilename] <- lapply(whFilename, function(xx) {
-        if (any(unlist(lapply(tmpl[[xx]], file.exists))))
+        if (any(unlist(lapply(tmpl[[xx]], dir.exists)))) {
+          basename(tmpl[[xx]])
+        } else if(any(unlist(lapply(tmpl[[xx]], file.exists)))) {
           digest::digest(file = tmpl[[xx]],
                          length = compareRasterFileLength,
                          algo=algo)
-        else
+        } else  {
           tmpl[[xx]]
+        }
       })
     }
 
@@ -660,14 +663,22 @@ setMethod(
         unlink(filesToRemove)
       }
 
-      rmFromLocalRepo(objsDT$artifact, x, many = TRUE)
+      rmFromLocalRepo(unique(objsDT$artifact), x, many = TRUE)
     }
     return(invisible(objsDT))
   })
 
-#' \code{showCache} and \code{clearCache} are wrappers around \code{archivist} package
+#' \code{showCache}, \code{clearCache} and \code{keepCache}
+#'
+#' These are wrappers around \code{archivist} package
 #' functions, specific to simList objects.
 #' They allow the user a bit of control over what is being cached.
+#'
+#' \code{keepCache} can be used to pare down the cache to only keep
+#' a set of archives based on userTags or times.
+#'
+#' \code{clearCache} is the opposite, where items can be removed by
+#' userTag or times
 #'
 #' @inheritParams clearCache
 #'
@@ -700,25 +711,93 @@ setMethod(
     if (is(x, "simList")) x <- x@paths$cachePath
 
     objsDT <- showLocalRepo(x) %>% data.table()
-    objsDT <- objsDT[createdDate <= before & createdDate >= after]
+    #objsDT <- objsDT[createdDate <= before & createdDate >= after]
     setkeyv(objsDT, "md5hash")
     if (NROW(objsDT) > 0) {
-      objsDT2 <- data.table(splitTagsLocal(x), key = "artifact")
-      objsDT <- objsDT2[objsDT]
-      set(objsDT, , "i.createdDate", NULL)
+      objsDT <- data.table(splitTagsLocal(x), key = "artifact")
+      objsDT <- objsDT[(createdDate <= before & createdDate >= after) ]
       if (length(userTags) > 0) {
-        for (ut in userTags) {
-          objsDT2 <- objsDT[
-            grepl(tagValue, pattern = ut)   |
-              grepl(tagKey, pattern = ut) |
-              grepl(artifact, pattern = ut)]
-          setkey(objsDT2, "artifact")
-          objsDT <- objsDT[unique(objsDT2, by = "artifact")[, artifact]] # merge each userTags
-        }
+         for (ut in userTags) {
+           objsDT2 <- objsDT[
+             grepl(tagValue, pattern = ut)   |
+               grepl(tagKey, pattern = ut) |
+               grepl(artifact, pattern = ut)]
+           setkey(objsDT2, "artifact")
+           objsDT <- objsDT[unique(objsDT2, by = "artifact")[, artifact]] # merge each userTags
+         }
+
+
+        # grepPattern <- paste(userTags,collapse="|")
+        # # https://stackoverflow.com/questions/7597559/grep-using-a-character-vector-with-multiple-patterns
+        # objsDT3 <- unique(objsDT[grepl(artifact, pattern=grepPattern)], by="artifact")
+        # objsDT4 <- unique(objsDT[grepl(tagKey, pattern=grepPattern)], by="tagKey")
+        # objsDT5 <- objsDT[grepl(tagValue, pattern=grepPattern)]
+        #                   # grepl(tagKey, pattern=grepPattern) |
+        #                   #   grepl(tagValue, pattern=grepPattern) ]
+        #
+        # objsDT3 <- objsDT3[unique(artifact),list(allMatched=.N==length(userTags)),by="artifact"][allMatched==TRUE]
+        # if(NROW(objsDT3)) {
+        #   setkey(objsDT, "artifact")
+        #   setkey(objsDT3, "artifact")
+        #   objsDT <- objsDT[objsDT3[!duplicated(objsDT3$artifact)]]
+        #   #set(objsDT, , "i.createdDate", NULL)
+        #   #set(objsDT, , "i.tagKey", NULL)
+        #   #set(objsDT, , "i.tagValue", NULL)
+        # } else {
+        #   objsDT <- objsDT3
+        # }
       }
+      # objsDT <- objsDT2[objsDT]
+      # if (length(userTags) > 0) {
+      #   for (ut in userTags) {
+      #     objsDT2 <- objsDT[
+      #       grepl(tagValue, pattern = ut)   |
+      #         grepl(tagKey, pattern = ut) |
+      #         grepl(artifact, pattern = ut)]
+      #     setkey(objsDT2, "artifact")
+      #     objsDT <- objsDT[unique(objsDT2, by = "artifact")[, artifact]] # merge each userTags
+      #   }
+      # }
     }
     objsDT
 })
+
+
+#' @include simList-class.R
+#' @docType methods
+#' @rdname viewCache
+setGeneric("keepCache", function(x, userTags = character(), after, before, ...) {
+  standardGeneric("keepCache")
+})
+
+#' @export
+#' @rdname viewCache
+setMethod(
+  "keepCache",
+  definition = function(x, userTags, after, before, ...) {
+    if (missing(x)) {
+      message("x not specified; using ", getPaths()$cache)
+      x <- getPaths()$cache
+    }
+    if (missing(after)) after <- "1970-01-01"
+    if (missing(before)) before <- Sys.Date() + 1
+    if (is(x, "simList")) x <- x@paths$cachePath
+
+    args <- append(list(x = x, after = after, before = before, userTags = userTags),
+                   list(...))
+
+    objsDTAll <- showCache(x)
+    objsDT <- do.call(showCache, args = args)
+    keep <- unique(objsDT$artifact)
+    eliminate <- unique(objsDTAll$artifact[!(objsDTAll$artifact %in% keep)])
+
+    if(length(eliminate)) {
+      eliminate <- paste(eliminate, collapse="|")
+      clearCache(x, eliminate)
+    }
+
+    return(objsDT)
+  })
 
 ################################################################################
 #' Remove any reference to environments or filepaths in objects

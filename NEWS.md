@@ -57,6 +57,7 @@ version 1.3.1.9000
     - add caching for `.inputObjects` function in `simInit`, via `.useCache` parameter in module
     - detailed caching overview now in cache help: `?Cache` for details.
     - strips dirname for outputs and inputs, *i.e.*, only keeps the filename, not absolute paths. This may not be stringent enough in some cases.
+    - New cache-related function: `keepCache`
 
 * implemented `checkModuleLocal()` to check for presence of module files in the module dir before attempting download from remote module repository
 * improve module template to auto fill module author info using `devtools.desc.author` option if set.
@@ -68,7 +69,7 @@ version 1.3.1
 * Default module path (set via `spades.modulePath` option) is now set to a temporary location to avoid unintentionally writing to the user's home directory.
 * add options for cache, input, output dirs (defaults to a temp dir until changed by user)
 * rename `spades.modulesPath` and `spades.modulesRepo` options to `spades.modulePath` and `spades.moduleRepo`
-* New cache-related functions: `showCache` and `clearCache`
+* New cache-related functions: `showCache`, `clearCache`
 
 version 1.3.0
 =============

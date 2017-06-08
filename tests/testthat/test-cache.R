@@ -336,3 +336,34 @@ test_that("test date-based cache removal", {
   expect_true(length(unique(showCache(mySim, simsCacheID)$artifact))==1)
 
 })
+
+test_that("test keepCach", {
+  library(igraph)
+  library(raster)
+
+  tmpdir <- file.path(tempdir(), "testCache") %>% checkPath(create = TRUE)
+  on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
+
+
+  try(clearCache(tmpdir), silent = TRUE)
+  Cache(rnorm, 10, cacheRepo = tmpdir)
+  Cache(runif, 10, cacheRepo = tmpdir)
+  Cache(round, runif(4), cacheRepo = tmpdir)
+  expect_true(NROW(showCache(tmpdir))==24)
+  expect_true(NROW(showCache(tmpdir, c("rnorm","runif")))==0) # and search
+  expect_true(NROW(keepCache(tmpdir, "rnorm"))==8)
+  # do it twice to make sure it can deal with repeats
+  expect_true(NROW(keepCache(tmpdir, "rnorm"))==8)
+  Sys.sleep(1)
+  st <- Sys.time()
+  Sys.sleep(1)
+  Cache(sample, 10, cacheRepo = tmpdir)
+  Cache(length, 10, cacheRepo = tmpdir)
+  Cache(sum, runif(4), cacheRepo = tmpdir)
+  showCache(tmpdir, after=st)
+  expect_true(NROW(showCache(tmpdir, before=st))==8)
+  expect_true(NROW(keepCache(tmpdir, before=st))==8)
+  expect_true(NROW(showCache(tmpdir))==8)
+
+
+ })

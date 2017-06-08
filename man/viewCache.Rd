@@ -6,9 +6,9 @@
 \alias{clearCache,ANY-method}
 \alias{showCache}
 \alias{showCache,ANY-method}
-\title{\code{showCache} and \code{clearCache} are wrappers around \code{archivist} package
-functions, specific to simList objects.
-They allow the user a bit of control over what is being cached.}
+\alias{keepCache}
+\alias{keepCache,ANY-method}
+\title{\code{showCache}, \code{clearCache} and \code{keepCache}}
 \usage{
 clearCache(x, userTags = character(), after, before, ...)
 
@@ -17,6 +17,10 @@ clearCache(x, userTags = character(), after, before, ...)
 showCache(x, userTags = character(), after, before, ...)
 
 \S4method{showCache}{ANY}(x, userTags = character(), after, before, ...)
+
+keepCache(x, userTags = character(), after, before, ...)
+
+\S4method{keepCache}{ANY}(x, userTags = character(), after, before, ...)
 }
 \arguments{
 \item{x}{A simList or a directory containing a valid archivist repository}
@@ -50,9 +54,16 @@ if \code{sim} is provided, or located in \code{cacheRepo}. Also returns a data.t
 of the removed items.
 }
 \description{
-\code{showCache} and \code{clearCache} are wrappers around \code{archivist} package
+These are wrappers around \code{archivist} package
 functions, specific to simList objects.
 They allow the user a bit of control over what is being cached.
+}
+\details{
+\code{keepCache} can be used to pare down the cache to only keep
+a set of archives based on userTags or times.
+
+\code{clearCache} is the opposite, where items can be removed by
+userTag or times
 }
 \examples{
 \dontrun{
