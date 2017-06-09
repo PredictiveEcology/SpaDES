@@ -739,7 +739,9 @@ setMethod(
     setkeyv(objsDT, "md5hash")
     if (NROW(objsDT) > 0) {
       objsDT <- data.table(splitTagsLocal(x), key = "artifact")
-      objsDT <- objsDT[(createdDate <= before & createdDate >= after) ]
+      objsDT3 <- objsDT[tagKey=="accessed"][(tagValue <= before) & (tagValue >= after)][!duplicated(artifact)]
+      objsDT <- objsDT[artifact %in% objsDT3$artifact]
+      #objsDT3 <- objsDT3[(createdDate <= before & createdDate >= after) ]
       if (length(userTags) > 0) {
          for (ut in userTags) {
            objsDT2 <- objsDT[
