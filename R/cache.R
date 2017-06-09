@@ -1,5 +1,5 @@
 if (getRversion() >= "3.1.0") {
-  utils::globalVariables(c("tagValue", "tagKey", "artifact", "createdDate"))
+  utils::globalVariables(c("artifact", "createdDate", "tagKey", "tagValue"))
 }
 
 ################################################################################
@@ -98,11 +98,11 @@ if (getRversion() >= "3.1.0") {
 #' Any function can be cached using:
 #' \code{Cache(FUN = functionName, ...)}
 #' or
-#' \code{cache(cacheRepo = cacheDirectory, FUN = functionName, ...)}. This will
-#' be a slight change to a function call, such as:
+#' \code{cache(cacheRepo = cacheDirectory, FUN = functionName, ...)}.
+#' This will be a slight change to a function call, such as:
 #' \code{projectRaster(raster, crs = crs(newRaster))}
 #' to
-#' \code{Cache(projectRaster, raster, crs = crs(newRaster))}
+#' \code{Cache(projectRaster, raster, crs = crs(newRaster))}.
 #'
 #' @note Several objects require pre-treatment before successful caching will
 #' work. \code{Raster*} objects have the potential for disk-backed storage. If
@@ -276,7 +276,7 @@ setMethod(
       archivist::createLocalRepo(cacheRepo)
     }
 
-    whRasOrSpatial <- which(sapply(tmpl, function(x) is(x, "Raster")| is(x, "Spatial")))
+    whRasOrSpatial <- which(sapply(tmpl, function(x) is(x, "Raster") | is(x, "Spatial")))
     whSpatial <- which(sapply(tmpl, function(x) is(x, "Spatial")))
     whFun <- which(sapply(tmpl, function(x) is.function(x) | is(x, "expression")))
     whFilename <- which(sapply(tmpl, function(x) is.character(x)))
@@ -284,11 +284,11 @@ setMethod(
       tmpl[whFilename] <- lapply(whFilename, function(xx) {
         if (any(unlist(lapply(tmpl[[xx]], dir.exists)))) {
           basename(tmpl[[xx]])
-        } else if(any(unlist(lapply(tmpl[[xx]], file.exists)))) {
+        } else if (any(unlist(lapply(tmpl[[xx]], file.exists)))) {
           sapply(tmpl[[xx]], function(yyy)
             digest::digest(file = yyy,
-                         length = compareRasterFileLength,
-                         algo = algo))
+                           length = compareRasterFileLength,
+                           algo = algo))
         } else  {
           tmpl[[xx]]
         }
@@ -739,19 +739,18 @@ setMethod(
     setkeyv(objsDT, "md5hash")
     if (NROW(objsDT) > 0) {
       objsDT <- data.table(splitTagsLocal(x), key = "artifact")
-      objsDT3 <- objsDT[tagKey=="accessed"][(tagValue <= before) & (tagValue >= after)][!duplicated(artifact)]
+      objsDT3 <- objsDT[tagKey == "accessed"][(tagValue <= before) & (tagValue >= after)][!duplicated(artifact)]
       objsDT <- objsDT[artifact %in% objsDT3$artifact]
       #objsDT3 <- objsDT3[(createdDate <= before & createdDate >= after) ]
       if (length(userTags) > 0) {
-         for (ut in userTags) {
-           objsDT2 <- objsDT[
-             grepl(tagValue, pattern = ut)   |
-               grepl(tagKey, pattern = ut) |
-               grepl(artifact, pattern = ut)]
-           setkey(objsDT2, "artifact")
-           objsDT <- objsDT[unique(objsDT2, by = "artifact")[, artifact]] # merge each userTags
-         }
-
+        for (ut in userTags) {
+          objsDT2 <- objsDT[
+            grepl(tagValue, pattern = ut)   |
+              grepl(tagKey, pattern = ut) |
+              grepl(artifact, pattern = ut)]
+          setkey(objsDT2, "artifact")
+          objsDT <- objsDT[unique(objsDT2, by = "artifact")[, artifact]] # merge each userTags
+          }
 
         # grepPattern <- paste(userTags,collapse="|")
         # # https://stackoverflow.com/questions/7597559/grep-using-a-character-vector-with-multiple-patterns
@@ -788,7 +787,6 @@ setMethod(
     objsDT
 })
 
-
 #' @include simList-class.R
 #' @docType methods
 #' @rdname viewCache
@@ -817,13 +815,13 @@ setMethod(
     keep <- unique(objsDT$artifact)
     eliminate <- unique(objsDTAll$artifact[!(objsDTAll$artifact %in% keep)])
 
-    if(length(eliminate)) {
-      eliminate <- paste(eliminate, collapse="|")
+    if (length(eliminate)) {
+      eliminate <- paste(eliminate, collapse = "|")
       clearCache(x, eliminate)
     }
 
     return(objsDT)
-  })
+})
 
 ################################################################################
 #' Remove any reference to environments or filepaths in objects
@@ -1004,16 +1002,16 @@ setMethod(
 
     # The following Rounding is necessary to make digest equal on linux and windows
     for (i in names(aaa)) {
-      if (!is.integer(aaa[,i])) {
-        if (is.numeric(aaa[,i]))
-          aaa[,i] <- round(aaa[,i],4)
+      if (!is.integer(aaa[, i])) {
+        if (is.numeric(aaa[, i]))
+          aaa[,i] <- round(aaa[, i], 4)
       }
     }
 
     dig <- fastdigest::fastdigest(aaa)
     #dig <- digest::digest(bbb, algo = algo)
     return(dig)
-  })
+})
 
 #' @rdname makeDigestible
 digestRaster <- function(object, compareRasterFileLength, algo) {

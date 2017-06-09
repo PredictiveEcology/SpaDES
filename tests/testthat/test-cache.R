@@ -219,7 +219,7 @@ test_that("test file-backed raster caching", {
   }
 
   bb <- Cache(randomPolyToMemory, tmpdir, cacheRepo = tmpdir)
-  expect_true(filename(bb)=="")
+  expect_true(filename(bb) == "")
   expect_true(inMemory(bb))
 
   bb <- Cache(randomPolyToMemory, tmpdir, cacheRepo = tmpdir)
@@ -294,8 +294,6 @@ test_that("test date-based cache removal", {
 
   clearCache(tmpdir)
 
-
-
   mySim <- simInit(
     times = list(start = 0.0, end = 1.0, timeunit = "year"),
     params = list(
@@ -316,25 +314,24 @@ test_that("test date-based cache removal", {
   clearCache(mySim)
   sims <- spades(Copy(mySim), notOlderThan = Sys.time())
   simsCacheID <- unlist(gsub(attr(sims, "tags"), pattern = "cacheId:", replacement = ""))
-  ranNums <- Cache(runif, 4, cacheRepo=cachePath(mySim), userTags = "objectName:a")
+  ranNums <- Cache(runif, 4, cacheRepo = cachePath(mySim), userTags = "objectName:a")
   # access it again, but "later"
   Sys.sleep(1)
   sims <- spades(Copy(mySim)) # i.e., this is a "read" operation, does not create a new artifact
   wholeCache <- showCache(mySim)
-  expect_true(length(unique(wholeCache, by="artifact")$artifact)==2)
-  expect_true(sum(wholeCache$tagKey=="accessed")==3)
+  expect_true(length(unique(wholeCache, by = "artifact")$artifact) == 2)
+  expect_true(sum(wholeCache$tagKey == "accessed") == 3)
   # keep only items accessed "recently"
   onlyRecentlyAccessed <- showCache(mySim,
-                                    userTags = max(wholeCache[tagKey=="accessed"]$tagValue))
+                                    userTags = max(wholeCache[tagKey == "accessed"]$tagValue))
   # inverse join with 2 data.tables ... using: a[!b]
       # i.e., return all of wholeCache that was not recently accessed
-  toRemove <- unique(wholeCache[!onlyRecentlyAccessed], by="artifact")$artifact
+  toRemove <- unique(wholeCache[!onlyRecentlyAccessed], by = "artifact")$artifact
   clearCache(mySim, toRemove) # remove ones not recently accessed
-  expect_true(length(unique(showCache(mySim), by="artifact")$artifact)==1)
-  expect_true(sum(showCache(mySim)$tagKey=="accessed")==2)
+  expect_true(length(unique(showCache(mySim), by = "artifact")$artifact) == 1)
+  expect_true(sum(showCache(mySim)$tagKey == "accessed") == 2)
   # make sure it is the sims one
-  expect_true(length(unique(showCache(mySim, simsCacheID)$artifact))==1)
-
+  expect_true(length(unique(showCache(mySim, simsCacheID)$artifact)) == 1)
 })
 
 test_that("test keepCach", {
@@ -344,35 +341,31 @@ test_that("test keepCach", {
   tmpdir <- file.path(tempdir(), "testCache") %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
 
-
   try(clearCache(tmpdir), silent = TRUE)
   Cache(rnorm, 10, cacheRepo = tmpdir)
   Cache(runif, 10, cacheRepo = tmpdir)
   Cache(round, runif(4), cacheRepo = tmpdir)
-  expect_true(NROW(showCache(tmpdir))==24)
-  expect_true(NROW(showCache(tmpdir, c("rnorm","runif")))==0) # and search
-  expect_true(NROW(keepCache(tmpdir, "rnorm"))==8)
+  expect_true(NROW(showCache(tmpdir)) == 24)
+  expect_true(NROW(showCache(tmpdir, c("rnorm","runif"))) == 0) # and search
+  expect_true(NROW(keepCache(tmpdir, "rnorm")) == 8)
   # do it twice to make sure it can deal with repeats
-  expect_true(NROW(keepCache(tmpdir, "rnorm"))==8)
+  expect_true(NROW(keepCache(tmpdir, "rnorm")) == 8)
   Sys.sleep(1)
   st <- Sys.time()
   Sys.sleep(1)
   Cache(sample, 10, cacheRepo = tmpdir)
   Cache(length, 10, cacheRepo = tmpdir)
   Cache(sum, runif(4), cacheRepo = tmpdir)
-  showCache(tmpdir, after=st)
-  expect_true(NROW(showCache(tmpdir, before=st))==8)
-  expect_true(NROW(keepCache(tmpdir, before=st))==8)
-  expect_true(NROW(showCache(tmpdir))==8)
+  showCache(tmpdir, after = st)
+  expect_true(NROW(showCache(tmpdir, before = st)) == 8)
+  expect_true(NROW(keepCache(tmpdir, before = st)) == 8)
+  expect_true(NROW(showCache(tmpdir)) == 8)
 
-  ranNums <- Cache(runif, 4, cacheRepo=tmpdir, userTags = "objectName:a")
-  ranNums <- Cache(rnorm, 4, cacheRepo=tmpdir, userTags = "objectName:a")
+  ranNums <- Cache(runif, 4, cacheRepo = tmpdir, userTags = "objectName:a")
+  ranNums <- Cache(rnorm, 4, cacheRepo = tmpdir, userTags = "objectName:a")
   showCache(tmpdir) # shows spades, runif and rnorm objects
-  expect_true(NROW(showCache(tmpdir, userTags = c("spades","rnorm")))==0) # shows nothing because object
-                                                   #  has both spades and rnorm
-  expect_true(length(unique(showCache(tmpdir, userTags = "spades|rnorm")$artifact))==2) # "or" search
-  expect_true(length(unique(keepCache(tmpdir, userTags = "spades|rnorm")$artifact))==2)  # keep all with spades or rnorm
-  expect_true(length(unique(showCache(tmpdir)$artifact))==2) # shows spades, runif and rnorm objects
-
-
- })
+  expect_true(NROW(showCache(tmpdir, userTags = c("spades","rnorm"))) == 0) # shows nothing because object has both spades and rnorm
+  expect_true(length(unique(showCache(tmpdir, userTags = "spades|rnorm")$artifact)) == 2) # "or" search
+  expect_true(length(unique(keepCache(tmpdir, userTags = "spades|rnorm")$artifact)) == 2)  # keep all with spades or rnorm
+  expect_true(length(unique(showCache(tmpdir)$artifact)) == 2) # shows spades, runif and rnorm objects
+})

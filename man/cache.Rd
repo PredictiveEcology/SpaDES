@@ -202,11 +202,11 @@ no stochasticity, such as data-preparation events, GIS events etc.
 Any function can be cached using:
 \code{Cache(FUN = functionName, ...)}
 or
-\code{cache(cacheRepo = cacheDirectory, FUN = functionName, ...)}. This will
-be a slight change to a function call, such as:
+\code{cache(cacheRepo = cacheDirectory, FUN = functionName, ...)}.
+This will be a slight change to a function call, such as:
 \code{projectRaster(raster, crs = crs(newRaster))}
 to
-\code{Cache(projectRaster, raster, crs = crs(newRaster))}
+\code{Cache(projectRaster, raster, crs = crs(newRaster))}.
 }
 
 \examples{
