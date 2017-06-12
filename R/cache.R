@@ -268,6 +268,7 @@ setMethod(
           cacheRepo <- sim@paths$cachePath
         } else {
           cacheRepo <- SpaDES::getPaths()$cachePath
+          checkPath(cacheRepo, create = TRUE)
         }
       }
     }
