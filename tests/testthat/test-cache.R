@@ -369,3 +369,63 @@ test_that("test keepCach", {
   expect_true(length(unique(keepCache(tmpdir, userTags = "spades|rnorm")$artifact)) == 2)  # keep all with spades or rnorm
   expect_true(length(unique(showCache(tmpdir)$artifact)) == 2) # shows spades, runif and rnorm objects
 })
+
+test_that("test environments", {
+  library(igraph)
+  library(raster)
+
+  tmpdir <- file.path(tempdir(), "testCache") %>% checkPath(create = TRUE)
+  on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
+
+  try(clearCache(tmpdir), silent = TRUE)
+  # make several unique environments
+  a <- new.env()
+  b <- new.env()
+  g <- new.env()
+  d <- new.env()
+  f <- new.env()
+  h <- new.env()
+  # give the same value to a in each
+  a$a <- runif(10)
+  b$a <- a$a
+  g$a <- a$a
+  # put an environment in a
+  a$d <- d
+  b$d <- f
+  g$d <- h
+
+  # Upper level -- all are same, because values are same, even though all are enviros
+  shortFn <- function(a) sample(a$a)
+  out <- Cache(shortFn, a=a, cacheRepo = tmpdir)
+  out2 <- Cache(shortFn, a=b, cacheRepo = tmpdir)
+  out3 <- Cache(shortFn, a=g, cacheRepo = tmpdir)
+  expect_true(identical(attributes(out), attributes(out2)))
+  expect_true(identical(attributes(out), attributes(out3)))
+
+  # put 2 different values, 1 and 2 ... a's and g's envirs are same value, but
+  #    different environment .. b's envir is different value
+  a$d$a <- 1
+  b$d$a <- 2
+  g$d$a <- 1
+  i <- as.list(a)
+  i2 <- i
+  i2$d <- as.list(i2$d)
+
+  out <- Cache(shortFn, a=a, cacheRepo = tmpdir)
+  out2 <- Cache(shortFn, a=b, cacheRepo = tmpdir)
+  out3 <- Cache(shortFn, a=g, cacheRepo = tmpdir)
+  out4 <- Cache(shortFn, a=i, cacheRepo = tmpdir)
+  out5 <- Cache(shortFn, a=i2, cacheRepo = tmpdir)
+
+  expect_false(identical(attributes(out), attributes(out2))) # test different values are different
+  expect_true(identical(attributes(out), attributes(out3))) # test same values but different enviros are same
+  expect_true(identical(attributes(out), attributes(out4))) # test environment is same as a list
+  expect_true(identical(attributes(out), attributes(out5))) # test environment is same as recursive list
+
+  df <- data.frame(a=a$a, b = LETTERS[1:10])
+  out6 <- Cache(shortFn, a = df, cacheRepo = tmpdir)
+  out7 <- Cache(shortFn, a = df, cacheRepo = tmpdir)
+  expect_true(identical(attributes(out6), attributes(out7))) # test data.frame
+
+
+})

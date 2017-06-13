@@ -245,7 +245,7 @@ setGeneric("Cache", signature = "...",
                     cacheRepo = NULL, compareRasterFileLength = 1e6,
                     userTags = c(), debugCache = FALSE) {
              archivist::cache(cacheRepo, FUN, ..., notOlderThan, algo, userTags = userTags)
-})
+           })
 
 #' @export
 #' @rdname cache
@@ -362,7 +362,7 @@ setMethod(
         # sys.calls() stack which is NOT .Method ... and produces a Cache(FUN = FUN...)
         for (fns in rev(functionCall)) {
           functionName <- match.call(Cache,
-                                   parse(text = fns))$FUN
+                                     parse(text = fns))$FUN
           functionName <- deparse(functionName)
           if (functionName != "FUN") break
         }
@@ -384,6 +384,9 @@ setMethod(
     if (length(whCluster) > 0) tmpl[whCluster] <- NULL
     if (length(whFun) > 0) tmpl[whFun] <- lapply(tmpl[whFun], format)
     if (!is.null(tmpl$progress)) if (!is.na(tmpl$progress)) tmpl$progress <- NULL
+
+    # Environments & lists -- need this because environments can be hiding inside of lists
+    tmpl <- lapply(tmpl, listOrEnvDigestRecursive)
 
     #outputHash <- digest::digest(tmpl, algo = algo)
     outputHash <- fastdigest::fastdigest(tmpl)
@@ -542,7 +545,7 @@ setMethod(
     }
 
     if (isNullOutput) return(NULL) else return(output)
-})
+  })
 
 #' @inheritParams spades
 #' @inheritParams cache
@@ -751,7 +754,7 @@ setMethod(
               grepl(artifact, pattern = ut)]
           setkey(objsDT2, "artifact")
           objsDT <- objsDT[unique(objsDT2, by = "artifact")[, artifact]] # merge each userTags
-          }
+        }
 
         # grepPattern <- paste(userTags,collapse="|")
         # # https://stackoverflow.com/questions/7597559/grep-using-a-character-vector-with-multiple-patterns
@@ -786,7 +789,7 @@ setMethod(
       # }
     }
     objsDT
-})
+  })
 
 #' @include simList-class.R
 #' @docType methods
@@ -822,7 +825,7 @@ setMethod(
     }
 
     return(objsDT)
-})
+  })
 
 ################################################################################
 #' Remove any reference to environments or filepaths in objects
@@ -951,7 +954,7 @@ setMethod(
     object@params <- lapply(object@params, function(x) sortDotsUnderscoreFirst(x))
 
     return(object)
-})
+  })
 
 #' @rdname makeDigestible
 #' @exportMethod makeDigestible
@@ -970,7 +973,7 @@ setMethod(
                #} else {
                # digestRasterFromDisk(object, compareRasterFileLength, algo)
                #}
-              })
+             })
         )
       )
       if (nchar(object@filename) > 0) {
@@ -980,14 +983,14 @@ setMethod(
       }
     } else {
       #if(inMemory(object)) {
-        #object@legend@colortable <- character()
+      #object@legend@colortable <- character()
       dig <- suppressWarnings(digestRaster(object, compareRasterFileLength, algo))
       #} else {
       #  dig <- suppressWarnings(digestRasterFromDisk(object, compareRasterFileLength, algo))
       #}
     }
     return(dig)
-})
+  })
 
 #' @rdname makeDigestible
 #' @exportMethod makeDigestible
@@ -1012,20 +1015,28 @@ setMethod(
     dig <- fastdigest::fastdigest(aaa)
     #dig <- digest::digest(bbb, algo = algo)
     return(dig)
-})
+  })
 
 #' @rdname makeDigestible
-digestRaster <- function(object, compareRasterFileLength, algo) {
-  dig <- fastdigest::fastdigest(list(dim(object), res(object), crs(object),
-                                     extent(object), object@data))
-  if (nchar(object@file@name) > 0) {
-    # if the Raster is on disk, has the first compareRasterFileLength characters;
-    dig <- fastdigest(
-      append(dig, digest::digest(file = object@file@name,
-                                 length = compareRasterFileLength,
-                                 algo = algo)))
-  }
-}
+#' @exportMethod makeDigestible
+setMethod(
+  "makeDigestible",
+  signature = "environment",
+  definition = function(object) {
+    # objNames <- ls(envir = object)
+    # object <- mget(objNames, envir = object) # convert to list
+    object <- as.list(object)
+    whDeeperEnvs1 <- lapply(object, is.environment)
+    if(length(whDeeperEnvs1)) {
+      whDeeperEnvs <- which(unlist(whDeeperEnvs1))
+      object[whDeeperEnvs] <- lapply(object[whDeeperEnvs], makeDigestible)
+    }
+    dig <- fastdigest::fastdigest(object)
+    #dig <- digest::digest(bbb, algo = algo)
+    return(dig)
+  })
+
+
 
 ################################################################################
 #' Clear erroneous archivist artifacts
@@ -1060,7 +1071,7 @@ setMethod(
     md5hashInBackpack[toRemove] %>%
       sapply(., rmFromLocalRepo, repoDir = repoDir)
     return(invisible(md5hashInBackpack[toRemove]))
-})
+  })
 
 #' @export
 #' @importFrom archivist showLocalRepo rmFromLocalRepo
@@ -1070,7 +1081,7 @@ setGeneric("cache", signature = "...",
            function(cacheRepo = NULL, FUN, ..., notOlderThan = NULL,
                     objects = NULL, outputObjects = NULL, algo = "xxhash64") {
              archivist::cache(cacheRepo, FUN, ..., notOlderThan, algo)
-})
+           })
 
 #' @export
 #' @rdname cache
@@ -1080,7 +1091,7 @@ setMethod(
                         outputObjects, algo) {
     Cache(FUN = FUN, ..., notOlderThan = notOlderThan, objects = objects,
           outputObjects = outputObjects, algo = algo, cacheRepo = cacheRepo)
-})
+  })
 
 #' Alternative to \code{archivist::saveToRepo} for rasters
 #'
@@ -1208,11 +1219,11 @@ prepareFileBackedRaster <- function(obj, repoDir = NULL, compareRasterFileLength
         obj <- writeRaster(obj, filename = saveFilename, datatype = dataType(obj))
       }
     }
-  # } else {
-  #   if(isStack) {
-  #     slot(obj, "filename")
-  #   }
-  #   saveFilename <- slot(slot(obj, "file"), "name")
+    # } else {
+    #   if(isStack) {
+    #     slot(obj, "filename")
+    #   }
+    #   saveFilename <- slot(slot(obj, "file"), "name")
   }
 
   return(obj)
@@ -1291,4 +1302,40 @@ copyFile <- function(from = NULL, to = NULL, useRobocopy = TRUE,
 
   setwd(origDir)
   return(invisible(to))
+}
+
+
+#' Custom tools for digesting objects
+#'
+#' For reproducibility, there are many features or attributes of objects that must
+#' be removed e.g., environments have unique labels, rasters have several infrequently
+#' used slots and elements that are not perfectly maintained with manipulation.
+#' These customDigest functions attempt to deal with some of the types of problems.
+#' In conjunction with \code{\link{makeDigestible}}, these are helpers to create
+#' consisten cache results.
+#'
+#' @param Any object
+#' @importFrom fastdigest fastdigest
+#' @rdname customDigests
+#' @author Eliot McIntire
+#' @seealso \code{\link{makeDigestible}}
+listOrEnvDigestRecursive <- function(x) {
+  if(is.environment(x)|is.list(x)) {
+    lapply(x, listOrEnvDigestRecursive)
+  } else {
+    fastdigest(x)
+  }
+}
+
+#' @rdname customDigests
+digestRaster <- function(object, compareRasterFileLength, algo) {
+  dig <- fastdigest::fastdigest(list(dim(object), res(object), crs(object),
+                                     extent(object), object@data))
+  if (nchar(object@file@name) > 0) {
+    # if the Raster is on disk, has the first compareRasterFileLength characters;
+    dig <- fastdigest(
+      append(dig, digest::digest(file = object@file@name,
+                                 length = compareRasterFileLength,
+                                 algo = algo)))
+  }
 }
