@@ -5,12 +5,23 @@
 \alias{digestRaster}
 \title{Custom tools for digesting objects}
 \usage{
-listOrEnvDigestRecursive(x)
+listOrEnvDigestRecursive(object)
 
 digestRaster(object, compareRasterFileLength, algo)
 }
 \arguments{
-\item{Any}{object}
+\item{object}{an object to convert to a 'digestible' state}
+
+\item{compareRasterFileLength}{Numeric. Optional. When there are Rasters, that
+have file-backed storage, this is passed to the length arg in \code{digest}
+when determining if the Raster file is already in the database.
+Note: uses \code{\link[digest]{digest}} for file-backed Raster.
+Default 1e6. Passed to \code{prepareFileBackedRaster}.}
+
+\item{algo}{The algorithms to be used; currently available choices are
+    \code{md5}, which is also the default, \code{sha1}, \code{crc32},
+    \code{sha256}, \code{sha512}, \code{xxhash32}, \code{xxhash64} and
+    \code{murmur32}.}
 }
 \description{
 For reproducibility, there are many features or attributes of objects that must

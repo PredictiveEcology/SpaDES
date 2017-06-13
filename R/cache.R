@@ -1314,16 +1314,16 @@ copyFile <- function(from = NULL, to = NULL, useRobocopy = TRUE,
 #' In conjunction with \code{\link{makeDigestible}}, these are helpers to create
 #' consisten cache results.
 #'
-#' @param Any object
 #' @importFrom fastdigest fastdigest
 #' @rdname customDigests
 #' @author Eliot McIntire
 #' @seealso \code{\link{makeDigestible}}
-listOrEnvDigestRecursive <- function(x) {
-  if(is.environment(x)|is.list(x)) {
-    lapply(x, listOrEnvDigestRecursive)
+#' @inheritParams makeDigestible
+listOrEnvDigestRecursive <- function(object) {
+  if(is.environment(object)|is.list(object)) {
+    lapply(object, listOrEnvDigestRecursive)
   } else {
-    fastdigest(x)
+    fastdigest(object)
   }
 }
 
