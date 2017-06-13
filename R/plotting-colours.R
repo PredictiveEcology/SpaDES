@@ -225,7 +225,7 @@ setReplaceMethod(
      nFull <- n
      if (length(n) != length(i)) {
        # not enough n values
-       if (sum(nchar(names(n)) == 0) > 0) {
+       if (sum(!nzchar(names(n), keepNA=TRUE)) > 0) {
          # are there unnamed ones
          nFull <- rep(n[!whNNamed], length.out = length(i))
          nFull[whValNamed] <- n[whNNamed]

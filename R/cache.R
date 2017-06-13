@@ -976,7 +976,7 @@ setMethod(
              })
         )
       )
-      if (nchar(object@filename) > 0) {
+      if (nzchar(object@filename, keepNA=TRUE)) {
         # if the Raster is on disk, has the first compareRasterFileLength characters;
         # uses SpaDES:::digest on the file
         dig <- append(dig, digest(file = object@filename, length = compareRasterFileLength))
@@ -1331,7 +1331,7 @@ listOrEnvDigestRecursive <- function(object) {
 digestRaster <- function(object, compareRasterFileLength, algo) {
   dig <- fastdigest::fastdigest(list(dim(object), res(object), crs(object),
                                      extent(object), object@data))
-  if (nchar(object@file@name) > 0) {
+  if (nzchar(object@file@name)) {
     # if the Raster is on disk, has the first compareRasterFileLength characters;
     dig <- fastdigest(
       append(dig, digest::digest(file = object@file@name,

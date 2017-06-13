@@ -207,7 +207,7 @@ setMethod(
 
     env <- list(...)$env
     suppliedNames <- names(plotObjects)
-    if (any(nchar(suppliedNames) == 0)) {
+    if (any(!nzchar(suppliedNames, keepNA=TRUE))) {
       suppliedNames <- NULL
     }
     if (is.null(suppliedNames)) {
@@ -222,7 +222,7 @@ setMethod(
       x$objs)
 
     if (!is.null(suppliedNames)) {
-      if (all(sapply(suppliedNames, nchar) > 0)) {
+      if (all(sapply(suppliedNames, nzchar, keepNA=TRUE) )) {
         names(plotObjects)[!is.na(suppliedNames)] <- suppliedNames
       }
     }
@@ -861,7 +861,7 @@ objectNames <- function(calledFrom = "Plot",
   e <- sys.frame(frameCalledFrom[1])
   eminus1 <- sys.frame(frameCalledFrom - 1)
 
-  if (nchar(argName) == 0) {
+  if (!nzchar(argName, keepNA=TRUE)) {
     callNamedArgs <- as.character(substitute(list(...), env = e))[-1]
   } else {
     callNamedArgs <- as.character(substitute(parse(text = sim), env = e))[-1]
@@ -1389,7 +1389,7 @@ setMethod(
     if (length(toPlot) == 0) takeFromPlotObj <- FALSE
 
     # Does it already exist on the plot device or not
-    if (nchar(grobNamesi@layerName) > 0) {
+    if (nzchar(grobNamesi@layerName, keepNA=TRUE)) {
       # means it is in a raster
       if (takeFromPlotObj) {
         grobToPlot <- unlist(toPlot[[1]], recursive = FALSE)[[grobNamesi@layerName]]

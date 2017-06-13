@@ -1429,7 +1429,8 @@ setReplaceMethod(
        # file extension stuff
        fileExts <- .saveFileExtensions()
        fe <- suppressMessages(inner_join(sim@outputs, fileExts)$exts)
-       wh <- !stri_detect_fixed(str = sim@outputs$file, pattern = ".") & (nchar(fe) > 0)
+       wh <- !stri_detect_fixed(str = sim@outputs$file, pattern = ".") &
+         (nzchar(fe, keepNA=TRUE))
        sim@outputs[wh, "file"] <- paste0(sim@outputs[wh, "file"], ".", fe[wh])
 
        # If the file name already has a time unit on it,
@@ -1444,8 +1445,8 @@ setReplaceMethod(
        sim@outputs[wh, "file"] <- paste0(
          file_path_sans_ext(sim@outputs[wh, "file"]),
          "_", txtTimeA, txtTimeB[wh],
-         ifelse(nchar(file_ext(sim@outputs[wh, "file"])) > 0, ".", ""),
-         ifelse(nchar(file_ext(sim@outputs[wh, "file"])) > 0,
+         ifelse(nzchar(file_ext(sim@outputs[wh, "file"]), keepNA=TRUE) , ".", ""),
+         ifelse(nzchar(file_ext(sim@outputs[wh, "file"]), keepNA=TRUE) ,
                 file_ext(sim@outputs[wh, "file"]),
                 "")
        )
@@ -3317,8 +3318,8 @@ setMethod(
     .fileExts <- .saveFileExtensions()
     fl <- outputDF$file
     exts <- fileExt(fl)
-    if (any(is.na(fl)) | any(nchar(exts) == 0)) {
-      outputDF$fun[is.na(fl) | nchar(exts) == 0] <- .fileExts$fun[1]
+    if (any(is.na(fl)) | any(!nzchar(exts, keepNA=TRUE))) {
+      outputDF$fun[is.na(fl) | (!nzchar(exts, keepNA=TRUE))] <- .fileExts$fun[1]
     }
     if (any(is.na(outputDF[, "fun"]))) {
       exts <- na.omit(match(exts, .fileExts[, "exts"]) )
@@ -3330,8 +3331,8 @@ setMethod(
     .fileExts <- .saveFileExtensions()
     fl <- outputDF$file
     exts <- fileExt(fl)
-    if (any(is.na(fl)) | any(nchar(exts) == 0)) {
-      outputDF$package[is.na(fl) | nchar(exts) == 0] <- .fileExts$package[1]
+    if (any(is.na(fl)) | any(!nzchar(exts, keepNA=TRUE))) {
+      outputDF$package[is.na(fl) | (!nzchar(exts, keepNA=TRUE))] <- .fileExts$package[1]
     }
     if (any(is.na(outputDF[, "package"]))) {
       exts <- na.omit(match(fileExt(fl), .fileExts[, "exts"]) )
