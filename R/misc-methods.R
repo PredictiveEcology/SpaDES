@@ -942,3 +942,5 @@ asymmetryAdjust <- function(angleQualities, quantity, actualAsymmetry) {
   }
   dd$newQuantity
 }
+
+

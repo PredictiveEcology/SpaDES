@@ -205,7 +205,7 @@ setMethod(
                              readLines(paste(path, "/", uM, "/", uM, ".R", sep = "")),
                              value = TRUE) %>%
           strsplit(., " ") %>%
-          unlist(lapply(., function(x) x[nchar(x) > 0] )) %>%
+          unlist(lapply(., function(x) x[nzchar(x, keepNA=TRUE)] )) %>%
           grep("globals\\(sim\\)\\$", ., value = TRUE) %>%
           gsub(",", "", .) %>%
           gsub("\\)\\)", "", .) %>%
