@@ -974,7 +974,7 @@ setMethod(
       )
       if (nchar(object@filename) > 0) {
         # if the Raster is on disk, has the first compareRasterFileLength characters;
-        # uses SpaDES:::digest on the file
+        # uses SpaDES:::.digest on the file
         dig <- append(dig, digest(file = object@filename, length = compareRasterFileLength))
       }
     } else {
