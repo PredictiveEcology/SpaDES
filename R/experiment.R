@@ -411,10 +411,10 @@ setMethod(
 
       dots <- list(...)
       if (is.null(dots$cache)) dots$cache <- FALSE
-      if (dots$cache) {
-        if (is(try(archivist::showLocalRepo(paths(sim_)$cachePath), silent = TRUE), "try-error"))
-          archivist::createLocalRepo(paths(sim_)$cachePath)
-      }
+      # if (dots$cache) {
+      #   if (is(try(archivist::showLocalRepo(paths(sim_)$cachePath), silent = TRUE), "try-error"))
+      #     archivist::createLocalRepo(paths(sim_)$cachePath)
+      # }
       sim3 <- spades(sim_, replicate = ind, ...)
       return(list(sim3, experimentDF))
     }

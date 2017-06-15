@@ -1587,7 +1587,6 @@ setReplaceMethod(
 #'
 #' @include simList-class.R
 #' @importFrom stats na.omit
-#' @importFrom archivist showLocalRepo createLocalRepo
 #' @export
 #' @docType methods
 #' @aliases simList-accessors-paths
@@ -1656,14 +1655,16 @@ setReplaceMethod(
       sim@paths[whichUnnamed][seq_len(sum(whValueUnnamed))] <- value[whValueUnnamed]
     }
 
+    # Don't need to create an archive in the paths directory, just have to create
+    #  the directory
     #names(sim@paths) <- c("cachePath", "modulePath", "inputPath", "outputPath")
-    if (is(try(archivist::showLocalRepo(sim@paths$cachePath),
-               silent = TRUE),
-           "try-error")) {
+    # if (is(try(archivist::showLocalRepo(sim@paths$cachePath),
+    #            silent = TRUE),
+    #        "try-error")) {
 
-      checkPath(sim@paths$cachePath, create = TRUE)
-      archivist::createLocalRepo(sim@paths$cachePath, force = TRUE)
-    }
+    checkPath(sim@paths$cachePath, create = TRUE)
+    #   archivist::createLocalRepo(sim@paths$cachePath, force = TRUE)
+    # }
 
     validObject(sim)
     return(sim)

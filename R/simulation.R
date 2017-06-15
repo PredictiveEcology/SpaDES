@@ -124,6 +124,7 @@ setMethod(
 #'
 #' @include module-dependencies-class.R
 #' @include simList-class.R
+#' @importFrom reproducible Cache
 #' @include environment.R
 #' @docType methods
 #' @keywords internal
@@ -982,6 +983,7 @@ setMethod(
 #' @include helpers.R
 #' @importFrom data.table data.table rbindlist setkey
 #' @importFrom stringi stri_pad_right stri_pad stri_length
+#' @importFrom reproducible Cache
 # @importFrom utils tail
 #' @export
 #' @keywords internal
@@ -1653,6 +1655,7 @@ setMethod(
 })
 
 #' @rdname spades
+#' @importFrom reproducible Cache
 setMethod(
   "spades",
   signature(cache = "logical"),
@@ -1670,9 +1673,9 @@ setMethod(
     #   notOlderThan <- NULL
 
     if (cache) {
-       if (is(try(archivist::showLocalRepo(sim@paths$cachePath), silent = TRUE)
-              , "try-error"))
-         archivist::createLocalRepo(paths(sim)$cachePath)
+       # if (is(try(archivist::showLocalRepo(sim@paths$cachePath), silent = TRUE)
+       #        , "try-error"))
+       #   archivist::createLocalRepo(paths(sim)$cachePath)
 
       return(
         Cache(
