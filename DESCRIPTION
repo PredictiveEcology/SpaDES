@@ -43,7 +43,6 @@ Suggests:
     testthat (>= 1.0.2),
     tkrplot
 Imports:
-    archivist (>= 2.1),
     bit (>= 1.1-12),
     broom (>= 0.4.2),
     checkmate (>= 1.8.2),

@@ -1673,9 +1673,9 @@ setMethod(
     #   notOlderThan <- NULL
 
     if (cache) {
-       if (is(try(archivist::showLocalRepo(sim@paths$cachePath), silent = TRUE)
-              , "try-error"))
-         archivist::createLocalRepo(paths(sim)$cachePath)
+       # if (is(try(archivist::showLocalRepo(sim@paths$cachePath), silent = TRUE)
+       #        , "try-error"))
+       #   archivist::createLocalRepo(paths(sim)$cachePath)
 
       return(
         Cache(

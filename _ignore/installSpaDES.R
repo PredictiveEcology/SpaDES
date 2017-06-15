@@ -14,7 +14,8 @@ installSpaDES <- function(autoRestart = FALSE) {
   loadN <- loadedNamespaces()
   ip <- installed.packages(lib.loc = .libPaths()[1])
   #if(!("SpaDES" %in% ip[,"Package"])) {
-    SpaDESDeps <- c("SpaDES", "archivist", "broom", #"backports",
+    SpaDESDeps <- c("SpaDES", #"archivist",
+                    "broom", #"backports",
                     "checkmate",
                     "tidyr",
                     "chron", "CircStats", "data.table", #"nlme",
