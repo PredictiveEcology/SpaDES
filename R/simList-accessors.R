@@ -1587,7 +1587,6 @@ setReplaceMethod(
 #'
 #' @include simList-class.R
 #' @importFrom stats na.omit
-#' @importFrom archivist showLocalRepo createLocalRepo
 #' @export
 #' @docType methods
 #' @aliases simList-accessors-paths

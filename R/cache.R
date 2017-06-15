@@ -8,9 +8,10 @@
 #'
 #' @importFrom reproducible makeDigestible
 #' @importMethodsFrom reproducible makeDigestible
-#' @inheritParams reproducible makeDigestible
+#' @inheritParams reproducible::makeDigestible
 #' @rdname makeDigestible
 #' @include simList-class.R
+#' @seealso \code{\link[reproducible]{makeDigestible}}
 #' @export
 setGeneric("makeDigestible", function(object, objects,
                                       compareRasterFileLength = 1e6,
@@ -19,6 +20,7 @@ setGeneric("makeDigestible", function(object, objects,
 })
 
 #' @exportMethod makeDigestible
+#' @rdname makeDigestible
 setMethod(
   "makeDigestible",
   signature = "simList",
