@@ -77,7 +77,6 @@ Imports:
     raster (>= 2.5-8),
     RColorBrewer (>= 1.1-2),
     Rcpp (>= 0.12.8),
-    reproducible,
     rstudioapi (>= 0.5),
     shiny (>= 0.13),
     stats,

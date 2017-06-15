@@ -1,3 +1,11 @@
+if (!isGeneric("makeDigestible")) {
+    setGeneric("makeDigestible", function(object, objects,
+                                          compareRasterFileLength = 1e6,
+                                          algo = "xxhash64") {
+    standardGeneric("makeDigestible")
+  })
+}
+
 #' makeDigestible for simList class objects
 #'
 #' See \code{\link[reproducible]{makeDigestible}}. This strips out stuff
@@ -12,13 +20,6 @@
 #' @rdname makeDigestible
 #' @include simList-class.R
 #' @seealso \code{\link[reproducible]{makeDigestible}}
-#' @export
-setGeneric("makeDigestible", function(object, objects,
-                                      compareRasterFileLength = 1e6,
-                                      algo = "xxhash64") {
-  standardGeneric("makeDigestible")
-})
-
 #' @exportMethod makeDigestible
 #' @rdname makeDigestible
 setMethod(
