@@ -85,6 +85,7 @@ Imports:
     utils
 LinkingTo: Rcpp
 Remotes: s-u/fastshp,
+    PredictiveEcology/reproducible,
     MangoTheCat/visualTest
 License: GPL-3
 VignetteBuilder: knitr, rmarkdown
