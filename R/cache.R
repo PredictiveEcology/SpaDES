@@ -6,10 +6,11 @@
 #' or machines. This will likely still not allow identical digest
 #' results across R versions.
 #'
+#' @importFrom reproducible makeDigestible
 #' @importMethodsFrom reproducible makeDigestible
 #' @rdname makeDigestible
 #' @include simList-class.R
-#' @exportMethod makeDigestible
+#' @export
 setGeneric("makeDigestible", function(object, objects,
                                       compareRasterFileLength = 1e6,
                                       algo = "xxhash64") {
