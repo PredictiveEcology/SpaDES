@@ -27,7 +27,8 @@ Authors@R: c(
     )
 Additional_repositories: http://rforge.net
 Depends:
-    R (>= 3.3.0)
+    R (>= 3.3.0),
+    reproducible
 Suggests:
     covr,
     fastshp,
