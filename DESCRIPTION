@@ -12,7 +12,7 @@ Description: Implement a variety of event-based models, with a focus on
 URL: http://spades.predictiveecology.org,
     https://github.com/PredictiveEcology/SpaDES
 Date: 2017-06-07
-Version: 1.3.1.9080
+Version: 1.3.1.9100
 Authors@R: c(
     person(c("Alex", "M"), "Chubaty", email = "alexander.chubaty@canada.ca",
     role = c("aut", "cre")),
@@ -76,6 +76,7 @@ Imports:
     raster (>= 2.5-8),
     RColorBrewer (>= 1.1-2),
     Rcpp (>= 0.12.8),
+    reproducible,
     rstudioapi (>= 0.5),
     shiny (>= 0.13),
     stats,

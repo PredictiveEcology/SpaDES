@@ -8,6 +8,7 @@
 #'
 #' @importFrom reproducible makeDigestible
 #' @importMethodsFrom reproducible makeDigestible
+#' @inheritParams reproducible makeDigestible
 #' @rdname makeDigestible
 #' @include simList-class.R
 #' @export
