@@ -5,9 +5,10 @@ version 1.3.1.9000
 
 ## Dependency changes
 
-* minimum R version increased from `3.2.2` to `3.3.0` as required by dependency `RandomFieldsUtils`.
-* added `bit`, `fastmatch`, `fastdigest` and `Rcpp` packages to Imports
-* removed `stringr` package from Imports
+* minimum R version increased from `3.2.2` to `3.3.2` as required by dependencies `RandomFieldsUtils` and `reproducible`.
+* caching moved out of `SpaDES` and into new package [`reproducible`](https://github.com/PredictiveEcology/reproducible). `reproducible` added to Depends.
+* added `bit`, `fastmatch`, `fastdigest` and `Rcpp` packages to Imports.
+* removed `stringr` package from Imports.
 
 ## Defunct
 
