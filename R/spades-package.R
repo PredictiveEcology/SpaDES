@@ -213,7 +213,7 @@
 #'   \code{\link{simList}} \tab The 'simList' class\cr
 #' }
 #'
-#' @section 1.7 Caching:
+#' @section 1.7 Caching (moved to \code{reproducible} package):
 #'
 #' Caching can be done in a variety of ways, most of which are up to the module developer. However,
 #' the one most common usage would be to cache a simulation run. This might be useful if a simulation
@@ -223,11 +223,12 @@
 #' See example in \code{\link{spades}}, achieved by using \code{cache = TRUE} argument.
 #'
 #' \tabular{ll}{
-#'   \code{\link[reproducible]{cache}} \tab Caches a function, but often accessed as arg in \code{\link{spades}}\cr
-#'   \code{\link[reproducible]{Cache}} \tab Like cache, but without need to specify cacheRepo\cr
+#'   \code{\link[reproducible]{Cache}} \tab Caches a function, but often accessed as arg in \code{\link{spades}}\cr
+#'   \code{\link[reproducible]{cache}} \tab deprecated. Please use \code{Cache}\cr
 #'   \code{\link[reproducible]{showCache}} \tab Shows information about the objects in the cache\cr
 #'   \code{\link[reproducible]{clearCache}} \tab Removes objects from the cache\cr
-#'   \code{\link[reproducible]{clearStubArtifacts}} \tab Removes some errors in cached files\cr
+#'   \code{\link[reproducible]{keepCache}} \tab Keeps only the objects described\cr
+#'   \code{\link[reproducible]{clearStubArtifacts}} \tab Removes any erroneous items in a cache repository\cr
 #' }
 #'
 #' A module developer can build caching into their module by creating cached versions of their

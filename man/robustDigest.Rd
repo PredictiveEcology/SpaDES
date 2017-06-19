@@ -8,6 +8,23 @@
 \S4method{robustDigest}{simList}(object, objects,
   compareRasterFileLength = 1e+06, algo = "xxhash64")
 }
+\arguments{
+\item{object}{an object to convert to a 'digestible' state}
+
+\item{objects}{Optional character vector indicating which objects are to
+be considered while making digestible.}
+
+\item{compareRasterFileLength}{Numeric. Optional. When there are Rasters, that
+have file-backed storage, this is passed to the length arg in \code{digest}
+when determining if the Raster file is already in the database.
+Note: uses \code{\link[digest]{digest}} for file-backed Raster.
+Default 1e6. Passed to \code{prepareFileBackedRaster}.}
+
+\item{algo}{The algorithms to be used; currently available choices are
+    \code{md5}, which is also the default, \code{sha1}, \code{crc32},
+    \code{sha256}, \code{sha512}, \code{xxhash32}, \code{xxhash64} and
+    \code{murmur32}.}
+}
 \description{
 See \code{\link[reproducible]{robustDigest}}. This strips out stuff
 from a simList class object that would make it otherwise not

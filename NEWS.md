@@ -49,7 +49,7 @@ version 1.3.1.9000
 * `shine` can now take characters in parameters
 * change order of parsing of modules: `defineModule` is last, so can use objects defined within module for parameters
 * improved `simInit` debug mechanism -- passing character string of module name will enter into a `browser` call inside `doEvent`
-* improvements to caching:
+* improvements to caching --> these are moved to `reproducible` package:
 
     - improved caching for `Raster*` objects & S4 methods - now it normally persists across sessions;
     - add `Cache` (upper case) which derives `cacheRepo` arg automatically from either the `cachePath(sim)`, if used within a module, or `getPath()$cachePath` if not within a module. Also, the upper case removes the name conflict with `archivist::cache`;
