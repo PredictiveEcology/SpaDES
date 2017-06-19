@@ -31,6 +31,7 @@
 #' @include environment.R
 #' @include priority.R
 #' @importFrom R.utils isAbsolutePath
+#' @importFrom reproducible checkPath
 #' @export
 #' @docType methods
 #' @rdname checkpoint

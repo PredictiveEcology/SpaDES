@@ -110,6 +110,7 @@ setGeneric("newModule", function(name, path, ...) {
 
 #' @export
 #' @rdname newModule
+#' @importFrom reproducible checkPath
 setMethod(
   "newModule",
   signature = c(name = "character", path = "character"),
@@ -195,6 +196,7 @@ setGeneric("newModuleCode", function(name, path, open, type, children) {
 #' @export
 #' @rdname newModuleCode
 #' @family module creation helpers
+#' @importFrom reproducible checkPath
 #'
 setMethod(
   "newModuleCode",
@@ -430,6 +432,7 @@ setGeneric("newModuleDocumentation", function(name, path, open, type, children) 
 
 #' @export
 #' @rdname newModuleDocumentation
+#' @importFrom reproducible checkPath
 setMethod(
   "newModuleDocumentation",
   signature = c(name = "character", path = "character", open = "logical",
@@ -471,7 +474,7 @@ library(igraph)
 library(SpaDES)
 
 moduleDir <- file.path(\"", path, "\")
-inputDir <- file.path(moduleDir, \"inputs\") %>% checkPath(create = TRUE)
+inputDir <- file.path(moduleDir, \"inputs\") %>% reproducible::checkPath(create = TRUE)
 outputDir <- file.path(moduleDir, \"outputs\")
 cacheDir <- file.path(outputDir, \"cache\")
 times <- list(start = 0, end = 10)
@@ -613,6 +616,7 @@ setGeneric("newModuleTests", function(name, path, open) {
 
 #' @export
 #' @rdname newModuleTests
+#' @importFrom reproducible checkPath
 setMethod(
   "newModuleTests",
   signature = c(name = "character", path = "character", open = "logical"),
@@ -757,6 +761,7 @@ setGeneric("openModules", function(name, path) {
 
 #' @export
 #' @rdname openModules
+#' @importFrom reproducible checkPath
 setMethod("openModules",
           signature = c(name = "character", path = "character"),
           definition = function(name, path) {
@@ -942,6 +947,7 @@ setGeneric("zipModule", function(name, path, version, data=FALSE, ...) {
 #' @export
 # @importFrom utils zip
 #' @rdname zipModule
+#' @importFrom reproducible checkPath
 setMethod(
   "zipModule",
   signature = c(name = "character", path = "character", version = "character"),

@@ -247,6 +247,7 @@ setGeneric("downloadModule", function(name, path, version, repo, data, quiet) {
 })
 
 #' @rdname downloadModule
+#' @importFrom reproducible checkPath
 setMethod(
   "downloadModule",
   signature = c(name = "character", path = "character", version = "character",
@@ -375,6 +376,7 @@ setGeneric("downloadData", function(module, path, quiet) {
 })
 
 #' @rdname downloadData
+#' @importFrom reproducible checkPath
 setMethod(
   "downloadData",
   signature = c(module = "character", path = "character", quiet = "logical"),
@@ -577,6 +579,7 @@ setGeneric("checksums", function(module, path, write, ...) {
 })
 
 #' @rdname checksums
+#' @importFrom reproducible checkPath
 setMethod(
   "checksums",
   signature = c(module = "character", path = "character", write = "logical"),

@@ -2,6 +2,7 @@ test_that("experiment does not work correctly", {
   library(raster); on.exit(detach("package:raster"), add = TRUE)
   library(igraph); on.exit(detach("package:igraph"), add = TRUE)
   library(dplyr); on.exit(detach("package:dplyr"), add = TRUE)
+  library(reproducible);
 
   tmpdir <- file.path(tempdir(), "testParallel") %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
