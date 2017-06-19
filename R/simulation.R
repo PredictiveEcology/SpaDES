@@ -812,7 +812,9 @@ setMethod(
     checkParams(sim, core, dotParams, sim@paths[["modulePath"]])
 
     # keep session info for debugging & checkpointing
-    #sim$.sessionInfo <- sessionInfo()
+    # sim$.sessionInfo <- sessionInfo() # commented out because it gives too much information
+                                        # i.e., it includes all packages in a user search
+                                        #  path, which is not necessarily the correct info
 
     return(invisible(sim))
 })

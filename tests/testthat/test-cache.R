@@ -1,5 +1,6 @@
 test_that("test cache", {
   library(igraph)
+  library(reproducible)
   tmpdir <- file.path(tempdir(), "testCache") %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
   try(clearCache(tmpdir), silent = TRUE)
@@ -26,8 +27,19 @@ test_that("test cache", {
   set.seed(1123)
   sims <- experiment(mySim, replicates = 2, cache = TRUE)
   out <- showCache(sims[[1]])
+  expect_true(NROW(out[tagValue=="spades"])==2) # 2 cached copies
+  expect_true(NROW(unique(out$artifact))==2) # 2 cached copies
   expect_output(print(out), "cacheId")
+  expect_output(print(out), "simList")
   expect_true(NROW(out) == 16) # will become 15 with new experiment caching stuff
+  expect_message(sims <- Cache(experiment, mySim, replicates = 2, cache = TRUE),
+                 "loading cached result from previous spades call")
+
+  out2 <- showCache(sims[[1]])
+  expect_true(NROW(out2[tagKey=="accessed"])==5) # 2 original times,
+                         #2 cached times per spades, 1 experiment time
+  expect_true(NROW(unique(out2$artifact))==3) # 2 cached copies of spades, 1 experiment
+
   clearCache(sims[[1]])
   out <- showCache(sims[[1]])
   expect_true(NROW(out) == 0)
@@ -35,6 +47,7 @@ test_that("test cache", {
 
 test_that("test event-level cache", {
   library(igraph)
+  library(reproducible)
   tmpdir <- file.path(tempdir(), "testCache") %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
   try(clearCache(tmpdir), silent = TRUE)
