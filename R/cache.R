@@ -32,7 +32,7 @@ setMethod(
       objectsToDigest <- objectsToDigest[objectsToDigest %in% objects]
     }
 
-    envirHash <- robustDigest(mget(objectsToDigest, envir=object@.envir))
+    envirHash <- robustDigest(mget(objectsToDigest, envir = object@.envir))
 
     envirHash <- sortDotsUnderscoreFirst(envirHash)
     object <- Copy(object, objects = FALSE, queues = FALSE)
@@ -51,7 +51,8 @@ setMethod(
     deps <- object@depends@dependencies
     for (i in seq_along(deps)) {
       if (!is.null(deps[[i]])) {
-        object@depends@dependencies[[i]] <- lapply(slotNames(object@depends@dependencies[[i]]), function(x) slot(object@depends@dependencies[[i]],x))
+        object@depends@dependencies[[i]] <- lapply(slotNames(object@depends@dependencies[[i]]), function(x)
+          slot(object@depends@dependencies[[i]],x))
         names(object@depends@dependencies[[i]]) <- slotNames(deps[[i]])
         object@depends@dependencies[[i]][["timeframe"]] <- as.Date(deps[[i]]@timeframe)
       }
@@ -61,8 +62,7 @@ setMethod(
     object@params <- lapply(object@params, function(x) sortDotsUnderscoreFirst(x))
 
     return(object)
-  })
-
+})
 
 if (!isGeneric(".tagsByClass")) {
   setGeneric(".tagsByClass", function(object) {
@@ -99,12 +99,9 @@ setMethod(
     } else {
       userTags <- NULL
     }
-
     userTags
+})
 
-  })
-
-##########################################################
 if (!isGeneric(".cacheMessage")) {
   setGeneric(".cacheMessage", function(object, functionName) {
     standardGeneric(".cacheMessage")
@@ -127,12 +124,12 @@ setMethod(
   signature = "simList",
   definition = function(object, functionName) {
     cur <- current(object)
-    if(NROW(cur)) {
+    if (NROW(cur)) {
       message("Using cached copy of ", cur$eventType, " event in ", cur$moduleName, " module")
     } else {
       .cacheMessage(NULL, functionName)
     }
-  })
+})
 
 
 #########################################################
@@ -158,7 +155,6 @@ setMethod(
   ".checkCacheRepo",
   signature = "list",
   definition = function(object) {
-
     whSimList <- unlist(lapply(object, is, "simList"))
     if (length(whSimList) > 0) {
       cacheRepo <- object[whSimList][[1]]@paths$cachePath # just take the first simList, if there are >1
@@ -173,18 +169,13 @@ setMethod(
       }
     }
     cacheRepo
-
-
-  })
-
-
+})
 
 if (!isGeneric(".prepareOutput")) {
   setGeneric(".prepareOutput", function(object) {
     standardGeneric(".prepareOutput")
   })
 }
-
 
 ##########################################
 #' prepareOutput for simList class objects
@@ -224,7 +215,6 @@ setMethod(
     return(simListOut)
 })
 
-
 if (!isGeneric(".addTagsToOutput")) {
   setGeneric(".addTagsToOutput", function(object, outputObjects, FUN) {
     standardGeneric(".addTagsToOutput")
@@ -235,19 +225,22 @@ if (!isGeneric(".addTagsToOutput")) {
 #'
 #' See \code{\link[reproducible]{.addTagsToOutput}}.
 #'
-#' @importFrom reproducible .addTagsToOutput
-#' @importMethodsFrom reproducible .addTagsToOutput
 #' @inheritParams reproducible::.addTagsToOutput
-#' @include simList-class.R
-#' @seealso \code{\link[reproducible]{.addTagsToOutput}}
+#'
+#' @author Eliot MciIntire
+#' @docType methods
 #' @exportMethod .addTagsToOutput
 #' @export
+#' @importFrom reproducible .addTagsToOutput
+#' @importMethodsFrom reproducible .addTagsToOutput
+#' @include simList-class.R
 #' @rdname addTagsToOutput
+#' @seealso \code{\link[reproducible]{.addTagsToOutput}}
+#'
 setMethod(
   ".addTagsToOutput",
   signature = "simList",
   definition = function(object, outputObjects, FUN) {
-
     if (!is.null(outputObjects)) {
       outputToSave <- object
       outputToSave@.envir <- new.env()
@@ -259,17 +252,14 @@ setMethod(
     } else {
       outputToSave <- object
     }
-
     outputToSave
-  })
-
+})
 
 if (!isGeneric(".objSizeInclEnviros")) {
   setGeneric(".objSizeInclEnviros", function(object) {
     standardGeneric(".objSizeInclEnviros")
   })
 }
-
 
 #' objSizeInclEnviros for simList class objects
 #'
@@ -287,6 +277,5 @@ setMethod(
   ".objSizeInclEnviros",
   signature = "simList",
   definition = function(object) {
-    object.size(as.list(object@.envir, all.names = TRUE)) +
-      object.size(object)
-  })
+    object.size(as.list(object@.envir, all.names = TRUE)) + object.size(object)
+})

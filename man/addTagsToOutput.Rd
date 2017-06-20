@@ -21,3 +21,6 @@ See \code{\link[reproducible]{.addTagsToOutput}}.
 \seealso{
 \code{\link[reproducible]{.addTagsToOutput}}
 }
+\author{
+Eliot MciIntire
+}
