@@ -106,7 +106,7 @@ To persist between sessions, use \code{SpaDES::setPaths()} every session.
 \code{archivist::cache} function which will not work in a SpaDES context.
 If a user would like to use \code{cache} (lowercase c), then it must be
 always prefixed with \code{SpaDES::cache(  )} so that it does not accidentally
-call the archivist package version of cache.
+call the \code{archivist::cache}.
 }
 \note{
 \code{Raster*} class objects have a special behaviour when Cached.

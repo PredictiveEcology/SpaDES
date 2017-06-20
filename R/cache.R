@@ -41,7 +41,7 @@ if (getRversion() >= "3.1.0") {
 #' \code{archivist::cache} function which will not work in a SpaDES context.
 #' If a user would like to use \code{cache} (lowercase c), then it must be
 #' always prefixed with \code{SpaDES::cache(  )} so that it does not accidentally
-#' call the archivist package version of cache.
+#' call the \code{archivist::cache}.
 #'
 #' @section Caching as part of SpaDES:
 #'
