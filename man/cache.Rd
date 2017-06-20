@@ -56,9 +56,10 @@ As with \code{\link[archivist]{cache}}, the return is either the return
 value of the function call or the cached version (i.e., the result from a previous
 call to this same cached function with identical arguments).
 
-If \code{Cache} is called within a SpaDES module, then the cached entry will automatically
-get 3 extra \code{userTags}: eventTime, eventType, and moduleName. These can then be used in
-\code{clearCache} to selectively remove cached objects by eventTime, eventType or moduleName.
+If \code{Cache} is called within a SpaDES module, then the cached entry will
+automatically get 3 extra \code{userTags}: eventTime, eventType, and moduleName.
+These can then be used in \code{clearCache} to selectively remove cached objects
+by eventTime, eventType or moduleName.
 
 \code{Cache} will add a tag to the artifact in the database
 called \code{accessed} which will assign the time that it was

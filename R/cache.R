@@ -100,6 +100,7 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @inheritParams archivist::cache
 #' @inheritParams archivist::saveToLocalRepo
+#' @inheritParams digest::digest
 #'
 #' @param objects Character vector of objects within the simList that should
 #'                be considered for caching. i.e., only use a subset of
@@ -116,15 +117,14 @@ if (getRversion() >= "3.1.0") {
 #'        when determining if the Raster file is already in the database.
 #'        Default 1e6. Passed to \code{prepareFileBackedRaster}.
 #'
-#' @inheritParams digest::digest
-#'
 #' @return As with \code{\link[archivist]{cache}}, the return is either the return
 #' value of the function call or the cached version (i.e., the result from a previous
 #' call to this same cached function with identical arguments).
 #'
-#' If \code{Cache} is called within a SpaDES module, then the cached entry will automatically
-#' get 3 extra \code{userTags}: eventTime, eventType, and moduleName. These can then be used in
-#' \code{clearCache} to selectively remove cached objects by eventTime, eventType or moduleName.
+#' If \code{Cache} is called within a SpaDES module, then the cached entry will
+#' automatically get 3 extra \code{userTags}: eventTime, eventType, and moduleName.
+#' These can then be used in \code{clearCache} to selectively remove cached objects
+#' by eventTime, eventType or moduleName.
 #'
 #' \code{Cache} will add a tag to the artifact in the database
 #' called \code{accessed} which will assign the time that it was
