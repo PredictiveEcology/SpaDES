@@ -233,3 +233,25 @@ test_that("simInit with R subfolder scripts", {
   expect_true(sum(grepl(ls(mySim), pattern = "^a$")) == 1)
   expect_true(mySim$a(2) == 3)
 })
+
+test_that("simulation runs with simInit with duplicate modules named", {
+  library(igraph); on.exit(detach("package:igraph"), add = TRUE)
+
+  set.seed(42)
+
+  times <- list(start = 0.0, end = 10, timeunit = "year")
+  params <- list(
+    randomLandscapes = list(.plotInitialTime = NA, .plotInterval = NA),
+    caribouMovement = list(.plotInitialTime = NA, .plotInterval = NA, torus = TRUE)
+  )
+  modules <- list("randomLandscapes", "randomLandscapes", "caribouMovement")
+  paths <- list(modulePath = system.file("sampleModules", package = "SpaDES"))
+
+  expect_true(
+    grepl(capture_messages(mySim <-
+        simInit(times, params, modules, objects = list(), paths)),
+                pattern = "Duplicate module"))
+  expect_true(length(modules(mySim))!=length(modules))
+  expect_true(length(modules(mySim))==length(unique(modules)))
+
+})

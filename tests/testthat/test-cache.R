@@ -47,7 +47,7 @@ test_that("test cache", {
 
 test_that("test event-level cache", {
   library(igraph)
-  library(reproducible)
+  #library(reproducible)
   tmpdir <- file.path(tempdir(), "testCache") %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
   try(clearCache(tmpdir), silent = TRUE)
@@ -72,8 +72,8 @@ test_that("test event-level cache", {
   )
 
   set.seed(1123)
-  #expect_true(!grepl(pattern = "Using cached copy of init event in randomLandscapes module",
-  #                   capture_messages(sims <- spades(Copy(mySim), notOlderThan = Sys.time()))))
+  expect_true(!"Using cached copy of init event in randomLandscapes module" %in%
+                capture_messages(sims <- spades(Copy(mySim), notOlderThan = Sys.time())))
   sims <- spades(Copy(mySim), notOlderThan = Sys.time()) ## TO DO: fix this test
   landscapeMaps1 <- raster::dropLayer(sims$landscape, "Fires")
   fireMap1 <- sims$landscape$Fires
@@ -93,7 +93,7 @@ test_that("test event-level cache", {
 
 test_that("test module-level cache", {
   library(igraph)
-  library(reproducible)
+  #library(reproducible)
   tmpdir <- file.path(tempdir(), "testCache") %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
 
@@ -123,8 +123,8 @@ test_that("test module-level cache", {
 
   set.seed(1123)
   pdf(tmpfile)
-  #expect_true(!grepl(pattern = "Using cached copy of init event in randomLandscapes module",
-  #                   capture_messages(sims <- spades(Copy(mySim), notOlderThan = Sys.time()))))
+  expect_true(!("Using cached copy of init event in randomLandscapes module" %in%
+                     capture_messages(sims <- spades(Copy(mySim), notOlderThan = Sys.time()))))
   sims <- spades(Copy(mySim), notOlderThan = Sys.time())
   dev.off()
 

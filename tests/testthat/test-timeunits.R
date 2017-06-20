@@ -126,7 +126,7 @@ test_that("timeunits with child and parent modules work correctly", {
     newModule("child3", ".", open = FALSE)
     newModule("child4", ".", open = FALSE)
     newModule("child5", ".", open = FALSE)
-  #})
+    #})
 
   fileName <- "child2/child2.R"
   xxx <- readLines(fileName)
@@ -148,8 +148,8 @@ test_that("timeunits with child and parent modules work correctly", {
   xxx1 <- gsub(xxx, pattern = 'timeunit = "year"', replacement = 'timeunit = "month"') # nolint
   cat(xxx1, file = fileName, sep = "\n")
 
-  #mySim <- simInit(modules = list("grandpar1", "par1"), paths = list(modulePath = "."))
-  #expect_equal(timeunit(mySim), "month")
+  mySim <- simInit(modules = list("grandpar1", "par1"), paths = list(modulePath = "."))
+  expect_equal(timeunit(mySim), "month")
 
   # If only listing the one module and it is a parent, then use it regardless of whether
   #  it is shortest or longest
