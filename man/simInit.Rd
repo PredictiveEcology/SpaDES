@@ -162,7 +162,7 @@ are all needed for initialization.
 
 # A little more complicated with inputs and outputs
 if (require(rgdal)) {
-   mapPath <- system.file("maps", package = "SpaDES")
+   mapPath <- system.file("maps", package = "quickPlot")
    mySim <- simInit(
      times = list(start = 0.0, end = 2.0, timeunit = "year"),
      params = list(

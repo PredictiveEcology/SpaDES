@@ -37,6 +37,8 @@
 #' @importFrom shiny uiOutput updateSliderInput updateTabsetPanel
 #' @importFrom DiagrammeR DiagrammeROutput renderDiagrammeR
 #' @importFrom DT renderDataTable dataTableOutput
+#' @importFrom grDevices dev.cur
+#' @importFrom quickPlot clearPlot rePlot
 #' @examples
 #' \dontrun{
 #'  mySim <- simInit(

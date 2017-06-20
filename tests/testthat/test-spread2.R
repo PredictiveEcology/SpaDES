@@ -769,10 +769,8 @@ test_that("spread2 tests", {
     out[i] <- NROW(origSpread(ras, TRUE, N, sp))
   }
 
-  library(ggplot2)
   out <- data.table(x = out)
   outNew <- data.table(x = outNew)
-  ggplot(out, aes(x)) + geom_histogram() + geom_histogram(data = outNew, mapping = aes(x, fill = "transparent"))
   mean(out$x)
   mean(outNew$x)
   sd(out$x)

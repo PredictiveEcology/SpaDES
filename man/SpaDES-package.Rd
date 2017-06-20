@@ -332,7 +332,7 @@ that share identical information.
 We likely will not want the default colours for every map.
 Here are several helper functions to add to, set and get colors of \code{Raster*} objects:
 \tabular{ll}{
-  \code{\link[SpaDES:setColors<-]{setColors}} \tab Set colours for plotting \code{Raster*} objects\cr
+  \code{\link[quickPlot:setColors<-]{setColors}} \tab Set colours for plotting \code{Raster*} objects\cr
   \code{\link{getColors}} \tab Get colours in a \code{Raster*} objects\cr
   \code{\link{divergentColors}} \tab Create a color palette with diverging colors around a middle\cr
 }

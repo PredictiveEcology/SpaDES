@@ -596,7 +596,7 @@ setMethod(
       if (needDistance) {
         fromPts <- xyFromCell(landscape, dtPotential$id)
         toPts <- xyFromCell(landscape, dtPotential$to)
-        dists <- pointDistance(p1 = fromPts, p2 = toPts, lonlat = FALSE)
+        dists <- .pointDistance(p1 = fromPts, p2 = toPts, lonlat = FALSE)
         if (!is.na(asymmetry)) {
           actualAsymmetry <- if (length(asymmetry) == 1) {
             asymmetry

@@ -6,7 +6,7 @@ test_that("test-load.R: loading inputs does not work correctly", {
     unlink(tmpdir, recursive = TRUE)
   }, add = TRUE)
 
-  mapPath <- system.file("maps", package = "SpaDES")
+  mapPath <- system.file("maps", package = "quickPlot")
 
   filelist <- data.frame(
     files = dir(file.path(mapPath), full.names = TRUE, pattern = "tif")[1:2],
@@ -122,7 +122,7 @@ test_that("test-load.R: passing arguments to filelist in simInit does not work c
   #  at time = 10 and 20 (via "intervals").
   # Also, pass the single argument as a list to all functions...
   #  specifically, when add "native = TRUE" as an argument to the raster function
-  mapPath <- system.file("maps", package = "SpaDES")
+  mapPath <- system.file("maps", package = "quickPlot")
   files <- dir(file.path(mapPath), full.names = TRUE, pattern =  "tif")[1:4]
   parameters <- list(
     .globals = list(stackName = "landscape"),
@@ -185,7 +185,7 @@ test_that("test-load.R: passing objects to simInit does not work correctly", {
     unlink(tmpdir, recursive = TRUE)
   }, add = TRUE)
 
-  mapPath <- mapPath <- system.file("maps", package = "SpaDES")
+  mapPath <- mapPath <- system.file("maps", package = "quickPlot")
 
   # test object passing directly
   if (require(rgdal, quietly = TRUE)) {
@@ -255,7 +255,7 @@ test_that("test-load.R: passing objects to simInit does not work correctly", {
 })
 
 test_that("test-load.R: passing nearly empty file to simInit does not work correctly", {
-  mapPath <- system.file("maps", package = "SpaDES")
+  mapPath <- system.file("maps", package = "quickPlot")
 
   # test object passing directly
   if (require(rgdal, quietly = TRUE)) {
@@ -299,7 +299,7 @@ test_that("test-load.R: more tests", {
   if (require(rgdal, quietly = TRUE)) {
     on.exit(detach("package:rgdal"), add = TRUE)
 
-    files <- dir(system.file("maps", package = "SpaDES"),
+    files <- dir(system.file("maps", package = "quickPlot"),
                 full.names = TRUE, pattern = "tif")
     arguments <- I(rep(list(native = TRUE), length(files)))
     filelist <- data.frame(
