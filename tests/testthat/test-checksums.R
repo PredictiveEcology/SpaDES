@@ -1,6 +1,5 @@
 test_that("checksums read and written correctly", {
   library(magrittr)
-  library(quickPlot)
 
   sampleDir <- system.file("maps", package = "SpaDES")
   sampleFiles <- list.files(sampleDir, pattern = "[.]tif", full.names = TRUE)

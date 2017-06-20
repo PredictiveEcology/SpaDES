@@ -1,6 +1,5 @@
 test_that("test checkpointing", {
   library(igraph)
-  library(quickPlot)
   tmpdir <- file.path(tempdir(), "test_checkpoint") %>% checkPath(create = TRUE)
   file <- file.path("chkpnt.RData")
   on.exit({

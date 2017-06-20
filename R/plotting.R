@@ -82,6 +82,9 @@ setMethod(
         useElem <- 2
       }
     }
-    eval(parse(text=deparse(elems[[useElem]])), envir=tmp@.envir)
+    out <- tryCatch(
+      eval(parse(text=deparse(elems[[useElem]])), envir=tmp@.envir),
+      error=function(x) eval(parse(text=deparse(elems[[useElem]])), envir=envir))
+    return(out)
 
   })
