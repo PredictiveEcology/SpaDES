@@ -149,143 +149,152 @@ setMethod(
     if (!is.null(dots$objects)) objs <- dots$objects
     for (j in .unparsed(modules)) {
       m <- modules[[j]][1]
-      filename <- paste(sim@paths[["modulePath"]], "/", m, "/", m, ".R", sep = "")
-      parsedFile <- parse(filename)
-      defineModuleItem <- grepl(pattern = "defineModule", parsedFile)
+      prevNamedModules <- if(!is.null(unlist(sim@depends@dependencies))) {
+          unlist(lapply(sim@depends@dependencies, function(x) slot(x, "name")))
+        } else { NULL }
+      if(!(m %in% prevNamedModules)) { # This is about duplicate named modules
+        filename <- paste(sim@paths[["modulePath"]], "/", m, "/", m, ".R", sep = "")
+        parsedFile <- parse(filename)
+        defineModuleItem <- grepl(pattern = "defineModule", parsedFile)
 
-      # evaluate the rest of the parsed file
-      eval(parsedFile[!defineModuleItem], envir = sim@.envir)
+        # evaluate the rest of the parsed file
+        eval(parsedFile[!defineModuleItem], envir = sim@.envir)
 
-      # parse any scripts in R subfolder
-      RSubFolder <- file.path(dirname(filename), "R")
-      RScript <- dir(RSubFolder)
-      if (length(RScript) > 0) {
-        for (Rfiles in RScript) {
-          parsedFile1 <- parse(file.path(RSubFolder, Rfiles))
-          eval(parsedFile1, envir = sim@.envir)
+        # parse any scripts in R subfolder
+        RSubFolder <- file.path(dirname(filename), "R")
+        RScript <- dir(RSubFolder)
+        if (length(RScript) > 0) {
+          for (Rfiles in RScript) {
+            parsedFile1 <- parse(file.path(RSubFolder, Rfiles))
+            eval(parsedFile1, envir = sim@.envir)
+          }
         }
-      }
 
-      # evaluate all but inputObjects and outputObjects part of 'defineModule'
-      #  This allow user to use params(sim) in their inputObjects
-      namesParsedList <- names(parsedFile[defineModuleItem][[1]][[3]])
-      inObjs <- (namesParsedList == "inputObjects")
-      outObjs <- (namesParsedList == "outputObjects")
-      pf <- parsedFile[defineModuleItem]
-      pf[[1]][[3]] <- pf[[1]][[3]][!(inObjs | outObjs)]
-      sim <- suppressWarnings(eval(pf))
+        # evaluate all but inputObjects and outputObjects part of 'defineModule'
+        #  This allow user to use params(sim) in their inputObjects
+        namesParsedList <- names(parsedFile[defineModuleItem][[1]][[3]])
+        inObjs <- (namesParsedList == "inputObjects")
+        outObjs <- (namesParsedList == "outputObjects")
+        pf <- parsedFile[defineModuleItem]
+        pf[[1]][[3]] <- pf[[1]][[3]][!(inObjs | outObjs)]
+        sim <- suppressWarnings(eval(pf))
 
-      # check that modulename == filename
-      fname <- unlist(strsplit(basename(filename), "[.][r|R]$"))
-      k <- length(sim@depends@dependencies)
-      if (sim@depends@dependencies[[k]]@name == m) {
-        i <- k
+        # check that modulename == filename
+        fname <- unlist(strsplit(basename(filename), "[.][r|R]$"))
+        k <- length(sim@depends@dependencies)
+
+        if (sim@depends@dependencies[[k]]@name == m) {
+          i <- k
+        } else {
+          stop("Module name metadata (", sim@depends@dependencies[[k]]@name, ") ",
+               "does not match filename (", m, ".R).")
+        }
+
+        # assign default param values
+        deps <- sim@depends@dependencies[[i]]@parameters
+        sim@params[[m]] <- list()
+        if (NROW(deps) > 0) {
+          for (x in 1:NROW(deps)) {
+            sim@params[[m]][[deps$paramName[x]]] <- deps$default[[x]]
+          }
+        }
+        # override immediately with user supplied values
+        pars <- list(...)$params
+        if (!is.null(pars[[m]])) {
+          if (length(pars[[m]]) > 0) {
+            sim@params[[m]][names(pars[[m]])] <- pars[[m]]
+          }
+        }
+
+        # do inputObjects and outputObjects
+        pf <- parsedFile[defineModuleItem]
+        if (any(inObjs)) {
+          sim@depends@dependencies[[i]]@inputObjects <- data.frame(
+            rbindlist(fill = TRUE,
+                      list(sim@depends@dependencies[[i]]@inputObjects,
+                           eval(pf[[1]][[3]][inObjs][[1]]))
+            )
+          )
+        }
+        if (any(outObjs)) {
+          sim@depends@dependencies[[i]]@outputObjects <- data.frame(
+            rbindlist(fill = TRUE,
+                      list(sim@depends@dependencies[[i]]@outputObjects,
+                           eval(pf[[1]][[3]][outObjs][[1]]))
+            )
+          )
+        }
+
+        # add child modules to list of all child modules, to be parsed later
+        children <- as.list(sim@depends@dependencies[[i]]@childModules) %>%
+          lapply(., `attributes<-`, list(parsed = FALSE))
+        all_children <- append_attr(all_children, children)
+
+        # remove parent module from the list
+        if (length(children)) {
+          parent_ids <- c(parent_ids, j)
+        }
+
+        ## run .inputObjects() from each module file from each module, one at a time,
+        ## and remove it from the simList so next module won't rerun it.
+
+        # If user supplies the needed objects, then test whether all are supplied.
+        # If they are all supplied, then skip the .inputObjects code
+        cacheIt <- FALSE
+        allObjsProvided <- sim@depends@dependencies[[i]]@inputObjects$objectName %in% userSuppliedObjNames
+        if (!all(allObjsProvided)) {
+          if (!is.null(sim@.envir$.inputObjects)) {
+            list2env(objs[sim@depends@dependencies[[i]]@inputObjects$objectName[allObjsProvided]],
+                     envir = sim@.envir)
+            a <- sim@params[[m]][[".useCache"]]
+            if (!is.null(a)) {
+              if (".useCache" %in% names(list(...)$params)) {  # user supplied values
+                b <- list(...)$params[[i]]$.useCache
+                if (!is.null(b)) a <- b
+              }
+              #.useCache is a parameter
+              if (!identical(FALSE, a)) {
+                #.useCache is not FALSE
+                if (!isTRUE(a)) {
+                  #.useCache is not TRUE
+                  if (".inputObjects" %in% a) {
+                    cacheIt <- TRUE
+                  }
+                } else {
+                  cacheIt <- TRUE
+                }
+              }
+            }
+
+            if (cacheIt) {
+              message("Using cached copy of .inputObjects for ", m)
+              objNam <- sim@depends@dependencies[[i]]@outputObjects$objectName
+              moduleSpecificObjects <- c(grep(ls(sim), pattern = m, value = TRUE),
+                                         na.omit(objNam))
+              moduleSpecificOutputObjects <- objNam
+              sim <- Cache(FUN = sim@.envir$.inputObjects, sim = sim,
+                           objects = moduleSpecificObjects,
+                           notOlderThan = notOlderThan,
+                           outputObjects = moduleSpecificOutputObjects,
+                           userTags=c(paste0("module:",m),paste0("eventType:.inputObjects")))
+            } else {
+              message("Running .inputObjects for ", m)
+              .modifySearchPath(pkgs = sim@depends@dependencies[[i]]@reqdPkgs)
+              sim <- sim@.envir$.inputObjects(sim)
+              rm(".inputObjects", envir = sim@.envir)
+            }
+          }
+        }
       } else {
-        stop("Module name metadata (", sim@depends@dependencies[[k]]@name, ") ",
-             "does not match filename (", m, ".R).")
-      }
-
-      # assign default param values
-      deps <- sim@depends@dependencies[[i]]@parameters
-      sim@params[[m]] <- list()
-      if (NROW(deps) > 0) {
-        for (x in 1:NROW(deps)) {
-          sim@params[[m]][[deps$paramName[x]]] <- deps$default[[x]]
-        }
-      }
-      # override immediately with user supplied values
-      pars <- list(...)$params
-      if (!is.null(pars[[m]])) {
-        if (length(pars[[m]]) > 0) {
-          sim@params[[m]][names(pars[[m]])] <- pars[[m]]
-        }
-      }
-
-      # do inputObjects and outputObjects
-      pf <- parsedFile[defineModuleItem]
-      if (any(inObjs)) {
-        sim@depends@dependencies[[i]]@inputObjects <- data.frame(
-          rbindlist(fill = TRUE,
-                    list(sim@depends@dependencies[[i]]@inputObjects,
-                         eval(pf[[1]][[3]][inObjs][[1]]))
-          )
-        )
-      }
-      if (any(outObjs)) {
-        sim@depends@dependencies[[i]]@outputObjects <- data.frame(
-          rbindlist(fill = TRUE,
-                    list(sim@depends@dependencies[[i]]@outputObjects,
-                         eval(pf[[1]][[3]][outObjs][[1]]))
-          )
-        )
+        message("Duplicate module, ",m,", specified. Skipping loading it twice.")
       }
 
       # update parse status of the module
       attributes(modules[[j]]) <- list(parsed = TRUE)
 
-      # add child modules to list of all child modules, to be parsed later
-      children <- as.list(sim@depends@dependencies[[i]]@childModules) %>%
-        lapply(., `attributes<-`, list(parsed = FALSE))
-      all_children <- append_attr(all_children, children)
-
-      # remove parent module from the list
-      if (length(children)) {
-        parent_ids <- c(parent_ids, j)
-      }
-
-      ## run .inputObjects() from each module file from each module, one at a time,
-      ## and remove it from the simList so next module won't rerun it.
-
-      # If user supplies the needed objects, then test whether all are supplied.
-      # If they are all supplied, then skip the .inputObjects code
-      cacheIt <- FALSE
-      allObjsProvided <- sim@depends@dependencies[[i]]@inputObjects$objectName %in% userSuppliedObjNames
-      if (!all(allObjsProvided)) {
-        if (!is.null(sim@.envir$.inputObjects)) {
-          list2env(objs[sim@depends@dependencies[[i]]@inputObjects$objectName[allObjsProvided]],
-                   envir = sim@.envir)
-          a <- sim@params[[m]][[".useCache"]]
-          if (!is.null(a)) {
-            if (".useCache" %in% names(list(...)$params)) {  # user supplied values
-              b <- list(...)$params[[i]]$.useCache
-              if (!is.null(b)) a <- b
-            }
-            #.useCache is a parameter
-            if (!identical(FALSE, a)) {
-              #.useCache is not FALSE
-              if (!isTRUE(a)) {
-                #.useCache is not TRUE
-                if (".inputObjects" %in% a) {
-                  cacheIt <- TRUE
-                }
-              } else {
-                cacheIt <- TRUE
-              }
-            }
-          }
-
-          if (cacheIt) {
-            message("Using cached copy of .inputObjects for ", m)
-            objNam <- sim@depends@dependencies[[i]]@outputObjects$objectName
-            moduleSpecificObjects <- c(grep(ls(sim), pattern = m, value = TRUE),
-                                       na.omit(objNam))
-            moduleSpecificOutputObjects <- objNam
-            sim <- Cache(FUN = sim@.envir$.inputObjects, sim = sim,
-                         objects = moduleSpecificObjects,
-                         notOlderThan = notOlderThan,
-                         outputObjects = moduleSpecificOutputObjects,
-                         userTags=c(paste0("module:",m),paste0("eventType:.inputObjects")))
-          } else {
-            message("Running .inputObjects for ", m)
-            .modifySearchPath(pkgs = sim@depends@dependencies[[i]]@reqdPkgs)
-            sim <- sim@.envir$.inputObjects(sim)
-            rm(".inputObjects", envir = sim@.envir)
-          }
-        }
-      }
     }
 
-    names(sim@depends@dependencies) <- unlist(modules)
+    names(sim@depends@dependencies) <- unique(unlist(modules))
 
     modules(sim) <- if (length(parent_ids)) {
       append_attr(modules, all_children)[-parent_ids]
