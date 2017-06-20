@@ -7,6 +7,11 @@
 \alias{globals<-}
 \alias{globals<-}
 \alias{globals<-,.simList-method}
+\alias{G}
+\alias{G,.simList-method}
+\alias{G<-}
+\alias{G<-}
+\alias{G<-,.simList-method}
 \title{Get and set simulation globals.}
 \usage{
 globals(sim)
@@ -16,6 +21,14 @@ globals(sim)
 globals(sim) <- value
 
 \S4method{globals}{.simList}(sim) <- value
+
+G(sim)
+
+\S4method{G}{.simList}(sim)
+
+G(sim) <- value
+
+\S4method{G}{.simList}(sim) <- value
 }
 \arguments{
 \item{sim}{A \code{simList} object from which to extract element(s) or
@@ -24,7 +37,9 @@ in which to replace element(s).}
 \item{value}{The object to be stored at the slot.}
 }
 \description{
-\code{globals} accesses or sets the "globals" slot in the \code{simList}.
+\code{globals}, and the alias \code{G}, accesses or sets the "globals"
+in the \code{simList}. This currently is not an explicit slot in the \code{simList},
+but it is a \code{.globals} element in the \code{params} slot of the \code{simList}.
 }
 \seealso{
 \code{\link{SpaDES}}, specifically the section 1.2.1 on Simulation Parameters.

@@ -654,7 +654,9 @@ setMethod("P",
 ################################################################################
 #' Get and set simulation globals.
 #'
-#' \code{globals} accesses or sets the "globals" slot in the \code{simList}.
+#' \code{globals}, and the alias \code{G}, accesses or sets the "globals"
+#' in the \code{simList}. This currently is not an explicit slot in the \code{simList},
+#' but it is a \code{.globals} element in the \code{params} slot of the \code{simList}.
 #'
 #' @inheritParams params
 #' @include simList-class.R
@@ -695,6 +697,39 @@ setReplaceMethod("globals",
                    validObject(sim)
                    return(sim)
 })
+
+#' @export
+#' @rdname globals
+setGeneric("G", function(sim) {
+  standardGeneric("G")
+})
+
+#' @export
+#' @rdname globals
+setMethod("G",
+          signature = ".simList",
+          definition = function(sim) {
+            return(sim@params$.globals)
+          })
+
+#' @export
+#' @rdname globals
+setGeneric("G<-",
+           function(sim, value) {
+             standardGeneric("G<-")
+           })
+
+#' @name G<-
+#' @aliases G<-,.simList-method
+#' @rdname globals
+#' @export
+setReplaceMethod("G",
+                 signature = ".simList",
+                 function(sim, value) {
+                   sim@params$.globals <- value
+                   validObject(sim)
+                   return(sim)
+                 })
 
 ################################################################################
 #' @inheritParams params
