@@ -235,7 +235,7 @@ if (interactive()) {
 ## within the spreading (i.e., cells with and without successes)
 seed <- sample(1e6,1)
 #seed <- 576534
-set.seed(seed); print(seed)
+set.seed(seed)
 startCells <- startCells[1:4]
 maxSizes <- rexp(length(startCells), rate = 1 / 500)
 fires <- spread(hab, loci = startCells, 1, persistence = 0,

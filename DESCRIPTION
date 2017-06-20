@@ -11,7 +11,7 @@ Description: Implement a variety of event-based models, with a focus on
     'install.packages("fastshp", repos = "http://rforge.net", type = "source")'.
 URL: http://spades.predictiveecology.org,
     https://github.com/PredictiveEcology/SpaDES
-Date: 2017-06-07
+Date: 2017-06-20
 Version: 1.3.1.9110
 Authors@R: c(
     person(c("Alex", "M"), "Chubaty", email = "alexander.chubaty@canada.ca",
@@ -30,21 +30,9 @@ Depends:
     quickPlot,
     R (>= 3.3.2),
     reproducible
-Suggests:
-    covr,
-    hunspell,
-    knitr,
-    Matrix,
-    png,
-    rgdal,
-    rgenoud,
-    rmarkdown,
-    snow,
-    tcltk,
-    testthat (>= 1.0.2),
-    tkrplot
 Imports:
     bit (>= 1.1-12),
+    broom,
     checkmate (>= 1.8.2),
     chron (>= 2.3-50),
     CircStats (>= 0.2-4),
@@ -77,8 +65,22 @@ Imports:
     sp (>= 1.2-4),
     stringi (>= 1.1.3),
     utils
+Suggests:
+    covr,
+    hunspell,
+    knitr,
+    Matrix,
+    png,
+    rgdal,
+    rgenoud,
+    rmarkdown,
+    snow,
+    tcltk,
+    testthat (>= 1.0.2),
+    tkrplot
 LinkingTo: Rcpp
-Remotes: PredictiveEcology/quickPlot,
+Remotes:
+    PredictiveEcology/quickPlot,
     PredictiveEcology/reproducible,
     MangoTheCat/visualTest
 License: GPL-3

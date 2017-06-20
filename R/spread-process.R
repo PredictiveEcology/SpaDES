@@ -298,16 +298,17 @@ if (getRversion() >= "3.1.0") {
 #' }
 #'
 #' This will generally be more useful when \code{allowOverlap} is \code{TRUE}.
+#'
+#' @author Eliot McIntire
+#' @author Steve Cumming
+#' @docType methods
 #' @export
 #' @importFrom raster extent maxValue minValue ncell ncol nrow raster res setValues
 #' @importFrom ff ff as.ram
 #' @importFrom ffbase ffwhich
 #' @importFrom stats runif
 #' @importFrom fpCompare %<=%
-#' @docType methods
-#'
-#' @author Eliot McIntire
-#' @author Steve Cumming
+#' @rdname spread
 #' @seealso \code{\link{spread2}} for a different implementation of the same alogorithm.
 #' It is more robust, meaning, there will be fewer unexplainable errors, and the behaviour
 #' has been better tested, so it is more likely to be exactly as described under all
@@ -317,22 +318,17 @@ if (getRversion() >= "3.1.0") {
 #' \code{\link[raster]{distanceFromPoints}}.
 #' \code{cir} to create "circles"; it is fast for many small problems.
 #'
-#' @rdname spread
-#'
-setGeneric("spread", function(landscape, loci = NA_real_,
-                              spreadProb = 0.23,
-                              persistence = 0, mask = NA, maxSize = 1e8L,
-                              directions = 8L, iterations = 1e6L,
-                              lowMemory = getOption("spades.lowMemory"),
-                              returnIndices = FALSE, returnDistances = FALSE,
-                              mapID = NULL, id = FALSE, plot.it = FALSE,
-                              spreadProbLater = NA_real_, spreadState = NA,
-                              circle = FALSE, circleMaxRadius = NA_real_,
-                              stopRule = NA, stopRuleBehavior = "includeRing",
-                              allowOverlap = FALSE,
-                              asymmetry = NA_real_, asymmetryAngle = NA_real_,
-                              quick = FALSE, neighProbs = NULL, exactSizes = FALSE,
-                              relativeSpreadProb = FALSE, ...) {
+setGeneric(
+  "spread",
+  function(landscape, loci = NA_real_, spreadProb = 0.23, persistence = 0,
+           mask = NA, maxSize = 1e8L, directions = 8L, iterations = 1e6L,
+           lowMemory = getOption("spades.lowMemory"), returnIndices = FALSE,
+           returnDistances = FALSE, mapID = NULL, id = FALSE, plot.it = FALSE,
+           spreadProbLater = NA_real_, spreadState = NA,
+           circle = FALSE, circleMaxRadius = NA_real_,
+           stopRule = NA, stopRuleBehavior = "includeRing", allowOverlap = FALSE,
+           asymmetry = NA_real_, asymmetryAngle = NA_real_, quick = FALSE,
+           neighProbs = NULL, exactSizes = FALSE, relativeSpreadProb = FALSE, ...) {
   standardGeneric("spread")
 })
 
@@ -353,15 +349,12 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 setMethod(
   "spread",
   signature(landscape = "RasterLayer"),
-  definition = function(landscape, loci, spreadProb, persistence,
-                        mask, maxSize,
+  definition = function(landscape, loci, spreadProb, persistence, mask, maxSize,
                         directions, iterations, lowMemory, returnIndices,
                         returnDistances, mapID, id, plot.it, spreadProbLater,
                         spreadState, circle, circleMaxRadius, stopRule,
                         stopRuleBehavior, allowOverlap, asymmetry, asymmetryAngle,
-                        quick, neighProbs, exactSizes, relativeSpreadProb,
-                        ...) {
-
+                        quick, neighProbs, exactSizes, relativeSpreadProb, ...) {
     if (!is.null(neighProbs)) {
       if (isTRUE(allowOverlap)) stop("Can't use neighProbs and allowOverlap = TRUE together")
     }
@@ -400,7 +393,7 @@ setMethod(
     }
 
     if (spreadStateExists) {
-      keepers <- spreadState$active==TRUE
+      keepers <- spreadState$active == TRUE
       loci <- initialActiveCells <- spreadState[keepers, indices]
       #loci <- loci[!(loci %fin% spreadState[, indices])] # keep these for later
       initialLoci <- unique(spreadState$initialLocus)
@@ -417,8 +410,8 @@ setMethod(
           relativeSpreadProb <- TRUE
         }
         if (spreadProbLaterExists)
-          if ( ( (minValue(spreadProbLater) > 1L) || (maxValue(spreadProbLater) < 0L) ||
-                 (maxValue(spreadProbLater) > 1L) || (minValue(spreadProbLater) < 0L) ) ) {
+          if ( ((minValue(spreadProbLater) > 1L) || (maxValue(spreadProbLater) < 0L) ||
+                (maxValue(spreadProbLater) > 1L) || (minValue(spreadProbLater) < 0L)) ) {
             # stop("spreadProbLater is not a probability")
             relativeSpreadProb <- TRUE
           }
@@ -666,7 +659,7 @@ setMethod(
           d <- data.table(d); setkey(d, "id");
           d[, duplicated := duplicated(indices), by = id]
           d <- d[duplicated == 0 & active == 1];
-          set(d,, "duplicated", NULL)
+          set(d, , "duplicated", NULL)
           potentials <- as.matrix(d)
         } else {
           #potentials <- potentialsOrig
@@ -1293,75 +1286,68 @@ setMethod(
 #'   clearPlot()
 #'   Plot(emptyRas)
 #' }
-setGeneric("rings", function(landscape, loci = NA_real_,
-                             id = FALSE,
-                             minRadius = 2, maxRadius = 5,
-                             allowOverlap = FALSE, returnIndices = FALSE,
-                             returnDistances = TRUE,
-                              ...) {
+setGeneric(
+  "rings",
+  function(landscape, loci = NA_real_, id = FALSE, minRadius = 2, maxRadius = 5,
+           allowOverlap = FALSE, returnIndices = FALSE, returnDistances = TRUE, ...) {
   standardGeneric("rings")
 })
 
 #' @importFrom fpCompare %<=% %>=%
 #' @rdname rings
 setMethod(
-     "rings",
-     signature(landscape = "RasterLayer"),
-     definition = function(landscape, loci,
-                           id,
-                           minRadius, maxRadius,
-                           allowOverlap, returnIndices,
-                           returnDistances,
-                           ...) {
-       spreadEvents <- spread(landscape, loci = loci, circle = TRUE,
-                              circleMaxRadius = maxRadius, spreadProb = 1, id = TRUE,
-                              returnDistances = TRUE, returnIndices = TRUE,
-                              allowOverlap = allowOverlap, ...)
-       if (length(minRadius) > 1 | length(maxRadius) > 1) {
-         len <- length(loci)
-         if (!(length(minRadius) == len | length(maxRadius) == len)) {
-           warning("minRadius and maxRadius should be length 1 or same length as loci. ",
-                   "Recycling values which may not produce desired effects.")
-         }
-         minRadius <- rep(minRadius, length.out = len)
-         maxRadius <- rep(maxRadius, length.out = len)
-         out <- rbindlist(lapply(seq_along(loci), function(j) {
-           spreadEvents[id == j & (dists %>=% minRadius[j] & dists %<=% maxRadius[j])]
-         }))
-
-       } else {
-         out <- spreadEvents[(dists %>=% minRadius)]
+   "rings",
+   signature(landscape = "RasterLayer"),
+   definition = function(landscape, loci, id, minRadius, maxRadius, allowOverlap,
+                         returnIndices, returnDistances, ...) {
+     spreadEvents <- spread(landscape, loci = loci, circle = TRUE,
+                            circleMaxRadius = maxRadius, spreadProb = 1, id = TRUE,
+                            returnDistances = TRUE, returnIndices = TRUE,
+                            allowOverlap = allowOverlap, ...)
+     if (length(minRadius) > 1 | length(maxRadius) > 1) {
+       len <- length(loci)
+       if (!(length(minRadius) == len | length(maxRadius) == len)) {
+         warning("minRadius and maxRadius should be length 1 or same length as loci. ",
+                 "Recycling values which may not produce desired effects.")
        }
+       minRadius <- rep(minRadius, length.out = len)
+       maxRadius <- rep(maxRadius, length.out = len)
+       out <- rbindlist(lapply(seq_along(loci), function(j) {
+         spreadEvents[id == j & (dists %>=% minRadius[j] & dists %<=% maxRadius[j])]
+       }))
+     } else {
+       out <- spreadEvents[(dists %>=% minRadius)]
+     }
 
-       if (!returnIndices) {
-         outRas <- numeric(ncell(landscape))
-         if (returnDistances)
-           outRas[] <- NA_real_
-         else
-           outRas[] <- 0
+     if (!returnIndices) {
+       outRas <- numeric(ncell(landscape))
+       if (returnDistances)
+         outRas[] <- NA_real_
+       else
+         outRas[] <- 0
 
-         if (allowOverlap) {
-           if (returnDistances) {
-             out2 <- out[, list(mDists = mean(dists)), by = indices]
-             outRas[out2$indices] <- out2$mDists
-           } else {
-             out2 <- out[, list(sumID = sum(id)), by = indices]
-             outRas[out2$indices] <- out2$sumID
-           }
+       if (allowOverlap) {
+         if (returnDistances) {
+           out2 <- out[, list(mDists = mean(dists)), by = indices]
+           outRas[out2$indices] <- out2$mDists
          } else {
-           if (returnDistances)
-             outRas[out$indices] <- out$dists
-           else
-             outRas[out$indices] <- out$dists
+           out2 <- out[, list(sumID = sum(id)), by = indices]
+           outRas[out2$indices] <- out2$sumID
          }
-         outRas <- raster(extent(landscape), res = res(landscape), vals = outRas)
-         return(outRas)
+       } else {
+         if (returnDistances)
+           outRas[out$indices] <- out$dists
+         else
+           outRas[out$indices] <- out$dists
        }
-      #if(!allowOverlap) {
-      #   setkey(out, indices)
-      #   out[,dup:=duplicated(indices),by=indices]
-      # }
-       return(out)
+       outRas <- raster(extent(landscape), res = res(landscape), vals = outRas)
+       return(outRas)
+     }
+    #if(!allowOverlap) {
+    #   setkey(out, indices)
+    #   out[,dup:=duplicated(indices),by=indices]
+    # }
+     return(out)
 })
 
 #' Calculate distances and directions between many points and many grid cells
@@ -1810,13 +1796,12 @@ directionFromEachPoint <- function(from, to = NULL, landscape) {
 #' @param x      See \code{\link[fastmatch]{fmatch}}.
 #' @param table  See \code{\link[fastmatch]{fmatch}}.
 #'
+#' @aliases match
 #' @export
 #' @importFrom fastmatch fmatch
 #' @name %fin%
-#' @aliases match
 #' @rdname match
 #'
 `%fin%` <- function(x, table) {
   fmatch(x, table, nomatch = 0L) > 0L
 }
-
