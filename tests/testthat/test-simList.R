@@ -167,7 +167,7 @@ test_that("simList test all signatures", {
   modules <- list("randomLandscapes", "caribouMovement", "fireSpread")
 
   # paths
-  mapPath <- system.file("maps", package = "SpaDES")
+  mapPath <- system.file("maps", package = "quickPlot")
   paths <- list(
     modulePath = system.file("sampleModules", package = "SpaDES"),
     inputPath = mapPath,

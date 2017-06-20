@@ -21,6 +21,7 @@
 #'
 #' @seealso \code{\link{library}}.
 #'
+#' @importFrom quickPlot objectNames
 #' @include simList-class.R
 #' @export
 #' @docType methods

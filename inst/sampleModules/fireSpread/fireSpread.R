@@ -87,7 +87,7 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug = FALSE) {
   } else if (eventType == "plot.init") {
     # do stuff for this event
     setColors(sim[[P(sim)$stackName]], n = c(Fires = 10)) <- list(
-      DEM = grDevices::terrain.colors(10),
+      DEM = brewer.pal(9, "YlOrBr"),
       forestAge = brewer.pal(9, "BuGn"),
       habitatQuality = brewer.pal(8, "Spectral"),
       percentPine = brewer.pal(9, "Greens"),

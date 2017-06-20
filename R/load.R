@@ -103,9 +103,9 @@ doEvent.load <- function(sim, eventTime, eventType, debug = FALSE) {
 #'
 #' # Load random maps included with package
 #' filelist <- data.frame(
-#'     files = dir(system.file("maps", package = "SpaDES"),
+#'     files = dir(system.file("maps", package = "quickPlot"),
 #'             full.names = TRUE, pattern = "tif"),
-#'     functions = "rasterToMemory", package = "SpaDES"
+#'     functions = "rasterToMemory", package = "quickPlot"
 #' )
 #' sim1 <- loadFiles(filelist = filelist)
 #' clearPlot()
@@ -115,7 +115,7 @@ doEvent.load <- function(sim, eventTime, eventType, debug = FALSE) {
 #' #  at time = 10 and 20 (via "intervals").
 #' # Also, pass the single argument as a list to all functions...
 #' #  specifically, when add "native = TRUE" as an argument to the raster function
-#' files = dir(system.file("maps", package = "SpaDES"),
+#' files = dir(system.file("maps", package = "quickPlot"),
 #'             full.names = TRUE, pattern = "tif")
 #' arguments = I(rep(list(native = TRUE), length(files)))
 #' filelist = data.frame(

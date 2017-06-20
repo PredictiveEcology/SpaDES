@@ -24,7 +24,7 @@ to the \code{sim} object.
 If \code{"current"} is used, then it will be a compact list of the events
 as they go by.}
 
-\item{notOlderThan}{Date or time. Passed to SpaDES::cache to update the cache. Default is
+\item{notOlderThan}{Date or time. Passed to \code{reproducible::Cache} to update the cache. Default is
 NULL, meaning don't update the cache. If \code{Sys.time()} is provided
 then, it will force a recache, i.e., remove old value and replace
 with new value. Ignored if \code{cache} is FALSE.}

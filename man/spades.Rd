@@ -40,7 +40,7 @@ parameter for all modules. See Details.}
 \item{.saveInitialTime}{Numeric. Temporarily override the \code{.plotInitialTime}
 parameter for all modules. See Details.}
 
-\item{notOlderThan}{Date or time. Passed to SpaDES::cache to update the cache. Default is
+\item{notOlderThan}{Date or time. Passed to \code{reproducible::Cache} to update the cache. Default is
 NULL, meaning don't update the cache. If \code{Sys.time()} is provided
 then, it will force a recache, i.e., remove old value and replace
 with new value. Ignored if \code{cache} is FALSE.}

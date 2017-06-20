@@ -103,7 +103,7 @@ randomLandscapesInit <- function(sim) {
   mapStack <- stack(DEM, forestAge, habitatQuality, percentPine)
   names(mapStack) <- c("DEM", "forestAge", "habitatQuality", "percentPine")
 
-  setColors(mapStack) <- list(DEM = grDevices::terrain.colors(100),
+  setColors(mapStack) <- list(DEM = brewer.pal(9, "YlOrBr"),
                               forestAge = brewer.pal(9, "BuGn"),
                               habitatQuality = brewer.pal(8, "Spectral"),
                               percentPine = brewer.pal(9, "Greens"))

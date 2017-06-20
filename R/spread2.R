@@ -279,7 +279,7 @@ if (getRversion() >= "3.1.0") {
 #' same order as \code{out}.
 #'
 #' @export
-#' @importFrom raster ncell raster res ncol
+#' @importFrom raster ncell raster res ncol pointDistance
 #' @importFrom bit bit
 #' @importFrom data.table uniqueN as.data.table data.table set setkeyv setnames
 #' @importFrom data.table ':=' rbindlist setcolorder setattr alloc.col

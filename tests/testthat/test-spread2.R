@@ -2,6 +2,7 @@ test_that("spread2 tests", {
   library(raster)
   library(data.table)
   library(fpCompare)
+  library(quickPlot)
   on.exit(detach("package:raster"), add = TRUE)
   on.exit(detach("package:data.table"), add = TRUE)
   on.exit(detach("package:fpCompare"), add = TRUE)
@@ -769,10 +770,8 @@ test_that("spread2 tests", {
     out[i] <- NROW(origSpread(ras, TRUE, N, sp))
   }
 
-  library(ggplot2)
   out <- data.table(x = out)
   outNew <- data.table(x = outNew)
-  ggplot(out, aes(x)) + geom_histogram() + geom_histogram(data = outNew, mapping = aes(x, fill = "transparent"))
   mean(out$x)
   mean(outNew$x)
   sd(out$x)
@@ -1068,6 +1067,8 @@ test_that("spread2 tests", {
   on.exit(detach("package:data.table"), add = TRUE)
   library(fpCompare)
   on.exit(detach("package:fpCompare"), add = TRUE)
+  library(quickPlot)
+
 
   # inputs for x
   a <- raster(extent(0, 100 , 0, 100), res = 1)

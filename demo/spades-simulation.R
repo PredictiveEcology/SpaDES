@@ -10,10 +10,10 @@ library(igraph)
 
 if (require(rgdal, quietly = TRUE)) {
   filelist = data.frame(
-    files = dir(system.file("maps", package = "SpaDES"),
+    files = dir(system.file("maps", package = "quickPlot"),
                              full.names = TRUE, pattern = "tif"),
     functions = "rasterToMemory",
-    packages = "SpaDES",
+    packages = "quickPlot",
     stringsAsFactors = FALSE
   )
 

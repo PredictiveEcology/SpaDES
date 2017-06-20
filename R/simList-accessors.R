@@ -1,5 +1,5 @@
 if (getRversion() >= "3.1.0") {
-  utils::globalVariables(c(".SD", "eventTime", "savetime", "exts", "eventType"))
+  utils::globalVariables(c(".SD", "eventTime", "savetime", "exts", "eventType", "unit"))
 }
 
 ### `show` generic is already defined in the methods package
@@ -1053,7 +1053,7 @@ setReplaceMethod("progressType",
 #' simOut$test
 #'
 #' # can put data.frame for inputs directly inside simInit call
-#' allTifs <- dir(system.file("maps", package = "SpaDES"),
+#' allTifs <- dir(system.file("maps", package = "quickPlot"),
 #'                full.names = TRUE, pattern = "tif")
 #'
 #' # next: objectNames are taken from the filenames (without the extension)
@@ -1071,7 +1071,7 @@ setReplaceMethod("progressType",
 #'
 #'   ##############################
 #'   #A fully described inputs object, including arguments:
-#'   files <- dir(system.file("maps", package = "SpaDES"),
+#'   files <- dir(system.file("maps", package = "quickPlot"),
 #'                full.names = TRUE, pattern = "tif")
 #'   # arguments must be a list of lists. This may require I() to keep it as a list
 #'   #   once it gets coerced into the data.frame.
