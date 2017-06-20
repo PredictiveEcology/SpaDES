@@ -2,6 +2,7 @@ test_that("spread2 tests", {
   library(raster)
   library(data.table)
   library(fpCompare)
+  library(quickPlot)
   on.exit(detach("package:raster"), add = TRUE)
   on.exit(detach("package:data.table"), add = TRUE)
   on.exit(detach("package:fpCompare"), add = TRUE)
@@ -1066,6 +1067,8 @@ test_that("spread2 tests", {
   on.exit(detach("package:data.table"), add = TRUE)
   library(fpCompare)
   on.exit(detach("package:fpCompare"), add = TRUE)
+  library(quickPlot)
+
 
   # inputs for x
   a <- raster(extent(0, 100 , 0, 100), res = 1)
