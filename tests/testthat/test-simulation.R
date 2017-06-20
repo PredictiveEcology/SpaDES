@@ -144,6 +144,7 @@ test_that("simulation runs with simInit and spades", {
 
 test_that("spades calls with different signatures don't work", {
   library(igraph)
+  library(reproducible)
 
   tmpdir <- file.path(tempdir(), "test_Plot1") %>% checkPath(create = TRUE)
   cwd <- getwd()

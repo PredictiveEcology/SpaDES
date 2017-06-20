@@ -9,10 +9,11 @@
   compareRasterFileLength = 1e+06, algo = "xxhash64")
 }
 \arguments{
-\item{object}{an object to convert to a 'digestible' state}
+\item{object}{an object to digest.}
 
 \item{objects}{Optional character vector indicating which objects are to
-be considered while making digestible.}
+be considered while making digestible. This is only relevant
+if the object being passed is an environment or list or the like.}
 
 \item{compareRasterFileLength}{Numeric. Optional. When there are Rasters, that
 have file-backed storage, this is passed to the length arg in \code{digest}
@@ -26,7 +27,7 @@ Default 1e6. Passed to \code{prepareFileBackedRaster}.}
     \code{murmur32}.}
 }
 \description{
-See \code{\link[reproducible]{robustDigest}}. This strips out stuff
+See \code{\link[reproducible]{robustDigest}}. This method strips out stuff
 from a simList class object that would make it otherwise not
 reproducibly digestible between sessions, operating systems,
 or machines. This will likely still not allow identical digest
