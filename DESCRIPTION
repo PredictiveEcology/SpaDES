@@ -80,8 +80,8 @@ Suggests:
     tkrplot
 LinkingTo: Rcpp
 Remotes:
-    PredictiveEcology/quickPlot,
     PredictiveEcology/reproducible,
+    PredictiveEcology/quickPlot,
     MangoTheCat/visualTest
 License: GPL-3
 VignetteBuilder: knitr, rmarkdown
