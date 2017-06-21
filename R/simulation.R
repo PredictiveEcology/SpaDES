@@ -160,6 +160,12 @@ setMethod(
         # evaluate the rest of the parsed file
         eval(parsedFile[!defineModuleItem], envir = sim@.envir)
 
+        # duplicate -- put in namespaces location
+        funs <- paste0("._",m) # generic name for hidden environment
+        sim@.envir[[funs]] <- new.env(parent = sim@.envir)
+        eval(parsedFile[!defineModuleItem], envir = sim@.envir[[funs]])
+
+
         # parse any scripts in R subfolder
         RSubFolder <- file.path(dirname(filename), "R")
         RScript <- dir(RSubFolder)
@@ -167,6 +173,9 @@ setMethod(
           for (Rfiles in RScript) {
             parsedFile1 <- parse(file.path(RSubFolder, Rfiles))
             eval(parsedFile1, envir = sim@.envir)
+            # duplicate -- put in namespaces location
+            eval(parsedFile1, envir = sim@.envir[[funs]])
+
           }
         }
 
@@ -1171,11 +1180,9 @@ setMethod(
                             cacheRepo = sim@paths[["cachePath"]],
                             userTags = c("function:doEvent"))
              } else {
-
                sim <- get(moduleCall,
-                          envir = sim@.envir)(sim, cur[["eventTime"]],
+                          envir = sim@.envir[[paste0("._",cur[["moduleName"]])]])(sim, cur[["eventTime"]],
                                               cur[["eventType"]], debugDoEvent)
-
              }
            }
         } else {
