@@ -17,6 +17,7 @@
 #'               \code{data.table::copy}
 #' @export
 #' @docType methods
+#' @importFrom reproducible prepareFileBackedRaster
 #' @rdname Copy
 setGeneric("Copy", function(sim, objects, queues) {
   standardGeneric("Copy")
@@ -38,6 +39,9 @@ setMethod("Copy",
                            envir = sim@.envir)
               isDataTable <- unlist(lapply(objs, function(x) is(x, "data.table")))
               objs[isDataTable] <- lapply(objs[isDataTable], function(y) data.table::copy(y))
+              isRaster <- unlist(lapply(objs, function(x) is(x, "Raster")))
+              objs[isRaster] <- lapply(objs[isRaster], function(y)
+                prepareFileBackedRaster(y, repoDir = cachePath(sim_)))
               sim_@.envir <- list2env(objs,
                                       envir = sim_@.envir)
             }
