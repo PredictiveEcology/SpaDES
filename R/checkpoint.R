@@ -87,14 +87,14 @@ doEvent.checkpoint <- function(sim, eventTime, eventType, debug = FALSE) {
 #' @rdname checkpoint
 #' @export
 checkpointLoad <- function(file) {
-  f <- strsplit(file, split = "[.][R|r][D|d]ata$")
-  fobj <- paste0(f, "_objs", ".RData")
+  #f <- strsplit(file, split = "[.][R|r][D|d]ata$")
+  #fobj <- paste0(f, "_objs", ".RData")
 
   # check for previous checkpoint files
-  if (file.exists(file) && file.exists(fobj)) {
+  if (file.exists(file)){# && file.exists(fobj)) {
     simListName <- load(file, envir = .GlobalEnv)
     sim <- get(simListName, envir = .GlobalEnv)
-    load(fobj, envir = sim@.envir)
+    #load(fobj, envir = sim@.envir)
 
     do.call("RNGkind", as.list(sim$.rng.kind))
     assign(".Random.seed", sim$.rng.state, envir = .GlobalEnv)
@@ -111,13 +111,16 @@ checkpointLoad <- function(file) {
   sim$.rng.state <- get(".Random.seed", envir = .GlobalEnv)
   sim$.rng.kind <- RNGkind()
 
-  f <- strsplit(file, split = "[.][R|r][D|d]ata$")
-  fobj <- paste0(f, "_objs", ".RData")
+  #f <- strsplit(file, split = "[.][R|r][D|d]ata$")
+  #fobj <- paste0(f, "_objs", ".RData")
 
   tmpEnv <- new.env()
   assign(objectNames("spades", "simList", "sim")[[1]]$objs, sim, envir = tmpEnv)
 
-  save(list = ls(tmpEnv, all.names = TRUE), file = file, envir = tmpEnv)
-  save(list = ls(sim@.envir, all.names = TRUE), file = fobj, envir = sim@.envir)
+  saveSimList(objectNames("spades", "simList", "sim")[[1]]$objs,
+              filename = file, keepFileBackedAsIs = TRUE, envir=tmpEnv)
+
+  #save(list = ls(tmpEnv, all.names = TRUE), file = file, envir = tmpEnv)
+  #save(list = ls(sim@.envir, all.names = TRUE), file = fobj, envir = sim@.envir)
   invisible(TRUE) # return "success" invisibly
 }
