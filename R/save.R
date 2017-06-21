@@ -192,3 +192,38 @@ saveFiles <- function(sim) {
   .sFE <- .sFE[order(.sFE$package, .sFE$fun), ]
   return(.sFE)
 }
+
+
+#' Save a whole \code{simList} object to disk
+#'
+#' Because of the environment slot, this is not quite as straightforward as
+#' just saving the object. This also has option for file-backed Rasters.
+#'
+#' @export
+#' @inheritParams spades
+#' @param filename Character string with the path for saving \code{simList}
+#' @param keepFileBackedAsIs Logical. If there are file-backed \code{Raster}
+#'        objects, should they be kept in their file-backed format (TRUE and default),
+#'        or loaded into RAM and saved within the \code{.Rdata} file (FALSE).
+#'        If TRUE, then the files will be copied to
+#'        \code{file.path(dirname(filename), "rasters")}.
+#' @inheritParams base::save
+#' @return A saved .Rdata file in \code{filename} location.
+#' @rdname loadFiles
+saveSimList <- function(sim, filename, keepFileBackedAsIs, envir=parent.frame()) {
+  simName <- sim
+  sim <- get(sim, envir=envir)
+
+  isRaster <- unlist(lapply(sim@.envir, function(x) is(x, "Raster")))
+  if(any(isRaster)) {
+    if(keepFileBackedAsIs) {
+      for(x in names(isRaster)[isRaster])
+        sim[[x]] <- prepareFileBackedRaster(sim[[x]], repoDir = dirname(filename))
+    } else {
+      for(x in names(isRaster)[isRaster])
+        sim[[x]][] <- sim[[x]][]
+    }
+  }
+  assign(simName, sim, envir=envir)
+  save(list=simName, file=filename, envir=envir)
+}

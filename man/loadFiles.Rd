@@ -8,6 +8,7 @@
 \alias{loadFiles,missing,ANY-method}
 \alias{loadFiles,missing,missing-method}
 \alias{.saveFileExtensions}
+\alias{saveSimList}
 \title{File extensions map}
 \usage{
 .fileExtensions()
@@ -21,6 +22,8 @@ loadFiles(sim, filelist, ...)
 \S4method{loadFiles}{missing,missing}(sim, filelist, ...)
 
 .saveFileExtensions()
+
+saveSimList(sim, filename, keepFileBackedAsIs, envir = parent.frame())
 }
 \arguments{
 \item{sim}{\code{simList} object.}
@@ -29,6 +32,19 @@ loadFiles(sim, filelist, ...)
 \code{filelist} as described in Details}
 
 \item{...}{Additional arguments.}
+
+\item{filename}{Character string with the path for saving \code{simList}}
+
+\item{keepFileBackedAsIs}{Logical. If there are file-backed \code{Raster}
+objects, should they be kept in their file-backed format (TRUE and default),
+or loaded into RAM and saved within the \code{.Rdata} file (FALSE).
+If TRUE, then the files will be copied to
+\code{file.path(dirname(filename), "rasters")}.}
+
+\item{envir}{environment to search for objects to be saved.}
+}
+\value{
+A saved .Rdata file in \code{filename} location.
 }
 \description{
 How to load various types of files in R.
@@ -38,6 +54,9 @@ are in a simList or 2) as a short cut to simInit(inputs = filelist). Generally
 not to be used by a user.
 
 How to load various types of files in R.
+
+Because of the environment slot, this is not quite as straightforward as
+just saving the object. This also has option for file-backed Rasters.
 }
 \examples{
 \dontrun{
