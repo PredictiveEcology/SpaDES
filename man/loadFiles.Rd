@@ -36,9 +36,9 @@ saveSimList(sim, filename, keepFileBackedAsIs, envir = parent.frame())
 \item{filename}{Character string with the path for saving \code{simList}}
 
 \item{keepFileBackedAsIs}{Logical. If there are file-backed \code{Raster}
-objects, should they be kept in their file-backed format (TRUE and default),
-or loaded into RAM and saved within the \code{.Rdata} file (FALSE).
-If TRUE, then the files will be copied to
+objects, should they be kept in their file-backed format,
+or loaded into RAM and saved within the \code{.Rdata} file.
+If \code{TRUE} (default), then the files will be copied to
 \code{file.path(dirname(filename), "rasters")}.}
 
 \item{envir}{environment to search for objects to be saved.}

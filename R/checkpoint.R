@@ -91,7 +91,7 @@ checkpointLoad <- function(file) {
   #fobj <- paste0(f, "_objs", ".RData")
 
   # check for previous checkpoint files
-  if (file.exists(file)){# && file.exists(fobj)) {
+  if (file.exists(file)) { # && file.exists(fobj)) {
     simListName <- load(file, envir = .GlobalEnv)
     sim <- get(simListName, envir = .GlobalEnv)
     #load(fobj, envir = sim@.envir)
@@ -118,7 +118,7 @@ checkpointLoad <- function(file) {
   assign(objectNames("spades", "simList", "sim")[[1]]$objs, sim, envir = tmpEnv)
 
   saveSimList(objectNames("spades", "simList", "sim")[[1]]$objs,
-              filename = file, keepFileBackedAsIs = TRUE, envir=tmpEnv)
+              filename = file, keepFileBackedAsIs = TRUE, envir = tmpEnv)
 
   #save(list = ls(tmpEnv, all.names = TRUE), file = file, envir = tmpEnv)
   #save(list = ls(sim@.envir, all.names = TRUE), file = fobj, envir = sim@.envir)
