@@ -199,31 +199,37 @@ saveFiles <- function(sim) {
 #' Because of the environment slot, this is not quite as straightforward as
 #' just saving the object. This also has option for file-backed Rasters.
 #'
-#' @export
-#' @inheritParams spades
-#' @param filename Character string with the path for saving \code{simList}
-#' @param keepFileBackedAsIs Logical. If there are file-backed \code{Raster}
-#'        objects, should they be kept in their file-backed format (TRUE and default),
-#'        or loaded into RAM and saved within the \code{.Rdata} file (FALSE).
-#'        If TRUE, then the files will be copied to
-#'        \code{file.path(dirname(filename), "rasters")}.
 #' @inheritParams base::save
+#'
+#' @inheritParams spades
+#'
+#' @param filename Character string with the path for saving \code{simList}
+#'
+#' @param keepFileBackedAsIs Logical. If there are file-backed \code{Raster}
+#'        objects, should they be kept in their file-backed format,
+#'        or loaded into RAM and saved within the \code{.Rdata} file.
+#'        If \code{TRUE} (default), then the files will be copied to
+#'        \code{file.path(dirname(filename), "rasters")}.
+#'
 #' @return A saved .Rdata file in \code{filename} location.
+#'
+#' @export
 #' @rdname loadFiles
-saveSimList <- function(sim, filename, keepFileBackedAsIs, envir=parent.frame()) {
+#'
+saveSimList <- function(sim, filename, keepFileBackedAsIs, envir = parent.frame()) {
   simName <- sim
-  sim <- get(sim, envir=envir)
+  sim <- get(sim, envir = envir)
 
   isRaster <- unlist(lapply(sim@.envir, function(x) is(x, "Raster")))
-  if(any(isRaster)) {
-    if(keepFileBackedAsIs) {
-      for(x in names(isRaster)[isRaster])
+  if (any(isRaster)) {
+    if (keepFileBackedAsIs) {
+      for (x in names(isRaster)[isRaster])
         sim[[x]] <- prepareFileBackedRaster(sim[[x]], repoDir = dirname(filename))
     } else {
-      for(x in names(isRaster)[isRaster])
+      for (x in names(isRaster)[isRaster])
         sim[[x]][] <- sim[[x]][]
     }
   }
-  assign(simName, sim, envir=envir)
-  save(list=simName, file=filename, envir=envir)
+  assign(simName, sim, envir = envir)
+  save(list = simName, file = filename, envir = envir)
 }

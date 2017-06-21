@@ -7,6 +7,7 @@ version 1.3.1.9000
 
 * minimum R version increased from `3.2.2` to `3.3.2` as required by dependencies `RandomFieldsUtils` and `reproducible`.
 * caching moved out of `SpaDES` and into new package [`reproducible`](https://github.com/PredictiveEcology/reproducible). `reproducible` added to Depends.
+* plotting moved out of `SpaDES` and into new package [`quickPlot`](https://github.com/PredictiveEcology/quickPlot). `quickPlot` added to Depends.
 * added `bit`, `fastmatch`, `fastdigest` and `Rcpp` packages to Imports.
 * removed `stringr` package from Imports.
 
@@ -45,7 +46,7 @@ version 1.3.1.9000
 ## Other updates
 
 * improved documentation
-* modules are now run with their required packages (reqdPkgs in metadata) temporarily bumped to the top of the search path (*i.e.*, `search()`) during each event. `search` path is restored `on.exit` from `spades` or `simInit` call
+* modules are now run with their required packages (`reqdPkgs` in metadata) temporarily bumped to the top of the search path (*i.e.*, `search()`) during each event. `search` path is restored `on.exit` from `spades` or `simInit` call
 * `shine` can now take characters in parameters
 * change order of parsing of modules: `defineModule` is last, so can use objects defined within module for parameters
 * improved `simInit` debug mechanism -- passing character string of module name will enter into a `browser` call inside `doEvent`
