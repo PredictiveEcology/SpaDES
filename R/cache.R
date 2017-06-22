@@ -14,7 +14,8 @@ if (!isGeneric("robustDigest")) {
 #' or machines. This will likely still not allow identical digest
 #' results across R versions.
 #'
-#' @importFrom reproducible robustDigest
+#' @importFrom reproducible robustDigest sortDotsUnderscoreFirst
+#' @importFrom fastdigest fastdigest
 #' @importMethodsFrom reproducible robustDigest
 #' @inheritParams reproducible::robustDigest
 #' @rdname robustDigest
@@ -34,20 +35,18 @@ setMethod(
 
     envirHash <- robustDigest(mget(objectsToDigest, envir = object@.envir))
 
-    envirHash <- sortDotsUnderscoreFirst(envirHash)
+    # Copy all parts except environment, clear that, then convert to list
     object <- Copy(object, objects = FALSE, queues = FALSE)
     object@.envir <- new.env()
-
-    # Convert to a simList_ to remove the .envir slot
     object <- as(object, "simList_")
     # Replace the .list slot with the hashes of the slots
     object@.list <- list(envirHash)
 
     # Remove paths as they are system dependent and not relevant for digest
     #  i.e., if the same file is located in a different place, that is ok
-    object@paths <- list()
-    object@outputs$file <- basename(object@outputs$file)
-    object@inputs$file <- basename(object@inputs$file)
+    object@paths <- robustDigest(object@paths)
+    object@outputs$file <- basename(object@outputs$file) # don't cache contents of output because file may already exist
+    object@inputs$file <- unlist(robustDigest(object@inputs$file))
     deps <- object@depends@dependencies
     for (i in seq_along(deps)) {
       if (!is.null(deps[[i]])) {
@@ -60,8 +59,11 @@ setMethod(
 
     # Sort the params and .list with dots first, to allow Linux and Windows to be compatible
     object@params <- lapply(object@params, function(x) sortDotsUnderscoreFirst(x))
+    object@params <- sortDotsUnderscoreFirst(object@params)
 
-    return(object)
+    lapply(slotNames(object), function(x) {
+      fastdigest::fastdigest(slot(object, x))
+    })
 })
 
 if (!isGeneric(".tagsByClass")) {
@@ -203,13 +205,15 @@ setMethod(
 
       if (isListOfSimLists) {
         for (i in seq_along(object)) {
-          keepFromOrig <- !(ls(origEnv) %in% ls(object[[i]]@.envir))
-          list2env(mget(ls(origEnv)[keepFromOrig], envir = origEnv),
+          keepFromOrig <- !(ls(origEnv, all.names = TRUE) %in% ls(object[[i]]@.envir, all.names = TRUE))
+          # list2env(mget(ls(origEnv, all.names = TRUE)[keepFromOrig], envir = origEnv),
+          #          envir = simListOut[[i]]@.envir)
+          list2env(as.list(Copy(origEnv, objects = ls(origEnv, all.names = TRUE)[keepFromOrig]), all.names = TRUE),
                    envir = simListOut[[i]]@.envir)
         }
       } else {
-        keepFromOrig <- !(ls(origEnv) %in% ls(object@.envir))
-        list2env(mget(ls(origEnv)[keepFromOrig], envir = origEnv),
+        keepFromOrig <- !(ls(origEnv, all.names = TRUE) %in% ls(object@.envir, all.names = TRUE))
+        list2env(as.list(Copy(origEnv, objects = ls(origEnv, all.names = TRUE)[keepFromOrig]), all.names = TRUE),
                  envir = simListOut@.envir)
       }
     return(simListOut)

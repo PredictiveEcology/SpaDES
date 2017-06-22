@@ -1,4 +1,10 @@
-#' Copy a simList object
+if (!isGeneric("Copy")) {
+  setGeneric("Copy", function(object, ...) {
+    standardGeneric("Copy")
+  })
+}
+
+#' Copy for simList class objects
 #'
 #' Because a simList works with an environment to hold all objects,
 #' all objects within that slot are pass-by-reference. That means
@@ -6,60 +12,45 @@
 #' the two objects will share the same objects. As one simList object changes
 #' so will the other. when this is not the desired behaviour, use this function.
 #' NOTE: use capital C, to limit confusion with \code{data.table::copy()}
+#' See \code{\link[reproducible]{Copy}}.
 #'
-#'
-#'
-#' @param sim  A \code{simList} object.
+#' @inheritParams reproducible::Copy
 #' @param objects  Whether the objects contained within the simList environment
 #'                 should be copied. Default = TRUE, which may be slow.
 #' @param queues Logical. Should the events queues (\code{events},
 #'               \code{current}, \code{completed}) be deep copied via
 #'               \code{data.table::copy}
-#' @export
+#'
+#' @author Eliot MciIntire
 #' @docType methods
-#' @importFrom reproducible prepareFileBackedRaster
+#' @exportMethod Copy
+#' @export
+#' @importFrom reproducible Copy
+#' @importMethodsFrom reproducible Copy
+#' @include simList-class.R
 #' @rdname Copy
-setGeneric("Copy", function(sim, objects, queues) {
-  standardGeneric("Copy")
-})
-
-#' @rdname Copy
+#' @seealso \code{\link[reproducible]{Copy}}
 setMethod("Copy",
-          signature(sim = "simList", objects = "logical", queues = "logical"),
-          definition = function(sim, objects, queues) {
-            sim_ <- sim
+          signature(object = "simList"),#, objects = "logical", queues = "logical"),
+          definition = function(object, objects, queues) {
+            if (missing(objects)) objects <- TRUE
+            if (missing(queues)) queues <- TRUE
+            sim_ <- object
             if (queues) {
-              sim_@events <- data.table::copy(sim@events)
-              sim_@completed <- data.table::copy(sim@completed)
-              sim_@current <- data.table::copy(sim@current)
+              sim_@events <- data.table::copy(object@events)
+              sim_@completed <- data.table::copy(object@completed)
+              sim_@current <- data.table::copy(object@current)
             }
             if (objects) {
-              sim_@.envir <- new.env(parent = parent.env(sim@.envir))
-              objs <- mget(ls(sim@.envir, all.names = TRUE),
-                           envir = sim@.envir)
-              isDataTable <- unlist(lapply(objs, function(x) is(x, "data.table")))
-              objs[isDataTable] <- lapply(objs[isDataTable], function(y) data.table::copy(y))
-              isRaster <- unlist(lapply(objs, function(x) is(x, "Raster")))
-              objs[isRaster] <- lapply(objs[isRaster], function(y)
-                prepareFileBackedRaster(y, repoDir = cachePath(sim_)))
-              sim_@.envir <- list2env(objs,
-                                      envir = sim_@.envir)
+              sim_@.envir <- Copy(sim_@.envir)
             }
             return(sim_)
 })
 
-#' @rdname Copy
-setMethod("Copy",
-          signature(sim = "simList", objects = "missing", queues = "missing"),
-          definition = function(sim) {
-            sim_ <- Copy(sim, objects = TRUE, queues = TRUE)
-            return(sim_)
-})
-
-#' @rdname Copy
-#' @export
-#' @inheritParams Copy
-copy <- function(sim, objects = TRUE) {
-   #.Deprecated("Copy", old = "copy")
-   Copy(sim = sim, objects = objects)
-}
+#' #' @rdname Copy
+#' setMethod("Copy",
+#'           signature(object = "simList"),# objects = "missing", queues = "missing"),
+#'           definition = function(object) {
+#'             sim_ <- Copy(object, objects = TRUE, queues = TRUE)
+#'             return(sim_)
+#' })

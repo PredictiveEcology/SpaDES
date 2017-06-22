@@ -1813,20 +1813,21 @@ setGeneric("outputPath<-",
 #' @aliases outputPath<-,.simList-method
 #' @rdname simList-accessors-paths
 #' @export
-setReplaceMethod("outputPath",
-                 signature = ".simList",
-                 function(sim, value) {
-                   sim@paths$outputPath <- unname(unlist(value))
-                   checkPath(sim@paths$outputPath, create = TRUE)
-                   if (NROW(outputs(sim)) > 0) {
-                     if ("saved" %in% colnames(outputs(sim))) {
-                       notYetSaved <- !outputs(sim)$saved | is.na(outputs(sim)$saved)
-                       outputs(sim)$file[notYetSaved] <-
-                         file.path(sim@paths$outputPath, basename(outputs(sim)$file[notYetSaved]))
-                     }
-                   }
-                   validObject(sim)
-                   return(sim)
+setReplaceMethod(
+  "outputPath",
+  signature = ".simList",
+  function(sim, value) {
+    sim@paths$outputPath <- unname(unlist(value))
+    checkPath(sim@paths$outputPath, create = TRUE)
+    if (NROW(outputs(sim)) > 0) {
+     if ("saved" %in% colnames(outputs(sim))) {
+       notYetSaved <- !outputs(sim)$saved | is.na(outputs(sim)$saved)
+       outputs(sim)$file[notYetSaved] <- file.path(sim@paths$outputPath,
+                                                   basename(outputs(sim)$file[notYetSaved]))
+     }
+    }
+    validObject(sim)
+    return(sim)
 })
 
 ################################################################################

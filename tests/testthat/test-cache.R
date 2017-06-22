@@ -74,7 +74,7 @@ test_that("test event-level cache", {
   set.seed(1123)
   expect_true(!"Using cached copy of init event in randomLandscapes module" %in%
                 capture_messages(sims <- spades(Copy(mySim), notOlderThan = Sys.time())))
-  sims <- spades(Copy(mySim), notOlderThan = Sys.time()) ## TO DO: fix this test
+  #sims <- spades(Copy(mySim), notOlderThan = Sys.time()) ## TO DO: fix this test
   landscapeMaps1 <- raster::dropLayer(sims$landscape, "Fires")
   fireMap1 <- sims$landscape$Fires
 
@@ -125,7 +125,7 @@ test_that("test module-level cache", {
   pdf(tmpfile)
   expect_true(!("Using cached copy of init event in randomLandscapes module" %in%
                      capture_messages(sims <- spades(Copy(mySim), notOlderThan = Sys.time()))))
-  sims <- spades(Copy(mySim), notOlderThan = Sys.time())
+  #sims <- spades(Copy(mySim), notOlderThan = Sys.time())
   dev.off()
 
   expect_true(file.info(tmpfile)$size > 20000)
