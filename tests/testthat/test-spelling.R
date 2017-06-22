@@ -7,6 +7,8 @@ test_that("spelling errors", {
 
   ## ensure that stats terms are included in the word list
   pkg <- "SpaDES"
+  pkgDir <- system.file(package = pkg)
+
   if (interactive() && requireNamespace("devtools")) {
     devtools::dev_mode(TRUE)
   }
@@ -21,8 +23,6 @@ test_that("spelling errors", {
     ignore <- sort(unique(c(.en_stats, .words, pkg)))
     saveRDS(ignore, .words.file)
   }
-
-  pkgDir <- system.file(package = pkg)
 
   ## check vignettes
   wrds_Rmd <- aspell_package_vignettes(pkgDir)

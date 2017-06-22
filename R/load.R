@@ -85,17 +85,15 @@ doEvent.load <- function(sim, eventTime, eventType, debug = FALSE) {
 #'
 #' @param ...      Additional arguments.
 #'
-#' @author Eliot McIntire
-#' @author Alex Chubaty
-#'
-#' @name loadFiles
-#' @include simulation.R
+#' @author Eliot McIntire and Alex Chubaty
+#' @docType methods
+#' @export
 #' @importFrom data.table data.table rbindlist ':='
 #' @importFrom stringi stri_detect_fixed
 #' @importFrom raster inMemory
 # @importFrom utils getFromNamespace
-#' @export
-#' @docType methods
+#' @include simulation-simInit.R
+#' @name loadFiles
 #' @rdname loadFiles
 #'
 #' @examples
