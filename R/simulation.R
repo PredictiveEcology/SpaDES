@@ -160,6 +160,13 @@ setMethod(
         # evaluate the rest of the parsed file
         eval(parsedFile[!defineModuleItem], envir = sim@.envir)
 
+
+        # duplicate -- put in namespaces location
+        funs <- paste0("._",m) # generic name for hidden environment
+        sim@.envir[[funs]] <- new.env(parent = sim@.envir)
+        eval(parsedFile[!defineModuleItem], envir = sim@.envir[[funs]])
+
+
         # parse any scripts in R subfolder
         RSubFolder <- file.path(dirname(filename), "R")
         RScript <- dir(RSubFolder)
@@ -167,6 +174,9 @@ setMethod(
           for (Rfiles in RScript) {
             parsedFile1 <- parse(file.path(RSubFolder, Rfiles))
             eval(parsedFile1, envir = sim@.envir)
+            # duplicate -- put in namespaces location
+            eval(parsedFile1, envir = sim@.envir[[funs]])
+
           }
         }
 
@@ -246,6 +256,7 @@ setMethod(
           if (!is.null(sim@.envir$.inputObjects)) {
             list2env(objs[sim@depends@dependencies[[i]]@inputObjects$objectName[allObjsProvided]],
                      envir = sim@.envir)
+            browser()
             a <- sim@params[[m]][[".useCache"]]
             if (!is.null(a)) {
               if (".useCache" %in% names(list(...)$params)) {  # user supplied values
@@ -269,7 +280,8 @@ setMethod(
             if (cacheIt) {
               message("Using cached copy of .inputObjects for ", m)
               objNam <- sim@depends@dependencies[[i]]@outputObjects$objectName
-              moduleSpecificObjects <- c(grep(ls(sim), pattern = m, value = TRUE),
+              moduleSpecificObjects <- c(grep(ls(sim@.envir, all.names = TRUE),
+                                              pattern = m, value = TRUE),
                                          na.omit(objNam))
               moduleSpecificOutputObjects <- objNam
               sim <- Cache(FUN = sim@.envir$.inputObjects, sim = sim,
@@ -1158,10 +1170,11 @@ setMethod(
 
              if (cacheIt) {
                objNam <- sim@depends@dependencies[[cur[["moduleName"]]]]@outputObjects$objectName
-               moduleSpecificObjects <- c(grep(ls(sim), pattern = cur[["moduleName"]], value = TRUE),
+               moduleSpecificObjects <- c(grep(ls(sim@.envir, all.names = TRUE),
+                                               pattern = cur[["moduleName"]], value = TRUE),
                                           na.omit(objNam))
                moduleSpecificOutputObjects <- objNam
-               sim <- Cache(FUN = get(moduleCall, envir = sim@.envir),
+               sim <- Cache(FUN = get(moduleCall, envir = sim@.envir[[paste0("._",cur[["moduleName"]])]]),
                             sim = sim,
                             eventTime = cur[["eventTime"]], eventType = cur[["eventType"]],
                             debug = debugDoEvent,
@@ -1171,11 +1184,9 @@ setMethod(
                             cacheRepo = sim@paths[["cachePath"]],
                             userTags = c("function:doEvent"))
              } else {
-
                sim <- get(moduleCall,
-                          envir = sim@.envir)(sim, cur[["eventTime"]],
+                          envir = sim@.envir[[paste0("._",cur[["moduleName"]])]])(sim, cur[["eventTime"]],
                                               cur[["eventType"]], debugDoEvent)
-
              }
            }
         } else {
