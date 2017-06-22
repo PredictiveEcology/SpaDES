@@ -530,35 +530,6 @@ setMethod(
     return(classFilter(x, include, exclude = NA_character_, envir = sys.frame(-1)))
 })
 
-################################################################################
-#' Sort a any named object with dotted names first
-#'
-#' Internal use only. This exists so Windows and Linux machines can have
-#' the same order after a sort.
-#'
-#' @param obj  An arbitrary R object for which a \code{names} function
-#'              returns a character vector.
-#'
-#' @return The same object as \code{obj}, but sorted with .objects first.
-#'
-#' @include simList-class.R
-#' @docType methods
-#' @keywords internal
-#' @rdname sortDotsUnderscoreFirst
-#' @author Eliot McIntire
-sortDotsUnderscoreFirst <- function(obj) {
-  names(obj) <- gsub(names(obj), pattern="\\.", replacement = "DOT")
-  names(obj) <- gsub(names(obj), pattern="_", replacement = "US")
-  allLower <- which(tolower(names(obj))==names(obj))
-  names(obj)[allLower] <- paste0("ALLLOWER",names(obj)[allLower])
-  obj[order(names(obj))]
-  # if (length(dotObjs) > 0) {
-  #   append(obj[dotObjs][order(names(obj[dotObjs]))],
-  #          obj[-dotObjs][order(names(obj[-dotObjs]))])
-  # } else {
-  #   obj
-  # }
-}
 
 ################################################################################
 #' Create empty fileTable for inputs and outputs

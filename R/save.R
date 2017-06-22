@@ -202,6 +202,7 @@ saveFiles <- function(sim) {
 #' @inheritParams base::save
 #'
 #' @inheritParams spades
+#' @importFrom reproducible prepareFileBackedRaster
 #'
 #' @param filename Character string with the path for saving \code{simList}
 #'
