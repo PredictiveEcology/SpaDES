@@ -137,15 +137,17 @@ if (getRversion() >= "3.1.0") {
 #'        Note: uses \code{\link[digest]{digest}} for file-backed Raster.
 #'        Default 1e6. Passed to \code{prepareFileBackedRaster}.
 #'
-#' @param makeCopy A logical argument. Only effective when cache operates on dwdData. It creates a copy of the downloaded
-#'                 files in the cacheRepo/gallery directory to optimize recovering. Only work when cache run for the first time for now.
+#' @param sideEffect Logical. Check if files to be downloaded are found locally prior
+#'        to download and try to recover from a copy (\code{makeCopy} must have been set as
+#'        TRUE the first time cache was runned). Default is \code{FALSE}.
 #'
-#' @param sideEffect A logical argument. Only effective when cache operates on dwdData.If TRUE,the argument check if files to be downloaded
-#'                   are found locally prior to download. When the files are absent, they are recovered from a copy (the argument
-#'                   makeCopy must have been set as TRUE the first time chache was runned).
+#' @param makeCopy Logical. Make a copy of downloaded files to optimize recovering.
+#'        Effective when cache operates on download. Only work when cache run for
+#'        the first time for now. Default is \code{FALSE}.
 #'
-#' @param quick A logical argument. If TRUE, checksum is compiled using the combination of the filename and its size.
-#'              If FALSE, cheksum is compiled using the object. Default is FALSE.
+#' @param quick Logical. If \code{TRUE}, \code{digest} is performed using the combination of
+#'        filename and its size. If \code{FALSE} (default), \code{digest} is performed
+#'        using the object.
 #'
 #' @inheritParams digest::digest
 #'
@@ -176,8 +178,6 @@ if (getRversion() >= "3.1.0") {
 #' @importFrom digest digest
 #' @importFrom fastdigest fastdigest
 #' @importFrom R.utils isAbsolutePath
-#' @importFrom utils unzip
-#' @importFrom tools file_ext
 #' @include simList-class.R
 #' @docType methods
 #' @rdname cache
@@ -247,19 +247,19 @@ setGeneric("Cache", signature = "...",
            function(FUN, ..., notOlderThan = NULL,
                     objects = NULL, outputObjects = NULL, algo = "xxhash64",
                     cacheRepo = NULL, compareRasterFileLength = 1e6,
-                    userTags = c()) {
+                    userTags = c(), sideEffect= FALSE, makeCopy = FALSE, quick = FALSE) {
              archivist::cache(cacheRepo, FUN, ..., notOlderThan, algo, userTags = userTags)
-})
+           })
 
 #' @export
 #' @rdname cache
 setMethod(
   "Cache",
   definition = function(FUN, ..., notOlderThan, objects, outputObjects,
-                        algo, cacheRepo, compareRasterFileLength, userTags) {
+                        algo, cacheRepo, compareRasterFileLength, userTags, sideEffect,
+                        makeCopy, quick) {
     tmpl <- list(...)
     if (missing(notOlderThan)) notOlderThan <- NULL
-    if (missing(quick)) quick <- TRUE
     # These three lines added to original version of cache in archive package
     whSimList <- which(sapply(tmpl, function(x) is(x, "simList")))
     if (is.null(cacheRepo)) {
@@ -320,12 +320,14 @@ setMethod(
       })
     }
 
+
     #0
     # List file prior to cache
     if(sideEffect){
       priorRepo <-  file.path(outputPath(sim), list.files(outputPath(sim)))
     }
     #1
+
 
 
     if (isS4(FUN)) {
@@ -363,13 +365,13 @@ setMethod(
     } else {
       functionCall <- grep(sys.calls(), pattern = "^Cache|^SpaDES::Cache", value = TRUE)
       if(length(functionCall)) {
-        functionName <- match.call(Cache, 
+        functionName <- match.call(Cache,
                                    parse(text = functionCall[length(functionCall)]))$FUN
         functionName <- deparse(functionName)
       } else {
         functionName <- ""
       }
-      
+
       tmpl$.FUN <- format(FUN) # This is changed to allow copying between computers
     }
 
@@ -406,6 +408,57 @@ setMethod(
                                  repoDir = cacheRepo, value = TRUE)
         archivist::addTagsRepo(isInRepo$artifact[lastOne],
                                repoDir = cacheRepo, tags = paste0("accessed:",Sys.time()))
+
+        #0
+        if (sideEffect){
+          needDwd <- logical()
+          recoverCopy <-c()
+          cachedChcksum <- attributes(out)$chcksumFiles
+          if(!is.null(cachedChcksum))
+            for (x in cachedChcksum){
+              chcksumName <- sub(":.*", "", x)
+              chcksumPath <- file.path(outputPath(sim),basename(chcksumName))
+              if(file.exists(chcksumPath)){
+                checkDigest<- TRUE
+              }else{
+                checkCopy <- file.path(outputPath(sim),"gallery",basename(chcksumName))
+                if(file.exists(checkCopy)){
+                  chcksumPath <- checkCopy
+                  checkDigest<- TRUE
+                  recoverCopy<- c(recoverCopy,basename(chcksumName))
+                }else{
+                  checkDigest<- FALSE
+                  needDwd <- c(needDwd, TRUE)
+                }
+              }
+              if(checkDigest){
+                if (quick){
+                  sizeCurrent <- lapply(chcksumPath, function(x) {list(basename(x), file.size(x))})
+                  chcksumFls <- lapply(sizeCurrent, function(x) {digest::digest(x, algo = algo)})
+                }else{
+                  chcksumFls <- lapply(chcksumPath, function(x) {digest::digest(file = chcksumPath, algo = algo)})
+                }
+                # Format checksum from current file as cached checksum
+                currentChcksum <- paste0(chcksumName, ":", chcksumFls)
+                # List current files with divergent checksum (or checksum missing)
+                if(!currentChcksum %in% cachedChcksum) {
+                  needDwd <- c(needDwd, TRUE)
+                }else{
+                  needDwd <- c(needDwd, FALSE)
+                }
+              }
+            }
+          if(any(needDwd)){
+            do.call(FUN, list(...))
+          }
+        }
+        if(!is.null(recoverCopy)){
+          repoTo <- file.path(outputPath(sim), "gallery")
+          lapply(recoverCopy, function(x) {file.copy(file.path(repoTo,basename(x)),
+                                                     file.path(outputPath(sim)),
+                                                     recursive=TRUE)})
+        }
+        #1
 
         if (length(whSimList) > 0) {
           simListOut <- out # gets all items except objects in list(...)
@@ -468,17 +521,22 @@ setMethod(
           cachecurFlst <- lapply(dwdFlst, function(x) {digest::digest(file = x, algo = algo)})
         }
         cacheName<-paste0(basename(outputPath(sim)),"/",basename(dwdFlst))
-        attr(output, "chcksumFiles") <- paste0(cacheName, ":", cachecurFlst)
+        #attr(output, "chcksumFiles") <- paste0(cacheName, ":", cachecurFlst)
+        chcksumFiles <- paste0(cacheName, ":", cachecurFlst)
         if (makeCopy){
           repoTo <- file.path(cacheRepo, "gallery")
           lapply(dwdFlst, function(x) {file.copy(file.path(cacheRepo,basename(x)),
-                                              file.path(repoTo),
-                                              recursive=TRUE)})
+                                                 file.path(repoTo),
+                                                 recursive=TRUE)})
         }
+      } else {
+        chcksumFiles <- NULL
       }
     }
 
     #1
+
+
 
     if (isS4(FUN)) attr(output, "function") <- FUN@generic
 
@@ -489,7 +547,6 @@ setMethod(
         list2env(mget(outputObjects, envir = output@.envir), envir = outputToSave@.envir)
         attr(outputToSave, "tags") <- attr(output, "tags")
         attr(outputToSave, "call") <- attr(output, "call")
-
         if (isS4(FUN))
           attr(outputToSave, "function") <- attr(output, "function")
       } else {
@@ -540,7 +597,8 @@ setMethod(
       userTags <- c(userTags,
                     paste0("function:",functionName),
                     paste0("object.size:", objSize),
-                    paste0("accessed:", Sys.time()))
+                    paste0("accessed:", Sys.time()),
+                    chcksumFiles)
       saved <- try(saveToLocalRepo(outputToSave, repoDir = cacheRepo,
                                    archiveData = TRUE, archiveSessionInfo = FALSE,
                                    archiveMiniature = FALSE, rememberName = FALSE, silent = TRUE,
@@ -838,13 +896,13 @@ setMethod(
       } else {
         # for .sessionInfo, just keep the major and minor R version
         dig <- fastdigest::fastdigest(get(x, envir = envir(object))[[1]] %>%
-                                .[c("major", "minor")])
+                                        .[c("major", "minor")])
       }
       return(dig)
     }))
 
     # Remove the NULL entries in the @.list
-    
+
     envirHash <- envirHash[!sapply(envirHash, is.null)]
     envirHash <- sortDotsUnderscoreFirst(envirHash)
 
@@ -1127,11 +1185,11 @@ prepareFileBackedRaster <- function(obj, repoDir = NULL, compareRasterFileLength
       }
 
     }
-  # } else {
-  #   if(isStack) {
-  #     slot(obj, "filename")
-  #   }
-  #   saveFilename <- slot(slot(obj, "file"), "name")
+    # } else {
+    #   if(isStack) {
+    #     slot(obj, "filename")
+    #   }
+    #   saveFilename <- slot(slot(obj, "file"), "name")
   }
 
   return(obj)
