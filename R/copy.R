@@ -33,8 +33,8 @@ if (!isGeneric("Copy")) {
 setMethod("Copy",
           signature(object = "simList"),#, objects = "logical", queues = "logical"),
           definition = function(object, objects, queues) {
-            if(missing(objects)) objects <- TRUE
-            if(missing(queues)) queues <- TRUE
+            if (missing(objects)) objects <- TRUE
+            if (missing(queues)) queues <- TRUE
             sim_ <- object
             if (queues) {
               sim_@events <- data.table::copy(object@events)
@@ -43,7 +43,6 @@ setMethod("Copy",
             }
             if (objects) {
               sim_@.envir <- Copy(sim_@.envir)
-
             }
             return(sim_)
 })
@@ -55,4 +54,3 @@ setMethod("Copy",
 #'             sim_ <- Copy(object, objects = TRUE, queues = TRUE)
 #'             return(sim_)
 #' })
-

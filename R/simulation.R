@@ -166,7 +166,6 @@ setMethod(
         sim@.envir[[funs]] <- new.env(parent = sim@.envir)
         eval(parsedFile[!defineModuleItem], envir = sim@.envir[[funs]])
 
-
         # parse any scripts in R subfolder
         RSubFolder <- file.path(dirname(filename), "R")
         RScript <- dir(RSubFolder)
@@ -176,7 +175,6 @@ setMethod(
             eval(parsedFile1, envir = sim@.envir)
             # duplicate -- put in namespaces location
             eval(parsedFile1, envir = sim@.envir[[funs]])
-
           }
         }
 
@@ -256,7 +254,6 @@ setMethod(
           if (!is.null(sim@.envir$.inputObjects)) {
             list2env(objs[sim@depends@dependencies[[i]]@inputObjects$objectName[allObjsProvided]],
                      envir = sim@.envir)
-            browser()
             a <- sim@params[[m]][[".useCache"]]
             if (!is.null(a)) {
               if (".useCache" %in% names(list(...)$params)) {  # user supplied values
@@ -288,7 +285,7 @@ setMethod(
                            objects = moduleSpecificObjects,
                            notOlderThan = notOlderThan,
                            outputObjects = moduleSpecificOutputObjects,
-                           userTags=c(paste0("module:",m),paste0("eventType:.inputObjects")))
+                           userTags = c(paste0("module:",m),paste0("eventType:.inputObjects")))
             } else {
               message("Running .inputObjects for ", m)
               .modifySearchPath(pkgs = sim@depends@dependencies[[i]]@reqdPkgs)
