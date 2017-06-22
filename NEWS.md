@@ -18,6 +18,9 @@ version 1.3.1.9000
 
 ## New functionality
 
+* namespaced module functions have now been implemented via a nested environment in the `simList@.envir` slot. This means that module functions can be called by their name only, *without* a `sim$` prefix. Also, there should not be any name clashes between modules, so each module can have its own `init` function, say. This has been implemented in a backwards compatible way, but the old way may be deprecated down the road.
+* new functions `saveSimList` which saves all environments recursively and file-backed objects, such as `Raster` objets (currently only one implemented).
+* Created a generic for `Copy`, moved it to `reproducible`, and here added a method for `simList` objects that deep copies all environments recursively.
 * change default value for `speedup` in `gaussMap`; now 1.
 * new function `getPaths()` to return the list of working dirs from the options
 * new function `setPaths()` as wrapper for setting the options for working dirs; uses `~/SpaDES` as default base path
