@@ -114,6 +114,10 @@ dir(outputPath(mySim), recursive = TRUE)
 
 ## Module-level caching
 
+If the parameter `.useCache` in the module's metadata is set to `TRUE`, then *every* event in the module will be cached. 
+That means that every time that module is called from within a spades or experiment call, `Cache` will be called. 
+Only the objects inside the `simList` that correspond to the `inputObjects` or the `outputObjects` from the module metadata will be assessed for caching. 
+ 
 For general use, module-level caching would be mostly useful for modules that have no stochasticity, such as data-preparation modules, GIS modules etc.
 
 In this example, we will use the cache on the randomLandscapes module.
@@ -144,7 +148,7 @@ print(same) # Fires is not same because all non-init events in fireSpread are no
 
 ## Event-level caching
 
-If the parameter `.useCache` in the module's metadata is set to a character or character vector, then that or those event(s) will be cached.
+If the parameter `.useCache` in the module's metadata is set to a *character or character vector*, then that or those event(s), identified by their name, will be cached.
 That means that every time the event is called from within a `spades` or `experiment` call, `Cache` will be called.
 Only the objects inside the `simList` that correspond to the `inputObjects` or the `outputObjects` as defined in the module metadata  will be assessed for caching inputs or outputs, respectively.
 The fact that all and only the named `inputObjects` and `outputObjects` are cached and returned may be inefficient (*i.e.*, it may cache more objects than are necessary) for individual events.
@@ -193,9 +197,11 @@ Also, one can access cached items manually (rather than simply rerunning the sam
 showCache(mySim)
 
 # get the RasterLayer that was produced with the gaussMap function:
-map <- unique(showCache(mySim, userTags = "gaussMap")$artifact) %>%
-  archivist::loadFromLocalRepo(repoDir = cachePath(mySim), value = TRUE)
-Plot(map)
+if(requireNamespace("archivist")) {
+  map <- unique(showCache(mySim, userTags = "gaussMap")$artifact) %>%
+    archivist::loadFromLocalRepo(repoDir = cachePath(mySim), value = TRUE)
+  Plot(map)
+}
 ```
 
 # The workflow
