@@ -38,6 +38,7 @@ branches:
   only:
     - master
     - development
+    - testing
 
   except:
     - gh-pages
