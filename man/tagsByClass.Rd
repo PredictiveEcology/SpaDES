@@ -17,3 +17,6 @@ See \code{\link[reproducible]{.tagsByClass}}. Adds current \code{moduleName},
 \seealso{
 \code{\link[reproducible]{.tagsByClass}}
 }
+\author{
+Eliot McIntire
+}

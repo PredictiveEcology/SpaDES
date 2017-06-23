@@ -1,7 +1,7 @@
 if (!isGeneric("robustDigest")) {
-    setGeneric("robustDigest", function(object, objects,
-                                          compareRasterFileLength = 1e6,
-                                          algo = "xxhash64") {
+  setGeneric("robustDigest", function(object, objects,
+                                      compareRasterFileLength = 1e6,
+                                      algo = "xxhash64") {
     standardGeneric("robustDigest")
   })
 }
@@ -18,14 +18,17 @@ if (!isGeneric("robustDigest")) {
 #' or machines. This will likely still not allow identical digest
 #' results across R versions.
 #'
-#' @importFrom reproducible robustDigest sortDotsUnderscoreFirst asPath
-#' @importFrom fastdigest fastdigest
-#' @importMethodsFrom reproducible robustDigest
 #' @inheritParams reproducible::robustDigest
+#'
+#' @author Eliot Mcintire
+#' @docType methods
+#' @exportMethod robustDigest
+#' @importFrom fastdigest fastdigest
+#' @importFrom reproducible robustDigest sortDotsUnderscoreFirst asPath
+#' @importMethodsFrom reproducible robustDigest
 #' @include simList-class.R
 #' @seealso \code{\link[reproducible]{robustDigest}}
-#' @exportMethod robustDigest
-#' @export
+#'
 setMethod(
   "robustDigest",
   signature = "simList",
@@ -33,7 +36,7 @@ setMethod(
     allObjs <- ls(object@.envir, all.names = TRUE)
     objectsToDigest <- sort(allObjs, method = "radix")
     if (!missing(objects)) {
-      if(!is.null(objects))
+      if (!is.null(objects))
         objectsToDigest <- objectsToDigest[objectsToDigest %in% objects]
     }
 
@@ -66,7 +69,7 @@ setMethod(
     object@params <- sortDotsUnderscoreFirst(object@params)
 
     lapply(slotNames(object), function(x) {
-      fastdigest::fastdigest(slot(object, x))
+      fastdigest(slot(object, x))
     })
 })
 
@@ -81,14 +84,17 @@ if (!isGeneric(".tagsByClass")) {
 #' See \code{\link[reproducible]{.tagsByClass}}. Adds current \code{moduleName},
 #' \code{eventType}, \code{eventTime}, and \code{function:spades} as userTags
 #'
+#' @inheritParams reproducible::.tagsByClass
+#'
+#' @author Eliot McIntire
+#' @docType methods
+#' @exportMethod .tagsByClass
 #' @importFrom reproducible .tagsByClass
 #' @importMethodsFrom reproducible .tagsByClass
-#' @inheritParams reproducible::.tagsByClass
 #' @include simList-class.R
 #' @seealso \code{\link[reproducible]{.tagsByClass}}
-#' @exportMethod .tagsByClass
-#' @export
 #' @rdname tagsByClass
+#'
 setMethod(
   ".tagsByClass",
   signature = "simList",
@@ -96,12 +102,11 @@ setMethod(
     cur <- object@current
     if (NROW(cur)) {
       userTags <- c(
-                    paste0("module:",cur$moduleName),
-                    paste0("eventType:",cur$eventType),
-                    paste0("eventTime:",cur$eventTime),
-                    paste0("function:spades")) # add this because it will be an
-                                               # outer function, if there are
-                                               # events occurring
+        paste0("module:", cur$moduleName),
+        paste0("eventType:", cur$eventType),
+        paste0("eventTime:", cur$eventTime),
+        paste0("function:spades")
+      ) # add this because it will be an outer function, if there are events occurring
     } else {
       userTags <- NULL
     }
@@ -137,18 +142,15 @@ setMethod(
       })
 
       whCurrent <- match(cur$moduleName, names(object@params)[whichCached])
-        if(isTRUE(useCacheVals[[whCurrent]])) {
+        if (isTRUE(useCacheVals[[whCurrent]])) {
           cat("Using cached copy of ", cur$moduleName, " module")
         } else {
           cat("Using cached copy of ", cur$eventType, " event in ", cur$moduleName, " module")
         }
-
-
     } else {
       .cacheMessage(NULL, functionName)
     }
 })
-
 
 #########################################################
 if (!isGeneric(".checkCacheRepo")) {
