@@ -29,11 +29,12 @@ if (!isGeneric("robustDigest")) {
 setMethod(
   "robustDigest",
   signature = "simList",
-  definition = function(object, objects, compareRasterFileLength, algo) {
+  definition = function(object, objects, compareRasterFileLength, algo, digestPathContent) {
     allObjs <- ls(object@.envir, all.names = TRUE)
     objectsToDigest <- sort(allObjs, method = "radix")
     if (!missing(objects)) {
-      objectsToDigest <- objectsToDigest[objectsToDigest %in% objects]
+      if(!is.null(objects))
+        objectsToDigest <- objectsToDigest[objectsToDigest %in% objects]
     }
 
     envirHash <- robustDigest(mget(objectsToDigest, envir = object@.envir))
@@ -47,7 +48,7 @@ setMethod(
 
     # Remove paths as they are system dependent and not relevant for digest
     #  i.e., if the same file is located in a different place, that is ok
-    object@paths <- robustDigest(object@paths)
+    object@paths <- robustDigest(lapply(object@paths, asPath), digestPathContent = digestPathContent)
     object@outputs$file <- basename(object@outputs$file) # don't cache contents of output because file may already exist
     object@inputs$file <- unlist(robustDigest(object@inputs$file))
     deps <- object@depends@dependencies
@@ -129,8 +130,20 @@ setMethod(
   signature = "simList",
   definition = function(object, functionName) {
     cur <- current(object)
-    if (NROW(cur)) {
-      message("Using cached copy of ", cur$eventType, " event in ", cur$moduleName, " module")
+    if (NROW(cur) & (cur$eventTime <= end(object))) {
+      whichCached <- grep(".useCache", object@params)
+      useCacheVals <- lapply(whichCached, function(x) {
+        object@params[[x]]$.useCache
+      })
+
+      whCurrent <- match(cur$moduleName, names(object@params)[whichCached])
+        if(isTRUE(useCacheVals[[whCurrent]])) {
+          cat("Using cached copy of ", cur$moduleName, " module")
+        } else {
+          cat("Using cached copy of ", cur$eventType, " event in ", cur$moduleName, " module")
+        }
+
+
     } else {
       .cacheMessage(NULL, functionName)
     }
