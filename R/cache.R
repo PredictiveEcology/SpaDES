@@ -24,7 +24,7 @@ if (!isGeneric("robustDigest")) {
 #' @docType methods
 #' @exportMethod robustDigest
 #' @importFrom fastdigest fastdigest
-#' @importFrom reproducible robustDigest sortDotsUnderscoreFirst asPath
+#' @importFrom reproducible asPath robustDigest sortDotsUnderscoreFirst
 #' @importMethodsFrom reproducible robustDigest
 #' @include simList-class.R
 #' @seealso \code{\link[reproducible]{robustDigest}}
@@ -218,8 +218,11 @@ setMethod(
       tmpl <- list(...)
       whSimList <- which(unlist(lapply(tmpl, is, "simList")))
       origEnv <- tmpl[[whSimList[1]]]@.envir
-      isListOfSimLists <-
-        if (is.list(object)) if (is(object[[1]], "simList")) TRUE else FALSE else FALSE
+      isListOfSimLists <- if (is.list(object)) {
+        if (is(object[[1]], "simList")) TRUE else FALSE
+      } else {
+        FALSE
+      }
 
       if (isListOfSimLists) {
         for (i in seq_along(object)) {
