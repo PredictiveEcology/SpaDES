@@ -67,7 +67,7 @@ mySim <- simInit(times = list(start = 0.0, end = 5.0),
 # compare caching ... run once to create cache
 system.time(outSim <- spades(Copy(mySim), cache = TRUE, notOlderThan = Sys.time(),
                             .plotInitialTime = NA))
-# compare... second time is fast
+# Vastly faster 2nd time
 system.time(outSimCached <- spades(Copy(mySim), cache = TRUE, .plotInitialTime = NA))
 all.equal(outSim, outSimCached)
 ```
@@ -86,28 +86,28 @@ inputs or output, respectively.
 In general use, module level caching would be mostly useful for modules that have
 no stochasticity, such as data-preparation modules, GIS modules etc.
 
-```{r module-level, echo=FALSE}
+In this example, we will use the cache on the randomLandscapes module.
+This means that each subsequent call to spades will result in identical
+outputs from the randomLandscapes module (only!).
+This would be useful when only one random landscape is needed
+simply for trying something out, or putting into production code
+(e.g., publication, decision support, etc.)
+
+
+```{r module-level, echo=TRUE}
 # Module-level
-# In this example, we will use the cache on the randomLandscapes module
-# This means that each subsequent call to spades will result in identical
-# outputs from the randomLandscapes module (only!).
-# This would be useful when only one random landscape is needed
-# simply for trying something out, or putting into production code
-# (e.g., publication, decision support, etc.)
 params(mySim)$randomLandscapes$.useCache <- TRUE
 system.time(randomSim <- spades(Copy(mySim), .plotInitialTime = NA,
                               notOlderThan = Sys.time(), debug = TRUE))
 
-# user  system elapsed
-# 1.26    0.25    1.45
-# Vastly faster
+# Vastly faster 2nd time
 system.time(randomSimCached <- spades(Copy(mySim), .plotInitialTime = NA,
                               debug = TRUE))
-# user  system elapsed
-# 0.22    0.00    0.24
+```
 
+Test that only layers produced in randomLandscapes are identical, not fireSpread.
 
-# Test that only layers produced in randomLandscapes are identical, not fireSpread
+```{r test-module-level}
 layers <- list("DEM","forestAge", "habitatQuality", "percentPine","Fires")
 same <- lapply(layers, function(l) identical(randomSim$landscape[[l]],
                                      randomSimCached$landscape[[l]]))
@@ -128,24 +128,16 @@ inputs or output, respectively. The fact that all and only the named `inputObjec
 and `outputObjects` are cached and returned may be inefficient (i.e., it may
 cache more objects than are necessary) for individual events.
 
-Similar to module-level caching, event-level caching would be mostly
-useful for events that have
-no stochasticity, such as data-preparation events, GIS events etc.
-```{r event-level, echo=FALSE}
-
-# Event-level ## cache only "init" event of fireSpread -- still module-level for randomLandscapes
+Similar to module-level caching, event-level caching would be mostly useful for events that have no stochasticity, such as data-preparation events, GIS events etc. 
+Here, we don't change the module-level caching for randomLandscapes, but we add to it a cache for only the "init" event for fireSpread.
+```{r event-level, echo=TRUE}
 params(mySim)$fireSpread$.useCache <- "init"
 system.time(randomSim <- spades(Copy(mySim), .plotInitialTime = NA,
                               notOlderThan = Sys.time(), debug = TRUE))
 
-# user  system elapsed
-# 1.26    0.25    1.45
-# Vastly faster
+# Vastly faster 2nd time
 system.time(randomSimCached <- spades(Copy(mySim), .plotInitialTime = NA,
                               debug = TRUE))
-# user  system elapsed
-# 0.22    0.00    0.24
-
 ```
 
 ## Function-level caching:
@@ -159,29 +151,33 @@ to
 `Cache(projectRaster, raster, crs = crs(newRaster))`.
 
 ```{r function-level, echo=FALSE}
-# Function caching
 ras <- raster(extent(0,1e3,0,1e3),res = 1)
 system.time(map <- Cache(gaussMap, ras, cacheRepo = cachePath(mySim),
                         notOlderThan = Sys.time()))
-# second time much faster
+# Vastly faster 2nd time
 system.time(mapCached <- Cache(gaussMap, ras, cacheRepo = cachePath(mySim)))
 
-# They are the same
 all.equal(map, mapCached)
+```
 
+## Working with the Cache manually
 
-# Note - one can access cached items manually (rather than simply
-#    rerunning the same Cache function again)
+Since the cache is simply an `archivist` repository, all `archivist` functions will work as is. In addition, there are several helpers in the `reproducible` package, including `showCache`, `keepCache` and `clearCache` that may be useful. Also, one can access cached items manually (rather than simply rerunning the same Cache function again)
+
+```{r manual-cache}
 if (requireNamespace("archivist")) {
   # examine the cache
   showCache(mySim)
   # get the RasterLayer that was produced with the gaussMap function:
   map <- unique(showCache(mySim, userTags = "gaussMap")$artifact) %>%
     archivist::loadFromLocalRepo(repoDir = cachePath(mySim), value = TRUE)
+  if(requireNamespace("quickPlot")) 
+    Plot(map)
 }
 
 
 ```
+
 # The work flow
 
 In general, we feel that a liberal use of `Cache` will make a re-useable and reproducible work flow. 
