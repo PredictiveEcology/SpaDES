@@ -8,6 +8,10 @@ if (!isGeneric("robustDigest")) {
 
 #' robustDigest for simList class objects
 #'
+#' This is intended to be used within the \code{Cache} function, but can be
+#' used to evaluate what a \code{simList} would look like once it is
+#' converted to a repeatably digestible object.
+#'
 #' See \code{\link[reproducible]{robustDigest}}. This method strips out stuff
 #' from a simList class object that would make it otherwise not
 #' reproducibly digestible between sessions, operating systems,
@@ -18,7 +22,6 @@ if (!isGeneric("robustDigest")) {
 #' @importFrom fastdigest fastdigest
 #' @importMethodsFrom reproducible robustDigest
 #' @inheritParams reproducible::robustDigest
-#' @rdname robustDigest
 #' @include simList-class.R
 #' @seealso \code{\link[reproducible]{robustDigest}}
 #' @exportMethod robustDigest

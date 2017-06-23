@@ -5,8 +5,7 @@
 \alias{robustDigest,simList-method}
 \title{robustDigest for simList class objects}
 \usage{
-\S4method{robustDigest}{simList}(object, objects,
-  compareRasterFileLength = 1e+06, algo = "xxhash64")
+\S4method{robustDigest}{simList}(object, objects, compareRasterFileLength, algo)
 }
 \arguments{
 \item{object}{an object to digest.}
@@ -27,6 +26,11 @@ Default 1e6. Passed to \code{prepareFileBackedRaster}.}
     \code{murmur32}.}
 }
 \description{
+This is intended to be used within the \code{Cache} function, but can be
+used to evaluate what a \code{simList} would look like once it is
+converted to a repeatably digestible object.
+}
+\details{
 See \code{\link[reproducible]{robustDigest}}. This method strips out stuff
 from a simList class object that would make it otherwise not
 reproducibly digestible between sessions, operating systems,

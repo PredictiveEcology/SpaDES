@@ -135,6 +135,68 @@ See \url{https://github.com/PredictiveEcology/SpaDES/wiki/Debugging} for details
    )
    print(system.time(out <- spades(mySim, cache = TRUE)))
  }
+
+### Examples with Cache
+library(reproducible)
+library(raster)
+library(igraph) # for \%>\%
+mySim <- simInit(times = list(start = 0.0, end = 5.0),
+                 params = list(.globals = list(stackName = "landscape", burnStats = "testStats")),
+                 modules = list("randomLandscapes", "fireSpread"),
+                 paths = list(modulePath = system.file("sampleModules", package = "SpaDES")))
+
+  # This functionality can be achieved within a spades call
+  # compare caching ... run once to create cache
+  system.time(outSim <- spades(Copy(mySim), cache = TRUE, notOlderThan = Sys.time(),
+                               .plotInitialTime = NA))
+  # compare... second time is fast
+  system.time(outSimCached <- spades(Copy(mySim), cache = TRUE, .plotInitialTime = NA))
+  all.equal(outSim, outSimCached)
+
+  # Function caching
+  ras <- raster(extent(0,1e3,0,1e3),res = 1)
+  system.time(map <- Cache(gaussMap, ras, cacheRepo = cachePath(mySim),
+                           notOlderThan = Sys.time()))
+  # second time much faster
+  system.time(mapCached <- Cache(gaussMap, ras, cacheRepo = cachePath(mySim)))
+
+  # They are the same
+  all.equal(map, mapCached)
+
+  # Module-level
+  # In this example, we will use the cache on the randomLandscapes module
+  # This means that each subsequent call to spades will result in identical
+  # outputs from the randomLandscapes module (only!).
+  # This would be useful when only one random landscape is needed
+  # simply for trying something out, or putting into production code
+  # (e.g., publication, decision support, etc.)
+  params(mySim)$randomLandscapes$.useCache <- TRUE
+  system.time(randomSim <- spades(Copy(mySim), .plotInitialTime = NA,
+                                 notOlderThan = Sys.time(), debug = TRUE))
+
+  # user  system elapsed
+  # 1.26    0.25    1.45
+  # Vastly faster
+  system.time(randomSimCached <- spades(Copy(mySim), .plotInitialTime = NA,
+                                 debug = TRUE))
+   # user  system elapsed
+   # 0.22    0.00    0.24
+   # Test that only layers produced in randomLandscapes are identical, not fireSpread
+   layers <- list("DEM","forestAge", "habitatQuality", "percentPine","Fires")
+   same <- lapply(layers, function(l) identical(randomSim$landscape[[l]],
+                                        randomSimCached$landscape[[l]]))
+   names(same) <- layers
+   print(same) # Fires is not same because it is not in the randomLandscape module that was cached
+
+   # Note - one can access cached items manually (rather than simply
+   #    rerunning the same Cache function again)
+   if (requireNamespace("archivist")) {
+     # examine the cache
+     showCache(mySim)
+     # get the RasterLayer that was produced with the gaussMap function:
+     map <- showCache(mySim, userTags = "gaussMap")$artifact \%>\%
+       archivist::loadFromLocalRepo(repoDir = cachePath(mySim), value = TRUE)
+   }
 }
 
 }
