@@ -130,19 +130,20 @@ setMethod(
   signature = "simList",
   definition = function(object, functionName) {
     cur <- current(object)
-    if (NROW(cur) & (cur$eventTime <= end(object))) {
-      whichCached <- grep(".useCache", object@params)
-      useCacheVals <- lapply(whichCached, function(x) {
-        object@params[[x]]$.useCache
-      })
+    if (NROW(cur)) {
+      if(cur$eventTime <= end(object)) {
+        whichCached <- grep(".useCache", object@params)
+        useCacheVals <- lapply(whichCached, function(x) {
+          object@params[[x]]$.useCache
+        })
 
-      whCurrent <- match(cur$moduleName, names(object@params)[whichCached])
-        if(isTRUE(useCacheVals[[whCurrent]])) {
-          cat("Using cached copy of ", cur$moduleName, " module")
-        } else {
-          cat("Using cached copy of ", cur$eventType, " event in ", cur$moduleName, " module")
+        whCurrent <- match(cur$moduleName, names(object@params)[whichCached])
+          if(isTRUE(useCacheVals[[whCurrent]])) {
+            cat("Using cached copy of ", cur$moduleName, " module")
+          } else {
+            cat("Using cached copy of ", cur$eventType, " event in ", cur$moduleName, " module")
+          }
         }
-
 
     } else {
       .cacheMessage(NULL, functionName)
