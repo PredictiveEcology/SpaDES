@@ -1,5 +1,5 @@
 ---
-title: "04 Using Cache with `SpaDES`"
+title: "03 Using Cache with `SpaDES`"
 author:
   - "Eliot J. B. McIntire"
 date: '`r strftime(Sys.Date(), "%B %d %Y")`'
@@ -66,13 +66,17 @@ mySim <- simInit(times = list(start = 0.0, end = 5.0),
 ```
 
 
-This functionality can be achieved within a spades call.
+This functionality can be achieved within a spades call. 
 ```{r spades}
 # compare caching ... run once to create cache
-system.time(outSim <- spades(Copy(mySim), cache = TRUE, notOlderThan = Sys.time(),
-                            .plotInitialTime = NA))
+system.time(outSim <- spades(Copy(mySim), cache = TRUE, notOlderThan = Sys.time()))
+```
+
+Notice that any visualizations will happen the first time through, but not the subsequent times.
+
+```{r spades-cached}
 # Vastly faster 2nd time
-system.time(outSimCached <- spades(Copy(mySim), cache = TRUE, .plotInitialTime = NA))
+system.time(outSimCached <- spades(Copy(mySim), cache = TRUE))
 all.equal(outSim, outSimCached)
 ```
 
@@ -80,19 +84,38 @@ all.equal(outSim, outSimCached)
 
 This functionality can be achieved within an experiment call. This can be done 2 ways, either "internally" through the cache argument. This will have the effect of caching *each spades call*, or "externally" which will *cache the entire experiment*. If there are lots of `spades` calls, then the former will be slow as the `simList` will be digested once per spades call.
 
-```{r experiment}
-# Internal
-system.time(sims1 <- experiment(mySim, replicates = 2, cache = TRUE))
+### Using cache argument
+```{r experiment-cache}
+system.time(sims1 <- experiment(mySim, replicates = 2, cache = TRUE, .plotInitialTime=NA))
 # internal -- 2nd time faster
-system.time(sims2 <- experiment(mySim, replicates = 2, cache = TRUE))
+system.time(sims2 <- experiment(mySim, replicates = 2, cache = TRUE, .plotInitialTime=NA))
 all.equal(sims1, sims2)
-
-# External
-system.time(sims3 <- Cache(experiment, mySim, replicates = 2))
-# 2nd time faster
-system.time(sims4 <- Cache(experiment, mySim, replicates = 2))
-all.equal(sims3, sims4)
 ```
+
+### Wrapping `experiment` with `Cache`
+
+Here, the `simList` (and other arguments to experiment) is hashed once, and if it is found to be the same as previous, then the returned list of `simList` objects is recovered. 
+This means that even a very large experiment, with many replicates and combinations of parameters and modules can be recovered very quickly. 
+Here we show that you can output objects to disk, so the list of `simList` objects doesn't get too big.
+Then, when we recover it in the Cached version, all the files are still there, the list of `simList` objects is small, so very fast to recover.
+
+```{r Cache-experiment}
+# External
+outputs(mySim) <- data.frame(objectName="landscape")
+system.time(sims3 <- Cache(experiment, mySim, replicates = 3, .plotInitialTime=NA, 
+                           clearSimEnv = TRUE))
+```
+
+Notice that speed up can be enormous; in this case ~100x. 
+The files with outputs will be in the `outputPath(mySim)`.
+```{r Cache-experiment-2}
+system.time(sims4 <- Cache(experiment, mySim, replicates = 3, .plotInitialTime=NA, 
+                           clearSimEnv = TRUE))
+all.equal(sims3, sims4)
+
+dir(outputPath(mySim), recursive = TRUE)
+```
+
 
 
 ## Module-level caching:

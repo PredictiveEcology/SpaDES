@@ -144,9 +144,9 @@ setMethod(
 
         whCurrent <- match(cur$moduleName, names(object@params)[whichCached])
           if(isTRUE(useCacheVals[[whCurrent]])) {
-            cat("Using cached copy of ", cur$moduleName, " module")
+            cat("Using cached copy of", cur$moduleName, "module\n")
           } else {
-            cat("Using cached copy of ", cur$eventType, " event in ", cur$moduleName, " module")
+            cat("Using cached copy of", cur$eventType, "event in", cur$moduleName, "module\n")
           }
         }
 

@@ -67,6 +67,7 @@ Imports:
     stringi (>= 1.1.3),
     utils
 Suggests:
+    archivist,
     covr,
     hunspell,
     knitr,
