@@ -46,7 +46,7 @@ In a `SpaDES` context, there are several levels of caching that can be used
 as part of a reproducible workflow. Each level can be used to a modeler's
 advantage; and, all can be -- and are often -- used concurrently.
 
-## `spades` or `experiment`:
+## At the `spades` level:
 
 And entire call to `spades` or `experiment` can be cached. This will have the effect
 of eliminating any stochasticity in the model as the output will simply be
@@ -63,7 +63,11 @@ mySim <- simInit(times = list(start = 0.0, end = 5.0),
               modules = list("randomLandscapes", "fireSpread"),
               paths = list(modulePath = system.file("sampleModules", package = "SpaDES")))
 
-# This functionality can be achieved within a spades call
+```
+
+
+This functionality can be achieved within a spades call.
+```{r spades}
 # compare caching ... run once to create cache
 system.time(outSim <- spades(Copy(mySim), cache = TRUE, notOlderThan = Sys.time(),
                             .plotInitialTime = NA))
@@ -71,6 +75,25 @@ system.time(outSim <- spades(Copy(mySim), cache = TRUE, notOlderThan = Sys.time(
 system.time(outSimCached <- spades(Copy(mySim), cache = TRUE, .plotInitialTime = NA))
 all.equal(outSim, outSimCached)
 ```
+
+## At the `experiment` level
+
+This functionality can be achieved within an experiment call. This can be done 2 ways, either "internally" through the cache argument. This will have the effect of caching *each spades call*, or "externally" which will *cache the entire experiment*. If there are lots of `spades` calls, then the former will be slow as the `simList` will be digested once per spades call.
+
+```{r experiment}
+# Internal
+system.time(sims1 <- experiment(mySim, replicates = 2, cache = TRUE))
+# internal -- 2nd time faster
+system.time(sims2 <- experiment(mySim, replicates = 2, cache = TRUE))
+all.equal(sims1, sims2)
+
+# External
+system.time(sims3 <- Cache(experiment, mySim, replicates = 2))
+# 2nd time faster
+system.time(sims4 <- Cache(experiment, mySim, replicates = 2))
+all.equal(sims3, sims4)
+```
+
 
 ## Module-level caching:
 

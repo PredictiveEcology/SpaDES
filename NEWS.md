@@ -16,6 +16,10 @@ version 1.3.1.9000
 * `p`. Use `params` or `P` instead.
 * `versionWarning`. Wasn't used.
 
+## New vignette
+
+* `iii-cache` which shows many of the ways to use `Cache` and build it into a larger reproducible workflow.
+
 ## New functionality
 
 * namespaced module functions have now been implemented via a nested environment in the `simList@.envir` slot. This means that module functions can be called by their name only, *without* a `sim$` prefix. Also, there should not be any name clashes between modules, so each module can have its own `init` function, say. This has been implemented in a backwards compatible way, but the old way may be deprecated down the road.
