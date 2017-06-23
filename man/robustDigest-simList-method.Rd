@@ -5,7 +5,9 @@
 \alias{robustDigest,simList-method}
 \title{robustDigest for simList class objects}
 \usage{
-\S4method{robustDigest}{simList}(object, objects, compareRasterFileLength, algo)
+\S4method{robustDigest}{simList}(object, objects,
+  compareRasterFileLength = 1e+06, algo = "xxhash64",
+  digestPathContent = FALSE)
 }
 \arguments{
 \item{object}{an object to digest.}
@@ -24,6 +26,11 @@ Default 1e6. Passed to \code{prepareFileBackedRaster}.}
     \code{md5}, which is also the default, \code{sha1}, \code{crc32},
     \code{sha256}, \code{sha512}, \code{xxhash32}, \code{xxhash64} and
     \code{murmur32}.}
+
+\item{digestPathContent}{Logical. Should arguments that are of class "Path"
+(see examples below) have their name digested
+(FALSE, the default), or their
+file contents (TRUE)}
 }
 \description{
 This is intended to be used within the \code{Cache} function, but can be

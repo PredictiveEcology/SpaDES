@@ -21,4 +21,4 @@ PackageInstallArgs: --no-multiarch --with-keep.source
 PackageBuildArgs: --md5
 PackageBuildBinaryArgs: --byte-compile
 PackageCheckArgs: --as-cran
-PackageRoxygenize: rd,collate,namespace
+PackageRoxygenize: rd,collate,namespace,vignette

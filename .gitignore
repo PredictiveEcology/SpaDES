@@ -18,6 +18,8 @@ tests/testthat/*.pdf
 tests/testthat/*.RData
 vignettes/.build.timestamp
 vignettes/*_cache
+vignettes/*.html
+vignettes/*.R
 
 #################
 ## LaTeX
