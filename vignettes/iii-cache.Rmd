@@ -12,7 +12,7 @@ output:
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{03 Plotting with SpaDES}
-  %\VignetteDepends{igraph, RColorBrewer, SpaDES}
+  %\VignetteDepends{archivist, igraph, RColorBrewer, SpaDES}
   %\VignetteKeyword{visualization, plotting, mapping}
   %\VignetteEncoding{UTF-8}
 ---

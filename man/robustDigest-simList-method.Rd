@@ -47,3 +47,6 @@ results across R versions.
 \seealso{
 \code{\link[reproducible]{robustDigest}}
 }
+\author{
+Eliot Mcintire
+}

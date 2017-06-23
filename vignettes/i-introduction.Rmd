@@ -316,6 +316,7 @@ To view available vignettes use `browseVignettes(package="SpaDES")` (this will o
 1. `introduction`: Introduction to SpaDES. This vignette.
 2. [`modules`](ii-modules.html): Building modules in `SpaDES`. A detailed guide to module design, modifying existing modules, and creating new modules.
 3. [`plotting`](iii-plotting.html): Plotting with `SpaDES`. A deeper look at plotting using the `Plot` function.
+4. [`caching`](iv-caching.html): Caching `SpaDES` simulations. A closer look at caching for a rproducible workflow.
 
 ### Website
 
