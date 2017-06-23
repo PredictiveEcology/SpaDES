@@ -18,7 +18,7 @@ if (!isGeneric("robustDigest")) {
 #' or machines. This will likely still not allow identical digest
 #' results across R versions.
 #'
-#' @importFrom reproducible robustDigest sortDotsUnderscoreFirst
+#' @importFrom reproducible robustDigest sortDotsUnderscoreFirst asPath
 #' @importFrom fastdigest fastdigest
 #' @importMethodsFrom reproducible robustDigest
 #' @inheritParams reproducible::robustDigest
