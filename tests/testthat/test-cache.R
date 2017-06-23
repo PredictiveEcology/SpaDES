@@ -73,12 +73,12 @@ test_that("test event-level cache", {
 
   set.seed(1123)
   expect_true(!"Using cached copy of init event in randomLandscapes module" %in%
-                capture_messages(sims <- spades(Copy(mySim), notOlderThan = Sys.time())))
+                capture_output(sims <- spades(Copy(mySim), notOlderThan = Sys.time())))
   #sims <- spades(Copy(mySim), notOlderThan = Sys.time()) ## TO DO: fix this test
   landscapeMaps1 <- raster::dropLayer(sims$landscape, "Fires")
   fireMap1 <- sims$landscape$Fires
 
-  mess1 <- capture_messages(sims <- spades(Copy(mySim)))
+  mess1 <- capture_output(sims <- spades(Copy(mySim)))
   expect_true(any(grepl(pattern = "Using cached copy of init event in randomLandscapes module", mess1)))
   landscapeMaps2 <- raster::dropLayer(sims$landscape, "Fires")
   fireMap2 <- sims$landscape$Fires
@@ -124,7 +124,7 @@ test_that("test module-level cache", {
   set.seed(1123)
   pdf(tmpfile)
   expect_true(!("Using cached copy of init event in randomLandscapes module" %in%
-                     capture_messages(sims <- spades(Copy(mySim), notOlderThan = Sys.time()))))
+                     capture_output(sims <- spades(Copy(mySim), notOlderThan = Sys.time()))))
   #sims <- spades(Copy(mySim), notOlderThan = Sys.time())
   dev.off()
 
@@ -137,13 +137,14 @@ test_that("test module-level cache", {
   # The cached version will be identical for both events (init and plot),
   # but will not actually complete the plot, because plotting isn't cacheable
   pdf(tmpfile)
-  mess1 <- capture_messages(sims <- spades(Copy(mySim)))
+  mess1 <- capture_output(sims <- spades(Copy(mySim)))
   dev.off()
 
   expect_true(file.info(tmpfile)$size < 10000)
   unlink(tmpfile)
 
-  expect_true(any(grepl(pattern = "Using cached copy of init event in randomLandscapes module", mess1)))
+  expect_true(any(grepl(pattern = "Using cached copy of randomLandscapes module",
+                        mess1)))
   landscapeMaps2 <- raster::dropLayer(sims$landscape, "Fires")
   fireMap2 <- sims$landscape$Fires
 

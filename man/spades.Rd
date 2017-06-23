@@ -30,8 +30,9 @@ the number of update intervals to show in a graphical progress bar.}
 
 \item{cache}{Logical. If \code{TRUE}, then the \code{spades} call will be cached.
 This means that if the call is made again with the same simList,
-then spades will return the return value from the previous run
-of that exact same simList. Default \code{FALSE}. See Details.}
+then `spades`` will return the return value from the previous run
+of that exact same simList. Default \code{FALSE}. See Details.
+See also the vignette on caching for examples.}
 
 \item{.plotInitialTime}{Numeric. Temporarily override the \code{.plotInitialTime}
 parameter for all modules. See Details.}
@@ -46,9 +47,9 @@ i.e., remove old value and replace with new value.
 Ignored if \code{cache} is \code{FALSE}.}
 
 \item{...}{Any. Can be used to make a unique cache identity, such as "replicate = 1".
-This will be included in the \code{SpaDES::cache} call, so will be
-unique and thus \code{spades} will not use a cached copy as long
-as anything passed in \code{...} is unique, i.e., not cached previously.}
+This will be included in the \code{Cache} call, so will be unique
+and thus \code{spades} will not use a cached copy as long as
+anything passed in \code{...} is unique, i.e., not cached previously.}
 }
 \value{
 Invisibly returns the modified \code{simList} object.
@@ -77,9 +78,10 @@ of a simulation. The  user does not have to intentionally do any saving manually
 Instead, upon a call to \code{spades} in which the simList is identical,
 the function will simply return the result that would have come if it had
 been rerun. Use this with caution, as it will return exactly the result from
-a previous run, even if there is stochasticity internally. Caching is only
-based on the input simList. See also \code{experiment} for the same mechanism,
-but it can be used with replication.
+a previous run, even if there is stochasticity internally.
+Caching is only based on the input simList. See also \code{experiment} for
+the same mechanism, but it can be used with replication.
+See also the vignette on caching for examples.
 
 If \code{debug} is specified, it can be a logical or character vector.
 In all cases, something will be printed to the console immediately before each
@@ -142,7 +144,7 @@ See \url{https://github.com/PredictiveEcology/SpaDES/wiki/Debugging} for details
 Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{https://www.nostarch.com/artofr.htm}
 }
 \seealso{
-\code{\link{simInit}}, \code{\link{SpaDES}}
+\code{\link{simInit}}, \code{\link{SpaDES}}, \code{\link[reproducible]{Cache}}
 
 \code{\link{experiment}} for using replication with \code{spades}.
 }
