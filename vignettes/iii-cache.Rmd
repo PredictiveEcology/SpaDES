@@ -200,6 +200,7 @@ if (requireNamespace("archivist")) {
   # get the RasterLayer that was produced with the gaussMap function:
   map <- unique(showCache(mySim, userTags = "gaussMap")$artifact) %>%
     archivist::loadFromLocalRepo(repoDir = cachePath(mySim), value = TRUE)
+  clearPlot()
   Plot(map)
 }
 ```
