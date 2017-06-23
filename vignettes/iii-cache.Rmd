@@ -1,5 +1,5 @@
 ---
-title: "03 Using Cache with `SpaDES`"
+title: "03 Using `Cache` with `SpaDES`"
 author:
   - "Eliot J. B. McIntire"
 date: '`r strftime(Sys.Date(), "%B %d %Y")`'
@@ -79,10 +79,11 @@ This will have the effect of caching *each spades call*, or "externally" which w
 If there are lots of `spades` calls, then the former will be slow as the `simList` will be digested once per `spades` call.
 
 ### Using cache argument
+
 ```{r experiment-cache}
 system.time(sims1 <- experiment(mySim, replicates = 2, cache = TRUE, .plotInitialTime = NA))
 
-# internal -- 2nd time faster
+# internal -- second time faster
 system.time(sims2 <- experiment(mySim, replicates = 2, cache = TRUE, .plotInitialTime = NA))
 all.equal(sims1, sims2)
 ```
@@ -114,12 +115,14 @@ dir(outputPath(mySim), recursive = TRUE)
 
 ## Module-level caching
 
+If the parameter `.useCache` in the module's metadata is set to `TRUE`, then the `doEvent.moduleName` will be cached.
+That means that every time that module is called from within a spades or experiment call, `Cache` will be called.
+Only the objects inside the `simList` that correspond to the `inputObjects` of the module and the `outputObjects` from the module (as specified in the module metadata) will be assessed for caching inputs or output, respectively. 
 For general use, module-level caching would be mostly useful for modules that have no stochasticity, such as data-preparation modules, GIS modules etc.
 
 In this example, we will use the cache on the randomLandscapes module.
 This means that each subsequent call to spades will result in identical outputs from the `randomLandscapes` module (only!).
 This would be useful when only one random landscape is needed simply for trying something out, or putting into production code (*e.g.*, publication, decision support, etc.).
-
 
 ```{r module-level, echo=TRUE}
 # Module-level
@@ -192,13 +195,15 @@ Also, one can access cached items manually (rather than simply rerunning the sam
 # examine the cache
 showCache(mySim)
 
-# get the RasterLayer that was produced with the gaussMap function:
-map <- unique(showCache(mySim, userTags = "gaussMap")$artifact) %>%
-  archivist::loadFromLocalRepo(repoDir = cachePath(mySim), value = TRUE)
-Plot(map)
+if (requireNamespace("archivist")) {
+  # get the RasterLayer that was produced with the gaussMap function:
+  map <- unique(showCache(mySim, userTags = "gaussMap")$artifact) %>%
+    archivist::loadFromLocalRepo(repoDir = cachePath(mySim), value = TRUE)
+  Plot(map)
+}
 ```
 
-# The workflow
+# Workflow
 
 In general, we feel that a liberal use of `Cache` will make a re-useable and reproducible work flow.
 `shiny` apps can be made, taking advantage of `Cache`. 
