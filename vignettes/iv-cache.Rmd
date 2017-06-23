@@ -50,7 +50,7 @@ This will have the effect of eliminating any stochasticity in the model as the o
 This is likely most useful in situations where reproducibility is more important than "new" stochasticity (*e.g.*, building decision support systems, apps, final version of a manuscript).
 
 ```{r examples, echo=TRUE, message=FALSE}
-library(magrittr)
+library(igraph)
 library(raster)
 library(SpaDES)
 
