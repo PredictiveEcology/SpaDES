@@ -28,11 +28,11 @@
 }
 
 ################################################################################
-#' Create new module from template.
+#' Create new module from template
 #'
 #' Autogenerate a skeleton for a new SpaDES module, a template for a
-#' documentation file, a citation file, a license file, a README.txt file, and a
-#' folder that contains unit tests information.
+#' documentation file, a citation file, a license file, a \file{README.txt} file,
+#' and a folder that contains unit tests information.
 #' The \code{newModuleDocumentation} will not generate the module file, but will
 #' create the other files.
 #'
@@ -262,70 +262,76 @@ defineModule(sim, list(
 #   - type `init` is required for initialiazation
 
 doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
-  if (eventType == \"init\") {
-    ### check for more detailed object dependencies:
-    ### (use `checkObject` or similar)
+  switch(
+    eventType,
+    init = {
+      ### check for more detailed object dependencies:
+      ### (use `checkObject` or similar)
 
-    # do stuff for this event
-    sim <- sim$", name, "Init(sim)
+      # do stuff for this event
+      sim <- sim$", name, "Init(sim)
 
-    # schedule future event(s)
-    sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, \"", name, "\", \"plot\")
-    sim <- scheduleEvent(sim, P(sim)$.saveInitialTime, \"", name, "\", \"save\")
-  } else if (eventType == \"plot\") {
-    # ! ----- EDIT BELOW ----- ! #
-    # do stuff for this event
+      # schedule future event(s)
+      sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, \"", name, "\", \"plot\")
+      sim <- scheduleEvent(sim, P(sim)$.saveInitialTime, \"", name, "\", \"save\")
+    },
+    plot = {
+      # ! ----- EDIT BELOW ----- ! #
+      # do stuff for this event
 
-    #Plot(objectFromModule) # uncomment this, replace with object to plot
-    # schedule future event(s)
+      #Plot(objectFromModule) # uncomment this, replace with object to plot
+      # schedule future event(s)
 
-    # e.g.,
-    #sim <- scheduleEvent(sim, time(sim) + P(sim)$.plotInterval, \"", name, "\", \"plot\")
+      # e.g.,
+      #sim <- scheduleEvent(sim, time(sim) + P(sim)$.plotInterval, \"", name, "\", \"plot\")
 
-    # ! ----- STOP EDITING ----- ! #
-  } else if (eventType == \"save\") {
-    # ! ----- EDIT BELOW ----- ! #
-    # do stuff for this event
+      # ! ----- STOP EDITING ----- ! #
+    },
+    save = {
+      # ! ----- EDIT BELOW ----- ! #
+      # do stuff for this event
 
-    # e.g., call your custom functions/methods here
-    # you can define your own methods below this `doEvent` function
+      # e.g., call your custom functions/methods here
+      # you can define your own methods below this `doEvent` function
 
-    # schedule future event(s)
+      # schedule future event(s)
 
-    # e.g.,
-    # sim <- scheduleEvent(sim, time(sim) + P(sim)$.saveInterval, \"", name, "\", \"save\")
+      # e.g.,
+      # sim <- scheduleEvent(sim, time(sim) + P(sim)$.saveInterval, \"", name, "\", \"save\")
 
-    # ! ----- STOP EDITING ----- ! #
-  } else if (eventType == \"event1\") {
-    # ! ----- EDIT BELOW ----- ! #
-    # do stuff for this event
+      # ! ----- STOP EDITING ----- ! #
+    },
+    event1 = {
+      # ! ----- EDIT BELOW ----- ! #
+      # do stuff for this event
 
-    # e.g., call your custom functions/methods here
-    # you can define your own methods below this `doEvent` function
+      # e.g., call your custom functions/methods here
+      # you can define your own methods below this `doEvent` function
 
-    # schedule future event(s)
+      # schedule future event(s)
 
-    # e.g.,
-    # sim <- scheduleEvent(sim, time(sim) + increment, \"", name, "\", \"templateEvent\")
+      # e.g.,
+      # sim <- scheduleEvent(sim, time(sim) + increment, \"", name, "\", \"templateEvent\")
 
-    # ! ----- STOP EDITING ----- ! #
-  } else if (eventType == \"event2\") {
-    # ! ----- EDIT BELOW ----- ! #
-    # do stuff for this event
+      # ! ----- STOP EDITING ----- ! #
+    },
+    event2 = {
+      # ! ----- EDIT BELOW ----- ! #
+      # do stuff for this event
 
-    # e.g., call your custom functions/methods here
-    # you can define your own methods below this `doEvent` function
+      # e.g., call your custom functions/methods here
+      # you can define your own methods below this `doEvent` function
 
-    # schedule future event(s)
+      # schedule future event(s)
 
-    # e.g.,
-    # sim <- scheduleEvent(sim, time(sim) + increment, \"", name, "\", \"templateEvent\")
+      # e.g.,
+      # sim <- scheduleEvent(sim, time(sim) + increment, \"", name, "\", \"templateEvent\")
 
-    # ! ----- STOP EDITING ----- ! #
-  } else {
+      # ! ----- STOP EDITING ----- ! #
+    },
     warning(paste(\"Undefined event type: \'\", current(sim)[1, \"eventType\", with = FALSE],
                   \"\' in module \'\", current(sim)[1, \"moduleName\", with = FALSE], \"\'\", sep = \"\"))
-  }
+  )
   return(invisible(sim))
 }
 

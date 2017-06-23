@@ -174,7 +174,6 @@ test_that("spades calls with different signatures don't work", {
   expect_output(spades(a, debug = "simList", .plotInitialTime = NA),
                 "Completed Events")
 
-
   if (interactive()) {
     expect_output(spades(a, progress = "text", debug = TRUE), "10%")
     expect_output(spades(a, progress = "text", debug = TRUE), "20%")
@@ -247,11 +246,9 @@ test_that("simulation runs with simInit with duplicate modules named", {
   modules <- list("randomLandscapes", "randomLandscapes", "caribouMovement")
   paths <- list(modulePath = system.file("sampleModules", package = "SpaDES"))
 
-  expect_true(
-    grepl(capture_messages(mySim <-
-        simInit(times, params, modules, objects = list(), paths)),
-                pattern = "Duplicate module"))
-  expect_true(length(modules(mySim))!=length(modules))
-  expect_true(length(modules(mySim))==length(unique(modules)))
-
+  expect_true(grepl(capture_messages(
+    mySim <- simInit(times, params, modules, objects = list(), paths)
+  ), pattern = "Duplicate module"))
+  expect_true(length(modules(mySim)) != length(modules))
+  expect_true(length(modules(mySim)) == length(unique(modules)))
 })

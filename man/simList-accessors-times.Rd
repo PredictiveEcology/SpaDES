@@ -91,9 +91,9 @@ in which to replace element(s).}
 
 \item{...}{Additional parameters.}
 
-\item{value}{A time, given as a numeric, optionally with a unit attribute, but this
-will be deduced from the model time units or module time units (if used
-within a module)}
+\item{value}{A time, given as a numeric, optionally with a unit attribute,
+but this will be deduced from the model time units or module
+time units (if used within a module).}
 
 \item{unit}{Character. One of the time units used in \code{SpaDES}.}
 }
@@ -108,22 +108,6 @@ timeunit. \code{SpaDES} converts these to seconds when running a simulation, but
 shows the user time in the units of the model as shown with \code{timeunit(sim)}
 }
 \details{
-NOTE: These have default behavior that is based on the calling
-frame timeunit. When used inside a module, then the time is in the units of the module.
-If used in an interactive mode, then the time will be in the units of the spades
-simulation.
-
-Additional methods are provided to access the current, start, and end times
-of the simulation:
-\tabular{ll}{
-   \code{time} \tab Current simulation time.\cr
-   \code{start} \tab Simulation start time.\cr
-   \code{end} \tab Simulation end time.\cr
-   \code{timeunit} \tab Simulation timeunit.\cr
-   \code{timeunits} \tab Module timeunits.\cr
-   \code{times} \tab List of all simulation times (current, start, end, timeunit).\cr
-}
-
 \code{timeunit} will extract the current units of the time used in a
 simulation (i.e., within a \code{spades} call).
 If it is set within a \code{simInit}, e.g.,
@@ -156,6 +140,24 @@ In many cases, the "simpler" use of each of these functions may be slower
 computationally. For instance, it is much faster to use \code{time(sim, "year")}
 than \code{time(sim)}. So as a module developer, it is advantageous to
 write out the longer one, minimizing the looking up that R must do.
+}
+\note{
+These have default behavior that is based on the calling frame timeunit.
+When used inside a module, then the time is in the units of the module.
+If used in an interactive mode, then the time will be in the units of the
+simulation.
+
+Additional methods are provided to access the current, start, and end times
+of the simulation:
+
+\tabular{ll}{
+   \code{time} \tab Current simulation time.\cr
+   \code{start} \tab Simulation start time.\cr
+   \code{end} \tab Simulation end time.\cr
+   \code{timeunit} \tab Simulation timeunit.\cr
+   \code{timeunits} \tab Module timeunits.\cr
+   \code{times} \tab List of all simulation times (current, start, end, timeunit).\cr
+}
 }
 \seealso{
 \code{\link{SpaDES}}, specifically the section 1.2.5 on Simulation times.

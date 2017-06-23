@@ -13,7 +13,7 @@
 #'
 #' @docType methods
 #' @export
-#' @include simulation.R
+#' @include simulation-simInit.R
 #' @rdname moduleMetadata
 #'
 #' @seealso \code{\link{defineModule}}
@@ -131,7 +131,7 @@ setMethod(
 #'
 #' @docType methods
 #' @export
-#' @include simulation.R
+#' @include simulation-simInit.R
 #' @rdname moduleVersion
 #'
 #' @seealso \code{\link{moduleMetadata}}

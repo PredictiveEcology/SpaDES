@@ -24,7 +24,7 @@
 A numeric.
 }
 \description{
-Preset envent priorities: 1 = first (highest); 5 = normal; 10 = last (lowest).
+Preset event priorities: 1 = first (highest); 5 = normal; 10 = last (lowest).
 }
 \author{
 Alex Chubaty

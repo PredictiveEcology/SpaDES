@@ -5,7 +5,7 @@
 \alias{newModule}
 \alias{newModule,character,character-method}
 \alias{newModule,character,missing-method}
-\title{Create new module from template.}
+\title{Create new module from template}
 \usage{
 newModule(name, path, ...)
 
@@ -40,8 +40,8 @@ Nothing is returned. The new module file is created at
 }
 \description{
 Autogenerate a skeleton for a new SpaDES module, a template for a
-documentation file, a citation file, a license file, a README.txt file, and a
-folder that contains unit tests information.
+documentation file, a citation file, a license file, a \file{README.txt} file,
+and a folder that contains unit tests information.
 The \code{newModuleDocumentation} will not generate the module file, but will
 create the other files.
 }
