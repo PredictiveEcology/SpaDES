@@ -52,7 +52,7 @@ library(SpaDES)
 
 mySim <- simInit(times = list(start = 0.0, end = 5.0),
                  params = list(.globals = list(stackName = "landscape", burnStats = "testStats"),
-                               randomLandscapes = list(.plotInitialTime=NA)),
+                               randomLandscapes = list(.plotInitialTime = NA)),
                  modules = list("randomLandscapes", "fireSpread"),
                  paths = list(modulePath = system.file("sampleModules", package = "SpaDES")))
 ```
@@ -196,7 +196,7 @@ Also, one can access cached items manually (rather than simply rerunning the sam
 
 ```{r manual-cache}
 # examine a part of the Cache
-showCache(mySim)[tagKey=="function",-c("artifact")]
+showCache(mySim)[tagKey == "function", -c("artifact")]
 
 if (requireNamespace("archivist")) {
   # get the RasterLayer that was produced with the gaussMap function:
