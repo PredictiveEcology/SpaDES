@@ -51,7 +51,8 @@ library(raster)
 library(SpaDES)
 
 mySim <- simInit(times = list(start = 0.0, end = 5.0),
-                 params = list(.globals = list(stackName = "landscape", burnStats = "testStats")),
+                 params = list(.globals = list(stackName = "landscape", burnStats = "testStats"),
+                               randomLandscapes = list(.plotInitialTime=NA)),
                  modules = list("randomLandscapes", "fireSpread"),
                  paths = list(modulePath = system.file("sampleModules", package = "SpaDES")))
 ```
@@ -102,8 +103,7 @@ system.time(sims3 <- Cache(experiment, mySim, replicates = 3, .plotInitialTime =
                            clearSimEnv = TRUE))
 ```
 
-Notice that speed up can be enormous; in this case ~100 times.
-The files with outputs will be in the `outputPath(mySim)`.
+The second time is way faster. We see the output files in the same location.
 
 ```{r Cache-experiment-2}
 system.time(sims4 <- Cache(experiment, mySim, replicates = 3, .plotInitialTime = NA,
@@ -112,6 +112,8 @@ all.equal(sims3, sims4)
 
 dir(outputPath(mySim), recursive = TRUE)
 ```
+
+Notice that speed up can be enormous; in this case ~100 times.
 
 ## Module-level caching
 
@@ -193,8 +195,8 @@ In addition, there are several helpers in the `reproducible` package, including 
 Also, one can access cached items manually (rather than simply rerunning the same `Cache` function again).
 
 ```{r manual-cache}
-# examine the cache
-showCache(mySim)
+# examine a part of the Cache
+showCache(mySim)[tagKey=="function",-c("artifact")]
 
 if (requireNamespace("archivist")) {
   # get the RasterLayer that was produced with the gaussMap function:
