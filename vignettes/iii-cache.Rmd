@@ -177,7 +177,7 @@ This will be a slight change to a function call, such as:
 to
 `Cache(projectRaster, raster, crs = crs(newRaster))`.
 
-```{r function-level, echo=FALSE}
+```{r function-level, echo=TRUE}
 ras <- raster(extent(0, 1e3, 0, 1e3), res = 1)
 system.time(map <- Cache(gaussMap, ras, cacheRepo = cachePath(mySim),
                          notOlderThan = Sys.time()))
