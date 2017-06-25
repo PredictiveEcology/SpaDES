@@ -652,6 +652,57 @@ setMethod(
   }
 })
 
+
+#' \code{F} allows the user to access functions from their module. It should
+#' be unnecessary to use this as namespacing should take care of it. But, if
+#' the user wants to specificy a function this way, it will work too.
+#' To access a function from within a module, you can use \code{F(sim)$functionName}
+#'
+#' @export
+#'
+#' @include simList-class.R
+#' @docType methodsp
+#' @aliases simList-accessors-function
+#' @rdname F
+#' @inheritParams P
+#' @param functionName Optional character string indicating which function is desired.
+#'
+setGeneric("F", function(sim, module = NULL, functionName = NULL) {
+  standardGeneric("F")
+})
+
+#' @export
+#' @rdname F
+setMethod(
+  "F",
+  signature = ".simList",
+  definition = function(sim, module, functionName) {
+    if (is.null(module)) {
+      module <- sim@current$moduleName
+    }
+    modEnv <- paste0(".-",module)
+    if (length(module) > 0) {
+      if (is.null(functionName)) {
+        return(as.list(sim@.envir[[modEnv]]))
+      } else {
+        return(sim@.envir[[modEnv]][[functionName]])
+      }
+    } else {
+      inSimInit <- grep(sys.calls(), pattern = ".parseModule")
+      if (any(inSimInit)) {
+        module <- get("m", sys.frame(grep(sys.calls(), pattern = ".parseModule")[2]))
+        modEnv <- paste0(".-",module)
+        if (is.null(functionName)) {
+          return(sim@.envir[[modEnv]])
+        } else {
+          return(sim@.envir[[modEnv]][[functionName]])
+        }
+      }
+
+      return(stop("You must specify a module when using the function F"))
+    }
+  })
+
 ################################################################################
 #' Get and set simulation globals.
 #'
