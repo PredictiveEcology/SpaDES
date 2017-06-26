@@ -161,13 +161,16 @@ setMethod(
         parsedFile <- parse(filename)
         defineModuleItem <- grepl(pattern = "defineModule", parsedFile)
 
-        # evaluate the rest of the parsed file
-        eval(parsedFile[!defineModuleItem], envir = sim@.envir)
-
         # duplicate -- put in namespaces location
         funs <- paste0("._",m) # generic name for hidden environment
         sim@.envir[[funs]] <- new.env(parent = sim@.envir)
         eval(parsedFile[!defineModuleItem], envir = sim@.envir[[funs]])
+
+        doesntUseNamespacing <- isTRUE(any(grepl(paste0("^",m), ls(sim@.envir[[funs]]))))
+        # evaluate the rest of the parsed file
+        if(doesntUseNamespacing)
+          eval(parsedFile[!defineModuleItem], envir = sim@.envir)
+
 
         # parse any scripts in R subfolder
         RSubFolder <- file.path(dirname(filename), "R")
@@ -175,11 +178,13 @@ setMethod(
         if (length(RScript) > 0) {
           for (Rfiles in RScript) {
             parsedFile1 <- parse(file.path(RSubFolder, Rfiles))
-            eval(parsedFile1, envir = sim@.envir)
+            if(doesntUseNamespacing)
+              eval(parsedFile1, envir = sim@.envir)
             # duplicate -- put in namespaces location
             eval(parsedFile1, envir = sim@.envir[[funs]])
           }
         }
+
 
         # evaluate all but inputObjects and outputObjects part of 'defineModule'
         #  This allow user to use params(sim) in their inputObjects
@@ -254,7 +259,7 @@ setMethod(
         cacheIt <- FALSE
         allObjsProvided <- sim@depends@dependencies[[i]]@inputObjects$objectName %in% userSuppliedObjNames
         if (!all(allObjsProvided)) {
-          if (!is.null(sim@.envir$.inputObjects)) {
+          if (!is.null(sim@.envir[[funs]]$.inputObjects)) {
             list2env(objs[sim@depends@dependencies[[i]]@inputObjects$objectName[allObjsProvided]],
                      envir = sim@.envir)
             a <- sim@params[[m]][[".useCache"]]
@@ -292,8 +297,13 @@ setMethod(
             } else {
               message("Running .inputObjects for ", m)
               .modifySearchPath(pkgs = sim@depends@dependencies[[i]]@reqdPkgs)
-              sim <- sim@.envir$.inputObjects(sim)
-              rm(".inputObjects", envir = sim@.envir)
+              if(doesntUseNamespacing) { # backwards compatibility
+                sim <- sim@.envir$.inputObjects(sim)
+                rm(".inputObjects", envir = sim@.envir)
+              } else {
+                sim <- sim@.envir[[funs]]$.inputObjects(sim)
+              }
+
             }
           }
         }

@@ -269,7 +269,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
       ### (use `checkObject` or similar)
 
       # do stuff for this event
-      sim <- sim$", name, "Init(sim)
+      sim <- Init(sim)
 
       # schedule future event(s)
       sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, \"", name, "\", \"plot\")
@@ -341,7 +341,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
 #   - keep event functions short and clean, modularize by calling subroutines from section below.
 
 ### template initialization
-", name, "Init <- function(sim) {
+Init <- function(sim) {
   # # ! ----- EDIT BELOW ----- ! #
 
   # ! ----- STOP EDITING ----- ! #
@@ -350,7 +350,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
 }
 
 ### template for save events
-", name, "Save <- function(sim) {
+Save <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
   sim <- saveFiles(sim)
@@ -360,7 +360,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
 }
 
 ### template for plot events
-", name, "Plot <- function(sim) {
+Plot <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
   #Plot(\"object\")
@@ -370,7 +370,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
 }
 
 ### template for your event1
-", name, "Event1 <- function(sim) {
+Event1 <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # THE NEXT TWO LINES ARE FOR DUMMY UNIT TESTS; CHANGE OR DELETE THEM.
   sim$event1Test1 <- \" this is test for event 1. \" # for dummy unit test
@@ -382,7 +382,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
 }
 
 ### template for your event2
-", name, "Event2 <- function(sim) {
+Event2 <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # THE NEXT TWO LINES ARE FOR DUMMY UNIT TESTS; CHANGE OR DELETE THEM.
   sim$event2Test1 <- \" this is test for event 2. \" # for dummy unit test
@@ -710,7 +710,7 @@ test_that(\"test Event1 and Event2.\", {
   if (exists(\"", name, "Event1\", envir = .GlobalEnv)) {
     simOutput <- ", name, "Event1(mySim)
   } else {
-    simOutput <- mySim$", name, "Event1(mySim)
+    simOutput <- myEvent1(mySim)
   }
 
   expectedOutputEvent1Test1 <- \" this is test for event 1. \" # please define your expection of your output
@@ -721,7 +721,7 @@ test_that(\"test Event1 and Event2.\", {
   if (exists(\"", name, "Event2\", envir = .GlobalEnv)) {
     simOutput <- ", name, "Event2(mySim)
   } else {
-    simOutput <- mySim$", name, "Event2(mySim)
+    simOutput <- myEvent2(mySim)
   }
 
   expectedOutputEvent2Test1 <- \" this is test for event 2. \" # please define your expection of your output
