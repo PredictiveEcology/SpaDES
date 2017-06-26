@@ -614,7 +614,7 @@ setReplaceMethod("params",
 #' conflicts with a shiny app.
 #'
 #' @include simList-class.R
-#' @docType methodsp
+#' @docType methods
 #' @aliases simList-accessors-params
 #' @rdname params
 #'
@@ -661,7 +661,7 @@ setMethod(
 #' @export
 #'
 #' @include simList-class.R
-#' @docType methodsp
+#' @docType methods
 #' @aliases simList-accessors-function
 #' @rdname F
 #' @inheritParams P
