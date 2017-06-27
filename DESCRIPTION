@@ -82,7 +82,7 @@ Suggests:
     tkrplot
 LinkingTo: Rcpp
 Remotes:
-    PredictiveEcology/reproducible,
+    PredictiveEcology/reproducible@development,
     PredictiveEcology/quickPlot,
     MangoTheCat/visualTest
 License: GPL-3

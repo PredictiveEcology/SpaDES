@@ -285,15 +285,27 @@ setMethod(
             if (cacheIt) {
               message("Using cached copy of .inputObjects for ", m)
               objNam <- sim@depends@dependencies[[i]]@outputObjects$objectName
-              moduleSpecificObjects <- c(grep(ls(sim@.envir, all.names = TRUE),
-                                              pattern = m, value = TRUE),
-                                         na.omit(objNam))
-              moduleSpecificOutputObjects <- objNam
-              sim <- Cache(FUN = sim@.envir$.inputObjects, sim = sim,
-                           objects = moduleSpecificObjects,
-                           notOlderThan = notOlderThan,
-                           outputObjects = moduleSpecificOutputObjects,
-                           userTags = c(paste0("module:",m),paste0("eventType:.inputObjects")))
+              if(doesntUseNamespacing) { # backwards compatibility
+                moduleSpecificObjects <- c(grep(ls(sim@.envir, all.names = TRUE),
+                                                pattern = m, value = TRUE),
+                                           na.omit(objNam))
+                moduleSpecificOutputObjects <- objNam
+                sim <- Cache(FUN = sim@.envir$.inputObjects, sim = sim,
+                             objects = moduleSpecificObjects,
+                             notOlderThan = notOlderThan,
+                             outputObjects = moduleSpecificOutputObjects,
+                             userTags = c(paste0("module:",m),paste0("eventType:.inputObjects")))
+              } else {
+                moduleSpecificObjects <- c(grep(ls(sim@.envir[[funs]], all.names = TRUE),
+                                                pattern = m, value = TRUE),
+                                           na.omit(objNam))
+                moduleSpecificOutputObjects <- objNam
+                sim <- Cache(FUN = sim@.envir[[funs]]$.inputObjects, sim = sim,
+                             objects = moduleSpecificObjects,
+                             notOlderThan = notOlderThan,
+                             outputObjects = moduleSpecificOutputObjects,
+                             userTags = c(paste0("module:",m),paste0("eventType:.inputObjects")))
+              }
             } else {
               message("Running .inputObjects for ", m)
               .modifySearchPath(pkgs = sim@depends@dependencies[[i]]@reqdPkgs)
