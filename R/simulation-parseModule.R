@@ -166,11 +166,10 @@ setMethod(
         sim@.envir[[funs]] <- new.env(parent = sim@.envir)
         eval(parsedFile[!defineModuleItem], envir = sim@.envir[[funs]])
 
-        doesntUseNamespacing <- isTRUE(any(grepl(paste0("^",m), ls(sim@.envir[[funs]]))))
+        doesntUseNamespacing <- isTRUE(any(grepl(paste0("^", m), ls(sim@.envir[[funs]]))))
         # evaluate the rest of the parsed file
-        if(doesntUseNamespacing)
+        if (doesntUseNamespacing)
           eval(parsedFile[!defineModuleItem], envir = sim@.envir)
-
 
         # parse any scripts in R subfolder
         RSubFolder <- file.path(dirname(filename), "R")
@@ -178,13 +177,12 @@ setMethod(
         if (length(RScript) > 0) {
           for (Rfiles in RScript) {
             parsedFile1 <- parse(file.path(RSubFolder, Rfiles))
-            if(doesntUseNamespacing)
+            if (doesntUseNamespacing)
               eval(parsedFile1, envir = sim@.envir)
             # duplicate -- put in namespaces location
             eval(parsedFile1, envir = sim@.envir[[funs]])
           }
         }
-
 
         # evaluate all but inputObjects and outputObjects part of 'defineModule'
         #  This allow user to use params(sim) in their inputObjects
@@ -285,7 +283,9 @@ setMethod(
             if (cacheIt) {
               message("Using cached copy of .inputObjects for ", m)
               objNam <- sim@depends@dependencies[[i]]@outputObjects$objectName
-              if(doesntUseNamespacing) { # backwards compatibility
+
+              # ensure backwards compatibility with non-namespaced modules
+              if (doesntUseNamespacing) {
                 moduleSpecificObjects <- c(grep(ls(sim@.envir, all.names = TRUE),
                                                 pattern = m, value = TRUE),
                                            na.omit(objNam))
@@ -309,7 +309,9 @@ setMethod(
             } else {
               message("Running .inputObjects for ", m)
               .modifySearchPath(pkgs = sim@depends@dependencies[[i]]@reqdPkgs)
-              if(doesntUseNamespacing) { # backwards compatibility
+
+              # ensure backwards compatibility with non-namespaced modules
+              if (doesntUseNamespacing) {
                 sim <- sim@.envir$.inputObjects(sim)
                 rm(".inputObjects", envir = sim@.envir)
               } else {
@@ -325,7 +327,6 @@ setMethod(
 
       # update parse status of the module
       attributes(modules[[j]]) <- list(parsed = TRUE)
-
     }
 
     names(sim@depends@dependencies) <- unique(unlist(modules))
