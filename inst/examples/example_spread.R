@@ -23,9 +23,9 @@ if (interactive()) {
 }
 
 # initiate 10 fires
-startCells <- as.integer(sample(1:ncell(emptyRas),100))
+startCells <- as.integer(sample(1:ncell(emptyRas), 100))
 fires <- spread(hab, loci = startCells, 0.235, persistence = 0, numNeighs = 2,
-                mask = NULL, maxSize = 1e8, directions=8, iterations=1e6, id = TRUE)
+                mask = NULL, maxSize = 1e8, directions = 8, iterations = 1e6, id = TRUE)
 
 #set colors of raster, including a transparent layer for zeros
 setColors(fires, 10) <- c("transparent", brewer.pal(8, "Reds")[5:8])
@@ -39,11 +39,11 @@ if (interactive()) {
   Plot(fires) # default color range makes zero transparent.
   # Instead, to give a color to the zero values, use \code{zero.color=}
   Plot(fires, addTo = "hab",
-       cols = colorRampPalette(c("orange","darkred"))(10), zero.color = "transparent")
+       cols = colorRampPalette(c("orange", "darkred"))(10), zero.color = "transparent")
   hab2 <- hab
   Plot(hab2)
   Plot(fires, addTo = "hab2", zero.color = "transparent",
-     cols = colorRampPalette(c("orange","darkred"))(10))
+     cols = colorRampPalette(c("orange", "darkred"))(10))
   # or overplot the original (NOTE: legend stays at original values)
   Plot(fires, cols = topo.colors(10), new = TRUE, zero.color = "white")
 }
@@ -233,7 +233,7 @@ if (interactive()) {
 ## Using alternative algorithm, not probabilistic diffusion
 ## Will give exactly correct sizes, yet still with variability
 ## within the spreading (i.e., cells with and without successes)
-seed <- sample(1e6,1)
+seed <- sample(1e6, 1)
 #seed <- 576534
 set.seed(seed)
 startCells <- startCells[1:4]

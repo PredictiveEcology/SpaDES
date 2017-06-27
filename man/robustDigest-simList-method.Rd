@@ -27,10 +27,9 @@ Default 1e6. Passed to \code{prepareFileBackedRaster}.}
     \code{sha256}, \code{sha512}, \code{xxhash32}, \code{xxhash64} and
     \code{murmur32}.}
 
-\item{digestPathContent}{Logical. Should arguments that are of class "Path"
+\item{digestPathContent}{Logical. Should arguments that are of class \code{Path}
 (see examples below) have their name digested
-(FALSE, the default), or their
-file contents (TRUE)}
+(\code{FALSE}; default), or their file contents (\code{TRUE}).}
 }
 \description{
 This is intended to be used within the \code{Cache} function, but can be
