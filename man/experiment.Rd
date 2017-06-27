@@ -52,10 +52,11 @@ called \code{experiment}. Default TRUE.}
 is emptied. This is to reduce RAM load of large return object.
 Default FALSE.}
 
-\item{notOlderThan}{Date or time. Passed to \code{reproducible::Cache} to update the cache. Default is
-NULL, meaning don't update the cache. If \code{Sys.time()} is provided
-then, it will force a recache, i.e., remove old value and replace
-with new value. Ignored if \code{cache} is FALSE.}
+\item{notOlderThan}{Date or time. Passed to \code{reproducible::Cache} to update the cache.
+Default is \code{NULL}, meaning don't update the cache.
+If \code{Sys.time()} is provided, then it will force a recache,
+i.e., remove old value and replace with new value.
+Ignored if \code{cache} is \code{FALSE}.}
 
 \item{cl}{A cluster object. Optional. This would generally be created using
 parallel::makeCluster or equivalent. This is an alternative way, instead

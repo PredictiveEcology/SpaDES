@@ -312,18 +312,18 @@ setMethod(
           }
         }
         if (!(identical(logObjFnVals, FALSE))) {
-          if (parallelType > 0 | (logObjFnVals != "objectiveFnValues.txt"))
+          if (deoptimArgs$control$parallelType > 0 | (logObjFnVals != "objectiveFnValues.txt"))
             sink(file = logObjFnVals, append = TRUE)
           cat(format(objectiveResW, digits = 4), sep = "\t")
           cat("\n")
-          if (parallelType > 0  | (logObjFnVals != "objectiveFnValues.txt"))
+          if (deoptimArgs$control$parallelType > 0  | (logObjFnVals != "objectiveFnValues.txt"))
             sink()
-          if (parallelType > 0 | (logObjFnVals != "objectiveFnValues.txt"))
+          if (deoptimArgs$control$parallelType > 0 | (logObjFnVals != "objectiveFnValues.txt"))
             sink(file = paste0(gsub(logObjFnVals, pattern = "[.]txt", replacement = ""),
                                "_RawPattern.txt"), append = TRUE)
           cat(format(unlist(lapply(objectiveRes, function(x) x[["value"]])), digits = 4), dep = "\t")
           cat("\n")
-          if (parallelType > 0  | (logObjFnVals != "objectiveFnValues.txt"))
+          if (deoptimArgs$control$parallelType > 0  | (logObjFnVals != "objectiveFnValues.txt"))
             sink()
 
         }
@@ -368,7 +368,6 @@ setMethod(
                         whModules = whModules, whParams = whParams,
                         whParamsByMod = whParamsByMod, weights = weights,
                         useLog = useLog)
-
     if (optimizer == "DEoptim") {
       deoptimArgs$control <- DEoptim.control()
       if (!is.null(cl)) {
@@ -408,31 +407,30 @@ setMethod(
         deoptimArgs$control$packages <- SpaDES::packages(sim)
       }
 
-      #deoptimArgs$parallelType <- deoptimArgs$control$parallelType
+      #deoptimArgs$control$parallelType <- deoptimArgs$control$parallelType
 
       deoptimArgs$control <- do.call(DEoptim.control, deoptimArgs$control)
 
       if (!(identical(logObjFnVals, FALSE))) {
         if (isTRUE(logObjFnVals)) logObjFnVals <- "objectiveFnValues.txt"
 
-        if (deoptimArgs$parallelType > 0 | (logObjFnVals != "objectiveFnValues.txt"))
+        if (deoptimArgs$control$parallelType > 0 | (logObjFnVals != "objectiveFnValues.txt"))
           sink(file = logObjFnVals, append = FALSE)
         cat(names(objects), sep = "\t")
         cat("\n")
-        if (deoptimArgs$parallelType > 0)
+        if (deoptimArgs$control$parallelType > 0)
           sink()
-        if (deoptimArgs$parallelType > 0 | (logObjFnVals != "objectiveFnValues.txt"))
+        if (deoptimArgs$control$parallelType > 0 | (logObjFnVals != "objectiveFnValues.txt"))
           sink(file = paste0(gsub(logObjFnVals, pattern = "[.]txt", replacement = ""),
                              "_RawPattern.txt"), append = FALSE)
 
         cat(names(objects), sep = "\t")
         cat("\n")
-        if (deoptimArgs$parallelType > 0 | (logObjFnVals != "objectiveFnValues.txt"))
+        if (deoptimArgs$control$parallelType > 0 | (logObjFnVals != "objectiveFnValues.txt"))
           sink()
       }
 
       print(params)
-      #browser()
       output <- do.call("DEoptim", deoptimArgs)
 
     } else {

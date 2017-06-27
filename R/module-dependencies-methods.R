@@ -130,8 +130,6 @@ setMethod("depsGraph",
             return(depsGraph(sim, FALSE))
 })
 
-
-
 ################################################################################
 #' Prune edges to remove cycles in module dependencies
 #'

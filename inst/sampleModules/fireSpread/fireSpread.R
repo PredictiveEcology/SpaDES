@@ -51,78 +51,84 @@ defineModule(sim, list(
 
 ## event types
 doEvent.fireSpread <- function(sim, eventTime, eventType, debug = FALSE) {
-  if (eventType == "init") {
-    ### check for more object dependencies:
-    ### (use `checkObject` or similar)
-    checkObject(sim, P(sim)$stackName, layer = "habitatQuality")
+  switch(
+    eventType,
+    init = {
+      ### check for more object dependencies:
+      ### (use `checkObject` or similar)
+      checkObject(sim, P(sim)$stackName, layer = "habitatQuality")
 
-    if (is.null(sim[[globals(sim)$burnStats]])) {
-      sim[[globals(sim)$burnStats]] <- numeric()
-    } else {
-      npix <- sim[[(globals(sim)$burnStats)]]
-      stopifnot("numeric" %in% is(npix), "vector" %in% is(npix))
-    }
+      if (is.null(sim[[globals(sim)$burnStats]])) {
+        sim[[globals(sim)$burnStats]] <- numeric()
+      } else {
+        npix <- sim[[(globals(sim)$burnStats)]]
+        stopifnot("numeric" %in% is(npix), "vector" %in% is(npix))
+      }
 
-    # do stuff for this event
-    sim <- sim$fireSpreadInit(sim)
+      # do stuff for this event
+      sim <- sim$fireSpreadInit(sim)
 
-    # schedule the next events
-    sim <- scheduleEvent(sim, P(sim)$startTime, "fireSpread", "burn")
-    sim <- scheduleEvent(sim, P(sim)$.saveInterval, "fireSpread", "save", .last())
-    sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, "fireSpread", "plot.init", .last())
+      # schedule the next events
+      sim <- scheduleEvent(sim, P(sim)$startTime, "fireSpread", "burn")
+      sim <- scheduleEvent(sim, P(sim)$.saveInterval, "fireSpread", "save", .last())
+      sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, "fireSpread", "plot.init", .last())
+    },
+    burn = {
+      # do stuff for this event
+      sim <- sim$fireSpreadBurn(sim)
 
-  } else if (eventType == "burn") {
-    # do stuff for this event
-    sim <- sim$fireSpreadBurn(sim)
+      # schedule the next events
+      sim <- scheduleEvent(sim, time(sim), "fireSpread", "stats") # do stats immediately following burn
+      sim <- scheduleEvent(sim, time(sim) + P(sim)$returnInterval, "fireSpread", "burn")
+    },
+    stats = {
+      # do stuff for this event
+      sim <- sim$fireSpreadStats(sim)
 
-    # schedule the next events
-    sim <- scheduleEvent(sim, time(sim), "fireSpread", "stats") # do stats immediately following burn
-    sim <- scheduleEvent(sim, time(sim) + P(sim)$returnInterval, "fireSpread", "burn")
-  } else if (eventType == "stats") {
-    # do stuff for this event
-    sim <- sim$fireSpreadStats(sim)
+      # schedule the next event
+      ## stats scheduling done by burn event
+    },
+    plot.init = {
+      # do stuff for this event
+      setColors(sim[[P(sim)$stackName]], n = c(Fires = 10)) <- list(
+        DEM = brewer.pal(9, "YlOrBr"),
+        forestAge = brewer.pal(9, "BuGn"),
+        habitatQuality = brewer.pal(8, "Spectral"),
+        percentPine = brewer.pal(9, "Greens"),
+        Fires = c("white", rev(heat.colors(9)))
+      )
 
-    # schedule the next event
-    ## stats scheduling done by burn event
-  } else if (eventType == "plot.init") {
-    # do stuff for this event
-    setColors(sim[[P(sim)$stackName]], n = c(Fires = 10)) <- list(
-      DEM = brewer.pal(9, "YlOrBr"),
-      forestAge = brewer.pal(9, "BuGn"),
-      habitatQuality = brewer.pal(8, "Spectral"),
-      percentPine = brewer.pal(9, "Greens"),
-      Fires = c("white", rev(heat.colors(9)))
-    )
+      clearPlot()
+      Plot(sim[[P(sim)$stackName]],
+           legendRange = list(0:maxValue(sim[[P(sim)$stackName]]$DEM), 0:100,
+                              c(0, 1), 0:100, 0:10))
 
-    clearPlot()
-    Plot(sim[[P(sim)$stackName]],
-         legendRange = list(0:maxValue(sim[[P(sim)$stackName]]$DEM), 0:100,
-                            c(0, 1), 0:100, 0:10))
+      # schedule the next event
+      sim <- scheduleEvent(sim, time(sim) + P(sim)$.plotInterval,
+                           "fireSpread", "plot", .last())
+    },
+    plot = {
+      # do stuff for this event
+      Plot(sim[[P(sim)$stackName]]$Fires, new = FALSE)
 
-    # schedule the next event
-    sim <- scheduleEvent(sim, time(sim) + P(sim)$.plotInterval,
-                         "fireSpread", "plot", .last())
-  } else if (eventType == "plot") {
-    # do stuff for this event
-    Plot(sim[[P(sim)$stackName]]$Fires, new = FALSE)
+      # schedule the next event
+      sim <- scheduleEvent(sim, time(sim) + P(sim)$.plotInterval,
+                           "fireSpread", "plot", .last())
+    },
+    save = {
+      # do stuff for this event
+      sim <- saveFiles(sim)
 
-    # schedule the next event
-    sim <- scheduleEvent(sim, time(sim) + P(sim)$.plotInterval,
-                         "fireSpread", "plot", .last())
-  } else if (eventType == "save") {
-    # do stuff for this event
-    sim <- saveFiles(sim)
-
-    # schedule the next event
-    sim <- scheduleEvent(sim, time(sim) + P(sim)$.saveInterval,
-                         "fireSpread", "save", .last() + 1)
-  } else {
+      # schedule the next event
+      sim <- scheduleEvent(sim, time(sim) + P(sim)$.saveInterval,
+                           "fireSpread", "save", .last() + 1)
+    },
     warning(paste(
       "Undefined event type: \'", events(sim)[1, "eventType", with = FALSE],
       "\' in module \'", events(sim)[1, "moduleName", with = FALSE], "\'",
       sep = ""
     ))
-  }
+  )
   return(invisible(sim))
 }
 

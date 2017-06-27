@@ -1140,7 +1140,7 @@ test_that("multi-core version of distanceFromEachPoints does not work correctly"
 
   if (interactive()) {
     library(raster); on.exit(detach("package:raster"), add = TRUE)
-    library(parallel); on.exit(detach("package:parallel"), add = TRUE)
+    library(parallel);
 
     hab <- randomPolygons(raster(extent(0, 1e2, 0, 1e2)), res = 1)
 

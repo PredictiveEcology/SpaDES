@@ -100,7 +100,5 @@ sim2 <- spades(sim2) # loads the percentPine map 2 more times, once at 10, once 
 \code{\link{inputs}}
 }
 \author{
-Eliot McIntire
-
-Alex Chubaty
+Eliot McIntire and Alex Chubaty
 }

@@ -347,8 +347,9 @@ if (interactive()) {
                  control = DEoptim.control(steptol = 3, # parallelType = 3,
                                            parallelType = 1,
                                            packages = list("raster", "SpaDES", "RColorBrewer"),
-                                           parVar = list("objFnEx")),
-                 initialpop = matrix(c(runif(40, 0.2, 0.24), runif(40, 80, 120)), ncol = 2),
+                                           parVar = list("objFnEx"),
+                                           initialpop = matrix(c(runif(40, 0.2, 0.24),
+                                                                 runif(40, 80, 120)), ncol = 2)),
                  lower = c(0.2, 80), upper = c(0.24, 120))
 }
 }

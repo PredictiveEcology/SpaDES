@@ -35,18 +35,18 @@
 #' @seealso \code{\link{do.call}}, \code{\link[raster]{merge}}.
 #'
 # igraph exports %>% from magrittr
+#' @author Alex Chubaty and Yong Luo
+#' @docType methods
+#' @export
 #' @importFrom parallel clusterApplyLB
 #' @importFrom raster crop 'crs<-' extent getCluster returnCluster writeRaster xmax xmin xres ymax ymin yres
-#' @export
-#' @docType methods
 #' @rdname splitRaster
-#'
-#' @author Alex Chubaty and Yong Luo
 #'
 #' @example inst/examples/example_splitRaster.R
 #'
-setGeneric("splitRaster", function(r, nx = 1, ny = 1, buffer = c(0,0),
-                                   path = file.path(getwd(), names(r)), cl) {
+setGeneric(
+  "splitRaster",
+  function(r, nx = 1, ny = 1, buffer = c(0,0), path = file.path(getwd(), names(r)), cl) {
   standardGeneric("splitRaster")
 })
 
@@ -55,9 +55,7 @@ setGeneric("splitRaster", function(r, nx = 1, ny = 1, buffer = c(0,0),
 setMethod(
   "splitRaster",
   signature = signature(r = "RasterLayer"),
-  definition = function(r, nx, ny, buffer,
-                        path, cl) {
-
+  definition = function(r, nx, ny, buffer, path, cl) {
     if (!is.numeric(nx) | !is.numeric(ny) | !is.numeric(buffer)) stop("nx, ny, and buffer must be numeric")
     if (!is.integer(nx)) nx <- as.integer(nx)
     if (!is.integer(ny)) ny <- as.integer(ny)

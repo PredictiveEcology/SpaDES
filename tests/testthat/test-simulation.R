@@ -174,7 +174,6 @@ test_that("spades calls with different signatures don't work", {
   expect_output(spades(a, debug = "simList", .plotInitialTime = NA),
                 "Completed Events")
 
-
   if (interactive()) {
     expect_output(spades(a, progress = "text", debug = TRUE), "10%")
     expect_output(spades(a, progress = "text", debug = TRUE), "20%")
@@ -230,8 +229,10 @@ test_that("simInit with R subfolder scripts", {
           r + 1
       }", sep = "\n")
   mySim <- simInit(modules = "child1", paths = list(modulePath = tmpdir))
-  expect_true(sum(grepl(ls(mySim), pattern = "^a$")) == 1)
-  expect_true(mySim$a(2) == 3)
+  expect_true(sum(grepl(unlist(lapply(ls(mySim@.envir, all.names = TRUE), function(x) {
+    if(is.environment(mySim@.envir[[x]])) ls(envir=mySim@.envir[[x]], all.names=TRUE)
+    })), pattern = "^a$")) == 1)
+  expect_true(mySim@.envir$._child1$a(2) == 3)
 })
 
 test_that("simulation runs with simInit with duplicate modules named", {
@@ -247,11 +248,9 @@ test_that("simulation runs with simInit with duplicate modules named", {
   modules <- list("randomLandscapes", "randomLandscapes", "caribouMovement")
   paths <- list(modulePath = system.file("sampleModules", package = "SpaDES"))
 
-  expect_true(
-    grepl(capture_messages(mySim <-
-        simInit(times, params, modules, objects = list(), paths)),
-                pattern = "Duplicate module"))
-  expect_true(length(modules(mySim))!=length(modules))
-  expect_true(length(modules(mySim))==length(unique(modules)))
-
+  expect_true(grepl(capture_messages(
+    mySim <- simInit(times, params, modules, objects = list(), paths)
+  ), pattern = "Duplicate module"))
+  expect_true(length(modules(mySim)) != length(modules))
+  expect_true(length(modules(mySim)) == length(unique(modules)))
 })

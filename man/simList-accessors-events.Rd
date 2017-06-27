@@ -79,11 +79,11 @@ Currently, only get and set methods are defined. Subset methods are not.
 }
 \note{
 Each event is represented by a \code{\link{data.table}} row consisting of:
-       \tabular{ll}{
-         \code{eventTime} \tab The time the event is to occur.\cr
-         \code{moduleName} \tab The module from which the event is taken.\cr
-         \code{eventType} \tab A character string for the programmer-defined event type.\cr
-       }
+ \itemize{
+   \item \code{eventTime}: The time the event is to occur.
+   \item \code{moduleName}: The module from which the event is taken.
+   \item \code{eventType}: A character string for the programmer-defined event type.
+ }
 }
 \seealso{
 \code{\link{SpaDES}}, specifically the section 1.2.6 on Simulation event queues.
