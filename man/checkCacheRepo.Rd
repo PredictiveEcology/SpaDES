@@ -5,10 +5,12 @@
 \alias{.checkCacheRepo,list-method}
 \title{checkCacheRepo for simList class objects}
 \usage{
-\S4method{.checkCacheRepo}{list}(object)
+\S4method{.checkCacheRepo}{list}(object, create = FALSE)
 }
 \arguments{
-\item{object}{A list of all elements in the call to Cache}
+\item{object}{An R object}
+
+\item{create}{Logical. If TRUE, then it will create the path for cache.}
 }
 \description{
 See \code{\link[reproducible]{.checkCacheRepo}}.
