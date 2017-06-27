@@ -157,7 +157,7 @@ setMethod(
 
 #########################################################
 if (!isGeneric(".checkCacheRepo")) {
-  setGeneric(".checkCacheRepo", function(object) {
+  setGeneric(".checkCacheRepo", function(object, create = FALSE) {
     standardGeneric(".checkCacheRepo")
   })
 }
@@ -177,9 +177,9 @@ if (!isGeneric(".checkCacheRepo")) {
 setMethod(
   ".checkCacheRepo",
   signature = "list",
-  definition = function(object) {
+  definition = function(object, create) {
     whSimList <- unlist(lapply(object, is, "simList"))
-    if (length(whSimList) > 0) {
+    if (any(whSimList)) {
       cacheRepo <- object[whSimList][[1]]@paths$cachePath # just take the first simList, if there are >1
     } else {
       doEventFrameNum <- grep(sys.calls(), pattern = "(^doEvent)|(^.parseModule)")[2]
@@ -191,7 +191,7 @@ setMethod(
         #checkPath(cacheRepo, create = TRUE) #SpaDES dependency
       }
     }
-    cacheRepo
+    checkPath(path = cacheRepo, create=create)
 })
 
 if (!isGeneric(".prepareOutput")) {
