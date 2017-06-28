@@ -80,14 +80,14 @@ return a raster with values. See Details.}
 individual cell distances from the locus where that event
 started. Default is \code{FALSE}. See Details.}
 
-\item{mapID}{Deprecated use id}
+\item{mapID}{Deprecated. Use \code{id}.}
 
-\item{id}{Logical. If TRUE, returns a raster of events ids.
-If FALSE, returns a raster of iteration numbers,
-i.e., the spread history of one or more events. NOTE:
-this is overridden if \code{returnIndices} is \code{TRUE}.}
+\item{id}{Logical. If \code{TRUE}, returns a raster of events ids.
+If \code{FALSE}, returns a raster of iteration numbers,
+i.e., the spread history of one or more events.
+NOTE: this is overridden if \code{returnIndices} is \code{TRUE}.}
 
-\item{plot.it}{If TRUE, then plot the raster at every iteraction,
+\item{plot.it}{If \code{TRUE}, then plot the raster at every iteraction,
 so one can watch the spread event grow.}
 
 \item{spreadProbLater}{Numeric, or \code{RasterLayer}. If provided, then this

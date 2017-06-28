@@ -303,11 +303,12 @@ if (getRversion() >= "3.1.0") {
 #' @author Steve Cumming
 #' @docType methods
 #' @export
-#' @importFrom raster extent maxValue minValue ncell ncol nrow raster res setValues
 #' @importFrom ff ff as.ram
 #' @importFrom ffbase ffwhich
-#' @importFrom stats runif
 #' @importFrom fpCompare %<=%
+#' @importFrom quickPlot clearPlot
+#' @importFrom raster extent maxValue minValue ncell ncol nrow raster res setValues
+#' @importFrom stats runif
 #' @rdname spread
 #' @seealso \code{\link{spread2}} for a different implementation of the same alogorithm.
 #' It is more robust, meaning, there will be fewer unexplainable errors, and the behaviour
@@ -332,15 +333,15 @@ setGeneric(
   standardGeneric("spread")
 })
 
-#' @param plot.it  If TRUE, then plot the raster at every iteraction,
-#'                   so one can watch the spread event grow.
+#' @param plot.it  If \code{TRUE}, then plot the raster at every iteraction,
+#'                 so one can watch the spread event grow.
 #'
-#' @param mapID    Deprecated use id
+#' @param mapID    Deprecated. Use \code{id}.
 #'
-#' @param id    Logical. If TRUE, returns a raster of events ids.
-#'                 If FALSE, returns a raster of iteration numbers,
-#'                 i.e., the spread history of one or more events. NOTE:
-#'                 this is overridden if \code{returnIndices} is \code{TRUE}.
+#' @param id    Logical. If \code{TRUE}, returns a raster of events ids.
+#'              If \code{FALSE}, returns a raster of iteration numbers,
+#'              i.e., the spread history of one or more events.
+#'              NOTE: this is overridden if \code{returnIndices} is \code{TRUE}.
 #'
 #' @rdname spread
 #'

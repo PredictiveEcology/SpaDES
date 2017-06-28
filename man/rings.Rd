@@ -24,10 +24,10 @@ These should be cell indices.
 If user has x and y coordinates, these can be converted
 with \code{\link[raster]{cellFromXY}}.}
 
-\item{id}{Logical. If TRUE, returns a raster of events ids.
-If FALSE, returns a raster of iteration numbers,
-i.e., the spread history of one or more events. NOTE:
-this is overridden if \code{returnIndices} is \code{TRUE}.}
+\item{id}{Logical. If \code{TRUE}, returns a raster of events ids.
+If \code{FALSE}, returns a raster of iteration numbers,
+i.e., the spread history of one or more events.
+NOTE: this is overridden if \code{returnIndices} is \code{TRUE}.}
 
 \item{minRadius}{Numeric. Minimum radius to be included in the ring. Note:
 this is inclusive, i.e., >=}

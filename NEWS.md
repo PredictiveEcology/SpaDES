@@ -13,7 +13,9 @@ version 1.3.1.9000
 
 ## Defunct
 
+* `getFileName`. Wasn't used.
 * `p`. Use `params` or `P` instead.
+* `shine` moved out of `SpaDES` into the [`SpaDES.shiny`](https://github.com/PredictiveEcology/SpaDES.shiny) package.
 * `versionWarning`. Wasn't used.
 
 ## New vignette
@@ -54,7 +56,6 @@ version 1.3.1.9000
 
 * improved documentation
 * modules are now run with their required packages (`reqdPkgs` in metadata) temporarily bumped to the top of the search path (*i.e.*, `search()`) during each event. `search` path is restored `on.exit` from `spades` or `simInit` call
-* `shine` can now take characters in parameters
 * change order of parsing of modules: `defineModule` is last, so can use objects defined within module for parameters
 * improved `simInit` debug mechanism -- passing character string of module name will enter into a `browser` call inside `doEvent`
 * improvements to caching --> these are moved to `reproducible` package:

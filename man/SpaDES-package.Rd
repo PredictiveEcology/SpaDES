@@ -54,11 +54,13 @@ Within a module, important simulation functions include:
   \code{removeEvent} \tab Remove an event from the simulation queue (not yet implemented)\cr
 }
 
-##########################################################################
+------------------------------------------------------------------------------------------
 }
 
-\section{1.2 \code{simList} methods}{
+\section{1.2.X \code{simList} methods}{
 
+
+# TODO: fix section numbering
 
 Collections of commonly used functions to retrieve or set slots (and their elements)
 of a \code{\link{simList}} object are summarized further below.
@@ -137,8 +139,7 @@ thus most users will not require direct use of these methods.
 \section{1.2.7 Modules and dependencies}{
 
 
-Accessor functions for the \code{depends}, \code{modules},
-and \code{.loadOrder} slots.
+Accessor functions for the \code{depends}, \code{modules}, and \code{.loadOrder} slots.
 These are included for advanced users.
 
 \tabular{ll}{
@@ -182,7 +183,7 @@ a true copy is required.
    \code{\link{progressInterval}} \tab \code{.progress} \tab Interval for the progress bar. (advanced)\cr
 }
 
-##########################################################################
+------------------------------------------------------------------------------------------
 }
 
 \section{1.3 Module operations}{
@@ -263,15 +264,14 @@ See example in \code{\link{spades}}, achieved by using \code{cache = TRUE} argum
 A module developer can build caching into their module by creating cached versions of their
 functions.
 
-
-
 ------------------------------------------------------------------------------------------
 }
 
 \section{2 Module functions}{
 
 
-A collection of functions that help with making modules, in addition to all the other R packages and code.
+A collection of functions that help with making modules can be found in the
+\code{SpaDES.tools} package, and are summarized below.
 }
 
 \section{2.1 Spatial spreading/distances methods}{
@@ -358,7 +358,7 @@ These are helpers for assessing this:
 
 \tabular{ll}{
   \code{\link{checkObject}} \tab Check for a existence of an object within a \code{simList} \cr
-  \code{\link{checkPath}} \tab Checks the specified filepath for formatting consistencies\cr
+  \code{\link[reproducible]{checkPath}} \tab Checks the specified filepath for formatting consistencies\cr
 }
 }
 
@@ -431,7 +431,6 @@ In addition to R's file operations, we have added several here to aid in bulk
 loading and saving of files for simulation purposes:
 
 \tabular{ll}{
-  \code{\link{getFileName}} \tab Get the name of current file\cr
   \code{\link{loadFiles}} \tab Load simulation objects according to a filelist\cr
   \code{\link{rasterToMemory}} \tab Read a raster from file to RAM\cr
   \code{\link{saveFiles}} \tab Save simulation objects according to outputs and params\cr

@@ -1,10 +1,9 @@
 ## Updated release
 
-This is an update to fix unintentional writes to a user's home directory.
-Previously, a default path to a directory in the user's home folder was set via an option.
-This has been changed to use a temporary directory by default instead, with a package startup message telling the user how to change it.
+This is a susbstantial update to the package, which has seen many enhancements and improvements since the previous release.
+The size of the package had grown too large, so we have split the package into several, and have turned this package into a metapackage that, for backwards compatibility, attaches the new spinoff packages.
 
-We have deprecated support of R 3.2 series, following the changes to the `RandomFieldsUtils` package.
+We have dropped support of R 3.2.x, following the changes to the `RandomFieldsUtils` package.
 
 ## Test environments
 
@@ -23,10 +22,10 @@ We have deprecated support of R 3.2 series, following the changes to the `Random
 * Windows 7            (local), R 3.4.0
 
 ### Development R version
-* Debian:testing  (rocker/drd), R 3.4.0 (2017-04-29 r72639)
-* Ubuntu 12.04     (travis-ci), R 3.4.0 (2017-04-29 r72639)
-* Windows           (appveyor), R 3.4.0 (2017-04-29 r72639)
-* Windows        (win-builder), R 3.4.0 (2017-04-29 r72639)
+* Debian:testing  (rocker/drd), R 3.4.0 (2017-06-26 r72857)
+* Ubuntu 14.04     (travis-ci), R 3.4.0 (2017-06-26 r72857)
+* Windows           (appveyor), R 3.4.0 (2017-06-26 r72857)
+* Windows        (win-builder), R 3.4.0 (2017-06-26 r72857)
 
 ## R CMD check results
 
