@@ -68,9 +68,11 @@ setMethod(
     object@params <- lapply(object@params, function(x) sortDotsUnderscoreFirst(x))
     object@params <- sortDotsUnderscoreFirst(object@params)
 
-    lapply(slotNames(object), function(x) {
-      fastdigest(slot(object, x))
-    })
+    nonDotList <- grep(".list", slotNames(object), invert=TRUE, value=TRUE)
+    obj <- list()
+    obj$.list <- object@.list
+    obj[nonDotList] <- lapply(nonDotList, function(x) {fastdigest(slot(object, x))})
+    obj
 })
 
 if (!isGeneric(".tagsByClass")) {
