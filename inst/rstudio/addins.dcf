@@ -1,9 +1,0 @@
-Name: SpaDES: copy module
-Description: Copy an existing 'SpaDES' module
-Binding: addin_copyModule
-Interactive: true
-
-Name: SpaDES: new module
-Description: Create a new 'SpaDES' module
-Binding: addin_newModule
-Interactive: true

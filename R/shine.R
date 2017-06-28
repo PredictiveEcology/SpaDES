@@ -32,7 +32,7 @@
 #' @importFrom shiny eventReactive fluidPage h3 h4 invalidateLater
 #' @importFrom shiny mainPanel numericInput observe observeEvent plotOutput
 #' @importFrom shiny reactiveValues renderPlot renderPrint renderUI runApp
-#' @importFrom shiny sliderInput sidebarLayout sidebarPanel
+#' @importFrom shiny selectInput sliderInput sidebarLayout sidebarPanel
 #' @importFrom shiny tabPanel tabsetPanel textOutput titlePanel
 #' @importFrom shiny uiOutput updateSliderInput updateTabsetPanel
 #' @importFrom DiagrammeR DiagrammeROutput renderDiagrammeR
