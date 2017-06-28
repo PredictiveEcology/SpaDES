@@ -306,7 +306,7 @@ if (getRversion() >= "3.1.0") {
 #' @importFrom ff ff as.ram
 #' @importFrom ffbase ffwhich
 #' @importFrom fpCompare %<=%
-#' @importFrom quickPLot clearPlot
+#' @importFrom quickPlot clearPlot
 #' @importFrom raster extent maxValue minValue ncell ncol nrow raster res setValues
 #' @importFrom stats runif
 #' @rdname spread
