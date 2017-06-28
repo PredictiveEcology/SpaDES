@@ -106,7 +106,6 @@ version 1.3.0
 * `newModule` gains new arguments `type = c("child", "parent")` and `children = c()`. See `?newModule` (#300).
 * module structure now includes an R subfolder for R scripts. These will be parsed during simInit.
 * `checksums` updated to use faster hashing algorithm (`xxhash64`) and now only requires a single hash value per file (#295)
-* new RStudio addin for 'newModule' (#298); requires Import of `shiny (>= 0.13)`, `miniUI (>= 0.1.1)`, and `rstudioapi (>= 0.5)`
 * fixed bugs in module template
 * fixed bug in `cir` (#288, #311)
 * improved use of package options; added new option `spades.modulesPath`.
