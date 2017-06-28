@@ -2,42 +2,6 @@ if (getRversion() >= "3.1.0") {
   utils::globalVariables(c("newQuantity", "quantityAdj", "quantityAdj2"))
 }
 
-#' Get the name of a \code{source}-ed file
-#'
-#' Use \code{getFileName} in a file that is \code{source}-ed.
-#' Based on \url{http://stackoverflow.com/a/1816487/1380598}.
-#'
-#' @param fullname   Logical (default \code{FALSE}) indicating whether the full
-#'                   path should be returned.
-#'
-#' @return Character string representing the filename.
-#'
-#' @export
-#' @docType methods
-#' @rdname getFileName
-#'
-#' @author Alex Chubaty
-#'
-# igraph exports %>% from magrittr
-setGeneric("getFileName", function(fullname) {
-  standardGeneric("getFileName")
-})
-
-#' @rdname getFileName
-setMethod("getFileName",
-          signature = "logical",
-          definition = function(fullname) {
-            f <- lapply(sys.frames(), function(i) i$filename) %>%
-              Filter(Negate(is.null), .) %>%
-              unlist
-            if (fullname) {
-              f <- normalizePath(file.path(getwd(), f), winslash = "/")
-            } else {
-              f <- basename(f)
-            }
-            return(f)
-})
-
 ################################################################################
 #' Update elements of a named list with elements of a second named list
 #'
