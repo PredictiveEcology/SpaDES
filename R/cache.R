@@ -47,7 +47,7 @@ setMethod(
     object@.envir <- new.env()
     object <- as(object, "simList_")
     # Replace the .list slot with the hashes of the slots
-    object@.list <- list(envirHash)
+    object@.list <- envirHash
 
     # Remove paths as they are system dependent and not relevant for digest
     #  i.e., if the same file is located in a different place, that is ok
