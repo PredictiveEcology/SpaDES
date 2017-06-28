@@ -1,1 +1,1 @@
-linters: with_defaults(camel_case_linter = NULL, line_length_linter(100))
+linters: with_defaults(line_length_linter(100), object_name_linter("lowerCamelCase"))
