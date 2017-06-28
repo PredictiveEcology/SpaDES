@@ -74,41 +74,6 @@ r_check_args: "--as-cran"
 
 warnings_are_errors: true
 
-r_binary_packages:
-  - chron
-  - CircStats
-  - colorspace
-  - data.table
-  - DEoptim
-  - dichromat
-  - digest
-  - dplyr
-  - ggplot2
-  - gtable
-  - httr
-  - igraph
-  - knitr
-  - labeling
-  - latticeExtra
-  - lubridate
-  - magrittr
-  - munsell
-  - proto
-  - RandomFields
-  - raster
-  - RColorBrewer
-  - Rcpp
-  - reshape
-  - rgdal
-  - scales
-  - secr
-  - snow
-  - sp
-  - testthat
-  - tkrplot
-  - xts
-  - zoo
-
 notifications:
   email:
     on_success: change
