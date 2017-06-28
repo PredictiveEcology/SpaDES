@@ -31,7 +31,7 @@ test_that("spelling errors", {
   ## check help (Rd) files
   wrdsRd <- aspell_package_Rd_files(pkgDir, drop = c("\\author", "\\references"))
   #expect_equal(nrow(wrdsRd), 0)
-  wrds_Rd ## TEMPORARY: remave once all spelling errors are fixed
+  wrdsRd ## TEMPORARY: remave once all spelling errors are fixed
 
   ## check code files (messages, warnings, etc.)
   wrdsC <- aspell_package_C_files(pkgDir)

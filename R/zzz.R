@@ -44,7 +44,7 @@ NULL
   tmpdir <- file.path(tempdir(), "SpaDES")
   ## set options using the approach used by devtools
   opts <- options()
-  opts.spades <- list(
+  opts.spades <- list( # nolint
     spades.cachePath = file.path(tmpdir, "cache"),
     spades.inputPath = file.path(tmpdir, "inputs"),
     spades.lowMemory = FALSE,
