@@ -67,7 +67,7 @@ setMethod(
     # Sort the params and .list with dots first, to allow Linux and Windows to be compatible
     object@params <- lapply(object@params, function(x) sortDotsUnderscoreFirst(x))
     object@params <- sortDotsUnderscoreFirst(object@params)
-
+    
     nonDotList <- grep(".list", slotNames(object), invert=TRUE, value=TRUE)
     obj <- list()
     obj$.list <- object@.list
@@ -272,7 +272,9 @@ setMethod(
     if (!is.null(outputObjects)) {
       outputToSave <- object
       outputToSave@.envir <- new.env()
-      list2env(mget(outputObjects, envir = object@.envir), envir = outputToSave@.envir)
+      # Some objects are conditionally produced from a module's outputObject
+      whExist <- outputObjects %in% ls(object@.envir, all.names=TRUE) 
+      list2env(mget(outputObjects[whExist], envir = object@.envir), envir = outputToSave@.envir)
       attr(outputToSave, "tags") <- attr(object, "tags")
       attr(outputToSave, "call") <- attr(object, "call")
       if (isS4(FUN))
