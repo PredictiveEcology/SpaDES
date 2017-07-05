@@ -219,7 +219,6 @@ setMethod(
   ".prepareOutput",
   signature = "simList",
   definition = function(object, cacheRepo, ...) {
-      simListOut <- object # gets all items except objects in list(...)
       tmpl <- list(...)
       whSimList <- which(unlist(lapply(tmpl, is, "simList")))
       origEnv <- tmpl[[whSimList[1]]]@.envir
@@ -233,16 +232,15 @@ setMethod(
         for (i in seq_along(object)) {
           keepFromOrig <- !(ls(origEnv, all.names = TRUE) %in% ls(object[[i]]@.envir, all.names = TRUE))
           # list2env(mget(ls(origEnv, all.names = TRUE)[keepFromOrig], envir = origEnv),
-          #          envir = simListOut[[i]]@.envir)
-          list2env(as.list(Copy(origEnv, objects = ls(origEnv, all.names = TRUE)[keepFromOrig]), all.names = TRUE),
-                   envir = simListOut[[i]]@.envir)
-        }
+          #          envir = object[[i]]@.envir)
+          list2env(mget(ls(origEnv, all.names = TRUE)[keepFromOrig], envir=tmpl[[whSimList]]@.envir), 
+                   envir=object[[i]]@.envir)        }
       } else {
         keepFromOrig <- !(ls(origEnv, all.names = TRUE) %in% ls(object@.envir, all.names = TRUE))
-        list2env(as.list(Copy(origEnv, objects = ls(origEnv, all.names = TRUE)[keepFromOrig]), all.names = TRUE),
-                 envir = simListOut@.envir)
+        list2env(mget(ls(origEnv, all.names = TRUE)[keepFromOrig], envir=tmpl[[whSimList]]@.envir), 
+                 envir=object@.envir)
       }
-    return(simListOut)
+    return(object)
 })
 
 if (!isGeneric(".addTagsToOutput")) {

@@ -201,7 +201,7 @@ setMethod(
             )
           )
         }
-
+        
         # add to list of completed events
         compl <- sim@completed # completed(sim, "second")
         if (NROW(compl)) {
@@ -230,7 +230,7 @@ setMethod(
       }
     }
     return(invisible(sim))
-})
+  })
 
 #' @rdname doEvent
 setMethod(
@@ -239,7 +239,7 @@ setMethod(
   definition = function(sim) {
     stopifnot(class(sim) == "simList")
     return(doEvent(sim, debug = FALSE))
-})
+  })
 
 ################################################################################
 #' Schedule a simulation event
