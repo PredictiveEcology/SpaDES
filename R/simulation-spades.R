@@ -160,6 +160,9 @@ setMethod(
                   #.useCache is not TRUE
                   if (cur[["eventType"]] %in% a) {
                     cacheIt <- TRUE
+                  } else if (is(a, "POSIXt")) {
+                    cacheIt <- TRUE
+                    notOlderThan <- a
                   }
                 } else {
                   cacheIt <- TRUE
