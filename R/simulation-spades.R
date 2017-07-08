@@ -171,12 +171,16 @@ setMethod(
             .modifySearchPath(sim@depends@dependencies[[cur[["moduleName"]]]]@reqdPkgs,
                               removeOthers = FALSE)
 
-            if (cacheIt) {
+            if (cacheIt) { # means that a module or event is to be cached
               objNam <- sim@depends@dependencies[[cur[["moduleName"]]]]@outputObjects$objectName
               moduleSpecificObjects <- c(grep(ls(sim@.envir, all.names = TRUE),
                                               pattern = cur[["moduleName"]], value = TRUE),
                                          na.omit(objNam))
               moduleSpecificOutputObjects <- objNam
+              classOptions <- list(events = FALSE, current=FALSE, completed=FALSE, simtimes=FALSE,
+                                   params = sim@params[[cur[["moduleName"]]]],
+                                   modules = cur[["moduleName"]])
+              
               sim <- Cache(FUN = get(moduleCall, envir = sim@.envir[[paste0("._", cur[["moduleName"]])]]),
                            sim = sim,
                            eventTime = cur[["eventTime"]], eventType = cur[["eventType"]],
@@ -184,6 +188,7 @@ setMethod(
                            objects = moduleSpecificObjects,
                            notOlderThan = notOlderThan,
                            outputObjects = moduleSpecificOutputObjects,
+                           classOptions = classOptions,
                            cacheRepo = sim@paths[["cachePath"]],
                            userTags = c("function:doEvent"))
             } else {
