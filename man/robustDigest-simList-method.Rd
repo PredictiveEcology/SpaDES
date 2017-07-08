@@ -7,7 +7,7 @@
 \usage{
 \S4method{robustDigest}{simList}(object, objects,
   compareRasterFileLength = 1e+06, algo = "xxhash64",
-  digestPathContent = FALSE)
+  digestPathContent = FALSE, classOptions = list())
 }
 \arguments{
 \item{object}{an object to digest.}
@@ -30,6 +30,10 @@ Default 1e6. Passed to \code{prepareFileBackedRaster}.}
 \item{digestPathContent}{Logical. Should arguments that are of class \code{Path}
 (see examples below) have their name digested
 (\code{FALSE}; default), or their file contents (\code{TRUE}).}
+
+\item{classOptions}{Optional list. This will pass into \code{robustDigest} for 
+specific classes. Should be options that the \code{robustDigest} knows what 
+to do with.}
 }
 \description{
 This is intended to be used within the \code{Cache} function, but can be

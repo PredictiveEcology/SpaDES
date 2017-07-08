@@ -5,7 +5,8 @@
 \alias{.addTagsToOutput,simList-method}
 \title{addTagsToOutput for simList class objects}
 \usage{
-\S4method{.addTagsToOutput}{simList}(object, outputObjects, FUN)
+\S4method{.addTagsToOutput}{simList}(object, outputObjects, FUN,
+  preDigestByClass)
 }
 \arguments{
 \item{object}{Any R object.}
@@ -14,6 +15,8 @@
 return. This is only relevant for \code{simList} objects}
 
 \item{FUN}{A function}
+
+\item{preDigestByClass}{A list, usually from \code{.preDigestByClass}}
 }
 \description{
 See \code{\link[reproducible]{.addTagsToOutput}}.
