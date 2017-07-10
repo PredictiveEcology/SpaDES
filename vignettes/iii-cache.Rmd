@@ -46,15 +46,17 @@ This is likely most useful in situations where reproducibility is more important
 
 ```{r examples, echo=TRUE, message=FALSE}
 library(igraph) # for %>%
-library(quickPlot)
 library(raster)
 library(SpaDES)
 
-mySim <- simInit(times = list(start = 0.0, end = 5.0),
-                 params = list(.globals = list(stackName = "landscape", burnStats = "testStats"),
-                               randomLandscapes = list(.plotInitialTime = NA)),
-                 modules = list("randomLandscapes", "fireSpread"),
-                 paths = list(modulePath = system.file("sampleModules", package = "SpaDES")))
+mySim <- simInit(
+  times = list(start = 0.0, end = 5.0),
+  params = list(
+    .globals = list(stackName = "landscape", burnStats = "testStats"),
+    randomLandscapes = list(.plotInitialTime = NA)
+  ),
+  modules = list("randomLandscapes", "fireSpread"),
+  paths = list(modulePath = system.file("sampleModules", package = "SpaDES.core")))
 ```
 
 This functionality can be achieved within a `spades` call.

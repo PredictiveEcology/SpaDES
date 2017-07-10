@@ -13,8 +13,8 @@ parameters <- list(
   caribouMovement = list(N = 20, torus = TRUE, moveInitialTime = times$start,
                          .plotInitialTime = times$start, .plotInterval = 1))
 modules <- list("fireSpread", "caribouMovement", "randomLandscapes")
-path <- list(modulePath = system.file("sampleModules", package = "SpaDES"))
-#path <- list(modulePath = "~/GitHub/SpaDES/inst/sampleModules")
+path <- list(modulePath = system.file("sampleModules", package = "SpaDES.core"))
+#path <- list(modulePath = "~/GitHub/SpaDES.core/inst/sampleModules")
 
 my <- simInit(times = times, params = parameters, modules = modules, path = path)
 system.time(spades(my))

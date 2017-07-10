@@ -2,10 +2,10 @@
 
 ### Develop and run spatially explicit discrete event simulation models
 
-Easily implement a variety of simulation models, with a focus on spatially explicit models.
+Metapackage for implementing a variety of event-based models, with a focus on spatially explicit models.
 These include raster-based, event-based, and agent-based models.
-The core simulation components are built upon a discrete event simulation framework that facilitates modularity, and easily enables the user to include additional functionality by running user-built simulation modules. 
-Included are numerous tools to rapidly visualize raster and other maps.
+The core simulation components (provided by [`SpaDES.core](https://github.com/PredictiveEcology/SpaDES.core)) are built upon a discrete event simulation (DES) framework that facilitates modularity, and easily enables the user to include additional functionality by running user-built simulation modules (see also [`SpaDES.tools`](https://github.com/PredictiveEcology/SpaDES.tools)).
+Included are numerous tools to visualize rasters and other maps (via [`quickPlot`](https://github.com/PredictiveEcology/quickPlot)), and caching methods for reproducible simulations (via [`reproducible`](https://github.com/PredictiveEcology/reproducible)).
 
 **Website:** [http://SpaDES.PredictiveEcology.org](http://SpaDES.PredictiveEcology.org)
 

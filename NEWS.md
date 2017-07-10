@@ -5,9 +5,16 @@ version 1.3.1.9000
 
 ## Dependency changes
 
+* `SpaDES` package split into several (#198):
+
+    - caching moved out of `SpaDES` and into new package [`reproducible`](https://github.com/PredictiveEcology/reproducible). `reproducible` added to Imports.
+    - plotting moved out of `SpaDES` and into new package [`quickPlot`](https://github.com/PredictiveEcology/quickPlot). `quickPlot` added to Imports.
+    - all Rstudio addins moved out of `SpaDES` and into new package [`SpaDES.addins`](https://github.com/PredictiveEcology/SpaDES.addins). `SpaDES.addins` added to Imports.
+    - core DES components moved out of `SpaDES` and into new package [`SpaDES.core`](https://github.com/PredictiveEcology/SpaDES.core). `SpaDES.core` added to Imports.
+    - additional modelling utilities (non-core components) moved out of `SpaDES` and into new package [`SpaDES.tools`](https://github.com/PredictiveEcology/SpaDES.tools). `SpaDES.tools` added to Imports.
+    - `shiny`-related components moved out of `SpaDES` and into new package [`SpaDES.shiny`](https://github.com/PredictiveEcology/SpaDES.shiny). `SpaDES.shiny` added to Imports.
+
 * minimum R version increased from `3.2.2` to `3.3.2` as required by dependencies `RandomFieldsUtils` and `reproducible`.
-* caching moved out of `SpaDES` and into new package [`reproducible`](https://github.com/PredictiveEcology/reproducible). `reproducible` added to Depends.
-* plotting moved out of `SpaDES` and into new package [`quickPlot`](https://github.com/PredictiveEcology/quickPlot). `quickPlot` added to Depends.
 * added `bit`, `fastmatch`, `fastdigest` and `Rcpp` packages to Imports.
 * removed `stringr` package from Imports.
 
