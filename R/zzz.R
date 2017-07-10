@@ -7,6 +7,15 @@
 .pkgs <- c("reproducible", "quickPlot",
            "SpaDES.core", "SpaDES.tools", "SpaDES.addins", "SpaDES.shiny")
 
+#' The \code{SpaDES} package environment
+#'
+#' Environment used internally to store internal package objects and methods.
+#'
+#' @keywords internal
+#' @rdname pkgEnv
+#'
+.pkgEnv <- new.env(parent = emptyenv())
+
 #' Check if a package is in the search path
 #'
 #' @keywords internal
@@ -17,6 +26,8 @@
 
 .onAttach <- function(libname, pkgname) {
   needed <- .pkgs[!.isAttached(.pkgs)]
+  assign("needed", value = needed, envir=.pkgEnv)
+
   out <- NULL
 
   if (length(needed) > 0) {
@@ -29,12 +40,16 @@
     as.character(utils::packageVersion(x))
   }, character(1))
 
-  widths <- vapply(names(.vers), nchar, numeric(1))
+  packageLoading <- paste0(c("using ", "loading ")[(names(.vers) %in% needed)+1],names(.vers))
+
+  widths <- vapply(packageLoading, nchar, numeric(1))
   maxWidth <- max(widths) + 4
   spaces <- vapply(maxWidth - widths, function(w) {
     paste0(rep(" ", w), collapse = "")
   }, character(1))
-  pkgInfo <- paste0("using ", names(.vers), spaces, .vers, collapse = "\n")
+
+
+  pkgInfo <- paste0(packageLoading, spaces, .vers, collapse = "\n")
 
   packageStartupMessage(pkgInfo, "\n")
 
@@ -46,4 +61,14 @@
                         "These can be changed using 'setPaths()'. See '?setPaths'.")
 
   return(invisible(out))
+}
+
+.onDetach <- function(libpath) {
+
+  for(p in rev(get("needed", envir=.pkgEnv))) {
+    tryCatch(detach(paste0("package:",p), character.only = TRUE, unload=TRUE),
+             error=function(x) NULL)
+  }
+
+  return(invisible())
 }
