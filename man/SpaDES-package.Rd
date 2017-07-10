@@ -6,8 +6,8 @@
 \alias{SpaDES-package}
 \title{Categorized overview of the \code{SpaDES} package}
 \description{
-\if{html}{\figure{inst/figures/SpaDES.png}{options: width=100 alt="SpaDES logo" align="right"}}
-\if{latex}{\figure{inst/figures/SpaDES.png}{options: width=0.5in}}
+\if{html}{\figure{SpaDES.png}{options: width=100 alt="SpaDES logo" align="right"}}
+\if{latex}{\figure{SpaDES.png}{options: width=0.5in}}
 
 Metapackage for implementing a variety of event-based models, with a focus on
 spatially explicit models. These include raster-based, event-based, and
