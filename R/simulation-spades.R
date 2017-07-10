@@ -160,9 +160,6 @@ setMethod(
                   #.useCache is not TRUE
                   if (cur[["eventType"]] %in% a) {
                     cacheIt <- TRUE
-                  } else if (is(a, "POSIXt")) {
-                    cacheIt <- TRUE
-                    notOlderThan <- a
                   }
                 } else {
                   cacheIt <- TRUE
@@ -174,16 +171,12 @@ setMethod(
             .modifySearchPath(sim@depends@dependencies[[cur[["moduleName"]]]]@reqdPkgs,
                               removeOthers = FALSE)
 
-            if (cacheIt) { # means that a module or event is to be cached
+            if (cacheIt) {
               objNam <- sim@depends@dependencies[[cur[["moduleName"]]]]@outputObjects$objectName
               moduleSpecificObjects <- c(grep(ls(sim@.envir, all.names = TRUE),
                                               pattern = cur[["moduleName"]], value = TRUE),
                                          na.omit(objNam))
               moduleSpecificOutputObjects <- objNam
-              classOptions <- list(events = FALSE, current=FALSE, completed=FALSE, simtimes=FALSE,
-                                   params = sim@params[[cur[["moduleName"]]]],
-                                   modules = cur[["moduleName"]])
-              
               sim <- Cache(FUN = get(moduleCall, envir = sim@.envir[[paste0("._", cur[["moduleName"]])]]),
                            sim = sim,
                            eventTime = cur[["eventTime"]], eventType = cur[["eventType"]],
@@ -191,7 +184,6 @@ setMethod(
                            objects = moduleSpecificObjects,
                            notOlderThan = notOlderThan,
                            outputObjects = moduleSpecificOutputObjects,
-                           classOptions = classOptions,
                            cacheRepo = sim@paths[["cachePath"]],
                            userTags = c("function:doEvent"))
             } else {
@@ -209,7 +201,7 @@ setMethod(
             )
           )
         }
-        
+
         # add to list of completed events
         compl <- sim@completed # completed(sim, "second")
         if (NROW(compl)) {
@@ -238,7 +230,7 @@ setMethod(
       }
     }
     return(invisible(sim))
-  })
+})
 
 #' @rdname doEvent
 setMethod(
@@ -247,7 +239,7 @@ setMethod(
   definition = function(sim) {
     stopifnot(class(sim) == "simList")
     return(doEvent(sim, debug = FALSE))
-  })
+})
 
 ################################################################################
 #' Schedule a simulation event
