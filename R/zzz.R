@@ -64,10 +64,9 @@
 }
 
 .onDetach <- function(libpath) {
-
-  for(p in rev(get("needed", envir=.pkgEnv))) {
-    tryCatch(detach(paste0("package:",p), character.only = TRUE, unload=TRUE),
-             error=function(x) NULL)
+  for (p in rev(get("needed", envir = .pkgEnv))) {
+    tryCatch(detach(paste0("package:", p), character.only = TRUE, unload = TRUE),
+             error = function(x) NULL)
   }
 
   return(invisible())
