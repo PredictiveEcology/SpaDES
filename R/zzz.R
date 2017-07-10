@@ -1,3 +1,7 @@
+if (getRversion() >= "3.1.0") {
+  utils::globalVariables(".pkgEnv")
+}
+
 #' Core SpaDES packages
 #'
 #' Packages of the \code{SpaDES} ecosystem.
@@ -18,6 +22,7 @@
 
 #' Check if a package is in the search path
 #'
+#' @importFrom utils packageVersion
 #' @keywords internal
 #' @rdname isAttached
 .isAttached <- function(x) {
@@ -26,7 +31,7 @@
 
 .onAttach <- function(libname, pkgname) {
   needed <- .pkgs[!.isAttached(.pkgs)]
-  assign("needed", value = needed, envir=.pkgEnv)
+  assign("needed", value = needed, envir = .pkgEnv)
 
   out <- NULL
 
@@ -37,10 +42,10 @@
   }
 
   .vers <- vapply(.pkgs, function(x) {
-    as.character(utils::packageVersion(x))
+    as.character(packageVersion(x))
   }, character(1))
 
-  packageLoading <- paste0(c("using ", "loading ")[(names(.vers) %in% needed)+1],names(.vers))
+  packageLoading <- paste0(c("using ", "loading ")[(names(.vers) %in% needed) + 1], names(.vers))
 
   widths <- vapply(packageLoading, nchar, numeric(1))
   maxWidth <- max(widths) + 4

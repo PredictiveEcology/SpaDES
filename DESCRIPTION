@@ -36,7 +36,8 @@ Imports:
     SpaDES.addins,
     SpaDES.core,
     SpaDES.shiny,
-    SpaDES.tools
+    SpaDES.tools,
+    utils
 Suggests:
     archivist,
     igraph,

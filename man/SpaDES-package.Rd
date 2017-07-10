@@ -22,12 +22,18 @@ Additional functionality is provided by the \code{SpaDES.addins} and
 
 Bug reports:
 \itemize{
-  \item \code{quickPlot} package: \url{https://github.com/PredictiveEcology/quickPlot/issues}
-  \item \code{reproducible} package: \url{https://github.com/PredictiveEcology/reproducible/issues}
-  \item \code{SpaDES.addins} package: \url{https://github.com/PredictiveEcology/SpaDES.addins/issues}
-  \item \code{SpaDES.core} package: \url{https://github.com/PredictiveEcology/SpaDES.core/issues}
-  \item \code{SpaDES.shiny} package: \url{https://github.com/PredictiveEcology/SpaDES.shiny/issues}
-  \item \code{SpaDES.tools} package: \url{https://github.com/PredictiveEcology/SpaDES.tools/issues}
+  \item \code{quickPlot} package:
+        \url{https://github.com/PredictiveEcology/quickPlot/issues}
+  \item \code{reproducible} package:
+        \url{https://github.com/PredictiveEcology/reproducible/issues}
+  \item \code{SpaDES.addins} package:
+        \url{https://github.com/PredictiveEcology/SpaDES.addins/issues}
+  \item \code{SpaDES.core} package:
+        \url{https://github.com/PredictiveEcology/SpaDES.core/issues}
+  \item \code{SpaDES.shiny} package:
+        \url{https://github.com/PredictiveEcology/SpaDES.shiny/issues}
+  \item \code{SpaDES.tools} package:
+        \url{https://github.com/PredictiveEcology/SpaDES.tools/issues}
 }
 
 Module repository: \url{https://github.com/PredictiveEcology/SpaDES-modules}
@@ -65,7 +71,8 @@ A set of RStudio addins to assist with \code{SpaDES} module development.
 \section{The \code{SpaDES.shiny} package}{
 
 
-Utilities for developing and running \code{shiny}-based app interfaces to \code{SpaDES} simulations.
+Utilities for developing and running \code{shiny}-based app interfaces to
+\code{SpaDES} simulations.
 
 ------------------------------------------------------------------------------------------
 }

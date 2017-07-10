@@ -34,7 +34,8 @@ matrix:
     before_script:
     - Rscript -e 'install.packages("dplyr", dependencies = TRUE)'
     after_success:
-    - Rscript -e 'library(covr); coveralls(coverage = print(package_coverage(quiet =  FALSE)))'
+    - Rscript -e 'library(lintr); lint_package(cache = TRUE)'
+    - Rscript -e 'library(covr); coveralls(coverage = print(package_coverage(quiet = FALSE)))'
   - os: linux
     dist: trusty
     r: devel
