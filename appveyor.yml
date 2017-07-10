@@ -46,9 +46,9 @@ branches:
 clone_depth: 5
 
 build_script:
-  - travis-tool.sh r_binary_install archivist chron CircStats covr data.table DEoptim DiagrammeR digest dplyr DT fastmatch fastshp ff ffbase fpCompare ggplot2 gridBase httr igraph knitr lazyeval lubridate Matrix miniUI png RandomFields raster RColorBrewer rgdal rgenoud rmarkdown rstudioapi R.utils shiny snow sp stringi tcltk testthat tkrplot
-  - travis-tool.sh r_github_packages s-u/fastshp PredictiveEcology/reproducible PredictiveEcology/quickPlot
+  - travis-tool.sh r_github_packages PredictiveEcology/reproducible PredictiveEcology/quickPlot
   - travis-tool.sh install_deps
+  - Rscript -e  "install.packages('dplyr', type = 'source', repos = 'https://cran.rstudio.com')"
 
 test_script:
   - travis-tool.sh run_tests
