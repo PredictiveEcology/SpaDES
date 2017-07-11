@@ -28,14 +28,16 @@ matrix:
         packages:
         - libgdal1-dev
         - libproj-dev
+    r_github_packages:
+      - jimhester/lintr
     before_install:
     - export DISPLAY=:99.0
     - sh -e /etc/init.d/xvfb start
     before_script:
     - Rscript -e 'install.packages("dplyr", dependencies = TRUE)'
     after_success:
-    - Rscript -e 'library(lintr); lint_package(cache = TRUE)'
     - Rscript -e 'library(covr); coveralls(coverage = print(package_coverage(quiet = FALSE)))'
+    - Rscript -e 'library(lintr); lint_package()'
   - os: linux
     dist: trusty
     r: devel
