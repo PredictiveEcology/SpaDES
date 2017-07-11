@@ -1,7 +1,3 @@
-if (getRversion() >= "3.1.0") {
-  utils::globalVariables(".pkgEnv")
-}
-
 #' Core SpaDES packages
 #'
 #' Packages of the \code{SpaDES} ecosystem.

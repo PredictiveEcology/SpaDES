@@ -1,2 +1,1 @@
-linters: with_defaults(line_length_linter(100), object_name_linter("lowerCamelCase"))
-
+linters: with_defaults(line_length_linter(100), object_name_linter("lowerCamelCase"), default = default_linters[-which(names(default_linters) == "object_usage_linter")])
