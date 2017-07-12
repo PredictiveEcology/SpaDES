@@ -1,127 +1,66 @@
-# Sample .travis.yml for R projects.
-#
-# See README.md for instructions, or for more configuration options,
-# see the wiki:
-#   https://github.com/craigcitro/r-travis/wiki
-
 sudo: required
-
 language: r
-
+cache: packages
+cran: https://cran.rstudio.com/
 env:
   global:
-    - secure: "VjmV4Tyjtmdk8QzPdWAI7WLksk0E4NzzTBf3yzABLW/MBoDthtLuuOcnm4RmNp6hUIaCgPWzcNAcwnKjjPiCSGq0w+0gklyvtQSXAJSG8zmm3Fyd1s2F02XhiRYaCBqqhcK1F5cNVG6XsutTT97A71SegQKvTfcO0K6MuRs1vL0="
-    - secure: "JTsEuU+Htu027oOMYXXqDc6adgN7jK6i1fcx5n1PKWUn30CsCmq5bLJcBm4a94BhSGBYEkI5HArWdiiw8U6GAOS3vcVg0coDjfRZcdQGbjiULS5Ep8SOQf+0tNcTlF0JjTK4Kw3OjstGJNhxKH9A8Ak9+acXAIsYqQQ2LeyjVQ4="
-
+  - secure: 3BXzHYdDU0aCDB88S0JFTgV2Z4prE1j7asKSO8FGrQazvja6Cx0sStfuDa6SRjcAm4BWkP7Feixr6yGqL57ep4UC3Z+BcHvxFBdgfL5FAzdbnuMwEn7DJ11uXZPJampbORLgS8WniVgeRiEcHtZm+z2HHWf5fo0aJXEFEXGYLqU=
 matrix:
   include:
-
-#  - os: linux
-#    dist: trusty
-#    r: oldrel
-#    addons:
-#      apt:
-#        packages:
-#          - libgdal1-dev
-#    before_install:
-#    - tlmgr install xcolor
-#    - export DISPLAY=:99.0
-#    - sh -e /etc/init.d/xvfb start
-#    - echo "options(repos = c(CRAN='https://cran.rstudio.com'))" >> ~/.Rprofile
-
   - os: linux
     dist: trusty
-    r: release
-    cran: https://cran.rstudio.com/
+    r: oldrel
     addons:
       apt:
         packages:
-          - libgdal1-dev
+        - libgdal1-dev
+        - libproj-dev
     before_install:
-    - tlmgr install xcolor
     - export DISPLAY=:99.0
     - sh -e /etc/init.d/xvfb start
-    - echo "options(repos = c(CRAN='https://cran.rstudio.com'))" >> ~/.Rprofile
-    - chmod 755 ./_push_vignettes.sh
+  - os: linux
+    dist: trusty
+    r: release
+    addons:
+      apt:
+        packages:
+        - libgdal1-dev
+        - libproj-dev
+    before_install:
+    - export DISPLAY=:99.0
+    - sh -e /etc/init.d/xvfb start
     after_success:
-    - ./_push_vignettes.sh
     - Rscript -e 'library(covr); coveralls(coverage = print(package_coverage(quiet = FALSE)))'
-
   - os: linux
     dist: trusty
     r: devel
     addons:
       apt:
         packages:
-          - libgdal1-dev
+        - libgdal1-dev
+        - libproj-dev
     before_install:
-    - tlmgr install xcolor
     - export DISPLAY=:99.0
     - sh -e /etc/init.d/xvfb start
-    - echo "options(repos = c(CRAN='https://cran.rstudio.com'))" >> ~/.Rprofile
-
   - os: osx
-    osx_image: xcode8
-    cran: https://cran.rstudio.com/
+    osx_image: xcode8.2
     latex: false
-    r_build_args: '--no-build-vignettes'
-    r_check_args: '--as-cran --ignore-vignettes --no-examples'
-    r_github_packages:
-    - s-u/fastshp
-    - MangoTheCat/VisualTest
-    before_install:
-    - echo "options(repos = c(CRAN='https://cran.rstudio.com'))" >> ~/.Rprofile
+    r_build_args: "--no-build-vignettes"
+    r_check_args: "--as-cran --ignore-vignettes --no-examples"
     before_script:
     - Rscript -e "install.packages('rgdal', type = 'source')"
-
 r_build_args: " "
-
 r_check_args: "--as-cran"
-
+r_github_packages:
+    - s-u/fastshp
+    - MangoTheCat/VisualTest
 warnings_are_errors: true
-
-r_binary_packages:
-  - chron
-  - CircStats
-  - colorspace
-  - data.table
-  - DEoptim
-  - dichromat
-  - digest
-  - dplyr
-  - ggplot2
-  - gtable
-  - httr
-  - igraph
-  - knitr
-  - labeling
-  - latticeExtra
-  - lubridate
-  - magrittr
-  - munsell
-  - proto
-  - RandomFields
-  - raster
-  - RColorBrewer
-  - Rcpp
-  - reshape
-  - rgdal
-  - scales
-  - secr
-  - snow
-  - sp
-  - stringr
-  - testthat
-  - tkrplot
-  - xts
-  - zoo
-
 notifications:
   email:
     on_success: change
     on_failure: change
-
 branches:
   only:
-    - master
-    - development
+  - master
+  - development
+  - testing
