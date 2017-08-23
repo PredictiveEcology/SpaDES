@@ -20,6 +20,7 @@ Additional functionality is provided by the [`SpaDES.addins`](https://predictive
 - `reproducible`: https://predictiveecology.github.io/reproducible/
 - `SpaDES.addins`: https://predictiveecology.github.io/SpaDES.addins/
 - `SpaDES.core`: https://predictiveecology.github.io/SpaDES.core/
+- `SpaDES.shiny`: https://predictiveecology.github.io/SpaDES.shiny/
 - `SpaDES.tools`: https://predictiveecology.github.io/SpaDES.tools/
 
 **Predictive Ecology Blog:** [http://predictiveecology.org/](http://predictiveecology.org/)

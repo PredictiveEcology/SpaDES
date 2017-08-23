@@ -36,6 +36,7 @@ Imports:
     reproducible,
     SpaDES.addins,
     SpaDES.core,
+    SpaDES.shiny,
     SpaDES.tools,
     utils
 Suggests:
@@ -46,11 +47,8 @@ Suggests:
     rmarkdown,
     testthat
 Remotes:
-    PredictiveEcology/reproducible@development,
-    PredictiveEcology/quickPlot,
-    PredictiveEcology/SpaDES.core,
-    PredictiveEcology/SpaDES.tools,
-    PredictiveEcology/SpaDES.addins
+    PredictiveEcology/SpaDES.addins,
+    PredictiveEcology/SpaDES.shiny
 License: GPL-3
 VignetteBuilder: knitr, rmarkdown
 BugReports: https://github.com/PredictiveEcology/SpaDES/issues

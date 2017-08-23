@@ -4,7 +4,7 @@
 \name{.pkgs}
 \alias{.pkgs}
 \title{Core SpaDES packages}
-\format{An object of class \code{character} of length 5.}
+\format{An object of class \code{character} of length 6.}
 \usage{
 .pkgs
 }
