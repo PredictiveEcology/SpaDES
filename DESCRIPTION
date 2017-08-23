@@ -13,7 +13,7 @@ Description: Metapackage for implementing a variety of event-based models, with
     the 'SpaDES.addins' and 'SpaDES.shiny' packages.
 URL: http://spades.predictiveecology.org,
     https://github.com/PredictiveEcology/SpaDES
-Date: 2017-07-07
+Date: 2017-08-23
 Version: 2.0.0
 Authors@R: c(
     person("Alex M", "Chubaty", email = "alexander.chubaty@canada.ca",

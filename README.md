@@ -1,15 +1,42 @@
 # Spatial Discrete Event Simulation (SpaDES)
 
-### Develop and run spatially explicit discrete event simulation models
+## Develop and run spatially explicit discrete event simulation models
 
 Metapackage for implementing a variety of event-based models, with a focus on spatially explicit models.
 These include raster-based, event-based, and agent-based models.
-The core simulation components (provided by [`SpaDES.core](https://github.com/PredictiveEcology/SpaDES.core)) are built upon a discrete event simulation (DES) framework that facilitates modularity, and easily enables the user to include additional functionality by running user-built simulation modules (see also [`SpaDES.tools`](https://github.com/PredictiveEcology/SpaDES.tools)).
-Included are numerous tools to visualize rasters and other maps (via [`quickPlot`](https://github.com/PredictiveEcology/quickPlot)), and caching methods for reproducible simulations (via [`reproducible`](https://github.com/PredictiveEcology/reproducible)).
+The core simulation components (provided by [`SpaDES.core`](https://predictiveecology.github.io/SpaDES.core/)) are built upon a discrete event simulation (DES) framework that facilitates modularity, and easily enables the user to include additional functionality by running user-built simulation modules (see also [`SpaDES.tools`](https://predictiveecology.github.io/SpaDES.tools/)).
+Included are numerous tools to visualize rasters and other maps (via [`quickPlot`](https://predictiveecology.github.io/quickPlot/)), and caching methods for reproducible simulations (via [`reproducible`](https://predictiveecology.github.io/reproducible/)).
+Additional functionality is provided by the [`SpaDES.addins`](https://predictiveecology.github.io/SpaDES.addins/) and [`SpaDES.shiny`](https://predictiveecology.github.io/SpaDES.shiny/) packages.
 
-**Website:** [http://SpaDES.PredictiveEcology.org](http://SpaDES.PredictiveEcology.org)
+![](http://spades.predictiveecology.org/MapsSmall.gif) ![](http://spades.predictiveecology.org/lcc05.png)
 
-**Wiki:** [https://github.com/PredictiveEcology/SpaDES/wiki](https://github.com/PredictiveEcology/SpaDES/wiki)
+### Websites
+
+**`SpaDES` metapackage:** [http://SpaDES.PredictiveEcology.org](http://SpaDES.PredictiveEcology.org)
+
+**Other `SpaDES` ecosystem packages:**
+
+- `quickPlot`: https://predictiveecology.github.io/quickPlot/
+- `reproducible`: https://predictiveecology.github.io/reproducible/
+- `SpaDES.addins`: https://predictiveecology.github.io/SpaDES.addins/
+- `SpaDES.core`: https://predictiveecology.github.io/SpaDES.core/
+- `SpaDES.tools`: https://predictiveecology.github.io/SpaDES.tools/
+
+**Predictive Ecology Blog:** [http://predictiveecology.org/](http://predictiveecology.org/)
+
+**Canadian Forest Service Adaptation Toolkit:** [http://www.nrcan.gc.ca/forests/climate-change/tools-resources/17770](http://www.nrcan.gc.ca/forests/climate-change/tools-resources/17770)
+
+**LandWeb Demonstration App:** [http://landweb.predictiveecology.org/Demo/](http://landweb.predictiveecology.org/Demo/)
+
+**Examples for R-savvy users:**
+
+*Copy the linked `.Rmd` file to your computer.*
+*Open it with a text editor or in RStudio, and run all chunks in R.*
+*It is not intended to be knitted; knitting will only output the script.*
+
+- [LandCoverChange](https://raw.githubusercontent.com/PredictiveEcology/SpaDES-modules/master/modules/LCC2005/LCC2005.Rmd)
+
+-----
 
 ## Installation
 
@@ -58,24 +85,32 @@ library("devtools")
 install_github("PredictiveEcology/SpaDES", ref = "development", dependencies = TRUE) # unstable
 ```
 
+-----
+
 ## Getting started
 
-**Vignettes:**
+- [Getting started guide](https://github.com/PredictiveEcology/SpaDES/wiki/Getting-Started-Guide)
+- [Vignettes](https://github.com/PredictiveEcology/SpaDES/wiki/Help-Vignettes) `# TODO update links`
+- [Wiki](https://github.com/PredictiveEcology/SpaDES/wiki)
+- [Workshops](http://predictiveecology.org/2016/08/09/SpaDES-workshops.html)
 
-Available via our [wiki](https://github.com/PredictiveEcology/SpaDES/wiki/Help-Vignettes) or via `browseVignettes(package = "SpaDES")`.
+## Getting help
 
-**Wiki:**
-
-[https://github.com/PredictiveEcology/SpaDES/wiki](https://github.com/PredictiveEcology/SpaDES/wiki)
-
-**Q&A Forum:**
-
-[https://groups.google.com/d/forum/spades-users](https://groups.google.com/d/forum/spades-users)
+- [Q&A Forum](https://groups.google.com/forum/#!forum/spades-users)
 
 ## Reporting bugs
 
-Contact us via the package GitHub site: [https://github.com/PredictiveEcology/SpaDES/issues](https://github.com/PredictiveEcology/SpaDES/issues).
+The `SpaDES` metapackage simply loads a number of other packages from the `SpaDES` ecosystem.
+Bug reports should be reported to the specific package in question rather than the metapackage.
+Contact us via the package's GitHub site:
+
+- [quickPlot](https://github.com/PredictiveEcology/quickPlot/issues)
+- [reproducible](https://github.com/PredictiveEcology/reproducible/issues)
+- [SpaDES.addins](https://github.com/PredictiveEcology/SpaDES.addins/issues)
+- [SpaDES.core](https://github.com/PredictiveEcology/SpaDES.core/issues)
+- [SpaDES.tools](https://github.com/PredictiveEcology/SpaDES.tools/issues)
 
 -----
 
-Copyright (C) 2016 Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada
+Copyright (C) 2017 Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada
+
