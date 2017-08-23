@@ -46,7 +46,8 @@ Wiki: \url{https://github.com/PredictiveEcology/SpaDES/wiki}
 
 
 The core discrete event simulation framework.
-See \code{\link{SpaDES.core}{SpaDES.core-package}}.
+See \code{\link{SpaDES.core}{SpaDES.core-package}}, and the vignettes therein
+(\code{browseVignettes()}).
 
 ------------------------------------------------------------------------------------------
 }
