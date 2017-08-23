@@ -11,7 +11,8 @@ Description: Metapackage for implementing a variety of event-based models, with
     and other maps (via 'quickPlot'), and caching methods for reproducible
     simulations (via 'reproducible'). Additional functionality is provided by
     the 'SpaDES.addins' and 'SpaDES.shiny' packages.
-URL: http://spades.predictiveecology.org,
+URL:
+    http://spades.predictiveecology.org,
     https://github.com/PredictiveEcology/SpaDES
 Date: 2017-08-23
 Version: 2.0.0
@@ -35,7 +36,6 @@ Imports:
     reproducible,
     SpaDES.addins,
     SpaDES.core,
-    SpaDES.shiny,
     SpaDES.tools,
     utils
 Suggests:
@@ -50,8 +50,7 @@ Remotes:
     PredictiveEcology/quickPlot,
     PredictiveEcology/SpaDES.core,
     PredictiveEcology/SpaDES.tools,
-    PredictiveEcology/SpaDES.addins,
-    PredictiveEcology/SpaDES.shiny
+    PredictiveEcology/SpaDES.addins
 License: GPL-3
 VignetteBuilder: knitr, rmarkdown
 BugReports: https://github.com/PredictiveEcology/SpaDES/issues

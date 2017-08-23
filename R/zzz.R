@@ -5,7 +5,7 @@
 #' @keywords internal
 #' @rdname spades-packages
 .pkgs <- c("reproducible", "quickPlot",
-           "SpaDES.core", "SpaDES.tools", "SpaDES.addins", "SpaDES.shiny")
+           "SpaDES.core", "SpaDES.tools", "SpaDES.addins")#, "SpaDES.shiny")
 
 #' The \code{SpaDES} package environment
 #'
