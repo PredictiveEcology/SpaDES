@@ -7,7 +7,8 @@ mySim <- simInit(
   times = list(start = 0.0, end = 5.0),
   params = list(
     .globals = list(stackName = "landscape", burnStats = "testStats"),
-    randomLandscapes = list(.plotInitialTime = NA)
+    randomLandscapes = list(.plotInitialTime = NA),
+    fireSpread = list(.plotInitialTime = NA)
   ),
   modules = list("randomLandscapes", "fireSpread"),
   paths = list(modulePath = system.file("sampleModules", package = "SpaDES.core")))
@@ -19,14 +20,14 @@ system.time(outSim <- spades(Copy(mySim), cache = TRUE, notOlderThan = Sys.time(
 ## ----spades-cached-------------------------------------------------------
 # vastly faster 2nd time
 system.time(outSimCached <- spades(Copy(mySim), cache = TRUE))
-#all.equal(outSim, outSimCached) ## TODO: debug this
+all.equal(outSim, outSimCached) 
 
 ## ----experiment-cache----------------------------------------------------
-system.time(sims1 <- experiment(mySim, replicates = 2, cache = TRUE, .plotInitialTime = NA))
+system.time(sims1 <- experiment(mySim, replicates = 2, cache = TRUE))
 
 # internal -- second time faster
-system.time(sims2 <- experiment(mySim, replicates = 2, cache = TRUE, .plotInitialTime = NA))
-#all.equal(sims1, sims2) ## TODO: debug this
+system.time(sims2 <- experiment(mySim, replicates = 2, cache = TRUE))
+all.equal(sims1, sims2)
 
 ## ----Cache-experiment----------------------------------------------------
 # External
@@ -37,7 +38,7 @@ system.time(sims3 <- Cache(experiment, mySim, replicates = 3, .plotInitialTime =
 ## ----Cache-experiment-2--------------------------------------------------
 system.time(sims4 <- Cache(experiment, mySim, replicates = 3, .plotInitialTime = NA,
                            clearSimEnv = TRUE))
-#all.equal(sims3, sims4) ## TODO: debug this
+all.equal(sims3, sims4) 
 
 dir(outputPath(mySim), recursive = TRUE)
 
@@ -75,7 +76,7 @@ system.time(map <- Cache(gaussMap, ras, cacheRepo = cachePath(mySim),
 # vastly faster the second time
 system.time(mapCached <- Cache(gaussMap, ras, cacheRepo = cachePath(mySim)))
 
-#all.equal(map, mapCached) ## TODO: debug this
+all.equal(map, mapCached) 
 
 ## ----manual-cache--------------------------------------------------------
 # examine a part of the Cache

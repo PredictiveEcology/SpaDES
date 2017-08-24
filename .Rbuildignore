@@ -4,6 +4,7 @@
 .*\.zip$
 .*\.toc$
 ^_ignore$
+^_pkgdown\.yml$
 ^_push_vignettes\.sh$
 ^\.lintr$
 ^\.travis\.yml$
@@ -11,7 +12,7 @@
 CONTRIBUTING\.md
 cran-comments\.md
 ^docs$
-LICENSE
+^LICENSE$
 ^travis_wait_.*\.log$
 vignettes/.*_cache$
 vignettes/.*\.log$

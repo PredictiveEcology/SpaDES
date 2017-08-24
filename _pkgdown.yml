@@ -1,0 +1,6 @@
+url: https://predictiveecology.github.io/SpaDES.core
+
+template:
+  params:
+    bootswatch: flatly
+
