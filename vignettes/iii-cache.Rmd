@@ -12,7 +12,7 @@ output:
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{03 Caching SpaDES simulations}
-  %\VignetteDepends{archivist, igraph, quickPlot, raster, SpaDES}
+  %\VignetteDepends{igraph, raster, SpaDES}
   %\VignetteKeyword{cache}
   %\VignetteEncoding{UTF-8}
 ---
@@ -53,7 +53,8 @@ mySim <- simInit(
   times = list(start = 0.0, end = 5.0),
   params = list(
     .globals = list(stackName = "landscape", burnStats = "testStats"),
-    randomLandscapes = list(.plotInitialTime = NA)
+    randomLandscapes = list(.plotInitialTime = NA),
+    fireSpread = list(.plotInitialTime = NA)
   ),
   modules = list("randomLandscapes", "fireSpread"),
   paths = list(modulePath = system.file("sampleModules", package = "SpaDES.core")))
@@ -66,29 +67,28 @@ This functionality can be achieved within a `spades` call.
 system.time(outSim <- spades(Copy(mySim), cache = TRUE, notOlderThan = Sys.time()))
 ```
 
-Notice that any visualizations will happen the first time through, but not the subsequent times.
+Note that if there were any visualizations (here we turned them off with .plotInitialTime=NA above) they will happen the first time through, but not the cached times.
 
 ```{r spades-cached}
 # vastly faster 2nd time
 system.time(outSimCached <- spades(Copy(mySim), cache = TRUE))
-all.equal(outSim, outSimCached)
+all.equal(outSim, outSimCached) 
 ```
 
 ## At the `experiment` level
 
 This functionality can be achieved within an experiment call.
-This can be done 2 ways, either "internally" through the cache argument.
-This will have the effect of caching *each `spades` call*, or "externally" which will *cache the entire experiment*.
+This can be done 2 ways, either: "internally" through the cache argument, which will cache *each spades call*; or, "externally" which will *cache the entire experiment*.
 If there are lots of `spades` calls, then the former will be slow as the `simList` will be digested once per `spades` call.
 
 ### Using cache argument
 
 ```{r experiment-cache}
-system.time(sims1 <- experiment(mySim, replicates = 2, cache = TRUE, .plotInitialTime = NA))
+system.time(sims1 <- experiment(mySim, replicates = 2, cache = TRUE)) # don't need "Copy(mySim)"
 
 # internal -- second time faster
-system.time(sims2 <- experiment(mySim, replicates = 2, cache = TRUE, .plotInitialTime = NA))
-all.equal(sims1, sims2)
+system.time(sims2 <- experiment(mySim, replicates = 2, cache = TRUE))
+all.equal(sims1, sims2)#, check.attributes = FALSE) 
 ```
 
 ### Wrapping `experiment` with `Cache`
@@ -110,7 +110,7 @@ The second time is way faster. We see the output files in the same location.
 ```{r Cache-experiment-2}
 system.time(sims4 <- Cache(experiment, mySim, replicates = 3, .plotInitialTime = NA,
                            clearSimEnv = TRUE))
-all.equal(sims3, sims4)
+all.equal(sims3, sims4) 
 
 dir(outputPath(mySim), recursive = TRUE)
 ```
@@ -187,7 +187,7 @@ system.time(map <- Cache(gaussMap, ras, cacheRepo = cachePath(mySim),
 # vastly faster the second time
 system.time(mapCached <- Cache(gaussMap, ras, cacheRepo = cachePath(mySim)))
 
-all.equal(map, mapCached)
+all.equal(map, mapCached) 
 ```
 
 ## Working with the Cache manually

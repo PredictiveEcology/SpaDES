@@ -46,7 +46,8 @@
 #' @section The \code{SpaDES.core} package:
 #'
 #' The core discrete event simulation framework.
-#' See \code{\link{SpaDES.core}{SpaDES.core-package}}.
+#' See \code{\link{SpaDES.core}{SpaDES.core-package}}, and the vignettes therein
+#' (\code{browseVignettes()}).
 #'
 #' ------------------------------------------------------------------------------------------
 #' @section The \code{SpaDES.tools} package:
