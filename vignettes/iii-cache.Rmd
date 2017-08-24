@@ -67,7 +67,7 @@ This functionality can be achieved within a `spades` call.
 system.time(outSim <- spades(Copy(mySim), cache = TRUE, notOlderThan = Sys.time()))
 ```
 
-Note that if there were any visualizations (here we turned them off with .plotInitialTime=NA above) they will happen the first time through, but not the cached times.
+Note that if there were any visualizations (here we turned them off with `.plotInitialTime = NA` above) they will happen the first time through, but not the cached times.
 
 ```{r spades-cached}
 # vastly faster 2nd time
@@ -84,11 +84,11 @@ If there are lots of `spades` calls, then the former will be slow as the `simLis
 ### Using cache argument
 
 ```{r experiment-cache}
-system.time(sims1 <- experiment(mySim, replicates = 2, cache = TRUE)) # don't need "Copy(mySim)"
+system.time(sims1 <- experiment(mySim, replicates = 2, cache = TRUE))
 
 # internal -- second time faster
 system.time(sims2 <- experiment(mySim, replicates = 2, cache = TRUE))
-all.equal(sims1, sims2)#, check.attributes = FALSE) 
+all.equal(sims1, sims2)
 ```
 
 ### Wrapping `experiment` with `Cache`
