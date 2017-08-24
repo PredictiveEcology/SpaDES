@@ -78,7 +78,7 @@ all.equal(outSim, outSimCached)
 
 This functionality can be achieved within an experiment call.
 This can be done 2 ways, either "internally" through the cache argument.
-This will have the effect of caching *each spades call*, or "externally" which will *cache the entire experiment*.
+This will have the effect of caching *each `spades` call*, or "externally" which will *cache the entire experiment*.
 If there are lots of `spades` calls, then the former will be slow as the `simList` will be digested once per `spades` call.
 
 ### Using cache argument
