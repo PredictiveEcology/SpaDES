@@ -22,10 +22,11 @@ We have dropped support of R 3.2.x, following the changes to the `RandomFieldsUt
 * Windows 7            (local), R 3.4.0
 
 ### Development R version
-* Debian:testing  (rocker/drd), R 3.4.0 (2017-06-26 r72857)
-* Ubuntu 14.04     (travis-ci), R 3.4.0 (2017-06-26 r72857)
-* Windows           (appveyor), R 3.4.0 (2017-06-26 r72857)
-* Windows        (win-builder), R 3.4.0 (2017-06-26 r72857)
+* Debian:testing (rocker/r-devel), R 3.5.0 (2017-07-26 r72972)
+* Ubuntu 14.04        (travis-ci), R 3.5.0 (2017-08-24 r73121)
+* Ubuntu 16.04            (local), R 3.5.0 (2017-08-24 r73121)
+* Windows              (appveyor), R 3.5.0 (2017-08-23 r73116)
+* Windows           (win-builder), R 3.5.0 (2017-08-23 r73116)
 
 ## R CMD check results
 
