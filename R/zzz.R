@@ -1,12 +1,3 @@
-#' Core SpaDES packages
-#'
-#' Packages of the \code{SpaDES} ecosystem.
-#'
-#' @keywords internal
-#' @rdname spades-packages
-.pkgs <- c("reproducible", "quickPlot",
-           "SpaDES.core", "SpaDES.tools", "SpaDES.addins", "SpaDES.shiny")
-
 #' The \code{SpaDES} package environment
 #'
 #' Environment used internally to store internal package objects and methods.
@@ -26,7 +17,10 @@
 }
 
 .onAttach <- function(libname, pkgname) {
-  needed <- .pkgs[!.isAttached(.pkgs)]
+  pkgs <- c("reproducible", "quickPlot",
+            "SpaDES.core", "SpaDES.tools", "SpaDES.addins")#, "SpaDES.shiny")
+
+  needed <- pkgs[!.isAttached(pkgs)]
   assign("needed", value = needed, envir = .pkgEnv)
 
   out <- NULL
@@ -37,7 +31,7 @@
     )
   }
 
-  .vers <- vapply(.pkgs, function(x) {
+  .vers <- vapply(pkgs, function(x) {
     as.character(packageVersion(x))
   }, character(1))
 
