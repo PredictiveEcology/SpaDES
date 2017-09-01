@@ -28,34 +28,22 @@ We have raised the issue with the package maintainer.
 * Debian:testing  (rocker/drd), R 3.5.0 (2017-08-29 r73156)
 * Ubuntu 14.04     (travis-ci), R 3.5.0 (2017-09-01 r73175)
 * Ubuntu 16.04         (local), R 3.5.0 (2017-08-30 r73162)
-* Windows           (appveyor), R 3.5.0 (2017-08-31 r73162)
-* Windows        (win-builder), R 3.5.0 (2017-08-30 r73162)
+* Windows           (appveyor), R 3.5.0 (2017-08-31 r73172)
+* Windows        (win-builder), R 3.5.0 (2017-08-31 r73172)
 
 ## R CMD check results
 
 There were no ERRORs or WARNINGs
 
-There were 2 NOTEs:
+There was 1 NOTE:
 
-1. There are multiple parts to this note:
+1. Some words were flagged as possibly mispelled, but they are false positives:
 
-    a. Some words were flagged as possibly mispelled, but they are not. 
-     
-            Possibly mis-spelled words in DESCRIPTION: 
-              DES (8:23) 
-              modularity (8:55) 
-
-    b. The `fastshp` package in Suggests is optionally installed from Rforge and not required to use the package. Instructions for installation are provided in the Description, README, and via a message to the user. We believe this should satisfy the CRAN policy requirement regarding additional dependencies.
-
-            Suggests or Enhances not in mainstream repositories:
-              fastshp
-          
-            Availability using Additional_repositories specification:
-              fastshp   yes   http://rforge.net
-
-2. As noted above, we provide instructions for the user to install the suggested `fastshp` package.
-
-        Package suggested but not available for checking: 'fastshp'
+        Possibly mis-spelled words in DESCRIPTION: 
+          DES (8:77)
+          Metapackage (5:14)
+          modularity (9:32)
+          rasters (11:73)
 
 ## Downstream dependencies
 

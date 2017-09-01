@@ -45,9 +45,6 @@ Suggests:
     raster,
     rmarkdown,
     testthat
-Remotes:
-    PredictiveEcology/SpaDES.addins,
-    PredictiveEcology/SpaDES.shiny
 License: GPL-3
 VignetteBuilder: knitr, rmarkdown
 BugReports: https://github.com/PredictiveEcology/SpaDES/issues

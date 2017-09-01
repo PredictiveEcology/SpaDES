@@ -74,7 +74,7 @@
 #' ------------------------------------------------------------------------------------------
 #' @section The \code{reproducible} package:
 #'
-#' Provides everal aspects of reproducible simulations, including simulation caching.
+#' Provides several aspects of reproducible simulations, including simulation caching.
 #'
 #' @rdname SpaDES-package
 #'

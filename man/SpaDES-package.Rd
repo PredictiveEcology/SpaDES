@@ -89,7 +89,7 @@ The core \code{SpaDES} plotting engine, build upon speed and modularity.
 \section{The \code{reproducible} package}{
 
 
-Provides everal aspects of reproducible simulations, including simulation caching.
+Provides several aspects of reproducible simulations, including simulation caching.
 }
 
 \seealso{
