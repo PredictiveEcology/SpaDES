@@ -51,7 +51,7 @@ Additional functionality is provided by the [`SpaDES.addins`](http://spades-addi
 
 **Install development libraries:** building packages from source requires the appropriate development libraries for your operating system.
     
-- *Windows:* install [Rtools](http://cran.r-project.org/bin/windows/Rtools/).
+- *Windows:* install [Rtools](https://cran.r-project.org/bin/windows/Rtools/).
 
 - *macOS:* install Xcode commandline tools from the terminal: `xcode-select install`. 
   
@@ -62,7 +62,7 @@ See [here](https://support.rstudio.com/hc/en-us/articles/200486498-Package-Devel
 **Install suggested packages:** the `fastshp` package can be installed with:
 
 ```r
-install.packages("fastshp", repos = "http://rforge.net", type = "source")
+install.packages("fastshp", repos = "https://rforge.net", type = "source")
 ```
 
 ### Current stable release
@@ -96,7 +96,7 @@ install_github("PredictiveEcology/SpaDES", ref = "development", dependencies = T
 ## Getting started
 
 - [Getting started guide](https://github.com/PredictiveEcology/SpaDES/wiki/Getting-Started-Guide)
-- [Vignettes](https://github.com/PredictiveEcology/SpaDES/wiki/Help-Vignettes) `# TODO update links`
+- [Vignettes](https://github.com/PredictiveEcology/SpaDES/wiki/Help-Vignettes)
 - [Wiki](https://github.com/PredictiveEcology/SpaDES/wiki)
 - [Workshops](http://predictiveecology.org/2016/08/09/SpaDES-workshops.html)
 
@@ -120,4 +120,3 @@ Contact us via the package's GitHub site:
 -----
 
 Copyright (C) 2017 Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada
-
