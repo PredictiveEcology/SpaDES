@@ -10,6 +10,9 @@ init:
 install:
   ps: Bootstrap
 
+cache:
+  - C:\RLibrary
+
 # Adapt as necessary starting from here
 
 version: 1.0.{build}-{branch}
@@ -25,16 +28,17 @@ environment:
 
   - R_VERSION: release
 
-#  - R_VERSION: oldrel
-#    RTOOLS_VERSION: 33
+  - R_VERSION: oldrel
+    RTOOLS_VERSION: 33
 
-  - R_VERSION: 3.2.2
-    RTOOLS_VERSION: 32
+  - R_VERSION: 3.3.3
+    RTOOLS_VERSION: 33
 
 branches:
   only:
     - master
     - development
+    - testing
 
   except:
     - gh-pages
@@ -42,7 +46,6 @@ branches:
 clone_depth: 5
 
 build_script:
-  - travis-tool.sh r_binary_install archivist chron CircStats data.table DEoptim DiagrammeR digest dplyr DT ff ffbase fpCompare ggplot2 gridBase httr igraph knitr lazyeval lubridate R.utils RandomFields RandomFieldsUtils raster RColorBrewer shiny sp stringi stringr
   - travis-tool.sh install_deps
   - travis-tool.sh r_binary_install archivist chron CircStats data.table DiagrammeR digest dplyr DT ff ffbase fpCompare ggplot2 grid gridBase httr igraph knitr lazyeval lubridate R.utils RandomFields RandomFieldsUtils raster RColorBrewer shiny sp stringi stringr
   - travis-tool.sh github_package s-u/fastshp MangoTheCat/visualTest

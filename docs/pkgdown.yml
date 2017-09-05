@@ -1,0 +1,6 @@
+urls:
+  reference: http://spades.predictiveecology.org/reference
+  article: http://spades.predictiveecology.org/articles
+articles:
+  iii-cache: iii-cache.html
+

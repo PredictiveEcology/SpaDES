@@ -40,7 +40,7 @@ parameters <- list(
                          .plotInitialTime = 1, .plotInterval = 1)
 )
 modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
-path <- list(modulePath = system.file("sampleModules", package = "SpaDES"),
+path <- list(modulePath = system.file("sampleModules", package = "SpaDES.core"),
              outputPath = file.path(tempdir(), "simOutputs"))
 
 mySim <- simInit(times = times, params = parameters, modules = modules, path = path)
@@ -57,7 +57,7 @@ nFires <- 10L
 landscape[["Fires"]] <- spread(landscape[["percentPine"]],
                                loci = sample(1L:ncell(landscape), nFires),
                                spreadProb = landscape[["percentPine"]] / 
-                                 (maxValue(landscape[["percentPine"]])*5)+0.1,
+                                 (maxValue(landscape[["percentPine"]]) * 5) + 0.1,
                                persistance = 0, mask = NULL, maxSize = 1e8,
                                directions = 8, iterations = 1e6, plot.it = FALSE,
                                mapID = TRUE)
@@ -181,7 +181,7 @@ for (i in 1:nrow(paramsdf)) {
                                           returnInterval = 10, startTime = 0)
                           ),
                         modules = list("randomLandscapes", "fireSpread"),
-                        path = system.file("sampleModules", package = "SpaDES")))
+                        path = system.file("sampleModules", package = "SpaDES.core")))
   mySim <- spades(mySim)
 
   # collect stats for each run
@@ -244,9 +244,9 @@ Bringing data into `R` is easy, and can be done using any of the built in data i
 ### Example: loading habitat maps
 
 # use all built-in maps from the SpaDES package
-pathToMaps <- file.path(find.package("SpaDES", quiet = FALSE), "maps")
+pathToMaps <- file.path(find.package("quickPlot", quiet = FALSE), "maps")
 fileList <- data.frame(files = dir(pathToMaps, full.names = TRUE, pattern = "tif"),
-                       functions = "rasterToMemory", packages = "SpaDES",
+                       functions = "rasterToMemory", packages = "SpaDES.core",
                        stringsAsFactors = FALSE)
 
 # this list can be passed to simInit() as an entry in the parameter list
@@ -257,7 +257,7 @@ mySim <- simInit(times = list(start = 0.0, end = 10),
                    .globals = list(stackName = "landscape", burnStats = "nPixelsBurned")
                  ),
                  modules = list("fireSpread"),
-                 path = system.file("sampleModules", package = "SpaDES"))
+                 path = system.file("sampleModules", package = "SpaDES.core"))
 
 # put layers into a single stack for convenience
 landscape <- stack(DEM, forestCover, forestAge, habitatQuality, percentPine)
@@ -267,4 +267,4 @@ spades(mySim)
 
 # Debugging simulations
 
-uoeioeu
+https://github.com/PredictiveEcology/SpaDES/wiki/Debugging

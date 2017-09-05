@@ -18,6 +18,8 @@ matrix:
     before_install:
     - export DISPLAY=:99.0
     - sh -e /etc/init.d/xvfb start
+    before_script:
+    - Rscript -e 'install.packages("SpaDES.core", dependencies = TRUE)'
   - os: linux
     dist: trusty
     r: release
@@ -26,11 +28,14 @@ matrix:
         packages:
         - libgdal1-dev
         - libproj-dev
+    r_github_packages:
+      - jimhester/lintr
     before_install:
     - export DISPLAY=:99.0
     - sh -e /etc/init.d/xvfb start
     after_success:
-    - Rscript -e 'library(covr); coveralls(coverage = print(package_coverage(quiet = FALSE)))'
+    - Rscript -e 'covr::coveralls(package_coverage(type = "all", quiet = FALSE)))'
+    - Rscript -e 'lintr::lint_package()'
   - os: linux
     dist: trusty
     r: devel
@@ -48,12 +53,9 @@ matrix:
     r_build_args: "--no-build-vignettes"
     r_check_args: "--as-cran --ignore-vignettes --no-examples"
     before_script:
-    - Rscript -e "install.packages('rgdal', type = 'source')"
+    - Rscript -e 'install.packages(c("rgdal", "SpaDES.core"), type = "source")'
 r_build_args: " "
 r_check_args: "--as-cran"
-r_github_packages:
-    - s-u/fastshp
-    - MangoTheCat/VisualTest
 warnings_are_errors: true
 notifications:
   email:

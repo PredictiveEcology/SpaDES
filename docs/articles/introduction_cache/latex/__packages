@@ -1,0 +1,9 @@
+base
+data.table
+sp
+raster
+SpaDES
+RColorBrewer
+tkrplot
+RandomFields
+rgdal

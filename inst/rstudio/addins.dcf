@@ -1,4 +1,0 @@
-Name: SpaDES: new module
-Description: Create a new 'SpaDES' module
-Binding: addin_newModule
-Interactive: true

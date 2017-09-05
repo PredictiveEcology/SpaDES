@@ -1,130 +1,55 @@
 Package: SpaDES
 Type: Package
 Title: Develop and Run Spatially Explicit Discrete Event Simulation Models
-Description: Implement a variety of event-based models, with a focus on
-    spatially explicit models. These include raster-based, event-based, and
-    agent-based models. The core simulation components are built upon a discrete
-    event simulation (DES) framework that facilitates modularity, and easily
-    enables the user to include additional functionality by running user-built
-    simulation modules. Included are numerous tools to visualize raster and
-    other maps. The suggested package 'fastshp' can be installed with
-    `install.packages("fastshp", repos = "http://rforge.net", type = "source")`.
-URL: http://spades.predictiveecology.org, https://github.com/PredictiveEcology/
-    SpaDES
-Version: 1.3.1
-Date: 2016-10-07
+Description: Metapackage for implementing a variety of event-based models, with
+    a focus on spatially explicit models. These include raster-based,
+    event-based, and agent-based models. The core simulation components
+    (provided by 'SpaDES.core') are built upon a discrete event simulation (DES)
+    framework that facilitates modularity, and easily enables the user to
+    include additional functionality by running user-built simulation modules
+    (see also 'SpaDES.tools'). Included are numerous tools to visualize rasters
+    and other maps (via 'quickPlot'), and caching methods for reproducible
+    simulations (via 'reproducible'). Additional functionality is provided by
+    the 'SpaDES.addins' and 'SpaDES.shiny' packages.
+URL:
+    http://spades.predictiveecology.org,
+    https://github.com/PredictiveEcology/SpaDES
+Date: 2017-09-05
+Version: 2.0.0
 Authors@R: c(
-    person(c("Alex", "M"), "Chubaty", email = "alexander.chubaty@canada.ca",
+    person("Alex M", "Chubaty", email = "alexander.chubaty@canada.ca",
     role = c("aut", "cre")),
-    person(c("Eliot", "J", "B"), "McIntire", email = "eliot.mcintire@canada.ca",
+    person("Eliot J B", "McIntire", email = "eliot.mcintire@canada.ca",
     role = c("aut")),
-    person("Yong", "Luo", email = "yong.luo@canada.ca",
+    person("Yong", "Luo", email = "yluo1@lakeheadu.ca",
     role = c("ctb")),
     person("Steve", "Cumming", email = "Steve.Cumming@sbf.ulaval.ca",
     role = c("ctb")),
     person("Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada",
     role = "cph")
     )
-Additional_repositories: http://rforge.net
 Depends:
-    R (>= 3.2.2)
-Suggests:
-    covr,
-    fastshp,
-    knitr,
-    Matrix,
-    png,
-    rgdal,
-    rgenoud,
-    rmarkdown,
-    snow,
-    tcltk,
-    testthat (>= 1.0.2),
-    tkrplot
+    R (>= 3.3.3)
 Imports:
-    archivist (>= 2.1),
-    chron,
-    CircStats,
-    data.table (>= 1.9.6),
-    DEoptim (>= 2.2-3),
-    DiagrammeR (>= 0.8.2),
-    digest,
-    dplyr (>= 0.5.0),
-    DT,
-    ff,
-    ffbase,
-    fpCompare,
-    ggplot2,
-    graphics,
-    grDevices,
-    grid,
-    gridBase,
-    httr,
-    igraph (>= 1.0.1),
-    lazyeval,
-    lubridate (>= 1.3.3),
     methods,
-    miniUI (>= 0.1.1),
-    parallel,
-    R.utils,
-    RandomFields (>= 3.1.24),
-    raster,
-    RColorBrewer,
-    rstudioapi (>= 0.5),
-    shiny (>= 0.13),
-    stats,
-    sp,
-    stringi,
-    stringr,
+    quickPlot,
+    reproducible,
+    SpaDES.addins,
+    SpaDES.core,
+    SpaDES.tools,
     utils
+Suggests:
+    archivist,
+    igraph,
+    knitr,
+    raster,
+    rmarkdown,
+    testthat
 License: GPL-3
 VignetteBuilder: knitr, rmarkdown
 BugReports: https://github.com/PredictiveEcology/SpaDES/issues
 ByteCompile: yes
 Collate:
-    'priority.R'
-    'environment.R'
-    'misc-methods.R'
-    'module-dependencies-class.R'
-    'helpers.R'
-    'simList-class.R'
-    'POM.R'
-    'agent.R'
-    'SELES.R'
-    'cache.R'
-    'check.R'
-    'checkpoint.R'
-    'copy.R'
-    'experiment.R'
-    'initialize.R'
-    'simulation.R'
-    'load.R'
-    'mapReduce.R'
-    'mergeRaster.R'
-    'module-dependencies-methods.R'
-    'moduleMetadata.R'
-    'module-repository.R'
-    'module-template.R'
-    'moduleCoverage.R'
-    'movement.R'
-    'neighbourhood.R'
-    'numerical-comparisons.R'
-    'plotting-classes.R'
-    'plotting-colours.R'
-    'times.R'
-    'simList-accessors.R'
-    'plotting-diagrams.R'
-    'plotting-helpers.R'
-    'plotting-other.R'
-    'plotting.R'
-    'probability.R'
-    'progress.R'
-    'rstudio-addins.R'
-    'save.R'
-    'shine.R'
-    'spades-classes.R'
     'spades-package.R'
-    'splitRaster.R'
-    'spread-process.R'
     'zzz.R'
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
