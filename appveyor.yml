@@ -31,7 +31,7 @@ environment:
   - R_VERSION: oldrel
     RTOOLS_VERSION: 33
 
-  - R_VERSION: 3.3.2
+  - R_VERSION: 3.3.3
     RTOOLS_VERSION: 33
 
 branches:
