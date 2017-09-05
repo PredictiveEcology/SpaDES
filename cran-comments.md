@@ -26,9 +26,9 @@ We have raised the issue with the package maintainer.
 
 ### Development R version
 * Debian:testing  (rocker/drd), R 3.5.0 (2017-08-29 r73156)
-* Ubuntu 14.04     (travis-ci), R 3.5.0 (2017-09-02 r73192)
-* Ubuntu 16.04         (local), R 3.5.0 (2017-09-02 r73191)
-* Windows           (appveyor), R 3.5.0 (2017-09-01 r73181)
+* Ubuntu 14.04     (travis-ci), R 3.5.0 (2017-09-04 r73202)
+* Ubuntu 16.04         (local), R 3.5.0 (2017-09-04 r73206)
+* Windows           (appveyor), R 3.5.0 (2017-09-04 r73206)
 * Windows        (win-builder), R 3.5.0 (2017-09-01 r73181)
 
 ## R CMD check results
