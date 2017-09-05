@@ -40,9 +40,7 @@ There was 1 NOTE:
 1. Some words were flagged as possibly mispelled, but they are false positives:
 
         Possibly mis-spelled words in DESCRIPTION: 
-          DES (8:77)
           Metapackage (5:14)
-          modularity (9:32)
           rasters (11:73)
 
 ## Downstream dependencies
