@@ -46,7 +46,6 @@ branches:
 clone_depth: 5
 
 build_script:
-  - Rscript -e "install.packages('sp', type = 'source', repos = 'https://cran.rstudio.com')"
   - Rscript -e "install.packages('SpaDES.core', dependencies = TRUE, repos = 'https://cran.rstudio.com')"
   - travis-tool.sh install_deps
 
