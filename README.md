@@ -100,9 +100,17 @@ install_github("PredictiveEcology/SpaDES", ref = "development", dependencies = T
 - [Wiki](https://github.com/PredictiveEcology/SpaDES/wiki)
 - [Workshops](http://predictiveecology.org/2016/08/09/SpaDES-workshops.html)
 
+## Tutorials
+
+Two tutorials are currently available:
+- [LCC2005 Tutorial](https://github.com/PredictiveEcology/SpaDES-modules/blob/master/modules/LCC2005/LCC2005.Rmd)
+- [wolfAlps Tutorial](https://github.com/PredictiveEcology/SpaDES-modules/blob/master/modules/wolfAlps/wolfAlps.Rmd) 
+
 ## Getting help
 
-- [Q&A Forum](https://groups.google.com/forum/#!forum/spades-users)
+A Q&A forum is available on the SpaDES Users Google Group. Here, you'll find useful minor fixes to problems other users have found - and that might have not yet been included in the CRAN version of the SpaDES-related packages - and a space to post issues and solutions you found. 
+
+- [Q&A Forum - SpaDES Users Google Group](https://groups.google.com/forum/#!forum/spades-users)
 
 ## Reporting bugs
 
