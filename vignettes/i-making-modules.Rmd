@@ -1,0 +1,44 @@
+---
+title: "01 Making Modules"
+author:
+  - "Eliot J. B. McIntire"
+date: '`r strftime(Sys.Date(), "%B %d %Y")`'
+output:
+  rmarkdown::html_vignette:
+    fig_width: 7
+    number_sections: yes
+    self_contained: yes
+    toc: yes
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{03 Caching SpaDES simulations}
+  %\VignetteDepends{igraph, raster, SpaDES}
+  %\VignetteKeyword{cache}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Modularity
+
+Modularity is the key to making models transferable between projects, groups, individuals.
+
+# Checklist for modular modules
+
+1. Use and maintain an `.Rmd` file that is able to run the model *without any user intervention*. 
+
+2. Provide default inputs via the `.inputObjects` function. This should do the following in this order:
+
+    1. Test for the presence of the object in the simList, and load a default if it is not there. This allows for any one of several mechanisms to load that object (e.g., via objects argument, inputs argument in the `simInit` call), or it allows another modules to create the object. Using `is.null` is fast a very fast check before proceeding to load defaults:
+    
+    ```{r .inputObjects1, eval=FALSE}
+    dataPath <- file.path(modulePath(sim), "moduleName", "data")
+    if(is.null(sim$biomass)) {
+      biomassFilename <- file.path(dataPath, "biomass.tif")
+      sim$biomass <- raster(biomassFilename)
+    }
+    ```
+
+    2. Provide default mechanism to download any data required by the module. The `SpaDES` packages offer a few options.
+    
+        * `sourceUrl` in the `inputsObjects` metadata
+        * `downloadData` in the `SpaDES.core` package
+        
