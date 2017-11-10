@@ -100,11 +100,9 @@ install_github("PredictiveEcology/SpaDES", ref = "development", dependencies = T
 - [Wiki](https://github.com/PredictiveEcology/SpaDES/wiki)
 - [Workshops](http://predictiveecology.org/2016/08/09/SpaDES-workshops.html)
 
-## Tutorials
+## Try me!
 
-Two tutorials are currently available:
 - [LCC2005 Tutorial](https://github.com/PredictiveEcology/SpaDES-modules/blob/master/modules/LCC2005/LCC2005.Rmd)
-- [wolfAlps Tutorial](https://github.com/PredictiveEcology/SpaDES-modules/blob/master/modules/wolfAlps/wolfAlps.Rmd) 
 
 ## Getting help
 
