@@ -37,6 +37,8 @@ Additional functionality is provided by the [`SpaDES.addins`](http://spades-addi
 
 **LandWeb Demonstration App:** [http://landweb.predictiveecology.org/Demo/](http://landweb.predictiveecology.org/Demo/)
 
+**SpaDES for dummies:** [https://github.com/CeresBarros/SpaDES4Dummies/blob/master/SpaDES4Dummies.Rmd](https://github.com/CeresBarros/SpaDES4Dummies/blob/master/SpaDES4Dummies.Rmd)
+
 **Examples for R-savvy users:**
 
 *Copy the linked `.Rmd` file to your computer.*
