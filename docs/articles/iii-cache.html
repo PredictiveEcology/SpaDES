@@ -116,12 +116,12 @@ mySim &lt;-<span class="st"> </span><span class="kw">simInit</span>(
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># compare caching ... run once to create cache</span>
 <span class="kw">system.time</span>(outSim &lt;-<span class="st"> </span><span class="kw">spades</span>(<span class="kw">Copy</span>(mySim), <span class="dt">cache =</span> <span class="ot">TRUE</span>, <span class="dt">notOlderThan =</span> <span class="kw">Sys.time</span>()))</code></pre></div>
 <pre><code>##    user  system elapsed 
-##    3.10    0.11    3.29</code></pre>
+##    3.06    0.11    3.25</code></pre>
 <p>Note that if there were any visualizations (here we turned them off with <code>.plotInitialTime = NA</code> above) they will happen the first time through, but not the cached times.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># vastly faster 2nd time</span>
 <span class="kw">system.time</span>(outSimCached &lt;-<span class="st"> </span><span class="kw">spades</span>(<span class="kw">Copy</span>(mySim), <span class="dt">cache =</span> <span class="ot">TRUE</span>))</code></pre></div>
 <pre><code>##    user  system elapsed 
-##    0.04    0.05    0.08</code></pre>
+##    0.03    0.01    0.06</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">all.equal</span>(outSim, outSimCached) </code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
 </div>
@@ -134,11 +134,11 @@ mySim &lt;-<span class="st"> </span><span class="kw">simInit</span>(
 <a href="#using-cache-argument" class="anchor"></a>Using cache argument</h3>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">system.time</span>(sims1 &lt;-<span class="st"> </span><span class="kw">experiment</span>(mySim, <span class="dt">replicates =</span> <span class="dv">2</span>, <span class="dt">cache =</span> <span class="ot">TRUE</span>))</code></pre></div>
 <pre><code>##    user  system elapsed 
-##    2.64    0.21    3.03</code></pre>
+##    2.67    0.30    3.12</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># internal -- second time faster</span>
 <span class="kw">system.time</span>(sims2 &lt;-<span class="st"> </span><span class="kw">experiment</span>(mySim, <span class="dt">replicates =</span> <span class="dv">2</span>, <span class="dt">cache =</span> <span class="ot">TRUE</span>))</code></pre></div>
 <pre><code>##    user  system elapsed 
-##    0.12    0.04    0.16</code></pre>
+##    0.14    0.04    0.21</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">all.equal</span>(sims1, sims2)</code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
 </div>
@@ -152,13 +152,13 @@ mySim &lt;-<span class="st"> </span><span class="kw">simInit</span>(
 <span class="kw">system.time</span>(sims3 &lt;-<span class="st"> </span><span class="kw">Cache</span>(experiment, mySim, <span class="dt">replicates =</span> <span class="dv">3</span>, <span class="dt">.plotInitialTime =</span> <span class="ot">NA</span>,
                            <span class="dt">clearSimEnv =</span> <span class="ot">TRUE</span>))</code></pre></div>
 <pre><code>##    user  system elapsed 
-##    3.58    0.27    3.95</code></pre>
+##    3.87    0.19    4.30</code></pre>
 <p>The second time is way faster. We see the output files in the same location.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">system.time</span>(sims4 &lt;-<span class="st"> </span><span class="kw">Cache</span>(experiment, mySim, <span class="dt">replicates =</span> <span class="dv">3</span>, <span class="dt">.plotInitialTime =</span> <span class="ot">NA</span>,
                            <span class="dt">clearSimEnv =</span> <span class="ot">TRUE</span>))</code></pre></div>
 <pre><code>##   loading cached result from previous experiment call.</code></pre>
 <pre><code>##    user  system elapsed 
-##    0.05    0.03    0.08</code></pre>
+##    0.07    0.00    0.07</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">all.equal</span>(sims3, sims4) </code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dir</span>(<span class="kw">outputPath</span>(mySim), <span class="dt">recursive =</span> <span class="ot">TRUE</span>)</code></pre></div>
@@ -197,7 +197,7 @@ mySim &lt;-<span class="st"> </span><span class="kw">simInit</span>(
 ## 5         fireSpread       stats     5            
 ## 5         save             spades    10</code></pre>
 <pre><code>##    user  system elapsed 
-##    1.35    0.20    1.65</code></pre>
+##    1.35    0.14    1.70</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># vastly faster the second time</span>
 <span class="kw">system.time</span>(randomSimCached &lt;-<span class="st"> </span><span class="kw">spades</span>(<span class="kw">Copy</span>(mySim), <span class="dt">.plotInitialTime =</span> <span class="ot">NA</span>,
                                       <span class="dt">debug =</span> <span class="ot">TRUE</span>))</code></pre></div>
@@ -222,7 +222,7 @@ mySim &lt;-<span class="st"> </span><span class="kw">simInit</span>(
 ## 5         fireSpread       stats     5            
 ## 5         save             spades    10</code></pre>
 <pre><code>##    user  system elapsed 
-##    0.25    0.00    0.27</code></pre>
+##    0.22    0.02    0.27</code></pre>
 <p>Test that only layers produced in <code>randomLandscapes</code> are identical, not <code>fireSpread</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">layers &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="st">"DEM"</span>, <span class="st">"forestAge"</span>, <span class="st">"habitatQuality"</span>, <span class="st">"percentPine"</span>, <span class="st">"Fires"</span>)
 same &lt;-<span class="st"> </span><span class="kw">lapply</span>(layers, <span class="cf">function</span>(l) <span class="kw">identical</span>(randomSim<span class="op">$</span>landscape[[l]],
@@ -272,7 +272,7 @@ same &lt;-<span class="st"> </span><span class="kw">lapply</span>(layers, <span 
 ## 5         fireSpread       stats     5            
 ## 5         save             spades    10</code></pre>
 <pre><code>##    user  system elapsed 
-##    1.45    0.29    1.95</code></pre>
+##    1.45    0.30    1.90</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># vastly faster the second time</span>
 <span class="kw">system.time</span>(randomSimCached &lt;-<span class="st"> </span><span class="kw">spades</span>(<span class="kw">Copy</span>(mySim), <span class="dt">.plotInitialTime =</span> <span class="ot">NA</span>,
                                       <span class="dt">debug =</span> <span class="ot">TRUE</span>))</code></pre></div>
@@ -298,7 +298,7 @@ same &lt;-<span class="st"> </span><span class="kw">lapply</span>(layers, <span 
 ## 5         fireSpread       stats     5            
 ## 5         save             spades    10</code></pre>
 <pre><code>##    user  system elapsed 
-##    0.27    0.05    0.33</code></pre>
+##    0.20    0.03    0.25</code></pre>
 </div>
 <div id="function-level-caching" class="section level2">
 <h2 class="hasAnchor">
@@ -309,12 +309,12 @@ same &lt;-<span class="st"> </span><span class="kw">lapply</span>(layers, <span 
 <span class="kw">system.time</span>(map &lt;-<span class="st"> </span><span class="kw">Cache</span>(gaussMap, ras, <span class="dt">cacheRepo =</span> <span class="kw">cachePath</span>(mySim),
                          <span class="dt">notOlderThan =</span> <span class="kw">Sys.time</span>()))</code></pre></div>
 <pre><code>##    user  system elapsed 
-##    3.43    0.14    3.61</code></pre>
+##    3.35    0.27    3.95</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># vastly faster the second time</span>
 <span class="kw">system.time</span>(mapCached &lt;-<span class="st"> </span><span class="kw">Cache</span>(gaussMap, ras, <span class="dt">cacheRepo =</span> <span class="kw">cachePath</span>(mySim)))</code></pre></div>
 <pre><code>##   loading cached result from previous gaussMap call.</code></pre>
 <pre><code>##    user  system elapsed 
-##    0.08    0.00    0.09</code></pre>
+##    0.09    0.03    0.12</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">all.equal</span>(map, mapCached) </code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
 </div>
@@ -325,17 +325,17 @@ same &lt;-<span class="st"> </span><span class="kw">lapply</span>(layers, <span 
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># examine a part of the Cache</span>
 <span class="kw">showCache</span>(mySim)[tagKey <span class="op">==</span><span class="st"> "function"</span>, <span class="op">-</span><span class="kw">c</span>(<span class="st">"artifact"</span>)]</code></pre></div>
 <pre><code>##       tagKey   tagValue         createdDate
-##  1: function    doEvent 2018-01-19 14:01:58
-##  2: function     spades 2018-01-19 14:01:58
-##  3: function   internal 2018-01-19 14:01:58
-##  4: function experiment 2018-01-19 14:01:53
-##  5: function     spades 2018-01-19 14:01:47
-##  6: function     spades 2018-01-19 14:01:45
-##  7: function   gaussMap 2018-01-19 14:02:03
-##  8: function     spades 2018-01-19 14:01:49
-##  9: function    doEvent 2018-01-19 14:01:58
-## 10: function     spades 2018-01-19 14:01:58
-## 11: function   internal 2018-01-19 14:01:58</code></pre>
+##  1: function   gaussMap 2018-01-19 14:13:28
+##  2: function    doEvent 2018-01-19 14:13:23
+##  3: function     spades 2018-01-19 14:13:23
+##  4: function   internal 2018-01-19 14:13:23
+##  5: function     spades 2018-01-19 14:13:10
+##  6: function    doEvent 2018-01-19 14:13:23
+##  7: function     spades 2018-01-19 14:13:23
+##  8: function   internal 2018-01-19 14:13:23
+##  9: function     spades 2018-01-19 14:13:12
+## 10: function experiment 2018-01-19 14:13:18
+## 11: function     spades 2018-01-19 14:13:13</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="kw">requireNamespace</span>(<span class="st">"archivist"</span>)) {
   <span class="co"># get the RasterLayer that was produced with the gaussMap function:</span>
   map &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/raster/topics/unique">unique</a></span>(<span class="kw">showCache</span>(mySim, <span class="dt">userTags =</span> <span class="st">"gaussMap"</span>)<span class="op">$</span>artifact) <span class="op">%&gt;%</span>
