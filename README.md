@@ -18,6 +18,18 @@ Additional functionality is provided by the [`SpaDES.addins`](http://spades-addi
 ![](images/lcc05.png)
 ![](images/MapsSmall.gif)
 
+## Getting started
+
+- [Getting started guide](https://github.com/PredictiveEcology/SpaDES/wiki/Getting-Started-Guide)
+- ['`SpaDES` 4 Dummies' guide](https://github.com/CeresBarros/SpaDES4Dummies)
+- [Vignettes](https://github.com/PredictiveEcology/SpaDES/wiki/Help-Vignettes)
+- [Wiki](https://github.com/PredictiveEcology/SpaDES/wiki)
+
+## Workshops
+
+- [SpaDES Workshops](https://github.com/PredictiveEcology/SpaDES/wiki/SpaDES-Workshops)
+
+
 ### Websites
 
 **`SpaDES` metapackage:** [http://SpaDES.PredictiveEcology.org](http://SpaDES.PredictiveEcology.org)
@@ -93,16 +105,6 @@ install_github("PredictiveEcology/SpaDES", ref = "development", dependencies = T
 
 -----
 
-## Getting started
-
-- [Getting started guide](https://github.com/PredictiveEcology/SpaDES/wiki/Getting-Started-Guide)
-- ['`SpaDES` 4 Dummies' guide](https://github.com/CeresBarros/SpaDES4Dummies)
-- [Vignettes](https://github.com/PredictiveEcology/SpaDES/wiki/Help-Vignettes)
-- [Wiki](https://github.com/PredictiveEcology/SpaDES/wiki)
-
-## Workshops
-
-- [SpaDES Workshops](https://github.com/PredictiveEcology/SpaDES/wiki/SpaDES-Workshops)
 
 ## Getting help
 
