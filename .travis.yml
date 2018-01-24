@@ -49,6 +49,8 @@ matrix:
     before_install:
     - export DISPLAY=:99.0
     - sh -e /etc/init.d/xvfb start
+    r_packages:
+    - devtools
     before_script:
     - Rscript -e 'install.packages("SpaDES.core", dependencies = TRUE)'
   - os: osx
