@@ -3,3 +3,4 @@ url: http://spades.predictiveecology.org
 template:
   params:
     bootswatch: flatly
+    ganalytics: UA-58633549-1
