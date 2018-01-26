@@ -44,7 +44,8 @@ Suggests:
     knitr,
     raster,
     rmarkdown,
-    testthat
+    testthat,
+    tkrplot
 License: GPL-3
 VignetteBuilder: knitr, rmarkdown
 BugReports: https://github.com/PredictiveEcology/SpaDES/issues

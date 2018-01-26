@@ -108,6 +108,12 @@ install_github("PredictiveEcology/SpaDES", ref = "development", dependencies = T
 -----
 
 
+- [Getting started guide](https://github.com/PredictiveEcology/SpaDES/wiki/Getting-Started-Guide)
+- ['`SpaDES` 4 Dummies' guide](https://github.com/CeresBarros/SpaDES4Dummies)
+- [Vignettes](https://github.com/PredictiveEcology/SpaDES/wiki/Help-Vignettes)
+- [Wiki](https://github.com/PredictiveEcology/SpaDES/wiki)
+- [Workshops](http://predictiveecology.org/2016/08/09/SpaDES-workshops.html)
+
 ## Getting help
 
 - [Q&A Forum](https://groups.google.com/forum/#!forum/spades-users)
