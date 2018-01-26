@@ -1,3 +1,5 @@
+<img align="right" width="80" pad="20" src="https://github.com/PredictiveEcology/SpaDES/raw/master/docs/images/SpaDES.png">
+
 # Spatial Discrete Event Simulation (SpaDES)
 
 [![Build Status](https://travis-ci.org/PredictiveEcology/SpaDES.svg?branch=master)](https://travis-ci.org/PredictiveEcology/SpaDES)
