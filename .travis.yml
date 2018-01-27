@@ -51,6 +51,8 @@ matrix:
     - sh -e /etc/init.d/xvfb start
     before_script:
     - Rscript -e 'install.packages("SpaDES.core", dependencies = TRUE, repos = "https://cran.rstudio.com")'
+    r_packages:
+    - devtools
   - os: osx
     osx_image: xcode8.2
     latex: false
