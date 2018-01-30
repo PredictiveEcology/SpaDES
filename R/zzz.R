@@ -10,6 +10,12 @@
 #' Check if a package is in the search path
 #'
 #' @importFrom utils packageVersion
+#' @import SpaDES.tools
+#' @import SpaDES.core
+#' @import quickPlot
+#' @import reproducible
+#' @import SpaDES.addins
+#'
 #' @keywords internal
 #' @rdname isAttached
 .isAttached <- function(x) {

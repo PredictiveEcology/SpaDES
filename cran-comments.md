@@ -1,12 +1,6 @@
 ## Updated release
 
-This is a susbstantial update to the package, which has seen many enhancements and improvements since the previous release.
-The size of the package had grown too large, so we have split the package into several, and have turned this package into a metapackage that, for backwards compatibility, attaches the new spinoff packages.
-
-We have dropped support of R 3.2.x, following the changes to several dependencies.
-
-Please note that package installation errors (and therefore package test errors) on R-oldrel are caused by failures in dependency package `DiagrammeR`, whose recent update (0.9.1) depends on `grDevices >= 3.4.0` (see https://cran.r-project.org/web/checks/check_results_DiagrammeR.html)
-We have raised the issue with the package maintainer.
+This package remains a metapackage. The main purpose of this updated release is to address CRAN concerns about package declarations for vignettes.
 
 ## Test environments
 
