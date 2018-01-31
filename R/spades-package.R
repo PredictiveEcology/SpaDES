@@ -85,4 +85,9 @@
 # See \url{http://r-pkgs.had.co.nz/namespace.html#imports}
 
 #' @import methods
+#' @import quickPlot
+#' @import reproducible
+#' @import SpaDES.addins
+#' @import SpaDES.core
+#' @import SpaDES.tools
 NULL
