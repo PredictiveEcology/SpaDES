@@ -17,8 +17,8 @@ The core simulation components (provided by [`SpaDES.core`](http://spades-core.p
 Included are numerous tools to visualize rasters and other maps (via [`quickPlot`](http://quickplot.predictiveecology.org/)), and caching methods for reproducible simulations (via [`reproducible`](http://reproducible.predictiveecology.org/)).
 Additional functionality is provided by the [`SpaDES.addins`](http://spades-addins.predictiveecology.org/) and [`SpaDES.shiny`](http://spades-shiny.predictiveecology.org/) packages.
 
-![](images/lcc05.png =50x)
-![](images/MapsSmall.gif)
+![](http://spades.predictiveecology.org/images/lcc05.png)
+![](http://spades.predictiveecology.org/images/MapsSmall.gif)
 
 ## Getting started
 
@@ -30,7 +30,6 @@ Additional functionality is provided by the [`SpaDES.addins`](http://spades-addi
 ### Workshops
 
 - [SpaDES Workshops](https://github.com/PredictiveEcology/SpaDES/wiki/SpaDES-Workshops)
-
 
 ### Websites
 
