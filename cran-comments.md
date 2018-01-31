@@ -36,9 +36,12 @@ There was 1 NOTE:
 
 1. Some words were flagged as possibly mispelled, but they are false positives:
 
-        Possibly mis-spelled words in DESCRIPTION: 
+        Possibly mis-spelled words in DESCRIPTION:
+          DES (8:77)
+          Matloff (9:9)
           Metapackage (5:14)
-          rasters (11:73)
+          modularity (10:32)
+          rasters (12:73)
 
 ## Downstream dependencies
 
