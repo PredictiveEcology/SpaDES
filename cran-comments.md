@@ -26,7 +26,7 @@ Since this is a metapackage, we have not included any examples as these are bett
 * Ubuntu 14.04     (travis-ci), R 3.5.0 (2018-01-31 r74187)
 * Ubuntu 16.04         (local), R 3.5.0 (2018-01-31 r74187)
 * Windows           (appveyor), R 3.5.0 (2018-01-26 r74169)
-* Windows        (win-builder), R 3.5.0 (2017-09-01 r73181)
+* Windows        (win-builder), R 3.5.0 (2018-01-30 r74185)
 
 ## R CMD check results
 
