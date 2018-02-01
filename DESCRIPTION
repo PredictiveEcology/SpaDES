@@ -47,9 +47,6 @@ Suggests:
     rmarkdown,
     testthat,
     tkrplot
-Remotes:
-    PredictiveEcology/SpaDES.addins@development,
-    PredictiveEcology/SpaDES.tools
 License: GPL-3
 VignetteBuilder: knitr, rmarkdown
 BugReports: https://github.com/PredictiveEcology/SpaDES/issues
