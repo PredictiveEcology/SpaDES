@@ -12,7 +12,8 @@
 Metapackage for implementing a variety of event-based models, with a focus on
 spatially explicit models. These include raster-based, event-based, and
 agent-based models. The core simulation components (provided by \code{SpaDES.core})
-are built upon a discrete event simulation (DES) framework that facilitates
+are built upon a discrete event simulation (DES; see Matloff (2011) ch 7.8.3
+\url{https://nostarch.com/artofr.htm}) framework that facilitates
 modularity, and easily enables the user to include additional functionality by
 running user-built simulation modules (see also \code{SpaDES.tools}).
 Included are numerous tools to visualize rasters and other maps (via \code{quickPlot}),

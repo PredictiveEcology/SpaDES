@@ -10,6 +10,7 @@
 #' Check if a package is in the search path
 #'
 #' @importFrom utils packageVersion
+#'
 #' @keywords internal
 #' @rdname isAttached
 .isAttached <- function(x) {

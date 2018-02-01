@@ -80,6 +80,7 @@
       
       </header><div class="row">
   <div class="contents col-md-9">
+<<<<<<< HEAD
     
 <p><img align="right" width="80" pad="20" src="https://github.com/PredictiveEcology/SpaDES/raw/master/docs/images/SpaDES.png"></p>
 <div id="spatial-discrete-event-simulation-spades" class="section level1">
@@ -95,22 +96,33 @@
 <div id="getting-started" class="section level2">
 <h2 class="hasAnchor">
 <a href="#getting-started" class="anchor"></a>Getting started</h2>
+=======
+    <section class="level1"><div class="page-header"><h1>Spatial Discrete Event Simulation (SpaDES)</h1></div>
+
+<p><img align="right" width="80" pad="20" src="https://github.com/PredictiveEcology/SpaDES/raw/master/docs/images/SpaDES.png"></p>
+<section class="level2"><h2>Develop and run spatially explicit discrete event simulation models</h2>
+<p>Metapackage for implementing a variety of event-based models, with a focus on spatially explicit models. These include raster-based, event-based, and agent-based models. The core simulation components (provided by <a href="http://spades-core.predictiveecology.org/"><code>SpaDES.core</code></a>) are built upon a discrete event simulation (DES) framework that facilitates modularity, and easily enables the user to include additional functionality by running user-built simulation modules (see also <a href="http://spades-tools.predictiveecology.org/"><code>SpaDES.tools</code></a>). Included are numerous tools to visualize rasters and other maps (via <a href="http://quickplot.predictiveecology.org/"><code>quickPlot</code></a>), and caching methods for reproducible simulations (via <a href="http://reproducible.predictiveecology.org/"><code>reproducible</code></a>). Additional functionality is provided by the <a href="http://spades-addins.predictiveecology.org/"><code>SpaDES.addins</code></a> and <a href="http://spades-shiny.predictiveecology.org/"><code>SpaDES.shiny</code></a> packages.</p>
+<p><img src="http://spades.predictiveecology.org/images/lcc05.png"><img src="http://spades.predictiveecology.org/images/MapsSmall.gif"></p>
+</section><section class="level2"><h2>Getting started</h2>
+>>>>>>> master
 <ul>
 <li><a href="https://github.com/PredictiveEcology/SpaDES/wiki/Getting-Started-Guide">Getting started guide</a></li>
 <li><a href="https://github.com/CeresBarros/SpaDES4Dummies">‘<code>SpaDES</code> 4 Dummies’ guide</a></li>
 <li><a href="https://github.com/PredictiveEcology/SpaDES/wiki/Help-Vignettes">Vignettes</a></li>
 <li><a href="https://github.com/PredictiveEcology/SpaDES/wiki">Wiki</a></li>
 </ul>
-</div>
-<div id="workshops" class="section level2">
-<h2 class="hasAnchor">
-<a href="#workshops" class="anchor"></a>Workshops</h2>
+<section class="level3"><h3>Workshops</h3>
 <ul>
+<<<<<<< HEAD
 <li><a href="http://spades-workshops.predictiveecology.org">SpaDES Workshops</a></li>
 </ul>
 <div id="websites" class="section level3">
 <h3 class="hasAnchor">
 <a href="#websites" class="anchor"></a>Websites</h3>
+=======
+<li><a href="https://github.com/PredictiveEcology/SpaDES/wiki/SpaDES-Workshops">SpaDES Workshops</a></li>
+</ul></section><section class="level3"><h3>Websites</h3>
+>>>>>>> master
 <p><strong><code>SpaDES</code> metapackage:</strong> <a href="http://SpaDES.PredictiveEcology.org" class="uri">http://SpaDES.PredictiveEcology.org</a></p>
 <p><strong>Other <code>SpaDES</code> ecosystem packages:</strong></p>
 <ul>
@@ -141,12 +153,7 @@
 <ul>
 <li><a href="https://raw.githubusercontent.com/PredictiveEcology/SpaDES-modules/master/modules/LCC2005/LCC2005.Rmd">LandCoverChange</a></li>
 </ul>
-<hr>
-</div>
-</div>
-<div id="installation" class="section level2">
-<h2 class="hasAnchor">
-<a href="#installation" class="anchor"></a>Installation</h2>
+<hr></section></section><section class="level2"><h2>Installation</h2>
 <p><strong>Install development libraries:</strong> building packages from source requires the appropriate development libraries for your operating system.</p>
 <ul>
 <li><p><em>Windows:</em> install <a href="https://cran.r-project.org/bin/windows/Rtools/">Rtools</a>.</p></li>
@@ -155,21 +162,17 @@
 </ul>
 <p>See <a href="https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites">here</a> for more details.</p>
 <p><strong>Install suggested packages:</strong> the <code>fastshp</code> package can be installed with:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(<span class="st">"fastshp"</span>, <span class="dt">repos =</span> <span class="st">"https://rforge.net"</span>, <span class="dt">type =</span> <span class="st">"source"</span>)</code></pre></div>
-<div id="current-stable-release" class="section level3">
-<h3 class="hasAnchor">
-<a href="#current-stable-release" class="anchor"></a>Current stable release</h3>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">install.packages</span>(<span class="st">"fastshp"</span>, <span class="dt">repos =</span> <span class="st">"https://rforge.net"</span>, <span class="dt">type =</span> <span class="st">"source"</span>)</a></code></pre></div>
+<section class="level3"><h3>Current stable release</h3>
 <p><strong>Install from CRAN:</strong></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(<span class="st">"SpaDES"</span>)</code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw">install.packages</span>(<span class="st">"SpaDES"</span>)</a></code></pre></div>
 <p><strong>Install from GitHub:</strong></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#install.packages("devtools")</span>
-<span class="kw">library</span>(<span class="st">"devtools"</span>)
-<span class="kw">install_github</span>(<span class="st">"PredictiveEcology/SpaDES"</span>, <span class="dt">dependencies =</span> <span class="ot">TRUE</span>) <span class="co"># stable</span></code></pre></div>
-</div>
-<div id="development-version-unstable" class="section level3">
-<h3 class="hasAnchor">
-<a href="#development-version-unstable" class="anchor"></a>Development version (unstable)</h3>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="co">#install.packages("devtools")</span></a>
+<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="kw">library</span>(<span class="st">"devtools"</span>)</a>
+<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="kw"><a href="http://www.rdocumentation.org/packages/devtools/topics/install_github">install_github</a></span>(<span class="st">"PredictiveEcology/SpaDES"</span>, <span class="dt">dependencies =</span> <span class="ot">TRUE</span>) <span class="co"># stable</span></a></code></pre></div>
+</section><section class="level3"><h3>Development version (unstable)</h3>
 <p><strong>Install from GitHub:</strong></p>
+<<<<<<< HEAD
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#install.packages("devtools")</span>
 <span class="kw">library</span>(<span class="st">"devtools"</span>)
 <span class="kw">install_github</span>(<span class="st">"PredictiveEcology/SpaDES"</span>, <span class="dt">ref =</span> <span class="st">"development"</span>, <span class="dt">dependencies =</span> <span class="ot">TRUE</span>) <span class="co"># unstable</span></code></pre></div>
@@ -186,13 +189,15 @@
 <div id="getting-help" class="section level2">
 <h2 class="hasAnchor">
 <a href="#getting-help" class="anchor"></a>Getting help</h2>
+=======
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="co">#install.packages("devtools")</span></a>
+<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="kw">library</span>(<span class="st">"devtools"</span>)</a>
+<a class="sourceLine" id="cb4-3" data-line-number="3"><span class="kw"><a href="http://www.rdocumentation.org/packages/devtools/topics/install_github">install_github</a></span>(<span class="st">"PredictiveEcology/SpaDES"</span>, <span class="dt">ref =</span> <span class="st">"development"</span>, <span class="dt">dependencies =</span> <span class="ot">TRUE</span>) <span class="co"># unstable</span></a></code></pre></div>
+</section></section><section class="level2"><h2>Getting help</h2>
+>>>>>>> master
 <ul>
 <li><a href="https://groups.google.com/forum/#!forum/spades-users">Q&amp;A Forum</a></li>
-</ul>
-</div>
-<div id="reporting-bugs" class="section level2">
-<h2 class="hasAnchor">
-<a href="#reporting-bugs" class="anchor"></a>Reporting bugs</h2>
+</ul></section><section class="level2"><h2>Reporting bugs</h2>
 <p>The <code>SpaDES</code> metapackage simply loads a number of other packages from the <code>SpaDES</code> ecosystem. Bug reports should be reported to the specific package in question rather than the metapackage. Contact us via the package’s GitHub site:</p>
 <ul>
 <li><a href="https://github.com/PredictiveEcology/quickPlot/issues">quickPlot</a></li>
@@ -204,10 +209,14 @@
 </ul>
 <hr>
 <p>Copyright (C) 2017 Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada</p>
+</section></section>
 </div>
+<<<<<<< HEAD
 </div>
 
   </div>
+=======
+>>>>>>> master
 
   <div class="col-md-3" id="sidebar">
     <h2>Links</h2>

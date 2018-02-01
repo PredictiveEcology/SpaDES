@@ -1,5 +1,3 @@
-<img align="right" width="80" pad="20" src="https://github.com/PredictiveEcology/SpaDES/raw/master/docs/images/SpaDES.png">
-
 # Spatial Discrete Event Simulation (SpaDES)
 
 [![Build Status](https://travis-ci.org/PredictiveEcology/SpaDES.svg?branch=master)](https://travis-ci.org/PredictiveEcology/SpaDES)
@@ -9,6 +7,8 @@
 [![Downloads](http://cranlogs.r-pkg.org/badges/grand-total/SpaDES)](https://cran.r-project.org/package=SpaDES)
 [![DOI](https://zenodo.org/badge/17892/PredictiveEcology/SpaDES.svg)](https://zenodo.org/badge/latestdoi/17892/PredictiveEcology/SpaDES)
 
+<img align="right" width="80" pad="20" src="https://github.com/PredictiveEcology/SpaDES/raw/master/docs/images/SpaDES.png">
+
 ## Develop and run spatially explicit discrete event simulation models
 
 Metapackage for implementing a variety of event-based models, with a focus on spatially explicit models.
@@ -17,8 +17,8 @@ The core simulation components (provided by [`SpaDES.core`](http://spades-core.p
 Included are numerous tools to visualize rasters and other maps (via [`quickPlot`](http://quickplot.predictiveecology.org/)), and caching methods for reproducible simulations (via [`reproducible`](http://reproducible.predictiveecology.org/)).
 Additional functionality is provided by the [`SpaDES.addins`](http://spades-addins.predictiveecology.org/) and [`SpaDES.shiny`](http://spades-shiny.predictiveecology.org/) packages.
 
-![](images/lcc05.png =50x)
-![](images/MapsSmall.gif)
+![](http://spades.predictiveecology.org/images/lcc05.png)
+![](http://spades.predictiveecology.org/images/MapsSmall.gif)
 
 ## Getting started
 
@@ -27,10 +27,9 @@ Additional functionality is provided by the [`SpaDES.addins`](http://spades-addi
 - [Vignettes](https://github.com/PredictiveEcology/SpaDES/wiki/Help-Vignettes)
 - [Wiki](https://github.com/PredictiveEcology/SpaDES/wiki)
 
-## Workshops
+### Workshops
 
 - [SpaDES Workshops](http://spades-workshops.predictiveecology.org)
-
 
 ### Websites
 
@@ -104,15 +103,6 @@ install_github("PredictiveEcology/SpaDES", dependencies = TRUE) # stable
 library("devtools")
 install_github("PredictiveEcology/SpaDES", ref = "development", dependencies = TRUE) # unstable
 ```
-
------
-
-
-- [Getting started guide](https://github.com/PredictiveEcology/SpaDES/wiki/Getting-Started-Guide)
-- ['`SpaDES` 4 Dummies' guide](https://github.com/CeresBarros/SpaDES4Dummies)
-- [Vignettes](https://github.com/PredictiveEcology/SpaDES/wiki/Help-Vignettes)
-- [Wiki](https://github.com/PredictiveEcology/SpaDES/wiki)
-- [Workshops](http://predictiveecology.org/2016/08/09/SpaDES-workshops.html)
 
 ## Getting help
 
