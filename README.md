@@ -29,7 +29,7 @@ Additional functionality is provided by the [`SpaDES.addins`](http://spades-addi
 
 ## Workshops
 
-- [SpaDES Workshops](https://github.com/PredictiveEcology/SpaDES/wiki/SpaDES-Workshops)
+- [SpaDES Workshops](http://spades-workshops.predictiveecology.org)
 
 
 ### Websites
