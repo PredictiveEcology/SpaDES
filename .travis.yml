@@ -66,7 +66,8 @@ matrix:
     before_install:
     - export DISPLAY=:99.0
     - sh -e /etc/init.d/xvfb start
-    - Rscript -e 'install.packages("devtools", type = "source")'
+    r_packages:
+    - devtools
   - os: osx
     osx_image: xcode9.2
     latex: false
