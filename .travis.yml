@@ -9,6 +9,24 @@ matrix:
   include:
   - os: linux
     dist: trusty
+    r: 3.3.0
+    addons:
+      apt:
+        sources:
+        - sourceline: 'ppa:ubuntugis/ubuntugis-unstable'
+        packages:
+        - libgdal-dev
+        - libgdal1-dev
+        - libgeos-dev
+        - libnlopt-dev
+        - libproj-dev
+        - libudunits2-dev
+        - gdal-bin
+    before_install:
+    - export DISPLAY=:99.0
+    - sh -e /etc/init.d/xvfb start
+  - os: linux
+    dist: trusty
     r: oldrel
     addons:
       apt:
