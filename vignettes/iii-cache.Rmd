@@ -209,8 +209,84 @@ if (requireNamespace("archivist")) {
 }
 ```
 
-# Workflow
+# Reproducible Workflow
 
 In general, we feel that a liberal use of `Cache` will make a re-useable and reproducible work flow.
 `shiny` apps can be made, taking advantage of `Cache`. 
 Indeed, much of the difficulty in managing data sets and saving them for future use, can be accommodated by caching.
+
+## Nested Caching
+
+- Imagine we have large model, with many modules, with replication and alternative module collections (e.g., alternative fire models)
+- To run this would have a nested structure with the following functions:
+
+```{r, eval=FALSE, echo=TRUE}
+simInit --> many .inputObjects calls
+
+experiment --> many spades calls --> many module calls --> many event calls --> many function calls
+
+```
+
+Lets say we start to introduce caching to this structure. We start from the "inner" most functions that we could imaging Caching would be useful. Lets say there are some GIS operations, like `raster::projectRaster`, which operates on an input shapefile. We can Cache the `projectRaster` call to make this much faster, since it will always be the same result for a given input raster. 
+
+If we look back at our structure above, we see that we still have LOTS of places that are not Cached. That means that the experiment call will still spawn many spades calls, which will still spawn many module calls, and many event calls, just to get to the one `Cache(projectRaster)` call which is Cached. This function will likely be called hundreds of times (because `experiment` runs the `spades` call 100 times due to replication). This is good, but **Cache does take some time**. So, even if `Cache(projectRaster)` takes only 0.02 seconds, calling it hundreds of times means maybe 4 seconds. If we are doing this for many functions, then this will be too slow. 
+
+We can start putting `Cache` all up the sequence of calls. Unfortunately, the way we use Cache at each of these levels is a bit different, so we need a slightly different approach for each. 
+
+#### Cache the `experiment` call
+
+`Cache(experiment)`
+
+This will assess the `simList` (the objects, times, modules, etc.) and if they are all the same, it will return the final list of `simList`s that came from the first `experiment` call. NOTE: because this can be large, it is likely that you want `clearSimEnv = TRUE`, and have all objects that are needed after the experiment call saved to disk. Any stochasticity/randomness inside modules will be frozen. This is likely ok if the objective is to show results in a web app (via shiny or otherwise) or another visualization about the experiment outputs, e.g., comparing treatments, once sufficient stochasticity has been achieved.
+
+`mySimListOut <- Cache(experiment, mySim, clearSimEnv = TRUE)`
+
+#### Cache the `spades` calls inside `experiment`
+
+`experiment(cache = TRUE)`
+
+This will cache each of the `spades` calls inside the `experiment` call. That means that there are as many cache events as there are replicates and experimental treatments, which, again could be a lot. Like caching the `experiment` call, stochasticity/randomness will be frozen. Note, one good use of this is when you are making iterative, incremental replication, e.g., 
+
+`mySimOut <- experiment(mySim, replicates = 5, cache = TRUE)`
+
+You decide after waiting 10 minutes for it to finish, that you need more replication. Rather than start from zero replicates, you can just pick up where you left off:
+
+`mySimOut <- experiment(mySim, replicates = 10, cache = TRUE)`
+
+This will only add 5 more replicates.
+
+#### Cache a whole module
+
+Pass `.useCache = TRUE` as a parameter to the module, during the `simInit`
+
+Some modules are inherently non-random, such as GIS modules, or parameter fitting statistical modules. We expect these to be identical results each time, so we can safely cache the entire module.
+
+```{r, eval=FALSE, echo=TRUE}
+parameters = list(
+  FireModule = list(.useCache = TRUE)
+)
+mySim <- simInit(..., params = parameters)
+mySimOut <- spades(mySim)
+
+```
+
+The messaging should indicate the caching is happening on every event in that module.
+
+***Note: This option REQUIRES that the metadata in inputs and outputs be exactly correct, i.e., all inputObjects and outputObjects must be correctly identified and listed in the defineModule metadata***
+
+***If the module is cached, and there are errors when it is run, it almost is garanteed to be a problem with the `inputObjects` and `outputObjects` incorrectly specified.***
+
+#### Cache individual functions
+
+`Cache(<functionName>, <other arguments>)`
+
+This will allow fine scale control of individual function calls.
+
+
+## Data-to-decisions
+
+Once nested Caching is used all the way up to the `experiment` level and even further up (e.g., if there is a shiny module), then even very complex models can be put into a complete workflow. 
+
+The current vision for `SpaDES` is that it will allow this type of "data to decisions" complete workflow that allows for deep, robust models, across disciplines, with easily accessible front ends, that are quick and responsive to users, yet can handle data changes, module changes, etc.
+
+
