@@ -66,6 +66,8 @@ matrix:
     after_success:
     - Rscript -e 'covr::coveralls(package_coverage(type = "all", quiet = FALSE)))'
     - Rscript -e 'lintr::lint_package()'
+    r_packages:
+    - devtools
   - os: linux
     dist: trusty
     r: devel
