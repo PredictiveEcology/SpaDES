@@ -25,6 +25,7 @@ Additional functionality is provided by the [`SpaDES.addins`](http://spades-addi
 - [Getting started guide](https://github.com/PredictiveEcology/SpaDES/wiki/Getting-Started-Guide)
 - [LCC2005 tutorial](https://github.com/PredictiveEcology/SpaDES-modules/blob/master/modules/LCC2005/LCC2005.Rmd)
 - ['SpaDES 4 Dummies' guide](https://github.com/CeresBarros/SpaDES4Dummies)
+- [SpaDES users group](https://groups.google.com/d/forum/spades-users)
 - [Vignettes](https://github.com/PredictiveEcology/SpaDES/wiki/Help-Vignettes)
 - [Wiki](https://github.com/PredictiveEcology/SpaDES/wiki)
 
