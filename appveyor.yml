@@ -46,6 +46,7 @@ branches:
 clone_depth: 5
 
 build_script:
+  - Rscript -e "install.packages('igraph', repos = 'https://cran.rstudio.com', type = 'source')"
   - Rscript -e "install.packages('SpaDES.core', dependencies = TRUE, repos = 'https://cran.rstudio.com')"
   - Rscript -e "install.packages(c('quickPlot', 'reproducible', 'SpaDES.addins', 'SpaDES.core', 'SpaDES.tools'), repos = 'https://cran.rstudio.com', type = 'source')"
   - travis-tool.sh install_deps
