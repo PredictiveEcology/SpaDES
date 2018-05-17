@@ -26,7 +26,7 @@ Since this is a metapackage, we have not included any examples as these are bett
 
 ### Development R version
 * Ubuntu 14.04     (travis-ci), R 3.6.0 (2018-05-17 r74734)
-* Ubuntu 16.04         (local), R 3.6.0 (2018-05-17 r74734)
+* Ubuntu 18.04         (local), R 3.6.0 (2018-05-17 r74734)
 * Windows           (appveyor), R 3.6.0 (2018-05-15 r74727)
 * Windows        (win-builder), R 3.6.0 (2018-05-15 r74727)
 
