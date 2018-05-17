@@ -50,7 +50,7 @@ Additional functionality is provided by the [`SpaDES.addins`](http://spades-addi
 
 **Canadian Forest Service Adaptation Toolkit:** [http://www.nrcan.gc.ca/forests/climate-change/tools-resources/17770](http://www.nrcan.gc.ca/forests/climate-change/tools-resources/17770)
 
-**LandWeb Demonstration App:** [http://landweb.predictiveecology.org/Demo/](http://landweb.predictiveecology.org/Demo/)
+**LandWeb Demonstration App:** [http://landweb.ca](http://landweb.ca/)
 
 **Examples for R-savvy users:**
 
