@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>All news • SpaDES</title>
+<title>Changelog • SpaDES</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -18,13 +18,19 @@
 <!-- Font Awesome icons -->
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 
+<!-- clipboard.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-  
-  
+
+
+
+<meta property="og:title" content="Changelog" />
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -34,16 +40,14 @@
 <![endif]-->
 
 
-<!-- Google analytics -->
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-58633549-1"></script>
 <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
 
-  ga('create', 'UA-58633549-1', 'auto');
-  ga('send', 'pageview');
-
+  gtag('config', 'UA-58633549-1');
 </script>
 
   </head>
@@ -59,8 +63,12 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">SpaDES</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">SpaDES</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">2.0.1.9000</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
@@ -85,7 +93,7 @@
   </ul>
 </li>
 <li>
-  <a href="../news/index.html">News</a>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       
@@ -97,6 +105,7 @@
   </a>
 </li>
       </ul>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -104,21 +113,604 @@
       
       </header>
 
-      <div class="row">
-
-  <div class="col-md-9">
+<div class="row">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Change log <small>All releases</small></h1>
+      <h1>Changelog <small></small></h1>
+      <small>Source: <a href='https://github.com/PredictiveEcology/SpaDES/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div class="contents">
-    </div>
+    <div id="version-2-0-1" class="section level1">
+<h1 class="page-header">
+<a href="#version-2-0-1" class="anchor"></a>version 2.0.1<small> 2018-02-01 </small>
+</h1>
+<ul>
+<li>updated cache vignette</li>
+<li>minor bugfix concerning package imports</li>
+</ul>
+</div>
+    <div id="version-2-0-0" class="section level1">
+<h1 class="page-header">
+<a href="#version-2-0-0" class="anchor"></a>version 2.0.0<small> 2017-09-05 </small>
+</h1>
+<div id="dependency-changes" class="section level2">
+<h2 class="hasAnchor">
+<a href="#dependency-changes" class="anchor"></a>Dependency changes</h2>
+<ul>
+<li>
+<p><code>SpaDES</code> package split into several (<a href='https://github.com/PredictiveEcology/SpaDES/issues/198'>#198</a>):</p>
+<ul>
+<li>caching moved out of <code>SpaDES</code> and into new package <a href="https://github.com/PredictiveEcology/reproducible"><code>reproducible</code></a>. <code>reproducible</code> added to Imports.</li>
+<li>plotting moved out of <code>SpaDES</code> and into new package <a href="https://github.com/PredictiveEcology/quickPlot"><code>quickPlot</code></a>. <code>quickPlot</code> added to Imports.</li>
+<li>all Rstudio addins moved out of <code>SpaDES</code> and into new package <a href="https://github.com/PredictiveEcology/SpaDES.addins"><code>SpaDES.addins</code></a>.</li>
+<li>core DES components moved out of <code>SpaDES</code> and into new package <a href="https://github.com/PredictiveEcology/SpaDES.core"><code>SpaDES.core</code></a>. <code>SpaDES.core</code> added to Imports.</li>
+<li>additional modelling utilities (non-core components) moved out of <code>SpaDES</code> and into new package <a href="https://github.com/PredictiveEcology/SpaDES.tools"><code>SpaDES.tools</code></a>. <code>SpaDES.tools</code> added to Imports.</li>
+<li>
+<code>shiny</code>-related components moved out of <code>SpaDES</code> and into new package <a href="https://github.com/PredictiveEcology/SpaDES.shiny"><code>SpaDES.shiny</code></a>.</li>
+</ul>
+</li>
+<li>minimum R version increased from <code>3.2.2</code> to <code>3.3.3</code> as required by several dependencies.</li>
+<li>added <code>bit</code>, <code>fastmatch</code>, <code>fastdigest</code> and <code>Rcpp</code> packages to Imports.</li>
+<li><p>removed <code>stringr</code> package from Imports.</p></li>
+</ul>
+</div>
+<div id="defunct" class="section level2">
+<h2 class="hasAnchor">
+<a href="#defunct" class="anchor"></a>Defunct</h2>
+<ul>
+<li>
+<code>getFileName</code>. Wasn’t used.</li>
+<li>
+<code>p</code>. Use <code>params</code> or <code>P</code> instead.</li>
+<li>
+<code>shine</code> moved out of <code>SpaDES</code> into the <a href="https://github.com/PredictiveEcology/SpaDES.shiny"><code>SpaDES.shiny</code></a> package.</li>
+<li>
+<code>versionWarning</code>. Wasn’t used.</li>
+</ul>
+</div>
+<div id="new-vignette" class="section level2">
+<h2 class="hasAnchor">
+<a href="#new-vignette" class="anchor"></a>New vignette</h2>
+<ul>
+<li>
+<code>iii-cache</code> which shows many of the ways to use <code>Cache</code> and build it into a larger reproducible workflow.</li>
+</ul>
+</div>
+<div id="new-functionality" class="section level2">
+<h2 class="hasAnchor">
+<a href="#new-functionality" class="anchor"></a>New functionality</h2>
+<ul>
+<li>namespaced module functions have now been implemented via a nested environment in the <code>simList@.envir</code> slot. This means that module functions can be called by their name only, <em>without</em> a <code>sim$</code> prefix. Also, there should not be any name clashes between modules, so each module can have its own <code>init</code> function, say. This has been implemented in a backwards compatible way, but the old way may be deprecated down the road.</li>
+<li>new functions <code>saveSimList</code> which saves all environments recursively and file-backed objects, such as <code>Raster</code> objets (currently only one implemented).</li>
+<li>Created a generic for <code>Copy</code>, moved it to <code>reproducible</code>, and here added a method for <code>simList</code> objects that deep copies all environments recursively.</li>
+<li>change default value for <code>speedup</code> in <code>gaussMap</code>; now 1.</li>
+<li>new function <code>getPaths()</code> to return the list of working dirs from the options</li>
+<li>new function <code>setPaths()</code> as wrapper for setting the options for working dirs; uses <code>~/SpaDES</code> as default base path</li>
+<li>
+<code>downloadModule</code> checks for and uses environment variable <code>GITHUB_PAT</code> if it exists (alleviates 403 download errors caused by GitHub download limits)</li>
+<li>
+<code>spread2</code>: new function that is more robust than spread, slightly slower under some situations, but faster in many others. The function is designed to be used as a building block for more complex spreading, where the user can wrap <code>spread2</code> inside a custom function that iteratively calls <code>spread2</code>, while optionally changing any of the input arguments.</li>
+<li>adj - has a new argument <code>returnDT</code>, which slightly improves speed in cases where the user wants the output to become a <code>data.table</code>. This simply prevents a call to <code>as.matrix</code> in the <code>return()</code>, which was occurring if the return value was a <code>data.table</code>.</li>
+<li>new function <code>copyModule</code> for creating a copy of an existing module</li>
+</ul>
+</div>
+<div id="performance" class="section level2">
+<h2 class="hasAnchor">
+<a href="#performance" class="anchor"></a>Performance</h2>
+<ul>
+<li>add C++ internal functions for speed</li>
+<li>event queues (event, completed, current) now do shallow copies of pre-existing data.tables, rather than <code>rblindlist( )</code>. This improved DES speed by &gt; 40%. Benchmarking of 1400 events in 1.6 seconds now; previously 3.0 seconds.</li>
+<li>add <code>Copy</code> (capital C) as replacement for <code>copy</code> which conflicts with <code><a href="http://www.rdocumentation.org/packages/data.table/topics/copy">data.table::copy</a></code>, and add <code>queues</code> argument to do a deep copy of the event queues.</li>
+<li>
+<code>spread</code>: minor speedups, plus 3 new parameters <code>relativeSpreadProb</code>, <code>numNeighs</code> &amp; <code>exactSizes</code>
+</li>
+<li>
+<code>distanceFromEachPoint</code>: uses faster Rcpp code for some use cases &amp; can now take arbitrary columns in either <code>from</code> or <code>to</code> arguments</li>
+<li>use <code>%fin%</code> as faster replacement for <code>%in%</code>
+</li>
+</ul>
+</div>
+<div id="bug-fixes" class="section level2">
+<h2 class="hasAnchor">
+<a href="#bug-fixes" class="anchor"></a>Bug fixes</h2>
+<ul>
+<li>workaround issues with RStudio graphics on Linux (with <a href='https://github.com/PredictiveEcology/SpaDES/issues/116'>#116</a>): use <code>dev.noRSGD()</code> to bypass the Rstudio graphics device for your current session (sets the <code>device</code> option for your platform).</li>
+<li>
+<code>checksums(..., write = TRUE)</code> ignores the contents of <code>CHECKSUMS.txt</code>, overwriting that file with the checksums of all files in the module’s <code>data/</code> directory. This makes it easier to update the checksum file, <em>e.g.</em>, when adding new data (<a href='https://github.com/PredictiveEcology/SpaDES/issues/332'>#332</a>).</li>
+<li>improved module versioning (<a href='https://github.com/PredictiveEcology/SpaDES/issues/321'>#321</a>)</li>
+<li>minor bugfixes for unusual cases</li>
+<li>some broken examples were fixed</li>
+</ul>
+</div>
+<div id="other-updates" class="section level2">
+<h2 class="hasAnchor">
+<a href="#other-updates" class="anchor"></a>Other updates</h2>
+<ul>
+<li>improved documentation</li>
+<li>modules are now run with their required packages (<code>reqdPkgs</code> in metadata) temporarily bumped to the top of the search path (<em>i.e.</em>, <code>search()</code>) during each event. <code>search</code> path is restored <code>on.exit</code> from <code>spades</code> or <code>simInit</code> call</li>
+<li>change order of parsing of modules: <code>defineModule</code> is last, so can use objects defined within module for parameters</li>
+<li>improved <code>simInit</code> debug mechanism – passing character string of module name will enter into a <code>browser</code> call inside <code>doEvent</code>
+</li>
+<li>
+<p>improvements to caching –&gt; these are moved to <code>reproducible</code> package:</p>
+<ul>
+<li>improved caching for <code>Raster*</code> objects &amp; S4 methods - now it normally persists across sessions;</li>
+<li>add <code>Cache</code> (upper case) which derives <code>cacheRepo</code> arg automatically from either the <code>cachePath(sim)</code>, if used within a module, or <code>getPath()$cachePath</code> if not within a module. Also, the upper case removes the name conflict with <code><a href="http://www.rdocumentation.org/packages/archivist/topics/cache">archivist::cache</a></code>;</li>
+<li>uses <code><a href="http://www.rdocumentation.org/packages/fastdigest/topics/fastdigest">fastdigest::fastdigest</a></code> for RAM objects and <code><a href="http://www.rdocumentation.org/packages/digest/topics/digest">digest::digest</a></code> for disk-backed objects;</li>
+<li>add caching mechanisms at the module-level and event-level (via new <code>.useCache</code> parameter, which can be logical indicating whole module or character indicating individual events);</li>
+<li>add caching for <code>.inputObjects</code> function in <code>simInit</code>, via <code>.useCache</code> parameter in module</li>
+<li>detailed caching overview now in cache help: <code>?Cache</code> for details.</li>
+<li>strips dirname for outputs and inputs, <em>i.e.</em>, only keeps the filename, not absolute paths. This may not be stringent enough in some cases.</li>
+<li>New cache-related function: <code>keepCache</code>
+</li>
+</ul>
+</li>
+<li>implemented <code>checkModuleLocal()</code> to check for presence of module files in the module dir before attempting download from remote module repository</li>
+<li>improve module template to auto fill module author info using <code>devtools.desc.author</code> option if set.</li>
+<li>
+<code>zipModule</code> now has <code>data</code> argument, allowing data to be omitted from zipped module.</li>
+<li><p>improved <code>moduleDiagram</code> to show <code>_INPUT_</code> node in different colour from the other modules</p></li>
+</ul>
+</div>
+</div>
+    <div id="version-1-3-1" class="section level1">
+<h1 class="page-header">
+<a href="#version-1-3-1" class="anchor"></a>version 1.3.1<small> 2016-10-07 </small>
+</h1>
+<ul>
+<li>Default module path (set via <code>spades.modulePath</code> option) is now set to a temporary location to avoid unintentionally writing to the user’s home directory.</li>
+<li>add options for cache, input, output dirs (defaults to a temp dir until changed by user)</li>
+<li>rename <code>spades.modulesPath</code> and <code>spades.modulesRepo</code> options to <code>spades.modulePath</code> and <code>spades.moduleRepo</code>
+</li>
+<li>New cache-related functions: <code>showCache</code>, <code>clearCache</code>
+</li>
+</ul>
+</div>
+    <div id="version-1-3-0" class="section level1">
+<h1 class="page-header">
+<a href="#version-1-3-0" class="anchor"></a>version 1.3.0<small> 2016-10-06 </small>
+</h1>
+<ul>
+<li>stricter package version dependencies in Imports and Suggests</li>
+<li>
+<code>debug</code> argument in <code>spades()</code> can now take any expression, character strings. <code>TRUE</code>/<code>FALSE</code> changed behavior to show only current event.</li>
+<li>timeunits: when there are parent and grandparent modules, if timeunit is defined, it overrides the “smallest unit” rule. Thus, a parent module can force a timeunit.</li>
+<li>
+<p>Plot - enhancements and fixes:</p>
+<ul>
+<li>more robust base plotting and many visual tests on Windows;</li>
+<li>re-add <code>col</code> arg to <code>Plot</code> (mimicks <code>cols</code>). Was lost from version 1.1.2;</li>
+<li>allow any arbitrary function to be used internally to <code>Plot</code> (<em>e.g.</em>, barplot, plot, etc.);</li>
+<li>add <code>arr</code> argument to <code>Plot()</code>, allowing passing of arrangement;</li>
+<li>allow <code>title</code> arg in <code>Plot()</code> to accept character for plot title;</li>
+<li>
+<code>Plot</code> can use character passed to <code>title</code> as a title;</li>
+<li>some additional functionality for plotting of factor rasters, incl. <code>clickValues</code>, legends correct for wide variety of types;</li>
+<li>change <code>new</code> arg in <code>Plot()</code>. Now it does one plot at a time, not whole device. Use <code>clearPlot()</code> to wipe whole device.</li>
+</ul>
+</li>
+<li>Add <code>modulesGraph</code>, showing parent and child module relationships.</li>
+<li>Add <code>filesOnly</code> arg to <code>shine()</code>. This can be in preparation for publishing to www.shinyapps.io or other pages. Currently still alpha.</li>
+<li>Add POM: Pattern Oriented Modeling (<a href='https://github.com/PredictiveEcology/SpaDES/issues/269'>#269</a>). A simple interface to a simList object, allowing fitting parameters to data.</li>
+<li>add <code>.inputObjects</code> functionality – function that runs during <code>simInit()</code> to create default <code>inputObjects</code>
+</li>
+<li>add <code>P</code> as a namespaced shortcut for params: <code>P(sim)</code> would replace <code>params(sim)$moduleName</code> when called from within that module</li>
+<li>allow <code>params(sim)</code> &amp; <code>start(sim)</code> &amp; others in <code>defineModule()</code> by changing parse order in module metadata</li>
+<li>add explicit <code>cl</code> arg to parallel aware functions, for more control</li>
+<li>
+<code>newModule</code> gains new arguments <code>type = c("child", "parent")</code> and <code>children = c()</code>. See <code>?newModule</code> (<a href='https://github.com/PredictiveEcology/SpaDES/issues/300'>#300</a>).</li>
+<li>module structure now includes an R subfolder for R scripts. These will be parsed during simInit.</li>
+<li>
+<code>checksums</code> updated to use faster hashing algorithm (<code>xxhash64</code>) and now only requires a single hash value per file (<a href='https://github.com/PredictiveEcology/SpaDES/issues/295'>#295</a>)</li>
+<li>fixed bugs in module template</li>
+<li>fixed bug in <code>cir</code> (<a href='https://github.com/PredictiveEcology/SpaDES/issues/288'>#288</a>, <a href='https://github.com/PredictiveEcology/SpaDES/issues/311'>#311</a>)</li>
+<li>improved use of package options; added new option <code>spades.modulesPath</code>.</li>
+<li>improved <code>downloadModule</code> to use option <code>spades.modulesPath</code> (<a href='https://github.com/PredictiveEcology/SpaDES/issues/309'>#309</a>)</li>
+<li>improved specification of module inputs and outputs (<a href='https://github.com/PredictiveEcology/SpaDES/issues/189'>#189</a>, <a href='https://github.com/PredictiveEcology/SpaDES/issues/214'>#214</a>, PR<a href='https://github.com/PredictiveEcology/SpaDES/issues/310'>#310</a>)</li>
+<li>remove module version warning (<a href='https://github.com/PredictiveEcology/SpaDES/issues/312'>#312</a>)</li>
+<li><p>other tweaks and fixes</p></li>
+</ul>
+</div>
+    <div id="version-1-2-0" class="section level1">
+<h1 class="page-header">
+<a href="#version-1-2-0" class="anchor"></a>version 1.2.0<small> 2016-06-24 </small>
+</h1>
+<ul>
+<li>fix bug associated with forthcoming <code>dplyr</code> update</li>
+<li>remove <code>gtools</code> and <code>secr</code> from Imports</li>
+<li>
+<code>spread</code> enhancements: circular spreading, landscape-based functions, allow overlapping events</li>
+<li>enhancements to <code>cir</code> and bug fix (<a href='https://github.com/PredictiveEcology/SpaDES/issues/290'>#290</a>)</li>
+<li>new function <code>rings</code> whose argument names closer match to <code>cir</code>
+</li>
+<li>performance enhancements in <code>spread</code>, <code>rings</code>, <code>cir</code>
+</li>
+<li>add cache and progress args to spades and experiment functions</li>
+<li>
+<code>Plot</code> now clips symbols (generally points) to plotting area. This will allow future “wiping” of plot area.</li>
+<li>
+<code>dev()</code> returns <code>dev.cur</code> invisibly, allowing for finer control of plotting devices</li>
+<li>add <code>distanceFromEachPoint</code>, a multipoint version of <code><a href="http://www.rdocumentation.org/packages/raster/topics/distanceFromPoints">raster::distanceFromPoints</a></code>
+</li>
+<li>improve <code>splitRaster</code> (<a href='https://github.com/PredictiveEcology/SpaDES/issues/276'>#276</a>, <a href='https://github.com/PredictiveEcology/SpaDES/issues/284'>#284</a>)</li>
+<li>new function <code>mergeRaster</code> (<a href='https://github.com/PredictiveEcology/SpaDES/issues/282'>#282</a>, <a href='https://github.com/PredictiveEcology/SpaDES/issues/283'>#283</a>)</li>
+<li>changed and performance boost to <code>randomPolygons</code> (uses <code>spread</code> internally now)</li>
+<li>minor performance enhancements</li>
+<li>many more and improved unit tests</li>
+</ul>
+</div>
+    <div id="version-1-1-4" class="section level1">
+<h1 class="page-header">
+<a href="#version-1-1-4" class="anchor"></a>version 1.1.4<small> 2016-04-20 </small>
+</h1>
+<ul>
+<li>fix OSX CRAN check errors caused by inconsistent use of <code>normalizePath</code>
+</li>
+</ul>
+</div>
+    <div id="version-1-1-3" class="section level1">
+<h1 class="page-header">
+<a href="#version-1-1-3" class="anchor"></a>version 1.1.3<small> 2016-04-19 </small>
+</h1>
+<ul>
+<li>add <code>gtools</code> to Imports</li>
+<li>bug fix in <code>experiment</code> that did not allow parallel spawning on some systems and crashed with empty <code>outputs</code> argument* fix minor bugs in <code>sampleModules</code>
+</li>
+<li>lots of documentation enhancements, esp. <code>?inputs</code> and <code>?outputs</code>
+</li>
+<li>add <code>.plotInitialTime</code> and <code>.saveInitialTime</code> arguments to <code>spades()</code> to easily allow turning off plotting and saving</li>
+<li>more robust <code>inputs</code> and <code>outputs</code>, including extension-based automated outputs, using <code>data.frame</code> instead of <code>data.table</code> allowing lists to be passed for “arguments”</li>
+<li>allow vectorized <code>n</code> in <code>setColors</code> (<a href='https://github.com/PredictiveEcology/SpaDES/issues/70'>#70</a>), and partial <code>n</code> if named</li>
+<li>many more unit tests (<a href='https://github.com/PredictiveEcology/SpaDES/issues/139'>#139</a>)</li>
+<li>other bug fixes</li>
+</ul>
+</div>
+    <div id="version-1-1-2" class="section level1">
+<h1 class="page-header">
+<a href="#version-1-1-2" class="anchor"></a>version 1.1.2<small> 2016-04-13 </small>
+</h1>
+<ul>
+<li>fix issues associated with upcoming <code>dplyr</code> updates</li>
+<li>performance enhancements: much faster simulation execution</li>
+<li>Plot accepts color column in SpatialPointDataFrame objects</li>
+<li>add <code>col</code> arg to <code>Plot</code> (mimicks <code>cols</code>)</li>
+<li>add <code>experiment</code> function, a wrapper around <code>spades</code> for running multiple simulations (<a href='https://github.com/PredictiveEcology/SpaDES/issues/265'>#265</a>)</li>
+<li>add <code>shine</code> function, with <code>simList</code> signature (<a href='https://github.com/PredictiveEcology/SpaDES/issues/261'>#261</a>)</li>
+<li>add <code>copy</code> function, which does a deep copy of a <code>simList</code> object</li>
+<li>add <code>RColorBrewer</code> to Imports</li>
+<li>allow Plot colours to be set in the <code>Plot</code> call using <code>cols</code> argument</li>
+<li>allow Plot colours to be set in the <code>Plot</code> call using <code>RColorBrewer</code> palettes</li>
+<li>fix bug when plotting certain real-numbered rasters</li>
+<li>fix bug in Plot legends</li>
+<li>fix bug in assigning vectors as default module param values</li>
+<li>fix bug that prevented printing simulation times</li>
+<li>fix bug in event list sorting by <code>eventPriority</code>
+</li>
+<li>new slot in <code>simList</code> object: <code>current</code>, to store the current event</li>
+<li>new accessors <code>current</code> and <code>current&lt;-</code> to get and set the current event</li>
+<li>
+<code>defineParameter</code> now coerces the <code>default</code> value to match the type <code>class</code>
+</li>
+<li>export <code>objectNames()</code> for external use</li>
+<li>
+<code>outputPath</code> updates <code>output(sim)$file</code> file paths, in addition to just <code>paths(sim)$outputPath</code>
+</li>
+<li>other bug fixes</li>
+</ul>
+</div>
+    <div id="version-1-1-1" class="section level1">
+<h1 class="page-header">
+<a href="#version-1-1-1" class="anchor"></a>version 1.1.1<small> 2016-02-17 </small>
+</h1>
+<ul>
+<li>require <code>archivist</code> version 2.0 or greater</li>
+<li>improved <code>moduleCoverage</code> testing and template (PR257)</li>
+<li>correct legends from rasters so that <code>is.factor(raster)</code> is <code>TRUE</code>
+</li>
+<li>user defined time units can be used in module metadata “timeunit”.</li>
+<li>add module timeunits to simList show method (<a href='https://github.com/PredictiveEcology/SpaDES/issues/260'>#260</a>)</li>
+</ul>
+</div>
+    <div id="version-1-1-0" class="section level1">
+<h1 class="page-header">
+<a href="#version-1-1-0" class="anchor"></a>version 1.1.0<small> 2016-01-26 </small>
+</h1>
+<ul>
+<li>require R version 3.2.2 or higher</li>
+<li>remove <code>downloader</code> from Imports (<a href='https://github.com/PredictiveEcology/SpaDES/issues/203'>#203</a>)</li>
+<li>add <code>covr</code> to Suggests and <code>lazyeval</code> to Imports</li>
+<li>require <code>DiagrammeR</code> version 0.8.2 or higher which fixes mermaid/knitr/pandoc error (<a href="https://github.com/rich-iannone/DiagrammeR/issues/139" class="uri">https://github.com/rich-iannone/DiagrammeR/issues/139</a>)</li>
+<li>add data source info module metadata (<a href='https://github.com/PredictiveEcology/SpaDES/issues/205'>#205</a>)</li>
+<li>new function <code>downloadData</code> to download module data (with <a href='https://github.com/PredictiveEcology/SpaDES/issues/205'>#205</a>)</li>
+<li>new function <code>checksums</code> to verify MD5 hashes of data files (with <a href='https://github.com/PredictiveEcology/SpaDES/issues/205'>#205</a>)</li>
+<li>warn instead of error when using <em>e.g.</em>, <code>newModule</code> with Rstudio on Windows (<a href='https://github.com/PredictiveEcology/SpaDES/issues/209'>#209</a>)</li>
+<li>more control of caching behaviour: added <code>cachePath</code> to paths slot (<a href='https://github.com/PredictiveEcology/SpaDES/issues/227'>#227</a>)</li>
+<li>only download data if file doesn’t exist or checksum mismatch (<a href='https://github.com/PredictiveEcology/SpaDES/issues/229'>#229</a>)</li>
+<li>allow multiple checksums per file in <code>checksum</code> (<a href='https://github.com/PredictiveEcology/SpaDES/issues/230'>#230</a>)</li>
+<li>fix error caused by coercing <code>NA</code> to arbitrary class for which no suitable <code>NA</code> type exists (<a href='https://github.com/PredictiveEcology/SpaDES/issues/231'>#231</a>)</li>
+<li>use warnings instead of errors for missing modules metadata (<a href='https://github.com/PredictiveEcology/SpaDES/issues/233'>#233</a>)</li>
+<li>add event priorities (<a href='https://github.com/PredictiveEcology/SpaDES/issues/236'>#236</a>)</li>
+<li>enhanced functionality of <code>spread()</code> (<a href='https://github.com/PredictiveEcology/SpaDES/issues/237'>#237</a>)</li>
+<li>add unit tests and coverage to <code>newModule</code> (PR242, PR245)</li>
+<li>objects passed to <code>simInit</code> can be named differently from their objects (<a href='https://github.com/PredictiveEcology/SpaDES/issues/247'>#247</a>)</li>
+<li>
+<code>downloadModule</code> and <code>downloadData</code> now also download children modules/data</li>
+<li>new function <code>divergentColors</code> to generate divergent colour palettes for legends</li>
+<li>improve efficiency of <code>loadPackages</code>
+</li>
+<li>change <code>.spatialObjects</code> class to <code>spatialObjects</code> and export</li>
+<li>add .Rdata and .rds files to automatic loading.</li>
+<li>warn user if <code>SpaDES</code> package version doesn’t match module version</li>
+<li>allow more signatures in simInit (modules can be character)</li>
+<li>other bug fixes</li>
+</ul>
+</div>
+    <div id="version-1-0-3" class="section level1">
+<h1 class="page-header">
+<a href="#version-1-0-3" class="anchor"></a>version 1.0.3<small> Unreleased </small>
+</h1>
+<ul>
+<li>fully fix <code>inputs</code> data.frame construction in <code>simInit</code> (<a href='https://github.com/PredictiveEcology/SpaDES/issues/225'>#225</a>)</li>
+</ul>
+</div>
+    <div id="version-1-0-2" class="section level1">
+<h1 class="page-header">
+<a href="#version-1-0-2" class="anchor"></a>version 1.0.2<small> Unreleased </small>
+</h1>
+<ul>
+<li>update maintainer’s and authors’ email addresses</li>
+<li>fix bug in <code>.parseModule</code> (<a href='https://github.com/PredictiveEcology/SpaDES/issues/215'>#215</a>)</li>
+<li>improve dependency graph &amp; module diagram (<a href='https://github.com/PredictiveEcology/SpaDES/issues/216'>#216</a>)</li>
+<li>
+<code>simList</code> accessors now work with <code>.simList</code> superclass (<a href='https://github.com/PredictiveEcology/SpaDES/issues/217'>#217</a>)</li>
+<li>fix <code>%&gt;%</code> bug in demo (<a href='https://github.com/PredictiveEcology/SpaDES/issues/218'>#218</a>)</li>
+<li>use <code><a href="http://www.rdocumentation.org/packages/rmarkdown/topics/render">rmarkdown::render</a></code> for vignettes (with <a href='https://github.com/PredictiveEcology/SpaDES/issues/219'>#219</a>)</li>
+<li>improve documentation (including <a href='https://github.com/PredictiveEcology/SpaDES/issues/219'>#219</a>)</li>
+<li>reduce sizes of built vignettes (<a href='https://github.com/PredictiveEcology/SpaDES/issues/222'>#222</a>)</li>
+<li>add slot <code>documentation</code> to module metadata (see <code>?defineModule</code>) (<a href='https://github.com/PredictiveEcology/SpaDES/issues/224'>#224</a>)</li>
+<li>fix <code>inputs</code> data.frame construction in <code>simInit</code> (<a href='https://github.com/PredictiveEcology/SpaDES/issues/225'>#225</a>)</li>
+<li>various other bug fixes</li>
+</ul>
+</div>
+    <div id="version-1-0-1" class="section level1">
+<h1 class="page-header">
+<a href="#version-1-0-1" class="anchor"></a>version 1.0.1<small> 2015-08-10 </small>
+</h1>
+<ul>
+<li>no longer <code>attach</code> the simulation environment (<a href='https://github.com/PredictiveEcology/SpaDES/issues/212'>#212</a>)</li>
+<li>improve documentation</li>
+<li>bug fixes</li>
+</ul>
+</div>
+    <div id="version-1-0-0" class="section level1">
+<h1 class="page-header">
+<a href="#version-1-0-0" class="anchor"></a>version 1.0.0<small> Unreleased </small>
+</h1>
+<ul>
+<li>no longer rely on side effects to update objects in global environment; instead uses simulation environments (<a href='https://github.com/PredictiveEcology/SpaDES/issues/185'>#185</a>) (not backwards compatible!)</li>
+<li>sample modules rewritten to use simulation enviroments (<a href='https://github.com/PredictiveEcology/SpaDES/issues/185'>#185</a>) (not backwards compatible!).</li>
+<li>
+<p>redefined <code>simList</code> class:</p>
+<ul>
+<li>new superclass <code>.simList</code> contains all previous <code>simList</code> slots except <code>.envir</code>
+</li>
+<li>class <code>simList</code> extends <code>.simList</code> by adding slot <code>.envir</code>
+</li>
+<li>new class <code>simList_</code> extends <code>.simList</code> by adding slot <code>.list</code>
+</li>
+<li>
+<code>simList_</code> can be used internally to save a <code>simList</code> object, because saving lists of objects to file is more reliable that saving environments.</li>
+</ul>
+</li>
+<li>
+<code>fastshp</code> can be installed from Rforge as a CRAN-like repository (instead of relying on <code><a href="http://www.rdocumentation.org/packages/devtools/topics/install_github">devtools::install_github</a></code>)</li>
+<li>software requirements changed: depends R (&gt;=3.2.0)</li>
+<li>moved <code>data.table</code>, <code>grid</code>, <code>raster</code>, and <code>sp</code> from Depends to Imports (<a href='https://github.com/PredictiveEcology/SpaDES/issues/207'>#207</a>).</li>
+<li>add <code>archivist</code>, <code>ff</code>, <code>ffbase</code> to Imports; add <code>lubridate</code> to Imports (with <a href='https://github.com/PredictiveEcology/SpaDES/issues/151'>#151</a>)</li>
+<li>removed <code>magrittr</code> from Imports (<code>%&gt;%</code> is now exported by <code>igraph</code>)</li>
+<li>most external methods/classes imported using <code>importFrom</code>; except <code>methods</code>, <code>graphics</code>, <code>igraph</code>, and <code>utils</code> (because of methods/classes which are not exported) (<a href='https://github.com/PredictiveEcology/SpaDES/issues/201'>#201</a>)</li>
+<li>simulations now use <code>timeunit</code> (instead of <code>timestep</code>) specified in metadata (<a href='https://github.com/PredictiveEcology/SpaDES/issues/151'>#151</a>)</li>
+<li>
+<code>defineModule</code> requires <code>timeunit</code> to be a character string instead of numeric (with <a href='https://github.com/PredictiveEcology/SpaDES/issues/151'>#151</a>)</li>
+<li>simulation checkpointing fixed (<a href='https://github.com/PredictiveEcology/SpaDES/issues/191'>#191</a>, <a href='https://github.com/PredictiveEcology/SpaDES/issues/130'>#130</a>)</li>
+<li>
+<code>ls</code> and <code>ls.str</code> can now be used with <code>simList</code> objects to list objects in the simulation environment</li>
+<li>
+<code>objs</code> returns a list containing all the objects in the simulation enviroment</li>
+<li>new function <code>splitRaster</code> to divide <code>RasterLayer</code> into several tiles</li>
+<li>new function <code>normPath</code> (extracted from <code>checkPath</code>) to more strictly normalize filepaths without checking that they exist.</li>
+<li>new function <code>classFilter</code> to filter list of objects by their type</li>
+<li>new function <code>packages</code> to get all packages required by a simulation</li>
+<li>new function <code>rndstr</code> to generate random strings</li>
+<li>new function <code>append_attr</code> to append list items and keep their attributes</li>
+<li>improved <code>loadPackages</code>
+</li>
+<li>improved <code>.objectNames</code>
+</li>
+<li>
+<code>defineParameter</code> now accepts <code>min</code>, <code>max</code>, and description values (<a href='https://github.com/PredictiveEcology/SpaDES/issues/172'>#172</a>; <a href='https://github.com/PredictiveEcology/SpaDES/issues/175'>#175</a>)</li>
+<li>
+<code>defineModule</code> better handles <code>NA</code> values (<a href='https://github.com/PredictiveEcology/SpaDES/issues/138'>#138</a>)</li>
+<li>various <code>Plot</code> improvements.</li>
+<li>
+<p>new plotting funcions to produce overview diagrams of simulations (<a href='https://github.com/PredictiveEcology/SpaDES/issues/181'>#181</a>; <a href='https://github.com/PredictiveEcology/SpaDES/issues/184'>#184</a>):</p>
+<ul>
+<li>
+<code>eventDiagram</code> shows Gantt chart of event sequences</li>
+<li>
+<code>moduleDiagram</code> shows igraph network diagram of dependencies</li>
+<li>
+<code>objectDiagram</code> shows sequence diagram of object dependencies between modules</li>
+</ul>
+</li>
+<li>improved <code>simList</code> show and debug methods (<a href='https://github.com/PredictiveEcology/SpaDES/issues/57'>#57</a>; <a href='https://github.com/PredictiveEcology/SpaDES/issues/73'>#73</a>)</li>
+<li>
+<p>improvements to <code>loadFiles</code>:</p>
+<ul>
+<li>use <code>data.table</code>
+</li>
+<li>allow <code>package::function</code> notation in load (<a href='https://github.com/PredictiveEcology/SpaDES/issues/174'>#174</a>)</li>
+<li>bug fixes</li>
+</ul>
+</li>
+<li>added “metamodules” which specify module groups (<a href='https://github.com/PredictiveEcology/SpaDES/issues/176'>#176</a>)</li>
+<li>improved test coverage (see <a href='https://github.com/PredictiveEcology/SpaDES/issues/139'>#139</a>)</li>
+<li>all functions imported explicity (<code><a href='http://github.com/importFrom'>@importFrom</a></code>).</li>
+<li>three entire packages imported: <code>methods</code>, <code>graphics</code>, <code>igraph</code> (because of classes which are not exported from <code>igraph</code>) (<a href='https://github.com/PredictiveEcology/SpaDES/issues/201'>#201</a>)</li>
+<li>removed package dependencies on raster, sp, data.table, grid. Use importFrom instead (<a href='https://github.com/PredictiveEcology/SpaDES/issues/207'>#207</a>).</li>
+<li>improved documentation and vignettes</li>
+<li>added cache mechanism to hash function calls to spades (<a href='https://github.com/PredictiveEcology/SpaDES/issues/206'>#206</a>)</li>
+<li>fixed progress bar bug (<a href='https://github.com/PredictiveEcology/SpaDES/issues/147'>#147</a>)</li>
+<li>prepend copyright info to <code>LICENSE</code> and <code>README</code> (with <a href='https://github.com/PredictiveEcology/SpaDES/issues/140'>#140</a>)</li>
+<li><p>various other bug fixes</p></li>
+</ul>
+</div>
+    <div id="version-0-6-2" class="section level1">
+<h1 class="page-header">
+<a href="#version-0-6-2" class="anchor"></a>version 0.6.2<small> Unreleased </small>
+</h1>
+<p>This is a minor release update to satisfy CRAN submission requirements.</p>
+<ul>
+<li>bug fix when saving files</li>
+</ul>
+</div>
+    <div id="version-0-6-1" class="section level1">
+<h1 class="page-header">
+<a href="#version-0-6-1" class="anchor"></a>version 0.6.1<small> Unreleased </small>
+</h1>
+<ul>
+<li>added the Queen as copyright holder (<a href='https://github.com/PredictiveEcology/SpaDES/issues/140'>#140</a>)</li>
+<li>explicitly use GPL-3 (previously used GPL) (<a href='https://github.com/PredictiveEcology/SpaDES/issues/140'>#140</a>)</li>
+<li>
+<p>modules now require metadata; module code without it will break!</p>
+<ul>
+<li>new module dependency checking and metadata structure (<a href='https://github.com/PredictiveEcology/SpaDES/issues/126'>#126</a>)</li>
+<li>explicit declaration of parameters, and object (data) dependencies</li>
+<li>deprecated use of <code>reloadModuleLater</code>
+</li>
+</ul>
+</li>
+<li>
+<p>new module directory structure (<a href='https://github.com/PredictiveEcology/SpaDES/issues/125'>#125</a>):</p>
+<div class="sourceCode"><pre class="sourceCode R"><code class="sourceCode r">moduleName<span class="op">/</span>
+<span class="er">|</span>_ moduleName.R    <span class="co"># the actual module code file, incl. module metadata</span>
+<span class="op">|</span>_ moduleName.Rmd  <span class="co"># longform documentation and usage info, etc.</span>
+<span class="op">|</span>_ citation.bib    <span class="co"># properly formatted bibtex citation for the module</span>
+<span class="op">|</span>_ LICENSE         <span class="co"># license file describing the allowed usage etc. of the module</span>
+<span class="op">|</span>_ README          <span class="co"># incl. module metadata in addition to version change info, etc.</span></code></pre></div>
+</li>
+<li>updated package dependencies:
+<ul>
+<li>added <code>downloader</code>, <code>dplyr</code>, <code>fpCompare</code>, <code>httr</code>, <code>magrittr</code>, <code>stringr</code> to <code>Imports</code>
+</li>
+</ul>
+</li>
+<li>updated vignettes and documentation improvements</li>
+<li>transfered project to <code>PredictiveEcology/SpaDES</code> from <code>achubaty/SpaDES</code>.</li>
+<li>
+<p>overhaul to <code>Plot</code> function:</p>
+<ul>
+<li>no longer needs <code>*Named</code> objects.</li>
+<li>now handles <code>SpatialPolygons</code> objects much faster than default <code>plot</code>:
+<ul>
+<li>Uses package <code>fastshp</code>.
+<ul>
+<li>
+<p>The suggested package <code>fastshp</code> can be installed with:</p>
+<div class="sourceCode"><pre class="sourceCode R"><code class="sourceCode r"><span class="kw">install_github</span>(<span class="st">"s-u/fastshp"</span>)</code></pre></div>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>numerous other <code>Plot</code> improvements</li>
+</ul>
+</li>
+<li>
+<p>deprecated all <code>*Named</code> functionality</p>
+<ul>
+<li>All code will break that uses <code>*Named</code> objects</li>
+</ul>
+</li>
+<li>new function, <code>clearPlot</code> can be used to clean all hidden metadata about a plot</li>
+<li>new function, <code>randomPolygons</code>, will create random raster maps (not vector maps) of polygons</li>
+<li><p>numerous bugfixes</p></li>
+</ul>
+</div>
+    <div id="version-0-4-0" class="section level1">
+<h1 class="page-header">
+<a href="#version-0-4-0" class="anchor"></a>version 0.4.0<small> Unreleased </small>
+</h1>
+<ul>
+<li>second public (“beta”) release</li>
+<li>more improvements to Plot function, including dramatically faster for files on disk</li>
+<li>added second “Model” that adds and integrates 3 sample modules, Fire, Succession and Aging</li>
+<li>added Plotting vignette</li>
+<li>bugfixes</li>
+</ul>
+</div>
+    <div id="version-0-3-1" class="section level1">
+<h1 class="page-header">
+<a href="#version-0-3-1" class="anchor"></a>version 0.3.1<small> Unreleased </small>
+</h1>
+<ul>
+<li>first public (“beta”) release</li>
+<li>reworked plotting and visualization (it’s faster, more reliable)</li>
+<li>added additional parameter checks and improved debugging</li>
+<li>new and improved documentation:
+<ul>
+<li>two new vignettes (introduction to SpaDES and how modules work)</li>
+<li>new demo highlighting visualization components</li>
+<li>more complete code documentation</li>
+</ul>
+</li>
+<li>numerous bug fixes</li>
+</ul>
+</div>
+    <div id="version-0-2" class="section level1">
+<h1 class="page-header">
+<a href="#version-0-2" class="anchor"></a>version 0.2<small> Unreleased </small>
+</h1>
+<ul>
+<li>renamed package to <code>SpaDES</code>
+</li>
+</ul>
+</div>
+    <div id="version-0-1" class="section level1">
+<h1 class="page-header">
+<a href="#version-0-1" class="anchor"></a>version 0.1<small> Unreleased </small>
+</h1>
+<ul>
+<li>first working alpha version</li>
+<li>lots of “wishlist” items still to be implemented</li>
+</ul>
+</div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <div id="tocnav">
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
+        <li><a href="#version-2-0-1">2.0.1</a></li>
+        <li><a href="#version-2-0-0">2.0.0</a></li>
+        <li><a href="#version-1-3-1">1.3.1</a></li>
+        <li><a href="#version-1-3-0">1.3.0</a></li>
+        <li><a href="#version-1-2-0">1.2.0</a></li>
+        <li><a href="#version-1-1-4">1.1.4</a></li>
+        <li><a href="#version-1-1-3">1.1.3</a></li>
+        <li><a href="#version-1-1-2">1.1.2</a></li>
+        <li><a href="#version-1-1-1">1.1.1</a></li>
+        <li><a href="#version-1-1-0">1.1.0</a></li>
+        <li><a href="#version-1-0-3">1.0.3</a></li>
+        <li><a href="#version-1-0-2">1.0.2</a></li>
+        <li><a href="#version-1-0-1">1.0.1</a></li>
+        <li><a href="#version-1-0-0">1.0.0</a></li>
+        <li><a href="#version-0-6-2">0.6.2</a></li>
+        <li><a href="#version-0-6-1">0.6.1</a></li>
+        <li><a href="#version-0-4-0">0.4.0</a></li>
+        <li><a href="#version-0-3-1">0.3.1</a></li>
+        <li><a href="#version-0-2">0.2</a></li>
+        <li><a href="#version-0-1">0.1</a></li>
       </ul>
     </div>
   </div>
@@ -137,5 +729,8 @@
       </footer>
    </div>
 
+  
+
   </body>
 </html>
+
