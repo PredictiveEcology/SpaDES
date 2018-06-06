@@ -25,18 +25,28 @@ Since this is a metapackage, we have not included any examples as these are bett
 * Windows 7            (local), R 3.5.0
 
 ### Development R version
-* Ubuntu 14.04     (travis-ci), R 3.6.0 (2018-05-17 r74734)
-* Ubuntu 18.04         (local), R 3.6.0 (2018-05-17 r74734)
-* Windows           (appveyor), R 3.6.0 (2018-05-15 r74727)
-* Windows        (win-builder), R 3.6.0 (2018-05-15 r74727)
+* Ubuntu 14.04     (travis-ci), R 3.6.0 (2018-06-05 r74851)
+* Ubuntu 18.04         (local), R 3.6.0 (2018-06-05 r74852)
+* Windows           (appveyor), R 3.6.0 (2018-06-05 r74852)
+* Windows        (win-builder), R 3.6.0 (2018-06-05 r74852)
 
 ## R CMD check results
 
 There were no ERRORs or WARNINGs
 
-There was 1 NOTE:
+There were 2 NOTEs:
 
-1. Some words were flagged as possibly mispelled, but they are false positives:
+1. Maintainer's email address has changed (notified CRAN 2018-05-28).
+
+    * checking CRAN incoming feasibility ... NOTE
+    Maintainer: 'Alex M Chubaty <alex.chubaty@gmail.com>'
+        
+    New maintainer:
+      Alex M Chubaty <alex.chubaty@gmail.com>
+    Old maintainer(s):
+      Alex M Chubaty <alexander.chubaty@canada.ca>
+
+2. Some words were flagged as possibly mispelled, but they are false positives:
 
         Possibly mis-spelled words in DESCRIPTION:
           DES (8:77)

@@ -17,3 +17,4 @@ cran-comments\.md
 ^travis_wait_.*\.log$
 vignettes/.*_cache$
 vignettes/.*\.log$
+^revdep$
