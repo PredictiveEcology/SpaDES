@@ -31,7 +31,7 @@ environment:
   - R_VERSION: oldrel
     RTOOLS_VERSION: 34
 
-- R_VERSION: 3.4.0
+  - R_VERSION: 3.4.0
     RTOOLS_VERSION: 34
 
   - R_VERSION: 3.3.0
