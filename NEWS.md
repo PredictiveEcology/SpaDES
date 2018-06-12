@@ -1,6 +1,14 @@
 Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
-version 2.0.1 
+version 2.0.2
+============= 
+
+* change maintainer email address.
+* update LandWeb app URL in README.
+* update cache vignette.
+* update package dependencies to include those used in tests.
+
+version 2.0.1
 ============= 
  
 * minor bugfix concerning imports 

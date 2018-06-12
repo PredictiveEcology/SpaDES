@@ -1,6 +1,8 @@
 ## Updated release
 
-This package remains a metapackage. The main purpose of this updated release is to address CRAN concerns about package declarations for vignettes.
+This release fixes CRAN concerns about package declarations for tests and vignettes.
+
+The maintainer email address has changed, about which I notified CRAN on March 28, 2018 and sent followup on June 12, 2018 (in response to `fpCompare` submission).
 
 Since this is a metapackage, we have not included any examples as these are better suited for their respective packages.
 
@@ -8,33 +10,43 @@ Since this is a metapackage, we have not included any examples as these are bett
 
 ### Previous R versions
 * Ubuntu 14.04        (travis-ci), R 3.3.0
-* Ubuntu 14.04        (travis-ci), R 3.3.3
-* Windows              (appveyor), R 3.3.3
-* Windows 7               (local), R 3.3.3
+* Ubuntu 14.04        (travis-ci), R 3.4.0
+* Windows              (appveyor), R 3.3.0
+* Windows              (appveyor), R 3.4.0
+* Windows 7               (local), R 3.4.4
 
 ### Current R versions
-* macOS High Sierra    (local), R 3.4.3
-* OS X El Capitan  (travis-ci), R 3.4.3
-* Ubuntu 14.04     (travis-ci), R 3.4.3
-* Ubuntu 16.04         (local), R 3.4.3
-* Windows           (appveyor), R 3.4.3
-* Windows        (win-builder), R 3.4.3
-* Windows 7            (local), R 3.4.3
+* macOS High Sierra    (local), R 3.5.0
+* OS X El Capitan  (travis-ci), R 3.5.0
+* Ubuntu 14.04     (travis-ci), R 3.5.0
+* Ubuntu 18.04         (local), R 3.5.0
+* Windows           (appveyor), R 3.5.0
+* Windows        (win-builder), R 3.5.0
+* Windows 7            (local), R 3.5.0
 
 ### Development R version
-* Debian:testing  (rocker/drd), R 3.5.0 (2017-08-29 r73156)
-* Ubuntu 14.04     (travis-ci), R 3.5.0 (2018-01-31 r74187)
-* Ubuntu 16.04         (local), R 3.5.0 (2018-01-31 r74187)
-* Windows           (appveyor), R 3.5.0 (2018-01-26 r74169)
-* Windows        (win-builder), R 3.5.0 (2018-01-30 r74185)
+* Ubuntu 14.04     (travis-ci), R 3.6.0 (2018-06-11 r74885)
+* Ubuntu 18.04         (local), R 3.6.0 (2018-06-11 r74889)
+* Windows           (appveyor), R 3.6.0 (2018-06-11 r74889)
+* Windows        (win-builder), R 3.6.0 (2018-06-11 r74889)
 
 ## R CMD check results
 
 There were no ERRORs or WARNINGs
 
-There was 1 NOTE:
+There were 2 NOTEs:
 
-1. Some words were flagged as possibly mispelled, but they are false positives:
+1. Maintainer's email address has changed (notified CRAN 2018-05-28 and 2018-06-12).
+
+    * checking CRAN incoming feasibility ... NOTE
+    Maintainer: 'Alex M Chubaty <alex.chubaty@gmail.com>'
+        
+    New maintainer:
+      Alex M Chubaty <alex.chubaty@gmail.com>
+    Old maintainer(s):
+      Alex M Chubaty <alexander.chubaty@canada.ca>
+
+2. Some words were flagged as possibly mispelled, but they are false positives:
 
         Possibly mis-spelled words in DESCRIPTION:
           DES (8:77)

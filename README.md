@@ -23,7 +23,9 @@ Additional functionality is provided by the [`SpaDES.addins`](http://spades-addi
 ## Getting started
 
 - [Getting started guide](https://github.com/PredictiveEcology/SpaDES/wiki/Getting-Started-Guide)
-- ['`SpaDES` 4 Dummies' guide](https://github.com/CeresBarros/SpaDES4Dummies)
+- [LCC2005 tutorial](https://github.com/PredictiveEcology/SpaDES-modules/blob/master/modules/LCC2005/LCC2005.Rmd)
+- ['SpaDES 4 Dummies' guide](https://github.com/CeresBarros/SpaDES4Dummies)
+- [SpaDES users group](https://groups.google.com/d/forum/spades-users)
 - [Vignettes](https://github.com/PredictiveEcology/SpaDES/wiki/Help-Vignettes)
 - [Wiki](https://github.com/PredictiveEcology/SpaDES/wiki)
 
@@ -48,7 +50,7 @@ Additional functionality is provided by the [`SpaDES.addins`](http://spades-addi
 
 **Canadian Forest Service Adaptation Toolkit:** [http://www.nrcan.gc.ca/forests/climate-change/tools-resources/17770](http://www.nrcan.gc.ca/forests/climate-change/tools-resources/17770)
 
-**LandWeb Demonstration App:** [http://landweb.predictiveecology.org/Demo/](http://landweb.predictiveecology.org/Demo/)
+**LandWeb Demonstration App:** [http://landweb.ca](http://landweb.ca/)
 
 **Examples for R-savvy users:**
 
@@ -106,12 +108,16 @@ install_github("PredictiveEcology/SpaDES", ref = "development", dependencies = T
 
 ## Getting help
 
+Q&A forum is available on the SpaDES Users Google Group.
+This is the place to ask for help on setting up and running simulations, as well as module development.
+Please do not file bug reports here.
+
 - [Q&A Forum](https://groups.google.com/forum/#!forum/spades-users)
 
 ## Reporting bugs
 
 The `SpaDES` metapackage simply loads a number of other packages from the `SpaDES` ecosystem.
-Bug reports should be reported to the specific package in question rather than the metapackage.
+Bug reports should be reported to the specific package in question rather than the metapackage, and should contain a concise [reproducible example](https://stackoverflow.com/q/5963269/1380598).
 Contact us via the package's GitHub site:
 
 - [quickPlot](https://github.com/PredictiveEcology/quickPlot/issues)
@@ -123,4 +129,4 @@ Contact us via the package's GitHub site:
 
 -----
 
-Copyright (C) 2017 Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada
+Copyright (C) 2018 Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada

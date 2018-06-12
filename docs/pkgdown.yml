@@ -1,6 +1,9 @@
+pandoc: 1.19.2.4
+pkgdown: 1.1.0
+pkgdown_sha: ~
+articles:
+  iii-cache: iii-cache.html
 urls:
   reference: http://spades.predictiveecology.org/reference
   article: http://spades.predictiveecology.org/articles
-articles:
-  iii-cache: iii-cache.html
 

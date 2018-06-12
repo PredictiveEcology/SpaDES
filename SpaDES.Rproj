@@ -22,3 +22,5 @@ PackageBuildArgs: --md5
 PackageBuildBinaryArgs: --byte-compile
 PackageCheckArgs: --as-cran
 PackageRoxygenize: rd,collate,namespace,vignette
+
+QuitChildProcessesOnExit: Yes
