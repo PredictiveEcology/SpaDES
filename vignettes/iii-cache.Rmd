@@ -110,7 +110,8 @@ The second time is way faster. We see the output files in the same location.
 ```{r Cache-experiment-2}
 system.time(sims4 <- Cache(experiment, mySim, replicates = 3, .plotInitialTime = NA,
                            clearSimEnv = TRUE))
-all.equal(sims3, sims4) 
+# test they are all equal
+lapply(1:2, function(x) all.equal(sims3[[x]], sims4[[x]])) 
 
 dir(outputPath(mySim), recursive = TRUE)
 ```
