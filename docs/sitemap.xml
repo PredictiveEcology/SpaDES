@@ -4,13 +4,13 @@
     <loc>http://spades.predictiveecology.org/index.html</loc>
   </url>
   <url>
-    <loc>http://spades.predictiveecology.org/reference/SpaDES-package.html</loc>
-  </url>
-  <url>
     <loc>http://spades.predictiveecology.org/reference/isAttached.html</loc>
   </url>
   <url>
     <loc>http://spades.predictiveecology.org/reference/pkgEnv.html</loc>
+  </url>
+  <url>
+    <loc>http://spades.predictiveecology.org/reference/SpaDES-package.html</loc>
   </url>
   <url>
     <loc>http://spades.predictiveecology.org/articles/iii-cache.html</loc>

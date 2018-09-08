@@ -39,12 +39,12 @@ Additional functionality is provided by the [`SpaDES.addins`](http://spades-addi
 
 **Other `SpaDES` ecosystem packages:**
 
-- `quickPlot`: http://quickplot.predictiveecology.org/
-- `reproducible`: http://reproducible.predictiveecology.org/
-- `SpaDES.addins`: http://spades-addins.predictiveecology.org
-- `SpaDES.core`: http://spades-core.predictiveecology.org/
-- `SpaDES.shiny`: http://spades-shiny.predictiveecology.org/
-- `SpaDES.tools`: http://spades-tools.predictiveecology.org/
+- `quickPlot`: http://quickplot.predictiveecology.org/ [![Coverage Status](https://coveralls.io/repos/github/PredictiveEcology/quickPlot/badge.svg?branch=development)](https://coveralls.io/github/PredictiveEcology/quickPlot?branch=development)
+- `reproducible`: http://reproducible.predictiveecology.org/ [![Coverage Status](https://coveralls.io/repos/github/PredictiveEcology/reproducible/badge.svg?branch=development)](https://coveralls.io/github/PredictiveEcology/reproducible?branch=development)
+- `SpaDES.addins`: http://spades-addins.predictiveecology.org 
+- `SpaDES.core`: http://spades-core.predictiveecology.org/ [![Coverage Status](https://coveralls.io/repos/github/PredictiveEcology/SpaDES.core/badge.svg?branch=development)](https://coveralls.io/github/PredictiveEcology/SpaDES.core?branch=development)
+- `SpaDES.shiny`: http://spades-shiny.predictiveecology.org/ 
+- `SpaDES.tools`: http://spades-tools.predictiveecology.org/ [![Coverage Status](https://coveralls.io/repos/github/PredictiveEcology/SpaDES.tools/badge.svg?branch=master)](https://coveralls.io/github/PredictiveEcology/SpaDES.tools?branch=master)
 
 **Predictive Ecology Blog:** [http://predictiveecology.org/](http://predictiveecology.org/)
 
@@ -120,13 +120,12 @@ The `SpaDES` metapackage simply loads a number of other packages from the `SpaDE
 Bug reports should be reported to the specific package in question rather than the metapackage, and should contain a concise [reproducible example](https://stackoverflow.com/q/5963269/1380598).
 Contact us via the package's GitHub site:
 
-- [quickPlot](https://github.com/PredictiveEcology/quickPlot/issues) [![Coverage Status](https://coveralls.io/repos/github/PredictiveEcology/quickPlot/badge.svg?branch=master)](https://coveralls.io/github/PredictiveEcology/quickPlot?branch=master)
-
-- [reproducible](https://github.com/PredictiveEcology/reproducible/issues)
-- [SpaDES.addins](https://github.com/PredictiveEcology/SpaDES.addins/issues)
-- [SpaDES.core](https://github.com/PredictiveEcology/SpaDES.core/issues)
-- [SpaDES.shiny](https://github.com/PredictiveEcology/SpaDES.shiny/issues)
-- [SpaDES.tools](https://github.com/PredictiveEcology/SpaDES.tools/issues)
+- [quickPlot](https://github.com/PredictiveEcology/quickPlot/issues) 
+- [reproducible](https://github.com/PredictiveEcology/reproducible/issues) 
+- [SpaDES.addins](https://github.com/PredictiveEcology/SpaDES.addins/issues) 
+- [SpaDES.core](https://github.com/PredictiveEcology/SpaDES.core/issues) 
+- [SpaDES.shiny](https://github.com/PredictiveEcology/SpaDES.shiny/issues) 
+- [SpaDES.tools](https://github.com/PredictiveEcology/SpaDES.tools/issues) 
 
 -----
 

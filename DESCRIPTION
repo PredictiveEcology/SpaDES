@@ -56,4 +56,4 @@ ByteCompile: yes
 Collate:
     'spades-package.R'
     'zzz.R'
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0
