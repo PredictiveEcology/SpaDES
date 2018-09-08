@@ -120,7 +120,8 @@ The `SpaDES` metapackage simply loads a number of other packages from the `SpaDE
 Bug reports should be reported to the specific package in question rather than the metapackage, and should contain a concise [reproducible example](https://stackoverflow.com/q/5963269/1380598).
 Contact us via the package's GitHub site:
 
-- [quickPlot](https://github.com/PredictiveEcology/quickPlot/issues)
+- [quickPlot](https://github.com/PredictiveEcology/quickPlot/issues) [![Coverage Status](https://coveralls.io/repos/github/PredictiveEcology/quickPlot/badge.svg?branch=master)](https://coveralls.io/github/PredictiveEcology/quickPlot?branch=master)
+
 - [reproducible](https://github.com/PredictiveEcology/reproducible/issues)
 - [SpaDES.addins](https://github.com/PredictiveEcology/SpaDES.addins/issues)
 - [SpaDES.core](https://github.com/PredictiveEcology/SpaDES.core/issues)
