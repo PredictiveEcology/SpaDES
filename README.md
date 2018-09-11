@@ -28,6 +28,7 @@ Additional functionality is provided by the [`SpaDES.addins`](http://spades-addi
 - [SpaDES users group](https://groups.google.com/d/forum/spades-users)
 - [Vignettes](https://github.com/PredictiveEcology/SpaDES/wiki/Help-Vignettes)
 - [Wiki](https://github.com/PredictiveEcology/SpaDES/wiki)
+- [Current modules (some in development)](https://github.com/PredictiveEcology/SpaDES-modules/wiki/Current-modules-in-development)
 
 ### Workshops
 
