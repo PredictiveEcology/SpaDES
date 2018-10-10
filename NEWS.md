@@ -1,5 +1,10 @@
 Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
+version 2.0.2.9000
+============= 
+
+* add `RandomFields` to Suggests (needed for vignettes etc. in `SpaDES.core` and `SpaDES.tools`)
+
 version 2.0.2
 ============= 
 
