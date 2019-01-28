@@ -1,16 +1,15 @@
 # IF YOU ARE HAVING PROBLEMS INSTALLING SPADES
 # How to install SpaDES with RStudio
-# Basically SpaDES uses many of the packages that are part of Rstudio's tools
+# Basically SpaDES uses many of the packages that are part of RStudio's tools
 # That means it may be difficult to install SpaDES within RStudio
 # If you are having problems installing SpaDES,
 #   the safest thing to do is open a vanilla R session, as long as
-#   .libPaths() is the same in the vanilla session and your Rstudio
+#   .libPaths() is the same in the vanilla session and your RStudio
 #   then a standard "install.packages('SpaDES')" should work
 # Alternatively, you can try the code below which effectively unloads
 # all dependencies of SpaDES, including the ones that RStudio holds onto
 
 installSpaDES <- function(autoRestart = FALSE) {
-
   loadN <- loadedNamespaces()
   ip <- installed.packages(lib.loc = .libPaths()[1])
   #if(!("SpaDES" %in% ip[,"Package"])) {
@@ -43,7 +42,7 @@ installSpaDES <- function(autoRestart = FALSE) {
   #   SpaDESDeps <- miniCRAN::pkgDep("SpaDES")
   # }
   # determine all dependencies of packages in the search path
-  pkgsOnly <- grep(search(), pattern="package:", value = TRUE)
+  pkgsOnly <- grep(search(), pattern = "package:", value = TRUE)
   otherPkgs <- gsub(pkgsOnly, pattern = "package:", replacement = "")
   message("Determining other dependencies in the search path")
   otherDeps <- unlist(lapply(otherPkgs, function(pack) {
@@ -52,18 +51,17 @@ installSpaDES <- function(autoRestart = FALSE) {
 
   # define a function that detaches and unloads everything, including namespaces from tools:rstudio
   # This function adapted from SO http://stackoverflow.com/a/6979989 , but with namespace unloading added
-  detach_package <- function(pkg)
-  {
+  detach_package <- function(pkg) {
     search_item <- paste("package", pkg, sep = ":")
-    while(search_item %in% search()) {
+    while (search_item %in% search()) {
       a <- detach(search_item, unload = TRUE, character.only = TRUE, force = TRUE)
     }
 
     unloaded <- NULL
-    if(pkg %in% loadN) {
+    if (pkg %in% loadN) {
       unloaded <- tryCatch(unloadNamespace(pkg), error = function(x) FALSE)
 
-      if(is.null(unloaded))
+      if (is.null(unloaded))
         loadN <<- loadN[!(loadN %in% pkg)]
     }
     #unloaded <- tryCatch(unloadNamespace(pkg), error = function(x) FALSE)
@@ -81,7 +79,7 @@ installSpaDES <- function(autoRestart = FALSE) {
   ip <- installed.packages(lib.loc = .libPaths()[1])
   needInstalled <- SpaDESDeps[!(SpaDESDeps %in% unname(ip[,"Package"]))]
 
-  if(length(needUpdated) | length(needInstalled)) {
+  if (length(needUpdated) | length(needInstalled)) {
     message("Update only those packages that are needed to be updated")
     # unload everything
     message("Unloading all dependencies and their dependencies and theirs etc.")
@@ -92,35 +90,34 @@ installSpaDES <- function(autoRestart = FALSE) {
     #packsLeft <- c(packsLeft, loadedNamespaces())
     #packsLeft <- packsLeft[!(packsLeft %in% c("base", "methods", "datasets", "utils", "grDevices", "graphics", "stats"))]
     shortest <- NROW(packsLeft)
-    while(length(packsLeft)) {
+    while (length(packsLeft)) {
 
       print(packsLeft[1])
       done <- detach_package(packsLeft[1])
-      if(is.null(done))  {
+      if (is.null(done)) {
         packsLeft <- packsLeft[-1]
       } else  {
         message("Couldn't unload ", packsLeft[1])
         packsLeft <- c(packsLeft[-1],packsLeft[1]) # put at end
       }
 
-      if(shortest==NROW(packsLeft)) {
+      if (shortest == NROW(packsLeft)) {
         retries = retries + 1
       } else {
         retries = 0
       }
 
-      if(retries >= 10) {
+      if (retries >= 10) {
         stillGoing <- packsLeft[1]
-        while(nzchar(stillGoing)) {
+        while (nzchar(stillGoing)) {
           b <- tryCatch(unloadNamespace(stillGoing),
                         error = function(x) as.character(x))
-          if(is.null(b)) {
+          if (is.null(b)) {
             stillGoing <- ""
           } else {
             stillGoing <- strsplit(b, split = "imported by ‘|’")[[1]][3]
           }
         }
-
       }
       shortest <- NROW(packsLeft)
       print(NROW(packsLeft))
@@ -129,41 +126,35 @@ installSpaDES <- function(autoRestart = FALSE) {
       #}
     }
 
-    if(length(needUpdated)) {
+    if (length(needUpdated)) {
       message("Updating ", paste(needUpdated, collapse = ", "))
-      for(i in needUpdated) {
+      for (i in needUpdated) {
         print(i)
         browser()
         try(install.packages(i))
       }
-
     }
 
-    if(length(needInstalled)) {
+    if (length(needInstalled)) {
       message("Installing ", paste(needInstalled, collapse = ", "))
       install.packages(needInstalled)
     }
-
 
     # install SpaDES
     #message("Update only those packages that are needed to be updated")
     #install.packages(rev(SpaDESDeps[!needUpdated & !needInstalled])) # specifying lib means it will look for dependencies also in the install location{
     message("SpaDES and all its dependencies are up to date.")
     env <- tryCatch(as.environment("tools:rstudio"), error = function(x) FALSE)
-    if(autoRestart & is.environment(env)) {
+    if (autoRestart & is.environment(env)) {
       message("Restarting R")
       env$.rs.restartR()
     } else {
       message("You MUST restart your R session (e.g., Ctrl-Shift-F10 in Rstudio)")
     }
-
   } else {
     message("SpaDES was already up to date")
   }
-
-
 }
-
 
 # install dev version of SpaDES
 
@@ -187,14 +178,12 @@ installSpaDES2 <- function() {
   #   rm(".Last", pos=.GlobalEnv) #otherwise won't be able to quit R without it restarting
   # }, pos=.GlobalEnv)
   # save.image()
-  if(!require(nothing))
+  if (!require(nothing))
     devtools::install.packages("romainfrancois/nothing")
   file.path(R.home("bin"),"Rscript")
-  system(paste0(file.path(R.home("bin"),"Rscript"),' -e "update.packages(ask=FALSE, lib=\'',libPath,'\')"'), wait=TRUE)
-  system(paste0(file.path(R.home("bin"),"Rscript"),' -e "install.packages(\'SpaDES\', lib=\'',libPath,'\')"'), wait=TRUE)
+  system(paste0(file.path(R.home("bin"),"Rscript"),' -e "update.packages(ask=FALSE, lib=\'',libPath,'\')"'), wait = TRUE)
+  system(paste0(file.path(R.home("bin"),"Rscript"),' -e "install.packages(\'SpaDES\', lib=\'',libPath,'\')"'), wait = TRUE)
   message("Please restart R.\nIf you want the development version of SpaDES",
           "try devtools::install_github('PredictiveEcology/SpaDES@development')")
   #devtools::install_github('PredictiveEcology/SpaDES@development')
 }
-#
-

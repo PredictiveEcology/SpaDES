@@ -4,6 +4,7 @@ version 2.0.2.9000
 ============= 
 
 * add `RandomFields` to Suggests (needed for vignettes etc. in `SpaDES.core` and `SpaDES.tools`)
+* move caching vignette to `SpaDES.core` package and remove unsused dependencies `archivist`, `devtools`, `hunspell`, `igraph`
 
 version 2.0.2
 ============= 
