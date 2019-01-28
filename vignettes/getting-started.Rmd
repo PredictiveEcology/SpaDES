@@ -13,7 +13,6 @@ output:
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{03 Caching SpaDES simulations}
-  %\VignetteDepends{magrittr, raster, reproducible, SpaDES.core}
   %\VignetteEncoding{UTF-8}
 ---
 
