@@ -16,37 +16,27 @@ Since this is a metapackage, we have not included any examples as these are bett
 * Windows 7               (local), R 3.4.4
 
 ### Current R versions
-* macOS High Sierra    (local), R 3.5.0
-* OS X El Capitan  (travis-ci), R 3.5.0
-* Ubuntu 14.04     (travis-ci), R 3.5.0
-* Ubuntu 18.04         (local), R 3.5.0
-* Windows           (appveyor), R 3.5.0
-* Windows        (win-builder), R 3.5.0
-* Windows 7            (local), R 3.5.0
+* macOS Mojave       (travis-ci), R 3.5.2
+* macOS Mojave           (local), R 3.5.2
+* Ubuntu 14.04       (travis-ci), R 3.5.2
+* Ubuntu 18.04           (local), R 3.5.2
+* Windows             (appveyor), R 3.5.2
+* Windows          (win-builder), R 3.5.2
+* Windows 7              (local), R 3.5.2
 
 ### Development R version
-* Ubuntu 14.04     (travis-ci), R 3.6.0 (2018-06-11 r74885)
-* Ubuntu 18.04         (local), R 3.6.0 (2018-06-11 r74889)
-* Windows           (appveyor), R 3.6.0 (2018-06-11 r74889)
-* Windows        (win-builder), R 3.6.0 (2018-06-11 r74889)
+* Ubuntu 14.04       (travis-ci), R 3.6.0 (2019-01-06 r75950)
+* Ubuntu 18.04           (local), R 3.6.0 (2019-01-07 r75958)
+* Windows             (appveyor), R 3.6.0 (2019-01-06 r75950)
+* Windows          (win-builder), R 3.6.0 (2019-01-07 r75956)
 
 ## R CMD check results
 
 There were no ERRORs or WARNINGs
 
-There were 2 NOTEs:
+There was 1 NOTE:
 
-1. Maintainer's email address has changed (notified CRAN 2018-05-28 and 2018-06-12).
-
-    * checking CRAN incoming feasibility ... NOTE
-    Maintainer: 'Alex M Chubaty <alex.chubaty@gmail.com>'
-        
-    New maintainer:
-      Alex M Chubaty <alex.chubaty@gmail.com>
-    Old maintainer(s):
-      Alex M Chubaty <alexander.chubaty@canada.ca>
-
-2. Some words were flagged as possibly mispelled, but they are false positives:
+1. Some words were flagged as possibly mispelled, but they are false positives:
 
         Possibly mis-spelled words in DESCRIPTION:
           DES (8:77)
