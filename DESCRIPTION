@@ -16,7 +16,7 @@ URL:
     http://spades.predictiveecology.org,
     https://github.com/PredictiveEcology/SpaDES
 Date: 2019-01-28
-Version: 2.0.2.9000
+Version: 2.0.3
 Authors@R: c(
     person("Alex M", "Chubaty", email = "alex.chubaty@gmail.com",
     role = c("aut", "cre"), comment = c(ORCID = "0000-0001-7146-8135")),
