@@ -131,9 +131,9 @@
 </h1>
 <ul>
 <li>add <code>RandomFields</code> to Suggests (needed for vignettes etc. in <code>SpaDES.core</code> and <code>SpaDES.tools</code>)</li>
-<li>move caching vignette to <code>SpaDES.core</code> package and remove unsused dependencies <code>archivist</code>, <code>devtools</code>, <code>hunspell</code>, <code>igraph</code>
+<li>move caching vignette to <code>SpaDES.core</code> package and remove unused dependencies <code>archivist</code>, <code>devtools</code>, <code>hunspell</code>, <code>igraph</code>
 </li>
-<li>new ‘getting started’ vignette describing the <code>SpaDES</code>-ecosystem packages</li>
+<li>new ‘Getting Started’ vignette describing the <code>SpaDES</code>-ecosystem packages</li>
 </ul>
 </div>
     <div id="version-2-0-2" class="section level1">
@@ -168,7 +168,7 @@
 <ul>
 <li>caching moved out of <code>SpaDES</code> and into new package <a href="https://github.com/PredictiveEcology/reproducible"><code>reproducible</code></a>. <code>reproducible</code> added to Imports.</li>
 <li>plotting moved out of <code>SpaDES</code> and into new package <a href="https://github.com/PredictiveEcology/quickPlot"><code>quickPlot</code></a>. <code>quickPlot</code> added to Imports.</li>
-<li>all Rstudio addins moved out of <code>SpaDES</code> and into new package <a href="https://github.com/PredictiveEcology/SpaDES.addins"><code>SpaDES.addins</code></a>.</li>
+<li>all RStudio addins moved out of <code>SpaDES</code> and into new package <a href="https://github.com/PredictiveEcology/SpaDES.addins"><code>SpaDES.addins</code></a>.</li>
 <li>core DES components moved out of <code>SpaDES</code> and into new package <a href="https://github.com/PredictiveEcology/SpaDES.core"><code>SpaDES.core</code></a>. <code>SpaDES.core</code> added to Imports.</li>
 <li>additional modelling utilities (non-core components) moved out of <code>SpaDES</code> and into new package <a href="https://github.com/PredictiveEcology/SpaDES.tools"><code>SpaDES.tools</code></a>. <code>SpaDES.tools</code> added to Imports.</li>
 <li>
@@ -207,7 +207,7 @@
 <a href="#new-functionality" class="anchor"></a>New functionality</h2>
 <ul>
 <li>namespaced module functions have now been implemented via a nested environment in the <code>simList@.envir</code> slot. This means that module functions can be called by their name only, <em>without</em> a <code>sim$</code> prefix. Also, there should not be any name clashes between modules, so each module can have its own <code>init</code> function, say. This has been implemented in a backwards compatible way, but the old way may be deprecated down the road.</li>
-<li>new functions <code>saveSimList</code> which saves all environments recursively and file-backed objects, such as <code>Raster</code> objets (currently only one implemented).</li>
+<li>new functions <code>saveSimList</code> which saves all environments recursively and file-backed objects, such as <code>Raster</code> objects (currently only one implemented).</li>
 <li>Created a generic for <code>Copy</code>, moved it to <code>reproducible</code>, and here added a method for <code>simList</code> objects that deep copies all environments recursively.</li>
 <li>change default value for <code>speedup</code> in <code>gaussMap</code>; now 1.</li>
 <li>new function <code>getPaths()</code> to return the list of working dirs from the options</li>
@@ -240,7 +240,7 @@
 <h2 class="hasAnchor">
 <a href="#bug-fixes" class="anchor"></a>Bug fixes</h2>
 <ul>
-<li>workaround issues with RStudio graphics on Linux (with <a href='https://github.com/PredictiveEcology/SpaDES/issues/116'>#116</a>): use <code>dev.noRSGD()</code> to bypass the Rstudio graphics device for your current session (sets the <code>device</code> option for your platform).</li>
+<li>workaround issues with RStudio graphics on Linux (with <a href='https://github.com/PredictiveEcology/SpaDES/issues/116'>#116</a>): use <code>dev.noRSGD()</code> to bypass the RStudio graphics device for your current session (sets the <code>device</code> option for your platform).</li>
 <li>
 <code>checksums(..., write = TRUE)</code> ignores the contents of <code>CHECKSUMS.txt</code>, overwriting that file with the checksums of all files in the module’s <code>data/</code> directory. This makes it easier to update the checksum file, <em>e.g.</em>, when adding new data (<a href='https://github.com/PredictiveEcology/SpaDES/issues/332'>#332</a>).</li>
 <li>improved module versioning (<a href='https://github.com/PredictiveEcology/SpaDES/issues/321'>#321</a>)</li>
@@ -317,22 +317,22 @@
 </li>
 <li>Add <code>modulesGraph</code>, showing parent and child module relationships.</li>
 <li>Add <code>filesOnly</code> arg to <code>shine()</code>. This can be in preparation for publishing to www.shinyapps.io or other pages. Currently still alpha.</li>
-<li>Add POM: Pattern Oriented Modeling (<a href='https://github.com/PredictiveEcology/SpaDES/issues/269'>#269</a>). A simple interface to a simList object, allowing fitting parameters to data.</li>
+<li>Add POM: Pattern Oriented Modeling (<a href='https://github.com/PredictiveEcology/SpaDES/issues/269'>#269</a>). A simple interface to a <code>simList</code> object, allowing fitting parameters to data.</li>
 <li>add <code>.inputObjects</code> functionality – function that runs during <code>simInit()</code> to create default <code>inputObjects</code>
 </li>
-<li>add <code>P</code> as a namespaced shortcut for params: <code>P(sim)</code> would replace <code>params(sim)$moduleName</code> when called from within that module</li>
+<li>add <code>P</code> as a namespaced shortcut for <code>params</code>: <code>P(sim)</code> would replace <code>params(sim)$moduleName</code> when called from within that module</li>
 <li>allow <code>params(sim)</code> &amp; <code><a href="https://www.rdocumentation.org/packages/stats/topics/start">start(sim)</a></code> &amp; others in <code>defineModule()</code> by changing parse order in module metadata</li>
 <li>add explicit <code>cl</code> arg to parallel aware functions, for more control</li>
 <li>
 <code>newModule</code> gains new arguments <code>type = c("child", "parent")</code> and <code>children = c()</code>. See <code>?newModule</code> (<a href='https://github.com/PredictiveEcology/SpaDES/issues/300'>#300</a>).</li>
-<li>module structure now includes an R subfolder for R scripts. These will be parsed during simInit.</li>
+<li>module structure now includes an R subfolder for R scripts. These will be parsed during <code>simInit</code>.</li>
 <li>
 <code>checksums</code> updated to use faster hashing algorithm (<code>xxhash64</code>) and now only requires a single hash value per file (<a href='https://github.com/PredictiveEcology/SpaDES/issues/295'>#295</a>)</li>
 <li>fixed bugs in module template</li>
 <li>fixed bug in <code>cir</code> (<a href='https://github.com/PredictiveEcology/SpaDES/issues/288'>#288</a>, <a href='https://github.com/PredictiveEcology/SpaDES/issues/311'>#311</a>)</li>
 <li>improved use of package options; added new option <code>spades.modulesPath</code>.</li>
 <li>improved <code>downloadModule</code> to use option <code>spades.modulesPath</code> (<a href='https://github.com/PredictiveEcology/SpaDES/issues/309'>#309</a>)</li>
-<li>improved specification of module inputs and outputs (<a href='https://github.com/PredictiveEcology/SpaDES/issues/189'>#189</a>, <a href='https://github.com/PredictiveEcology/SpaDES/issues/214'>#214</a>, PR<a href='https://github.com/PredictiveEcology/SpaDES/issues/310'>#310</a>)</li>
+<li>improved specification of module inputs and outputs (<a href='https://github.com/PredictiveEcology/SpaDES/issues/189'>#189</a>, <a href='https://github.com/PredictiveEcology/SpaDES/issues/214'>#214</a>, PR <a href='https://github.com/PredictiveEcology/SpaDES/issues/310'>#310</a>)</li>
 <li>remove module version warning (<a href='https://github.com/PredictiveEcology/SpaDES/issues/312'>#312</a>)</li>
 <li><p>other tweaks and fixes</p></li>
 </ul>
@@ -398,17 +398,18 @@
 <ul>
 <li>fix issues associated with upcoming <code>dplyr</code> updates</li>
 <li>performance enhancements: much faster simulation execution</li>
-<li>Plot accepts color column in SpatialPointDataFrame objects</li>
+<li>
+<code>Plot</code> accepts colour column in <code>SpatialPointDataFrame</code> objects</li>
 <li>add <code>col</code> arg to <code>Plot</code> (mimicks <code>cols</code>)</li>
 <li>add <code>experiment</code> function, a wrapper around <code>spades</code> for running multiple simulations (<a href='https://github.com/PredictiveEcology/SpaDES/issues/265'>#265</a>)</li>
 <li>add <code>shine</code> function, with <code>simList</code> signature (<a href='https://github.com/PredictiveEcology/SpaDES/issues/261'>#261</a>)</li>
 <li>add <code>copy</code> function, which does a deep copy of a <code>simList</code> object</li>
 <li>add <code>RColorBrewer</code> to Imports</li>
-<li>allow Plot colours to be set in the <code>Plot</code> call using <code>cols</code> argument</li>
-<li>allow Plot colours to be set in the <code>Plot</code> call using <code>RColorBrewer</code> palettes</li>
+<li>allow <code>Plot</code> colours to be set in the <code>Plot</code> call using <code>cols</code> argument</li>
+<li>allow <code>Plot</code> colours to be set in the <code>Plot</code> call using <code>RColorBrewer</code> palettes</li>
 <li>fix bug when plotting certain real-numbered rasters</li>
-<li>fix bug in Plot legends</li>
-<li>fix bug in assigning vectors as default module param values</li>
+<li>fix bug in <code>Plot</code> legends</li>
+<li>fix bug in assigning vectors as default module parameter values</li>
 <li>fix bug that prevented printing simulation times</li>
 <li>fix bug in event list sorting by <code>eventPriority</code>
 </li>
@@ -430,11 +431,11 @@
 </h1>
 <ul>
 <li>require <code>archivist</code> version 2.0 or greater</li>
-<li>improved <code>moduleCoverage</code> testing and template (PR257)</li>
+<li>improved <code>moduleCoverage</code> testing and template (PR <a href='https://github.com/PredictiveEcology/SpaDES/issues/257'>#257</a>)</li>
 <li>correct legends from rasters so that <code><a href="https://www.rdocumentation.org/packages/base/topics/factor">is.factor(raster)</a></code> is <code>TRUE</code>
 </li>
 <li>user defined time units can be used in module metadata “timeunit”.</li>
-<li>add module timeunits to simList show method (<a href='https://github.com/PredictiveEcology/SpaDES/issues/260'>#260</a>)</li>
+<li>add module timeunits to <code>simList</code> show method (<a href='https://github.com/PredictiveEcology/SpaDES/issues/260'>#260</a>)</li>
 </ul>
 </div>
     <div id="version-1-1-0" class="section level1">
@@ -449,7 +450,7 @@
 <li>add data source info module metadata (<a href='https://github.com/PredictiveEcology/SpaDES/issues/205'>#205</a>)</li>
 <li>new function <code>downloadData</code> to download module data (with <a href='https://github.com/PredictiveEcology/SpaDES/issues/205'>#205</a>)</li>
 <li>new function <code>checksums</code> to verify MD5 hashes of data files (with <a href='https://github.com/PredictiveEcology/SpaDES/issues/205'>#205</a>)</li>
-<li>warn instead of error when using <em>e.g.</em>, <code>newModule</code> with Rstudio on Windows (<a href='https://github.com/PredictiveEcology/SpaDES/issues/209'>#209</a>)</li>
+<li>warn instead of error when using <em>e.g.</em>, <code>newModule</code> with RStudio on Windows (<a href='https://github.com/PredictiveEcology/SpaDES/issues/209'>#209</a>)</li>
 <li>more control of caching behaviour: added <code>cachePath</code> to paths slot (<a href='https://github.com/PredictiveEcology/SpaDES/issues/227'>#227</a>)</li>
 <li>only download data if file doesn’t exist or checksum mismatch (<a href='https://github.com/PredictiveEcology/SpaDES/issues/229'>#229</a>)</li>
 <li>allow multiple checksums per file in <code>checksum</code> (<a href='https://github.com/PredictiveEcology/SpaDES/issues/230'>#230</a>)</li>
@@ -457,7 +458,7 @@
 <li>use warnings instead of errors for missing modules metadata (<a href='https://github.com/PredictiveEcology/SpaDES/issues/233'>#233</a>)</li>
 <li>add event priorities (<a href='https://github.com/PredictiveEcology/SpaDES/issues/236'>#236</a>)</li>
 <li>enhanced functionality of <code>spread()</code> (<a href='https://github.com/PredictiveEcology/SpaDES/issues/237'>#237</a>)</li>
-<li>add unit tests and coverage to <code>newModule</code> (PR242, PR245)</li>
+<li>add unit tests and coverage to <code>newModule</code> (PR <a href='https://github.com/PredictiveEcology/SpaDES/issues/242'>#242</a>, PR <a href='https://github.com/PredictiveEcology/SpaDES/issues/245'>#245</a>)</li>
 <li>objects passed to <code>simInit</code> can be named differently from their objects (<a href='https://github.com/PredictiveEcology/SpaDES/issues/247'>#247</a>)</li>
 <li>
 <code>downloadModule</code> and <code>downloadData</code> now also download children modules/data</li>
@@ -467,7 +468,7 @@
 <li>change <code>.spatialObjects</code> class to <code>spatialObjects</code> and export</li>
 <li>add .Rdata and .rds files to automatic loading.</li>
 <li>warn user if <code>SpaDES</code> package version doesn’t match module version</li>
-<li>allow more signatures in simInit (modules can be character)</li>
+<li>allow more signatures in <code>simInit</code> (modules can be character)</li>
 <li>other bug fixes</li>
 </ul>
 </div>
@@ -514,7 +515,7 @@
 </h1>
 <ul>
 <li>no longer rely on side effects to update objects in global environment; instead uses simulation environments (<a href='https://github.com/PredictiveEcology/SpaDES/issues/185'>#185</a>) (not backwards compatible!)</li>
-<li>sample modules rewritten to use simulation enviroments (<a href='https://github.com/PredictiveEcology/SpaDES/issues/185'>#185</a>) (not backwards compatible!).</li>
+<li>sample modules rewritten to use simulation environments (<a href='https://github.com/PredictiveEcology/SpaDES/issues/185'>#185</a>) (not backwards compatible!).</li>
 <li>
 <p>redefined <code>simList</code> class:</p>
 <ul>
@@ -542,7 +543,7 @@
 <li>
 <code>ls</code> and <code>ls.str</code> can now be used with <code>simList</code> objects to list objects in the simulation environment</li>
 <li>
-<code>objs</code> returns a list containing all the objects in the simulation enviroment</li>
+<code>objs</code> returns a list containing all the objects in the simulation environment</li>
 <li>new function <code>splitRaster</code> to divide <code>RasterLayer</code> into several tiles</li>
 <li>new function <code>normPath</code> (extracted from <code>checkPath</code>) to more strictly normalize filepaths without checking that they exist.</li>
 <li>new function <code>classFilter</code> to filter list of objects by their type</li>
@@ -559,7 +560,7 @@
 <code>defineModule</code> better handles <code>NA</code> values (<a href='https://github.com/PredictiveEcology/SpaDES/issues/138'>#138</a>)</li>
 <li>various <code>Plot</code> improvements.</li>
 <li>
-<p>new plotting funcions to produce overview diagrams of simulations (<a href='https://github.com/PredictiveEcology/SpaDES/issues/181'>#181</a>; <a href='https://github.com/PredictiveEcology/SpaDES/issues/184'>#184</a>):</p>
+<p>new plotting functions to produce overview diagrams of simulations (<a href='https://github.com/PredictiveEcology/SpaDES/issues/181'>#181</a>; <a href='https://github.com/PredictiveEcology/SpaDES/issues/184'>#184</a>):</p>
 <ul>
 <li>
 <code>eventDiagram</code> shows Gantt chart of event sequences</li>
@@ -581,7 +582,7 @@
 </li>
 <li>added “metamodules” which specify module groups (<a href='https://github.com/PredictiveEcology/SpaDES/issues/176'>#176</a>)</li>
 <li>improved test coverage (see <a href='https://github.com/PredictiveEcology/SpaDES/issues/139'>#139</a>)</li>
-<li>all functions imported explicity (<code>@importFrom</code>).</li>
+<li>all functions imported explicitly (<code>@importFrom</code>).</li>
 <li>three entire packages imported: <code>methods</code>, <code>graphics</code>, <code>igraph</code> (because of classes which are not exported from <code>igraph</code>) (<a href='https://github.com/PredictiveEcology/SpaDES/issues/201'>#201</a>)</li>
 <li>removed package dependencies on raster, sp, data.table, grid. Use importFrom instead (<a href='https://github.com/PredictiveEcology/SpaDES/issues/207'>#207</a>).</li>
 <li>improved documentation and vignettes</li>
@@ -632,7 +633,7 @@
 </ul>
 </li>
 <li>updated vignettes and documentation improvements</li>
-<li>transfered project to <code>PredictiveEcology/SpaDES</code> from <code>achubaty/SpaDES</code>.</li>
+<li>transferred project to <code>PredictiveEcology/SpaDES</code> from <code>achubaty/SpaDES</code>.</li>
 <li>
 <p>overhaul to <code>Plot</code> function:</p>
 <ul>
@@ -669,7 +670,7 @@
 </h1>
 <ul>
 <li>second public (“beta”) release</li>
-<li>more improvements to Plot function, including dramatically faster for files on disk</li>
+<li>more improvements to <code>Plot</code> function, including dramatically faster for files on disk</li>
 <li>added second “Model” that adds and integrates 3 sample modules, Fire, Succession and Aging</li>
 <li>added Plotting vignette</li>
 <li>bugfixes</li>
