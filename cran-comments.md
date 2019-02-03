@@ -1,8 +1,6 @@
 ## Updated release
 
-This release fixes CRAN concerns about package declarations for tests and vignettes.
-
-The maintainer email address has changed, about which I notified CRAN on March 28, 2018 and sent followup on June 12, 2018 (in response to `fpCompare` submission).
+This release simplifies package dependencies. See NEWS.
 
 Since this is a metapackage, we have not included any examples as these are better suited for their respective packages.
 
