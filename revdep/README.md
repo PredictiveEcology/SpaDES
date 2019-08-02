@@ -1,31 +1,33 @@
-# Setup
+# Platform
 
-## Platform
-
-|setting  |value                        |
+|field    |value                        |
 |:--------|:----------------------------|
-|version  |R version 3.4.4 (2018-03-15) |
+|version  |R version 3.6.1 (2019-07-05) |
+|os       |Ubuntu 18.04.2 LTS           |
 |system   |x86_64, linux-gnu            |
-|ui       |RStudio (1.1.453)            |
-|language |en_CA:en                     |
+|ui       |X11                          |
+|language |en_CA                        |
 |collate  |en_CA.UTF-8                  |
+|ctype    |en_CA.UTF-8                  |
 |tz       |America/Edmonton             |
-|date     |2018-06-06                   |
+|date     |2019-08-02                   |
 
-## Packages
+# Dependencies
 
-|package      |*  |version    |date       |source                                          |
-|:------------|:--|:----------|:----------|:-----------------------------------------------|
-|quickPlot    |   |0.1.3.9002 |2018-06-06 |Github (PredictiveEcology/quickPlot@d26bb6e)    |
-|reproducible |   |0.1.4.9016 |2018-06-06 |Github (PredictiveEcology/reproducible@15234f4) |
-|SpaDES       |   |2.0.2      |2018-06-06 |local (PredictiveEcology/SpaDES@NA)             |
-|SpaDES.core  |   |0.1.1.9012 |2018-06-06 |Github (PredictiveEcology/SpaDES.core@d47bf8a)  |
-|SpaDES.tools |   |0.1.1.9010 |2018-06-06 |Github (PredictiveEcology/SpaDES.tools@dee5890) |
+|package       |old   |new        |Δ  |
+|:-------------|:-----|:----------|:--|
+|SpaDES        |2.0.3 |2.0.4      |*  |
+|reproducible  |NA    |0.2.9.9002 |*  |
+|SpaDES.addins |NA    |0.1.2      |*  |
+|SpaDES.core   |NA    |0.2.5.9008 |*  |
+|SpaDES.tools  |NA    |0.3.2.9002 |*  |
 
-# Check results
+# Revdeps
 
-0 packages
+## New problems (2)
 
-
-
+|package                                   |version |error |warning |note |
+|:-----------------------------------------|:-------|:-----|:-------|:----|
+|[SpaDES.addins](problems.md#spadesaddins) |0.1.2   |      |__+1__  |1    |
+|[SpaDES.core](problems.md#spadescore)     |0.2.5   |      |__+1__  |     |
 
