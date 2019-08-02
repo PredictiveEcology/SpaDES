@@ -8,75 +8,108 @@ env:
 matrix:
   include:
   - os: linux
-    dist: trusty
+    dist: xenial
     r: oldrel
     addons:
       apt:
         sources:
-        - sourceline: 'ppa:ubuntugis/ubuntugis-unstable'
+          - sourceline: 'ppa:ubuntugis/ubuntugis-unstable'
         packages:
-        - libgdal-dev
-        - libgdal1-dev
-        - libgeos-dev
-        - libnlopt-dev
-        - libproj-dev
-        - libudunits2-dev
-        - gdal-bin
-    before_install:
-    - export DISPLAY=:99.0
-    - sh -e /etc/init.d/xvfb start
+          - libgdal-dev
+          - libgeos-dev
+          - libglpk-dev
+          - libnlopt-dev
+          - libproj-dev
+          - libudunits2-dev
+    services:
+      - xvfb
+    r_binary_packages:
+      - BH
   - os: linux
-    dist: trusty
+    dist: xenial
     r: release
     addons:
       apt:
         sources:
-        - sourceline: 'ppa:ubuntugis/ubuntugis-unstable'
+          - sourceline: 'ppa:ubuntugis/ubuntugis-unstable'
         packages:
-        - libgdal-dev
-        - libgdal1-dev
-        - libgeos-dev
-        - libnlopt-dev
-        - libproj-dev
-        - libudunits2-dev
-        - gdal-bin
+          - libgdal-dev
+          - libgeos-dev
+          - libglpk-dev
+          - libnlopt-dev
+          - libproj-dev
+          - libudunits2-dev
+    services:
+      - xvfb
+    before_script:
+      - Rscript -e 'install.packages("devtools", type = "source")'
+    after_failure:
+      - cat ./SpaDES.core.Rcheck/tests/test-all.Rout
+    after_success:
+      - travis_wait 15 Rscript -e 'covr::coveralls(type = "all", quiet = FALSE)'
+      - Rscript -e 'lintr::lint_package()'
+    r_binary_packages:
+      - BH
+      - dplyr
+      - igraph
+      - RSQlite
+      - stringi
     r_github_packages:
       - jimhester/lintr
-    before_install:
-    - export DISPLAY=:99.0
-    - sh -e /etc/init.d/xvfb start
-    after_success:
-    - Rscript -e 'covr::coveralls(package_coverage(type = "all", quiet = FALSE)))'
-    - Rscript -e 'lintr::lint_package()'
-    r_packages:
-    - devtools
+      - r-lib/covr
   - os: linux
-    dist: trusty
+    dist: xenial
     r: devel
     addons:
       apt:
         sources:
-        - sourceline: 'ppa:ubuntugis/ubuntugis-unstable'
+          - sourceline: 'ppa:ubuntugis/ubuntugis-unstable'
         packages:
-        - libgdal-dev
-        - libgdal1-dev
-        - libgeos-dev
-        - libnlopt-dev
-        - libproj-dev
-        - libudunits2-dev
-        - gdal-bin
-    before_install:
-    - export DISPLAY=:99.0
-    - sh -e /etc/init.d/xvfb start
-    r_packages:
-    - devtools
+          - libgdal-dev
+          - libgeos-dev
+          - libglpk-dev
+          - libnlopt-dev
+          - libproj-dev
+          - libudunits2-dev
+    services:
+      - xvfb
+    r_binary_packages:
+      - BH
+      - dplyr
+      - igraph
+      - RSQlite
+      - stringi
   - os: osx
-    osx_image: xcode9.2
+    osx_image: xcode9.4
+    addons:
+      homebrew:
+        packages:
+        - glpk
+        - libgit2
+        - llvm
+        update: true
     latex: false
     r_build_args: "--no-build-vignettes"
     r_check_args: "--as-cran --ignore-vignettes --no-examples"
+    env:
+      - GLPK=true
     before_install:
-    - Rscript -e 'install.packages("digest", repos = "https://cran.rstudio.com", type = "source")'
+      - Rscript -e 'install.packages(c("digest", "igraph", "rgdal", "rgeos"), type = "source")'
+  - os: osx
+    osx_image: xcode9.4
+    addons:
+      homebrew:
+        packages:
+        - libgit2
+        - llvm
+        update: true
+    latex: false
+    r_build_args: "--no-build-vignettes"
+    r_check_args: "--as-cran --ignore-vignettes --no-examples"
+    env:
+      - GLPK=false
+    before_script:
+      - Rscript -e 'install.packages(c("digest", "igraph", "rgdal", "rgeos"), type = "source")'
 r_build_args: " "
 r_check_args: "--as-cran"
 warnings_are_errors: true
