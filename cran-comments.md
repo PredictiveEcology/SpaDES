@@ -7,7 +7,6 @@ Since this is a metapackage, we have not included any examples as these are bett
 ## Test environments
 
 ### Previous R versions
-* macOS Mojave       (travis-ci), R 3.5.3
 * Ubuntu 16.04       (travis-ci), R 3.5.3
 * Windows             (appveyor), R 3.5.3
 * Windows          (win-builder), R 3.5.3
