@@ -25,6 +25,7 @@ matrix:
       - xvfb
     r_binary_packages:
       - BH
+      - git2r
       - XML
   - os: linux
     dist: xenial
@@ -52,6 +53,7 @@ matrix:
     r_binary_packages:
       - BH
       - dplyr
+      - git2r
       - igraph
       - RSQlite
       - stringi
@@ -78,6 +80,7 @@ matrix:
     r_binary_packages:
       - BH
       - dplyr
+      - git2r
       - igraph
       - RSQlite
       - stringi
