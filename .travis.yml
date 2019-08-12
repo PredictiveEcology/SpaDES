@@ -44,7 +44,7 @@ matrix:
     before_script:
       - Rscript -e 'install.packages("devtools", type = "source")'
     after_failure:
-      - cat ./SpaDES.core.Rcheck/tests/test-all.Rout
+      - cat ./SpaDES.Rcheck/tests/test-all.Rout
     after_success:
       - travis_wait 15 Rscript -e 'covr::coveralls(type = "all", quiet = FALSE)'
       - Rscript -e 'lintr::lint_package()'
