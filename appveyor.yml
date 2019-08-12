@@ -43,9 +43,7 @@ branches:
 clone_depth: 5
 
 build_script:
-  - Rscript -e "install.packages(c('DEoptim', 'igraph'), repos = 'https://cran.rstudio.com', type = 'source')"
-  - Rscript -e "install.packages('SpaDES.core', dependencies = TRUE, repos = 'https://cran.rstudio.com')"
-  - Rscript -e "install.packages(c('quickPlot', 'reproducible', 'SpaDES.addins', 'SpaDES.core', 'SpaDES.tools'), repos = 'https://cran.rstudio.com', type = 'source')"
+  - Rscript -e "install.packages(c('DEoptim', 'igraph', 'RandomFields', 'RCurl'), repos = 'https://cran.rstudio.com')"
   - travis-tool.sh install_deps
 
 test_script:
