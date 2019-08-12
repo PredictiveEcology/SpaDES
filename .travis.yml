@@ -25,6 +25,7 @@ matrix:
       - xvfb
     r_binary_packages:
       - BH
+      - XML
   - os: linux
     dist: xenial
     r: release
@@ -54,6 +55,7 @@ matrix:
       - igraph
       - RSQlite
       - stringi
+      - XML
     r_github_packages:
       - jimhester/lintr
       - r-lib/covr
@@ -79,6 +81,7 @@ matrix:
       - igraph
       - RSQlite
       - stringi
+      - XML
   - os: osx
     osx_image: xcode9.4
     addons:
