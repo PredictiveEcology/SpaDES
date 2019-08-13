@@ -25,8 +25,12 @@ matrix:
       - xvfb
     r_binary_packages:
       - BH
+      - dplyr
       - git2r
+      - igraph
       - RCurl
+      - RSQlite
+      - stringi
       - XML
   - os: linux
     dist: xenial
