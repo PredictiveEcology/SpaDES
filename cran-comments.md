@@ -18,13 +18,12 @@ Since this is a metapackage, we have not included any examples as these are bett
 * Ubuntu 18.04           (local), R 3.6.1
 * Windows             (appveyor), R 3.6.1
 * Windows          (win-builder), R 3.6.1
-* Windows 7              (local), R 3.6.1
 
 ### Development R version
-* Ubuntu 16.04       (travis-ci), R 3.7.0 (2019-07-29 r76904)
-* Ubuntu 18.04           (local), R 3.7.0 (2019-08-02 r76911)
-* Windows             (appveyor), R 3.7.0 (2019-07-26 r76894)
-* Windows          (win-builder), R 3.7.0 (2019-07-05 r76784)
+* Ubuntu 16.04       (travis-ci), R 3.7.0 (2019-09-12 r77181)
+* Ubuntu 18.04           (local), R 3.7.0 (2019-09-12 r77181)
+* Windows             (appveyor), R 3.7.0 (2019-09-11 r77179)
+* Windows          (win-builder), R 3.7.0 (2019-09-11 r77179)
 
 ## R CMD check results
 
