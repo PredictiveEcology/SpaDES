@@ -11,6 +11,9 @@ xvfb-run -a R
 ```r
 setwd("SpaDES")
 install.packages(c("devtools", "tkrplot"))
+
+Sys.setenv(GITHUB_PAT="xxx")
+
 library(devtools)
 install_dev_deps()
 check(args = c("--as-cran"))
@@ -27,6 +30,9 @@ xvfb-run -a R
 ```r
 setwd("SpaDES")
 install.packages(c("devtools", "tkrplot"))
+
+Sys.setenv(GITHUB_PAT="xxx")
+
 library(devtools)
 install_dev_deps()
 check(args = c("--as-cran"))
@@ -42,6 +48,9 @@ docker run -it --rm -v ~/GitHub/PredictiveEcology/SpaDES:/SpaDES rocker/drd
 ```r
 setwd("SpaDES")
 install.packages("devtools")
+
+Sys.setenv(GITHUB_PAT="xxx")
+
 library(devtools)
 install_dev_deps()
 check(args = c("--as-cran"))
