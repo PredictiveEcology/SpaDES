@@ -4,7 +4,7 @@
 
 ```bash
 docker pull rocker/geospatial:3.5.3
-docker run -it --rm -v ~/GitHub/PredictiveEcology/SpaDES:/SpaDES rocker/geospatial:3.5.3 bash -c "apt-get update && apt-get install -y libcurl4-openssl-dev libxml2-dev && R"
+docker run -it --rm -v ~/GitHub/PredictiveEcology/SpaDES:/SpaDES rocker/geospatial:3.5.3 bash -c "apt-get update && apt-get install -y libcurl4-openssl-dev libxml2-dev xvfb && xvfb-run R"
 ```
 
 ```r
@@ -19,7 +19,7 @@ check(args = c("--as-cran"))
 
 ```bash
 docker pull rocker/geospatial:latest
-docker run -it --rm -v ~/GitHub/PredictiveEcology/SpaDES:/SpaDES rocker/geospatial bash -c "apt-get update && apt-get install -y libcurl4-openssl-dev libxml2-dev && R"
+docker run -it --rm -v ~/GitHub/PredictiveEcology/SpaDES:/SpaDES rocker/geospatial bash -c "apt-get update && apt-get install -y libcurl4-openssl-dev libxml2-dev xvfb && xvfb-run R"
 ```
 
 ```r
