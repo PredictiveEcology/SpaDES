@@ -3,7 +3,7 @@ Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 version 2.0.4
 ============= 
 
-* drop suuport for R 3.3 and 3.4, as these are longor supported by several dependencies.
+* drop support for R 3.3 and 3.4, as these are no longer supported by several dependencies.
 
 version 2.0.3
 ============= 

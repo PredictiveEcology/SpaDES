@@ -1,6 +1,6 @@
 ## Updated release
 
-This release drops suuport for R 3.3 and 3.4, as these are longor supported by several dependencies.
+This release drops support for R 3.3 and 3.4, as these are no longer supported by several dependencies.
 
 Since this is a metapackage, we have not included any examples as these are better suited for their respective packages.
 
