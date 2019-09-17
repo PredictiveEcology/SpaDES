@@ -1,32 +1,29 @@
 ## Updated release
 
-This release simplifies package dependencies. See NEWS.
+This release drops support for R 3.3 and 3.4, as these are no longer supported by several dependencies.
 
 Since this is a metapackage, we have not included any examples as these are better suited for their respective packages.
 
 ## Test environments
 
 ### Previous R versions
-* Ubuntu 14.04        (travis-ci), R 3.3.0
-* Ubuntu 14.04        (travis-ci), R 3.4.0
-* Windows              (appveyor), R 3.3.0
-* Windows              (appveyor), R 3.4.0
-* Windows 7               (local), R 3.4.4
+* Ubuntu 16.04       (travis-ci), R 3.5.3
+* Windows             (appveyor), R 3.5.3
+* Windows          (win-builder), R 3.5.3
 
 ### Current R versions
-* macOS Mojave       (travis-ci), R 3.5.2
-* macOS Mojave           (local), R 3.5.2
-* Ubuntu 14.04       (travis-ci), R 3.5.2
-* Ubuntu 18.04           (local), R 3.5.2
-* Windows             (appveyor), R 3.5.2
-* Windows          (win-builder), R 3.5.2
-* Windows 7              (local), R 3.5.2
+* macOS Mojave       (travis-ci), R 3.6.1
+* macOS Mojave           (local), R 3.6.1
+* Ubuntu 16.04       (travis-ci), R 3.6.1
+* Ubuntu 18.04           (local), R 3.6.1
+* Windows             (appveyor), R 3.6.1
+* Windows          (win-builder), R 3.6.1
 
 ### Development R version
-* Ubuntu 14.04       (travis-ci), R 3.6.0 (2019-01-06 r75950)
-* Ubuntu 18.04           (local), R 3.6.0 (2019-01-07 r75958)
-* Windows             (appveyor), R 3.6.0 (2019-01-06 r75950)
-* Windows          (win-builder), R 3.6.0 (2019-01-07 r75956)
+* Ubuntu 16.04       (travis-ci), R 3.7.0 (2019-09-12 r77181)
+* Ubuntu 18.04           (local), R 3.7.0 (2019-09-12 r77181)
+* Windows             (appveyor), R 3.7.0 (2019-09-11 r77179)
+* Windows          (win-builder), R 3.7.0 (2019-09-11 r77179)
 
 ## R CMD check results
 
