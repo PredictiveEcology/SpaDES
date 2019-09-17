@@ -23,7 +23,7 @@ Since this is a metapackage, we have not included any examples as these are bett
 * Ubuntu 16.04       (travis-ci), R 3.7.0 (2019-09-12 r77181)
 * Ubuntu 18.04           (local), R 3.7.0 (2019-09-12 r77181)
 * Windows             (appveyor), R 3.7.0 (2019-09-11 r77179)
-* Windows          (win-builder), R 3.7.0 (2019-09-11 r77179)
+* Windows          (win-builder), R 3.7.0 (2019-09-15 r77192)
 
 ## R CMD check results
 
