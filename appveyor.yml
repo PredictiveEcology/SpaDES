@@ -6,76 +6,51 @@ init:
         $ErrorActionPreference = "Stop"
         Invoke-WebRequest http://raw.github.com/krlmlr/r-appveyor/master/scripts/appveyor-tool.ps1 -OutFile "..\appveyor-tool.ps1"
         Import-Module '..\appveyor-tool.ps1'
-
 install:
   ps: Bootstrap
-
 cache:
   - C:\RLibrary -> appveyor_cache.txt
 
 # Adapt as necessary starting from here
-
 version: 1.0.{build}-{branch}
-
 environment:
   global:
     R_ARCH: x64
+    R_REMOTES_STANDALONE: true
     USE_RTOOLS: true
     WARNINGS_ARE_ERRORS: 1
-
   matrix:
   - R_VERSION: devel
-
   - R_VERSION: release
-
   - R_VERSION: oldrel
     RTOOLS_VERSION: 35
-
-branches:
-  only:
-    - master
-    - development
-    - testing
-
-  except:
-    - gh-pages
-
 clone_depth: 5
-
 build_script:
   - Rscript -e "install.packages(c('DEoptim', 'igraph', 'RandomFields', 'RCurl'), repos = 'https://cran.rstudio.com')"
   - travis-tool.sh install_deps
-
 test_script:
   - travis-tool.sh run_tests
-
 on_failure:
   - 7z a failure.zip *.Rcheck\*
   - appveyor PushArtifact failure.zip
-
 artifacts:
   - path: '*.Rcheck\**\*.log'
     name: Logs
-
   - path: '*.Rcheck\**\*.out'
     name: Logs
-
   - path: '*.Rcheck\**\*.fail'
     name: Logs
-
   - path: '*.Rcheck\**\*.Rout'
     name: Logs
-
   - path: '\*_*.tar.gz'
     name: Bits
-
   - path: '\*_*.zip'
     name: Bits
-
 notifications:
  - provider: Email
    to:
      - alex.chubaty@gmail.com
+     - '{{commitAuthorEmail}}'
    subject: 'SpaDES: r-appveyor build {{status}}'
    message: "https://ci.appveyor.com/project/achubaty/SpaDES"
    on_build_success: false
