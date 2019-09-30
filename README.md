@@ -41,7 +41,8 @@ Additional functionality is provided by the [`SpaDES.addins`](http://spades-addi
 **Other `SpaDES` ecosystem packages:**
 
 - `quickPlot`: http://quickplot.predictiveecology.org/ [![Coverage Status](https://coveralls.io/repos/github/PredictiveEcology/quickPlot/badge.svg?branch=master)](https://coveralls.io/github/PredictiveEcology/quickPlot?branch=master)
-- `reproducible`: http://reproducible.predictiveecology.org/ [![Coverage Status](https://coveralls.io/repos/github/PredictiveEcology/reproducible/badge.svg?branch=master)](https://coveralls.io/github/PredictiveEcology/reproducible?branch=master)
+- `reproducible`: http://reproducible.predictiveecology.org/ [![Coverage Status](https://coveralls.io/repos/github/PredictiveEcology/reproducible/badge.svg?branch=master)](https://coveralls.io/github/PredictiveEcology/reproducible?branch=master); Development [![Coverage Status](https://coveralls.io/repos/github/PredictiveEcology/reproducible/badge.svg?branch=development)](https://coveralls.io/github/PredictiveEcology/reproducible?branch=development)
+
 - `SpaDES.addins`: http://spades-addins.predictiveecology.org [![Coverage Status](https://coveralls.io/repos/github/PredictiveEcology/SpaDES.addins/badge.svg?branch=master)](https://coveralls.io/github/PredictiveEcology/SpaDES.addins?branch=master)
 - `SpaDES.core`: http://spades-core.predictiveecology.org/ [![Coverage Status](https://coveralls.io/repos/github/PredictiveEcology/SpaDES.core/badge.svg?branch=master)](https://coveralls.io/github/PredictiveEcology/SpaDES.core?branch=master)
 - `SpaDES.shiny`: http://spades-shiny.predictiveecology.org/ 
