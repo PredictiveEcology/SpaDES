@@ -1,10 +1,5 @@
 Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
-version 2.0.4.9000
-============= 
-
-* ?
-
 version 2.0.4
 ============= 
 
