@@ -24,7 +24,6 @@ matrix:
     services:
       - xvfb
     r_binary_packages:
-      - BH
       - git2r
       - igraph
       - RCurl
