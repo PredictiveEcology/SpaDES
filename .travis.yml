@@ -25,7 +25,6 @@ matrix:
       - xvfb
     r_binary_packages:
       - BH
-      - dplyr
       - git2r
       - igraph
       - RCurl
