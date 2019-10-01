@@ -41,11 +41,8 @@ Imports:
     utils
 Suggests:
     knitr,
-    RandomFields,
-    raster,
     rmarkdown,
-    testthat,
-    tkrplot
+    testthat
 Remotes:
     PredictiveEcology/quickPlot@development,
     PredictiveEcology/reproducible@development,
