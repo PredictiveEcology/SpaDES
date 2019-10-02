@@ -25,9 +25,6 @@ matrix:
       - xvfb
     r_binary_packages:
       - igraph
-      - RCurl
-      - RSQlite
-      - XML
   - os: linux
     dist: xenial
     r: release
