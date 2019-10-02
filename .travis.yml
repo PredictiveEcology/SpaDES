@@ -23,8 +23,13 @@ matrix:
           - libudunits2-dev
     services:
       - xvfb
+    before_script:
+      - Rscript -e 'install.packages("gridBase", type = "source")'
     r_binary_packages:
       - igraph
+    r_packages:
+      - rgdal
+      - rgeos
   - os: linux
     dist: xenial
     r: release
