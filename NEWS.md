@@ -1,5 +1,22 @@
 Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
+version 2.0.4.9000
+============= 
+
+* ?
+
+version 2.0.4
+============= 
+
+* drop support for R 3.3 and 3.4, as these are no longer supported by several dependencies.
+
+version 2.0.3
+============= 
+
+* move caching vignette to `SpaDES.core` package and remove unused dependencies `archivist`, `devtools`, `hunspell`, `igraph`
+* add `RandomFields` to Suggests (needed for vignettes etc. in `SpaDES.core` and `SpaDES.tools`)
+* new 'Getting Started' vignette describing the `SpaDES`-ecosystem packages
+
 version 2.0.2
 ============= 
 
@@ -22,7 +39,7 @@ version 2.0.0
 
     - caching moved out of `SpaDES` and into new package [`reproducible`](https://github.com/PredictiveEcology/reproducible). `reproducible` added to Imports.
     - plotting moved out of `SpaDES` and into new package [`quickPlot`](https://github.com/PredictiveEcology/quickPlot). `quickPlot` added to Imports.
-    - all Rstudio addins moved out of `SpaDES` and into new package [`SpaDES.addins`](https://github.com/PredictiveEcology/SpaDES.addins).
+    - all RStudio addins moved out of `SpaDES` and into new package [`SpaDES.addins`](https://github.com/PredictiveEcology/SpaDES.addins).
     - core DES components moved out of `SpaDES` and into new package [`SpaDES.core`](https://github.com/PredictiveEcology/SpaDES.core). `SpaDES.core` added to Imports.
     - additional modelling utilities (non-core components) moved out of `SpaDES` and into new package [`SpaDES.tools`](https://github.com/PredictiveEcology/SpaDES.tools). `SpaDES.tools` added to Imports.
     - `shiny`-related components moved out of `SpaDES` and into new package [`SpaDES.shiny`](https://github.com/PredictiveEcology/SpaDES.shiny).
@@ -45,7 +62,7 @@ version 2.0.0
 ## New functionality
 
 * namespaced module functions have now been implemented via a nested environment in the `simList@.envir` slot. This means that module functions can be called by their name only, *without* a `sim$` prefix. Also, there should not be any name clashes between modules, so each module can have its own `init` function, say. This has been implemented in a backwards compatible way, but the old way may be deprecated down the road.
-* new functions `saveSimList` which saves all environments recursively and file-backed objects, such as `Raster` objets (currently only one implemented).
+* new functions `saveSimList` which saves all environments recursively and file-backed objects, such as `Raster` objects (currently only one implemented).
 * Created a generic for `Copy`, moved it to `reproducible`, and here added a method for `simList` objects that deep copies all environments recursively.
 * change default value for `speedup` in `gaussMap`; now 1.
 * new function `getPaths()` to return the list of working dirs from the options
@@ -66,7 +83,7 @@ version 2.0.0
 
 ## Bug fixes
 
-* workaround issues with RStudio graphics on Linux (with #116): use `dev.noRSGD()` to bypass the Rstudio graphics device for your current session (sets the `device` option for your platform).
+* workaround issues with RStudio graphics on Linux (with #116): use `dev.noRSGD()` to bypass the RStudio graphics device for your current session (sets the `device` option for your platform).
 * `checksums(..., write = TRUE)` ignores the contents of `CHECKSUMS.txt`, overwriting that file with the checksums of all files in the module's `data/` directory. This makes it easier to update the checksum file, *e.g.*, when adding new data (#332).
 * improved module versioning (#321)
 * minor bugfixes for unusual cases
@@ -119,19 +136,19 @@ version 1.3.0
 
 * Add `modulesGraph`, showing parent and child module relationships.
 * Add `filesOnly` arg to `shine()`. This can be in preparation for publishing to www.shinyapps.io or other pages. Currently still alpha.
-* Add POM: Pattern Oriented Modeling (#269). A simple interface to a simList object, allowing fitting parameters to data.
+* Add POM: Pattern Oriented Modeling (#269). A simple interface to a `simList` object, allowing fitting parameters to data.
 * add `.inputObjects` functionality -- function that runs during `simInit()` to create default `inputObjects`
-* add `P` as a namespaced shortcut for params: `P(sim)` would replace `params(sim)$moduleName` when called from within that module
+* add `P` as a namespaced shortcut for `params`: `P(sim)` would replace `params(sim)$moduleName` when called from within that module
 * allow `params(sim)` & `start(sim)` & others in `defineModule()` by changing parse order in module metadata
 * add explicit `cl` arg to parallel aware functions, for more control
 * `newModule` gains new arguments `type = c("child", "parent")` and `children = c()`. See `?newModule` (#300).
-* module structure now includes an R subfolder for R scripts. These will be parsed during simInit.
+* module structure now includes an R subfolder for R scripts. These will be parsed during `simInit`.
 * `checksums` updated to use faster hashing algorithm (`xxhash64`) and now only requires a single hash value per file (#295)
 * fixed bugs in module template
 * fixed bug in `cir` (#288, #311)
 * improved use of package options; added new option `spades.modulesPath`.
 * improved `downloadModule` to use option `spades.modulesPath` (#309)
-* improved specification of module inputs and outputs (#189, #214, PR#310)
+* improved specification of module inputs and outputs (#189, #214, PR #310)
 * remove module version warning (#312)
 * other tweaks and fixes
 
@@ -172,17 +189,17 @@ version 1.1.2
 =============
 * fix issues associated with upcoming `dplyr` updates
 * performance enhancements: much faster simulation execution
-* Plot accepts color column in SpatialPointDataFrame objects
+* `Plot` accepts colour column in `SpatialPointDataFrame` objects
 * add `col` arg to `Plot` (mimicks `cols`)
 * add `experiment` function, a wrapper around `spades` for running multiple simulations (#265)
 * add `shine` function, with `simList` signature (#261)
 * add `copy` function, which does a deep copy of a `simList` object
 * add `RColorBrewer` to Imports
-* allow Plot colours to be set in the `Plot` call using `cols` argument
-* allow Plot colours to be set in the `Plot` call using `RColorBrewer` palettes
+* allow `Plot` colours to be set in the `Plot` call using `cols` argument
+* allow `Plot` colours to be set in the `Plot` call using `RColorBrewer` palettes
 * fix bug when plotting certain real-numbered rasters
-* fix bug in Plot legends
-* fix bug in assigning vectors as default module param values
+* fix bug in `Plot` legends
+* fix bug in assigning vectors as default module parameter values
 * fix bug that prevented printing simulation times
 * fix bug in event list sorting by `eventPriority`
 * new slot in `simList` object: `current`, to store the current event
@@ -195,10 +212,10 @@ version 1.1.2
 version 1.1.1
 =============
 * require `archivist` version 2.0 or greater
-* improved `moduleCoverage` testing  and template (PR257)
+* improved `moduleCoverage` testing  and template (PR #257)
 * correct legends from rasters so that `is.factor(raster)` is `TRUE`
 * user defined time units can be used in module metadata "timeunit".
-* add module timeunits to simList show method (#260)
+* add module timeunits to `simList` show method (#260)
 
 version 1.1.0
 =============
@@ -209,7 +226,7 @@ version 1.1.0
 * add data source info module metadata (#205)
 * new function `downloadData` to download module data (with #205)
 * new function `checksums` to verify MD5 hashes of data files (with #205)
-* warn instead of error when using *e.g.*, `newModule` with Rstudio on Windows (#209)
+* warn instead of error when using *e.g.*, `newModule` with RStudio on Windows (#209)
 * more control of caching behaviour: added `cachePath` to paths slot (#227)
 * only download data if file doesn't exist or checksum mismatch (#229)
 * allow multiple checksums per file in `checksum` (#230)
@@ -217,7 +234,7 @@ version 1.1.0
 * use warnings instead of errors for missing modules metadata (#233)
 * add event priorities (#236)
 * enhanced functionality of `spread()` (#237)
-* add unit tests and coverage to `newModule` (PR242, PR245)
+* add unit tests and coverage to `newModule` (PR #242, PR #245)
 * objects passed to `simInit` can be named differently from their objects (#247)
 * `downloadModule` and `downloadData` now also download children modules/data
 * new function `divergentColors` to generate divergent colour palettes for legends
@@ -225,7 +242,7 @@ version 1.1.0
 * change `.spatialObjects` class to `spatialObjects` and export
 * add .Rdata and .rds files to automatic loading.
 * warn user if `SpaDES` package version doesn't match module version
-* allow more signatures in simInit (modules can be character)
+* allow more signatures in `simInit` (modules can be character)
 * other bug fixes
 
 version 1.0.3
@@ -255,7 +272,7 @@ version 1.0.1
 version 1.0.0
 =============
 * no longer rely on side effects to update objects in global environment; instead uses simulation environments (#185) (not backwards compatible!)
-* sample modules rewritten to use simulation enviroments (#185) (not backwards compatible!).
+* sample modules rewritten to use simulation environments (#185) (not backwards compatible!).
 * redefined `simList` class:
 
     - new superclass `.simList` contains all previous `simList` slots except `.envir`
@@ -274,7 +291,7 @@ version 1.0.0
 * `defineModule` requires `timeunit` to be a character string instead of numeric (with #151)
 * simulation checkpointing fixed (#191, #130)
 * `ls` and `ls.str` can now be used with `simList` objects to list objects in the simulation environment
-* `objs` returns a list containing all the objects in the simulation enviroment
+* `objs` returns a list containing all the objects in the simulation environment
 * new function `splitRaster` to divide `RasterLayer` into several tiles
 * new function `normPath` (extracted from `checkPath`) to more strictly normalize filepaths without checking that they exist.
 * new function `classFilter` to filter list of objects by their type
@@ -286,7 +303,7 @@ version 1.0.0
 * `defineParameter` now accepts `min`, `max`, and description values (#172; #175)
 * `defineModule` better handles `NA` values (#138)
 * various `Plot` improvements.
-* new plotting funcions to produce overview diagrams of simulations (#181; #184):
+* new plotting functions to produce overview diagrams of simulations (#181; #184):
 
     - `eventDiagram` shows Gantt chart of event sequences
     - `moduleDiagram` shows igraph network diagram of dependencies
@@ -301,7 +318,7 @@ version 1.0.0
 
 * added "metamodules" which specify module groups (#176)
 * improved test coverage (see #139)
-* all functions imported explicity (`@importFrom`).
+* all functions imported explicitly (`@importFrom`).
 * three entire packages imported: `methods`, `graphics`, `igraph` (because of classes which are not exported from `igraph`) (#201)
 * removed package dependencies on raster, sp, data.table, grid. Use importFrom instead (#207).
 * improved documentation and vignettes
@@ -338,7 +355,7 @@ version 0.6.1
 * updated package dependencies:
     * added `downloader`, `dplyr`, `fpCompare`, `httr`, `magrittr`, `stringr` to `Imports`
 * updated vignettes and documentation improvements
-* transfered project to `PredictiveEcology/SpaDES` from `achubaty/SpaDES`.
+* transferred project to `PredictiveEcology/SpaDES` from `achubaty/SpaDES`.
 * overhaul to `Plot` function:
 
     - no longer needs `*Named` objects.
@@ -361,7 +378,7 @@ version 0.6.1
 version 0.4.0
 =============
 * second public ("beta") release
-* more improvements to Plot function, including dramatically faster for files on disk
+* more improvements to `Plot` function, including dramatically faster for files on disk
 * added second "Model" that adds and integrates 3 sample modules, Fire, Succession and Aging
 * added Plotting vignette
 * bugfixes

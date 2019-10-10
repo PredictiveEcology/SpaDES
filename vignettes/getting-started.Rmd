@@ -1,0 +1,69 @@
+---
+title: "Getting started with `SpaDES`"
+author:
+  - "Alex M. Chubaty"
+  - "Eliot J. B. McIntire"
+date: '`r strftime(Sys.Date(), "%B %d %Y")`'
+output:
+  rmarkdown::html_vignette:
+    fig_width: 7
+    number_sections: yes
+    self_contained: yes
+    toc: yes
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{03 Caching SpaDES simulations}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+`SpaDES` is a metapackage for implementing a variety of event-based models, with a focus on spatially explicit models.
+These include raster-based, event-based, and agent-based models.
+The core simulation components (provided by `SpaDES.core`) are built upon a discrete event simulation (DES; see Matloff (2011) ch 7.8.3 <https://nostarch.com/artofr.htm>) framework that facilitates modularity, and easily enables the user to include additional functionality by running user-built simulation modules (see also `SpaDES.tools`).
+Included are numerous tools to visualize rasters and other maps (via `quickPlot`), and caching methods for reproducible simulations (via `reproducible`).
+Additional functionality is provided by the `SpaDES.addins` and `SpaDES.shiny` packages (see below).
+
+Bug reports:
+
+- `quickPlot` package: <https://github.com/PredictiveEcology/quickPlot/issues>
+- `reproducible` package: <https://github.com/PredictiveEcology/reproducible/issues>
+- `SpaDES.addins` package: <https://github.com/PredictiveEcology/SpaDES.addins/issues>
+- `SpaDES.core` package: <https://github.com/PredictiveEcology/SpaDES.core/issues>
+- `SpaDES.shiny` package: <https://github.com/PredictiveEcology/SpaDES.shiny/issues>
+- `SpaDES.tools` package: <https://github.com/PredictiveEcology/SpaDES.tools/issues>
+
+Module repository: <https://github.com/PredictiveEcology/SpaDES-modules>
+
+Wiki: <https://github.com/PredictiveEcology/SpaDES/wiki>
+
+## The `SpaDES.core` package:
+
+The core discrete event simulation framework.
+See `?SpaDES.core::SpaDES.core`, and the vignettes therein (`browseVignettes()`).
+
+## The `SpaDES.tools` package:
+
+Additional utilities for developing ecological simulation models.
+See `?SpaDES.tools::SpaDES.tools`.
+
+## The `SpaDES.addins` package:
+
+A set of RStudio addins to assist with `SpaDES` module development.
+
+## The `SpaDES.shiny` package:
+
+Utilities for developing and running `shiny`-based app interfaces to `SpaDES` simulations.
+(Note this package is still under development and is not yet available on CRAN.)
+
+## The `quickPlot` package:
+
+The core `SpaDES` plotting engine, build upon speed and modularity.
+
+## The `reproducible` package:
+
+Provides several aspects of reproducible simulations, including simulation caching.
