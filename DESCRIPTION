@@ -38,6 +38,7 @@ Imports:
     reproducible,
     SpaDES.addins,
     SpaDES.core,
+    SpaDES.experiment,
     SpaDES.tools,
     utils
 Suggests:
