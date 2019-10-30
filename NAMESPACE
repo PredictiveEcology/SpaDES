@@ -2,6 +2,7 @@
 
 import(SpaDES.addins)
 import(SpaDES.core)
+import(SpaDES.experiment)
 import(SpaDES.tools)
 import(methods)
 import(quickPlot)
