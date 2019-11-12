@@ -101,7 +101,7 @@
 #' @import quickPlot
 #' @import reproducible
 #' @import SpaDES.addins
-#' @import SpaDES.core
+#' @rawNamespace import(SpaDES.core, except = c(experiment, experiment2, POM, simInitAndExperiment))
 #' @import SpaDES.experiment
 #' @import SpaDES.tools
 NULL
