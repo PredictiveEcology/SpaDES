@@ -95,7 +95,7 @@ install.packages("SpaDES")
 ```r
 #install.packages("devtools")
 library("devtools")
-install_github("PredictiveEcology/SpaDES", dependencies = TRUE) # stable
+install_github("PredictiveEcology/SpaDES", dependencies = TRUE) # master
 ```
 
 ### Development version (unstable)
@@ -105,7 +105,7 @@ install_github("PredictiveEcology/SpaDES", dependencies = TRUE) # stable
 ```r
 #install.packages("devtools")
 library("devtools")
-install_github("PredictiveEcology/SpaDES", ref = "development", dependencies = TRUE) # unstable
+install_github("PredictiveEcology/SpaDES", ref = "development", dependencies = TRUE)
 ```
 
 ## Getting help
@@ -126,6 +126,7 @@ Contact us via the package's GitHub site:
 - [reproducible](https://github.com/PredictiveEcology/reproducible/issues) 
 - [SpaDES.addins](https://github.com/PredictiveEcology/SpaDES.addins/issues) 
 - [SpaDES.core](https://github.com/PredictiveEcology/SpaDES.core/issues) 
+- [SpaDES.experiment](https://github.com/PredictiveEcology/SpaDES.experiment/issues) 
 - [SpaDES.shiny](https://github.com/PredictiveEcology/SpaDES.shiny/issues) 
 - [SpaDES.tools](https://github.com/PredictiveEcology/SpaDES.tools/issues) 
 
