@@ -27,6 +27,8 @@ matrix:
       - Rscript -e 'install.packages("gridBase", type = "source")'
     r_binary_packages:
       - igraph
+    r_github_packages:
+      - PredictiveEcology/reproducible@development
     r_packages:
       - rgdal
       - rgeos
@@ -65,6 +67,7 @@ matrix:
     r_github_packages:
       - jimhester/lintr
       - r-lib/covr
+      - PredictiveEcology/reproducible@development
   - os: linux
     dist: xenial
     r: devel
@@ -90,6 +93,8 @@ matrix:
       - RSQlite
       - stringi
       - XML
+    r_github_packages:
+      - PredictiveEcology/reproducible@development
   - os: osx
     osx_image: xcode9.4
     addons:
