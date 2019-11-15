@@ -23,8 +23,8 @@ matrix:
           - libudunits2-dev
     services:
       - xvfb
-    before_script:
-      - Rscript -e 'install.packages("gridBase", type = "source")'
+    before_install:
+      - Rscript -e 'install.packages(c("gridBase", "rgeos"), type = "source")'
     r_binary_packages:
       - igraph
     r_github_packages:
@@ -48,8 +48,9 @@ matrix:
           - libudunits2-dev
     services:
       - xvfb
-    before_script:
+    before_install:
       - Rscript -e 'install.packages("devtools", type = "source")'
+      - Rscript -e 'install.packages("rgeos", type = "source")'
     after_failure:
       - cat ./SpaDES.Rcheck/tests/test-all.Rout
     after_success:
