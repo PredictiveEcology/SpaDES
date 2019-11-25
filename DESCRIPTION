@@ -45,13 +45,6 @@ Suggests:
     knitr,
     rmarkdown,
     testthat
-Remotes:
-    PredictiveEcology/quickPlot@development,
-    PredictiveEcology/reproducible@development,
-    PredictiveEcology/SpaDES.addins@development,
-    PredictiveEcology/SpaDES.core@development,
-    PredictiveEcology/SpaDES.experiment@development,
-    PredictiveEcology/SpaDES.tools@development,
 Encoding: UTF-8
 Language: EN-CA
 License: GPL-3
