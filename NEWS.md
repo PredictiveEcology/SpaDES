@@ -1,5 +1,11 @@
 Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
+version 2.0.5
+============= 
+
+* add dependency package `SpaDES.experiment` to facilitate running simulation experiments.
+* new package hexsticker and cheatsheet
+
 version 2.0.4
 ============= 
 

@@ -1,29 +1,32 @@
 ## Updated release
 
-This release drops support for R 3.3 and 3.4, as these are no longer supported by several dependencies.
+This release add the new `SpaDES.experiment` package as a dependency.
+See `NEWS.md` for a full description of changes.
 
 Since this is a metapackage, we have not included any examples as these are better suited for their respective packages.
 
-## Test environments
-
 ### Previous R versions
-* Ubuntu 16.04       (travis-ci), R 3.5.3
-* Windows             (appveyor), R 3.5.3
-* Windows          (win-builder), R 3.5.3
+* macOS Mojave        (travis-ci), R 3.5.3
+* macOS Mojave            (local), R 3.5.3
+* Ubuntu 16.04        (travis-ci), R 3.5.3
+* Windows 7            (appveyor), R 3.5.3
+* Windows 7               (local), R 3.5.3
+* Windows           (win-builder), R 3.5.3
 
 ### Current R versions
-* macOS Mojave       (travis-ci), R 3.6.1
-* macOS Mojave           (local), R 3.6.1
-* Ubuntu 16.04       (travis-ci), R 3.6.1
-* Ubuntu 18.04           (local), R 3.6.1
-* Windows             (appveyor), R 3.6.1
-* Windows          (win-builder), R 3.6.1
+* macOS Mojave        (travis-ci), R 3.6.1
+* macOS Mojave            (local), R 3.6.1
+* Ubuntu 16.04        (travis-ci), R 3.6.1
+* Ubuntu 18.04            (local), R 3.6.1
+* Windows              (appveyor), R 3.6.1
+* Windows           (win-builder), R 3.6.1
+* Windows 7               (local), R 3.6.0
 
 ### Development R version
-* Ubuntu 16.04       (travis-ci), R 3.7.0 (2019-09-12 r77181)
-* Ubuntu 18.04           (local), R 3.7.0 (2019-09-12 r77181)
-* Windows             (appveyor), R 3.7.0 (2019-09-11 r77179)
-* Windows          (win-builder), R 3.7.0 (2019-09-15 r77192)
+* Ubuntu 16.04       (travis-ci), R 4.0.0 (2019-11-11 r77395)
+* Ubuntu 18.04           (local), R 4.0.0 (2019-11-12 r77405)
+* Windows             (appveyor), R 4.0.0 (2019-11-07 r77386)
+* Windows          (win-builder), R 4.0.0 (2019-11-07 r77386)
 
 ## R CMD check results
 

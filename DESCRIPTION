@@ -10,13 +10,14 @@ Description: Metapackage for implementing a variety of event-based models, with
     include additional functionality by running user-built simulation modules
     (see also 'SpaDES.tools'). Included are numerous tools to visualize rasters
     and other maps (via 'quickPlot'), and caching methods for reproducible
-    simulations (via 'reproducible'). Additional functionality is provided by
+    simulations (via 'reproducible'). Tools for running simulation experiments are
+    provided by 'SpaDES.experiment'. Additional functionality is provided by
     the 'SpaDES.addins' and 'SpaDES.shiny' packages.
 URL:
     http://spades.predictiveecology.org,
     https://github.com/PredictiveEcology/SpaDES
-Date: 2019-09-12
-Version: 2.0.4
+Date: 2019-11-12
+Version: 2.0.5
 Authors@R: c(
     person("Alex M", "Chubaty", email = "alex.chubaty@gmail.com",
     role = c("aut", "cre"), comment = c(ORCID = "0000-0001-7146-8135")),
@@ -37,15 +38,20 @@ Imports:
     reproducible,
     SpaDES.addins,
     SpaDES.core,
+    SpaDES.experiment,
     SpaDES.tools,
     utils
 Suggests:
     knitr,
-    RandomFields,
-    raster,
     rmarkdown,
-    testthat,
-    tkrplot
+    testthat
+Remotes:
+    PredictiveEcology/quickPlot@development,
+    PredictiveEcology/reproducible@development,
+    PredictiveEcology/SpaDES.addins@development,
+    PredictiveEcology/SpaDES.core@development,
+    PredictiveEcology/SpaDES.experiment@development,
+    PredictiveEcology/SpaDES.tools@development,
 Encoding: UTF-8
 Language: EN-CA
 License: GPL-3
@@ -55,4 +61,4 @@ ByteCompile: yes
 Collate:
     'spades-package.R'
     'zzz.R'
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.0

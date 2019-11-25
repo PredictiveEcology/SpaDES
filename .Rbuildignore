@@ -11,10 +11,12 @@
 ^\.travis\.yml$
 ^appveyor\.yml$
 ^appveyor_cache\.txt$
-CONTRIBUTING\.md
-cran-comments\.md
+cheatsheets/
+^CONTRIBUTING\.md$
+^cran-comments\.md$
 ^docs$
 ^LICENSE$
+stickers/
 ^travis_wait_.*\.log$
 vignettes/.*_cache$
 vignettes/.*\.log$
