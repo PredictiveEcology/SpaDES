@@ -13,7 +13,7 @@
 
 Metapackage for implementing a variety of event-based models, with a focus on spatially explicit models.
 These include raster-based, event-based, and agent-based models.
-The core simulation components (provided by [`SpaDES.core`](https://spades-core.predictiveecology.org/)) are built upon a discrete event simulation (DES) framework that facilitates modularity, and easily enables the user to include additional functionality by running user-built simulation modules (see also [`SpaDES.tools`](https://spades-tools.predictiveecology.org/)).
+The core simulation components (provided by [`SpaDES.core`](https://spades-core.predictiveecology.org/)) are built upon a discrete event simulation (DES) framework that facilitates modularity, and easily enables the user to include additional functionality by running user-built simulation modules (see also [`SpaDES.tools`](https://spades-tools.predictiveecology.org/) and [`SpaDES.experiment`](https://spades-experiment.predictiveecology.org/)).
 Included are numerous tools to visualize rasters and other maps (via [`quickPlot`](https://quickplot.predictiveecology.org/)), and caching methods for reproducible simulations (via [`reproducible`](https://reproducible.predictiveecology.org/)).
 Additional functionality is provided by the [`SpaDES.addins`](https://spades-addins.predictiveecology.org/) and [`SpaDES.shiny`](https://spades-shiny.predictiveecology.org/) packages.
 
@@ -44,6 +44,7 @@ Additional functionality is provided by the [`SpaDES.addins`](https://spades-add
 - `reproducible`: https://reproducible.predictiveecology.org/ [![Coverage Status](https://coveralls.io/repos/github/PredictiveEcology/reproducible/badge.svg?branch=master)](https://coveralls.io/github/PredictiveEcology/reproducible?branch=master); Development [![Coverage Status](https://coveralls.io/repos/github/PredictiveEcology/reproducible/badge.svg?branch=development)](https://coveralls.io/github/PredictiveEcology/reproducible?branch=development)
 
 - `SpaDES.addins`: https://spades-addins.predictiveecology.org [![Coverage Status](https://coveralls.io/repos/github/PredictiveEcology/SpaDES.addins/badge.svg?branch=master)](https://coveralls.io/github/PredictiveEcology/SpaDES.addins?branch=master)
+- `SpaDES.experiment`: https://spades-experiment.predictiveecology.org/ [![Coverage Status](https://coveralls.io/repos/github/PredictiveEcology/SpaDES.experiment/badge.svg?branch=master)](https://coveralls.io/github/PredictiveEcology/SpaDES.experiment?branch=master)
 - `SpaDES.core`: https://spades-core.predictiveecology.org/ [![Coverage Status](https://coveralls.io/repos/github/PredictiveEcology/SpaDES.core/badge.svg?branch=master)](https://coveralls.io/github/PredictiveEcology/SpaDES.core?branch=master)
 - `SpaDES.shiny`: https://spades-shiny.predictiveecology.org/ 
 - `SpaDES.tools`: https://spades-tools.predictiveecology.org/ [![Coverage Status](https://coveralls.io/repos/github/PredictiveEcology/SpaDES.tools/badge.svg?branch=master)](https://coveralls.io/github/PredictiveEcology/SpaDES.tools?branch=master)
