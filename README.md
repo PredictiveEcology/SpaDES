@@ -29,10 +29,13 @@ Additional functionality is provided by the [`SpaDES.addins`](https://spades-add
 - [Vignettes](https://github.com/PredictiveEcology/SpaDES/wiki/Help-Vignettes)
 - [Wiki](https://github.com/PredictiveEcology/SpaDES/wiki)
 - [Known modules (existing or in development)](https://github.com/PredictiveEcology/SpaDES-modules/wiki/Current-modules-in-development)
+- [SpaDES Best Practices Google Doc](https://docs.google.com/document/d/19QmQ5sErqbXF_mgv3M50SnRQJBciFvCV_LuJDsj0qKA/edit?usp=sharing)
 
 ### Workshops
 
 - [SpaDES Workshops](https://spades-workshops.predictiveecology.org)
+
+
 
 ### Websites
 
