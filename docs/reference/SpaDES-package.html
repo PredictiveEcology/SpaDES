@@ -46,6 +46,7 @@ modularity, and easily enables the user to include additional functionality by
 running user-built simulation modules (see also SpaDES.tools).
 Included are numerous tools to visualize rasters and other maps (via quickPlot),
 and caching methods for reproducible simulations (via reproducible).
+Tools for running simulation experiments are provided by SpaDES.experiment.
 Additional functionality is provided by the SpaDES.addins and
 SpaDES.shiny packages (see below).
 Bug reports:
@@ -57,6 +58,8 @@ SpaDES.addins package:
         https://github.com/PredictiveEcology/SpaDES.addins/issues
 SpaDES.core package:
         https://github.com/PredictiveEcology/SpaDES.core/issues
+SpaDES.experiment package:
+        https://github.com/PredictiveEcology/SpaDES.experiment/issues
 SpaDES.shiny package:
         https://github.com/PredictiveEcology/SpaDES.shiny/issues
 SpaDES.tools package:
@@ -108,7 +111,7 @@ Wiki: https://github.com/PredictiveEcology/SpaDES/wiki
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SpaDES</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.5</span>
       </span>
     </div>
 
@@ -168,14 +171,15 @@ Wiki: https://github.com/PredictiveEcology/SpaDES/wiki
     <p><img src='figures/SpaDES.png' width=100 alt="SpaDES logo" align="right" /></p>
 <p>Metapackage for implementing a variety of event-based models, with a focus on
 spatially explicit models. These include raster-based, event-based, and
-agent-based models. The core simulation components (provided by <code>SpaDES.core</code>)
+agent-based models. The core simulation components (provided by <span class="pkg">SpaDES.core</span>)
 are built upon a discrete event simulation (DES; see Matloff (2011) ch 7.8.3
 <a href='https://nostarch.com/artofr.htm'>https://nostarch.com/artofr.htm</a>) framework that facilitates
 modularity, and easily enables the user to include additional functionality by
-running user-built simulation modules (see also <code>SpaDES.tools</code>).
-Included are numerous tools to visualize rasters and other maps (via <code>quickPlot</code>),
-and caching methods for reproducible simulations (via <code>reproducible</code>).
-Additional functionality is provided by the <code>SpaDES.addins</code> and
+running user-built simulation modules (see also <span class="pkg">SpaDES.tools</span>).
+Included are numerous tools to visualize rasters and other maps (via <span class="pkg">quickPlot</span>),
+and caching methods for reproducible simulations (via <span class="pkg">reproducible</span>).
+Tools for running simulation experiments are provided by <span class="pkg">SpaDES.experiment</span>.
+Additional functionality is provided by the <span class="pkg">SpaDES.addins</span> and
 <code>SpaDES.shiny</code> packages (see below).</p>
 <p>Bug reports:</p><ul>
 <li><p><code>quickPlot</code> package:
@@ -186,6 +190,8 @@ Additional functionality is provided by the <code>SpaDES.addins</code> and
         <a href='https://github.com/PredictiveEcology/SpaDES.addins/issues'>https://github.com/PredictiveEcology/SpaDES.addins/issues</a></p></li>
 <li><p><code>SpaDES.core</code> package:
         <a href='https://github.com/PredictiveEcology/SpaDES.core/issues'>https://github.com/PredictiveEcology/SpaDES.core/issues</a></p></li>
+<li><p><code>SpaDES.experiment</code> package:
+        <a href='https://github.com/PredictiveEcology/SpaDES.experiment/issues'>https://github.com/PredictiveEcology/SpaDES.experiment/issues</a></p></li>
 <li><p><code>SpaDES.shiny</code> package:
         <a href='https://github.com/PredictiveEcology/SpaDES.shiny/issues'>https://github.com/PredictiveEcology/SpaDES.shiny/issues</a></p></li>
 <li><p><code>SpaDES.tools</code> package:
@@ -208,9 +214,20 @@ Additional functionality is provided by the <code>SpaDES.addins</code> and
 See <code>SpaDES.core{SpaDES.core-package}</code>, and the vignettes therein
 (<code><a href='https://rdrr.io/r/utils/browseVignettes.html'>browseVignettes()</a></code>).</p>
 <p>------------------------------------------------------------------------------------------</p>
+    <h2 class="hasAnchor" id="the-spades-experiment-package"><a class="anchor" href="#the-spades-experiment-package"></a>The <code>SpaDES.experiment</code> package</h2>
+
+    
+
+
+<p>#' ------------------------------------------------------------------------------------------</p>
     <h2 class="hasAnchor" id="the-spades-tools-package"><a class="anchor" href="#the-spades-tools-package"></a>The <code>SpaDES.tools</code> package</h2>
 
     
+
+
+<p>Tools to do simulation experiments within the <code>SpaDES</code> ecosystem.
+See <code>SpaDES.experiment{SpaDES.experiment-package}</code>.</p>
+<p>------------------------------------------------------------------------------------------</p>
 
 
 <p>Additional utilities for developing ecological simulation models.
@@ -259,6 +276,7 @@ See <code>SpaDES.tools{SpaDES.tools-package}</code>.</p>
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#the-spades-core-package">The <code>SpaDES.core</code> package</a></li>
+      <li><a href="#the-spades-experiment-package">The <code>SpaDES.experiment</code> package</a></li>
       <li><a href="#the-spades-tools-package">The <code>SpaDES.tools</code> package</a></li>
       <li><a href="#the-spades-addins-package">The <code>SpaDES.addins</code> package</a></li>
       <li><a href="#the-spades-shiny-package">The <code>SpaDES.shiny</code> package</a></li>
@@ -268,9 +286,9 @@ See <code>SpaDES.tools{SpaDES.tools-package}</code>.</p>
     </ul>
 
     <h2>Author</h2>
-    <p><strong>Maintainer</strong>: Alex M Chubaty <a href='mailto:alex.chubaty@gmail.com'>alex.chubaty@gmail.com</a> (0000-0001-7146-8135)</p>
+    <p><strong>Maintainer</strong>: Alex M Chubaty <a href='mailto:alex.chubaty@gmail.com'>alex.chubaty@gmail.com</a> (<a href='https://orcid.org/0000-0001-7146-8135'>ORCID</a>)</p>
 <p>Authors:</p><ul>
-<li><p>Eliot J B McIntire <a href='mailto:eliot.mcintire@canada.ca'>eliot.mcintire@canada.ca</a> (0000-0002-6914-8316)</p></li>
+<li><p>Eliot J B McIntire <a href='mailto:eliot.mcintire@canada.ca'>eliot.mcintire@canada.ca</a> (<a href='https://orcid.org/0000-0002-6914-8316'>ORCID</a>)</p></li>
 </ul>
 
 <p>Other contributors:</p><ul>

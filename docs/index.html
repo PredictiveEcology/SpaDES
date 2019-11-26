@@ -20,7 +20,8 @@
     include additional functionality by running user-built simulation modules
     (see also SpaDES.tools). Included are numerous tools to visualize rasters
     and other maps (via quickPlot), and caching methods for reproducible
-    simulations (via reproducible). Additional functionality is provided by
+    simulations (via reproducible). Tools for running simulation experiments are
+    provided by SpaDES.experiment. Additional functionality is provided by
     the SpaDES.addins and SpaDES.shiny packages.">
 <meta name="twitter:card" content="summary">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -47,7 +48,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">SpaDES</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.4.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.5</span>
       </span>
     </div>
 
@@ -183,7 +184,7 @@
 <p><strong>Install from GitHub:</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#install.packages("devtools")</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"devtools"</span>)
-<span class="kw">install_github</span>(<span class="st">"PredictiveEcology/SpaDES"</span>, <span class="dt">dependencies =</span> <span class="ot">TRUE</span>) <span class="co"># stable</span></code></pre></div>
+<span class="kw">install_github</span>(<span class="st">"PredictiveEcology/SpaDES"</span>, <span class="dt">dependencies =</span> <span class="ot">TRUE</span>) <span class="co"># master</span></code></pre></div>
 </div>
 <div id="development-version-unstable" class="section level3">
 <h3 class="hasAnchor">
@@ -191,7 +192,7 @@
 <p><strong>Install from GitHub:</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#install.packages("devtools")</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"devtools"</span>)
-<span class="kw">install_github</span>(<span class="st">"PredictiveEcology/SpaDES"</span>, <span class="dt">ref =</span> <span class="st">"development"</span>, <span class="dt">dependencies =</span> <span class="ot">TRUE</span>) <span class="co"># unstable</span></code></pre></div>
+<span class="kw">install_github</span>(<span class="st">"PredictiveEcology/SpaDES"</span>, <span class="dt">ref =</span> <span class="st">"development"</span>, <span class="dt">dependencies =</span> <span class="ot">TRUE</span>)</code></pre></div>
 </div>
 </div>
 <div id="getting-help" class="section level2">
@@ -211,6 +212,7 @@
 <li><a href="https://github.com/PredictiveEcology/reproducible/issues">reproducible</a></li>
 <li><a href="https://github.com/PredictiveEcology/SpaDES.addins/issues">SpaDES.addins</a></li>
 <li><a href="https://github.com/PredictiveEcology/SpaDES.core/issues">SpaDES.core</a></li>
+<li><a href="https://github.com/PredictiveEcology/SpaDES.experiment/issues">SpaDES.experiment</a></li>
 <li><a href="https://github.com/PredictiveEcology/SpaDES.shiny/issues">SpaDES.shiny</a></li>
 <li><a href="https://github.com/PredictiveEcology/SpaDES.tools/issues">SpaDES.tools</a></li>
 </ul>
