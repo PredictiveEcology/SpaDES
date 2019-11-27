@@ -44,7 +44,8 @@ Imports:
 Suggests:
     knitr,
     rmarkdown,
-    testthat
+    testthat,
+    spelling
 Remotes:
     PredictiveEcology/quickPlot@development,
     PredictiveEcology/reproducible@development,
@@ -61,4 +62,4 @@ ByteCompile: yes
 Collate:
     'spades-package.R'
     'zzz.R'
-RoxygenNote: 7.0.0
+RoxygenNote: 7.0.1
