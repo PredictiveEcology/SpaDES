@@ -250,7 +250,7 @@
 <ul>
 <li>add C++ internal functions for speed</li>
 <li>event queues (event, completed, current) now do shallow copies of pre-existing data.tables, rather than <code>rblindlist( )</code>. This improved DES speed by &gt; 40%. Benchmarking of 1400 events in 1.6 seconds now; previously 3.0 seconds.</li>
-<li>add <code>Copy</code> (capital C) as replacement for <code>copy</code> which conflicts with <code><a href="https://Rdatatable.gitlab.io/data.table/reference/copy.html">data.table::copy</a></code>, and add <code>queues</code> argument to do a deep copy of the event queues.</li>
+<li>add <code>Copy</code> (capital C) as replacement for <code>copy</code> which conflicts with <code><a href="https://rdrr.io/pkg/data.table/man/copy.html">data.table::copy</a></code>, and add <code>queues</code> argument to do a deep copy of the event queues.</li>
 <li>
 <code>spread</code>: minor speedups, plus 3 new parameters <code>relativeSpreadProb</code>, <code>numNeighs</code> &amp; <code>exactSizes</code>
 </li>
@@ -643,12 +643,12 @@
 </li>
 <li>
 <p>new module directory structure (<a href='https://github.com/PredictiveEcology/SpaDES/issues/125'>#125</a>):</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode R"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">  moduleName<span class="op">/</span></a>
-<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="st">  </span><span class="er">|</span>_ moduleName.R    <span class="co"># the actual module code file, incl. module metadata</span></a>
-<a class="sourceLine" id="cb1-3" data-line-number="3">  <span class="op">|</span>_ moduleName.Rmd  <span class="co"># longform documentation and usage info, etc.</span></a>
-<a class="sourceLine" id="cb1-4" data-line-number="4">  <span class="op">|</span>_ citation.bib    <span class="co"># properly formatted bibtex citation for the module</span></a>
-<a class="sourceLine" id="cb1-5" data-line-number="5">  <span class="op">|</span>_ LICENSE         <span class="co"># license file describing the allowed usage etc. of the module</span></a>
-<a class="sourceLine" id="cb1-6" data-line-number="6">  <span class="op">|</span>_ README          <span class="co"># incl. module metadata in addition to version change info, etc.</span></a></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode R"><code class="sourceCode r">moduleName<span class="op">/</span>
+<span class="er">|</span>_ moduleName.R    <span class="co"># the actual module code file, incl. module metadata</span>
+<span class="op">|</span>_ moduleName.Rmd  <span class="co"># longform documentation and usage info, etc.</span>
+<span class="op">|</span>_ citation.bib    <span class="co"># properly formatted bibtex citation for the module</span>
+<span class="op">|</span>_ LICENSE         <span class="co"># license file describing the allowed usage etc. of the module</span>
+<span class="op">|</span>_ README          <span class="co"># incl. module metadata in addition to version change info, etc.</span></code></pre></div>
 </li>
 <li>updated package dependencies:
 <ul>
@@ -668,7 +668,7 @@
 <ul>
 <li>
 <p>The suggested package <code>fastshp</code> can be installed with:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">  <span class="kw">install_github</span>(<span class="st">"s-u/fastshp"</span>)</a></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode R"><code class="sourceCode r"><span class="kw">install_github</span>(<span class="st">"s-u/fastshp"</span>)</code></pre></div>
 </li>
 </ul>
 </li>

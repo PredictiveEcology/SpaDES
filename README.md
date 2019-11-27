@@ -41,6 +41,7 @@ Additional functionality is provided by the [`SpaDES.addins`](https://spades-add
 
 **Other `SpaDES` ecosystem packages:**
 
+- `NetLogoR`: https://NetLogoR.predictiveecology.org/ [![Coverage Status](https://coveralls.io/repos/github/PredictiveEcology/NetLogoR/badge.svg?branch=master)](https://coveralls.io/github/PredictiveEcology/NetLogoR?branch=master)
 - `quickPlot`: https://quickplot.predictiveecology.org/ [![Coverage Status](https://coveralls.io/repos/github/PredictiveEcology/quickPlot/badge.svg?branch=master)](https://coveralls.io/github/PredictiveEcology/quickPlot?branch=master)
 - `reproducible`: https://reproducible.predictiveecology.org/ [![Coverage Status](https://coveralls.io/repos/github/PredictiveEcology/reproducible/badge.svg?branch=master)](https://coveralls.io/github/PredictiveEcology/reproducible?branch=master); Development [![Coverage Status](https://coveralls.io/repos/github/PredictiveEcology/reproducible/badge.svg?branch=development)](https://coveralls.io/github/PredictiveEcology/reproducible?branch=development)
 
