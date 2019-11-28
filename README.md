@@ -37,6 +37,10 @@ Additional functionality is provided by the [`SpaDES.addins`](https://spades-add
 
 ### Websites
 
+** Simple visuals **
+
+[SpaDES_examples repository](https://predictiveecology.github.io/SpaDES_examples/docs/index.html)
+
 **`SpaDES` metapackage:** [https://SpaDES.PredictiveEcology.org](https://SpaDES.PredictiveEcology.org)
 
 **Other `SpaDES` ecosystem packages:**
