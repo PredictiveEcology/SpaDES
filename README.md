@@ -39,10 +39,8 @@ Additional functionality is provided by the [`SpaDES.addins`](https://spades-add
 
 **`SpaDES` metapackage:** [https://SpaDES.PredictiveEcology.org](https://SpaDES.PredictiveEcology.org)
 
-**Other `SpaDES` ecosystem packages:**
+**Other `SpaDES` packages:**
 
-- `LandR`: https://LandR.predictiveecology.org/ [![Coverage Status](https://coveralls.io/repos/github/PredictiveEcology/LandR/badge.svg?branch=master)](https://coveralls.io/github/PredictiveEcology/LandR?branch=master)
-- `NetLogoR`: https://NetLogoR.predictiveecology.org/ [![Coverage Status](https://coveralls.io/repos/github/PredictiveEcology/NetLogoR/badge.svg?branch=master)](https://coveralls.io/github/PredictiveEcology/NetLogoR?branch=master)
 - `quickPlot`: https://quickplot.predictiveecology.org/ [![Coverage Status](https://coveralls.io/repos/github/PredictiveEcology/quickPlot/badge.svg?branch=master)](https://coveralls.io/github/PredictiveEcology/quickPlot?branch=master)
 - `reproducible`: https://reproducible.predictiveecology.org/ [![Coverage Status](https://coveralls.io/repos/github/PredictiveEcology/reproducible/badge.svg?branch=master)](https://coveralls.io/github/PredictiveEcology/reproducible?branch=master); Development [![Coverage Status](https://coveralls.io/repos/github/PredictiveEcology/reproducible/badge.svg?branch=development)](https://coveralls.io/github/PredictiveEcology/reproducible?branch=development)
 
@@ -51,6 +49,14 @@ Additional functionality is provided by the [`SpaDES.addins`](https://spades-add
 - `SpaDES.experiment`: https://spades-experiment.predictiveecology.org/ [![Coverage Status](https://coveralls.io/repos/github/PredictiveEcology/SpaDES.experiment/badge.svg?branch=master)](https://coveralls.io/github/PredictiveEcology/SpaDES.experiment?branch=master)
 - `SpaDES.shiny`: https://spades-shiny.predictiveecology.org/ 
 - `SpaDES.tools`: https://spades-tools.predictiveecology.org/ [![Coverage Status](https://coveralls.io/repos/github/PredictiveEcology/SpaDES.tools/badge.svg?branch=master)](https://coveralls.io/github/PredictiveEcology/SpaDES.tools?branch=master)
+
+**Domain specific packages**
+
+- `LandR`: https://LandR.predictiveecology.org/ [![Coverage Status](https://coveralls.io/repos/github/PredictiveEcology/LandR/badge.svg?branch=master)](https://coveralls.io/github/PredictiveEcology/LandR?branch=master) 
+A package to accompany the LandR landscape ecosystem modules.
+- `NetLogoR`: https://NetLogoR.predictiveecology.org/ [![Coverage Status](https://coveralls.io/repos/github/PredictiveEcology/NetLogoR/badge.svg?branch=master)](https://coveralls.io/github/PredictiveEcology/NetLogoR?branch=master)
+A reimplementation in pure R of the NetLogo dictionary.
+
 
 **Predictive Ecology Blog:** [http://predictiveecology.org/](http://predictiveecology.org/)
 
@@ -129,6 +135,7 @@ The `SpaDES` metapackage simply loads a number of other packages from the `SpaDE
 Bug reports should be reported to the specific package in question rather than the metapackage, and should contain a concise [reproducible example](https://stackoverflow.com/q/5963269/1380598).
 Contact us via the package's GitHub site:
 
+- [LandR](https://github.com/PredictiveEcology/LandR/issues) 
 - [quickPlot](https://github.com/PredictiveEcology/quickPlot/issues) 
 - [reproducible](https://github.com/PredictiveEcology/reproducible/issues) 
 - [SpaDES.addins](https://github.com/PredictiveEcology/SpaDES.addins/issues) 
