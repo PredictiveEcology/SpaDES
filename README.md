@@ -37,10 +37,6 @@ Additional functionality is provided by the [`SpaDES.addins`](https://spades-add
 
 ### Websites
 
-** Simple visuals **
-
-[SpaDES_examples repository](https://predictiveecology.github.io/SpaDES_examples/docs/index.html)
-
 **`SpaDES` metapackage:** [https://SpaDES.PredictiveEcology.org](https://SpaDES.PredictiveEcology.org)
 
 **Other `SpaDES` ecosystem packages:**
@@ -61,6 +57,9 @@ Additional functionality is provided by the [`SpaDES.addins`](https://spades-add
 **Canadian Forest Service Adaptation Toolkit:** [https://www.nrcan.gc.ca/forests/climate-change/tools-resources/17770](https://www.nrcan.gc.ca/forests/climate-change/tools-resources/17770)
 
 **LandWeb Demonstration App:** [http://landweb.ca](http://landweb.ca/)
+
+**Simple visuals**
+[SpaDES_examples repository](https://predictiveecology.github.io/SpaDES_examples/docs/index.html)
 
 **Examples for R-savvy users:**
 
