@@ -27,6 +27,7 @@ environment:
 clone_depth: 5
 build_script:
   - Rscript -e "install.packages(c('DEoptim', 'igraph', 'RandomFields', 'RCurl'), repos = 'https://cran.rstudio.com')"
+  - Rscript -e "devtools::install_github('PredictiveEcology/SpaDES.experiment@development')"
   - travis-tool.sh install_deps
 test_script:
   - travis-tool.sh run_tests
