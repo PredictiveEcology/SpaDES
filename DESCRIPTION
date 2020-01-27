@@ -16,8 +16,8 @@ Description: Metapackage for implementing a variety of event-based models, with
 URL:
     http://spades.predictiveecology.org,
     https://github.com/PredictiveEcology/SpaDES
-Date: 2019-12-05
-Version: 2.0.5
+Date: 2020-01-27
+Version: 2.0.6
 Authors@R: c(
     person("Alex M", "Chubaty", email = "alex.chubaty@gmail.com",
     role = c("aut", "cre"), comment = c(ORCID = "0000-0001-7146-8135")),
@@ -48,9 +48,9 @@ Suggests:
     spelling
 Remotes:
     PredictiveEcology/quickPlot@development,
-    PredictiveEcology/reproducible@development,
+    PredictiveEcology/reproducible@Workshop,
     PredictiveEcology/SpaDES.addins@development,
-    PredictiveEcology/SpaDES.core@development,
+    PredictiveEcology/SpaDES.core@Workshop,
     PredictiveEcology/SpaDES.experiment@development,
     PredictiveEcology/SpaDES.tools@development,
 Encoding: UTF-8
