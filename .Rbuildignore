@@ -7,9 +7,6 @@
 ^_pkgdown\.yml$
 ^_push_vignettes\.sh$
 ^\.lintr$
-^\.travis\.yml$
-^appveyor\.yml$
-^appveyor_cache\.txt$
 ^cheatsheets$
 ^CONTRIBUTING\.md$
 ^cran-comments\.md$
@@ -20,3 +17,5 @@
 vignettes/.*_cache$
 vignettes/.*\.log$
 ^revdep$
+^\.github$
+^codecov\.yml$

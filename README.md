@@ -1,11 +1,12 @@
 # Spatial Discrete Event Simulation (SpaDES)
 
-[![Build Status](https://travis-ci.org/PredictiveEcology/SpaDES.svg?branch=master)](https://travis-ci.org/PredictiveEcology/SpaDES)
-[![Appveyor Build status](https://ci.appveyor.com/api/projects/status/2fxqhgk6miv2fytd/branch/master?svg=true)](https://ci.appveyor.com/project/achubaty/spades/branch/master)
-[![Coverage Status](https://coveralls.io/repos/github/PredictiveEcology/SpaDES/badge.svg?branch=master)](https://coveralls.io/github/PredictiveEcology/SpaDES?branch=master)
+<!-- badges: start -->
+[![R build status](https://github.com/PredictiveEcology/SpaDES/workflows/R-CMD-check/badge.svg)](https://github.com/PredictiveEcology/SpaDES/actions)
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/SpaDES)](https://cran.r-project.org/package=SpaDES) [![CRAN_Release_Date](https://www.r-pkg.org/badges/ago/SpaDES)](https://cran.r-project.org/package=SpaDES)
 [![Downloads](https://cranlogs.r-pkg.org/badges/grand-total/SpaDES)](https://cran.r-project.org/package=SpaDES)
 [![DOI](https://zenodo.org/badge/17892/PredictiveEcology/SpaDES.svg)](https://zenodo.org/badge/latestdoi/17892/PredictiveEcology/SpaDES)
+[![Codecov test coverage](https://codecov.io/gh/PredictiveEcology/SpaDES/branch/master/graph/badge.svg)](https://codecov.io/gh/PredictiveEcology/SpaDES?branch=master)
+<!-- badges: end -->
 
 <img align="right" width="80" pad="20" src="https://github.com/PredictiveEcology/SpaDES/raw/master/docs/images/SpaDES.png">
 
@@ -146,4 +147,4 @@ Contact us via the package's GitHub site:
 
 -----
 
-Copyright (C) 2019 Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada
+Copyright (C) 2020 Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada
