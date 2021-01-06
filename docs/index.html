@@ -48,7 +48,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">SpaDES</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.6</span>
       </span>
     </div>
 
@@ -56,7 +56,7 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -82,7 +82,7 @@
 <ul class="nav navbar-nav navbar-right">
 <li>
   <a href="https://github.com/PredictiveEcology/SpaDES/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -182,28 +182,28 @@
 </ul>
 <p>See <a href="https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites">here</a> for more details.</p>
 <p><strong>Install suggested packages:</strong> the <code>fastshp</code> package can be installed with:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit">
-<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">"fastshp"</span>, repos <span class="op">=</span> <span class="st">"https://rforge.net"</span>, type <span class="op">=</span> <span class="st">"source"</span><span class="op">)</span></pre></div>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">"fastshp"</span>, repos <span class="op">=</span> <span class="st">"https://rforge.net"</span>, type <span class="op">=</span> <span class="st">"source"</span><span class="op">)</span></code></pre></div>
 <div id="current-stable-release" class="section level3">
 <h3 class="hasAnchor">
 <a href="#current-stable-release" class="anchor"></a>Current stable release</h3>
 <p><strong>Install from CRAN:</strong></p>
-<div class="sourceCode" id="cb2"><pre class="downlit">
-<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">"SpaDES"</span><span class="op">)</span></pre></div>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">"SpaDES"</span><span class="op">)</span></code></pre></div>
 <p><strong>Install from GitHub:</strong></p>
-<div class="sourceCode" id="cb3"><pre class="downlit">
-<span class="co">#install.packages("devtools")</span>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#install.packages("devtools")</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://devtools.r-lib.org/">"devtools"</a></span><span class="op">)</span>
-<span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span><span class="op">(</span><span class="st">"PredictiveEcology/SpaDES"</span>, dependencies <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># master</span></pre></div>
+<span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span><span class="op">(</span><span class="st">"PredictiveEcology/SpaDES"</span>, dependencies <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># master</span></code></pre></div>
 </div>
 <div id="development-version-unstable" class="section level3">
 <h3 class="hasAnchor">
 <a href="#development-version-unstable" class="anchor"></a>Development version (unstable)</h3>
 <p><strong>Install from GitHub:</strong></p>
-<div class="sourceCode" id="cb4"><pre class="downlit">
-<span class="co">#install.packages("devtools")</span>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#install.packages("devtools")</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://devtools.r-lib.org/">"devtools"</a></span><span class="op">)</span>
-<span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span><span class="op">(</span><span class="st">"PredictiveEcology/SpaDES"</span>, ref <span class="op">=</span> <span class="st">"development"</span>, dependencies <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></pre></div>
+<span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span><span class="op">(</span><span class="st">"PredictiveEcology/SpaDES"</span>, ref <span class="op">=</span> <span class="st">"development"</span>, dependencies <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 </div>
 </div>
 <div id="getting-help" class="section level2">
@@ -226,11 +226,12 @@
 <li><a href="https://github.com/PredictiveEcology/SpaDES.addins/issues">SpaDES.addins</a></li>
 <li><a href="https://github.com/PredictiveEcology/SpaDES.core/issues">SpaDES.core</a></li>
 <li><a href="https://github.com/PredictiveEcology/SpaDES.experiment/issues">SpaDES.experiment</a></li>
+<li><a href="https://github.com/PredictiveEcology/SpaDES.project/issues">SpaDES.project</a></li>
 <li><a href="https://github.com/PredictiveEcology/SpaDES.shiny/issues">SpaDES.shiny</a></li>
 <li><a href="https://github.com/PredictiveEcology/SpaDES.tools/issues">SpaDES.tools</a></li>
 </ul>
 <hr>
-<p>Copyright (C) 2020 Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada</p>
+<p>Copyright (C) 2021 Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada</p>
 </div>
 </div>
   </div>

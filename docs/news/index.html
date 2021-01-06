@@ -81,7 +81,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SpaDES</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.6</span>
       </span>
     </div>
 
@@ -89,7 +89,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -115,7 +115,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/PredictiveEcology/SpaDES/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -136,12 +136,20 @@
       <small>Source: <a href='https://github.com/PredictiveEcology/SpaDES/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
+    <div id="version-206" class="section level1">
+<h1 class="page-header" data-toc-text="2.0.6">
+<a href="#version-206" class="anchor"></a>version 2.0.6<small> Unreleased </small>
+</h1>
+<ul>
+<li>fix CRAN check errors</li>
+<li>fix discrepancy in vignette title</li>
+</ul>
+</div>
     <div id="version-205" class="section level1">
 <h1 class="page-header" data-toc-text="2.0.5">
 <a href="#version-205" class="anchor"></a>version 2.0.5<small> Unreleased </small>
 </h1>
 <ul>
-<li>add dependency package <code>SpaDES.experiment</code> to facilitate running simulation experiments.</li>
 <li>new package hexsticker and cheatsheet</li>
 </ul>
 </div>
@@ -633,12 +641,12 @@
 </li>
 <li>
 <p>new module directory structure (<a href='https://github.com/PredictiveEcology/SpaDES/issues/125'>#125</a>):</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>  moduleName<span class="op">/</span></span>
-<span id="cb1-2"><a href="#cb1-2"></a><span class="st">  </span><span class="er">|</span>_ moduleName.R    <span class="co"># the actual module code file, incl. module metadata</span></span>
-<span id="cb1-3"><a href="#cb1-3"></a>  <span class="op">|</span>_ moduleName.Rmd  <span class="co"># longform documentation and usage info, etc.</span></span>
-<span id="cb1-4"><a href="#cb1-4"></a>  <span class="op">|</span>_ citation.bib    <span class="co"># properly formatted bibtex citation for the module</span></span>
-<span id="cb1-5"><a href="#cb1-5"></a>  <span class="op">|</span>_ LICENSE         <span class="co"># license file describing the allowed usage etc. of the module</span></span>
-<span id="cb1-6"><a href="#cb1-6"></a>  <span class="op">|</span>_ README          <span class="co"># incl. module metadata in addition to version change info, etc.</span></span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>  moduleName<span class="sc">/</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="er">|</span>_ moduleName.R    <span class="co"># the actual module code file, incl. module metadata</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="sc">|</span>_ moduleName.Rmd  <span class="co"># longform documentation and usage info, etc.</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="sc">|</span>_ citation.bib    <span class="co"># properly formatted bibtex citation for the module</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="sc">|</span>_ LICENSE         <span class="co"># license file describing the allowed usage etc. of the module</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="sc">|</span>_ README          <span class="co"># incl. module metadata in addition to version change info, etc.</span></span></code></pre></div>
 </li>
 <li>
 <p>updated package dependencies:</p>
@@ -659,7 +667,7 @@
 <ul>
 <li>
 <p>The suggested package <code>fastshp</code> can be installed with:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>  <span class="kw">install_github</span>(<span class="st">"s-u/fastshp"</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">install_github</span>(<span class="st">"s-u/fastshp"</span>)</span></code></pre></div>
 </li>
 </ul>
 </li>
