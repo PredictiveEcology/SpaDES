@@ -18,7 +18,7 @@
 #' @importFrom utils packageVersion
 .onAttach <- function(libname, pkgname) {
   pkgs <- c("reproducible", "quickPlot",
-            "SpaDES.core", "SpaDES.tools", "SpaDES.experiment",
+            "SpaDES.core", "SpaDES.tools",# "SpaDES.experiment",
             "SpaDES.addins")#, "SpaDES.shiny")
 
   needed <- pkgs[!.isAttached(pkgs)]

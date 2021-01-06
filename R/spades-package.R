@@ -20,7 +20,6 @@
 #' running user-built simulation modules (see also \pkg{SpaDES.tools}).
 #' Included are numerous tools to visualize rasters and other maps (via \pkg{quickPlot}),
 #' and caching methods for reproducible simulations (via \pkg{reproducible}).
-#' Tools for running simulation experiments are provided by \pkg{SpaDES.experiment}.
 #' Additional functionality is provided by the \pkg{SpaDES.addins} and
 #' \code{SpaDES.shiny} packages (see below).
 #'
@@ -34,8 +33,6 @@
 #'         \url{https://github.com/PredictiveEcology/SpaDES.addins/issues}
 #'   \item \code{SpaDES.core} package:
 #'         \url{https://github.com/PredictiveEcology/SpaDES.core/issues}
-#'   \item \code{SpaDES.experiment} package:
-#'         \url{https://github.com/PredictiveEcology/SpaDES.experiment/issues}
 #'   \item \code{SpaDES.shiny} package:
 #'         \url{https://github.com/PredictiveEcology/SpaDES.shiny/issues}
 #'   \item \code{SpaDES.tools} package:
@@ -52,12 +49,6 @@
 #' The core discrete event simulation framework.
 #' See \code{\link{SpaDES.core}{SpaDES.core-package}}, and the vignettes therein
 #' (\code{browseVignettes()}).
-#'
-#' ------------------------------------------------------------------------------------------
-#' @section The \code{SpaDES.experiment} package:
-#'
-#' Tools to do simulation experiments within the \code{SpaDES} ecosystem.
-#' See \code{\link{SpaDES.experiment}{SpaDES.experiment-package}}.
 #'
 #' ------------------------------------------------------------------------------------------
 #' @section The \code{SpaDES.tools} package:
@@ -98,7 +89,6 @@
 #' @import quickPlot
 #' @import reproducible
 #' @import SpaDES.addins
-#' @rawNamespace import(SpaDES.core, except = c(experiment, experiment2, POM, simInitAndExperiment))
-#' @import SpaDES.experiment
+#' @import SpaDES.core
 #' @import SpaDES.tools
 NULL
