@@ -56,9 +56,6 @@
 #' ------------------------------------------------------------------------------------------
 #' @section The \code{SpaDES.experiment} package:
 #'
-#' #' ------------------------------------------------------------------------------------------
-#' @section The \code{SpaDES.tools} package:
-#'
 #' Tools to do simulation experiments within the \code{SpaDES} ecosystem.
 #' See \code{\link{SpaDES.experiment}{SpaDES.experiment-package}}.
 #'
