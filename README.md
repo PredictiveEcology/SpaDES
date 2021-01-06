@@ -42,29 +42,31 @@ Additional functionality is provided by the [`SpaDES.addins`](https://spades-add
 
 **Other `SpaDES` packages:**
 
-- `quickPlot`: https://quickplot.predictiveecology.org/ [![Codecov test coverage](https://codecov.io/gh/PredictiveEcology/quickPlot/branch/master/graph/badge.svg)](https://codecov.io/gh/PredictiveEcology/quickPlot?branch=master)
+- `quickPlot`: https://quickplot.predictiveecology.org/ [![Codecov test coverage](https://codecov.io/gh/PredictiveEcology/quickPlot/branch/development/graph/badge.svg)](https://codecov.io/gh/PredictiveEcology/quickPlot?branch=development)
 
 - `reproducible`: https://reproducible.predictiveecology.org/ [![Codecov test coverage](https://codecov.io/gh/PredictiveEcology/reproducible/branch/master/graph/badge.svg)](https://codecov.io/gh/PredictiveEcology/reproducible?branch=master)
 
 - `Require`: https://require.predictiveecology.org/ [![Codecov test coverage](https://codecov.io/gh/PredictiveEcology/Require/branch/master/graph/badge.svg)](https://codecov.io/gh/PredictiveEcology/Require?branch=master)
 
-- `SpaDES.addins`: https://spades-addins.predictiveecology.org [![Codecov test coverage](https://codecov.io/gh/PredictiveEcology/SpaDES.addins/branch/master/graph/badge.svg)](https://codecov.io/gh/PredictiveEcology/SpaDES.addins?branch=master)
+- `SpaDES.addins`: https://spades-addins.predictiveecology.org [![Codecov test coverage](https://codecov.io/gh/PredictiveEcology/SpaDES.addins/branch/development/graph/badge.svg)](https://codecov.io/gh/PredictiveEcology/SpaDES.addins?branch=development)
 
 - `SpaDES.core`: https://spades-core.predictiveecology.org/ [![Codecov test coverage](https://codecov.io/gh/PredictiveEcology/SpaDES.core/branch/master/graph/badge.svg)](https://codecov.io/gh/PredictiveEcology/SpaDES.core?branch=master)
 
-- `SpaDES.experiment`: https://spades-experiment.predictiveecology.org/ [![Codecov test coverage](https://codecov.io/gh/PredictiveEcology/SpaDES.experiment/branch/master/graph/badge.svg)](https://codecov.io/gh/PredictiveEcology/SpaDES.experiment?branch=master)
+- `SpaDES.experiment`: https://spades-experiment.predictiveecology.org/ [![Codecov test coverage](https://codecov.io/gh/PredictiveEcology/SpaDES.experiment/branch/development/graph/badge.svg)](https://codecov.io/gh/PredictiveEcology/SpaDES.experiment?branch=development)
 
-- `SpaDES.shiny`: https://spades-shiny.predictiveecology.org/ [![Codecov test coverage](https://codecov.io/gh/PredictiveEcology/SpaDES.shiny/branch/master/graph/badge.svg)](https://codecov.io/gh/PredictiveEcology/SpaDES.shiny?branch=master)
+- `SpaDES.shiny`: https://spades-shiny.predictiveecology.org/ [![Codecov test coverage](https://codecov.io/gh/PredictiveEcology/SpaDES.shiny/branch/development/graph/badge.svg)](https://codecov.io/gh/PredictiveEcology/SpaDES.shiny?branch=development)
 
-- `SpaDES.tools`: https://spades-tools.predictiveecology.org/ [![Codecov test coverage](https://codecov.io/gh/PredictiveEcology/SpaDES.tools/branch/master/graph/badge.svg)](https://codecov.io/gh/PredictiveEcology/SpaDES.tools?branch=master)
+- `SpaDES.tools`: https://spades-tools.predictiveecology.org/ [![Codecov test coverage](https://codecov.io/gh/PredictiveEcology/SpaDES.tools/branch/development/graph/badge.svg)](https://codecov.io/gh/PredictiveEcology/SpaDES.tools?branch=development)
+
+- `SpaDES.project`: (currently being set up) https://spades-project.predictiveecology.org/ [![Codecov test coverage](https://codecov.io/gh/PredictiveEcology/SpaDES.project/branch/development/graph/badge.svg)](https://codecov.io/gh/PredictiveEcology/SpaDES.project?branch=development)
 
 **Domain specific packages**
 
-- `LandR`: https://LandR.predictiveecology.org/ [![Codecov test coverage](https://codecov.io/gh/PredictiveEcology/LandR/branch/master/graph/badge.svg)](https://codecov.io/gh/PredictiveEcology/LandR?branch=master)
+- `LandR`: https://LandR.predictiveecology.org/ [![Codecov test coverage](https://codecov.io/gh/PredictiveEcology/LandR/branch/development/graph/badge.svg)](https://codecov.io/gh/PredictiveEcology/LandR?branch=development)
 
 A package to accompany the LandR landscape ecosystem modules.
 
-- `NetLogoR`: https://NetLogoR.predictiveecology.org/ [![Codecov test coverage](https://codecov.io/gh/PredictiveEcology/NetLogoR/branch/master/graph/badge.svg)](https://codecov.io/gh/PredictiveEcology/NetLogoR?branch=master)
+- `NetLogoR`: https://NetLogoR.predictiveecology.org/ [![Codecov test coverage](https://codecov.io/gh/PredictiveEcology/NetLogoR/branch/development/graph/badge.svg)](https://codecov.io/gh/PredictiveEcology/NetLogoR?branch=development)
 
 A reimplementation in pure R of the NetLogo dictionary.
 
