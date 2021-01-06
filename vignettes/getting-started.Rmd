@@ -12,7 +12,7 @@ output:
     toc: yes
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteIndexEntry{03 Caching SpaDES simulations}
+  %\VignetteIndexEntry{Getting started with `SpaDES`}
   %\VignetteEncoding{UTF-8}
 ---
 

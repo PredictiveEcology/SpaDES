@@ -154,9 +154,10 @@ Contact us via the package's GitHub site:
 - [SpaDES.addins](https://github.com/PredictiveEcology/SpaDES.addins/issues) 
 - [SpaDES.core](https://github.com/PredictiveEcology/SpaDES.core/issues) 
 - [SpaDES.experiment](https://github.com/PredictiveEcology/SpaDES.experiment/issues) 
+- [SpaDES.project](https://github.com/PredictiveEcology/SpaDES.project/issues) 
 - [SpaDES.shiny](https://github.com/PredictiveEcology/SpaDES.shiny/issues) 
 - [SpaDES.tools](https://github.com/PredictiveEcology/SpaDES.tools/issues) 
 
 -----
 
-Copyright (C) 2020 Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada
+Copyright (C) 2021 Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada
