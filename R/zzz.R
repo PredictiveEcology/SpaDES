@@ -9,14 +9,13 @@
 
 #' Check if a package is in the search path
 #'
-#' @importFrom utils packageVersion
-#'
 #' @keywords internal
 #' @rdname isAttached
 .isAttached <- function(x) {
   paste0("package:", x) %in% search()
 }
 
+#' @importFrom utils packageVersion
 .onAttach <- function(libname, pkgname) {
   pkgs <- c("reproducible", "quickPlot",
             "SpaDES.core", "SpaDES.tools", "SpaDES.experiment",

@@ -12,7 +12,7 @@ output:
     toc: yes
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteIndexEntry{03 Caching SpaDES simulations}
+  %\VignetteIndexEntry{Getting started with `SpaDES`}
   %\VignetteEncoding{UTF-8}
 ---
 
@@ -34,6 +34,7 @@ Bug reports:
 - `reproducible` package: <https://github.com/PredictiveEcology/reproducible/issues>
 - `SpaDES.addins` package: <https://github.com/PredictiveEcology/SpaDES.addins/issues>
 - `SpaDES.core` package: <https://github.com/PredictiveEcology/SpaDES.core/issues>
+- `SpaDES.experiment` package: <https://github.com/PredictiveEcology/SpaDES.experiment/issues>
 - `SpaDES.shiny` package: <https://github.com/PredictiveEcology/SpaDES.shiny/issues>
 - `SpaDES.tools` package: <https://github.com/PredictiveEcology/SpaDES.tools/issues>
 
