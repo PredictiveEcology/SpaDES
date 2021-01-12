@@ -47,7 +47,7 @@ Suggests:
     testthat,
     spelling
 Encoding: UTF-8
-Language: EN-CA
+Language: en-CA
 License: GPL-3
 VignetteBuilder: knitr, rmarkdown
 BugReports: https://github.com/PredictiveEcology/SpaDES/issues
