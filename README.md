@@ -74,7 +74,7 @@ A reimplementation in pure R of the NetLogo dictionary.
 
 **Canadian Forest Service Adaptation Toolkit:** [https://www.nrcan.gc.ca/forests/climate-change/tools-resources/17770](https://www.nrcan.gc.ca/forests/climate-change/tools-resources/17770)
 
-**LandWeb Demonstration App:** [https://landweb.ca](http://landweb.ca/)
+**LandWeb Demonstration App:** [https://landweb.ca](https://landweb.ca/)
 
 **Simple visuals**
 [SpaDES_examples repository](https://predictiveecology.github.io/SpaDES_examples/docs/index.html)
