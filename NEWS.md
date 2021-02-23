@@ -1,5 +1,10 @@
 Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
+version 2.0.6.9000
+=============
+
+* move `SpaDES.addins` to Suggests (#359).
+
 version 2.0.6
 =============
 
