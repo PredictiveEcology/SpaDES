@@ -52,6 +52,14 @@ jobs:
           writeLines(sprintf("R-%i.%i", getRversion()$major, getRversion()$minor), ".github/R-version")
         shell: Rscript {0}
 
+      - name: Install system dependencies
+        if: runner.os == 'Linux'
+        run: |
+          while read -r cmd
+          do
+            eval sudo $cmd
+          done < <(Rscript -e 'cat(unique(c(remotes::system_requirements("ubuntu", "20.04"), remotes::system_requirements("ubuntu", "20.04", package = "sf"))), sep = "\n")')
+
       - name: Install additional dependencies
         run: |
           install.packages('igraph', repos = 'https://cran.rstudio.com') ## need source, not RSPM binary
@@ -69,14 +77,6 @@ jobs:
           path: ${{ env.R_LIBS_USER }}
           key: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-${{ hashFiles('.github/depends.Rds') }}
           restore-keys: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-
-
-      - name: Install system dependencies
-        if: runner.os == 'Linux'
-        run: |
-          while read -r cmd
-          do
-            eval sudo $cmd
-          done < <(Rscript -e 'cat(unique(c(remotes::system_requirements("ubuntu", "20.04"), remotes::system_requirements("ubuntu", "20.04", package = "sf"))), sep = "\n")')
 
       - name: Install dependencies
         run: |
