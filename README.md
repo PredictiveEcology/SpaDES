@@ -70,7 +70,7 @@ A package to accompany the LandR landscape ecosystem modules.
 
 A reimplementation in pure R of the NetLogo dictionary.
 
-**Predictive Ecology Blog:** <https://predictiveecology.org/>
+**Predictive Ecology Blog:** <http://predictiveecology.org/>
 
 **Canadian Forest Service Adaptation Toolkit:**
 <https://www.nrcan.gc.ca/climate-change/impacts-adaptations/climate-change-impacts-forests/forest-change-adaptation-tools/17770>
