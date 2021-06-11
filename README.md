@@ -70,12 +70,12 @@ A package to accompany the LandR landscape ecosystem modules.
 
 A reimplementation in pure R of the NetLogo dictionary.
 
-**Predictive Ecology Blog:** [http://predictiveecology.org/](http://predictiveecology.org/)
+**Predictive Ecology Blog:** <https://predictiveecology.org/>
 
 **Canadian Forest Service Adaptation Toolkit:**
-[https://www.nrcan.gc.ca/climate-change/impacts-adaptations/climate-change-impacts-forests/forest-change-adaptation-tools/17770](https://www.nrcan.gc.ca/climate-change/impacts-adaptations/climate-change-impacts-forests/forest-change-adaptation-tools/17770)
+<https://www.nrcan.gc.ca/climate-change/impacts-adaptations/climate-change-impacts-forests/forest-change-adaptation-tools/17770>
 
-**LandWeb Demonstration App:** [https://landweb.ca](https://landweb.ca/)
+**LandWeb Demonstration App:** <https://landweb.ca>
 
 **Simple visuals**
 [SpaDES_examples repository](https://predictiveecology.github.io/SpaDES_examples/docs/index.html)

@@ -96,7 +96,7 @@ Provides several aspects of reproducible simulations, including simulation cachi
 \seealso{
 Useful links:
 \itemize{
-  \item \url{http://spades.predictiveecology.org}
+  \item \url{https://spades.predictiveecology.org}
   \item \url{https://github.com/PredictiveEcology/SpaDES}
   \item Report bugs at \url{https://github.com/PredictiveEcology/SpaDES/issues}
 }
