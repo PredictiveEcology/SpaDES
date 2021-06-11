@@ -1,7 +1,6 @@
 ## Updated release
 
 This release is to restore this package on CRAN following removal of dependencies `reproducible`, `SpaDES.core`, ash `SpaDES.tools` (which have now been restored on CRAN).
-Please note, the CRAN URL to a package vignette will work once the package is restored.
 See `NEWS.md` for a full list of changes.
 
 ## Test environments
@@ -23,10 +22,10 @@ See `NEWS.md` for a full list of changes.
 * Windows                 (win-builder), R 4.1.0
 
 ### Development R version
-* Ubuntu 20.04                 (GitHub), R-devel (2021-06-07 r80458)
+* Ubuntu 20.04                 (GitHub), R-devel (2021-06-09 r80471)
 * Ubuntu 20.04                  (local), R-devel (2021-05-31 r80426)
 * Windows                      (GitHub), R-devel (2021-06-07 r80458)
-* Windows                 (win-builder), R-devel (2021-06-07 r80458)
+* Windows                 (win-builder), R-devel (2021-06-09 r80471)
 
 ## R CMD check results
 
