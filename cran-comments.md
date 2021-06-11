@@ -1,30 +1,32 @@
 ## Updated release
 
-This release fixes some issues with CRAN checks and other package inconsistencies.
-See `NEWS.md` for a full description of changes.
-
-Since this is a metapackage, we have not included any examples as these are better suited for their respective packages.
+This release is to restore this package on CRAN following removal of dependencies `reproducible`, `SpaDES.core`, ash `SpaDES.tools` (which have now been restored on CRAN).
+Please note, the CRAN URL to a package vignette will work once the package is restored.
+See `NEWS.md` for a full list of changes.
 
 ## Test environments
 
 ### Previous R versions
-* Ubuntu 18.04                 (GitHub), R 3.6.3
+* Ubuntu 20.04                 (GitHub), R 3.6.3
+* Ubuntu 20.04                 (GitHub), R 4.0.5
 * Windows                      (GitHub), R 3.6.3
-* Windows                 (win-builder), R 3.6.3
+* Windows                      (GitHub), R 4.0.5
+* Windows                 (win-builder), R 4.0.5
 
 ### Current R versions
-* macOS 10.15.6 Catalina       (GitHub), R 4.0.3
-* macOS 11.1 Big Sur            (local), R 4.0.3
-* Ubuntu 18.04                 (GitHub), R 4.0.3
-* Ubuntu 20.04                  (local), R 4.0.3
-* Windows                      (GitHub), R 4.0.3
-* Windows                 (win-builder), R 4.0.3
+* macOS 10.15.7 Catalina       (GitHub), R 4.1.0
+* macOS 11.1 Big Sur            (local), R 4.1.0
+* Ubuntu 20.04                 (GitHub), R 4.1.0
+* Ubuntu 20.04                  (local), R 4.1.0
+* Windows                      (GitHub), R 4.1.0
+* Windows                       (local), R 4.1.0
+* Windows                 (win-builder), R 4.1.0
 
 ### Development R version
-* Ubuntu 18.04                 (GitHub), R 4.1.0 (2021-01-03 r79781)
-* Ubuntu 20.04                  (local), R 4.1.0 (2021-01-05 r79797)
-* Windows                      (GitHub), R 4.1.0 (2021-01-03 r79781)
-* Windows                 (win-builder), R 4.1.0 (2021-01-02 r79767)
+* Ubuntu 20.04                 (GitHub), R-devel (2021-06-07 r80458)
+* Ubuntu 20.04                  (local), R-devel (2021-05-31 r80426)
+* Windows                      (GitHub), R-devel (2021-06-07 r80458)
+* Windows                 (win-builder), R-devel (2021-06-07 r80458)
 
 ## R CMD check results
 

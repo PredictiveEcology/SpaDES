@@ -20,7 +20,7 @@
 #' running user-built simulation modules (see also \pkg{SpaDES.tools}).
 #' Included are numerous tools to visualize rasters and other maps (via \pkg{quickPlot}),
 #' and caching methods for reproducible simulations (via \pkg{reproducible}).
-#' Additional functionality is provided by the \pkg{SpaDES.addins} and
+#' Additional functionality is provided by the suggested \pkg{SpaDES.addins} and
 #' \code{SpaDES.shiny} packages (see below).
 #'
 #' Bug reports:
@@ -88,7 +88,8 @@
 #' @import methods
 #' @import quickPlot
 #' @import reproducible
-#' @import SpaDES.addins
 #' @import SpaDES.core
 #' @import SpaDES.tools
 NULL
+
+## NOTE: SpaDES.addins moved to Suggests Feb 2021
