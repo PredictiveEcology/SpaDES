@@ -83,7 +83,7 @@
 
 ################################################################################
 # package imports
-# See \url{http://r-pkgs.had.co.nz/namespace.html#imports}
+# See \url{https://r-pkgs.org/namespace.html#imports}
 
 #' @import methods
 #' @import quickPlot
