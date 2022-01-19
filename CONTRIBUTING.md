@@ -16,7 +16,7 @@ We welcome contributions to `SpaDES`, both as bug reports or package enhancement
 
 3. If adding new functionality, please include instructional examples and/or [unit tests](https://r-pkgs.org/tests.html).
 
-3. Submit a [pull request](https://help.github.com/articles/using-pull-requests) against the development branch.
+3. Submit a [pull request](https://docs.github.com/articles/using-pull-requests) against the development branch.
 
 We'll try to review your pull request and provide feedback / merge improvements as quickly as possible.
 
