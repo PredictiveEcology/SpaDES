@@ -1,5 +1,10 @@
 Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
+version 2.0.8
+=============
+
+* resubmit due to archived dependency `SpaDES.tools`, which is back on CRAN.
+
 version 2.0.7
 =============
 

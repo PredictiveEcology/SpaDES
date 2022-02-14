@@ -16,8 +16,8 @@ Description: Metapackage for implementing a variety of event-based models, with
 URL:
     https://spades.predictiveecology.org,
     https://github.com/PredictiveEcology/SpaDES
-Date: 2021-06-10
-Version: 2.0.7
+Date: 2022-02-14
+Version: 2.0.8
 Authors@R: c(
     person("Alex M", "Chubaty", email = "alex.chubaty@gmail.com",
     role = c("aut", "cre"), comment = c(ORCID = "0000-0001-7146-8135")),
@@ -61,4 +61,4 @@ ByteCompile: yes
 Collate:
     'spades-package.R'
     'zzz.R'
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
