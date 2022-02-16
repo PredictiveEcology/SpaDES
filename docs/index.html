@@ -36,6 +36,8 @@
 </script>
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-home">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -48,18 +50,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">SpaDES</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.7</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.8</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="reference/index.html">Reference</a>
 </li>
@@ -81,7 +77,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/PredictiveEcology/SpaDES/">
+  <a href="https://github.com/PredictiveEcology/SpaDES/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -98,137 +94,137 @@
 
       </header><div class="row">
   <div class="contents col-md-9">
-<div id="spatial-discrete-event-simulation-spades" class="section level1">
-<div class="page-header"><h1 class="hasAnchor">
-<a href="#spatial-discrete-event-simulation-spades" class="anchor"></a>Spatial Discrete Event Simulation (SpaDES)</h1></div>
+<div class="section level1">
+<div class="page-header"><h1 id="spatial-discrete-event-simulation-spades">Spatial Discrete Event Simulation (SpaDES)<a class="anchor" aria-label="anchor" href="#spatial-discrete-event-simulation-spades"></a>
+</h1></div>
 <!-- badges: start -->
 
 <p><img align="right" width="80" pad="20" src="https://github.com/PredictiveEcology/SpaDES/raw/master/docs/images/SpaDES.png"></p>
-<div id="develop-and-run-spatially-explicit-discrete-event-simulation-models" class="section level2">
-<h2 class="hasAnchor">
-<a href="#develop-and-run-spatially-explicit-discrete-event-simulation-models" class="anchor"></a>Develop and run spatially explicit discrete event simulation models</h2>
-<p>Metapackage for implementing a variety of event-based models, with a focus on spatially explicit models. These include raster-based, event-based, and agent-based models. The core simulation components (provided by <a href="https://spades-core.predictiveecology.org/"><code>SpaDES.core</code></a>) are built upon a discrete event simulation (DES) framework that facilitates modularity, and easily enables the user to include additional functionality by running user-built simulation modules (see also <a href="https://spades-tools.predictiveecology.org/"><code>SpaDES.tools</code></a> and <a href="https://spades-experiment.predictiveecology.org/"><code>SpaDES.experiment</code></a>). Included are numerous tools to visualize rasters and other maps (via <a href="https://quickplot.predictiveecology.org/"><code>quickPlot</code></a>), and caching methods for reproducible simulations (via <a href="https://reproducible.predictiveecology.org/"><code>reproducible</code></a>). Additional functionality is provided by the <a href="https://spades-addins.predictiveecology.org/"><code>SpaDES.addins</code></a> and <a href="https://spades-shiny.predictiveecology.org/"><code>SpaDES.shiny</code></a> packages.</p>
+<div class="section level2">
+<h2 id="develop-and-run-spatially-explicit-discrete-event-simulation-models">Develop and run spatially explicit discrete event simulation models<a class="anchor" aria-label="anchor" href="#develop-and-run-spatially-explicit-discrete-event-simulation-models"></a>
+</h2>
+<p>Metapackage for implementing a variety of event-based models, with a focus on spatially explicit models. These include raster-based, event-based, and agent-based models. The core simulation components (provided by <a href="https://spades-core.predictiveecology.org/" class="external-link"><code>SpaDES.core</code></a>) are built upon a discrete event simulation (DES) framework that facilitates modularity, and easily enables the user to include additional functionality by running user-built simulation modules (see also <a href="https://spades-tools.predictiveecology.org/" class="external-link"><code>SpaDES.tools</code></a> and <a href="https://spades-experiment.predictiveecology.org/" class="external-link"><code>SpaDES.experiment</code></a>). Included are numerous tools to visualize rasters and other maps (via <a href="https://quickplot.predictiveecology.org/" class="external-link"><code>quickPlot</code></a>), and caching methods for reproducible simulations (via <a href="https://reproducible.predictiveecology.org/" class="external-link"><code>reproducible</code></a>). Additional functionality is provided by the <a href="https://spades-addins.predictiveecology.org/" class="external-link"><code>SpaDES.addins</code></a> and <a href="https://spades-shiny.predictiveecology.org/" class="external-link"><code>SpaDES.shiny</code></a> packages.</p>
 <p><img src="https://spades.predictiveecology.org/images/lcc05.png"><img src="https://spades.predictiveecology.org/images/MapsSmall.gif"></p>
 </div>
-<div id="getting-started" class="section level2">
-<h2 class="hasAnchor">
-<a href="#getting-started" class="anchor"></a>Getting started</h2>
+<div class="section level2">
+<h2 id="getting-started">Getting started<a class="anchor" aria-label="anchor" href="#getting-started"></a>
+</h2>
 <ul>
-<li><a href="https://github.com/PredictiveEcology/SpaDES/wiki/Getting-Started-Guide">Getting started guide</a></li>
-<li><a href="https://github.com/PredictiveEcology/SpaDES-modules/blob/master/modules/LCC2005/LCC2005.Rmd">LCC2005 tutorial</a></li>
-<li><a href="https://github.com/CeresBarros/SpaDES4Dummies">‘SpaDES 4 Dummies’ guide</a></li>
-<li><a href="https://groups.google.com/d/forum/spades-users">SpaDES users group</a></li>
-<li><a href="https://github.com/PredictiveEcology/SpaDES/wiki/Help-Vignettes">Vignettes</a></li>
-<li><a href="https://github.com/PredictiveEcology/SpaDES/wiki">Wiki</a></li>
-<li><a href="https://github.com/PredictiveEcology/SpaDES-modules/wiki/Current-modules-in-development">Known modules (existing or in development)</a></li>
-<li><a href="https://docs.google.com/document/d/19QmQ5sErqbXF_mgv3M50SnRQJBciFvCV_LuJDsj0qKA/edit?usp=sharing">SpaDES Best Practices Google Doc</a></li>
+<li><a href="https://github.com/PredictiveEcology/SpaDES/wiki/Getting-Started-Guide" class="external-link">Getting started guide</a></li>
+<li><a href="https://github.com/PredictiveEcology/SpaDES-modules/blob/master/modules/LCC2005/LCC2005.Rmd" class="external-link">LCC2005 tutorial</a></li>
+<li><a href="https://github.com/CeresBarros/SpaDES4Dummies" class="external-link">‘SpaDES 4 Dummies’ guide</a></li>
+<li><a href="https://groups.google.com/d/forum/spades-users" class="external-link">SpaDES users group</a></li>
+<li><a href="https://github.com/PredictiveEcology/SpaDES/wiki/Help-Vignettes" class="external-link">Vignettes</a></li>
+<li><a href="https://github.com/PredictiveEcology/SpaDES/wiki" class="external-link">Wiki</a></li>
+<li><a href="https://github.com/PredictiveEcology/SpaDES-modules/wiki/Current-modules-in-development" class="external-link">Known modules (existing or in development)</a></li>
+<li><a href="https://docs.google.com/document/d/19QmQ5sErqbXF_mgv3M50SnRQJBciFvCV_LuJDsj0qKA/edit?usp=sharing" class="external-link">SpaDES Best Practices Google Doc</a></li>
 </ul>
-<div id="workshops" class="section level3">
-<h3 class="hasAnchor">
-<a href="#workshops" class="anchor"></a>Workshops</h3>
+<div class="section level3">
+<h3 id="workshops">Workshops<a class="anchor" aria-label="anchor" href="#workshops"></a>
+</h3>
 <ul>
-<li><a href="https://spades-workshops.predictiveecology.org">SpaDES Workshops</a></li>
+<li><a href="https://spades-workshops.predictiveecology.org" class="external-link">SpaDES Workshops</a></li>
 </ul>
 </div>
-<div id="websites" class="section level3">
-<h3 class="hasAnchor">
-<a href="#websites" class="anchor"></a>Websites</h3>
-<p><strong><code>SpaDES</code> metapackage:</strong> <a href="https://SpaDES.PredictiveEcology.org">https://SpaDES.PredictiveEcology.org</a></p>
+<div class="section level3">
+<h3 id="websites">Websites<a class="anchor" aria-label="anchor" href="#websites"></a>
+</h3>
+<p><strong><code>SpaDES</code> metapackage:</strong> <a href="https://SpaDES.PredictiveEcology.org" class="external-link">https://SpaDES.PredictiveEcology.org</a></p>
 <p><strong>Other <code>SpaDES</code> packages:</strong></p>
 <ul>
-<li><p><code>quickPlot</code>: <a href="https://quickplot.predictiveecology.org/" class="uri">https://quickplot.predictiveecology.org/</a> <a href="https://codecov.io/gh/PredictiveEcology/quickPlot?branch=development"><img src="https://codecov.io/gh/PredictiveEcology/quickPlot/branch/development/graph/badge.svg" alt="Codecov test coverage"></a></p></li>
-<li><p><code>reproducible</code>: <a href="https://reproducible.predictiveecology.org/" class="uri">https://reproducible.predictiveecology.org/</a> <a href="https://codecov.io/gh/PredictiveEcology/reproducible?branch=master"><img src="https://codecov.io/gh/PredictiveEcology/reproducible/branch/master/graph/badge.svg" alt="Codecov test coverage"></a></p></li>
-<li><p><code>Require</code>: <a href="https://require.predictiveecology.org/" class="uri">https://require.predictiveecology.org/</a> <a href="https://codecov.io/gh/PredictiveEcology/Require?branch=master"><img src="https://codecov.io/gh/PredictiveEcology/Require/branch/master/graph/badge.svg" alt="Codecov test coverage"></a></p></li>
-<li><p><code>SpaDES.addins</code>: <a href="https://spades-addins.predictiveecology.org" class="uri">https://spades-addins.predictiveecology.org</a> <a href="https://codecov.io/gh/PredictiveEcology/SpaDES.addins?branch=development"><img src="https://codecov.io/gh/PredictiveEcology/SpaDES.addins/branch/development/graph/badge.svg" alt="Codecov test coverage"></a></p></li>
-<li><p><code>SpaDES.core</code>: <a href="https://spades-core.predictiveecology.org/" class="uri">https://spades-core.predictiveecology.org/</a> <a href="https://codecov.io/gh/PredictiveEcology/SpaDES.core?branch=master"><img src="https://codecov.io/gh/PredictiveEcology/SpaDES.core/branch/master/graph/badge.svg" alt="Codecov test coverage"></a></p></li>
-<li><p><code>SpaDES.experiment</code>: <a href="https://spades-experiment.predictiveecology.org/" class="uri">https://spades-experiment.predictiveecology.org/</a> <a href="https://codecov.io/gh/PredictiveEcology/SpaDES.experiment?branch=development"><img src="https://codecov.io/gh/PredictiveEcology/SpaDES.experiment/branch/development/graph/badge.svg" alt="Codecov test coverage"></a></p></li>
-<li><p><code>SpaDES.shiny</code>: <a href="https://spades-shiny.predictiveecology.org/" class="uri">https://spades-shiny.predictiveecology.org/</a> <a href="https://codecov.io/gh/PredictiveEcology/SpaDES.shiny?branch=development"><img src="https://codecov.io/gh/PredictiveEcology/SpaDES.shiny/branch/development/graph/badge.svg" alt="Codecov test coverage"></a></p></li>
-<li><p><code>SpaDES.tools</code>: <a href="https://spades-tools.predictiveecology.org/" class="uri">https://spades-tools.predictiveecology.org/</a> <a href="https://codecov.io/gh/PredictiveEcology/SpaDES.tools?branch=development"><img src="https://codecov.io/gh/PredictiveEcology/SpaDES.tools/branch/development/graph/badge.svg" alt="Codecov test coverage"></a></p></li>
-<li><p><code>SpaDES.project</code>: (currently being set up) <a href="https://spades-project.predictiveecology.org/" class="uri">https://spades-project.predictiveecology.org/</a> <a href="https://codecov.io/gh/PredictiveEcology/SpaDES.project?branch=development"><img src="https://codecov.io/gh/PredictiveEcology/SpaDES.project/branch/development/graph/badge.svg" alt="Codecov test coverage"></a></p></li>
+<li><p><code>quickPlot</code>: <a href="https://quickplot.predictiveecology.org/" class="external-link uri">https://quickplot.predictiveecology.org/</a> <a href="https://app.codecov.io/gh/PredictiveEcology/quickPlot?branch=development" class="external-link"><img src="https://codecov.io/gh/PredictiveEcology/quickPlot/branch/development/graph/badge.svg" alt="Codecov test coverage"></a></p></li>
+<li><p><code>reproducible</code>: <a href="https://reproducible.predictiveecology.org/" class="external-link uri">https://reproducible.predictiveecology.org/</a> <a href="https://app.codecov.io/gh/PredictiveEcology/reproducible?branch=master" class="external-link"><img src="https://codecov.io/gh/PredictiveEcology/reproducible/branch/master/graph/badge.svg" alt="Codecov test coverage"></a></p></li>
+<li><p><code>Require</code>: <a href="https://require.predictiveecology.org/" class="external-link uri">https://require.predictiveecology.org/</a> <a href="https://app.codecov.io/gh/PredictiveEcology/Require?branch=master" class="external-link"><img src="https://codecov.io/gh/PredictiveEcology/Require/branch/master/graph/badge.svg" alt="Codecov test coverage"></a></p></li>
+<li><p><code>SpaDES.addins</code>: <a href="https://spades-addins.predictiveecology.org" class="external-link uri">https://spades-addins.predictiveecology.org</a> <a href="https://app.codecov.io/gh/PredictiveEcology/SpaDES.addins?branch=development" class="external-link"><img src="https://codecov.io/gh/PredictiveEcology/SpaDES.addins/branch/development/graph/badge.svg" alt="Codecov test coverage"></a></p></li>
+<li><p><code>SpaDES.core</code>: <a href="https://spades-core.predictiveecology.org/" class="external-link uri">https://spades-core.predictiveecology.org/</a> <a href="https://app.codecov.io/gh/PredictiveEcology/SpaDES.core?branch=master" class="external-link"><img src="https://codecov.io/gh/PredictiveEcology/SpaDES.core/branch/master/graph/badge.svg" alt="Codecov test coverage"></a></p></li>
+<li><p><code>SpaDES.experiment</code>: <a href="https://spades-experiment.predictiveecology.org/" class="external-link uri">https://spades-experiment.predictiveecology.org/</a> <a href="https://app.codecov.io/gh/PredictiveEcology/SpaDES.experiment?branch=development" class="external-link"><img src="https://codecov.io/gh/PredictiveEcology/SpaDES.experiment/branch/development/graph/badge.svg" alt="Codecov test coverage"></a></p></li>
+<li><p><code>SpaDES.shiny</code>: <a href="https://spades-shiny.predictiveecology.org/" class="external-link uri">https://spades-shiny.predictiveecology.org/</a> <a href="https://app.codecov.io/gh/PredictiveEcology/SpaDES.shiny?branch=development" class="external-link"><img src="https://codecov.io/gh/PredictiveEcology/SpaDES.shiny/branch/development/graph/badge.svg" alt="Codecov test coverage"></a></p></li>
+<li><p><code>SpaDES.tools</code>: <a href="https://spades-tools.predictiveecology.org/" class="external-link uri">https://spades-tools.predictiveecology.org/</a> <a href="https://app.codecov.io/gh/PredictiveEcology/SpaDES.tools?branch=development" class="external-link"><img src="https://codecov.io/gh/PredictiveEcology/SpaDES.tools/branch/development/graph/badge.svg" alt="Codecov test coverage"></a></p></li>
+<li><p><code>SpaDES.project</code>: (currently being set up) <a href="https://spades-project.predictiveecology.org/" class="external-link uri">https://spades-project.predictiveecology.org/</a> <a href="https://app.codecov.io/gh/PredictiveEcology/SpaDES.project?branch=development" class="external-link"><img src="https://codecov.io/gh/PredictiveEcology/SpaDES.project/branch/development/graph/badge.svg" alt="Codecov test coverage"></a></p></li>
 </ul>
 <p><strong>Domain specific packages</strong></p>
 <ul>
 <li>
-<code>LandR</code>: <a href="https://LandR.predictiveecology.org/" class="uri">https://LandR.predictiveecology.org/</a> <a href="https://codecov.io/gh/PredictiveEcology/LandR?branch=development"><img src="https://codecov.io/gh/PredictiveEcology/LandR/branch/development/graph/badge.svg" alt="Codecov test coverage"></a>
+<code>LandR</code>: <a href="https://LandR.predictiveecology.org/" class="external-link uri">https://LandR.predictiveecology.org/</a> <a href="https://app.codecov.io/gh/PredictiveEcology/LandR?branch=development" class="external-link"><img src="https://codecov.io/gh/PredictiveEcology/LandR/branch/development/graph/badge.svg" alt="Codecov test coverage"></a>
 </li>
 </ul>
 <p>A package to accompany the LandR landscape ecosystem modules.</p>
 <ul>
 <li>
-<code>NetLogoR</code>: <a href="https://NetLogoR.predictiveecology.org/" class="uri">https://NetLogoR.predictiveecology.org/</a> <a href="https://codecov.io/gh/PredictiveEcology/NetLogoR?branch=development"><img src="https://codecov.io/gh/PredictiveEcology/NetLogoR/branch/development/graph/badge.svg" alt="Codecov test coverage"></a>
+<code>NetLogoR</code>: <a href="https://NetLogoR.predictiveecology.org/" class="external-link uri">https://NetLogoR.predictiveecology.org/</a> <a href="https://app.codecov.io/gh/PredictiveEcology/NetLogoR?branch=development" class="external-link"><img src="https://codecov.io/gh/PredictiveEcology/NetLogoR/branch/development/graph/badge.svg" alt="Codecov test coverage"></a>
 </li>
 </ul>
-<p>A reimplementation in pure R of the NetLogo dictionary.</p>
-<p><strong>Predictive Ecology Blog:</strong> <a href="http://predictiveecology.org/" class="uri">http://predictiveecology.org/</a></p>
-<p><strong>Canadian Forest Service Adaptation Toolkit:</strong> <a href="https://www.nrcan.gc.ca/climate-change/impacts-adaptations/climate-change-impacts-forests/forest-change-adaptation-tools/17770" class="uri">https://www.nrcan.gc.ca/climate-change/impacts-adaptations/climate-change-impacts-forests/forest-change-adaptation-tools/17770</a></p>
-<p><strong>LandWeb Demonstration App:</strong> <a href="https://landweb.ca" class="uri">https://landweb.ca</a></p>
-<p><strong>Simple visuals</strong> <a href="https://predictiveecology.github.io/SpaDES_examples/docs/index.html">SpaDES_examples repository</a></p>
+<p>A re-implementation in pure R of the NetLogo dictionary.</p>
+<p><strong>Predictive Ecology Blog:</strong> <a href="http://predictiveecology.org/" class="external-link uri">http://predictiveecology.org/</a></p>
+<p><strong>Canadian Forest Service Adaptation Toolkit:</strong> <a href="https://www.nrcan.gc.ca/climate-change-adapting-impacts-and-reducing-emissions/climate-change-impacts-forests/forest-change-adaptation-tools/17770" class="external-link uri">https://www.nrcan.gc.ca/climate-change-adapting-impacts-and-reducing-emissions/climate-change-impacts-forests/forest-change-adaptation-tools/17770</a></p>
+<p><strong>LandWeb Demonstration App:</strong> <a href="https://landweb.ca" class="external-link uri">https://landweb.ca</a></p>
+<p><strong>Simple visuals</strong> <a href="https://predictiveecology.github.io/SpaDES_examples/docs/index.html" class="external-link">SpaDES_examples repository</a></p>
 <p><strong>Examples for R-savvy users:</strong></p>
 <p><em>Copy the linked <code>.Rmd</code> file to your computer.</em> <em>Open it with a text editor or in RStudio, and run all chunks in R.</em> <em>It is not intended to be knitted; knitting will only output the script.</em></p>
 <ul>
-<li><a href="https://raw.githubusercontent.com/PredictiveEcology/SpaDES-modules/master/modules/LCC2005/LCC2005.Rmd">LandCoverChange</a></li>
+<li><a href="https://raw.githubusercontent.com/PredictiveEcology/SpaDES-modules/master/modules/LCC2005/LCC2005.Rmd" class="external-link">LandCoverChange</a></li>
 </ul>
 <hr>
 </div>
 </div>
-<div id="installation" class="section level2">
-<h2 class="hasAnchor">
-<a href="#installation" class="anchor"></a>Installation</h2>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
 <p><strong>Install development libraries:</strong> building packages from source requires the appropriate development libraries for your operating system.</p>
 <ul>
-<li><p><em>Windows:</em> install <a href="https://cran.r-project.org/bin/windows/Rtools/">Rtools</a>.</p></li>
+<li><p><em>Windows:</em> install <a href="https://cran.r-project.org/bin/windows/Rtools/" class="external-link">Rtools</a>.</p></li>
 <li><p><em>macOS:</em> install Xcode commandline tools from the terminal: <code>xcode-select install</code>.</p></li>
 <li><p><em>Debian/Ubuntu Linux:</em> ensure <code>r-base-dev</code> is installed.</p></li>
 </ul>
-<p>See <a href="https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites">here</a> for more details.</p>
+<p>See <a href="https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites" class="external-link">here</a> for more details.</p>
 <p><strong>Install suggested packages:</strong> the <code>fastshp</code> package can be installed with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">"fastshp"</span>, repos <span class="op">=</span> <span class="st">"https://rforge.net"</span>, type <span class="op">=</span> <span class="st">"source"</span><span class="op">)</span></code></pre></div>
-<div id="current-stable-release" class="section level3">
-<h3 class="hasAnchor">
-<a href="#current-stable-release" class="anchor"></a>Current stable release</h3>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"fastshp"</span>, repos <span class="op">=</span> <span class="st">"https://rforge.net"</span>, type <span class="op">=</span> <span class="st">"source"</span><span class="op">)</span></code></pre></div>
+<div class="section level3">
+<h3 id="current-stable-release">Current stable release<a class="anchor" aria-label="anchor" href="#current-stable-release"></a>
+</h3>
 <p><strong>Install from CRAN:</strong></p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">"SpaDES"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"SpaDES"</span><span class="op">)</span></code></pre></div>
 <p><strong>Install from GitHub:</strong></p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#install.packages("devtools")</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://devtools.r-lib.org/">"devtools"</a></span><span class="op">)</span>
-<span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span><span class="op">(</span><span class="st">"PredictiveEcology/SpaDES"</span>, dependencies <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># master</span></code></pre></div>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://devtools.r-lib.org/" class="external-link">"devtools"</a></span><span class="op">)</span>
+<span class="fu"><a href="https://devtools.r-lib.org/reference/remote-reexports.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"PredictiveEcology/SpaDES"</span>, dependencies <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># master</span></code></pre></div>
 </div>
-<div id="development-version-unstable" class="section level3">
-<h3 class="hasAnchor">
-<a href="#development-version-unstable" class="anchor"></a>Development version (unstable)</h3>
+<div class="section level3">
+<h3 id="development-version-unstable">Development version (unstable)<a class="anchor" aria-label="anchor" href="#development-version-unstable"></a>
+</h3>
 <p><strong>Install from GitHub:</strong></p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#install.packages("devtools")</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://devtools.r-lib.org/">"devtools"</a></span><span class="op">)</span>
-<span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span><span class="op">(</span><span class="st">"PredictiveEcology/SpaDES"</span>, ref <span class="op">=</span> <span class="st">"development"</span>, dependencies <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://devtools.r-lib.org/" class="external-link">"devtools"</a></span><span class="op">)</span>
+<span class="fu"><a href="https://devtools.r-lib.org/reference/remote-reexports.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"PredictiveEcology/SpaDES"</span>, ref <span class="op">=</span> <span class="st">"development"</span>, dependencies <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 </div>
 </div>
-<div id="getting-help" class="section level2">
-<h2 class="hasAnchor">
-<a href="#getting-help" class="anchor"></a>Getting help</h2>
+<div class="section level2">
+<h2 id="getting-help">Getting help<a class="anchor" aria-label="anchor" href="#getting-help"></a>
+</h2>
 <p>Q&amp;A forum is available on the SpaDES Users Google Group. This is the place to ask for help on setting up and running simulations, as well as module development. Please do not file bug reports here.</p>
 <ul>
-<li><a href="https://groups.google.com/forum/#!forum/spades-users">Q&amp;A Forum</a></li>
+<li><a href="https://groups.google.com/forum/#!forum/spades-users" class="external-link">Q&amp;A Forum</a></li>
 </ul>
 </div>
-<div id="reporting-bugs" class="section level2">
-<h2 class="hasAnchor">
-<a href="#reporting-bugs" class="anchor"></a>Reporting bugs</h2>
-<p>The <code>SpaDES</code> metapackage simply loads a number of other packages from the <code>SpaDES</code> ecosystem. Bug reports should be reported to the specific package in question rather than the metapackage, and should contain a concise <a href="https://stackoverflow.com/q/5963269/1380598">reproducible example</a>. Contact us via the package’s GitHub site:</p>
+<div class="section level2">
+<h2 id="reporting-bugs">Reporting bugs<a class="anchor" aria-label="anchor" href="#reporting-bugs"></a>
+</h2>
+<p>The <code>SpaDES</code> metapackage simply loads a number of other packages from the <code>SpaDES</code> ecosystem. Bug reports should be reported to the specific package in question rather than the metapackage, and should contain a concise <a href="https://stackoverflow.com/q/5963269/1380598" class="external-link">reproducible example</a>. Contact us via the package’s GitHub site:</p>
 <ul>
-<li><a href="https://github.com/PredictiveEcology/LandR/issues">LandR</a></li>
-<li><a href="https://github.com/PredictiveEcology/quickPlot/issues">quickPlot</a></li>
-<li><a href="https://github.com/PredictiveEcology/Require/issues">Require</a></li>
-<li><a href="https://github.com/PredictiveEcology/reproducible/issues">reproducible</a></li>
-<li><a href="https://github.com/PredictiveEcology/SpaDES.addins/issues">SpaDES.addins</a></li>
-<li><a href="https://github.com/PredictiveEcology/SpaDES.core/issues">SpaDES.core</a></li>
-<li><a href="https://github.com/PredictiveEcology/SpaDES.experiment/issues">SpaDES.experiment</a></li>
-<li><a href="https://github.com/PredictiveEcology/SpaDES.project/issues">SpaDES.project</a></li>
-<li><a href="https://github.com/PredictiveEcology/SpaDES.shiny/issues">SpaDES.shiny</a></li>
-<li><a href="https://github.com/PredictiveEcology/SpaDES.tools/issues">SpaDES.tools</a></li>
+<li><a href="https://github.com/PredictiveEcology/LandR/issues" class="external-link">LandR</a></li>
+<li><a href="https://github.com/PredictiveEcology/quickPlot/issues" class="external-link">quickPlot</a></li>
+<li><a href="https://github.com/PredictiveEcology/Require/issues" class="external-link">Require</a></li>
+<li><a href="https://github.com/PredictiveEcology/reproducible/issues" class="external-link">reproducible</a></li>
+<li><a href="https://github.com/PredictiveEcology/SpaDES.addins/issues" class="external-link">SpaDES.addins</a></li>
+<li><a href="https://github.com/PredictiveEcology/SpaDES.core/issues" class="external-link">SpaDES.core</a></li>
+<li><a href="https://github.com/PredictiveEcology/SpaDES.experiment/issues" class="external-link">SpaDES.experiment</a></li>
+<li><a href="https://github.com/PredictiveEcology/SpaDES.project/issues" class="external-link">SpaDES.project</a></li>
+<li><a href="https://github.com/PredictiveEcology/SpaDES.shiny/issues" class="external-link">SpaDES.shiny</a></li>
+<li><a href="https://github.com/PredictiveEcology/SpaDES.tools/issues" class="external-link">SpaDES.tools</a></li>
 </ul>
 <hr>
 <p>Copyright (C) 2021 Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada</p>
@@ -238,58 +234,68 @@
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <div class="links">
-<h2>Links</h2>
+<h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li>Download from CRAN at <br><a href="https://cloud.r-project.org/package=SpaDES">https://​cloud.r-project.org/​package=SpaDES</a>
-</li>
-<li>Browse source code at <br><a href="https://github.com/PredictiveEcology/SpaDES/">https://​github.com/​PredictiveEcology/​SpaDES/​</a>
-</li>
-<li>Report a bug at <br><a href="https://github.com/PredictiveEcology/SpaDES/issues">https://​github.com/​PredictiveEcology/​SpaDES/​issues</a>
-</li>
+<li><a href="https://cloud.r-project.org/package=SpaDES" class="external-link">View on CRAN</a></li>
+<li><a href="https://github.com/PredictiveEcology/SpaDES/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/PredictiveEcology/SpaDES/issues" class="external-link">Report a bug</a></li>
 </ul>
 </div>
+
 <div class="license">
-<h2>License</h2>
+<h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
-<li><a href="https://www.r-project.org/Licenses/GPL-3">GPL-3</a></li>
+<li><a href="https://www.r-project.org/Licenses/GPL-3" class="external-link">GPL-3</a></li>
 </ul>
 </div>
+
 <div class="community">
-<h2>Community</h2>
+<h2 data-toc-skip>Community</h2>
 <ul class="list-unstyled">
 <li><a href="CONTRIBUTING.html">Contributing guide</a></li>
 </ul>
 </div>
-<div class="developers">
-<h2>Developers</h2>
+
+<div class="citation">
+<h2 data-toc-skip>Citation</h2>
 <ul class="list-unstyled">
-<li>Alex M Chubaty <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0001-7146-8135" target="orcid.widget" aria-label="ORCID"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
-<li>Eliot J B McIntire <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0002-6914-8316" target="orcid.widget" aria-label="ORCID"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
-<li><a href="authors.html">All authors...</a></li>
+<li><a href="authors.html#citation">Citing SpaDES</a></li>
 </ul>
 </div>
 
-  <div class="dev-status">
-<h2>Dev status</h2>
+<div class="developers">
+<h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li><a href="https://github.com/PredictiveEcology/SpaDES/actions"><img src="https://github.com/PredictiveEcology/SpaDES/workflows/R-CMD-check/badge.svg" alt="R build status"></a></li>
-<li><a href="https://cran.r-project.org/package=SpaDES"><img src="https://www.r-pkg.org/badges/version/SpaDES" alt="CRAN_Status_Badge"></a></li>
-<li><a href="https://cran.r-project.org/package=SpaDES"><img src="https://www.r-pkg.org/badges/ago/SpaDES" alt="CRAN_Release_Date"></a></li>
-<li><a href="https://cran.r-project.org/package=SpaDES"><img src="https://cranlogs.r-pkg.org/badges/grand-total/SpaDES" alt="Downloads"></a></li>
-<li><a href="https://zenodo.org/badge/latestdoi/17892/PredictiveEcology/SpaDES"><img src="https://zenodo.org/badge/17892/PredictiveEcology/SpaDES.svg" alt="DOI"></a></li>
-<li><a href="https://codecov.io/gh/PredictiveEcology/SpaDES?branch=master"><img src="https://codecov.io/gh/PredictiveEcology/SpaDES/branch/master/graph/badge.svg" alt="Codecov test coverage"></a></li>
+<li>Alex M Chubaty <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0001-7146-8135" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<li>Eliot J B McIntire <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0002-6914-8316" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<li><a href="authors.html">More about authors...</a></li>
 </ul>
 </div>
+
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://github.com/PredictiveEcology/SpaDES/actions" class="external-link"><img src="https://github.com/PredictiveEcology/SpaDES/workflows/R-CMD-check/badge.svg" alt="R build status"></a></li>
+<li><a href="https://cran.r-project.org/package=SpaDES" class="external-link"><img src="https://www.r-pkg.org/badges/version/SpaDES" alt="CRAN_Status_Badge"></a></li>
+<li><a href="https://cran.r-project.org/package=SpaDES" class="external-link"><img src="https://www.r-pkg.org/badges/ago/SpaDES" alt="CRAN_Release_Date"></a></li>
+<li><a href="https://cran.r-project.org/package=SpaDES" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/grand-total/SpaDES" alt="Downloads"></a></li>
+<li><a href="https://zenodo.org/badge/latestdoi/17892/PredictiveEcology/SpaDES" class="external-link"><img src="https://zenodo.org/badge/17892/PredictiveEcology/SpaDES.svg" alt="DOI"></a></li>
+<li><a href="https://app.codecov.io/gh/PredictiveEcology/SpaDES?branch=master" class="external-link"><img src="https://codecov.io/gh/PredictiveEcology/SpaDES/branch/master/graph/badge.svg" alt="Codecov test coverage"></a></li>
+</ul>
 </div>
+
+  </div>
 </div>
 
 
       <footer><div class="copyright">
-  <p>Developed by Alex M Chubaty, Eliot J B McIntire.</p>
+  <p></p>
+<p>Developed by Alex M Chubaty, Eliot J B McIntire.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
 </div>
 
       </footer>
@@ -297,6 +303,8 @@
 
   
 
+
+  
 
   </body>
 </html>
