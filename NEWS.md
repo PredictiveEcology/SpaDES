@@ -3,6 +3,7 @@ Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 version 2.0.8
 =============
 
+* drop support for R 3.6, as it is no longer supported by several dependencies.
 * resubmit due to archived dependency `SpaDES.tools`, which is back on CRAN.
 
 version 2.0.7
