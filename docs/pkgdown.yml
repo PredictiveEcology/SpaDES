@@ -3,7 +3,7 @@ pkgdown: 2.0.2
 pkgdown_sha: ~
 articles:
   getting-started: getting-started.html
-last_built: 2022-02-16T18:02Z
+last_built: 2022-02-16T18:10Z
 urls:
   reference: https://spades.predictiveecology.org/reference
   article: https://spades.predictiveecology.org/articles
