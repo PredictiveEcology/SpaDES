@@ -23,10 +23,9 @@ See `NEWS.md` for a full list of changes.
 * Windows                 (win-builder), R 4.1.2
 
 ### Development R version
-* Ubuntu 20.04                 (GitHub), R-devel (2022-01-17 r81508)
-* Ubuntu 20.04                  (local), R-devel (2022-01-17 r81511)
-* Windows                      (GitHub), R-devel (2022-01-17 r81511 ucrt)
-* Windows                 (win-builder), R-devel (2022-01-17 r81511)
+* Ubuntu 20.04                 (GitHub), R-devel (2022-02-12 r81722)
+* Windows                      (GitHub), R-devel (2022-02-13 r81727 ucrt)
+* Windows                 (win-builder), R-devel (2022-02-15 r81747 ucrt)
 
 ## R CMD check results
 

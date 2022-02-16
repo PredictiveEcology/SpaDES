@@ -68,12 +68,12 @@ A package to accompany the LandR landscape ecosystem modules.
 
 - `NetLogoR`: https://NetLogoR.predictiveecology.org/ [![Codecov test coverage](https://codecov.io/gh/PredictiveEcology/NetLogoR/branch/development/graph/badge.svg)](https://app.codecov.io/gh/PredictiveEcology/NetLogoR?branch=development)
 
-A reimplementation in pure R of the NetLogo dictionary.
+A re-implementation in pure R of the NetLogo dictionary.
 
 **Predictive Ecology Blog:** <http://predictiveecology.org/>
 
 **Canadian Forest Service Adaptation Toolkit:**
-<https://www.nrcan.gc.ca/climate-change/impacts-adaptations/climate-change-impacts-forests/forest-change-adaptation-tools/17770>
+<https://www.nrcan.gc.ca/climate-change-adapting-impacts-and-reducing-emissions/climate-change-impacts-forests/forest-change-adaptation-tools/17770>
 
 **LandWeb Demonstration App:** <https://landweb.ca>
 
