@@ -49,7 +49,7 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -86,10 +86,12 @@
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Getting started with <code>SpaDES</code>
 </h1>
-                        <h4 data-toc-skip class="author">Alex M. Chubaty</h4>
-                        <h4 data-toc-skip class="author">Eliot J. B. McIntire</h4>
+                        <h4 data-toc-skip class="author">Alex M.
+Chubaty</h4>
+                        <h4 data-toc-skip class="author">Eliot J. B.
+McIntire</h4>
             
-            <h4 data-toc-skip class="date">February 16 2022</h4>
+            <h4 data-toc-skip class="date">May 30 2022</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/PredictiveEcology/SpaDES/blob/HEAD/vignettes/getting-started.Rmd" class="external-link"><code>vignettes/getting-started.Rmd</code></a></small>
       <div class="hidden name"><code>getting-started.Rmd</code></div>
@@ -101,7 +103,19 @@
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p><code>SpaDES</code> is a metapackage for implementing a variety of event-based models, with a focus on spatially explicit models. These include raster-based, event-based, and agent-based models. The core simulation components (provided by <code>SpaDES.core</code>) are built upon a discrete event simulation (DES; see Matloff (2011) ch 7.8.3 <a href="https://nostarch.com/artofr.htm" class="external-link uri">https://nostarch.com/artofr.htm</a>) framework that facilitates modularity, and easily enables the user to include additional functionality by running user-built simulation modules (see also <code>SpaDES.tools</code>). Included are numerous tools to visualize rasters and other maps (via <code>quickPlot</code>), and caching methods for reproducible simulations (via <code>reproducible</code>). Additional functionality is provided by the <code>SpaDES.addins</code> and <code>SpaDES.shiny</code> packages (see below).</p>
+<p><code>SpaDES</code> is a metapackage for implementing a variety of
+event-based models, with a focus on spatially explicit models. These
+include raster-based, event-based, and agent-based models. The core
+simulation components (provided by <code>SpaDES.core</code>) are built
+upon a discrete event simulation (DES; see Matloff (2011) ch 7.8.3 <a href="https://nostarch.com/artofr.htm" class="external-link uri">https://nostarch.com/artofr.htm</a>) framework that
+facilitates modularity, and easily enables the user to include
+additional functionality by running user-built simulation modules (see
+also <code>SpaDES.tools</code>). Included are numerous tools to
+visualize rasters and other maps (via <code>quickPlot</code>), and
+caching methods for reproducible simulations (via
+<code>reproducible</code>). Additional functionality is provided by the
+<code>SpaDES.addins</code> and <code>SpaDES.shiny</code> packages (see
+below).</p>
 <p>Bug reports:</p>
 <ul>
 <li>
@@ -128,32 +142,40 @@
 <div class="section level3">
 <h3 id="the-spades-core-package">The <code>SpaDES.core</code> package:<a class="anchor" aria-label="anchor" href="#the-spades-core-package"></a>
 </h3>
-<p>The core discrete event simulation framework. See <code><a href="https://spades-core.predictiveecology.org/reference/SpaDES.core-package.html" class="external-link">?SpaDES.core::SpaDES.core</a></code>, and the vignettes therein (<code><a href="https://rdrr.io/r/utils/browseVignettes.html" class="external-link">browseVignettes()</a></code>).</p>
+<p>The core discrete event simulation framework. See
+<code><a href="https://spades-core.predictiveecology.org/reference/SpaDES.core-package.html" class="external-link">?SpaDES.core::SpaDES.core</a></code>, and the vignettes therein
+(<code><a href="https://rdrr.io/r/utils/browseVignettes.html" class="external-link">browseVignettes()</a></code>).</p>
 </div>
 <div class="section level3">
 <h3 id="the-spades-tools-package">The <code>SpaDES.tools</code> package:<a class="anchor" aria-label="anchor" href="#the-spades-tools-package"></a>
 </h3>
-<p>Additional utilities for developing ecological simulation models. See <code><a href="https://spades-tools.predictiveecology.org/reference/SpaDES.tools-package.html" class="external-link">?SpaDES.tools::SpaDES.tools</a></code>.</p>
+<p>Additional utilities for developing ecological simulation models. See
+<code><a href="https://spades-tools.predictiveecology.org/reference/SpaDES.tools-package.html" class="external-link">?SpaDES.tools::SpaDES.tools</a></code>.</p>
 </div>
 <div class="section level3">
 <h3 id="the-spades-addins-package">The <code>SpaDES.addins</code> package:<a class="anchor" aria-label="anchor" href="#the-spades-addins-package"></a>
 </h3>
-<p>A set of RStudio addins to assist with <code>SpaDES</code> module development.</p>
+<p>A set of RStudio addins to assist with <code>SpaDES</code> module
+development.</p>
 </div>
 <div class="section level3">
 <h3 id="the-spades-shiny-package">The <code>SpaDES.shiny</code> package:<a class="anchor" aria-label="anchor" href="#the-spades-shiny-package"></a>
 </h3>
-<p>Utilities for developing and running <code>shiny</code>-based app interfaces to <code>SpaDES</code> simulations. (Note this package is still under development and is not yet available on CRAN.)</p>
+<p>Utilities for developing and running <code>shiny</code>-based app
+interfaces to <code>SpaDES</code> simulations. (Note this package is
+still under development and is not yet available on CRAN.)</p>
 </div>
 <div class="section level3">
 <h3 id="the-quickplot-package">The <code>quickPlot</code> package:<a class="anchor" aria-label="anchor" href="#the-quickplot-package"></a>
 </h3>
-<p>The core <code>SpaDES</code> plotting engine, build upon speed and modularity.</p>
+<p>The core <code>SpaDES</code> plotting engine, build upon speed and
+modularity.</p>
 </div>
 <div class="section level3">
 <h3 id="the-reproducible-package">The <code>reproducible</code> package:<a class="anchor" aria-label="anchor" href="#the-reproducible-package"></a>
 </h3>
-<p>Provides several aspects of reproducible simulations, including simulation caching.</p>
+<p>Provides several aspects of reproducible simulations, including
+simulation caching.</p>
 </div>
 </div>
   </div>
@@ -175,7 +197,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
 </div>
 
       </footer>

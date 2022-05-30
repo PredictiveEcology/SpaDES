@@ -32,7 +32,7 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -64,7 +64,7 @@
     </div>
 
     <div class="section level2">
-<h2 class="page-header" data-toc-text="2.0.8" id="version-208">version 2.0.8<a class="anchor" aria-label="anchor" href="#version-208"></a></h2>
+<h2 class="page-header" data-toc-text="2.0.8" id="version-208">version 2.0.8<small>2022-02-16</small><a class="anchor" aria-label="anchor" href="#version-208"></a></h2>
 <ul><li>drop support for R 3.6, as it is no longer supported by several dependencies.</li>
 <li>resubmit due to archived dependency <code>SpaDES.tools</code>, which is back on CRAN.</li>
 </ul></div>
@@ -184,7 +184,7 @@
 <li>
 <p>improvements to caching –&gt; these are moved to <code>reproducible</code> package:</p>
 <ul><li>improved caching for <code>Raster*</code> objects &amp; S4 methods - now it normally persists across sessions;</li>
-<li>add <code>Cache</code> (upper case) which derives <code>cacheRepo</code> arg automatically from either the <code>cachePath(sim)</code>, if used within a module, or <code>getPath()$cachePath</code> if not within a module. Also, the upper case removes the name conflict with <code><a href="https://pbiecek.github.io/archivist/reference/cache.html" class="external-link">archivist::cache</a></code>;</li>
+<li>add <code>Cache</code> (upper case) which derives <code>cacheRepo</code> arg automatically from either the <code>cachePath(sim)</code>, if used within a module, or <code>getPath()$cachePath</code> if not within a module. Also, the upper case removes the name conflict with <code>archivist::cache</code>;</li>
 <li>uses <code><a href="https://rdrr.io/pkg/fastdigest/man/fastdigest.html" class="external-link">fastdigest::fastdigest</a></code> for RAM objects and <code><a href="https://rdrr.io/pkg/digest/man/digest.html" class="external-link">digest::digest</a></code> for disk-backed objects;</li>
 <li>add caching mechanisms at the module-level and event-level (via new <code>.useCache</code> parameter, which can be logical indicating whole module or character indicating individual events);</li>
 <li>add caching for <code>.inputObjects</code> function in <code>simInit</code>, via <code>.useCache</code> parameter in module</li>
@@ -541,7 +541,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
 </div>
 
       </footer></div>
