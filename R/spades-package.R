@@ -8,7 +8,7 @@
 #'
 #' @description
 #'
-#' \if{html}{\figure{SpaDES.png}{options: width=100 alt="SpaDES logo" align="right"}}
+#' \if{html}{\figure{SpaDES.png}{options: width=100 alt="SpaDES logo" style="float: right;"}}
 #' \if{latex}{\figure{SpaDES.png}{options: width=0.5in}}
 #'
 #' Metapackage for implementing a variety of event-based models, with a focus on
