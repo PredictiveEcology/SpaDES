@@ -23,18 +23,18 @@ Additional functionality is provided by the suggested \pkg{SpaDES.addins} and
 
 Bug reports:
 \itemize{
-  \item \code{quickPlot} package:
-        \url{https://github.com/PredictiveEcology/quickPlot/issues}
-  \item \code{reproducible} package:
-        \url{https://github.com/PredictiveEcology/reproducible/issues}
-  \item \code{SpaDES.addins} package:
-        \url{https://github.com/PredictiveEcology/SpaDES.addins/issues}
-  \item \code{SpaDES.core} package:
-        \url{https://github.com/PredictiveEcology/SpaDES.core/issues}
-  \item \code{SpaDES.shiny} package:
-        \url{https://github.com/PredictiveEcology/SpaDES.shiny/issues}
-  \item \code{SpaDES.tools} package:
-        \url{https://github.com/PredictiveEcology/SpaDES.tools/issues}
+\item \code{quickPlot} package:
+\url{https://github.com/PredictiveEcology/quickPlot/issues}
+\item \code{reproducible} package:
+\url{https://github.com/PredictiveEcology/reproducible/issues}
+\item \code{SpaDES.addins} package:
+\url{https://github.com/PredictiveEcology/SpaDES.addins/issues}
+\item \code{SpaDES.core} package:
+\url{https://github.com/PredictiveEcology/SpaDES.core/issues}
+\item \code{SpaDES.shiny} package:
+\url{https://github.com/PredictiveEcology/SpaDES.shiny/issues}
+\item \code{SpaDES.tools} package:
+\url{https://github.com/PredictiveEcology/SpaDES.tools/issues}
 }
 
 Module repository: \url{https://github.com/PredictiveEcology/SpaDES-modules}
@@ -45,7 +45,7 @@ Wiki: \url{https://github.com/PredictiveEcology/SpaDES/wiki}
 
 
 The core discrete event simulation framework.
-See \code{\link{SpaDES.core}{SpaDES.core-package}}, and the vignettes therein
+See \code{[SpaDES.core]{SpaDES.core-package}}, and the vignettes therein
 (\code{browseVignettes()}).
 }
 
@@ -53,7 +53,7 @@ See \code{\link{SpaDES.core}{SpaDES.core-package}}, and the vignettes therein
 
 
 Additional utilities for developing ecological simulation models.
-See \code{\link{SpaDES.tools}{SpaDES.tools-package}}.
+See \code{[SpaDES.tools]{SpaDES.tools-package}}.
 }
 
 \section{The \code{SpaDES.addins} package}{
@@ -95,7 +95,7 @@ Useful links:
 
 Authors:
 \itemize{
-  \item Eliot J B McIntire \email{eliot.mcintire@canada.ca} (\href{https://orcid.org/0000-0002-6914-8316}{ORCID})
+  \item Eliot J B McIntire \email{eliot.mcintire@nrcan-rncan.gc.ca} (\href{https://orcid.org/0000-0002-6914-8316}{ORCID})
 }
 
 Other contributors:

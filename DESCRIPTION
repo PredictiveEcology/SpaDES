@@ -61,3 +61,4 @@ Collate:
     'spades-package.R'
     'zzz.R'
 RoxygenNote: 7.2.1
+Roxygen: list(markdown = TRUE)

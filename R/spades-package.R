@@ -3,7 +3,7 @@
 ##   as represented by the Minister of Natural Resources Canada
 ##
 
-#' Categorized overview of the \code{SpaDES} package
+#' Categorized overview of the `SpaDES` package
 #'
 #' @description
 #'
@@ -14,59 +14,59 @@
 #' spatially explicit models. These include raster-based, event-based, and
 #' agent-based models. The core simulation components (provided by \pkg{SpaDES.core})
 #' are built upon a discrete event simulation (DES; see Matloff (2011) ch 7.8.3
-#' \url{https://nostarch.com/artofr.htm}) framework that facilitates
+#' <https://nostarch.com/artofr.htm>) framework that facilitates
 #' modularity, and easily enables the user to include additional functionality by
 #' running user-built simulation modules (see also \pkg{SpaDES.tools}).
 #' Included are numerous tools to visualize rasters and other maps (via \pkg{quickPlot}),
 #' and caching methods for reproducible simulations (via \pkg{reproducible}).
 #' Additional functionality is provided by the suggested \pkg{SpaDES.addins} and
-#' \code{SpaDES.shiny} packages (see below).
+#' `SpaDES.shiny` packages (see below).
 #'
 #' Bug reports:
 #' \itemize{
-#'   \item \code{quickPlot} package:
-#'         \url{https://github.com/PredictiveEcology/quickPlot/issues}
-#'   \item \code{reproducible} package:
-#'         \url{https://github.com/PredictiveEcology/reproducible/issues}
-#'   \item \code{SpaDES.addins} package:
-#'         \url{https://github.com/PredictiveEcology/SpaDES.addins/issues}
-#'   \item \code{SpaDES.core} package:
-#'         \url{https://github.com/PredictiveEcology/SpaDES.core/issues}
-#'   \item \code{SpaDES.shiny} package:
-#'         \url{https://github.com/PredictiveEcology/SpaDES.shiny/issues}
-#'   \item \code{SpaDES.tools} package:
-#'         \url{https://github.com/PredictiveEcology/SpaDES.tools/issues}
+#'   \item `quickPlot` package:
+#'         <https://github.com/PredictiveEcology/quickPlot/issues>
+#'   \item `reproducible` package:
+#'         <https://github.com/PredictiveEcology/reproducible/issues>
+#'   \item `SpaDES.addins` package:
+#'         <https://github.com/PredictiveEcology/SpaDES.addins/issues>
+#'   \item `SpaDES.core` package:
+#'         <https://github.com/PredictiveEcology/SpaDES.core/issues>
+#'   \item `SpaDES.shiny` package:
+#'         <https://github.com/PredictiveEcology/SpaDES.shiny/issues>
+#'   \item `SpaDES.tools` package:
+#'         <https://github.com/PredictiveEcology/SpaDES.tools/issues>
 #' }
 #'
-#' Module repository: \url{https://github.com/PredictiveEcology/SpaDES-modules}
+#' Module repository: <https://github.com/PredictiveEcology/SpaDES-modules>
 #'
-#' Wiki: \url{https://github.com/PredictiveEcology/SpaDES/wiki}
+#' Wiki: <https://github.com/PredictiveEcology/SpaDES/wiki>
 #'
-#' @section The \code{SpaDES.core} package:
+#' @section The `SpaDES.core` package:
 #'
 #' The core discrete event simulation framework.
-#' See \code{\link{SpaDES.core}{SpaDES.core-package}}, and the vignettes therein
-#' (\code{browseVignettes()}).
+#' See \code{[SpaDES.core]{SpaDES.core-package}}, and the vignettes therein
+#' (`browseVignettes()`).
 #'
-#' @section The \code{SpaDES.tools} package:
+#' @section The `SpaDES.tools` package:
 #'
 #' Additional utilities for developing ecological simulation models.
-#' See \code{\link{SpaDES.tools}{SpaDES.tools-package}}.
+#' See \code{[SpaDES.tools]{SpaDES.tools-package}}.
 #'
-#' @section The \code{SpaDES.addins} package:
+#' @section The `SpaDES.addins` package:
 #'
-#' A set of RStudio addins to assist with \code{SpaDES} module development.
+#' A set of RStudio addins to assist with `SpaDES` module development.
 #'
-#' @section The \code{SpaDES.shiny} package:
+#' @section The `SpaDES.shiny` package:
 #'
-#' Utilities for developing and running \code{shiny}-based app interfaces to
-#' \code{SpaDES} simulations.
+#' Utilities for developing and running `shiny`-based app interfaces to
+#' `SpaDES` simulations.
 #'
-#' @section The \code{quickPlot} package:
+#' @section The `quickPlot` package:
 #'
-#' The core \code{SpaDES} plotting engine, build upon speed and modularity.
+#' The core `SpaDES` plotting engine, build upon speed and modularity.
 #'
-#' @section The \code{reproducible} package:
+#' @section The `reproducible` package:
 #'
 #' Provides several aspects of reproducible simulations, including simulation caching.
 #'
