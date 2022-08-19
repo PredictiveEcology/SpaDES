@@ -1,6 +1,6 @@
 ## Updated release
 
-This release fixes html problems.
+This is a maintenance release which fixes html problems in package documentation.
 See `NEWS.md` for a full list of changes.
 
 ## Test environments
@@ -23,10 +23,10 @@ See `NEWS.md` for a full list of changes.
 * Windows                 (win-builder), R 4.2.1
 
 ### Development R version
-* Ubuntu 20.04                 (GitHub), R-devel (2022-08-11 r82713)
+* Ubuntu 20.04                 (GitHub), R-devel (2022-08-18 r82725 ucrt)
 * Ubuntu 20.04                  (local), R-devel (2022-08-11 r82713)
-* Windows                      (GitHub), R-devel (2022-08-14 r82716 ucrt)
-* Windows                 (win-builder), R-devel (2022-08-17 r82724 ucrt)
+* Windows                      (GitHub), R-devel (2022-08-18 r82725 ucrt)
+* Windows                 (win-builder), R-devel (2022-08-18 r82725 ucrt)
 
 ## R CMD check results
 
