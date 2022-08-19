@@ -70,7 +70,7 @@ A package to accompany the LandR landscape ecosystem modules.
 
 A re-implementation in pure R of the NetLogo dictionary.
 
-**Predictive Ecology Blog:** <http://predictiveecology.org/>
+**Predictive Ecology Blog:** <https://predictiveecology.org/>
 
 **Canadian Forest Service Adaptation Toolkit:**
 <https://www.nrcan.gc.ca/climate-change-adapting-impacts-and-reducing-emissions/climate-change-impacts-forests/forest-change-adaptation-tools/17770>
@@ -96,7 +96,7 @@ A re-implementation in pure R of the NetLogo dictionary.
     
 - *Windows:* install [Rtools](https://cran.r-project.org/bin/windows/Rtools/).
 
-- *macOS:* install Xcode commandline tools from the terminal: `xcode-select install`. 
+- *macOS:* install Xcode command line tools from the terminal: `xcode-select install`. 
   
 - *Debian/Ubuntu Linux:* ensure `r-base-dev` is installed.
 
@@ -161,4 +161,4 @@ Contact us via the package's GitHub site:
 
 -----
 
-Copyright (C) 2021 Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada
+Copyright (C) 2022 Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada.

@@ -6,7 +6,7 @@
 \alias{SpaDES-package}
 \title{Categorized overview of the \code{SpaDES} package}
 \description{
-\if{html}{\figure{SpaDES.png}{options: width=100 alt="SpaDES logo" align="right"}}
+\if{html}{\figure{SpaDES.png}{options: width=100 alt="SpaDES logo" style="float: right;"}}
 \if{latex}{\figure{SpaDES.png}{options: width=0.5in}}
 
 Metapackage for implementing a variety of event-based models, with a focus on
@@ -23,51 +23,43 @@ Additional functionality is provided by the suggested \pkg{SpaDES.addins} and
 
 Bug reports:
 \itemize{
-  \item \code{quickPlot} package:
-        \url{https://github.com/PredictiveEcology/quickPlot/issues}
-  \item \code{reproducible} package:
-        \url{https://github.com/PredictiveEcology/reproducible/issues}
-  \item \code{SpaDES.addins} package:
-        \url{https://github.com/PredictiveEcology/SpaDES.addins/issues}
-  \item \code{SpaDES.core} package:
-        \url{https://github.com/PredictiveEcology/SpaDES.core/issues}
-  \item \code{SpaDES.shiny} package:
-        \url{https://github.com/PredictiveEcology/SpaDES.shiny/issues}
-  \item \code{SpaDES.tools} package:
-        \url{https://github.com/PredictiveEcology/SpaDES.tools/issues}
+\item \code{quickPlot} package:
+\url{https://github.com/PredictiveEcology/quickPlot/issues}
+\item \code{reproducible} package:
+\url{https://github.com/PredictiveEcology/reproducible/issues}
+\item \code{SpaDES.addins} package:
+\url{https://github.com/PredictiveEcology/SpaDES.addins/issues}
+\item \code{SpaDES.core} package:
+\url{https://github.com/PredictiveEcology/SpaDES.core/issues}
+\item \code{SpaDES.shiny} package:
+\url{https://github.com/PredictiveEcology/SpaDES.shiny/issues}
+\item \code{SpaDES.tools} package:
+\url{https://github.com/PredictiveEcology/SpaDES.tools/issues}
 }
 
 Module repository: \url{https://github.com/PredictiveEcology/SpaDES-modules}
 
 Wiki: \url{https://github.com/PredictiveEcology/SpaDES/wiki}
-
-------------------------------------------------------------------------------------------
 }
 \section{The \code{SpaDES.core} package}{
 
 
 The core discrete event simulation framework.
-See \code{\link{SpaDES.core}{SpaDES.core-package}}, and the vignettes therein
+See \code{[SpaDES.core]{SpaDES.core-package}}, and the vignettes therein
 (\code{browseVignettes()}).
-
-------------------------------------------------------------------------------------------
 }
 
 \section{The \code{SpaDES.tools} package}{
 
 
 Additional utilities for developing ecological simulation models.
-See \code{\link{SpaDES.tools}{SpaDES.tools-package}}.
-
-------------------------------------------------------------------------------------------
+See \code{[SpaDES.tools]{SpaDES.tools-package}}.
 }
 
 \section{The \code{SpaDES.addins} package}{
 
 
 A set of RStudio addins to assist with \code{SpaDES} module development.
-
-------------------------------------------------------------------------------------------
 }
 
 \section{The \code{SpaDES.shiny} package}{
@@ -75,16 +67,12 @@ A set of RStudio addins to assist with \code{SpaDES} module development.
 
 Utilities for developing and running \code{shiny}-based app interfaces to
 \code{SpaDES} simulations.
-
-------------------------------------------------------------------------------------------
 }
 
 \section{The \code{quickPlot} package}{
 
 
 The core \code{SpaDES} plotting engine, build upon speed and modularity.
-
-------------------------------------------------------------------------------------------
 }
 
 \section{The \code{reproducible} package}{
@@ -103,11 +91,11 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Alex M Chubaty \email{alex.chubaty@gmail.com} (\href{https://orcid.org/0000-0001-7146-8135}{ORCID})
+\strong{Maintainer}: Alex M Chubaty \email{achubaty@for-cast.ca} (\href{https://orcid.org/0000-0001-7146-8135}{ORCID})
 
 Authors:
 \itemize{
-  \item Eliot J B McIntire \email{eliot.mcintire@canada.ca} (\href{https://orcid.org/0000-0002-6914-8316}{ORCID})
+  \item Eliot J B McIntire \email{eliot.mcintire@nrcan-rncan.gc.ca} (\href{https://orcid.org/0000-0002-6914-8316}{ORCID})
 }
 
 Other contributors:
