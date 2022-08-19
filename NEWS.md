@@ -3,8 +3,8 @@ Known issues: <https://github.com/PredictiveEcology/SpaDES/issues>
 version 2.0.9
 =============
 
-* maintenance release
-* remove `spelling` dependency
+* fix html problems highlighted by CRAN checks.
+* remove suggested package `spelling`.
 
 version 2.0.8
 =============
