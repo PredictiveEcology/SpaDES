@@ -23,8 +23,8 @@ See `NEWS.md` for a full list of changes.
 * Windows                 (win-builder), R 4.2.1
 
 ### Development R version
-* Ubuntu 20.04                 (GitHub), R-devel (2022-08-18 r82725 ucrt)
-* Ubuntu 20.04                  (local), R-devel (2022-08-11 r82713)
+* Ubuntu 20.04                 (GitHub), R-devel (2022-08-18 r82725)
+* Ubuntu 20.04                  (local), R-devel (2022-08-18 r82725)
 * Windows                      (GitHub), R-devel (2022-08-18 r82725 ucrt)
 * Windows                 (win-builder), R-devel (2022-08-18 r82725 ucrt)
 
@@ -32,7 +32,7 @@ See `NEWS.md` for a full list of changes.
 
 There were no ERRORs or WARNINGs.
 
-There was 1 NOTE:
+We see the following NOTEs:
 
 1. Some words were flagged as possibly misspelled, but they are false positives:
 
@@ -42,6 +42,14 @@ There was 1 NOTE:
           Metapackage (5:14)
           modularity (10:32)
           rasters (12:73)
+
+2. A URL was inaccessible by a CRAN machine but is available locally in web browser and via GitHub Actions.
+
+        Found the following (possibly) invalid URLs:
+          URL: https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites
+            From: README.md
+            Status: 403
+            Message: Forbidden
 
 ## Downstream dependencies
 
