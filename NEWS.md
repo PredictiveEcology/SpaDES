@@ -1,4 +1,10 @@
-Known issues: https://github.com/PredictiveEcology/SpaDES/issues
+Known issues: <https://github.com/PredictiveEcology/SpaDES/issues>
+
+version 2.0.9
+=============
+
+* maintenance release
+* remove `spelling` dependency
 
 version 2.0.8
 =============

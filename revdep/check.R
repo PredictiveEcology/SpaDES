@@ -1,3 +1,5 @@
+options(repos = c(CRAN = 'https://cloud.r-project.org'))
+
 #devtools::install_github("r-lib/revdepcheck")
 library("revdepcheck")
 

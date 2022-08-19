@@ -42,36 +42,30 @@
 #'
 #' Wiki: \url{https://github.com/PredictiveEcology/SpaDES/wiki}
 #'
-#' ------------------------------------------------------------------------------------------
 #' @section The \code{SpaDES.core} package:
 #'
 #' The core discrete event simulation framework.
 #' See \code{\link{SpaDES.core}{SpaDES.core-package}}, and the vignettes therein
 #' (\code{browseVignettes()}).
 #'
-#' ------------------------------------------------------------------------------------------
 #' @section The \code{SpaDES.tools} package:
 #'
 #' Additional utilities for developing ecological simulation models.
 #' See \code{\link{SpaDES.tools}{SpaDES.tools-package}}.
 #'
-#' ------------------------------------------------------------------------------------------
 #' @section The \code{SpaDES.addins} package:
 #'
 #' A set of RStudio addins to assist with \code{SpaDES} module development.
 #'
-#' ------------------------------------------------------------------------------------------
 #' @section The \code{SpaDES.shiny} package:
 #'
 #' Utilities for developing and running \code{shiny}-based app interfaces to
 #' \code{SpaDES} simulations.
 #'
-#' ------------------------------------------------------------------------------------------
 #' @section The \code{quickPlot} package:
 #'
 #' The core \code{SpaDES} plotting engine, build upon speed and modularity.
 #'
-#' ------------------------------------------------------------------------------------------
 #' @section The \code{reproducible} package:
 #'
 #' Provides several aspects of reproducible simulations, including simulation caching.

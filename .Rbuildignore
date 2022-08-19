@@ -10,7 +10,7 @@
 ^cheatsheets$
 ^codecov\.yml$
 ^CONTRIBUTING\.md$
-^CRAN-RELEASE$
+^CRAN-SUBMISSION$
 ^cran-comments\.md$
 ^docs$
 ^LICENSE$

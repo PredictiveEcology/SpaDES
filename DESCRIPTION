@@ -20,15 +20,15 @@ Date: 2022-02-16
 Version: 2.0.8
 Authors@R: c(
     person("Alex M", "Chubaty", email = "achubaty@for-cast.ca",
-    role = c("aut", "cre"), comment = c(ORCID = "0000-0001-7146-8135")),
-    person("Eliot J B", "McIntire", email = "eliot.mcintire@canada.ca",
-    role = c("aut"), comment = c(ORCID = "0000-0002-6914-8316")),
+           role = c("aut", "cre"), comment = c(ORCID = "0000-0001-7146-8135")),
+    person("Eliot J B", "McIntire", email = "eliot.mcintire@nrcan-rncan.gc.ca",
+           role = c("aut"), comment = c(ORCID = "0000-0002-6914-8316")),
     person("Yong", "Luo", email = "yluo1@lakeheadu.ca",
-    role = c("ctb")),
+           role = c("ctb")),
     person("Steve", "Cumming", email = "Steve.Cumming@sbf.ulaval.ca",
-    role = c("ctb")),
+           role = c("ctb")),
     person("Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada",
-    role = "cph")
+           role = "cph") 
     )
 Depends:
     R (>= 4.0)
@@ -44,8 +44,7 @@ Suggests:
     knitr,
     rmarkdown,
     testthat,
-    SpaDES.addins,
-    spelling
+    SpaDES.addins
 Remotes:
     PredictiveEcology/quickPlot@development,
     PredictiveEcology/reproducible@development,
@@ -61,4 +60,4 @@ ByteCompile: yes
 Collate:
     'spades-package.R'
     'zzz.R'
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.1
