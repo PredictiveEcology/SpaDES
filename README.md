@@ -8,7 +8,7 @@
 [![Codecov test coverage](https://codecov.io/gh/PredictiveEcology/SpaDES/branch/master/graph/badge.svg)](https://app.codecov.io/gh/PredictiveEcology/SpaDES?branch=master)
 <!-- badges: end -->
 
-<img align="right" width="80" pad="20" src="https://github.com/PredictiveEcology/SpaDES/raw/master/docs/images/SpaDES.png">
+<img align="right" width="80" pad="20" src="https://github.com/PredictiveEcology/SpaDES/raw/master/man/figures/SpaDES.png">
 
 ## Develop and run spatially explicit discrete event simulation models
 
