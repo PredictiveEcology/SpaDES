@@ -27,8 +27,9 @@ Authors@R: c(
            role = c("ctb")),
     person("Steve", "Cumming", email = "Steve.Cumming@sbf.ulaval.ca",
            role = c("ctb")),
-    person("Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada",
-           role = "cph") 
+    person(paste("Her Majesty the Queen in Right of Canada,",
+                 "as represented by the Minister of Natural Resources Canada"),
+           role = "cph")
     )
 Depends:
     R (>= 4.0)
