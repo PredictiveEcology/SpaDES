@@ -16,8 +16,8 @@ Description: Metapackage for implementing a variety of event-based models, with
 URL:
     https://spades.predictiveecology.org,
     https://github.com/PredictiveEcology/SpaDES
-Date: 2022-08-19
-Version: 2.0.9
+Date: 2024-01-31
+Version: 2.0.9.9000
 Authors@R: c(
     person("Alex M", "Chubaty", email = "achubaty@for-cast.ca",
            role = c("aut", "cre"), comment = c(ORCID = "0000-0001-7146-8135")),
@@ -27,12 +27,12 @@ Authors@R: c(
            role = c("ctb")),
     person("Steve", "Cumming", email = "Steve.Cumming@sbf.ulaval.ca",
            role = c("ctb")),
-    person(paste("Her Majesty the Queen in Right of Canada,",
+    person(paste("His Majesty the Queen in Right of Canada,",
                  "as represented by the Minister of Natural Resources Canada"),
            role = "cph")
     )
 Depends:
-    R (>= 4.0)
+    R (>= 4.2)
 Imports:
     methods,
     quickPlot,
