@@ -41,6 +41,14 @@ We see the following NOTEs:
           modularity (10:32)
           rasters (12:73)
 
+2. A URL was inaccessible by a CRAN machine but is available locally in web browser and via GitHub Actions.
+
+          Found the following (possibly) invalid URLs:
+            URL: https://support.posit.co/hc/en-us/articles/200486498-Package-Development-Prerequisites
+              From: README.md
+              Status: 403
+              Message: Forbidden
+
 ## Downstream dependencies
 
 There are currently no downstream dependencies of this package.
