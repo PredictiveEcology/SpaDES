@@ -73,9 +73,7 @@ A re-implementation in pure R of the NetLogo dictionary.
 **Predictive Ecology Blog:** <https://predictiveecology.org/>
 
 **Canadian Forest Service Adaptation Toolkit:**
-<https://www.nrcan.gc.ca/climate-change-adapting-impacts-and-reducing-emissions/climate-change-impacts-forests/forest-change-adaptation-tools/17770>
-
-**LandWeb Demonstration App:** <https://landweb.ca>
+<https://natural-resources.canada.ca/climate-change/climate-change-impacts-forests/forest-change-adaptation-tools/17770>
 
 **Simple visuals**
 [SpaDES_examples repository](https://predictiveecology.github.io/SpaDES_examples/docs/index.html)
@@ -100,7 +98,7 @@ A re-implementation in pure R of the NetLogo dictionary.
   
 - *Debian/Ubuntu Linux:* ensure `r-base-dev` is installed.
 
-See [here](https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites) for more details.
+See [here](https://support.posit.co/hc/en-us/articles/200486498-Package-Development-Prerequisites) for more details.
 
 **Install suggested packages:** the `fastshp` package can be installed with:
 
