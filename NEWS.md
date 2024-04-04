@@ -1,61 +1,55 @@
-Known issues: <https://github.com/PredictiveEcology/SpaDES/issues>
+# SpaDES v2.0.10
 
-version 2.0.9
-=============
+* drop support for R 4.1, as it is no longer supported by several dependencies.
+* remove suggested dependency `SpaDES.addins` which is archived on CRAN.
+
+# SpaDES v2.0.9
 
 * fix html problems highlighted by CRAN checks.
 * remove suggested package `spelling`.
 
-version 2.0.8
-=============
+# SpaDES v2.0.8
 
 * drop support for R 3.6, as it is no longer supported by several dependencies.
 * resubmit due to archived dependency `SpaDES.tools`, which is back on CRAN.
 
-version 2.0.7
-=============
+# SpaDES v2.0.7
 
 * move `SpaDES.addins` to Suggests (#359).
 
-version 2.0.6
-=============
+# SpaDES v2.0.6
 
 * drop support for R 3.5, as it is no longer supported by several dependencies.
 * fix CRAN check errors
 * fix discrepancy in vignette title
 
-version 2.0.5
-============= 
+# SpaDES v2.0.5
 
 * new package hexsticker and cheatsheet
 
-version 2.0.4
-============= 
+# SpaDES v2.0.4
 
 * drop support for R 3.3 and 3.4, as these are no longer supported by several dependencies.
 
-version 2.0.3
-============= 
+# SpaDES v2.0.3
 
 * move caching vignette to `SpaDES.core` package and remove unused dependencies `archivist`, `devtools`, `hunspell`, `igraph`
 * add `RandomFields` to Suggests (needed for vignettes etc. in `SpaDES.core` and `SpaDES.tools`)
 * new 'Getting Started' vignette describing the `SpaDES`-ecosystem packages
 
-version 2.0.2
-============= 
+# SpaDES v2.0.2
 
 * change maintainer email address.
 * update LandWeb app URL in README.
 * update cache vignette.
 * update package dependencies to include those used in tests.
 
-version 2.0.1
-============= 
+# SpaDES v2.0.1
+ 
  
 * minor bugfix concerning imports 
 
-version 2.0.0
-=============
+# SpaDES v2.0.0
 
 ## Dependency changes
 
@@ -135,15 +129,15 @@ version 2.0.0
 * `zipModule` now has `data` argument, allowing data to be omitted from zipped module.
 * improved `moduleDiagram` to show `_INPUT_` node in different colour from the other modules
 
-version 1.3.1
-=============
+# SpaDES v1.3.1
+
 * Default module path (set via `spades.modulePath` option) is now set to a temporary location to avoid unintentionally writing to the user's home directory.
 * add options for cache, input, output dirs (defaults to a temp dir until changed by user)
 * rename `spades.modulesPath` and `spades.modulesRepo` options to `spades.modulePath` and `spades.moduleRepo`
 * New cache-related functions: `showCache`, `clearCache`
 
-version 1.3.0
-=============
+# SpaDES v1.3.0
+
 * stricter package version dependencies in Imports and Suggests
 * `debug` argument in `spades()` can now take any expression, character strings. `TRUE`/`FALSE` changed behavior to show only current event.
 * timeunits: when there are parent and grandparent modules, if timeunit is defined, it overrides the "smallest unit" rule. Thus, a parent module can force a timeunit.
@@ -176,8 +170,8 @@ version 1.3.0
 * remove module version warning (#312)
 * other tweaks and fixes
 
-version 1.2.0
-=============
+# SpaDES v1.2.0
+
 * fix bug associated with forthcoming `dplyr` update
 * remove `gtools` and `secr` from Imports
 * `spread` enhancements: circular spreading, landscape-based functions, allow overlapping events
@@ -194,12 +188,12 @@ version 1.2.0
 * minor performance enhancements
 * many more and improved unit tests
 
-version 1.1.4
-=============
+# SpaDES v1.1.4
+
 * fix OSX CRAN check errors caused by inconsistent use of `normalizePath`
 
-version 1.1.3
-=============
+# SpaDES v1.1.3
+
 * add `gtools` to Imports
 * bug fix in `experiment` that did not allow parallel spawning on some systems and crashed with empty `outputs` argument* fix minor bugs in `sampleModules`
 * lots of documentation enhancements, esp. `?inputs` and `?outputs`
@@ -209,8 +203,8 @@ version 1.1.3
 * many more unit tests (#139)
 * other bug fixes
 
-version 1.1.2
-=============
+# SpaDES v1.1.2
+
 * fix issues associated with upcoming `dplyr` updates
 * performance enhancements: much faster simulation execution
 * `Plot` accepts colour column in `SpatialPointDataFrame` objects
@@ -233,16 +227,16 @@ version 1.1.2
 * `outputPath` updates `output(sim)$file` file paths, in addition to just `paths(sim)$outputPath`
 * other bug fixes
 
-version 1.1.1
-=============
+# SpaDES v1.1.1
+
 * require `archivist` version 2.0 or greater
 * improved `moduleCoverage` testing  and template (PR #257)
 * correct legends from rasters so that `is.factor(raster)` is `TRUE`
 * user defined time units can be used in module metadata "timeunit".
 * add module timeunits to `simList` show method (#260)
 
-version 1.1.0
-=============
+# SpaDES v1.1.0
+
 * require R version 3.2.2 or higher
 * remove `downloader` from Imports (#203)
 * add `covr` to Suggests and `lazyeval` to Imports
@@ -269,12 +263,12 @@ version 1.1.0
 * allow more signatures in `simInit` (modules can be character)
 * other bug fixes
 
-version 1.0.3
-=============
+# SpaDES v1.0.3
+
 * fully fix `inputs` data.frame construction in `simInit` (#225)
 
-version 1.0.2
-=============
+# SpaDES v1.0.2
+
 * update maintainer's and authors' email addresses
 * fix bug in `.parseModule` (#215)
 * improve dependency graph & module diagram (#216)
@@ -287,14 +281,14 @@ version 1.0.2
 * fix `inputs` data.frame construction in `simInit` (#225)
 * various other bug fixes
 
-version 1.0.1
-=============
+# SpaDES v1.0.1
+
 * no longer `attach` the simulation environment (#212)
 * improve documentation
 * bug fixes
 
-version 1.0.0
-=============
+# SpaDES v1.0.0
+
 * no longer rely on side effects to update objects in global environment; instead uses simulation environments (#185) (not backwards compatible!)
 * sample modules rewritten to use simulation environments (#185) (not backwards compatible!).
 * redefined `simList` class:
@@ -351,14 +345,14 @@ version 1.0.0
 * prepend copyright info to `LICENSE` and `README` (with #140)
 * various other bug fixes
 
-version 0.6.2
-=============
+# SpaDES v0.6.2
+
 This is a minor release update to satisfy CRAN submission requirements.
 
 * bug fix when saving files
 
-version 0.6.1
-=============
+# SpaDES v0.6.1
+
 * added the Queen as copyright holder (#140)
 * explicitly use GPL-3 (previously used GPL) (#140)
 * modules now require metadata; module code without it will break!
@@ -399,16 +393,16 @@ version 0.6.1
 * new function, `randomPolygons`, will create random raster maps (not vector maps) of polygons
 * numerous bugfixes
 
-version 0.4.0
-=============
+# SpaDES v0.4.0
+
 * second public ("beta") release
 * more improvements to `Plot` function, including dramatically faster for files on disk
 * added second "Model" that adds and integrates 3 sample modules, Fire, Succession and Aging
 * added Plotting vignette
 * bugfixes
 
-version 0.3.1
-=============
+# SpaDES v0.3.1
+
 * first public ("beta") release
 * reworked plotting and visualization (it's faster, more reliable)
 * added additional parameter checks and improved debugging
@@ -418,11 +412,11 @@ version 0.3.1
     - more complete code documentation
 * numerous bug fixes
 
-version 0.2
-=============
+# SpaDES v0.2
+
 * renamed package to `SpaDES`
 
-version 0.1
-=============
+# SpaDES v0.1
+
 * first working alpha version
 * lots of "wishlist" items still to be implemented

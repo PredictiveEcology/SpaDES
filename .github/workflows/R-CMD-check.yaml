@@ -24,6 +24,8 @@ jobs:
           - {os: macOS-latest,   nosuggests: false, r: 'release'}
           - {os: windows-latest, nosuggests: false, r: 'devel'}
           - {os: windows-latest, nosuggests: false, r: 'release'}
+          - {os: windows-latest, nosuggests: true,  r: 'release'}
+          - {os: windows-latest, nosuggests: false, r: 'oldrel'}
           - {os: ubuntu-20.04,   nosuggests: false, r: 'devel'}
           - {os: ubuntu-20.04,   nosuggests: false, r: 'release'}
           - {os: ubuntu-20.04,   nosuggests: true,  r: 'release'}
@@ -53,15 +55,12 @@ jobs:
             any::rcmdcheck
             fastshp=?ignore
             NLMR=?ignore
-            PredictiveEcology/Require@development
-            PredictiveEcology/reproducible@development
-            PredictiveEcology/SpaDES.tools@development
           needs: check
 
       - name: Install additional package dependencies
         run: |
           pak::pkg_install("ropensci/NLMR")
-          remotes::install_github("s-u/fastshp")
+          pak::pkg_install("s-u/fastshp")
         shell: Rscript {0}
 
       - uses: r-lib/actions/check-r-package@v2

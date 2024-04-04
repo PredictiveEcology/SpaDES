@@ -16,6 +16,7 @@ jobs:
     runs-on: macOS-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      USING_COVR: true
 
     steps:
       - uses: actions/checkout@v4
@@ -42,9 +43,10 @@ jobs:
       - name: Install additional package dependencies
         run: |
           pak::pkg_install("ropensci/NLMR")
-          remotes::install_github("s-u/fastshp")
+          pak::pkg_install("s-u/fastshp")
         shell: Rscript {0}
 
       - name: Test coverage
         run: covr::codecov()
         shell: Rscript {0}
+
