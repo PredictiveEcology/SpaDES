@@ -50,7 +50,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">SpaDES</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.9</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.10</span>
       </span>
     </div>
 
@@ -98,6 +98,7 @@
 <div class="page-header"><h1 id="spatial-discrete-event-simulation-spades">Spatial Discrete Event Simulation (SpaDES)<a class="anchor" aria-label="anchor" href="#spatial-discrete-event-simulation-spades"></a>
 </h1></div>
 <!-- badges: start -->
+
 <p><img align="right" width="80" pad="20" src="https://github.com/PredictiveEcology/SpaDES/raw/master/man/figures/SpaDES.png"></p>
 <div class="section level2">
 <h2 id="develop-and-run-spatially-explicit-discrete-event-simulation-models">Develop and run spatially explicit discrete event simulation models<a class="anchor" aria-label="anchor" href="#develop-and-run-spatially-explicit-discrete-event-simulation-models"></a>
@@ -121,7 +122,9 @@
 <div class="section level3">
 <h3 id="workshops">Workshops<a class="anchor" aria-label="anchor" href="#workshops"></a>
 </h3>
-<ul><li><a href="https://spades-workshops.predictiveecology.org" class="external-link">SpaDES Workshops</a></li></ul>
+<ul>
+<li><a href="https://spades-workshops.predictiveecology.org" class="external-link">SpaDES Workshops</a></li>
+</ul>
 </div>
 <div class="section level3">
 <h3 id="websites">Websites<a class="anchor" aria-label="anchor" href="#websites"></a>
@@ -140,21 +143,26 @@
 <li><p><code>SpaDES.project</code>: (currently being set up) <a href="https://spades-project.predictiveecology.org/" class="external-link uri">https://spades-project.predictiveecology.org/</a> <a href="https://app.codecov.io/gh/PredictiveEcology/SpaDES.project?branch=development" class="external-link"><img src="https://codecov.io/gh/PredictiveEcology/SpaDES.project/branch/development/graph/badge.svg" alt="Codecov test coverage"></a></p></li>
 </ul>
 <p><strong>Domain specific packages</strong></p>
-<ul><li>
+<ul>
+<li>
 <code>LandR</code>: <a href="https://LandR.predictiveecology.org/" class="external-link uri">https://LandR.predictiveecology.org/</a> <a href="https://app.codecov.io/gh/PredictiveEcology/LandR?branch=development" class="external-link"><img src="https://codecov.io/gh/PredictiveEcology/LandR/branch/development/graph/badge.svg" alt="Codecov test coverage"></a>
-</li></ul>
+</li>
+</ul>
 <p>A package to accompany the LandR landscape ecosystem modules.</p>
-<ul><li>
+<ul>
+<li>
 <code>NetLogoR</code>: <a href="https://NetLogoR.predictiveecology.org/" class="external-link uri">https://NetLogoR.predictiveecology.org/</a> <a href="https://app.codecov.io/gh/PredictiveEcology/NetLogoR?branch=development" class="external-link"><img src="https://codecov.io/gh/PredictiveEcology/NetLogoR/branch/development/graph/badge.svg" alt="Codecov test coverage"></a>
-</li></ul>
+</li>
+</ul>
 <p>A re-implementation in pure R of the NetLogo dictionary.</p>
 <p><strong>Predictive Ecology Blog:</strong> <a href="https://predictiveecology.org/" class="external-link uri">https://predictiveecology.org/</a></p>
-<p><strong>Canadian Forest Service Adaptation Toolkit:</strong> <a href="https://www.nrcan.gc.ca/climate-change-adapting-impacts-and-reducing-emissions/climate-change-impacts-forests/forest-change-adaptation-tools/17770" class="external-link uri">https://www.nrcan.gc.ca/climate-change-adapting-impacts-and-reducing-emissions/climate-change-impacts-forests/forest-change-adaptation-tools/17770</a></p>
-<p><strong>LandWeb Demonstration App:</strong> <a href="https://landweb.ca" class="external-link uri">https://landweb.ca</a></p>
+<p><strong>Canadian Forest Service Adaptation Toolkit:</strong> <a href="https://natural-resources.canada.ca/climate-change/climate-change-impacts-forests/forest-change-adaptation-tools/17770" class="external-link uri">https://natural-resources.canada.ca/climate-change/climate-change-impacts-forests/forest-change-adaptation-tools/17770</a></p>
 <p><strong>Simple visuals</strong> <a href="https://predictiveecology.github.io/SpaDES_examples/docs/index.html" class="external-link">SpaDES_examples repository</a></p>
 <p><strong>Examples for R-savvy users:</strong></p>
 <p><em>Copy the linked <code>.Rmd</code> file to your computer.</em> <em>Open it with a text editor or in RStudio, and run all chunks in R.</em> <em>It is not intended to be knitted; knitting will only output the script.</em></p>
-<ul><li><a href="https://raw.githubusercontent.com/PredictiveEcology/SpaDES-modules/master/modules/LCC2005/LCC2005.Rmd" class="external-link">LandCoverChange</a></li></ul>
+<ul>
+<li><a href="https://raw.githubusercontent.com/PredictiveEcology/SpaDES-modules/master/modules/LCC2005/LCC2005.Rmd" class="external-link">LandCoverChange</a></li>
+</ul>
 <hr>
 </div>
 </div>
@@ -167,7 +175,7 @@
 <li><p><em>macOS:</em> install Xcode command line tools from the terminal: <code>xcode-select install</code>.</p></li>
 <li><p><em>Debian/Ubuntu Linux:</em> ensure <code>r-base-dev</code> is installed.</p></li>
 </ul>
-<p>See <a href="https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites" class="external-link">here</a> for more details.</p>
+<p>See <a href="https://support.posit.co/hc/en-us/articles/200486498-Package-Development-Prerequisites" class="external-link">here</a> for more details.</p>
 <p><strong>Install suggested packages:</strong> the <code>fastshp</code> package can be installed with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"fastshp"</span>, repos <span class="op">=</span> <span class="st">"https://rforge.net"</span>, type <span class="op">=</span> <span class="st">"source"</span><span class="op">)</span></span></code></pre></div>
@@ -197,7 +205,9 @@
 <h2 id="getting-help">Getting help<a class="anchor" aria-label="anchor" href="#getting-help"></a>
 </h2>
 <p>Q&amp;A forum is available on the SpaDES Users Google Group. This is the place to ask for help on setting up and running simulations, as well as module development. Please do not file bug reports here.</p>
-<ul><li><a href="https://groups.google.com/forum/#!forum/spades-users" class="external-link">Q&amp;A Forum</a></li></ul>
+<ul>
+<li><a href="https://groups.google.com/forum/#!forum/spades-users" class="external-link">Q&amp;A Forum</a></li>
+</ul>
 </div>
 <div class="section level2">
 <h2 id="reporting-bugs">Reporting bugs<a class="anchor" aria-label="anchor" href="#reporting-bugs"></a>
@@ -284,7 +294,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer>
