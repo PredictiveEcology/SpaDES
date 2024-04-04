@@ -10,7 +10,7 @@ font_add_google("Teko", "teko")
 ## Automatically use showtext to render text for future devices
 showtext_auto()
 
-imgurl <- "https://github.com/PredictiveEcology/SpaDES/raw/master/docs/images/SpaDES.png"
+imgurl <- "https://github.com/PredictiveEcology/SpaDES/raw/master/man/figures/SpaDES.png"
 
 sticker(imgurl, package = "SpaDES",
         h_color = "#5bac47", h_fill = "#222222",
