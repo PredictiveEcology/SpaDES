@@ -34,6 +34,14 @@ jobs:
           extra-packages: |
             any::cffr
             any::V8
+            fastshp=?ignore
+            NLMR=?ignore
+
+      - name: Install additional package dependencies
+        run: |
+          pak::pkg_install("ropensci/NLMR")
+          pak::pkg_install("s-u/fastshp")
+        shell: Rscript {0}
 
       - name: Update CITATION.cff
         run: |

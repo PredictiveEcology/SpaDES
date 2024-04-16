@@ -38,9 +38,6 @@ jobs:
             local::.
             fastshp=?ignore
             NLMR=?ignore
-            PredictiveEcology/Require@development
-            PredictiveEcology/reproducible@development
-            PredictiveEcology/SpaDES.tools@development
           needs: website
 
       - name: Install additional package dependencies
