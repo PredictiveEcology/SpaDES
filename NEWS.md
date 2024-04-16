@@ -1,6 +1,6 @@
-# SpaDES (development version)
+# SpaDES v2.0.11
 
-* TODO
+* CRAN resubmission following restoration of dependency packages.
 
 # SpaDES v2.0.10
 

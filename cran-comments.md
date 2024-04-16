@@ -1,6 +1,6 @@
 ## Updated release
 
-This release has been updated following restoration of dependency package `Require` to CRAN.
+This release has been updated following restoration of dependency package `reproducible` and other dependencies to CRAN.
 See `NEWS.md` for a full list of changes.
 
 ## Test environments
