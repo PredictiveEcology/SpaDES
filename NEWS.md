@@ -1,3 +1,7 @@
+# SpaDES v2.0.11
+
+* CRAN resubmission following restoration of dependency packages.
+
 # SpaDES v2.0.10
 
 * drop support for R 4.1, as it is no longer supported by several dependencies.

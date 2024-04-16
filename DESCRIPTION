@@ -16,8 +16,8 @@ Description: Metapackage for implementing a variety of event-based models, with
 URL:
     https://spades.predictiveecology.org,
     https://github.com/PredictiveEcology/SpaDES
-Date: 2024-04-04
-Version: 2.0.10
+Date: 2024-04-16
+Version: 2.0.11
 Authors@R: c(
     person("Alex M", "Chubaty", email = "achubaty@for-cast.ca",
            role = c("aut", "cre"), comment = c(ORCID = "0000-0001-7146-8135")),
