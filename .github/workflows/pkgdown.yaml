@@ -36,12 +36,18 @@ jobs:
           extra-packages: |
             any::pkgdown
             local::.
-            s-u/fastshp
-            ropensci/NLMR
+            fastshp=?ignore
+            NLMR=?ignore
             PredictiveEcology/Require@development
             PredictiveEcology/reproducible@development
             PredictiveEcology/SpaDES.tools@development
           needs: website
+
+      - name: Install additional package dependencies
+        run: |
+          pak::pkg_install("ropensci/NLMR")
+          pak::pkg_install("s-u/fastshp")
+        shell: Rscript {0}
 
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)

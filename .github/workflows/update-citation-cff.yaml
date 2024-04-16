@@ -34,8 +34,6 @@ jobs:
           extra-packages: |
             any::cffr
             any::V8
-            s-u/fastshp
-            ropensci/NLMR
 
       - name: Update CITATION.cff
         run: |
