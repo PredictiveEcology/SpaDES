@@ -1,3 +1,7 @@
+# SpaDES (development version)
+
+* NA
+
 # SpaDES v2.0.11
 
 * CRAN resubmission following restoration of dependency packages.
