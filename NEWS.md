@@ -1,6 +1,6 @@
 # SpaDES (development version)
 
-* NA
+* renamed `master` branch as `main` (#366)
 
 # SpaDES v2.0.11
 
