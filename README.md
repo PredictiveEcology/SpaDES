@@ -8,7 +8,7 @@
 [![Codecov test coverage](https://codecov.io/gh/PredictiveEcology/SpaDES/branch/main/graph/badge.svg)](https://app.codecov.io/gh/PredictiveEcology/SpaDES?branch=main)
 <!-- badges: end -->
 
-<img align="right" width="80" pad="20" src="https://github.com/PredictiveEcology/SpaDES/raw/master/man/figures/SpaDES.png">
+<img align="right" width="80" pad="20" src="https://github.com/PredictiveEcology/SpaDES/raw/main/man/figures/SpaDES.png">
 
 ## Develop and run spatially explicit discrete event simulation models
 
@@ -18,8 +18,8 @@ The core simulation components (provided by [`SpaDES.core`](https://spades-core.
 Included are numerous tools to visualize rasters and other maps (via [`quickPlot`](https://quickplot.predictiveecology.org/)), and caching methods for reproducible simulations (via [`reproducible`](https://reproducible.predictiveecology.org/)).
 Additional functionality is provided by the [`SpaDES.addins`](https://spades-addins.predictiveecology.org/) and [`SpaDES.shiny`](https://spades-shiny.predictiveecology.org/) packages.
 
-![](https://github.com/PredictiveEcology/SpaDES/raw/master/man/figures//lcc05.png)
-![](https://github.com/PredictiveEcology/SpaDES/raw/master/man/figures//MapsSmall.gif)
+![](https://github.com/PredictiveEcology/SpaDES/raw/main/man/figures/lcc05.png)
+![](https://github.com/PredictiveEcology/SpaDES/raw/main/man/figures/MapsSmall.gif)
 
 ## Getting started
 
@@ -58,7 +58,7 @@ Additional functionality is provided by the [`SpaDES.addins`](https://spades-add
 
 - `SpaDES.tools`: https://spades-tools.predictiveecology.org/ [![Codecov test coverage](https://codecov.io/gh/PredictiveEcology/SpaDES.tools/branch/main/graph/badge.svg)](https://app.codecov.io/gh/PredictiveEcology/SpaDES.tools?branch=main)
 
-- `SpaDES.project`: (currently being set up) https://spades-project.predictiveecology.org/ [![Codecov test coverage](https://codecov.io/gh/PredictiveEcology/SpaDES.project/branch/main/graph/badge.svg)](https://app.codecov.io/gh/PredictiveEcology/SpaDES.project?branch=main)
+- `SpaDES.project`: https://spades-project.predictiveecology.org/ [![Codecov test coverage](https://codecov.io/gh/PredictiveEcology/SpaDES.project/branch/main/graph/badge.svg)](https://app.codecov.io/gh/PredictiveEcology/SpaDES.project?branch=main)
 
 **Domain specific packages**
 
