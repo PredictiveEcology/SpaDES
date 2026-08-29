@@ -1,50 +1,18 @@
+# Thin caller — shared logic lives in PredictiveEcology/actions (reusable workflow).
 on:
   push:
-    branches:
-      - master
-      - development
+    branches: [main, development]
   pull_request:
-    branches:
-      - master
-      - development
+    branches: [main, development]
 
 name: test-coverage
 
+concurrency:
+  # Group by ref so a PR run and a branch-push run never cancel each other.
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   test-coverage:
-    if: "!contains(github.event.commits[0].message, '[skip-ci]')"
-    runs-on: macOS-latest
-    env:
-      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-      USING_COVR: true
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: r-lib/actions/setup-pandoc@v2
-
-      - uses: r-lib/actions/setup-r@v2
-        with:
-          Ncpus: 2
-          use-public-rspm: false
-
-      - uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          extra-packages: |
-            any::covr
-            fastshp=?ignore
-            NLMR=?ignore
-            PredictiveEcology/Require@development
-            PredictiveEcology/reproducible@development
-            PredictiveEcology/SpaDES.tools@development
-
-      - name: Install additional package dependencies
-        run: |
-          pak::pkg_install("ropensci/NLMR")
-          pak::pkg_install("s-u/fastshp")
-        shell: Rscript {0}
-
-      - name: Test coverage
-        run: covr::codecov()
-        shell: Rscript {0}
-
+    uses: PredictiveEcology/actions/.github/workflows/test-coverage.yaml@main
+    secrets: inherit
