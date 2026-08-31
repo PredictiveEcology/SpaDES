@@ -32,7 +32,7 @@ Authors@R: c(
            role = "cph")
     )
 Depends:
-    R (>= 4.2)
+    R (>= 4.3)
 Imports:
     methods,
     quickPlot (>= 1.0.2),
@@ -45,6 +45,11 @@ Suggests:
     knitr,
     rmarkdown,
     testthat
+Remotes:
+    PredictiveEcology/quickPlot@development,
+    PredictiveEcology/reproducible@development,
+    PredictiveEcology/SpaDES.core@development,
+    PredictiveEcology/SpaDES.tools@development,
 Encoding: UTF-8
 Language: en-CA
 License: GPL-3

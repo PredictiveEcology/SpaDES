@@ -20,9 +20,10 @@ jobs:
       # is platform-dependent and not monotone: on ubuntu-latest oldrel-4 and
       # oldrel-5 both resolve to 4.1.3 and R 4.2 is unreachable entirely, and
       # on ubuntu-22.04 oldrel-4 gives R 3.6.3. DESCRIPTION declares
-      # R (>= 4.2), so 4.2 is the version this matrix has to prove -- and it
-      # cannot be expressed as an oldrel leg at all.
+      # R (>= 4.3) -- raised from 4.2 in this PR, because every Import
+      # (quickPlot, reproducible, SpaDES.core, SpaDES.tools) already declares
+      # R (>= 4.3), so 4.2 was never installable. 4.3 is now both the declared
+      # floor and a leg the matrix actually runs.
       extra-config: |
         [{"config": {"os": "ubuntu-latest", "nosuggests": false, "r": "4.4"}},
-         {"config": {"os": "ubuntu-latest", "nosuggests": false, "r": "4.3"}},
-         {"config": {"os": "ubuntu-latest", "nosuggests": false, "r": "4.2"}}]
+         {"config": {"os": "ubuntu-latest", "nosuggests": false, "r": "4.3"}}]
