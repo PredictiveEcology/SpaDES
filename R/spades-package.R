@@ -45,13 +45,13 @@
 #' @section The `SpaDES.core` package:
 #'
 #' The core discrete event simulation framework.
-#' See \code{[SpaDES.core]{SpaDES.core-package}}, and the vignettes therein
+#' See [SpaDES.core::SpaDES.core-package], and the vignettes therein
 #' (`browseVignettes()`).
 #'
 #' @section The `SpaDES.tools` package:
 #'
 #' Additional utilities for developing ecological simulation models.
-#' See \code{[SpaDES.tools]{SpaDES.tools-package}}.
+#' See [SpaDES.tools::SpaDES.tools-package].
 #'
 #' @section The `SpaDES.addins` package:
 #'

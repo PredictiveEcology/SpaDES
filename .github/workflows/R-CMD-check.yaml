@@ -1,70 +1,17 @@
+# Thin caller — shared logic lives in PredictiveEcology/actions (reusable workflow).
 on:
   push:
-    branches:
-      - master
-      - development
+    branches: [main, development]
   pull_request:
-    branches:
-      - master
-      - development
+    branches: [main, development]
 
 name: R-CMD-check
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   R-CMD-check:
-    if: "!contains(github.event.commits[0].message, '[skip-ci]')"
-    runs-on: ${{ matrix.config.os }}
-
-    name: ${{ matrix.config.os }} (${{ matrix.config.r }})
-
-    strategy:
-      fail-fast: false
-      matrix:
-        config:
-          - {os: macOS-latest,   nosuggests: false, r: 'release'}
-          - {os: windows-latest, nosuggests: false, r: 'devel'}
-          - {os: windows-latest, nosuggests: false, r: 'release'}
-          - {os: windows-latest, nosuggests: true,  r: 'release'}
-          - {os: windows-latest, nosuggests: false, r: 'oldrel/1'}
-          - {os: windows-latest, nosuggests: false, r: 'oldrel/2'}
-          - {os: ubuntu-latest,   nosuggests: false, r: 'devel'}
-          - {os: ubuntu-latest,   nosuggests: false, r: 'release'}
-          - {os: ubuntu-latest,   nosuggests: true,  r: 'release'}
-          - {os: ubuntu-latest,   nosuggests: false, r: 'oldrel/1'}
-          - {os: ubuntu-latest,   nosuggests: false, r: 'oldrel/2'}
-
-    env:
-      _R_CHECK_DEPENDS_ONLY_: ${{ matrix.config.nosuggests }}
-      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-      R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: r-lib/actions/setup-pandoc@v2
-
-      - uses: PredictiveEcology/actions/install-spatial-deps@v0.1
-
-      - uses: r-lib/actions/setup-r@v2
-        with:
-          Ncpus: 2
-          r-version: ${{ matrix.config.r }}
-          use-public-rspm: false
-
-      - uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          extra-packages: |
-            any::rcmdcheck
-            fastshp=?ignore
-            NLMR=?ignore
-          needs: check
-
-      - name: Install additional package dependencies
-        run: |
-          pak::pkg_install("ropensci/NLMR")
-          pak::pkg_install("s-u/fastshp")
-        shell: Rscript {0}
-
-      - uses: r-lib/actions/check-r-package@v2
-        with:
-          upload-snapshots: true
+    uses: PredictiveEcology/actions/.github/workflows/R-CMD-check.yaml@main
+    secrets: inherit

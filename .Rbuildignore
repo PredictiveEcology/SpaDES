@@ -18,3 +18,4 @@
 ^stickers$
 vignettes/.*_cache$
 vignettes/.*\.log$
+^CRAN-SUBMISSION$
