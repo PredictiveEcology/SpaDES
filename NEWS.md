@@ -1,6 +1,8 @@
 # SpaDES (development version)
 
 * renamed `master` branch as `main` (#366)
+* drop support for R 4.2: every package in `Imports` already requires R >= 4.3,
+  so SpaDES was not installable on 4.2 despite advertising it.
 
 # SpaDES v2.0.11
 
