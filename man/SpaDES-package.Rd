@@ -45,7 +45,7 @@ Wiki: \url{https://github.com/PredictiveEcology/SpaDES/wiki}
 
 
 The core discrete event simulation framework.
-See \code{[SpaDES.core]{SpaDES.core-package}}, and the vignettes therein
+See \link[SpaDES.core:SpaDES.core-package]{SpaDES.core::SpaDES.core-package}, and the vignettes therein
 (\code{browseVignettes()}).
 }
 
@@ -53,7 +53,7 @@ See \code{[SpaDES.core]{SpaDES.core-package}}, and the vignettes therein
 
 
 Additional utilities for developing ecological simulation models.
-See \code{[SpaDES.tools]{SpaDES.tools-package}}.
+See \link[SpaDES.tools:SpaDES.tools-package]{SpaDES.tools::SpaDES.tools-package}.
 }
 
 \section{The \code{SpaDES.addins} package}{
@@ -95,6 +95,7 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Alex M Chubaty \email{achubaty@for-cast.ca} (\href{https://orcid.org/0000-0001-7146-8135}{ORCID})
   \item Eliot J B McIntire \email{eliot.mcintire@nrcan-rncan.gc.ca} (\href{https://orcid.org/0000-0002-6914-8316}{ORCID})
 }
 
