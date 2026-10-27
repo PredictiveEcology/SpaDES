@@ -2,7 +2,7 @@
 
 ## Dependency changes
 
-* SpaDES now needs R >= 4.4 (was 4.3), the oldest R version its checks run on.
+* SpaDES now needs R >= 4.4 (was 4.3), the oldest R version its checks run on (#371).
 
 * renamed `master` branch as `main` (#366)
 * drop support for R 4.2: every package in `Imports` already requires R >= 4.3,
