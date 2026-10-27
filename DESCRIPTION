@@ -32,7 +32,7 @@ Authors@R: c(
            role = "cph")
     )
 Depends:
-    R (>= 4.3)
+    R (>= 4.4)
 Imports:
     methods,
     quickPlot (>= 1.0.2),
