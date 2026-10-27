@@ -1,5 +1,9 @@
 # SpaDES (development version)
 
+## Dependency changes
+
+* SpaDES now needs R >= 4.4 (was 4.3), the oldest R version its checks run on.
+
 * renamed `master` branch as `main` (#366)
 * drop support for R 4.2: every package in `Imports` already requires R >= 4.3,
   so SpaDES was not installable on 4.2 despite advertising it.
